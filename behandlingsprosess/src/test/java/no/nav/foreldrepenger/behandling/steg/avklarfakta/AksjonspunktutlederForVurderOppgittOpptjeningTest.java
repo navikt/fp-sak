@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederF
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwareTest {
+class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwareTest {
 
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(LocalDate.now()).build();
@@ -63,7 +63,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunktet_5051() {
+    void skal_ikke_opprette_aksjonspunktet_5051() {
         // Arrange
         var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
@@ -80,7 +80,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_vartpenger() {
+    void skal_opprette_aksjonspunkt_om_bruker_har_hatt_vartpenger() {
         // Arrange
         var behandling = opprettBehandling(ArbeidType.VENTELØNN_VARTPENGER);
 
@@ -92,7 +92,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_har_oppgitt_frilansperiode() {
+    void skal_opprette_aksjonspunkt_om_bruker_har_oppgitt_frilansperiode() {
         // Arrange
         var behandling = opprettBehandling(ArbeidType.FRILANSER);
 
@@ -104,7 +104,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_ventelønn() {
+    void skal_opprette_aksjonspunkt_om_bruker_har_hatt_ventelønn() {
         // Arrange
         var behandling = opprettBehandling(ArbeidType.VENTELØNN_VARTPENGER);
 
@@ -116,7 +116,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_militær_eller_siviltjeneste() {
+    void skal_opprette_aksjonspunkt_om_bruker_har_hatt_militær_eller_siviltjeneste() {
         // Arrange
         var behandling = opprettBehandling(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE);
 
@@ -128,7 +128,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_etterlønn_sluttvederlag() {
+    void skal_opprette_aksjonspunkt_om_bruker_har_hatt_etterlønn_sluttvederlag() {
         // Arrange
         var behandling = opprettBehandling(ArbeidType.ETTERLØNN_SLUTTPAKKE);
 
@@ -140,7 +140,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_videre_og_etterutdanning() {
+    void skal_opprette_aksjonspunkt_om_bruker_har_hatt_videre_og_etterutdanning() {
         // Arrange
         var behandling = opprettBehandling(ArbeidType.LØNN_UNDER_UTDANNING);
 
@@ -152,7 +152,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_ikke_hatt_næringsinntekt_eller_registrert_næringen_senere() {
+    void skal_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_ikke_hatt_næringsinntekt_eller_registrert_næringen_senere() {
         // Arrange
         var aktørId = AktørId.dummy();
         var behandling = opprettOppgittOpptjening(aktørId, false);
@@ -165,7 +165,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_bruker_har_utenlandsforhold() {
+    void skal_opprette_aksjonspunkt_om_bruker_har_utenlandsforhold() {
         // Arrange
         var aktørId = AktørId.dummy();
         var behandling = opprettUtenlandskArbeidsforhold(aktørId);
@@ -178,7 +178,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_ikke_hatt_næringsinntekt_og_registrert_næringen_senere() {
+    void skal_ikke_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_ikke_hatt_næringsinntekt_og_registrert_næringen_senere() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
@@ -213,7 +213,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_hatt_næringsinntekt() {
+    void skal_ikke_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_hatt_næringsinntekt() {
         // Arrange
         var aktørId = AktørId.dummy();
         var behandling = opprettOppgittOpptjening(aktørId, true);

@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-public class BehandlingModellEnkelTest {
+class BehandlingModellEnkelTest {
 
     private static final BehandlingStegType STEG_1 = BehandlingStegType.INNHENT_REGISTEROPP;
     private static final BehandlingStegType STEG_2 = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
@@ -33,7 +33,7 @@ public class BehandlingModellEnkelTest {
                     new TestStegKonfig(STEG_3, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE, dummyBehandlingSteg_3)));
 
     @Test
-    public void skal_bygge_behandlingskontroll_med_ett_steg() {
+    void skal_bygge_behandlingskontroll_med_ett_steg() {
         try (var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg)) {
             modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
 
@@ -46,7 +46,7 @@ public class BehandlingModellEnkelTest {
     }
 
     @Test
-    public void skal_bygge_behandlingskontroll_med_3_steg() {
+    void skal_bygge_behandlingskontroll_med_3_steg() {
         // Arrange
         try (var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg)) {
             modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);

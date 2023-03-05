@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class BehandlingsresultatRepositoryTest extends EntityManagerAwareTest {
+class BehandlingsresultatRepositoryTest extends EntityManagerAwareTest {
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private FagsakRepository fagsakRepository;
@@ -38,14 +38,14 @@ public class BehandlingsresultatRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void behandlingsresultat_som_ikke_finnes__gir_optional_empty() {
+    void behandlingsresultat_som_ikke_finnes__gir_optional_empty() {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(1234L);
 
         assertThat(behandlingsresultat).isEmpty();
     }
 
     @Test
-    public void skal_hente_behandlingsresultat_fra_vedtatt_behandling() {
+    void skal_hente_behandlingsresultat_fra_vedtatt_behandling() {
         var behandling = opprettVedtattBehandling();
 
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());

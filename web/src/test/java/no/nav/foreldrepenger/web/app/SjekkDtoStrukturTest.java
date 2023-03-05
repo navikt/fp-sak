@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public class SjekkDtoStrukturTest {
+class SjekkDtoStrukturTest {
     private static final Set<String> SKIPPED = Set.of("class", "kode");
 
     @ParameterizedTest

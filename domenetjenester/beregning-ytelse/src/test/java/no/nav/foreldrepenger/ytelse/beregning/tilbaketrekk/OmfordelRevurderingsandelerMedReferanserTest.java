@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class OmfordelRevurderingsandelerMedReferanserTest {
+class OmfordelRevurderingsandelerMedReferanserTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private static final LocalDate BEREGNINGSRESULTAT_PERIODE_TOM = SKJÆRINGSTIDSPUNKT.plusDays(33);
     private static final Arbeidsgiver ARBEIDSGIVER = Arbeidsgiver.virksomhet("900050001");
@@ -30,7 +30,7 @@ public class OmfordelRevurderingsandelerMedReferanserTest {
     }
 
     @Test
-    public void skal_teste_at_ingenting_fordeles_ved_ingen_endring() {
+    void skal_teste_at_ingenting_fordeles_ved_ingen_endring() {
         // Arrange
         var originaleAndeler = List.of(
                 lagAndel(true, 1500, REF1),
@@ -51,7 +51,7 @@ public class OmfordelRevurderingsandelerMedReferanserTest {
     }
 
     @Test
-    public void skal_teste_at_ingenting_fordeles_når_brukers_andel_øker() {
+    void skal_teste_at_ingenting_fordeles_når_brukers_andel_øker() {
         // Arrange
         var originaleAndeler = List.of(
                 lagAndel(true, 1500, REF1),
@@ -71,7 +71,7 @@ public class OmfordelRevurderingsandelerMedReferanserTest {
     }
 
     @Test
-    public void skal_teste_at_refordeling_skjer_når_bruker_mister_penger() {
+    void skal_teste_at_refordeling_skjer_når_bruker_mister_penger() {
         // Arrange
         var originaleAndeler = List.of(
                 lagAndel(true, 1500, REF1),

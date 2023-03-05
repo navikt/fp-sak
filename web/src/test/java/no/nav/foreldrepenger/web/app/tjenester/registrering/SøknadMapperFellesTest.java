@@ -47,7 +47,7 @@ import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskOrganisasjon
 import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
-public class SøknadMapperFellesTest {
+class SøknadMapperFellesTest {
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -61,7 +61,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void mapperBrukerBasertPåAktørIdOgBrukerrolle() {
+    void mapperBrukerBasertPåAktørIdOgBrukerrolle() {
         var navBruker = opprettBruker();
 
         var søker = ForeldreType.MOR;
@@ -73,7 +73,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapRelasjonTilBarnet_adopsjon() {
+    void test_mapRelasjonTilBarnet_adopsjon() {
         var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON, LocalDate.now(),
                 LocalDate.now().minusMonths(3), 1, LocalDate.now());
         manuellRegistreringEngangsstonadDto.setTema(FamilieHendelseType.ADOPSJON);
@@ -82,7 +82,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapRelasjonTilBarnet_fødsel_med_rettighet_knyttet_til_omsorgsovertakelse_satt() {
+    void test_mapRelasjonTilBarnet_fødsel_med_rettighet_knyttet_til_omsorgsovertakelse_satt() {
         var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.FØDSEL, LocalDate.now(),
                 LocalDate.now().minusMonths(3), 1, LocalDate.now());
         manuellRegistreringEngangsstonadDto.setTema(FamilieHendelseType.FØDSEL);
@@ -93,7 +93,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapAdopsjon() {
+    void test_mapAdopsjon() {
         final var omsorgsovertakelsesdato = LocalDate.now();
         final var fødselssdato = LocalDate.now().minusMonths(3);
         final var ankomstDato = LocalDate.now().minusDays(4);
@@ -111,7 +111,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapRelasjonTilBarnet_omsorg() {
+    void test_mapRelasjonTilBarnet_omsorg() {
         var manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, LocalDate.now(),
                 RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, 1, LocalDate.now());
         var søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
@@ -119,7 +119,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapOmsorg() {
+    void test_mapOmsorg() {
         final var omsorgsovertakelsesdato = LocalDate.now();
         final var fødselsdato = LocalDate.now().minusDays(10);
         final var antallBarn = 1;
@@ -136,7 +136,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapRelasjonTilBarnet_fødsel() {
+    void test_mapRelasjonTilBarnet_fødsel() {
         var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, true, LocalDate.now(), 1);
         var søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
@@ -144,7 +144,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapFødsel() {
+    void test_mapFødsel() {
         final var fødselssdato = LocalDate.now().minusMonths(3);
         final var antallBarn = 1;
 
@@ -157,7 +157,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapRelasjonTilBarnet_termin() {
+    void test_mapRelasjonTilBarnet_termin() {
         var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, false, LocalDate.now(), 1);
         var søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
@@ -165,7 +165,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapTermin() {
+    void test_mapTermin() {
         final var terminbekreftelseDato = LocalDate.now();
         final var termindato = LocalDate.now().plusMonths(3);
         final var antallBarn = 1;
@@ -182,7 +182,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapAnnenForelder() {
+    void test_mapAnnenForelder() {
         final var omsorgsovertakelsesdato = LocalDate.now();
         final var antallBarn = 1;
 
@@ -195,7 +195,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void testMapperMedlemskapFP_bareOppholdNorge() {
+    void testMapperMedlemskapFP_bareOppholdNorge() {
 
         var registreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
         registreringForeldrepengerDto.setMottattDato(LocalDate.now());
@@ -208,7 +208,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void testMapperMedlemskapFP_utenOppholdNorge() {
+    void testMapperMedlemskapFP_utenOppholdNorge() {
 
         var registreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
         registreringForeldrepengerDto.setHarFremtidigeOppholdUtenlands(true);
@@ -220,7 +220,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void testMapperMedlemskapFP_med_FremtidigUtenlandsopphold() {
+    void testMapperMedlemskapFP_med_FremtidigUtenlandsopphold() {
 
         var land = "FRA";
         LocalDate periodeFom = LocalDate.now().plusMonths(2), periodeTom = LocalDate.now().plusMonths(5);
@@ -257,7 +257,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void testMapperMedlemskapFP_med_TidligereUtenlandsopphold() {
+    void testMapperMedlemskapFP_med_TidligereUtenlandsopphold() {
 
         final var land = "FRA";
         LocalDate periodeFom = LocalDate.now().minusMonths(6), periodeTom = LocalDate.now().minusMonths(3);
@@ -293,19 +293,19 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapOpptjening_andreYtelser() {
+    void test_mapOpptjening_andreYtelser() {
         var annenOpptjenings = SøknadMapperFelles.mapAndreYtelser(opprettTestdataForAndreYtelser());
         assertThat(annenOpptjenings).as("Forventer en opptjening pr angitt ytelse.").hasSize(3);
     }
 
     @Test
-    public void test_mapOpptjening_andreYtelser_null() {
+    void test_mapOpptjening_andreYtelser_null() {
         var annenOpptjenings = SøknadMapperFelles.mapAndreYtelser(null);
         assertThat(annenOpptjenings).as("Forventer en opptjening pr angitt ytelse.").isEmpty();
     }
 
     @Test
-    public void test_mapEgenNæring() {
+    void test_mapEgenNæring() {
         var virksomhetDto = opprettNorskVirksomhetMedEndringUtenRegnskapsfører();
         var egenNaering = SøknadMapperFelles.mapEgenNæring(virksomhetDto, virksomhetTjeneste);
         assertThat(egenNaering).isNotNull();
@@ -314,7 +314,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapUtenlandskOrgEgenNæring() {
+    void test_mapUtenlandskOrgEgenNæring() {
         var virksomhetDto = opprettUtenlandskVirksomhetMedEndringUtenRegnskapsfører();
         var egenNaering = SøknadMapperFelles.mapEgenNæring(virksomhetDto, virksomhetTjeneste);
         assertThat(egenNaering).isNotNull();
@@ -328,7 +328,7 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapUtenlandskArbeidsforhold() {
+    void test_mapUtenlandskArbeidsforhold() {
 
         var periodeFom = LocalDate.now();
         var periodeTom = periodeFom.plusWeeks(10);
@@ -342,13 +342,13 @@ public class SøknadMapperFellesTest {
     }
 
     @Test
-    public void test_mapUtenlandskArbeidsforhold_null_liste() {
+    void test_mapUtenlandskArbeidsforhold_null_liste() {
         var arbeidsforhold = SøknadMapperFelles.mapAlleUtenlandskeArbeidsforhold(null);
         assertThat(arbeidsforhold).isEmpty();
     }
 
     @Test
-    public void test_mapUtenlandskArbeidsforhold_null_element_i_liste() {
+    void test_mapUtenlandskArbeidsforhold_null_element_i_liste() {
         var arbeidsforholdDto = new ArbeidsforholdDto();
         var arbeidsforhold = SøknadMapperFelles
                 .mapAlleUtenlandskeArbeidsforhold(Collections.singletonList(arbeidsforholdDto));

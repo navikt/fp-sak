@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftMannAdopter
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
+class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -37,7 +37,7 @@ public class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_mann_adopterer_alene() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_mann_adopterer_alene() {
         // Arrange
         var oppdatertMannAdoptererAlene = true;
 

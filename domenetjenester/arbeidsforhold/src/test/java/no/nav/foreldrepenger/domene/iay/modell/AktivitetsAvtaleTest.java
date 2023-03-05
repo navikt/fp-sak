@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class AktivitetsAvtaleTest {
+class AktivitetsAvtaleTest {
 
     @Test
-    public void testPeriodeNotEqual() {
+    void testPeriodeNotEqual() {
         var avtale1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 30))).build();
 
@@ -22,7 +22,7 @@ public class AktivitetsAvtaleTest {
     }
 
     @Test
-    public void testPeriodeEqual() {
+    void testPeriodeEqual() {
         var avtale1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 30))).build();
 

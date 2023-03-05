@@ -57,7 +57,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
+class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -110,7 +110,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_opprette_task_for_manuell_vurdering_av_endringssøknad_dersom_ingen_behandling_finnes_fra_før() {
+    void skal_opprette_task_for_manuell_vurdering_av_endringssøknad_dersom_ingen_behandling_finnes_fra_før() {
         //Arrange
         var fagsak = nyMorFødselFagsak();
         var fagsakId = fagsak.getId();
@@ -126,7 +126,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_opprette_revurdering_for_endringssøknad_dersom_siste_behandling_er_avsluttet() {
+    void skal_opprette_revurdering_for_endringssøknad_dersom_siste_behandling_er_avsluttet() {
         //Arrange
         var behandling = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -155,7 +155,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_behandling_med_endringssøknad_dersom_siste_behandling_er_åpen() {
+    void skal_oppdatere_behandling_med_endringssøknad_dersom_siste_behandling_er_åpen() {
         //Arrange
         var behandling = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -188,7 +188,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_behandling_med_endringssøknad_dersom_siste_behandling_er_åpen_og_berørt_i_mellomtiden() {
+    void skal_oppdatere_behandling_med_endringssøknad_dersom_siste_behandling_er_åpen_og_berørt_i_mellomtiden() {
         //Arrange
         var behandling = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -234,7 +234,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_dekøe_første_behandling_i_sakskompleks_dersom_endringssøknad_på_endringssøknad() {
+    void skal_dekøe_første_behandling_i_sakskompleks_dersom_endringssøknad_på_endringssøknad() {
         // Arrange - opprette førstegangsbehandling
         var behandling = ScenarioMorSøkerForeldrepenger
             .forFødsel()
@@ -279,7 +279,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_opprette_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
+    void skal_opprette_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
         // Arrange - opprette fagsak uten behandling
         var gammelbehandling = ScenarioMorSøkerForeldrepenger
             .forFødsel()
@@ -306,7 +306,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_ikke_opprette_køet_behandling_når_alle_henlagt() {
+    void skal_ikke_opprette_køet_behandling_når_alle_henlagt() {
         // Arrange - opprette fagsak uten behandling
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
             fagsakRepository, fagsakRelasjonRepository);
@@ -326,7 +326,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_finnes() {
+    void skal_oppdatere_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_finnes() {
         // Arrange - opprette køet behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING);
@@ -348,7 +348,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_henlegge_køet_behandling_dersom_endringssøknad_mottatt_tidligere() {
+    void skal_henlegge_køet_behandling_dersom_endringssøknad_mottatt_tidligere() {
         // Arrange - opprette køet behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medSøknadDato(LocalDate.now().minusDays(3))
             .medBehandlingType(BehandlingType.REVURDERING);
@@ -379,7 +379,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_mottatt_dokument_med_behandling_hvis_behandlig_er_på_vent() {
+    void skal_oppdatere_mottatt_dokument_med_behandling_hvis_behandlig_er_på_vent() {
         //Arrange
         var behandling = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -410,7 +410,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_opprette_vurder_dokument_oppgave_i_gosys_dersom_det_er_åpen_førstegangsbehandling() {
+    void skal_opprette_vurder_dokument_oppgave_i_gosys_dersom_det_er_åpen_førstegangsbehandling() {
         //Arrange
         var behandling = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -430,7 +430,7 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_opprette_vurder_dokument_oppgave_hvis_køet_førstegangsbehandling_mottar_endringssøknad() {
+    void skal_opprette_vurder_dokument_oppgave_hvis_køet_førstegangsbehandling_mottar_endringssøknad() {
         // Arrange - opprette køet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);

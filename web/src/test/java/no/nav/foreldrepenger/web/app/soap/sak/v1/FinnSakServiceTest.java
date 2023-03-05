@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @Execution(ExecutionMode.SAME_THREAD)
-public class FinnSakServiceTest extends EntityManagerAwareTest {
+class FinnSakServiceTest extends EntityManagerAwareTest {
 
     private FinnSakService finnSakService; // objektet vi tester
 
@@ -34,7 +34,7 @@ public class FinnSakServiceTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_konvertere_fagsak_for_engangsstønad_ved_fødsel_til_ekstern_representasjon() {
+    void skal_konvertere_fagsak_for_engangsstønad_ved_fødsel_til_ekstern_representasjon() {
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSaksnummer(new Saksnummer("1337"));
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -50,7 +50,7 @@ public class FinnSakServiceTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_konvertere_fagsak_for_engangsstønad_ved_adopsjon_til_ekstern_representasjon() {
+    void skal_konvertere_fagsak_for_engangsstønad_ved_adopsjon_til_ekstern_representasjon() {
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSaksnummer(new Saksnummer("1337"));
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
@@ -66,7 +66,7 @@ public class FinnSakServiceTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_konvertere_fagsak_uten_behandlinger_til_ekstern_representasjon() {
+    void skal_konvertere_fagsak_uten_behandlinger_til_ekstern_representasjon() {
         var navBruker = new NavBrukerBuilder()
                 .medAktørId(AktørId.dummy())
                 .medKjønn(NavBrukerKjønn.KVINNE)
@@ -84,7 +84,7 @@ public class FinnSakServiceTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_konvertere_svangerskapspenger_fagsak_uten_behandlinger_til_ekstern_representasjon() {
+    void skal_konvertere_svangerskapspenger_fagsak_uten_behandlinger_til_ekstern_representasjon() {
         var navBruker = new NavBrukerBuilder()
                 .medAktørId(AktørId.dummy())
                 .medKjønn(NavBrukerKjønn.KVINNE)

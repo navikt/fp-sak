@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.UttakOverstyringshåndterer;
 
 @CdiDbAwareTest
-public class UttakOverstyringshåndtererTest {
+class UttakOverstyringshåndtererTest {
 
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
     private static final String ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef().getReferanse();
@@ -66,7 +66,7 @@ public class UttakOverstyringshåndtererTest {
     }
 
     @Test
-    public void skalReturnereUtenOveropp() {
+    void skalReturnereUtenOveropp() {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(2);
         var aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()

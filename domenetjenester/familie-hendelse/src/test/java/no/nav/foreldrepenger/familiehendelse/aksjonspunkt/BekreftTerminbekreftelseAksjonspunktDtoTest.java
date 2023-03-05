@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 
-public class BekreftTerminbekreftelseAksjonspunktDtoTest {
+class BekreftTerminbekreftelseAksjonspunktDtoTest {
 
     @Test
-    public void test_av_json_mapping() {
+    void test_av_json_mapping() {
         var terminbekreftelseAksjonspunktDto = bekreftFødselAksjonspunktDto();
 
         var json = StandardJsonConfig.toJson(terminbekreftelseAksjonspunktDto);

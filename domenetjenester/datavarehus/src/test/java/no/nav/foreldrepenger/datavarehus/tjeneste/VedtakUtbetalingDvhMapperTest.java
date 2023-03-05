@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
-public class VedtakUtbetalingDvhMapperTest {
+class VedtakUtbetalingDvhMapperTest {
 
     public static final String XML = "xml";
 
@@ -24,7 +24,7 @@ public class VedtakUtbetalingDvhMapperTest {
 
 
     @Test
-    public void skal_mappe_til_VedtakUtbetalingDvh(){
+    void skal_mappe_til_VedtakUtbetalingDvh(){
         var behandling = byggBehandling();
         var vedtak = BehandlingVedtak.builder()
             .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)

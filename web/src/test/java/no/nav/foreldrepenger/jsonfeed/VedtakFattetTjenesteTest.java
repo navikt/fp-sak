@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 
 @ExtendWith(MockitoExtension.class)
-public class VedtakFattetTjenesteTest {
+class VedtakFattetTjenesteTest {
 
     private static final String PAYLOAD = "{}";
     private static final AktørId AKTØR_ID = AktørId.dummy();
@@ -44,7 +44,7 @@ public class VedtakFattetTjenesteTest {
     }
 
     @Test
-    public void skal_delegere_til_repository_metode_for_søk_fp_hendelser() {
+    void skal_delegere_til_repository_metode_for_søk_fp_hendelser() {
         var captor = ArgumentCaptor.forClass(HendelseCriteria.class);
         var hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
 
@@ -66,7 +66,7 @@ public class VedtakFattetTjenesteTest {
     }
 
     @Test
-    public void skal_delegere_til_repository_metode_for_søk_svp_hendelser() {
+    void skal_delegere_til_repository_metode_for_søk_svp_hendelser() {
         var captor = ArgumentCaptor.forClass(HendelseCriteria.class);
         var hendelse = mockSvpHendelse(SIST_LEST_SEKVENSID + 1);
 
@@ -88,7 +88,7 @@ public class VedtakFattetTjenesteTest {
     }
 
     @Test
-    public void hent_hendelser_skal_returnere_at_det_er_flere_hendelser_å_lese() {
+    void hent_hendelser_skal_returnere_at_det_er_flere_hendelser_å_lese() {
         var hendelse = mockFpHendelse(SIST_LEST_SEKVENSID + 1);
         var hendelse2 = mockFpHendelse(SIST_LEST_SEKVENSID + 2);
         when(feedRepository.hentUtgåendeHendelser(eq(FpVedtakUtgåendeHendelse.class), any(HendelseCriteria.class)))

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.dokumentbestiller.autopunkt.SendBrevForAutopunkt;
 
 @ExtendWith(MockitoExtension.class)
-public class SendBrevForAutopunktEventObserverTest {
+class SendBrevForAutopunktEventObserverTest {
 
     @Mock
     private Aksjonspunkt autopunktIngenSøknad;
@@ -79,7 +79,7 @@ public class SendBrevForAutopunktEventObserverTest {
     }
 
     @Test
-    public void skalIkkeSendeBrevForAndreAksjonspunkter() {
+    void skalIkkeSendeBrevForAndreAksjonspunkter() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt), null);
 
         observer.sendBrevForAutopunkt(event);
@@ -90,28 +90,28 @@ public class SendBrevForAutopunktEventObserverTest {
     }
 
     @Test
-    public void skalSendeBrevForSøknadIkkeMottatt() {
+    void skalSendeBrevForSøknadIkkeMottatt() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktIngenSøknad), null);
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForSøknadIkkeMottatt(any());
     }
 
     @Test
-    public void skalSendeBrevForTidligSøknad() {
+    void skalSendeBrevForTidligSøknad() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktTidligSøknad), null);
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForTidligSøknad(any());
     }
 
     @Test
-    public void skalSendeBrevForVenterFødsel() {
+    void skalSendeBrevForVenterFødsel() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktVentFødsel), null);
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForVenterPåFødsel(any(), any());
     }
 
     @Test
-    public void skalSendeBrevForEtterkontroll() {
+    void skalSendeBrevForEtterkontroll() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktEtterkontroll), null);
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForEtterkontroll(any());

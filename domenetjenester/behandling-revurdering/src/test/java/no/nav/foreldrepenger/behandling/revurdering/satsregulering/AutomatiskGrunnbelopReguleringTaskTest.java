@@ -50,7 +50,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(JpaExtension.class)
 @ExtendWith(MockitoExtension.class)
-public class AutomatiskGrunnbelopReguleringTaskTest {
+class AutomatiskGrunnbelopReguleringTaskTest {
 
     private static LocalDate TERMINDATO = LocalDate.now().plusWeeks(3);
     private static Beløp EKSISTERENDE_G = new Beløp(100000);
@@ -82,7 +82,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     @Test
-    public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
+    void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
@@ -123,7 +123,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     @Test
-    public void skal_ikke_opprette_revurdering_dersom_åpen_behandling_på_fagsak() {
+    void skal_ikke_opprette_revurdering_dersom_åpen_behandling_på_fagsak() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
@@ -137,7 +137,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     @Test
-    public void skal_køe_revurdering_dersom_åpen_berørt_på_fagsak() {
+    void skal_køe_revurdering_dersom_åpen_berørt_på_fagsak() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
@@ -158,7 +158,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     @Test
-    public void skal_ikke_opprette_revurdering_dersom_skal_ha_gammel_sats() {
+    void skal_ikke_opprette_revurdering_dersom_skal_ha_gammel_sats() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(2)).build());
@@ -177,7 +177,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     @Test
-    public void skal_opprette_revurdering_ved_manuell_oppretting() {
+    void skal_opprette_revurdering_ved_manuell_oppretting() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 

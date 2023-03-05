@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class AksjonspunktDvhEntityTest {
+class AksjonspunktDvhEntityTest {
 
     @Test
-    public void skal_bygge_instans_av_aksjonspunktDvh() {
+    void skal_bygge_instans_av_aksjonspunktDvh() {
         var aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
 
         assertThat(aksjonspunktDvh.getAksjonspunktDef()).isEqualTo(DatavarehusTestUtils.AKSJONSPUNKT_DEF);

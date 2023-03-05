@@ -20,7 +20,7 @@ class ArbeidsgiverHistorikkinnslagTest {
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
 
     @Test
-    public void skal_lage_navn_for_virksomhet() {
+    void skal_lage_navn_for_virksomhet() {
         var ag = Arbeidsgiver.virksomhet("999999999");
         var ref = InternArbeidsforholdRef.nyRef();
         when(arbeidsgiverTjeneste.hent(ag)).thenReturn(new ArbeidsgiverOpplysninger(ag.getIdentifikator(), "AG1"));

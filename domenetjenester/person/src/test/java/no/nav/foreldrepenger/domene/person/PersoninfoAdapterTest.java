@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 @ExtendWith(MockitoExtension.class)
-public class PersoninfoAdapterTest {
+class PersoninfoAdapterTest {
 
     @Mock
     private FødselTjeneste fødselTjeneste;
@@ -65,7 +65,7 @@ public class PersoninfoAdapterTest {
     }
 
     @Test
-    public void skal_innhente_saksopplysninger_for_søker() {
+    void skal_innhente_saksopplysninger_for_søker() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_SØKER);
 
         var søker = adapter.innhentPersonopplysningerFor(AKTØR_ID_SØKER).orElse(null);
@@ -76,7 +76,7 @@ public class PersoninfoAdapterTest {
     }
 
     @Test
-    public void skal_innhente_saksopplysninger_for_barn() {
+    void skal_innhente_saksopplysninger_for_barn() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_BARN);
 
         var barn = adapter.innhentPersonopplysningerFor(FNR_BARN);

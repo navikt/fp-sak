@@ -69,7 +69,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(JpaExtension.class)
-public class InntektsmeldingTjenesteTest {
+class InntektsmeldingTjenesteTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final EksternArbeidsforholdRef ARBEIDSFORHOLD_ID_EKSTERN = EksternArbeidsforholdRef.ref("1");
@@ -111,7 +111,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_vurdere_om_inntektsmeldinger_er_komplett() {
+    void skal_vurdere_om_inntektsmeldinger_er_komplett() {
         // Arrange
         var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
@@ -131,7 +131,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ta_hensyn_til_arbeidsforhold_med_inntekt() {
+    void skal_ta_hensyn_til_arbeidsforhold_med_inntekt() {
         // Arrange
         final var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
@@ -146,7 +146,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ta_hensyn_til_arbeidsforhold_uten_inntekt() {
+    void skal_ikke_ta_hensyn_til_arbeidsforhold_uten_inntekt() {
         // Arrange
         final var behandling = opprettBehandling();
         LØNNSPOST = BigDecimal.ZERO;
@@ -163,7 +163,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ta_hensyn_til_arbeidsforhold_ikke_gyldig_stp() {
+    void skal_ikke_ta_hensyn_til_arbeidsforhold_ikke_gyldig_stp() {
         // Arrange
         final var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
@@ -182,7 +182,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_utelate_inntektsmeldinger_som_er_mottatt_i_førstegangsbehandlingen_ved_revurdering() {
+    void skal_utelate_inntektsmeldinger_som_er_mottatt_i_førstegangsbehandlingen_ved_revurdering() {
 
         // Arrange
         var behandling = opprettBehandling();
@@ -211,7 +211,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_inntektsmeldinger_etter_gjeldende_behandling() {
+    void skal_finne_inntektsmeldinger_etter_gjeldende_behandling() {
         var arbId1 = ARBEIDSFORHOLD_ID_EKSTERN;
         var arbId2 = EksternArbeidsforholdRef.ref("2");
         var arbId3 = EksternArbeidsforholdRef.ref("2");
@@ -247,7 +247,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_fjerne_inntektsmelding_når_arbeidsforhold_blir_inaktivt() {
+    void skal_fjerne_inntektsmelding_når_arbeidsforhold_blir_inaktivt() {
         // Arrange
         var behandling = opprettBehandling();
         var skjæringstidspunktet = I_DAG.minusDays(1);
@@ -279,7 +279,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_fjerne_inntektsmelding_for_arbeidsforhold_som_tilkommer_etter_skjæringstidspunktet() {
+    void skal_ikke_fjerne_inntektsmelding_for_arbeidsforhold_som_tilkommer_etter_skjæringstidspunktet() {
         // Arrange
         var behandling = opprettBehandling();
         var skjæringstidspunktet = I_DAG.minusDays(1);
@@ -312,7 +312,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_fjerne_inntektsmelding_for_arbeidsforhold_som_ikke_har_vært_aktivt_i_opplysningsperioden() {
+    void skal_ikke_fjerne_inntektsmelding_for_arbeidsforhold_som_ikke_har_vært_aktivt_i_opplysningsperioden() {
         // Arrange
         var behandling = opprettBehandling();
         var skjæringstidspunktet = I_DAG.minusDays(1);
@@ -331,7 +331,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ta_med_eldre_inntektsmelding_startdato() {
+    void skal_ikke_ta_med_eldre_inntektsmelding_startdato() {
         // Arrange
         var behandling = opprettBehandling();
         var skjæringstidspunktet = I_DAG.minusDays(1);
@@ -353,7 +353,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ta_med_eldre_inntektsmelding() {
+    void skal_ikke_ta_med_eldre_inntektsmelding() {
         // Arrange
         var behandling = opprettBehandling();
         var skjæringstidspunktet = I_DAG.minusDays(1);

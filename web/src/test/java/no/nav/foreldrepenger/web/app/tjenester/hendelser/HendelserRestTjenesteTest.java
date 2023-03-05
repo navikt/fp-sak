@@ -39,7 +39,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class HendelserRestTjenesteTest {
+class HendelserRestTjenesteTest {
 
     private static final String HENDELSE_ID = "1337";
     private static final TaskType HENDELSE_TASK = TaskType.forProsessTask(KlargjørHendelseTask.class);
@@ -59,7 +59,7 @@ public class HendelserRestTjenesteTest {
     }
 
     @Test
-    public void skal_ta_imot_fødselshendelse_og_opprette_prosesstask() {
+    void skal_ta_imot_fødselshendelse_og_opprette_prosesstask() {
         var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         var fødselsdato = LocalDate.now();
         var hendelse = lagFødselHendelse(aktørIdForeldre, fødselsdato);
@@ -78,7 +78,7 @@ public class HendelserRestTjenesteTest {
     }
 
     @Test
-    public void skal_ta_imot_dødfødselhendelse_og_opprette_prosesstask() {
+    void skal_ta_imot_dødfødselhendelse_og_opprette_prosesstask() {
         var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         var dødfødseldato = LocalDate.now();
         var hendelse = lagDødfødselHendelse(aktørIdForeldre, dødfødseldato);
@@ -97,7 +97,7 @@ public class HendelserRestTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_opprette_prosess_task_når_hendelse_med_samme_uid_tidligere_er_mottatt() {
+    void skal_ikke_opprette_prosess_task_når_hendelse_med_samme_uid_tidligere_er_mottatt() {
         hendelsemottakRepository.registrerMottattHendelse(HENDELSE_ID);
         var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
         var fødselsdato = LocalDate.now();
@@ -108,7 +108,7 @@ public class HendelserRestTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_tom_liste_når_aktørId_ikke_er_registrert_eller_mangler_sak() {
+    void skal_returnere_tom_liste_når_aktørId_ikke_er_registrert_eller_mangler_sak() {
         when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(Collections.emptyList());
 
         var resultat = hendelserRestTjeneste.grovSorter(List.of(new AbacAktørIdDto("0000000000000")));
@@ -117,7 +117,7 @@ public class HendelserRestTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_liste_med_4_aktørIder_som_har_sak() {
+    void skal_returnere_liste_med_4_aktørIder_som_har_sak() {
         List<AktørId> harSak = new ArrayList<>(List.of(
                 AktørId.dummy(),
                 AktørId.dummy(),

@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
 
-public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
+class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG;
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
@@ -42,7 +42,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void bekrefter_aleneomsorg_ikke_totrinn() {
+    void bekrefter_aleneomsorg_ikke_totrinn() {
         // Arrange
         var oppdatertAleneOmsorg = true;
 
@@ -82,7 +82,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_aleneomsorg() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_aleneomsorg() {
         // Arrange
         var oppdatertAleneOmsorg = false;
 
@@ -122,7 +122,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_generere_dobbelt_historikkinnslag_ved_avklaring_av_aleneomsorg_og_ikke_rett() {
+    void skal_generere_dobbelt_historikkinnslag_ved_avklaring_av_aleneomsorg_og_ikke_rett() {
         // Arrange
         var oppdatertAleneOmsorg = false;
 
@@ -170,7 +170,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_generere_trippelt_historikkinnslag_ved_avklaring_av_aleneomsorg_og_ikke_rett() {
+    void skal_generere_trippelt_historikkinnslag_ved_avklaring_av_aleneomsorg_og_ikke_rett() {
         // Arrange
         var annenpart = AktørId.dummy();
         var oppdatertAleneOmsorg = false;

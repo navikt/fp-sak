@@ -93,7 +93,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_motta_hendelse_når_positiv_kvittering_ES() {
+    void skal_motta_hendelse_når_positiv_kvittering_ES() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_ES, PROSESSTASKID);
         lagOppdrag110(oppdrag, 1L, KodeFagområde.REFUTG, true, true, false);
@@ -113,7 +113,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_ikke_motta_hendelse_når_negativ_kvittering_ES() {
+    void skal_ikke_motta_hendelse_når_negativ_kvittering_ES() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_ES, PROSESSTASKID);
         lagOppdrag110(oppdrag, 1L, KodeFagområde.REFUTG, true, true, false);
@@ -133,7 +133,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_motta_hendelse_når_positiv_kvittering_FP() {
+    void skal_motta_hendelse_når_positiv_kvittering_FP() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
         var oppdragBruker = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
@@ -161,7 +161,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_kaste_exception_hvis_ingen_opp110_uten_kvittering_finnes_FP() {
+    void skal_kaste_exception_hvis_ingen_opp110_uten_kvittering_finnes_FP() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
 
@@ -179,7 +179,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_finne_riktig_oppdrag_hvis_to_med_identisk_fagsystemid_finnes_men_kun_en_uten_kvittering_FP() {
+    void skal_finne_riktig_oppdrag_hvis_to_med_identisk_fagsystemid_finnes_men_kun_en_uten_kvittering_FP() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
 
@@ -206,7 +206,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_kaste_exception_hvis_flere_opp110_med_samme_fagsystemId_uten_kvittering_finnes_FP() {
+    void skal_kaste_exception_hvis_flere_opp110_med_samme_fagsystemId_uten_kvittering_finnes_FP() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
         var oppdragBruker1 = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
@@ -225,7 +225,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_ikke_motta_hendelse_når_negativ_kvittering_FP() {
+    void skal_ikke_motta_hendelse_når_negativ_kvittering_FP() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
         var oppdragBruker = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
@@ -295,7 +295,7 @@ public class BehandleØkonomioppdragKvitteringTest {
     }
 
     @Test
-    public void skal_ikke_motta_hendelse_når_negativ_kvittering_bruker_og_arbeidsgiver_FP() {
+    void skal_ikke_motta_hendelse_når_negativ_kvittering_bruker_og_arbeidsgiver_FP() {
         // Arrange
         var oppdrag = oppdragskontrollUtenOppdrag(new Saksnummer("3500"), BEHANDLINGID_FP, PROSESSTASKID);
         var oppdragBruker = OppdragTestDataHelper.lagOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);

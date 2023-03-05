@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
-public class DokumentBehandlingTjenesteTest {
+class DokumentBehandlingTjenesteTest {
     private static final String VEDTAK_FRITEKST = "Begrunnelse";
 
     @Inject
@@ -53,21 +53,21 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_behandlingsfrist_fra_manuel() {
+    void skal_finne_behandlingsfrist_fra_manuel() {
         lagBehandling();
         assertThat(dokumentBehandlingTjeneste.finnNyFristManuelt(behandling.getType()))
                 .isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     @Test
-    public void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_ingen_terminbekreftelse() {
+    void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_ingen_terminbekreftelse() {
         lagBehandling();
         assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling))
                 .isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
 
     @Test
-    public void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse() {
+    void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse() {
         var fødselsdato = LocalDate.now().minusDays(3);
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
@@ -79,7 +79,7 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse_etter_ap() {
+    void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse_etter_ap() {
         var fødselsdato = LocalDate.now().plusDays(3);
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
@@ -93,7 +93,7 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse_i_fortiden() {
+    void skal_finne_behandlingsfrist_fra_manuelt_medlemskap_med_terminbekreftelse_i_fortiden() {
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));
@@ -109,14 +109,14 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_ny_frist() {
+    void skal_lagre_ny_frist() {
         behandling = scenario.lagre(repositoryProvider);
         dokumentBehandlingTjeneste.oppdaterBehandlingMedNyFrist(behandling, LocalDate.now());
         assertThat(behandlingRepository.hentBehandling(behandling.getId()).getBehandlingstidFrist()).isEqualTo(LocalDate.now());
     }
 
     @Test
-    public void skal_logge_i_repo_at_dokument_er_bestilt() {
+    void skal_logge_i_repo_at_dokument_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
 
@@ -131,7 +131,7 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_true_når_dokument_er_bestilt() {
+    void skal_returnere_true_når_dokument_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID());
@@ -141,7 +141,7 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_false_når_dokument_ikke_er_bestilt() {
+    void skal_returnere_false_når_dokument_ikke_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING, UUID.randomUUID());
@@ -151,7 +151,7 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_nullstille_vedtak_fritekst() {
+    void skal_nullstille_vedtak_fritekst() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
         var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
@@ -173,7 +173,7 @@ public class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_håndtere_at_det_ikke_finnes_behandling_dokument_ved_nullstilling_av_vedtak_fritekst() {
+    void skal_håndtere_at_det_ikke_finnes_behandling_dokument_ved_nullstilling_av_vedtak_fritekst() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
 

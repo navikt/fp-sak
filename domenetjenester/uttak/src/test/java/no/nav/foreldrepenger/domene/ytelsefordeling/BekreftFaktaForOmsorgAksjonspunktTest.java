@@ -11,14 +11,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class BekreftFaktaForOmsorgAksjonspunktTest {
+class BekreftFaktaForOmsorgAksjonspunktTest {
 
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     private final YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
 
     @Test
-    public void skal_lagre_ned_bekreftet_aksjonspunkt_omsorg() {
+    void skal_lagre_ned_bekreftet_aksjonspunkt_omsorg() {
         var behandling = opprettBehandling();
         // simulerer svar fra GUI
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandling.getId(), false);

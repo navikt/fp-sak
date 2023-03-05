@@ -58,7 +58,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderFagsystemTjenesteImplTest {
+class VurderFagsystemTjenesteImplTest {
 
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     @Mock
@@ -99,7 +99,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreManuellVurderingHvisBrukerIkkeHarSakIVlForUstrukturertDokument() {
+    void nesteStegSkalVæreManuellVurderingHvisBrukerIkkeHarSakIVlForUstrukturertDokument() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
 
@@ -111,7 +111,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertForsendelseSkalKnyttesTilBrukersNyesteÅpneSakHvisSlikFinnesOgJournalføres() {
+    void ustrukturertForsendelseSkalKnyttesTilBrukersNyesteÅpneSakHvisSlikFinnesOgJournalføres() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
@@ -144,7 +144,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertDokumentSkalKnyttesTilBrukersNyesteÅpneSakHvisSlikFinnesOgJournalføres() {
+    void ustrukturertDokumentSkalKnyttesTilBrukersNyesteÅpneSakHvisSlikFinnesOgJournalføres() {
         var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
@@ -167,7 +167,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertDokumentSkalTilManuellJournalføringHvisIngenÅpenSak() {
+    void ustrukturertDokumentSkalTilManuellJournalføringHvisIngenÅpenSak() {
         var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
@@ -189,7 +189,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertForsendelseSkalKnyttesTilBrukersNyesteÅpneSakHvisUspesifikk() {
+    void ustrukturertForsendelseSkalKnyttesTilBrukersNyesteÅpneSakHvisUspesifikk() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
@@ -207,7 +207,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisNyesteAvsluttedeSakErNyereEnn3mndOgÅpenSakIkkeFinnes() {
+    void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisNyesteAvsluttedeSakErNyereEnn3mndOgÅpenSakIkkeFinnes() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
@@ -237,7 +237,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void klageSkalSendesTilManuellBehandlingHvisIngenSaker() {
+    void klageSkalSendesTilManuellBehandlingHvisIngenSaker() {
         var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
 
@@ -254,7 +254,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void klageSkalSendesTilManuellBehandlingHvisFlereSaker() {
+    void klageSkalSendesTilManuellBehandlingHvisFlereSaker() {
         var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
 
@@ -280,7 +280,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void klageSkalSendesFordelesTilNyesteHvisFlereSakerOgKunEnNyere() {
+    void klageSkalSendesFordelesTilNyesteHvisFlereSakerOgKunEnNyere() {
         var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
 
@@ -307,7 +307,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void klageMedBehandlingTemaSkalFordelesHvisFlereSakerMedUlikYtelse() {
+    void klageMedBehandlingTemaSkalFordelesHvisFlereSakerMedUlikYtelse() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
 
@@ -328,7 +328,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertSøknadSkalSendesTilManuellBehandlingHvisIngenSaker() {
+    void ustrukturertSøknadSkalSendesTilManuellBehandlingHvisIngenSaker() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
@@ -345,7 +345,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisÅpenSakIkkeFinnesOgAvsluttedeSakerErEldreEnn3mndOgNyereEnn10Mnd() {
+    void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisÅpenSakIkkeFinnesOgAvsluttedeSakerErEldreEnn3mndOgNyereEnn10Mnd() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
@@ -370,7 +370,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nyVLSakSkalOpprettesForUstrukturertSøknadDersomBrukerIkkerHarÅpenSakNyesteAvsluttedeSakErEldreEnn10mnd() {
+    void nyVLSakSkalOpprettesForUstrukturertSøknadDersomBrukerIkkerHarÅpenSakNyesteAvsluttedeSakErEldreEnn10mnd() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
@@ -391,7 +391,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreInfotrygdDersomEksisterendeSakerGjelderAnnetBehandlingTema() {
+    void nesteStegSkalVæreInfotrygdDersomEksisterendeSakerGjelderAnnetBehandlingTema() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_ADOPSJON, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON);
 
@@ -416,7 +416,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreHentOgVurderInfotrygdHvisPassendeSakIkkeFinnesForStukturertDokument() {
+    void nesteStegSkalVæreHentOgVurderInfotrygdHvisPassendeSakIkkeFinnesForStukturertDokument() {
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
@@ -425,7 +425,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreOpprettGSakOppgaveHvisMerEnnEnSakPasserForStukturertDokument() {
+    void nesteStegSkalVæreOpprettGSakOppgaveHvisMerEnnEnSakPasserForStukturertDokument() {
         var terminDatdato = LocalDate.of(2017, 7, 1);
 
         var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
@@ -448,7 +448,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreTilJournalføringeHvisAkkurattEnÅpenSakPasserForStukturertDokument() {
+    void nesteStegSkalVæreTilJournalføringeHvisAkkurattEnÅpenSakPasserForStukturertDokument() {
         var terminDatdato = LocalDate.of(2017, 7, 1);
 
         var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
@@ -471,7 +471,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreVLMedSnrHvisAkkurattEnÅpenSakUtenBehandlingPasserForStukturertDokument() {
+    void nesteStegSkalVæreVLMedSnrHvisAkkurattEnÅpenSakUtenBehandlingPasserForStukturertDokument() {
         var terminDatdato = LocalDate.of(2017, 7, 1);
 
         var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
@@ -489,7 +489,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVLMedSNRHvisEnSakMedLukketBehandlingSakPasserForStukturertDokument() {
+    void nesteStegSkalVLMedSNRHvisEnSakMedLukketBehandlingSakPasserForStukturertDokument() {
         var terminDatdato = LocalDate.of(2017, 7, 1);
 
         var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
@@ -513,7 +513,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreHentÅVurderInfotrygdSakHvisIngenSakPasserForStukturertDokument() {
+    void nesteStegSkalVæreHentÅVurderInfotrygdSakHvisIngenSakPasserForStukturertDokument() {
 
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
@@ -526,7 +526,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreHentOgVurderInfotrygdSakHvisBrukerHarSakIVLMenDenIkkePasserForStukturertDokument() {
+    void nesteStegSkalVæreHentOgVurderInfotrygdSakHvisBrukerHarSakIVLMenDenIkkePasserForStukturertDokument() {
 
         var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
@@ -547,7 +547,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereTrueNårFagÅrsakTypeErUdefinertOgBehandlingTemaErForeldrePenger() {
+    void skalReturnereTrueNårFagÅrsakTypeErUdefinertOgBehandlingTemaErForeldrePenger() {
         var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
@@ -558,7 +558,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereInfotrygdBehandlingNårIngenÅpneSakerFinnesPåBrukerForEngangsstønad() {
+    void skalReturnereInfotrygdBehandlingNårIngenÅpneSakerFinnesPåBrukerForEngangsstønad() {
         var fagsystem = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD, true);
         fagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 

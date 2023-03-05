@@ -84,7 +84,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
-public class FastsettePerioderRegelGrunnlagByggerTest {
+class FastsettePerioderRegelGrunnlagByggerTest {
 
     private UttakRepositoryProvider repositoryProvider;
     private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -114,7 +114,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     @Test
-    public void oppgittPeriodeSkalFåRiktigArbeidsprosent() {
+    void oppgittPeriodeSkalFåRiktigArbeidsprosent() {
         var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),
             InternArbeidsforholdRef.nyRef().getReferanse());
 
@@ -157,7 +157,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     @Test
-    public void skalLeggeTilFlereGraderteAktiviteterIUttakPeriodeVedFlereGraderteAktiviterISammeVirksomhet() {
+    void skalLeggeTilFlereGraderteAktiviteterIUttakPeriodeVedFlereGraderteAktiviterISammeVirksomhet() {
         var orgnr = new Orgnummer(OrgNummer.KUNSTIG_ORG);
         var aktivitet1 = AktivitetIdentifikator.forArbeid(orgnr, InternArbeidsforholdRef.nyRef().getReferanse());
         var aktivitet2 = AktivitetIdentifikator.forArbeid(orgnr, InternArbeidsforholdRef.nyRef().getReferanse());
@@ -218,7 +218,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     @Test
-    public void skalLeggeTilGradertFrilansUtenOrgnrISøknadSomGradertPeriode() {
+    void skalLeggeTilGradertFrilansUtenOrgnrISøknadSomGradertPeriode() {
         var orgnr = new Orgnummer(OrgNummer.KUNSTIG_ORG);
 
         var fom = LocalDate.now();
@@ -253,7 +253,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     @Test
-    public void gradertArbeidsforholdArbeidstakerMedSamtUgradertFrilansSkalBareGiEnGradertAktivitet() {
+    void gradertArbeidsforholdArbeidstakerMedSamtUgradertFrilansSkalBareGiEnGradertAktivitet() {
         var orgnr = new Orgnummer(OrgNummer.KUNSTIG_ORG);
 
         var fom = LocalDate.now();
@@ -305,7 +305,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     @Test
-    public void mapperAnnenPartsUttaksperioder() {
+    void mapperAnnenPartsUttaksperioder() {
         // Arrange - mors behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var fødselsdato = LocalDate.of(2018, 5, 14);
@@ -439,7 +439,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     @Test
-    public void testeSamtidigUttak() {
+    void testeSamtidigUttak() {
         var orgnr1 = new Orgnummer(OrgNummer.KUNSTIG_ORG);
         var aktivitet = AktivitetIdentifikator.forArbeid(orgnr1, InternArbeidsforholdRef.nyRef().getReferanse());
 

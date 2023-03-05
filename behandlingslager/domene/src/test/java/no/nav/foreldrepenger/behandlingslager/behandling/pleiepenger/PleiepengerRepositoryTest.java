@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class PleiepengerRepositoryTest extends EntityManagerAwareTest {
+class PleiepengerRepositoryTest extends EntityManagerAwareTest {
 
     private static final LocalDate I_GÅR = LocalDate.now().minusDays(1);
     private static final LocalDate OM_TO_DAGER = LocalDate.now().plusDays(2);
@@ -35,12 +35,12 @@ public class PleiepengerRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnere_empty_ved_manglende_grunnlag() {
+    void skal_returnere_empty_ved_manglende_grunnlag() {
         assertThat(repository.hentGrunnlag(999L)).isEmpty();
     }
 
     @Test
-    public void skal_lagre_og_finne_grunnlag() {
+    void skal_lagre_og_finne_grunnlag() {
         var fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var behandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
         var perioder = lagInnleggelsePerioder(I_GÅR);
@@ -53,7 +53,7 @@ public class PleiepengerRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_beholde_grunnlag_hvis_uendret() {
+    void skal_beholde_grunnlag_hvis_uendret() {
         var fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var behandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
         var perioder = lagInnleggelsePerioder(I_GÅR);
@@ -70,7 +70,7 @@ public class PleiepengerRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_nytt_grunnlag_hvis_endret() {
+    void skal_lagre_nytt_grunnlag_hvis_endret() {
         var fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var behandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
         var perioder = lagInnleggelsePerioder(I_GÅR);
@@ -89,7 +89,7 @@ public class PleiepengerRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kopiere_grunnlaget_og_sette_kopiert_flagget() {
+    void skal_kopiere_grunnlaget_og_sette_kopiert_flagget() {
         // Arrange
         var fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var gammelBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);

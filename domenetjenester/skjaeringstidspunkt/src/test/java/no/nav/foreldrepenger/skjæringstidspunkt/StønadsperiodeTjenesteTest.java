@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 
 @ExtendWith(MockitoExtension.class)
-public class StønadsperiodeTjenesteTest {
+class StønadsperiodeTjenesteTest {
 
     @Mock
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -63,7 +63,7 @@ public class StønadsperiodeTjenesteTest {
     }
 
     @Test
-    public void skal_finne_stønadsperiode_svp() {
+    void skal_finne_stønadsperiode_svp() {
         // Arrange
         var skjæringsdato = LocalDate.now().minusDays(10);
 
@@ -92,7 +92,7 @@ public class StønadsperiodeTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_innvilget_periode_ved_enkeltperson_sak() {
+    void skal_returnere_innvilget_periode_ved_enkeltperson_sak() {
         // Arrange
         var skjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now().minusDays(30));
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
@@ -133,7 +133,7 @@ public class StønadsperiodeTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_stp_periode_ved_tidlig_fødsel_og_ikke_søkt_fra_start() {
+    void skal_returnere_stp_periode_ved_tidlig_fødsel_og_ikke_søkt_fra_start() {
         // Arrange
         var skjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now().minusDays(30));
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(2);
@@ -175,7 +175,7 @@ public class StønadsperiodeTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_første_uttak_ved_adopsjon_og_senere_start() {
+    void skal_returnere_første_uttak_ved_adopsjon_og_senere_start() {
         // Arrange
         var skjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now().minusDays(30));
         var uttaksdato = skjæringsdato.plusWeeks(2);
@@ -216,7 +216,7 @@ public class StønadsperiodeTjenesteTest {
 
 
     @Test
-    public void skal_returnere_hele_innvilget_periode_ved_toperson_sak() {
+    void skal_returnere_hele_innvilget_periode_ved_toperson_sak() {
         // Arrange
         var skjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now().minusDays(30));
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);

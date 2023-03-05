@@ -27,14 +27,14 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.vedtak.exception.TekniskException;
 
 @CdiDbAwareTest
-public class RevurderingEndringTest {
+class RevurderingEndringTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private LegacyESBeregningRepository beregningRepository;
 
     @Test
-    public void erRevurderingMedUendretUtfall() {
+    void erRevurderingMedUendretUtfall() {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
         var revurderingTjeneste = tjeneste();
 
@@ -51,7 +51,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void erRevurderingMedUendretUtfallEksplittBehandlingstype() {
+    void erRevurderingMedUendretUtfallEksplittBehandlingstype() {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
         var revurderingEndring = new RevurderingEndringImpl(repositoryProvider.getBehandlingRepository(),
             beregningRepository, repositoryProvider.getBehandlingsresultatRepository());
@@ -70,7 +70,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void erRevurderingMedEndretAntallBarn() {
+    void erRevurderingMedEndretAntallBarn() {
         var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.INNVILGET);
         var revurderingTjeneste = tjeneste();
 
@@ -87,7 +87,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void erRevurderingDerBeggeErAvslått() {
+    void erRevurderingDerBeggeErAvslått() {
         var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.AVSLÅTT);
         var revurderingTjeneste = tjeneste();
 
@@ -104,7 +104,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void skal_gi_false_dersom_behandling_ikke_er_revurdering() {
+    void skal_gi_false_dersom_behandling_ikke_er_revurdering() {
         var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.AVSLÅTT);
         var revurderingTjeneste = tjeneste();
 
@@ -112,7 +112,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void skal_gi_feil_dersom_revurdering_ikke_har_original_behandling() {
+    void skal_gi_feil_dersom_revurdering_ikke_har_original_behandling() {
         var behandlingsresultat = Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
@@ -137,7 +137,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void erRevurderingMedEndretResultatFraInnvilgetTilAvslått() {
+    void erRevurderingMedEndretResultatFraInnvilgetTilAvslått() {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
         var revurderingTjeneste = tjeneste();
 
@@ -152,7 +152,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void erRevurderingMedEndretResultatFraAvslåttTilInnvilget() {
+    void erRevurderingMedEndretResultatFraAvslåttTilInnvilget() {
         var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.AVSLÅTT);
         var revurderingTjeneste = tjeneste();
 

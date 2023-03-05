@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class FastsettUttaksgrunnlagTjenesteTest {
+class FastsettUttaksgrunnlagTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = new EndringsdatoFørstegangsbehandlingUtleder(repositoryProvider.getYtelsesFordelingRepository());
@@ -39,7 +39,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
             mock(EndringsdatoRevurderingUtlederImpl.class));
 
     @Test
-    public void skal_kopiere_søknadsperioder_fra_forrige_behandling_hvis_forrige_behandling_ikke_har_uttaksresultat() {
+    void skal_kopiere_søknadsperioder_fra_forrige_behandling_hvis_forrige_behandling_ikke_har_uttaksresultat() {
 
         var førsteUttaksdato = LocalDate.now();
         var periode = OppgittPeriodeBuilder.ny()
@@ -90,7 +90,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_opprinnelig_endringsdato() {
+    void skal_lagre_opprinnelig_endringsdato() {
 
         var førsteUttaksdato = LocalDate.now();
         var periode = OppgittPeriodeBuilder.ny()
@@ -114,7 +114,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void skal_beholde_overstyrt_dersom_uendret_justering() {
+    void skal_beholde_overstyrt_dersom_uendret_justering() {
 
         var førsteUttaksdato = LocalDate.now();
         var periode = OppgittPeriodeBuilder.ny()
@@ -147,7 +147,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void skal_fjerne_overstyrt_dersom_endret_justering() {
+    void skal_fjerne_overstyrt_dersom_endret_justering() {
 
         var førsteUttaksdato = LocalDate.now();
         var periode = OppgittPeriodeBuilder.ny()
@@ -183,7 +183,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_forskyve_søknadsperioder_hvis_både_termin_og_fødsel_er_oppgitt_i_søknad() {
+    void skal_ikke_forskyve_søknadsperioder_hvis_både_termin_og_fødsel_er_oppgitt_i_søknad() {
         var søknadFom = LocalDate.of(2019, 7, 31);
         var periode = OppgittPeriodeBuilder.ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
@@ -207,7 +207,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void sammenhengende_uttak_skal_fjerne_oppholdsperioder_på_slutten_av_fordelingen() {
+    void sammenhengende_uttak_skal_fjerne_oppholdsperioder_på_slutten_av_fordelingen() {
         var søknadFom = LocalDate.of(2019, 7, 31);
         var periode1 = OppgittPeriodeBuilder.ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
@@ -250,7 +250,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void adopsjon_uten_justering_men_oppdatere_mottatt_dato() {
+    void adopsjon_uten_justering_men_oppdatere_mottatt_dato() {
         var søknadFom = LocalDate.of(2019, 7, 31);
         var søknadMottatt = søknadFom.plusMonths(5);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
@@ -284,7 +284,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    public void skal_fjerne_oppholdsperioder() {
+    void skal_fjerne_oppholdsperioder() {
         var søknadFom = LocalDate.of(2019, 7, 31);
         var periode1 = OppgittPeriodeBuilder.ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))

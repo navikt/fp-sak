@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Aksjonspu
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringFødselvilkåretFarMedmorDto;
 
 @CdiDbAwareTest
-public class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
+class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -36,7 +36,7 @@ public class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
     private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Test
-    public void skal_generere_historikkinnslag_om_resultat_fødsel_far_medmor_er_overstyrt() {
+    void skal_generere_historikkinnslag_om_resultat_fødsel_far_medmor_er_overstyrt() {
         // Arrange
         // Behandling
         var oppgittPeriode = OppgittPeriodeBuilder.ny()

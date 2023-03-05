@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class OpprettSakTjenesteTest {
+class OpprettSakTjenesteTest {
 
     @Mock
     private NavBrukerTjeneste brukerTjeneste;
@@ -48,7 +48,7 @@ public class OpprettSakTjenesteTest {
     }
 
     @Test
-    public void opprett_sak_for_foreldrepenger() {
+    void opprett_sak_for_foreldrepenger() {
         var fagsak = opprettSakTjeneste.opprettSakVL(aktørId, FagsakYtelseType.FORELDREPENGER,
             new JournalpostId(1001L));
 
@@ -56,7 +56,7 @@ public class OpprettSakTjenesteTest {
     }
 
     @Test
-    public void opprett_sak_for_svangerskapspenger() {
+    void opprett_sak_for_svangerskapspenger() {
         var fagsak = opprettSakTjeneste.opprettSakVL(aktørId, FagsakYtelseType.SVANGERSKAPSPENGER,
             new JournalpostId(1001L));
 

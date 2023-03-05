@@ -21,10 +21,10 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
-public class InngangsvilkårOpptjeningTest {
+class InngangsvilkårOpptjeningTest {
 
     @Test
-    public void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case1() {
+    void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case1() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait-1.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
@@ -44,7 +44,7 @@ public class InngangsvilkårOpptjeningTest {
     }
 
     @Test
-    public void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case2() {
+    void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case2() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
@@ -64,7 +64,7 @@ public class InngangsvilkårOpptjeningTest {
     }
 
     @Test
-    public void test_beregn_opptjening_fra_periode_over_mndskifte_avslag_case2() {
+    void test_beregn_opptjening_fra_periode_over_mndskifte_avslag_case2() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-deny.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
@@ -84,7 +84,7 @@ public class InngangsvilkårOpptjeningTest {
     }
 
     @Test
-    public void test_aktivitet_første_og_siste() {
+    void test_aktivitet_første_og_siste() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-broken.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
@@ -106,7 +106,7 @@ public class InngangsvilkårOpptjeningTest {
     }
 
     @Test
-    public void test_beregn_opptjening_nok_aktivitet() {
+    void test_beregn_opptjening_nok_aktivitet() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-ok.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 

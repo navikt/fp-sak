@@ -37,12 +37,12 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
-public class TapteDagerFpffTjenesteTest {
+class TapteDagerFpffTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
-    public void skal_ikke_ha_tapte_dager_ved_søknad_på_termin() {
+    void skal_ikke_ha_tapte_dager_ved_søknad_på_termin() {
         var søktFpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
@@ -67,7 +67,7 @@ public class TapteDagerFpffTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_regne_tapte_dager_hvis_søknad_på_fødsel_med_termindato() {
+    void skal_ikke_regne_tapte_dager_hvis_søknad_på_fødsel_med_termindato() {
         var søktFpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
@@ -93,7 +93,7 @@ public class TapteDagerFpffTjenesteTest {
     }
 
     @Test
-    public void skal_regne_tapte_dager_hvis_søknad_på_termindato_med_fødselshendelse() {
+    void skal_regne_tapte_dager_hvis_søknad_på_termindato_med_fødselshendelse() {
         var søktFpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
@@ -122,7 +122,7 @@ public class TapteDagerFpffTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_kunne_tape_flere_dager_enn_maksdager() {
+    void skal_ikke_kunne_tape_flere_dager_enn_maksdager() {
         var søktFpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
@@ -151,7 +151,7 @@ public class TapteDagerFpffTjenesteTest {
     }
 
     @Test
-    public void ingen_tapte_dager_ut_ifra_gjeldendefødselshendelse() {
+    void ingen_tapte_dager_ut_ifra_gjeldendefødselshendelse() {
         var søktFpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
@@ -181,7 +181,7 @@ public class TapteDagerFpffTjenesteTest {
     }
 
     @Test
-    public void tapte_dager_ut_ifra_gjeldendefødselshendelse() {
+    void tapte_dager_ut_ifra_gjeldendefødselshendelse() {
         var søktFpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager
@@ -223,7 +223,7 @@ public class TapteDagerFpffTjenesteTest {
     }
 
     @Test
-    public void skal_regne_tapte_dager_hvis_søknad_på_termindato_og_revurdering_med_fødselshendelse() {
+    void skal_regne_tapte_dager_hvis_søknad_på_termindato_og_revurdering_med_fødselshendelse() {
         var søktFpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             //15 virkedager

@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.A
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Avstemmingsdata;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.KildeType;
 
-public class GrensesnittavstemmingMapperTest {
+class GrensesnittavstemmingMapperTest {
 
     private static final int MAKS_AVSTEMMING_MELDING_BYTES = 32000;
 
@@ -78,7 +78,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testStartmeldingXML() {
+    void testStartmeldingXML() {
         // Arrange
         // Act
         var melding = grensesnittavstemmingMapper.lagStartmelding();
@@ -89,7 +89,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testDatameldingXML() {
+    void testDatameldingXML() {
         // Arrange
         // Act
         var meldinger = grensesnittavstemmingMapper.lagDatameldinger();
@@ -154,7 +154,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testDatameldingXMLvedStoreDatamengder() {
+    void testDatameldingXMLvedStoreDatamengder() {
         // Arrange
         setupForStoreDatamengder(KodeFagområde.FPREF);
         // Act
@@ -169,7 +169,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testSluttmeldingXML() {
+    void testSluttmeldingXML() {
         // Arrange
         // Act
         var melding = grensesnittavstemmingMapper.lagSluttmelding();
@@ -180,7 +180,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testStartmeldingInnhold() {
+    void testStartmeldingInnhold() {
         // Arrange
         // Act
         var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataFelles(AksjonType.START);
@@ -189,7 +189,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testDatameldingInnhold() {
+    void testDatameldingInnhold() {
         // Arrange
         // Act
         var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
@@ -199,7 +199,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testSluttmeldingInnhold() {
+    void testSluttmeldingInnhold() {
         // Arrange
         // Act
         var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataFelles(AksjonType.AVSL);
@@ -208,7 +208,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testDatameldingVedStoreDatamengder() {
+    void testDatameldingVedStoreDatamengder() {
         // Arrange
         var kodeFagområde = KodeFagområde.REFUTG;
         setupForStoreDatamengder(kodeFagområde);
@@ -222,7 +222,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testAtSisteDataHarInnslag() {
+    void testAtSisteDataHarInnslag() {
         // Arrange
         setupForStørreDatamengder(KodeFagområde.FP);
         // Act
@@ -232,7 +232,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testForFlereOppdrag110MedForskjelligeFagområder() {
+    void testForFlereOppdrag110MedForskjelligeFagområder() {
         // Arrange
         opprettOppdragMedFlereOppdrag110ForForskjelligeFagområder();
         // Act
@@ -243,7 +243,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     @Test
-    public void testForFlereOppdrag110ForSammeOppdragskontroll() {
+    void testForFlereOppdrag110ForSammeOppdragskontroll() {
         //Arrange
         oppdragsliste = new ArrayList<>();
         var lavAvstemmingsDato = LocalDateTime.of(2018, 10, 25, 0, 0, 1);

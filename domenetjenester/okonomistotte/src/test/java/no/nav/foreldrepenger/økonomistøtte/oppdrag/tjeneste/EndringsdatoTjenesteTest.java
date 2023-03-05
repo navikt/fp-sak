@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 
-public class EndringsdatoTjenesteTest {
+class EndringsdatoTjenesteTest {
 
     LocalDate nå = LocalDate.of(2020, 11, 23);
     Periode p1 = Periode.of(nå, nå.plusDays(5));
@@ -33,7 +33,7 @@ public class EndringsdatoTjenesteTest {
     Periode p2Slutt = Periode.of(p2Start.getTom().plusDays(1), p2.getTom());
 
     @Test
-    public void skal_ikke_finne_endringsdato_ved_likhet() {
+    void skal_ikke_finne_endringsdato_ved_likhet() {
         var y0 = Ytelse.builder().build();
         var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
@@ -55,7 +55,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_i_start_av_periode() {
+    void skal_finne_endringsdato_i_start_av_periode() {
         var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
@@ -72,7 +72,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_i_starten() {
+    void skal_finne_endringsdato_i_starten() {
         var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
@@ -88,7 +88,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_finne_endringsdato_i_periode() {
+    void skal_finne_endringsdato_i_periode() {
         var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
@@ -105,7 +105,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_ignorere_helger_for_satstype_dagsats() {
+    void skal_ignorere_helger_for_satstype_dagsats() {
         var forrigeSøndag = LocalDate.of(2020, 11, 22);
         var mandag = forrigeSøndag.plusDays(1);
         var fredag = mandag.plusDays(4);
@@ -123,7 +123,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_finne_differanse_ved_endringer_i_dagytelse_i_tilknytning_til_helg() {
+    void skal_finne_differanse_ved_endringer_i_dagytelse_i_tilknytning_til_helg() {
         var forrigeSøndag = LocalDate.of(2020, 11, 22);
         var mandag = forrigeSøndag.plusDays(1);
         var lørdag = mandag.plusDays(5);
@@ -148,7 +148,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_noen_endringsdato_når_det_ikke_er_noen_endringer() {
+    void skal_ikke_finne_noen_endringsdato_når_det_ikke_er_noen_endringer() {
         var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
         var målbilde = GruppertYtelse.TOM;
         var tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
@@ -156,7 +156,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag() {
+    void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag() {
         var nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
         var nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
 
@@ -178,7 +178,7 @@ public class EndringsdatoTjenesteTest {
     }
 
     @Test
-    public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag_for_revurdering() {
+    void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag_for_revurdering() {
         var nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
         var nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
 

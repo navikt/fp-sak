@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class FødselForretningshendelseHåndtererESTest {
+class FødselForretningshendelseHåndtererESTest {
 
     private ForretningshendelseHåndtererFelles håndtererFelles;
     private FødselForretningshendelseHåndtererImpl håndterer;
@@ -76,7 +76,7 @@ public class FødselForretningshendelseHåndtererESTest {
     }
 
     @Test
-    public void skal_ta_av_vent_når_hendelse_er_fødsel_mangler_registrering() {
+    void skal_ta_av_vent_når_hendelse_er_fødsel_mangler_registrering() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
@@ -91,7 +91,7 @@ public class FødselForretningshendelseHåndtererESTest {
     }
 
     @Test
-    public void skal_ignorere_når_hendelse_er_fødsel_allerede_registrert() {
+    void skal_ignorere_når_hendelse_er_fødsel_allerede_registrert() {
         // Arrange
         var fødselsdato = LocalDate.now().minusDays(2);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -118,7 +118,7 @@ public class FødselForretningshendelseHåndtererESTest {
     }
 
     @Test
-    public void skal_opprette_revurdering_ved_ulik_sats() {
+    void skal_opprette_revurdering_ved_ulik_sats() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
@@ -137,7 +137,7 @@ public class FødselForretningshendelseHåndtererESTest {
     }
 
     @Test
-    public void skal_ikke_opprette_revurdering_ved_samme_sats() {
+    void skal_ikke_opprette_revurdering_ved_samme_sats() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
@@ -156,7 +156,7 @@ public class FødselForretningshendelseHåndtererESTest {
     }
 
     @Test
-    public void skal_opprette_revurdering_ved_opprinnelig_avslag() {
+    void skal_opprette_revurdering_ved_opprinnelig_avslag() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);
@@ -175,7 +175,7 @@ public class FødselForretningshendelseHåndtererESTest {
     }
 
     @Test
-    public void skal_ikke_opprette_revurdering_ved_sen_registrering() {
+    void skal_ikke_opprette_revurdering_ved_sen_registrering() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(2)).medAntallBarn(1);

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderFagsystemFellesTjenesteTest {
+class VurderFagsystemFellesTjenesteTest {
 
     private VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste;
     @Mock
@@ -38,7 +38,7 @@ public class VurderFagsystemFellesTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_vl_med_saknsummer_hvis_journalpost_allerede_er_journaltført_på_vl_sak() {
+    void skal_returnere_vl_med_saknsummer_hvis_journalpost_allerede_er_journaltført_på_vl_sak() {
         var vurderFagsystem = new VurderFagsystem();
         vurderFagsystem.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         var journalpostId = new JournalpostId(123L);

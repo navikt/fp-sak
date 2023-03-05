@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class FpUttakRepositoryTest extends EntityManagerAwareTest {
+class FpUttakRepositoryTest extends EntityManagerAwareTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
 
@@ -35,7 +35,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void hentOpprinneligUttakResultat() {
+    void hentOpprinneligUttakResultat() {
         //Arrange
         var fom = LocalDate.now();
         var tom = fom.plusMonths(3);
@@ -66,7 +66,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kunne_endre_opprinnelig_flere_ganger_uten_å_feile_pga_unikhetssjekk_for_aktiv() {
+    void skal_kunne_endre_opprinnelig_flere_ganger_uten_å_feile_pga_unikhetssjekk_for_aktiv() {
         var uttakResultat1 = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(),
             LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
         var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, LocalDate.now(),
@@ -90,7 +90,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void hentOverstyrtUttakResultat() {
+    void hentOverstyrtUttakResultat() {
         //Arrange
         var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,
             LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
@@ -126,7 +126,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void endringAvOverstyrtSkalResultereINyttUttakResultatMedSammeOpprinnelig() {
+    void endringAvOverstyrtSkalResultereINyttUttakResultatMedSammeOpprinnelig() {
         var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, LocalDate.now(),
             LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
         var overstyrt1 = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT, LocalDate.now(),
@@ -146,7 +146,7 @@ public class FpUttakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void utbetalingsgradOgArbeidstidsprosentSkalHa2Desimaler() {
+    void utbetalingsgradOgArbeidstidsprosentSkalHa2Desimaler() {
         //Arrange
         var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,
             LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER,

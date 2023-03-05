@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
 @ExtendWith(MockitoExtension.class)
-public class TilbakekrevingRestTjenesteTest {
+class TilbakekrevingRestTjenesteTest {
 
     @Mock
     private BehandlingRepository behandlingRepository;
@@ -45,7 +45,7 @@ public class TilbakekrevingRestTjenesteTest {
     }
 
     @Test
-    public void skal_hentTilbakekrevingValg_når_tilbakekrevingsvalg_finnes() {
+    void skal_hentTilbakekrevingValg_når_tilbakekrevingsvalg_finnes() {
         when(tilbakekrevingRepository.hent(Mockito.any()))
                 .thenReturn(Optional.of(TilbakekrevingValg.medMulighetForInntrekk(true, true, TilbakekrevingVidereBehandling.INNTREKK)));
         var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
@@ -55,7 +55,7 @@ public class TilbakekrevingRestTjenesteTest {
     }
 
     @Test
-    public void skal_feil_hentTilbakekrevingValg_når_tilbakekrevingsvalg_ikke_finnes() {
+    void skal_feil_hentTilbakekrevingValg_når_tilbakekrevingsvalg_ikke_finnes() {
         when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(Optional.empty());
         var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
                 .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
@@ -63,7 +63,7 @@ public class TilbakekrevingRestTjenesteTest {
     }
 
     @Test
-    public void skal_hente_varseltekst_ved_henting_av_tilbakekrevingsvalg() {
+    void skal_hente_varseltekst_ved_henting_av_tilbakekrevingsvalg() {
         var forventetVarselTekst = "varseltekst her";
         when(tilbakekrevingRepository.hent(Mockito.any()))
                 .thenReturn(Optional.of(TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.INNTREKK, forventetVarselTekst)));

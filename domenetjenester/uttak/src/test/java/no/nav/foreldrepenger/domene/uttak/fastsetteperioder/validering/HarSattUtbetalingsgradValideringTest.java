@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
-public class HarSattUtbetalingsgradValideringTest {
+class HarSattUtbetalingsgradValideringTest {
 
     @Test
-    public void ok_når_utbetalingsgrad_er_satt_og_opprinnelig_periode_er_manuell() {
+    void ok_når_utbetalingsgrad_er_satt_og_opprinnelig_periode_er_manuell() {
         var opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
         var nye = perioder(PeriodeResultatType.INNVILGET, new Utbetalingsgrad(50));
 
@@ -30,7 +30,7 @@ public class HarSattUtbetalingsgradValideringTest {
     }
 
     @Test
-    public void ok_når_utbetalingsgrad_er_satt_og_opprinnelig_periode_er_ikke_manuell() {
+    void ok_når_utbetalingsgrad_er_satt_og_opprinnelig_periode_er_ikke_manuell() {
         var opprinnelig = perioder(PeriodeResultatType.INNVILGET, null);
         var nye = perioder(PeriodeResultatType.INNVILGET, null);
 
@@ -39,7 +39,7 @@ public class HarSattUtbetalingsgradValideringTest {
     }
 
     @Test
-    public void ikke_ok_når_utbetalingsgrad_mangler_og_opprinnelig_periode_er_manuell() {
+    void ikke_ok_når_utbetalingsgrad_mangler_og_opprinnelig_periode_er_manuell() {
         var opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
         var nye = perioder(PeriodeResultatType.INNVILGET, null);
 

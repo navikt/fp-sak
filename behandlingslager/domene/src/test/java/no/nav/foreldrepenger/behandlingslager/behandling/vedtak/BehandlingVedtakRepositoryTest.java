@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
+class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingRepository behandlingRepository;
@@ -38,7 +38,7 @@ public class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalLagreVedtak() {
+    void skalLagreVedtak() {
         // Arrange
         var behandling = opprettBehandling();
         var behandlingVedtak = opprettBehandlingVedtak(behandling);
@@ -55,7 +55,7 @@ public class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalLagreOgHenteVedtak() {
+    void skalLagreOgHenteVedtak() {
         // Arrange
         var behandling = opprettBehandling();
         var behandlingVedtak = opprettBehandlingVedtak(behandling);

@@ -57,7 +57,7 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurder
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
-public class ErSisteUttakAvslåttMedÅrsakTest {
+class ErSisteUttakAvslåttMedÅrsakTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String ORGNR = KUNSTIG_ORG;
 
@@ -113,7 +113,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
     }
 
     @Test
-    public void skal_teste_at_alle_opphørsårsaker_gir_opphør_på_behandlingen() {
+    void skal_teste_at_alle_opphørsårsaker_gir_opphør_på_behandlingen() {
         PeriodeResultatÅrsak.opphørsAvslagÅrsaker().forEach(opphørsårsak -> {
             // Arrange
             var uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(opphørsårsak);
@@ -130,7 +130,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
     }
 
     @Test
-    public void skal_sjekke_at_siste_periode_ikke_gir_opphør_når_det_ikke_er_avslått_med_opphørsårsak() {
+    void skal_sjekke_at_siste_periode_ikke_gir_opphør_når_det_ikke_er_avslått_med_opphørsårsak() {
         // Arrange
         var uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(
                 PeriodeResultatÅrsak.UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT);

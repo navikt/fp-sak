@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class VedtakEntityTest {
+class VedtakEntityTest {
 
     private BehandlingVedtak.Builder vedtakBuilder;
     private BehandlingVedtak vedtak;
@@ -27,7 +27,7 @@ public class VedtakEntityTest {
     }
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter() {
+    void skal_bygge_instans_med_påkrevde_felter() {
         vedtak = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(vedtak.getVedtakstidspunkt()).isEqualTo(VEDTAKSDATO);
@@ -36,7 +36,7 @@ public class VedtakEntityTest {
     }
 
     @Test
-    public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
+    void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
 
         // mangler vedtaksdato
         assertThatThrownBy(() -> vedtakBuilder.build())
@@ -57,7 +57,7 @@ public class VedtakEntityTest {
     }
 
     @Test
-    public void skal_ha_refleksiv_equalsOgHashCode() {
+    void skal_ha_refleksiv_equalsOgHashCode() {
         vedtakBuilder = lagBuilderMedPaakrevdeFelter();
         vedtak = vedtakBuilder.build();
         vedtak2 = vedtakBuilder.build();
@@ -72,7 +72,7 @@ public class VedtakEntityTest {
     }
 
     @Test
-    public void skal_bruke_vedtaksdato_i_equalsOgHashCode() {
+    void skal_bruke_vedtaksdato_i_equalsOgHashCode() {
         vedtakBuilder = lagBuilderMedPaakrevdeFelter();
         vedtak = vedtakBuilder.build();
         vedtakBuilder.medVedtakstidspunkt(LocalDateTime.now().plus(1, ChronoUnit.DAYS));
@@ -83,7 +83,7 @@ public class VedtakEntityTest {
     }
 
     @Test
-    public void skal_bruke_ansvarligSaksbehandler_i_equalsOgHashCode() {
+    void skal_bruke_ansvarligSaksbehandler_i_equalsOgHashCode() {
         vedtakBuilder = lagBuilderMedPaakrevdeFelter();
         vedtak = vedtakBuilder.build();
         vedtakBuilder.medAnsvarligSaksbehandler("Jostein Hansen");
@@ -94,7 +94,7 @@ public class VedtakEntityTest {
     }
 
     @Test
-    public void skal_bruke_vedtakResultatType_i_equalsOgHashCode() {
+    void skal_bruke_vedtakResultatType_i_equalsOgHashCode() {
         vedtakBuilder = lagBuilderMedPaakrevdeFelter();
         vedtak = vedtakBuilder.build();
         vedtakBuilder.medVedtakResultatType(VedtakResultatType.AVSLAG);

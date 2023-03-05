@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
-public class IverksetteInnsynVedtakStegFellesTest {
+class IverksetteInnsynVedtakStegFellesTest {
 
     @Test
-    public void skalBestilleVedtaksbrev() {
+    void skalBestilleVedtaksbrev() {
         var scenario = innsynsScenario();
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -40,7 +40,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
     }
 
     @Test
-    public void skalDefaulteFritekstTilMellomrom() {
+    void skalDefaulteFritekstTilMellomrom() {
         var scenario = innsynsScenario();
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -59,7 +59,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
     }
 
     @Test
-    public void skalBrukeBegrunnelseFraAksjonspunktSomFritekst() {
+    void skalBrukeBegrunnelseFraAksjonspunktSomFritekst() {
         var begrunnelse = "begrunnelse!!";
         var scenario = innsynsScenario(begrunnelse);
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);

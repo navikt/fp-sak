@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(JpaExtension.class)
-public class BeregningsresultatRepositoryTest {
+class BeregningsresultatRepositoryTest {
 
     private static final String ORGNR = "55";
     private static final AktørId ARBEIDSGIVER_AKTØR_ID = AktørId.dummy();
@@ -44,7 +44,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreOgHentBeregningsresultatFPAggregat() {
+    void lagreOgHentBeregningsresultatFPAggregat() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
@@ -60,7 +60,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETIkkeEksisterer() {
+    void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETIkkeEksisterer() {
         // Arrange
         var behandling = opprettBehandling();
         var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
@@ -75,7 +75,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETEksisterer() {
+    void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETEksisterer() {
         // Arrange
         var behandling = opprettBehandling();
         var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
@@ -94,7 +94,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreOgHenteBeregningsresultatFP() {
+    void lagreOgHenteBeregningsresultatFP() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
@@ -113,7 +113,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreOgHenteUtbetBeregningsresultatFP() {
+    void lagreOgHenteUtbetBeregningsresultatFP() {
         // Arrange
         var behandling = opprettBehandling();
         var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
@@ -135,7 +135,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreOgHenteBeregningsresultatFPMedPrivatpersonSomArbeidsgiver() {
+    void lagreOgHenteBeregningsresultatFPMedPrivatpersonSomArbeidsgiver() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsresultat = buildBeregningsresultatFP(true, LocalDate.now());
@@ -163,7 +163,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreBeregningsresultatFPOgUnderliggendeTabellerMedEndringsdatoLikDagensDato() {
+    void lagreBeregningsresultatFPOgUnderliggendeTabellerMedEndringsdatoLikDagensDato() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
@@ -191,7 +191,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreBeregningsresultatFPOgUnderliggendeTabellerMedTomEndringsdato() {
+    void lagreBeregningsresultatFPOgUnderliggendeTabellerMedTomEndringsdato() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsresultat = buildBeregningsresultatFP(false);
@@ -219,7 +219,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void lagreBeregningsresultatFPOgFeriepenger() {
+    void lagreBeregningsresultatFPOgFeriepenger() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
@@ -272,7 +272,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void toBehandlingerKanHaSammeBeregningsresultatFP() {
+    void toBehandlingerKanHaSammeBeregningsresultatFP() {
         // Arrange
         var behandling = opprettBehandling();
         var behandling2 = opprettBehandling();
@@ -294,7 +294,7 @@ public class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    public void slettBeregningsresultatFPOgKobling() {
+    void slettBeregningsresultatFPOgKobling() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());

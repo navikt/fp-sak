@@ -6,10 +6,10 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-public class FamilieHendelseEntitetTest {
+class FamilieHendelseEntitetTest {
 
     @Test
-    public void skal_rapportere_at_hendelse_omhandler_døde_barn_ved_forekomst_av_dødsdato() {
+    void skal_rapportere_at_hendelse_omhandler_døde_barn_ved_forekomst_av_dødsdato() {
         final var builder = FamilieHendelseBuilder.ny(HendelseVersjonType.BEKREFTET);
 
         builder.leggTilBarn(LocalDate.now(), LocalDate.now().plusDays(1));
@@ -22,7 +22,7 @@ public class FamilieHendelseEntitetTest {
     }
 
     @Test
-    public void skal_rapportere_at_hendelse_omhandler_døfødt_barn_ved_dødsdato_er_lik_fødselsdato() {
+    void skal_rapportere_at_hendelse_omhandler_døfødt_barn_ved_dødsdato_er_lik_fødselsdato() {
         final var builder = FamilieHendelseBuilder.ny(HendelseVersjonType.BEKREFTET);
 
         builder.leggTilBarn(LocalDate.now());

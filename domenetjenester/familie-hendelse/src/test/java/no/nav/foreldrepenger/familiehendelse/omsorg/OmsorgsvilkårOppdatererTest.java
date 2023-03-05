@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(MockitoExtension.class)
-public class OmsorgsvilkårOppdatererTest {
+class OmsorgsvilkårOppdatererTest {
 
     private HistorikkInnslagTekstBuilder tekstBuilder;
     @Mock
@@ -45,7 +45,7 @@ public class OmsorgsvilkårOppdatererTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_omsorgsvilkår() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_omsorgsvilkår() {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
@@ -81,7 +81,7 @@ public class OmsorgsvilkårOppdatererTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_foreldreansvar_andre_ledd_vilkår() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_foreldreansvar_andre_ledd_vilkår() {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD,
@@ -115,7 +115,7 @@ public class OmsorgsvilkårOppdatererTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_foreldreansvar_fjerde_ledd_vilkår() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_foreldreansvar_fjerde_ledd_vilkår() {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD,

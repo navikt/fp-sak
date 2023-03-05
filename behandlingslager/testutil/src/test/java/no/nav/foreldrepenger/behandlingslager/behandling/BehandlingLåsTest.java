@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class BehandlingLåsTest extends EntityManagerAwareTest {
+class BehandlingLåsTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
     private EntityManager entityManager;
@@ -24,7 +24,7 @@ public class BehandlingLåsTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_behandling_gitt_id() {
+    void skal_finne_behandling_gitt_id() {
         var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(new Saksnummer("299999")).build();
         entityManager.persist(fagsak.getNavBruker());
         entityManager.persist(fagsak);

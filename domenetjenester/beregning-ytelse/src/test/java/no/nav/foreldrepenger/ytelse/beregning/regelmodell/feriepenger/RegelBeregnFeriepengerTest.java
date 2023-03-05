@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arb
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
 
-public class RegelBeregnFeriepengerTest {
+class RegelBeregnFeriepengerTest {
 
     private Arbeidsforhold arbeidsforhold1 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("123456789");
     private Arbeidsforhold arbeidsforhold2 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("987654321");
@@ -30,7 +30,7 @@ public class RegelBeregnFeriepengerTest {
 
     // Eksempel 1 Mor
     @Test
-    public void skalBeregneFeriepengerForMor() {
+    void skalBeregneFeriepengerForMor() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
         byggAndelerForPeriode(periode1, 350, 600, arbeidsforhold1);
@@ -82,7 +82,7 @@ public class RegelBeregnFeriepengerTest {
 
     // Eksempel 1X Mor med avslag i første periode
     @Test
-    public void skalBeregneFeriepengerForMorMedAvslagIFørstePeriode() {
+    void skalBeregneFeriepengerForMorMedAvslagIFørstePeriode() {
         var periode0 = byggBRPeriode(LocalDate.of(2018, 1, 5), LocalDate.of(2018, 1, 5));
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
@@ -142,7 +142,7 @@ public class RegelBeregnFeriepengerTest {
 
     // Eksempel 1 Far
     @Test
-    public void skalBeregneFeriepengerForFar() {
+    void skalBeregneFeriepengerForFar() {
         // Arrange
         var periode1annenPart = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
@@ -188,7 +188,7 @@ public class RegelBeregnFeriepengerTest {
 
     // Eksempel 2 Mor
     @Test
-    public void skalBeregneFeriepengerForMorEksempel2() {
+    void skalBeregneFeriepengerForMorEksempel2() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 17), LocalDate.of(2018, 3, 20));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 3, 28));
         var periode3 = byggBRPeriode(LocalDate.of(2018, 3, 29), LocalDate.of(2018, 4, 8));
@@ -244,7 +244,7 @@ public class RegelBeregnFeriepengerTest {
 
     // Eksempel 2 Far
     @Test
-    public void skalBeregneFeriepengerForFarEksempel2() {
+    void skalBeregneFeriepengerForFarEksempel2() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 4, 15));
         byggAndelerForPeriode(periode1, 150, 400, arbeidsforhold1);
 
@@ -288,7 +288,7 @@ public class RegelBeregnFeriepengerTest {
     }
 
     @Test
-    public void skalBeregneFeriepengerOverFlereÅr() {
+    void skalBeregneFeriepengerOverFlereÅr() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 11, 1), LocalDate.of(2019, 1, 5)); // 47 ukedager
         var periode2 = byggBRPeriode(LocalDate.of(2019, 1, 6), LocalDate.of(2019, 2, 5)); // 22 ukedager
         var periode3 = byggBRPeriode(LocalDate.of(2019, 2, 6), LocalDate.of(2019, 4, 16)); // 50 ukedager
@@ -336,7 +336,7 @@ public class RegelBeregnFeriepengerTest {
     }
 
     @Test
-    public void skalBeregneFeriepengerUtenAnnenpart() {
+    void skalBeregneFeriepengerUtenAnnenpart() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 11, 1), LocalDate.of(2018, 12, 31)); // 43 ukedager
         byggAndelerForPeriode(periode1, 1000, 0, arbeidsforhold1);
 
@@ -366,7 +366,7 @@ public class RegelBeregnFeriepengerTest {
     }
 
     @Test
-    public void skalBeregneFeriepengerPeriodeForSvangerskapspenger() {
+    void skalBeregneFeriepengerPeriodeForSvangerskapspenger() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 5, 1));
         byggAndelerForPeriode(periode1, 700, 500, arbeidsforhold1);
@@ -398,7 +398,7 @@ public class RegelBeregnFeriepengerTest {
     }
 
     @Test
-    public void skalIkkeBeregneFeriepengerPeriodeForSvangerskapspengerSN() {
+    void skalIkkeBeregneFeriepengerPeriodeForSvangerskapspengerSN() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 5, 1));
         byggSNAndelForPeriode(periode1, 700);
@@ -426,7 +426,7 @@ public class RegelBeregnFeriepengerTest {
     }
 
     @Test
-    public void skalIkkeBeregneFeriepengerPeriodeForSvangerskapspengerSNTilkommetAT() {
+    void skalIkkeBeregneFeriepengerPeriodeForSvangerskapspengerSNTilkommetAT() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 7, 1));
         byggSNAndelForPeriode(periode1, 700);
@@ -456,7 +456,7 @@ public class RegelBeregnFeriepengerTest {
 
     // Skal beregne feriepenger fom tilkommet AT-andel
     @Test
-    public void skalBeregneFeriepengerPeriodeForSvangerskapspengerATSNmedSNførAT() {
+    void skalBeregneFeriepengerPeriodeForSvangerskapspengerATSNmedSNførAT() {
         var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
         var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 7, 1));
         byggSNAndelForPeriode(periode1, 700);

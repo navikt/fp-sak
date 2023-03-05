@@ -32,11 +32,11 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class VedtaksperiodeFilterTest {
+class VedtaksperiodeFilterTest {
 
 
     @Test
-    public void skalBeholdeSøknadsperioderDersomEtterUttak() {
+    void skalBeholdeSøknadsperioderDersomEtterUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -69,7 +69,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void skalFiltrereVekkTidligSøknadsperiodeDersomHeltLikUttak() {
+    void skalFiltrereVekkTidligSøknadsperiodeDersomHeltLikUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -108,7 +108,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void skalBeholdeSøknadsperiodeDersomHeltLikUttak() {
+    void skalBeholdeSøknadsperiodeDersomHeltLikUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -140,7 +140,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void skalBeholdeAlleSøknadsperiodeDersomHullVedEndring() {
+    void skalBeholdeAlleSøknadsperiodeDersomHullVedEndring() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -178,7 +178,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void skalBeholdeSøknadsperiodeDersomVedtakErLengerEnnSøknad() {
+    void skalBeholdeSøknadsperiodeDersomVedtakErLengerEnnSøknad() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -210,7 +210,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void skalAvkorteSøknadsperiodeDersomStrekkerSegForbiInnvilgetUttak() {
+    void skalAvkorteSøknadsperiodeDersomStrekkerSegForbiInnvilgetUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -247,7 +247,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void leggerInnUtsettelseOgSenereUttak() {
+    void leggerInnUtsettelseOgSenereUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
         var utsattFom = LocalDate.of(2022, 11, 1);
@@ -295,7 +295,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void utviderPeriodeUtenUttakOgLeggerTilSenereUttak() {
+    void utviderPeriodeUtenUttakOgLeggerTilSenereUttak() {
         var fom0 = LocalDate.of(2022, 10, 4);
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
@@ -345,7 +345,7 @@ public class VedtaksperiodeFilterTest {
     }
 
     @Test
-    public void prod_overstyrt_uttak_utsettelse_med_konto() {
+    void prod_overstyrt_uttak_utsettelse_med_konto() {
         var fom = LocalDate.of(2022, 1, 3);
         var fom0 = LocalDate.of(2022, 1, 10);
         var tom = LocalDate.of(2022, 6, 10);

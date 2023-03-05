@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
-public class BehandleNegativeKvitteringTjenesteTest {
+class BehandleNegativeKvitteringTjenesteTest {
 
     private final static TaskType TASKTYPE = new TaskType("iverksetteVedtak.oppdragTilØkonomi"); //TODO deps
     private final static Long BEHANDLING_ID = 100010010L;
@@ -32,7 +32,7 @@ public class BehandleNegativeKvitteringTjenesteTest {
     }
 
     @Test
-    public void skal_nullstille_hendelse() {
+    void skal_nullstille_hendelse() {
         var taskData = lagØkonomioppragTaskPåVent();
 
         when(taskTjeneste.finn(taskData.getId())).thenReturn(taskData);
@@ -47,7 +47,7 @@ public class BehandleNegativeKvitteringTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_IllegalStateException_hvis_task_finnes_ikke() {
+    void skal_kaste_IllegalStateException_hvis_task_finnes_ikke() {
         var thrown = Assertions.assertThrows(
             IllegalStateException.class,
             () -> tjeneste.nullstilleØkonomioppdragTask(0L));

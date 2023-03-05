@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(JpaExtension.class)
-public class KunYtelseHistorikkTjenesteTest {
+class KunYtelseHistorikkTjenesteTest {
 
     private static final Long ANDELSNR = 1L;
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -72,7 +72,7 @@ public class KunYtelseHistorikkTjenesteTest {
     }
 
     @Test
-    public void skal_lage_historikk_for_andel_som_eksisterte_fra_før_i_grunnlag_ved_første_utførelse_av_aksjonspunkt() {
+    void skal_lage_historikk_for_andel_som_eksisterte_fra_før_i_grunnlag_ved_første_utførelse_av_aksjonspunkt() {
         // Arrange
         var nyAndel = false;
         var lagtTilAvSaksbehandler = false;
@@ -95,7 +95,7 @@ public class KunYtelseHistorikkTjenesteTest {
     }
 
     @Test
-    public void skal_lage_historikk_for_andel_som_eksisterte_fra_før_i_grunnlag_med_fastsatt_lik_overstyrt_i_forrige_utførelse_av_aksonspunkt() {
+    void skal_lage_historikk_for_andel_som_eksisterte_fra_før_i_grunnlag_med_fastsatt_lik_overstyrt_i_forrige_utførelse_av_aksonspunkt() {
         // Arrange
         var nyAndel = false;
         var lagtTilAvSaksbehandler = false;

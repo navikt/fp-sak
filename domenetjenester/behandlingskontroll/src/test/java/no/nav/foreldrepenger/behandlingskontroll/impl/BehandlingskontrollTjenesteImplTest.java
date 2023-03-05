@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class BehandlingskontrollTjenesteImplTest {
+class BehandlingskontrollTjenesteImplTest {
 
     private BehandlingskontrollTjenesteImpl kontrollTjeneste;
     private final BehandlingskontrollEventPublisererForTest eventPubliserer = new BehandlingskontrollEventPublisererForTest();
@@ -66,7 +66,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_rykke_tilbake_til_inngang_vurderingspunkt_av_steg() {
+    void skal_rykke_tilbake_til_inngang_vurderingspunkt_av_steg() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -93,7 +93,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_rykke_tilbake_til_utgang_vurderingspunkt_av_steg() {
+    void skal_rykke_tilbake_til_utgang_vurderingspunkt_av_steg() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -119,7 +119,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_rykke_tilbake_til_start_av_tidligere_steg_ved_tilbakeføring() {
+    void skal_rykke_tilbake_til_start_av_tidligere_steg_ved_tilbakeføring() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -145,7 +145,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_tolerere_tilbakehopp_til_senere_steg_enn_inneværende() {
+    void skal_tolerere_tilbakehopp_til_senere_steg_enn_inneværende() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -166,7 +166,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_flytte_til__inngang_av_senere_steg_ved_framføring() {
+    void skal_flytte_til__inngang_av_senere_steg_ved_framføring() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -196,7 +196,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_kaste_exception_dersom_tilbakeføring_til_senere_steg() {
+    void skal_kaste_exception_dersom_tilbakeføring_til_senere_steg() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -211,7 +211,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_kaste_exception_dersom_ugyldig_tilbakeføring_fra_iverks() {
+    void skal_kaste_exception_dersom_ugyldig_tilbakeføring_fra_iverks() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -231,7 +231,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_rykke_tilbake_til_inngang_vurderingspunkt_av_samme_steg() {
+    void skal_rykke_tilbake_til_inngang_vurderingspunkt_av_samme_steg() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -264,7 +264,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_ha_guard_mot_nøstet_behandlingskontroll_ved_prossesering_tilbakeføring_og_framføring() {
+    void skal_ha_guard_mot_nøstet_behandlingskontroll_ved_prossesering_tilbakeføring_og_framføring() {
 
         this.kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider) {
             @Override
@@ -288,7 +288,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_returnere_true_når_aksjonspunktet_skal_løses_etter_angitt_steg() {
+    void skal_returnere_true_når_aksjonspunktet_skal_løses_etter_angitt_steg() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -300,7 +300,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_returnere_true_når_aksjonspunktet_skal_løses_i_angitt_steg() {
+    void skal_returnere_true_når_aksjonspunktet_skal_løses_i_angitt_steg() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
@@ -313,7 +313,7 @@ public class BehandlingskontrollTjenesteImplTest {
     }
 
     @Test
-    public void skal_returnere_false_når_aksjonspunktet_skal_løses_før_angitt_steg() {
+    void skal_returnere_false_når_aksjonspunktet_skal_løses_før_angitt_steg() {
         var behandling = TestScenario.forEngangsstønad()
                 .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);

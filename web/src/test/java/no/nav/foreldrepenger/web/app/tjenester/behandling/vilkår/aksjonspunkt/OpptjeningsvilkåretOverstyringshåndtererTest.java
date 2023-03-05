@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.d
 import no.nav.vedtak.exception.FunksjonellException;
 
 @CdiDbAwareTest
-public class OpptjeningsvilkåretOverstyringshåndtererTest {
+class OpptjeningsvilkåretOverstyringshåndtererTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -39,7 +39,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Test
-    public void skal_opprette_aksjonspunkt_for_overstyring() {
+    void skal_opprette_aksjonspunkt_for_overstyring() {
         // Arrange
         // Behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -70,7 +70,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     }
 
     @Test
-    public void skal_få_historikkinnslag_når_opptjening_er_overstyrt() {
+    void skal_få_historikkinnslag_når_opptjening_er_overstyrt() {
         // Arrange
         // Behandling
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
@@ -106,7 +106,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     }
 
     @Test
-    public void skal_feile_hvis_det_forsøkes_å_overstyre_uten_aktiviteter_i_opptjening() {
+    void skal_feile_hvis_det_forsøkes_å_overstyre_uten_aktiviteter_i_opptjening() {
         // Arrange
         // Behandling
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();

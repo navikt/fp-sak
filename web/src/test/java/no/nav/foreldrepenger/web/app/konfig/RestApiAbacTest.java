@@ -23,10 +23,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
  * Sjekker at alle REST endepunkt har definert tilgangskontroll konfigurert for
  * ABAC (Attribute Based Access Control).
  */
-public class RestApiAbacTest {
+class RestApiAbacTest {
 
     @Test
-    public void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() {
+    void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() {
         for (var restMethod : RestApiTester.finnAlleRestMetoder()) {
             if (restMethod.getAnnotation(BeskyttetRessurs.class) == null) {
                 throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + restMethod);
@@ -35,7 +35,7 @@ public class RestApiAbacTest {
     }
 
     @Test
-    public void sjekk_at_ingen_metoder_er_annotert_med_dummy_verdier() {
+    void sjekk_at_ingen_metoder_er_annotert_med_dummy_verdier() {
         for (var metode : RestApiTester.finnAlleRestMetoder()) {
             assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(metode);
         }
@@ -49,7 +49,7 @@ public class RestApiAbacTest {
      * går igjennom her *
      */
     @Test
-    public void test_at_alle_input_parametre_til_restmetoder_implementer_AbacDto_eller_spesifiserer_AbacDataSupplier() {
+    void test_at_alle_input_parametre_til_restmetoder_implementer_AbacDto_eller_spesifiserer_AbacDataSupplier() {
         var feilmelding = "Parameter på %s.%s av type %s må implementere " + AbacDto.class.getSimpleName()
                 + ", eller være annotatert med @TilpassetAbacAttributt.\n";
         var feilmeldinger = new StringBuilder();

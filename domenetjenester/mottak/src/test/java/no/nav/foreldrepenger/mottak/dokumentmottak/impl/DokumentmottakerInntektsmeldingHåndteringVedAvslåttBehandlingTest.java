@@ -35,7 +35,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
     }
 
     @Test
-    public void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
+    void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
         //Arrange
         var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
@@ -58,7 +58,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
     }
 
     @Test
-    public void gittAvslåttBehandlingPgaManglendeDokMedUtløptFristForInnsendingSkalOppretteTaskForÅVurdereDokument() {
+    void gittAvslåttBehandlingPgaManglendeDokMedUtløptFristForInnsendingSkalOppretteTaskForÅVurdereDokument() {
         //Arrange
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(any(), any(), any());
         var behandling = opprettBehandling(
@@ -79,7 +79,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
     }
 
     @Test
-    public void gittAvslåttBehandlingMenIkkePgaManglendeDokMedSkalOppretteTaskForÅVurdereDokument() {
+    void gittAvslåttBehandlingMenIkkePgaManglendeDokMedSkalOppretteTaskForÅVurdereDokument() {
         //Arrange
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(any(), any(), any());
         var behandling = opprettBehandling(
@@ -100,7 +100,7 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
     }
 
     @Test
-    public void gittHenlagtBehandlingSkalOppretteVurderDokumentInntilVidere() {
+    void gittHenlagtBehandlingSkalOppretteVurderDokumentInntilVidere() {
         //Arrange
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(any(), any(), any());
         var behandling = opprettBehandling(

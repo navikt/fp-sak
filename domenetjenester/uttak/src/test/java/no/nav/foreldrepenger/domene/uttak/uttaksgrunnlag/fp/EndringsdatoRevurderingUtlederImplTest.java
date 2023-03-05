@@ -82,7 +82,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
-public class EndringsdatoRevurderingUtlederImplTest {
+class EndringsdatoRevurderingUtlederImplTest {
 
     private static final LocalDate MANUELT_SATT_FØRSTE_UTTAKSDATO = FØDSELSDATO.plusDays(1);
     private static final LocalDate OMSORGSOVERTAKELSEDATO = FØDSELSDATO.plusDays(10);
@@ -105,7 +105,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
         new RelevanteArbeidsforholdTjeneste(repositoryProvider.getFpUttakRepository()), saldoTjeneste);
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret() {
+    void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret() {
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1), MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
@@ -133,7 +133,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret_hvis_endringssøknad() {
+    void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret_hvis_endringssøknad() {
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1), MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
@@ -159,7 +159,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_startdato_ny_sak_dersom_ny_stønadsperiode() {
+    void skal_utlede_at_endringsdatoen_er_startdato_ny_sak_dersom_ny_stønadsperiode() {
         var baselineDato = Virkedager.justerHelgTilMandag(LocalDate.now());
         var startdatoNySak = baselineDato.plusWeeks(12);
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
@@ -176,7 +176,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_tom_dvs_start_uttak_dersom_ny_stønadsperiode_begynner_etter() {
+    void skal_utlede_at_endringsdatoen_er_tom_dvs_start_uttak_dersom_ny_stønadsperiode_begynner_etter() {
         var baselineDato = Virkedager.justerHelgTilMandag(LocalDate.now());
         var startdatoNySak = baselineDato.plusWeeks(16);
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
@@ -486,7 +486,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtaket_når_endring_i_ytelse_ikke_fører_til_endring_i_grunnlaget() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtaket_når_endring_i_ytelse_ikke_fører_til_endring_i_grunnlaget() {
         // Arrange
         var startdatoEndringssøknad = VirkedagUtil.fomVirkedag(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10));
         var revurdering = testUtil.opprettEndringssøknadRevurdering(AKTØR_ID_MOR, startdatoEndringssøknad,
@@ -501,7 +501,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_i_endring_dersom_endringer_i_ytelse_stammer_fra_samme_fagsak() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_i_endring_dersom_endringer_i_ytelse_stammer_fra_samme_fagsak() {
 
         var endringFom = VirkedagUtil.fomVirkedag(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(11));
 
@@ -567,7 +567,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_forrige_behandling_når_uten_uttaksresultat() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_forrige_behandling_når_uten_uttaksresultat() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_HENDELSE_FØDSEL);
 
@@ -579,7 +579,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdato_er_første_dato_i_vedtak_hvis_endringssøknad_men_beregningsandel_er_fjernet() {
+    void skal_utlede_at_endringsdato_er_første_dato_i_vedtak_hvis_endringssøknad_men_beregningsandel_er_fjernet() {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
@@ -610,7 +610,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdato_er_første_dato_i_vedtak_hvis_endringssøknad_men_beregningsandel_er_lagt_til() {
+    void skal_utlede_at_endringsdato_er_første_dato_i_vedtak_hvis_endringssøknad_men_beregningsandel_er_lagt_til() {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
@@ -638,7 +638,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void arbeidsforholdref_null_object_skal_ikke_sette_endringsdato_første_dag_uttak() {
+    void arbeidsforholdref_null_object_skal_ikke_sette_endringsdato_første_dag_uttak() {
         var fomOpprinneligUttak = FØDSELSDATO;
         var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(fomOpprinneligUttak,
             fomOpprinneligUttak.plusWeeks(1)).medResultatType(PeriodeResultatType.INNVILGET,
@@ -667,7 +667,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_gjeldende_vedtak_når_alle_perioder_er_tapt_til_annenpart() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_gjeldende_vedtak_når_alle_perioder_er_tapt_til_annenpart() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morUttak = new UttakResultatPerioderEntitet();
         var morFom = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
@@ -690,7 +690,7 @@ public class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_gjeldende_vedtak_arbeidsforhold_har_en_aktivitet_i_første_uttaksperiode_har_startdato_etter_første_uttaksperiode() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_gjeldende_vedtak_arbeidsforhold_har_en_aktivitet_i_første_uttaksperiode_har_startdato_etter_første_uttaksperiode() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morUttak = new UttakResultatPerioderEntitet();
         var morFom = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;

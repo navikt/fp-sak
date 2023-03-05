@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class DatavarehusEventObserverTest {
+class DatavarehusEventObserverTest {
 
     @Mock
     private DatavarehusTjeneste datavarehusTjeneste;
@@ -52,7 +52,7 @@ public class DatavarehusEventObserverTest {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
-    public void observerAksjonspunktUtførtEvent() {
+    void observerAksjonspunktUtførtEvent() {
         var behandling = byggBehandling();
         var behandlingId = behandling.getId();
         List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
@@ -70,7 +70,7 @@ public class DatavarehusEventObserverTest {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
-    public void observerAksjonspunkterFunnetEvent() {
+    void observerAksjonspunkterFunnetEvent() {
         var behandling = byggBehandling();
         var behandlingId = behandling.getId();
         List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
@@ -88,7 +88,7 @@ public class DatavarehusEventObserverTest {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
-    public void observerAksjonspunkterAvbruttEvent() {
+    void observerAksjonspunkterAvbruttEvent() {
         var behandling = byggBehandling();
         var behandlingId = behandling.getId();
         List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
@@ -105,7 +105,7 @@ public class DatavarehusEventObserverTest {
     }
 
     @Test
-    public void observerFagsakStatus() {
+    void observerFagsakStatus() {
         var behandling = byggBehandling();
         var fagsak = behandling.getFagsak();
 
@@ -117,7 +117,7 @@ public class DatavarehusEventObserverTest {
     }
 
     @Test
-    public void observerBehandlingStegTilstandEndringEvent() {
+    void observerBehandlingStegTilstandEndringEvent() {
         var behandling = byggBehandling();
 
         var kontekst = byggKontekst(behandling);
@@ -139,7 +139,7 @@ public class DatavarehusEventObserverTest {
     }
 
     @Test
-    public void observerBehandlingStegTilstandEndringEvent_regsøk_til_insøk() {
+    void observerBehandlingStegTilstandEndringEvent_regsøk_til_insøk() {
         var behandling = byggBehandling();
 
         var kontekst = byggKontekst(behandling);
@@ -161,7 +161,7 @@ public class DatavarehusEventObserverTest {
     }
 
     @Test
-    public void observerBehandlingOpprettetEvent() {
+    void observerBehandlingOpprettetEvent() {
         var behandling = byggBehandling();
         BehandlingStatusEvent.BehandlingOpprettetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling), BehandlingStatus.OPPRETTET);
 
@@ -170,7 +170,7 @@ public class DatavarehusEventObserverTest {
     }
 
     @Test
-    public void observerBehandlingAvsluttetEvent() {
+    void observerBehandlingAvsluttetEvent() {
         var behandling = byggBehandling();
         BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling), BehandlingStatus.AVSLUTTET);
 
@@ -179,7 +179,7 @@ public class DatavarehusEventObserverTest {
     }
 
     @Test
-    public void observerBehandlingVedtakEvent() {
+    void observerBehandlingVedtakEvent() {
         var vedtak = byggVedtak();
         var behandling = byggBehandling();
         var event = new BehandlingVedtakEvent(vedtak, behandling);

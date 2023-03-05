@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 @ExtendWith(JpaExtension.class)
-public class UttakGrunnlagTjenesteTest {
+class UttakGrunnlagTjenesteTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
@@ -40,7 +40,7 @@ public class UttakGrunnlagTjenesteTest {
     }
 
     @Test
-    public void skal_ignorere_overstyrt_familiehendelse_hvis_saksbehandler_har_valgt_at_fødsel_ikke_er_dokumentert() {
+    void skal_ignorere_overstyrt_familiehendelse_hvis_saksbehandler_har_valgt_at_fødsel_ikke_er_dokumentert() {
         var førstegangsScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var fødselsDato = LocalDate.of(2019, 10, 10);
         førstegangsScenario.medBekreftetHendelse().medFødselsDato(fødselsDato).medAntallBarn(1).erFødsel();

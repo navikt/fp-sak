@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
-public class VedtattYtelseTjenesteTest {
+class VedtattYtelseTjenesteTest {
 
     @Mock
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -60,7 +60,7 @@ public class VedtattYtelseTjenesteTest {
 
 
     @Test
-    public void skal_teste_arena_ytelser_finnes_ikke() {
+    void skal_teste_arena_ytelser_finnes_ikke() {
         // Arrange
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
         var bg = lagBG();
@@ -81,7 +81,7 @@ public class VedtattYtelseTjenesteTest {
     }
 
     @Test
-    public void skal_lage_es_med_periode_lik_stp() {
+    void skal_lage_es_med_periode_lik_stp() {
         // Arrange
         var stp = LocalDate.now().plusDays(40);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

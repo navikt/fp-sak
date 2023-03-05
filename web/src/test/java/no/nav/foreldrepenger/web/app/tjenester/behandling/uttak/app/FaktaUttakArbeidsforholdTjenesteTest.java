@@ -29,13 +29,13 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 
 @ExtendWith(MockitoExtension.class)
-public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
+class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
 
     private static final String NAVN = "Person Navn";
     private static final LocalDate FØDSEL = LocalDate.of(2000, 1, 1);
 
     @Test
-    public void skalReturnereArbeidsforhold() {
+    void skalReturnereArbeidsforhold() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
@@ -92,7 +92,7 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skalHåndtereAnnenStatusEnnArbeidstakerFrilansOgSelvstendigNæringsdrivende() {
+    void skalHåndtereAnnenStatusEnnArbeidstakerFrilansOgSelvstendigNæringsdrivende() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 

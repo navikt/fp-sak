@@ -6,10 +6,10 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 
-public class BeløpTest {
+class BeløpTest {
 
     @Test
-    public void erNulltall_returnerer_false_for_null() {
+    void erNulltall_returnerer_false_for_null() {
         BigDecimal bd = null;
         var beløp = new Beløp(bd);
         var actual = beløp.erNulltall();
@@ -17,7 +17,7 @@ public class BeløpTest {
     }
 
     @Test
-    public void erNulltall_returnerer_true_for_ZERO() {
+    void erNulltall_returnerer_true_for_ZERO() {
         var bd = BigDecimal.ZERO.setScale(10);
         var beløp = new Beløp(bd);
         var actual = beløp.erNulltall();
@@ -25,7 +25,7 @@ public class BeløpTest {
     }
 
     @Test
-    public void erNulltall_returnerer_false_for_liten_desimal() {
+    void erNulltall_returnerer_false_for_liten_desimal() {
         var bd = BigDecimal.valueOf(0.00001);
         var beløp = new Beløp(bd);
         var actual = beløp.erNulltall();
@@ -33,7 +33,7 @@ public class BeløpTest {
     }
 
     @Test
-    public void erNullEllerNulltall_detekterer_liten_desimal() {
+    void erNullEllerNulltall_detekterer_liten_desimal() {
         var bd = new BigDecimal(0.00001);
         var beløp = new Beløp(bd);
         var actual = beløp.erNullEllerNulltall();
@@ -41,7 +41,7 @@ public class BeløpTest {
     }
 
     @Test
-    public void erNullEllerNulltall_detekterer_null() {
+    void erNullEllerNulltall_detekterer_null() {
         BigDecimal bd = null;
         var beløp = new Beløp(bd);
         var actual = beløp.erNullEllerNulltall();
@@ -49,7 +49,7 @@ public class BeløpTest {
     }
 
     @Test
-    public void erNullEllerNulltall_detekterer_nulltall() {
+    void erNullEllerNulltall_detekterer_nulltall() {
         var bd = BigDecimal.ZERO;
         var beløp = new Beløp(bd);
         var actual = beløp.erNullEllerNulltall();

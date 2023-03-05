@@ -23,12 +23,12 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSokersOpplysningspliktManuDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSøkersOpplysningspliktManuellOppdaterer;
 
-public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
+class BekreftSøkersOpplysningspliktManuellOppdatererTest {
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_søkers_opplysningsplikt_manu() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_søkers_opplysningsplikt_manu() {
         // Arrange
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();

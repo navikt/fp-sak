@@ -22,10 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
-public class AnkeStegTest {
+class AnkeStegTest {
 
     @Test
-    public void skalOppretteAksjonspunktManuellAvAnkeNårStegKjøres() {
+    void skalOppretteAksjonspunktManuellAvAnkeNårStegKjøres() {
         // Arrange
         var scenario = ScenarioAnkeEngangsstønad.forAvvistAnke(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var ankeBehandling = scenario.lagMocked();

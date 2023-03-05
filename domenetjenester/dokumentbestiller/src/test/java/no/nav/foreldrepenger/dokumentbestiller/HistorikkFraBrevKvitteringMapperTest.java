@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 
-public class HistorikkFraBrevKvitteringMapperTest {
+class HistorikkFraBrevKvitteringMapperTest {
 
     @Test
     void testBrevKvitteringMapper() {

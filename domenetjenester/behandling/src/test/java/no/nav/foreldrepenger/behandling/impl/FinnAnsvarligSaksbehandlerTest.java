@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
-public class FinnAnsvarligSaksbehandlerTest {
+class FinnAnsvarligSaksbehandlerTest {
 
     private static final String BESLUTTER = "Beslutter";
     private static final String SAKSBEHANDLER = "Saksbehandler";
@@ -22,7 +22,7 @@ public class FinnAnsvarligSaksbehandlerTest {
     }
 
     @Test
-    public void ansvarligSaksbehandlerSettesTilAnsvarligBeslutterNårSatt() {
+    void ansvarligSaksbehandlerSettesTilAnsvarligBeslutterNårSatt() {
         // Arrange
         behandling.setAnsvarligSaksbehandler(SAKSBEHANDLER);
         behandling.setAnsvarligBeslutter(BESLUTTER);
@@ -35,7 +35,7 @@ public class FinnAnsvarligSaksbehandlerTest {
     }
 
     @Test
-    public void ansvarligSaksbehandlerSettesTilAnsvarligSaksbehandlerNårAnsvarligBeslutterIkkeErSatt() {
+    void ansvarligSaksbehandlerSettesTilAnsvarligSaksbehandlerNårAnsvarligBeslutterIkkeErSatt() {
         // Arrange
         behandling.setAnsvarligSaksbehandler(SAKSBEHANDLER);
 
@@ -47,7 +47,7 @@ public class FinnAnsvarligSaksbehandlerTest {
     }
 
     @Test
-    public void ansvarligSaksbehandlerSettesTilVLNårBeslutterOgSaksbehandlerMangler() {
+    void ansvarligSaksbehandlerSettesTilVLNårBeslutterOgSaksbehandlerMangler() {
         // Act
         var ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
 

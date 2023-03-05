@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
-public class BareSplittetPerioderValideringTest {
+class BareSplittetPerioderValideringTest {
 
     @Test
-    public void enPeriodeKanSplittesIToHvisSammeFomOgTom() {
+    void enPeriodeKanSplittesIToHvisSammeFomOgTom() {
         var opprinneligFom = LocalDate.now();
         var opprinneligTom = LocalDate.now().plusWeeks(3);
         var førsteTom = opprinneligFom.plusWeeks(2);
@@ -35,7 +35,7 @@ public class BareSplittetPerioderValideringTest {
     }
 
     @Test
-    public void enPeriodeKanIkkeSplittesIToHvisFørsteFomFørOpprinneligFom() {
+    void enPeriodeKanIkkeSplittesIToHvisFørsteFomFørOpprinneligFom() {
         var opprinneligFom = LocalDate.now();
         var opprinneligTom = LocalDate.now().plusWeeks(3);
         var førsteFom = opprinneligFom.minusDays(1);
@@ -49,7 +49,7 @@ public class BareSplittetPerioderValideringTest {
     }
 
     @Test
-    public void enPeriodeKanIkkeSplittesIToHvisFørsteFomEtterOpprinneligFom() {
+    void enPeriodeKanIkkeSplittesIToHvisFørsteFomEtterOpprinneligFom() {
         var opprinneligFom = LocalDate.now();
         var opprinneligTom = LocalDate.now().plusWeeks(3);
         var førsteTom = opprinneligFom.plusWeeks(2);
@@ -63,7 +63,7 @@ public class BareSplittetPerioderValideringTest {
     }
 
     @Test
-    public void enPeriodeKanIkkeSplittesIToHvisSisteTomFørOpprinneligTom() {
+    void enPeriodeKanIkkeSplittesIToHvisSisteTomFørOpprinneligTom() {
         var opprinneligFom = LocalDate.now();
         var opprinneligTom = LocalDate.now().plusWeeks(3);
         var førsteTom = opprinneligFom.plusWeeks(2);
@@ -77,7 +77,7 @@ public class BareSplittetPerioderValideringTest {
     }
 
     @Test
-    public void enPeriodeKanSplittesITreHvisFomOgTomStemmerMedOpprinnelig() {
+    void enPeriodeKanSplittesITreHvisFomOgTomStemmerMedOpprinnelig() {
         var opprinneligFom = LocalDate.now();
         var opprinneligTom = LocalDate.now().plusWeeks(10);
         var førsteTom = opprinneligFom.plusWeeks(2);
@@ -94,7 +94,7 @@ public class BareSplittetPerioderValideringTest {
     }
 
     @Test
-    public void enPeriodeKanIkkeSplittesIToLikePerioder() {
+    void enPeriodeKanIkkeSplittesIToLikePerioder() {
         var opprinneligFom = LocalDate.now();
         var opprinneligTom = LocalDate.now().plusWeeks(3);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
@@ -105,7 +105,7 @@ public class BareSplittetPerioderValideringTest {
     }
 
     @Test
-    public void feilVedOverlappendePerioder() {
+    void feilVedOverlappendePerioder() {
         var førsteFom = LocalDate.now();
         var førsteTom = LocalDate.now().plusDays(5);
         var andreTom = førsteTom.plusDays(10);

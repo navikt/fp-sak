@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
+class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -37,7 +37,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
     }
 
     @Test
-    public void skal_ikke_gi_avslag_på_avslag() {
+    void skal_ikke_gi_avslag_på_avslag() {
         // Arrange
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = lagRevurdering(originalBehandling);
@@ -55,7 +55,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
     }
 
     @Test
-    public void skal_gi_avslag_på_avslag() {
+    void skal_gi_avslag_på_avslag() {
         // Arrange
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = lagRevurdering(originalBehandling);

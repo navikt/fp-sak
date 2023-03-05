@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(MockitoExtension.class)
-public class FagsakRevurderingTest {
+class FagsakRevurderingTest {
 
     @Mock
     private BehandlingRepository behandlingRepository;
@@ -62,7 +62,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanIkkeOppretteRevurderingNårÅpenBehandling() {
+    void kanIkkeOppretteRevurderingNårÅpenBehandling() {
         Behandlingsresultat.opprettFor(behandling);
         lenient().when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any()))
                 .thenReturn(singletonList(behandling));
@@ -73,7 +73,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanOppretteRevurderingNårÅpenKlage() {
+    void kanOppretteRevurderingNårÅpenKlage() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
         VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).buildFor(behandling);
@@ -86,7 +86,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanOppretteRevurderingNårÅpentInnsyn() {
+    void kanOppretteRevurderingNårÅpentInnsyn() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
         VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).buildFor(behandling);
@@ -99,7 +99,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanIkkeOppretteRevurderingNårBehandlingErHenlagt() {
+    void kanIkkeOppretteRevurderingNårBehandlingErHenlagt() {
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET)
                 .buildFor(behandling);
@@ -112,7 +112,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanOppretteRevurderingDersomBehandlingErVedtatt() {
+    void kanOppretteRevurderingDersomBehandlingErVedtatt() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
         VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).buildFor(behandling);
@@ -124,7 +124,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanIkkeOppretteRevurderingDersomAvlagPåSøkersOpplysningsplikt() {
+    void kanIkkeOppretteRevurderingDersomAvlagPåSøkersOpplysningsplikt() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
         VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019).buildFor(behandling);
@@ -136,7 +136,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanOppretteRevurderingNårEnBehandlingErVedtattMenSisteBehandlingErHenlagt() {
+    void kanOppretteRevurderingNårEnBehandlingErVedtattMenSisteBehandlingErHenlagt() {
         eldreBehandling.avsluttBehandling();
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET)
@@ -155,7 +155,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanOppretteRevurderingNårFlereBehandlingerErVedtattOgSisteKanRevurderes() {
+    void kanOppretteRevurderingNårFlereBehandlingerErVedtattOgSisteKanRevurderes() {
         eldreBehandling.avsluttBehandling();
         nyesteBehandling.avsluttBehandling();
         Behandlingsresultat.builder()
@@ -176,7 +176,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void kanIkkeOppretteRevurderingNårFlereBehandlingerErVedtattOgSisteIkkeKanRevurderes() {
+    void kanIkkeOppretteRevurderingNårFlereBehandlingerErVedtattOgSisteIkkeKanRevurderes() {
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(nyesteBehandling);
@@ -195,7 +195,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void behandlingerSkalSorteresSynkendePåAvsluttetDato() {
+    void behandlingerSkalSorteresSynkendePåAvsluttetDato() {
         var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
         var now = LocalDateTime.now();
         var nyBehandling = Behandling.forFørstegangssøknad(fagsak).medAvsluttetDato(now).build();
@@ -214,7 +214,7 @@ public class FagsakRevurderingTest {
     }
 
     @Test
-    public void behandlingerSkalSorteresSynkendePåOpprettetDatoNårAvsluttetDatoErNull() {
+    void behandlingerSkalSorteresSynkendePåOpprettetDatoNårAvsluttetDatoErNull() {
         var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
         var now = LocalDateTime.now();
         var nyBehandling = Behandling.forFørstegangssøknad(fagsak)

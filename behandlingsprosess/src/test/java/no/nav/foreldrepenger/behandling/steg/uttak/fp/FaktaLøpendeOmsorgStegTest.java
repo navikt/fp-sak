@@ -39,7 +39,7 @@ class FaktaLøpendeOmsorgStegTest {
     private FaktaLøpendeOmsorgSteg steg;
 
     @Test
-    public void utførerMedAksjonspunktFaktaForOmsorg() {
+    void utførerMedAksjonspunktFaktaForOmsorg() {
         var scenario = opprettBehandlingForFarSomSøker();
         var behandling = scenario.lagre(repositoryProvider);
         var fagsak = behandling.getFagsak();

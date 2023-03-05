@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class BehandlingRestTjenesteESTest {
+class BehandlingRestTjenesteESTest {
 
     @Mock
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
@@ -82,7 +82,7 @@ public class BehandlingRestTjenesteESTest {
     }
 
     @Test
-    public void skal_hente_behandlinger_for_saksnummer() {
+    void skal_hente_behandlinger_for_saksnummer() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var personInformasjon = scenario.opprettBuilderForRegisteropplysninger()

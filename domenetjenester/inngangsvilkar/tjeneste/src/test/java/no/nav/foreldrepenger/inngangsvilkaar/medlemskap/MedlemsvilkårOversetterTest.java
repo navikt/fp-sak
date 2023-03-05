@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
-public class MedlemsvilkårOversetterTest {
+class MedlemsvilkårOversetterTest {
 
     private MedlemsvilkårOversetter medlemsoversetter;
 
@@ -72,7 +72,7 @@ public class MedlemsvilkårOversetterTest {
     }
 
     @Test
-    public void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap() {
+    void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap() {
         // Arrange
 
         var skjæringstidspunkt = LocalDate.now();
@@ -105,7 +105,7 @@ public class MedlemsvilkårOversetterTest {
     }
 
     @Test
-    public void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap_med_ingen_relevant_arbeid_og_inntekt() {
+    void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap_med_ingen_relevant_arbeid_og_inntekt() {
 
         // Arrange
         var skjæringstidspunkt = LocalDate.now();
@@ -121,7 +121,7 @@ public class MedlemsvilkårOversetterTest {
     }
 
     @Test
-    public void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap_med_relevant_arbeid_og_ingen_pensjonsgivende_inntekt() {
+    void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap_med_relevant_arbeid_og_ingen_pensjonsgivende_inntekt() {
 
         // Arrange
         var skjæringstidspunkt = LocalDate.now();

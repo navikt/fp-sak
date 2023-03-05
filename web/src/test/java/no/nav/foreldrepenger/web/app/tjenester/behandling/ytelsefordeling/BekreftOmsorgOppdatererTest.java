@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurdering
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
+class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG;
 
@@ -39,7 +39,7 @@ public class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_omsorg() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_omsorg() {
         // Arrange
         var oppdatertOmsorg = true;
 

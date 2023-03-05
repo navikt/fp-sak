@@ -21,12 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class PersonAdresseEndringIdentifisererTest {
+class PersonAdresseEndringIdentifisererTest {
 
     private AktørId AKTØRID = AktørId.dummy();
 
     @Test
-    public void testPersonAdresseUendret() {
+    void testPersonAdresseUendret() {
         final var postnummer = "2040";
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(postnummer));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(postnummer));
@@ -37,7 +37,7 @@ public class PersonAdresseEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonAdresseUendret_flere_postnummer() {
+    void testPersonAdresseUendret_flere_postnummer() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -47,7 +47,7 @@ public class PersonAdresseEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonAdresseUendret_men_rekkefølge_er_endret() {
+    void testPersonAdresseUendret_men_rekkefølge_er_endret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2050", "2040"));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
                 personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()));
@@ -58,7 +58,7 @@ public class PersonAdresseEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonAdresseEndret() {
+    void testPersonAdresseEndret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040"));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -68,7 +68,7 @@ public class PersonAdresseEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonAdresseEndretNår() {
+    void testPersonAdresseEndretNår() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040"));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -78,7 +78,7 @@ public class PersonAdresseEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonAdresseEndret_flere_postnummer() {
+    void testPersonAdresseEndret_flere_postnummer() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2060"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -88,7 +88,7 @@ public class PersonAdresseEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonAdresseEndret_ekstra_postnummer_lagt_til() {
+    void testPersonAdresseEndret_ekstra_postnummer_lagt_til() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050", "9046"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);

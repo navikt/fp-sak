@@ -23,12 +23,12 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSamme
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
+class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
 
     private final VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
 
     @Test
-    public void skal_oppdatere_vilkår_for_adopsjon() {
+    void skal_oppdatere_vilkår_for_adopsjon() {
         // Arrange
         var scenario = scenario();
         var behandling = scenario.lagMocked();
@@ -45,7 +45,7 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
     }
 
     @Test
-    public void skal_sette_adopsjonsvilkåret_til_ikke_oppfylt_med_avslagskode() {
+    void skal_sette_adopsjonsvilkåret_til_ikke_oppfylt_med_avslagskode() {
         var scenario = scenario();
         var behandling = scenario.lagMocked();
 

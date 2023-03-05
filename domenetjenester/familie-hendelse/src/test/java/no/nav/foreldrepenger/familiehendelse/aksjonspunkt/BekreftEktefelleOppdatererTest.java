@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAk
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
+class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
 
@@ -38,7 +38,7 @@ public class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
         // Arrange
         var oppdatertEktefellesBarn = true;
 

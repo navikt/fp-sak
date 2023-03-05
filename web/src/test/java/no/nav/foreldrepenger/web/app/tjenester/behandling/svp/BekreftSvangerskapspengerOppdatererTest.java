@@ -59,7 +59,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class BekreftSvangerskapspengerOppdatererTest {
+class BekreftSvangerskapspengerOppdatererTest {
 
     private static final LocalDate BEHOV_DATO = LocalDate.now();
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(5);
@@ -91,7 +91,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_kunne_fjerne_permisjon_ved_flere_arbeidsforhold_i_samme_virksomhet_og_tilrettelegging_uten_id() {
+    void skal_kunne_fjerne_permisjon_ved_flere_arbeidsforhold_i_samme_virksomhet_og_tilrettelegging_uten_id() {
         var behandling = behandlingMedTilretteleggingAP();
 
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
@@ -136,7 +136,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_sette_totrinn_ved_endring_tilretteleggingFoms() {
+    void skal_sette_totrinn_ved_endring_tilretteleggingFoms() {
         var behandling = behandlingMedTilretteleggingAP();
 
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
@@ -155,7 +155,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_sette_totrinn_ved_endring_skalBrukes() {
+    void skal_sette_totrinn_ved_endring_skalBrukes() {
         var behandling = behandlingMedTilretteleggingAP();
 
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
@@ -175,7 +175,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_sette_totrinn_ved_endring_behovForTlrFom() {
+    void skal_sette_totrinn_ved_endring_behovForTlrFom() {
         var behandling = behandlingMedTilretteleggingAP();
 
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
@@ -193,7 +193,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
     }
     @Test
-    public void ikke_totrinn_hvis_ingen_endring() {
+    void ikke_totrinn_hvis_ingen_endring() {
         var behandling = behandlingMedTilretteleggingAP();
 
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
@@ -212,7 +212,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_feile_ved_like_tilretteleggingsdatoer() {
+    void skal_feile_ved_like_tilretteleggingsdatoer() {
         var dto = byggDto(BEHOV_DATO, TERMINDATO, 123L,
             new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.INGEN_TILRETTELEGGING, null),
             new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.HEL_TILRETTELEGGING, null));
@@ -228,7 +228,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_kunne_overstyre_utbetalinsgrad_dersom_ansatt_har_rolle_overstyrer() {
+    void skal_kunne_overstyre_utbetalinsgrad_dersom_ansatt_har_rolle_overstyrer() {
         settOppTilgangTilOverstyring(true);
         var behandling = behandlingMedTilretteleggingAP();
 
@@ -264,7 +264,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void skal_ikke_kunne_overstyre_utbetalinsgrad_dersom_ansatt_ikke_har_rolle_overstyrer() {
+    void skal_ikke_kunne_overstyre_utbetalinsgrad_dersom_ansatt_ikke_har_rolle_overstyrer() {
         settOppTilgangTilOverstyring(false);
         var behandling = behandlingMedTilretteleggingAP();
 
@@ -280,7 +280,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    public void stillingsprosent_skal_kunne_være_null_når_arbeidsforholdet_ikke_skal_brukes() {
+    void stillingsprosent_skal_kunne_være_null_når_arbeidsforholdet_ikke_skal_brukes() {
         var behandling = behandlingMedTilretteleggingAP();
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
             VersjonType.REGISTER);

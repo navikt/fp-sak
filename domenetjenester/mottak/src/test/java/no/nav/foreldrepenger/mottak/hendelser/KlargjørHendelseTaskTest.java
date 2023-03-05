@@ -40,10 +40,10 @@ import no.nav.foreldrepenger.mottak.hendelser.saksvelger.UtflyttingForretningshe
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
-public class KlargjørHendelseTaskTest {
+class KlargjørHendelseTaskTest {
 
     @Test
-    public void skal_kalle_videre_på_domenetjeneste() {
+    void skal_kalle_videre_på_domenetjeneste() {
         var domenetjeneste = mock(ForretningshendelseMottak.class);
         var task = new KlargjørHendelseTask(domenetjeneste);
 
@@ -67,7 +67,7 @@ public class KlargjørHendelseTaskTest {
     }
 
     @Test
-    public void skal_motta_fødsel() {
+    void skal_motta_fødsel() {
         var aktørId = AktørId.dummy();
         var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(FødselForretningshendelseSaksvelger.class);
@@ -100,7 +100,7 @@ public class KlargjørHendelseTaskTest {
 
 
     @Test
-    public void skal_motta_dødfødsel() {
+    void skal_motta_dødfødsel() {
         var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(DødfødselForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
@@ -130,7 +130,7 @@ public class KlargjørHendelseTaskTest {
     }
 
     @Test
-    public void skal_motta_død() {
+    void skal_motta_død() {
         var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(DødForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
@@ -160,7 +160,7 @@ public class KlargjørHendelseTaskTest {
     }
 
     @Test
-    public void skal_motta_utflytting() {
+    void skal_motta_utflytting() {
         var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(UtflyttingForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());

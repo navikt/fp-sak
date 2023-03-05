@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
+class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -63,28 +63,28 @@ public class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     }
 
     @Test
-    public void skal_finne_en_sak_som_trenger_påminnelse_når_fødselsdatoen_er_innenfor_intervallet(EntityManager em) {
+    void skal_finne_en_sak_som_trenger_påminnelse_når_fødselsdatoen_er_innenfor_intervallet(EntityManager em) {
         opprettTestdata(em, LocalDate.now().plusDays(2));
         var resultat = tjeneste.launch(settOppBatchArguments(LocalDate.now(), LocalDate.now().plusDays(3)));
         assertThat(resultat).isEqualTo(SendInformasjonsbrevPåminnelseBatchTjeneste.BATCHNAVN + "-1");
     }
 
     @Test
-    public void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_fødselsdatoen_er_utenfor_intervallet(EntityManager em) {
+    void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_fødselsdatoen_er_utenfor_intervallet(EntityManager em) {
         opprettTestdata(em, LocalDate.now().plusDays(20));
         var resultat = tjeneste.launch(settOppBatchArguments(LocalDate.now(), LocalDate.now().plusDays(3)));
         assertThat(resultat).isEqualTo(SendInformasjonsbrevPåminnelseBatchTjeneste.BATCHNAVN + "-0");
     }
 
     @Test
-    public void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_fødselsdatoen_er_før_første_oktober_2021(EntityManager em) {
+    void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_fødselsdatoen_er_før_første_oktober_2021(EntityManager em) {
         opprettTestdata(em, LocalDate.of(2021, 6, 2));
         var resultat = tjeneste.launch(settOppBatchArguments(LocalDate.of(2021, 6, 1), LocalDate.of(2021, 6, 3)));
         assertThat(resultat).isEqualTo(SendInformasjonsbrevPåminnelseBatchTjeneste.BATCHNAVN + "-0");
     }
 
     @Test
-    public void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_barnet_er_dødt(EntityManager em) {
+    void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_barnet_er_dødt(EntityManager em) {
         // Arrange
         Behandling behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
         FødtBarnInfo fødtBarnInfo = new FødtBarnInfo.Builder()
@@ -102,7 +102,7 @@ public class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_far_har_søkt(EntityManager em) {
+    void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_far_har_søkt(EntityManager em) {
         // Arrange
         Behandling behandlingFar = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingFar;
         SøknadEntitet søknad = new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).build();
@@ -116,7 +116,7 @@ public class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_mor_har_en_nyere_sak(EntityManager em) {
+    void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_mor_har_en_nyere_sak(EntityManager em) {
         // Arrange
         Behandling behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
         var nyFagsakMor = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingMor.getFagsak().getNavBruker());
@@ -130,7 +130,7 @@ public class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_far_har_en_nyere_sak(EntityManager em) {
+    void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_far_har_en_nyere_sak(EntityManager em) {
         // Arrange
         Behandling behandlingFar = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingFar;
         var nyFagsakFar = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingFar.getFagsak().getNavBruker());

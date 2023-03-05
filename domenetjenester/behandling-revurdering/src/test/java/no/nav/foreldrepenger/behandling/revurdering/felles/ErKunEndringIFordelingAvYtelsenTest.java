@@ -31,13 +31,13 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 
-public class ErKunEndringIFordelingAvYtelsenTest {
+class ErKunEndringIFordelingAvYtelsenTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT_BEREGNING = LocalDate.now();
     private static final String ORGNR = KUNSTIG_ORG;
     private static final InternArbeidsforholdRef REF = InternArbeidsforholdRef.nyRef();
 
     @Test
-    public void skal_gi_endring_i_ytelse_ved_forskjellig_fordeling_av_andeler() {
+    void skal_gi_endring_i_ytelse_ved_forskjellig_fordeling_av_andeler() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1000, 1000));
@@ -58,7 +58,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler() {
+    void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 0));
@@ -79,7 +79,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void case_fra_prod_skal_oppdage_endring_fordeling() {
+    void case_fra_prod_skal_oppdage_endring_fordeling() {
         // Arrange
         var basis = LocalDate.of(2020, 4, 18);
         var tom1 = LocalDate.of(2020, 4, 22);
@@ -104,7 +104,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler_ved_ulike_perioder() {
+    void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler_ved_ulike_perioder() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(10), byggAndel(AktivitetStatus.ARBEIDSTAKER, 123, 123));
@@ -127,7 +127,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_endring_i_ytelse_ved_ulik_fordeling_av_andeler_ved_ulike_perioder() {
+    void skal_gi_endring_i_ytelse_ved_ulik_fordeling_av_andeler_ved_ulike_perioder() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(10), byggAndel(AktivitetStatus.ARBEIDSTAKER, 123, 123));
@@ -150,7 +150,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_sendt() {
+    void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_sendt() {
         // Act
         var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(lagBehandling(),
             Behandlingsresultat.builder().build(), true);
@@ -166,7 +166,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_ikke_sendt() {
+    void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_ikke_sendt() {
         // Act
         var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(lagBehandling(),
             Behandlingsresultat.builder().build(), false);
@@ -182,7 +182,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_dersom_begge_grunnlag_mangler() {
+    void skal_gi_ingen_endring_dersom_begge_grunnlag_mangler() {
         // Act
         var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.empty(), Optional.empty(), false);
@@ -192,7 +192,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_endring_dersom_et_grunnlag_mangler() {
+    void skal_gi_endring_dersom_et_grunnlag_mangler() {
         // Revurderingsgrunnlag
         var p1Rev = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, Tid.TIDENES_ENDE, byggAndel(AktivitetStatus.ARBEIDSTAKER, 123, 123));
         var bgRev = byggBeregningsgrunnlag(SKJÆRINGSTIDSPUNKT_BEREGNING, Collections.singletonList(p1Rev), AktivitetStatus.ARBEIDSTAKER);
@@ -206,7 +206,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag() {
+    void skal_gi_ingen_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag() {
         // Originalgrunnlag
         var p1Org = byggBGPeriode(etterSTP(1), etterSTP(11), byggAndel(AktivitetStatus.ARBEIDSTAKER, 123, 123));
         var bgOrg = byggBeregningsgrunnlag(etterSTP(1), Collections.singletonList(p1Org), AktivitetStatus.ARBEIDSTAKER);
@@ -224,7 +224,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag_men_erEndringISkalHindreTilbakketrekk_true() {
+    void skal_gi_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag_men_erEndringISkalHindreTilbakketrekk_true() {
         // Originalgrunnlag
         var p1Org = byggBGPeriode(etterSTP(1), etterSTP(11), byggAndel(AktivitetStatus.ARBEIDSTAKER, 123, 123));
         var bgOrg = byggBeregningsgrunnlag(etterSTP(1), Collections.singletonList(p1Org), AktivitetStatus.ARBEIDSTAKER);

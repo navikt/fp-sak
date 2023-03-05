@@ -46,7 +46,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.Kla
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlagevurderingOppdaterer;
 
 @CdiDbAwareTest
-public class KlagevurderingOppdatererTest {
+class KlagevurderingOppdatererTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -65,7 +65,7 @@ public class KlagevurderingOppdatererTest {
 
 
     @Test
-    public void skal_bestille_dokument_ved_stadfestet_ytelsesvedtak_og_lagre_KlageVurderingResultat() {
+    void skal_bestille_dokument_ved_stadfestet_ytelsesvedtak_og_lagre_KlageVurderingResultat() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
 

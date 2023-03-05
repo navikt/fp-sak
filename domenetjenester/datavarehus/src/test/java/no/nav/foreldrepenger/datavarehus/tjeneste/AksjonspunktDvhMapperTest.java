@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
 @ExtendWith(MockitoExtension.class)
-public class AksjonspunktDvhMapperTest {
+class AksjonspunktDvhMapperTest {
 
     @Mock
     private Aksjonspunkt aksjonspunkt;
@@ -45,7 +45,7 @@ public class AksjonspunktDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_aksjonspunkt_dvh() {
+    void skal_mappe_til_aksjonspunkt_dvh() {
 
         when(aksjonspunkt.getAksjonspunktDefinisjon()).thenReturn(AKSJONSPUNKT_DEF);
 
@@ -65,7 +65,7 @@ public class AksjonspunktDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_behandlingsteg_null() {
+    void skal_mappe_behandlingsteg_null() {
 
         when(aksjonspunkt.getFristTid()).thenReturn(OPPRETTET_TID.plusWeeks(3));
         when(aksjonspunkt.getAksjonspunktDefinisjon()).thenReturn(AKSJONSPUNKT_DEF);

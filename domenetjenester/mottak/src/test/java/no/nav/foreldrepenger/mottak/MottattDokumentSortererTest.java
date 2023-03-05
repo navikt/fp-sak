@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 
-public class MottattDokumentSortererTest {
+class MottattDokumentSortererTest {
 
     @Test
-    public void skal_sortere_etter_mottatt_dag_og_kanalref_når_dag_er_lik() {
+    void skal_sortere_etter_mottatt_dag_og_kanalref_når_dag_er_lik() {
         // Arrange
         var builder = new MottattDokument.Builder();
         builder
@@ -40,7 +40,7 @@ public class MottattDokumentSortererTest {
     }
 
     @Test
-    public void skal_sortere_etter_mottatt_dag_når_den_er_ulik() {
+    void skal_sortere_etter_mottatt_dag_når_den_er_ulik() {
         // Arrange
         var builder = new MottattDokument.Builder();
         builder
@@ -64,7 +64,7 @@ public class MottattDokumentSortererTest {
     }
 
     @Test
-    public void skal_ikke_feile_når_kanalref_er_null() {
+    void skal_ikke_feile_når_kanalref_er_null() {
         // Arrange
         var builder = new MottattDokument.Builder();
         builder

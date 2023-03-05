@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.mottak.hendelser.freg.DødfødselForretningshendels
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødfødselForretningshendelseSaksvelger;
 
 @ExtendWith(MockitoExtension.class)
-public class DødfødselForretningshendelseSaksvelgerTest {
+class DødfødselForretningshendelseSaksvelgerTest {
 
     @Mock
     private BehandlingRepositoryProvider repositoryProvider;
@@ -60,7 +60,7 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_sak_som_er_åpen_foreldrepengesak() {
+    void skal_velge_sak_som_er_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -82,7 +82,7 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_sak_som_er_avsluttet_foreldrepengesak() {
+    void skal_ikke_velge_sak_som_er_avsluttet_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -101,7 +101,7 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_engangsstønadsak() {
+    void skal_ikke_velge_engangsstønadsak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -119,7 +119,7 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void annullert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
+    void annullert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -139,7 +139,7 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void korrigert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
+    void korrigert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);

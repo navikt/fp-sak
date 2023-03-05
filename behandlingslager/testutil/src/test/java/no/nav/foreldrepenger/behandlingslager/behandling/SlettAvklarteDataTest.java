@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class SlettAvklarteDataTest extends EntityManagerAwareTest {
+class SlettAvklarteDataTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
     private MedlemskapRepository medlemskapRepository;
@@ -33,7 +33,7 @@ public class SlettAvklarteDataTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_slette_avklarte_omsorgsovertakelsedata() {
+    void skal_slette_avklarte_omsorgsovertakelsedata() {
         // Arrange
         final var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse(scenario.medSøknadHendelse()
@@ -64,7 +64,7 @@ public class SlettAvklarteDataTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_slette_avklarte_fødseldata() {
+    void skal_slette_avklarte_fødseldata() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse(scenario.medSøknadHendelse()
@@ -94,7 +94,7 @@ public class SlettAvklarteDataTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_slette_avklarte_adopsjonsdata() {
+    void skal_slette_avklarte_adopsjonsdata() {
         // Arrange
         final var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         final var familieHendelseBuilder = scenario.medSøknadHendelse();
@@ -121,7 +121,7 @@ public class SlettAvklarteDataTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_slette_avklarte_medlemskapdata() {
+    void skal_slette_avklarte_medlemskapdata() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         final var familieHendelseBuilder = scenario.medSøknadHendelse();

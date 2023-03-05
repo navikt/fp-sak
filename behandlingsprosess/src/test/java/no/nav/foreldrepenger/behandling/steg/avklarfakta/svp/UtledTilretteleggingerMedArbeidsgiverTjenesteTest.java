@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 
-public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
+class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, 8, 1);
     private static final Arbeidsgiver DEFAULT_VIRKSOMHET = Arbeidsgiver.virksomhet("123");
@@ -57,7 +57,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_returne_tom_liste_hvis_ingen_tilrettelegginger_har_arbeidsgiver() {
+    void skal_returne_tom_liste_hvis_ingen_tilrettelegginger_har_arbeidsgiver() {
 
         // Arrange
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder().build();
@@ -71,7 +71,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_lage_en_tilrettelegging_selv_med_flere_yrkesaktiviteter_hvis_IM_mottatt_på_virksomhet_uten_intern_arbeidsforhold_ref() {
+    void skal_lage_en_tilrettelegging_selv_med_flere_yrkesaktiviteter_hvis_IM_mottatt_på_virksomhet_uten_intern_arbeidsforhold_ref() {
 
         // Arrange
         var tilrettelegging = lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
@@ -98,7 +98,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_lage_to_tilrettelegginger_for_virksomhet_med_to_yrkesaktiviteter_hvor_IM_er_kommer_på_begge_yrkesaktivitetene() {
+    void skal_lage_to_tilrettelegginger_for_virksomhet_med_to_yrkesaktiviteter_hvor_IM_er_kommer_på_begge_yrkesaktivitetene() {
 
         // Arrange
         var tilrettelegginger = List.of(
@@ -133,7 +133,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_kun_lage_tilrettelegginger_for_virksomheten_det_er_søkt_for_og_ignorere_resten() {
+    void skal_kun_lage_tilrettelegginger_for_virksomheten_det_er_søkt_for_og_ignorere_resten() {
 
         // Arrange
         var person = Arbeidsgiver.person(AktørId.dummy());
@@ -164,7 +164,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_lage_tilrettelegging_for_yrkesaktiviteter_som_inkluderer_eller_tilkommer_etter_stp_men_ikke_før() {
+    void skal_lage_tilrettelegging_for_yrkesaktiviteter_som_inkluderer_eller_tilkommer_etter_stp_men_ikke_før() {
 
         // Arrange
         var tilrettelegginger = List.of(
@@ -202,7 +202,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_lage_tilrettelegginger_for_alle_yrkesaktivitetene_når_ingen_IM_er_mottatt() {
+    void skal_lage_tilrettelegginger_for_alle_yrkesaktivitetene_når_ingen_IM_er_mottatt() {
 
         // Arrange
         var tilrettelegginger = List.of(
@@ -235,7 +235,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_lage_tilrettelegging_for_arbeidstyper_som_ikke_kommer_fra_aareg() {
+    void skal_ikke_lage_tilrettelegging_for_arbeidstyper_som_ikke_kommer_fra_aareg() {
 
         // Arrange
         var tilrettelegginger = List.of(
@@ -259,7 +259,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     }
 
     @Test
-    public void skal_lage_en_tilrettelegging_for_hver_yrkesaktivitetene_til_alle_tilretteleggingene_det_er_søkt_for() {
+    void skal_lage_en_tilrettelegging_for_hver_yrkesaktivitetene_til_alle_tilretteleggingene_det_er_søkt_for() {
 
         // Arrange
 

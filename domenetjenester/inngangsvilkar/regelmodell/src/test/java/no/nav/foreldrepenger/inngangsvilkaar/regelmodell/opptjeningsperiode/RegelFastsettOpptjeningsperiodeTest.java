@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 
-public class RegelFastsettOpptjeningsperiodeTest {
+class RegelFastsettOpptjeningsperiodeTest {
 
 
     @Test
-    public void første_uttaksdato_og_skjæringsdatoOpptjening_12_uker_før_fødsel() {
+    void første_uttaksdato_og_skjæringsdatoOpptjening_12_uker_før_fødsel() {
         // Arrange
         var terminDato = LocalDate.of(2018, Month.MAY, 1);
         var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 6);
@@ -28,7 +28,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void første_uttaksdato_13_uker_før_fødsel_skjæringsdatoOpptjening_12_uker_før_fødsel() {
+    void første_uttaksdato_13_uker_før_fødsel_skjæringsdatoOpptjening_12_uker_før_fødsel() {
         // Arrange
         var terminDato = LocalDate.of(2018, Month.MAY, 1);
         var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 5);
@@ -43,7 +43,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void skalFastsetteDatoLikTermindatoMinusTreUkerMF() {
+    void skalFastsetteDatoLikTermindatoMinusTreUkerMF() {
         // Arrange
         var terminDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
@@ -57,7 +57,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void skalFastsetteDatoLikUttaksDatoMF() {
+    void skalFastsetteDatoLikUttaksDatoMF() {
         // Arrange
         var terminDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.JANUARY, 1);
@@ -71,7 +71,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void skalFastsetteDatoLikUttaksDatoFA() {
+    void skalFastsetteDatoLikUttaksDatoFA() {
         // Arrange
         var omsorgsDato = LocalDate.of(2018, Month.JANUARY, 15);
         var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 1);
@@ -87,7 +87,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void skalFastsetteDatoLikOmsorgsovertakelsesDatoFA() {
+    void skalFastsetteDatoLikOmsorgsovertakelsesDatoFA() {
         // Arrange
         var omsorgsDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
@@ -104,7 +104,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void skalFastsetteDatoLikMorsMaksdatoPlusEnDagForFar() {
+    void skalFastsetteDatoLikMorsMaksdatoPlusEnDagForFar() {
         // Arrange
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
@@ -123,7 +123,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void skalFastsetteDatoLikFødselsdatoForFar() {
+    void skalFastsetteDatoLikFødselsdatoForFar() {
         // Arrange
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
@@ -142,7 +142,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void skalFastsetteDatoLikFørsteUttaksdatoForFar() {
+    void skalFastsetteDatoLikFørsteUttaksdatoForFar() {
         // Arrange
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = fødselsdato.minusDays(1);
@@ -159,7 +159,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void farFørFødselUtenTermnJusterTilFødsel() {
+    void farFørFødselUtenTermnJusterTilFødsel() {
         // Arrange
         var fødselsdato = LocalDate.of(2022, Month.AUGUST, 3);
         var uttaksDato = fødselsdato.minusWeeks(3);
@@ -175,7 +175,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void farEtterFødselBeholdUttakEnUkeEtter() {
+    void farEtterFødselBeholdUttakEnUkeEtter() {
         // Arrange
         var fødselsdato = LocalDate.of(2022, Month.AUGUST, 3);
         var uttaksDato = fødselsdato.plusWeeks(1);
@@ -191,7 +191,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void farTerminFørFødselBeholdUttakEnUkeFør() {
+    void farTerminFørFødselBeholdUttakEnUkeFør() {
         // Arrange
         var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
         var uttaksDato = fødselsdato.minusWeeks(1);
@@ -208,7 +208,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void farTerminFørFødselJusterTilToUker() {
+    void farTerminFørFødselJusterTilToUker() {
         // Arrange
         var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
         var uttaksDato = fødselsdato.minusWeeks(4);
@@ -225,7 +225,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void farTerminEtterFødselBeholdUttakEnUkeFør() {
+    void farTerminEtterFødselBeholdUttakEnUkeFør() {
         // Arrange
         var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
         var uttaksDato = fødselsdato.minusWeeks(1);
@@ -242,7 +242,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
     }
 
     @Test
-    public void farTerminEtterFødselJusterTilToUker() {
+    void farTerminEtterFødselJusterTilToUker() {
         // Arrange
         var fødselsdato = LocalDate.of(2022, Month.AUGUST, 10);
         var uttaksDato = fødselsdato.minusWeeks(3);

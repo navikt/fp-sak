@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
+class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate NÅ = LocalDate.now();
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
@@ -42,7 +42,7 @@ public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_en_dag_før_tom_en_dag_etter_dersom_fødselsdato_er_oppgitt() {
+    void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_en_dag_før_tom_en_dag_etter_dersom_fødselsdato_er_oppgitt() {
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().leggTilBarn(FØDSELSDATO_BARN);
         final var behandling = scenario.lagre(repositoryProvider);
@@ -54,7 +54,7 @@ public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_16_uker_før_tom_4_uker_etter_termindato_dersom_termindato_er_oppgitt() {
+    void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_16_uker_før_tom_4_uker_etter_termindato_dersom_termindato_er_oppgitt() {
         // Arrange
         var termindato = NÅ.plusWeeks(16);
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -74,7 +74,7 @@ public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_uttrekke_gyldig_fødselsperioder_for_barn_som_eksakt_dag_dersom_fødseldatoer_for_adopsjon_er_oppgitt() {
+    void skal_uttrekke_gyldig_fødselsperioder_for_barn_som_eksakt_dag_dersom_fødseldatoer_for_adopsjon_er_oppgitt() {
         // Arrange
         var fødselsdatoBarn = NÅ;
         var fødselsdatoBarn2 = NÅ.minusYears(2);
@@ -99,7 +99,7 @@ public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_uttrekke_tom_liste_for_gyldige_perioder_dersom_fødselsdato_ikke_er_oppgitt() {
+    void skal_uttrekke_tom_liste_for_gyldige_perioder_dersom_fødselsdato_ikke_er_oppgitt() {
         // Arrange
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         final var behandling = scenario.lagre(repositoryProvider);
@@ -112,7 +112,7 @@ public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagre_bekreftet_når_finnes_ovst_fødsel() {
+    void lagre_bekreftet_når_finnes_ovst_fødsel() {
         // Arrange
         var tdato = LocalDate.now().minusDays(2);
         final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -139,7 +139,7 @@ public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void sjekk_intervaller_bekreftet_termin() {
+    void sjekk_intervaller_bekreftet_termin() {
         final var grunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
         final var søknadHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         var termindato = LocalDate.of(2018, Month.MAY, 6);

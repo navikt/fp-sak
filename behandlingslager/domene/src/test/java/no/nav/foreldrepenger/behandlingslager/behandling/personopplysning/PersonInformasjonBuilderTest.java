@@ -11,10 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
 
-public class PersonInformasjonBuilderTest {
+class PersonInformasjonBuilderTest {
 
     @Test
-    public void skal_tilbakestille_kladden_ved_oppdatering_men_ikke_slette_hovedsøker_og_annenpart_når_annenpart_har_ingen_relasjoner() {
+    void skal_tilbakestille_kladden_ved_oppdatering_men_ikke_slette_hovedsøker_og_annenpart_når_annenpart_har_ingen_relasjoner() {
 
         var søker = AktørId.dummy();
         var anpa = AktørId.dummy();
@@ -48,7 +48,7 @@ public class PersonInformasjonBuilderTest {
     }
 
     @Test
-    public void skal_tilbakestille_kladden_ved_oppdatering_men_ikke_slette_hovedsøker_og_annenpart_når_annenpart_har_relasjoner() {
+    void skal_tilbakestille_kladden_ved_oppdatering_men_ikke_slette_hovedsøker_og_annenpart_når_annenpart_har_relasjoner() {
 
         var søker = AktørId.dummy();
         var anpa = AktørId.dummy();

@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
 
 @CdiDbAwareTest
-public class KontrollerOmsorgRettStegTest {
+class KontrollerOmsorgRettStegTest {
 
     private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
@@ -85,7 +85,7 @@ public class KontrollerOmsorgRettStegTest {
     }
 
     @Test
-    public void skal_utledede_aksjonspunkt_basert_på_fakta_om_foreldrepenger_til_mor() {
+    void skal_utledede_aksjonspunkt_basert_på_fakta_om_foreldrepenger_til_mor() {
         // oppsett
         byggBehandingMedMorSøkerTypeOgHarAleneOmsorgOgAnnenforelderHarIkkeRett();
 

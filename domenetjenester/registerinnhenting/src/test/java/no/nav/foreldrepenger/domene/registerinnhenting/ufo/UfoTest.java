@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 
-public class UfoTest {
+class UfoTest {
 
     private static final String UFO_PERIODE = """
         {
@@ -19,7 +19,7 @@ public class UfoTest {
         """;
 
     @Test
-    public void ufotest() {
+    void ufotest() {
         var dto = StandardJsonConfig.fromJson(UFO_PERIODE, HarUføreGrad.class);
         Uføreperiode uføreperiode = new Uføreperiode(dto);
         assertThat(uføreperiode.virkningsdato()).isEqualTo(LocalDate.of(2017,4,20));

@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
-public class FødselsvilkårFarTest extends EntityManagerAwareTest {
+class FødselsvilkårFarTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private final SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(

@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class MaksDatoUttakTjenesteImplTest {
+class MaksDatoUttakTjenesteImplTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
@@ -45,7 +45,7 @@ public class MaksDatoUttakTjenesteImplTest {
         new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())))));
 
     @Test
-    public void maksdato_skal_være_siste_uttaksdato_hvis_tom_konto() {
+    void maksdato_skal_være_siste_uttaksdato_hvis_tom_konto() {
 
         var uttak = new UttakResultatPerioderEntitet();
         //mandag
@@ -72,7 +72,7 @@ public class MaksDatoUttakTjenesteImplTest {
     }
 
     @Test
-    public void maksdato_skal_være_fredag_hvis_tom_konto_når_siste_uttaksdato_er_søndag() {
+    void maksdato_skal_være_fredag_hvis_tom_konto_når_siste_uttaksdato_er_søndag() {
 
         var uttak = new UttakResultatPerioderEntitet();
         //søndag
@@ -105,7 +105,7 @@ public class MaksDatoUttakTjenesteImplTest {
     }
 
     @Test
-    public void maksdato_skal_være_fredag_hvis_tom_konto_når_siste_uttaksdato_er_lørdag() {
+    void maksdato_skal_være_fredag_hvis_tom_konto_når_siste_uttaksdato_er_lørdag() {
 
         var uttak = new UttakResultatPerioderEntitet();
         //søndag
@@ -141,7 +141,7 @@ public class MaksDatoUttakTjenesteImplTest {
     }
 
     @Test
-    public void skal_legge_på_gjenværende_dager_på_siste_uttaksdato() {
+    void skal_legge_på_gjenværende_dager_på_siste_uttaksdato() {
 
         var uttak = new UttakResultatPerioderEntitet();
         //mandag

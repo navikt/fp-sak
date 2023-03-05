@@ -16,10 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 
-public class AdopsjonTest {
+class AdopsjonTest {
 
     @Test
-    public void skal_merge_fra_gammel_til_ny_adopsjon() {
+    void skal_merge_fra_gammel_til_ny_adopsjon() {
         final var now = LocalDate.now();
 
         final var hendelseAggregat = byggAggregat(now);
@@ -34,7 +34,7 @@ public class AdopsjonTest {
     }
 
     @Test
-    public void skal_merge_fra_gammel_til_ny_adopsjon_med_oppdaterte_verdier() {
+    void skal_merge_fra_gammel_til_ny_adopsjon_med_oppdaterte_verdier() {
         final var now = LocalDate.now();
         final var hendelseAggregat = byggAggregat(now);
         final var søknadVersjon = hendelseAggregat.getGjeldendeVersjon();

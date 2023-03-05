@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendin
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(MockitoExtension.class)
-public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
+class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
 
     private static final BigDecimal INNTEKTBELØP_DEFAULT = new BigDecimal(30000);
     private static final InternArbeidsforholdRef ARBEIDSID_DEFAULT = InternArbeidsforholdRef.nyRef();
@@ -80,7 +80,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_ikke_returnere_inngangsvilkår_dersom_endring_på_første_permisjonsdag_mellom_ny_IM_og_vedtaksgrunnlaget() {
+    void skal_ikke_returnere_inngangsvilkår_dersom_endring_på_første_permisjonsdag_mellom_ny_IM_og_vedtaksgrunnlaget() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var førstegangsbehandling = opprettFørstegangsbehandling();
 
@@ -107,7 +107,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_beregning_dersom_innsendingsårsak_er_ny() {
+    void skal_returnere_beregning_dersom_innsendingsårsak_er_ny() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var førstegangsbehandling = opprettFørstegangsbehandling();
 
@@ -128,7 +128,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_beregning_dersom_det_er_endring_i_refusjonsendring() {
+    void skal_returnere_beregning_dersom_det_er_endring_i_refusjonsendring() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var behandling = opprettFørstegangsbehandling();
 
@@ -155,7 +155,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_beregning_dersom_endring_på_inntekt_mellom_ny_IM_og_grunnlag_IM() {
+    void skal_returnere_beregning_dersom_endring_på_inntekt_mellom_ny_IM_og_grunnlag_IM() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var behandling = opprettFørstegangsbehandling();
 
@@ -182,7 +182,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_beregning_dersom_endring_på_inntekt_mellom_ny_IM_og_endret_IM() {
+    void skal_returnere_beregning_dersom_endring_på_inntekt_mellom_ny_IM_og_endret_IM() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var behandling = opprettFørstegangsbehandling();
 
@@ -214,7 +214,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_beregning_dersom_endring_på_natural_ytelser_mellom_ny_IM_og_grunnlag_IM() {
+    void skal_returnere_beregning_dersom_endring_på_natural_ytelser_mellom_ny_IM_og_grunnlag_IM() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var behandling = opprettFørstegangsbehandling();
 
@@ -240,7 +240,7 @@ public class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_uttak_dersom_ingen_endring_i_permisjonsdag_inntekt_naturytelser_eller_refusjon() {
+    void skal_returnere_uttak_dersom_ingen_endring_i_permisjonsdag_inntekt_naturytelser_eller_refusjon() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var behandling = opprettFørstegangsbehandling();
 

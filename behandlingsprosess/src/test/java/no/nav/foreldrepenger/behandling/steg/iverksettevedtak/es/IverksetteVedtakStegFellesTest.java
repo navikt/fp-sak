@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
-public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
+class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -60,7 +60,7 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalKasteFeilNårIngenBehandlingVedtak() {
+    void skalKasteFeilNårIngenBehandlingVedtak() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
@@ -71,7 +71,7 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalOppretteHistorikkinnslagHvisVenterTidligereBehandling() {
+    void skalOppretteHistorikkinnslagHvisVenterTidligereBehandling() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
@@ -97,7 +97,7 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalOppretteIverksettingProsessTaskerHvisBehandlingKanIverksettes() {
+    void skalOppretteIverksettingProsessTaskerHvisBehandlingKanIverksettes() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
@@ -118,7 +118,7 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalSettePåVentHvisVedtakErUnderIverksettelse() {
+    void skalSettePåVentHvisVedtakErUnderIverksettelse() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
@@ -134,7 +134,7 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalReturnereUtenAksjonspunkterNårVedtakErIverksatt() {
+    void skalReturnereUtenAksjonspunkterNårVedtakErIverksatt() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());

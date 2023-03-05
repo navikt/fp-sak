@@ -11,11 +11,11 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 
-public class HistorikkinnslagDtoTest {
+class HistorikkinnslagDtoTest {
     private static final LocalDateTime NOW = LocalDateTime.now();
 
     @Test
-    public void skal_sortere_basert_på_tidligste_opprettetDato_first() {
+    void skal_sortere_basert_på_tidligste_opprettetDato_first() {
         var historikkInnslagDtos = Arrays.asList(
                 lagHistorikkInnslagDtos(NOW.plusMonths(2)),
                 lagHistorikkInnslagDtos(NOW.minusWeeks(8)),
@@ -41,7 +41,7 @@ public class HistorikkinnslagDtoTest {
     }
 
     @Test
-    public void skal_revurdOpprettet_kommer_før_brev_sent_og_brev_vent_hvis_samme_tids_punkt() {
+    void skal_revurdOpprettet_kommer_før_brev_sent_og_brev_vent_hvis_samme_tids_punkt() {
         var historikkInnslagDtos = Arrays.asList(
                 lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.REVURD_OPPR),
                 lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BEH_VENT),

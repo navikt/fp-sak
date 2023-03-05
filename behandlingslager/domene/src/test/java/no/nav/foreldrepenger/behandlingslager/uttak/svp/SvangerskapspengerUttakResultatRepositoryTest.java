@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTest {
+class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTest {
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
@@ -36,7 +36,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
     }
 
     @Test
-    public void skal_kunne_lagre_og_uttak_med_oppfylt_periode() {
+    void skal_kunne_lagre_og_uttak_med_oppfylt_periode() {
         var behandling = opprettBehandling();
 
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
@@ -78,7 +78,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
     }
 
     @Test
-    public void skal_kunne_lagre_og_uttak_med_ikke_oppfylt_periode() {
+    void skal_kunne_lagre_og_uttak_med_ikke_oppfylt_periode() {
         var behandling = opprettBehandling();
 
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
@@ -116,7 +116,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
     }
 
     @Test
-    public void skal_kunne_lagre_og_uttak_med_ikke_oppfylt_arbeidsforhold() {
+    void skal_kunne_lagre_og_uttak_med_ikke_oppfylt_arbeidsforhold() {
         var behandling = opprettBehandling();
 
         var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()

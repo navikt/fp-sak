@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class VurderBehovForÅHindreTilbaketrekkTest {
+class VurderBehovForÅHindreTilbaketrekkTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, Month.JANUARY, 20);
     private static final LocalDate ANDRE_PERIODE_FOM = SKJÆRINGSTIDSPUNKT.plusMonths(5);
@@ -35,7 +35,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     private static final LocalDate DAGENS_DATO = LocalDate.of(2019, Month.FEBRUARY, 4);
 
     @Test
-    public void ingenEndringSkalGiEmpty() {
+    void ingenEndringSkalGiEmpty() {
         // Arrange
         var inntektBeløp = 1000;
         var forrigeTY = lagBeregningsresultatFP(0, inntektBeløp);
@@ -54,7 +54,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     @Test
-    public void økningIRefusjonOgReduksjonFraBrukerSkalGiEndringsdato() {
+    void økningIRefusjonOgReduksjonFraBrukerSkalGiEndringsdato() {
         // Arrange
         var forrigeTY = lagBeregningsresultatFP(200, 800);
         var denneTY = lagBeregningsresultatFP(0, 1000);
@@ -71,7 +71,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     @Test
-    public void ingenRefusjonIForrigeOgFullRefusjonIRevurderingSkalGiEndringsdato() {
+    void ingenRefusjonIForrigeOgFullRefusjonIRevurderingSkalGiEndringsdato() {
         // Arrange
         var forrigeTY = lagBeregningsresultatFP(1000, 0);
         var denneTY = lagBeregningsresultatFP(0, 1000);
@@ -89,7 +89,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     @Test
-    public void ingenTilkjentYtelseIRevurderingSkalGiEmpty() {
+    void ingenTilkjentYtelseIRevurderingSkalGiEmpty() {
         // Arrange
         var forrigeTY = lagBeregningsresultatFP(0, 1000);
         var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
@@ -106,7 +106,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     @Test
-    public void økningSkalGiEmpty() {
+    void økningSkalGiEmpty() {
         // Arrange
         var forrigeTY = lagBeregningsresultatFP(0, 1000);
         var denneTY = lagBeregningsresultatFP(200, 800);
@@ -124,7 +124,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     @Test
-    public void reduksjonEtterUtbetaltTomSkalGiEmpty() {
+    void reduksjonEtterUtbetaltTomSkalGiEmpty() {
         // Arrange
         var forrigeTY = lagBeregningsresultatFP(200, 800);
 
@@ -159,7 +159,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     @Test
-    public void bortfaltAndelSkalIkkeGiAksjonspunkt() {
+    void bortfaltAndelSkalIkkeGiAksjonspunkt() {
         // Arrange
         var originalBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
@@ -207,7 +207,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     @Test
-    public void originalAndelUtenReferanseOgRefusjonSplittetTilToAndelerMedReferanseOgRefusjon() {
+    void originalAndelUtenReferanseOgRefusjonSplittetTilToAndelerMedReferanseOgRefusjon() {
         // Arrange
         var originalBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
@@ -263,7 +263,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
      * sammenligne andelene.
      */
     @Test
-    public void revurderingAndelerMedReferanseSomIkkeMatcherOriginaleAndelerOgOriginalAndelerHarIkkeNullReferanse() {
+    void revurderingAndelerMedReferanseSomIkkeMatcherOriginaleAndelerOgOriginalAndelerHarIkkeNullReferanse() {
         // Arrange
         var originalBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")

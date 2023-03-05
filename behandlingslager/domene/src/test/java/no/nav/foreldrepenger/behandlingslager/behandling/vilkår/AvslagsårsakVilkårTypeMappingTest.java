@@ -4,15 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class AvslagsårsakVilkårTypeMappingTest {
+class AvslagsårsakVilkårTypeMappingTest {
 
     @Test
-    public void test_finn_vilkårtype_fra_avslagårsak() {
+    void test_finn_vilkårtype_fra_avslagårsak() {
         assertThat(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getVilkårTyper()).contains(VilkårType.OMSORGSVILKÅRET);
     }
 
     @Test
-    public void skal_hente_alle_avslagsårsaker_gruppert_på_vilkårstype() {
+    void skal_hente_alle_avslagsårsaker_gruppert_på_vilkårstype() {
         var map = VilkårType.finnAvslagårsakerGruppertPåVilkårType();
         assertThat(map.get(VilkårType.SØKERSOPPLYSNINGSPLIKT)).containsOnly(Avslagsårsak.MANGLENDE_DOKUMENTASJON);
         assertThat(map.get(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD))

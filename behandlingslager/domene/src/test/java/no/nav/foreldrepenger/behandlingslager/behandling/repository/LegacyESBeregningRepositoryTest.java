@@ -14,10 +14,10 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.exception.TekniskException;
 
-public class LegacyESBeregningRepositoryTest extends EntityManagerAwareTest {
+class LegacyESBeregningRepositoryTest extends EntityManagerAwareTest {
 
     @Test
-    public void skal_kaste_feil_dersom_eksakt_sats_ikke_kan_identifiseres() {
+    void skal_kaste_feil_dersom_eksakt_sats_ikke_kan_identifiseres() {
         var entityManager = getEntityManager();
         var repository = new LegacyESBeregningRepository(entityManager);
 

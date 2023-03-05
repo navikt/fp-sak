@@ -12,13 +12,13 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class ArbeidsforholdOverstyringTest {
+class ArbeidsforholdOverstyringTest {
 
     private static final String ORGNR = "000000000";
     private static final LocalDate DAGENS_DATO = LocalDate.now();
 
     @Test
-    public void skal_kopiere_over_verdier_fra_gammel_entitet_til_ny_entitet() {
+    void skal_kopiere_over_verdier_fra_gammel_entitet_til_ny_entitet() {
 
         // Arrange
         var gammelEntitet = new ArbeidsforholdOverstyring();
@@ -63,7 +63,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void er_overstyrt_skal_returnere_true_hvis_handling_ikke_er_BRUK() {
+    void er_overstyrt_skal_returnere_true_hvis_handling_ikke_er_BRUK() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING);
@@ -74,7 +74,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void er_overstyrt_skal_returnere_true_hvis_handling_er_BRUK_og_med_bekreftet_permisjon_som_ikke_er_udefinert() {
+    void er_overstyrt_skal_returnere_true_hvis_handling_er_BRUK_og_med_bekreftet_permisjon_som_ikke_er_udefinert() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.BRUK);
@@ -86,7 +86,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void er_overstyrt_skal_returnere_false_hvis_handling_er_BRUK_og_med_bekreftet_permisjon_som_er_udefinert() {
+    void er_overstyrt_skal_returnere_false_hvis_handling_er_BRUK_og_med_bekreftet_permisjon_som_er_udefinert() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.BRUK);
@@ -98,7 +98,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void er_overstyrt_skal_returnere_true_hvis_handling_er_BRUK_MED_OVERSTYRT_PERIODE() {
+    void er_overstyrt_skal_returnere_true_hvis_handling_er_BRUK_MED_OVERSTYRT_PERIODE() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE);
@@ -109,7 +109,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void er_overstyrt_skal_returnere_true_hvis_handling_er_INNTEKT_IKKE_MED_I_BG() {
+    void er_overstyrt_skal_returnere_true_hvis_handling_er_INNTEKT_IKKE_MED_I_BG() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.INNTEKT_IKKE_MED_I_BG);
@@ -120,7 +120,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_BRUK() {
+    void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_BRUK() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.BRUK);
@@ -131,7 +131,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_SLÅTT_SAMMEN_MED_ANNET() {
+    void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_SLÅTT_SAMMEN_MED_ANNET() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.SLÅTT_SAMMEN_MED_ANNET);
@@ -142,7 +142,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_IKKE_BRUK() {
+    void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_IKKE_BRUK() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.IKKE_BRUK);
@@ -153,7 +153,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_NYTT_ARBEIDSFORHOLD() {
+    void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_NYTT_ARBEIDSFORHOLD() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.NYTT_ARBEIDSFORHOLD);
@@ -164,7 +164,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_UDEFINERT() {
+    void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_UDEFINERT() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.UDEFINERT);
@@ -175,7 +175,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_BRUK_UTEN_INNTEKTSMELDING() {
+    void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_BRUK_UTEN_INNTEKTSMELDING() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING);
@@ -186,7 +186,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_LAGT_TIL_AV_SAKSBEHANDLER() {
+    void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_LAGT_TIL_AV_SAKSBEHANDLER() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER);
@@ -197,7 +197,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_BRUK_MED_OVERSTYRT_PERIODE() {
+    void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_BRUK_MED_OVERSTYRT_PERIODE() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE);
@@ -208,7 +208,7 @@ public class ArbeidsforholdOverstyringTest {
     }
 
     @Test
-    public void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_INNTEKT_IKKE_MED_I_BG() {
+    void krever_ikke_inntektsmelding_skal_returne_true_hvis_handling_er_lik_INNTEKT_IKKE_MED_I_BG() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
         overstyring.setHandling(ArbeidsforholdHandlingType.INNTEKT_IKKE_MED_I_BG);

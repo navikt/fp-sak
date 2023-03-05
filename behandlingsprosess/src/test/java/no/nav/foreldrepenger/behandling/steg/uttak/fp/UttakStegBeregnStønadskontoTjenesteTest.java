@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
-public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
+class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private UttakStegBeregnStønadskontoTjeneste tjeneste;
@@ -63,7 +63,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_beregne_hvis_vedtak_uten_uttak() {
+    void skal_beregne_hvis_vedtak_uten_uttak() {
         var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
@@ -83,7 +83,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_beregne_hvis_vedtak_har_uttak_der_alle_periodene_er_avslått() {
+    void skal_beregne_hvis_vedtak_har_uttak_der_alle_periodene_er_avslått() {
         var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
@@ -104,7 +104,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
+    void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
         var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
@@ -139,7 +139,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_ikke_beregne_hvis_annenpart_vedtak_har_uttak_innvilget() {
+    void skal_ikke_beregne_hvis_annenpart_vedtak_har_uttak_innvilget() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morBehandling = morScenario.lagre(repositoryProvider);
         opprettStønadskontoer(morBehandling);
@@ -167,7 +167,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_beregne_hvis_annenpart_vedtak_har_uten_uttak() {
+    void skal_beregne_hvis_annenpart_vedtak_har_uten_uttak() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morBehandling = morScenario.lagre(repositoryProvider);
         opprettStønadskontoer(morBehandling);
@@ -187,7 +187,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_beregne_hvis_annenpart_vedtak_har_uttak_avslått() {
+    void skal_beregne_hvis_annenpart_vedtak_har_uttak_avslått() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morBehandling = morScenario.lagre(repositoryProvider);
         opprettStønadskontoer(morBehandling);

@@ -16,13 +16,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class MorErDødEndringIdentifisererTest {
+class MorErDødEndringIdentifisererTest {
     private AktørId AKTØRID_SØKER = AktørId.dummy();
     private AktørId AKTØRID_MOR = AktørId.dummy();
     private AktørId AKTØRID_BARN = AktørId.dummy();
 
     @Test
-    public void testMorLever() {
+    void testMorLever() {
         var orginaltGrunnlag = opprettPersonopplysning(null);
         var oppdatertGrunnlag = opprettPersonopplysning(null); //Oppdater opplysninger med dødsdato og lagre på behandlingen.
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, orginaltGrunnlag, oppdatertGrunnlag);
@@ -32,7 +32,7 @@ public class MorErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void testMorDør() {
+    void testMorDør() {
         final var dødsdato = LocalDate.now().minusDays(10);
 
         var orginaltGrunnlag = opprettPersonopplysning(null);
@@ -44,7 +44,7 @@ public class MorErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void testDødsdatoEndret() {
+    void testDødsdatoEndret() {
         final var dødsdato = LocalDate.now().minusDays(10);
 
         var orginaltGrunnlag = opprettPersonopplysning(dødsdato);
@@ -56,7 +56,7 @@ public class MorErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void testDødsdatoUendret() {
+    void testDødsdatoUendret() {
         final var dødsdato = LocalDate.now().minusDays(10);
 
         var orginaltGrunnlag = opprettPersonopplysning(dødsdato);
@@ -68,7 +68,7 @@ public class MorErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void skal_detektere_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
+    void skal_detektere_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
         // Arrange
         final var dødsdato = LocalDate.now().minusDays(10);
         var orginaltGrunnlag = opprettTomtPersonopplysningGrunnlag();

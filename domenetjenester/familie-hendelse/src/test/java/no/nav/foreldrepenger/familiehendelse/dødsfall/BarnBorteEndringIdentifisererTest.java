@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(JpaExtension.class)
-public class BarnBorteEndringIdentifisererTest {
+class BarnBorteEndringIdentifisererTest {
     private final AktørId AKTØRID_SØKER = AktørId.dummy();
     private final AktørId AKTØRID_BARN = AktørId.dummy();
 
@@ -40,7 +40,7 @@ public class BarnBorteEndringIdentifisererTest {
     }
 
     @Test
-    public void ingen_endring_i_registrerte_barn() {
+    void ingen_endring_i_registrerte_barn() {
         var behandlingOrig = førstegangsbehandling();
         var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, true);
@@ -71,7 +71,7 @@ public class BarnBorteEndringIdentifisererTest {
     }
 
     @Test
-    public void barn_fjernet_fra_tps_på_ny_behandling() {
+    void barn_fjernet_fra_tps_på_ny_behandling() {
         var behandlingOrig = førstegangsbehandling();
         var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, true);
@@ -83,7 +83,7 @@ public class BarnBorteEndringIdentifisererTest {
     }
 
     @Test
-    public void barn_lagt_til_i_tps_på_ny_behandling() {
+    void barn_lagt_til_i_tps_på_ny_behandling() {
         var behandlingOrig = førstegangsbehandling(ScenarioMorSøkerForeldrepenger.forFødsel());
         var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, false);

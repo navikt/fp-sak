@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class KlageRepositoryTest extends EntityManagerAwareTest {
+class KlageRepositoryTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private KlageRepository klageRepository;
@@ -30,7 +30,7 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_og_oppdatere_formkrav() {
+    void skal_lagre_og_oppdatere_formkrav() {
         // Arrange
         var entityManager = getEntityManager();
         var scenario = ScenarioKlageEngangsstønad.forAvvistNK(ScenarioFarSøkerEngangsstønad.forAdopsjon());
@@ -68,7 +68,7 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_og_oppdatere_vurderingresultat() {
+    void skal_lagre_og_oppdatere_vurderingresultat() {
         // Arrange
         var entityManager = getEntityManager();
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioFarSøkerEngangsstønad.forAdopsjon());
@@ -107,7 +107,7 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_formkrav_fra_ka_når_nfp_og_ka_har_vurdert() {
+    void skal_hente_formkrav_fra_ka_når_nfp_og_ka_har_vurdert() {
         // Pre Arrange
         var entityManager = getEntityManager();
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioFarSøkerEngangsstønad.forAdopsjon());

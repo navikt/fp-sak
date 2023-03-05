@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaT
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 
-public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
+class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
 
     private static final AksjonspunktDefinisjon AKSONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT;
 
@@ -61,7 +61,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_opprette_historikkinnslag_ved_endring() {
+    void skal_opprette_historikkinnslag_ved_endring() {
         //Scenario med avklar fakta annen forelder har rett
         var scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
@@ -97,7 +97,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_sette_totrinns_ved_avkreft_søkers_opplysning() {
+    void skal_sette_totrinns_ved_avkreft_søkers_opplysning() {
         //Scenario med avklar fakta annen forelder har ikke rett
         var scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
@@ -115,7 +115,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
     }
 
     @Test
-    public void skal_sette_totrinns_ved_bekreft_uføre() {
+    void skal_sette_totrinns_ved_bekreft_uføre() {
         //Scenario med avklar fakta annen forelder har ikke rett
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();

@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest {
+class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
@@ -54,7 +54,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_henlagte_behandlinger_etter_forrige_ferdigbehandlede_søknad() {
+    void skal_finne_henlagte_behandlinger_etter_forrige_ferdigbehandlede_søknad() {
 
         var behandling = opprettRevurderingsKandidat();
 
@@ -88,7 +88,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_alle_innvilgete_avsluttede_behandling_som_ikke_er_henlagt() {
+    void skal_finne_alle_innvilgete_avsluttede_behandling_som_ikke_er_henlagt() {
 
         var behandling = opprettRevurderingsKandidat();
 

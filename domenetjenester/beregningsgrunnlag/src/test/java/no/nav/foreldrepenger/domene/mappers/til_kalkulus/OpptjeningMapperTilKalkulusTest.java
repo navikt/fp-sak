@@ -43,7 +43,7 @@ class OpptjeningMapperTilKalkulusTest {
     private List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
 
     @Test
-    public void skal_ta_med_arbeidsforhold_når_ingen_inntektsmelding() {
+    void skal_ta_med_arbeidsforhold_når_ingen_inntektsmelding() {
         var ref1 = InternArbeidsforholdRef.nyRef();
         var orgnr = "999999999";
         lagArbeid(orgnr, ref1);
@@ -54,7 +54,7 @@ class OpptjeningMapperTilKalkulusTest {
     }
 
     @Test
-    public void skal_ignorere_arbeidsforhold_som_starter_etter_eller_på_stp() {
+    void skal_ignorere_arbeidsforhold_som_starter_etter_eller_på_stp() {
         var ref1 = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
         var ref3 = InternArbeidsforholdRef.nyRef();
@@ -73,7 +73,7 @@ class OpptjeningMapperTilKalkulusTest {
     }
 
     @Test
-    public void skal_ta_med_arbeidsforhold_når_inntektsmelding_med_id() {
+    void skal_ta_med_arbeidsforhold_når_inntektsmelding_med_id() {
         var ref1 = InternArbeidsforholdRef.nyRef();
         var orgnr = "999999999";
         lagIM(orgnr, ref1);
@@ -85,7 +85,7 @@ class OpptjeningMapperTilKalkulusTest {
     }
 
     @Test
-    public void skal_ta_med_arbeidsforhold_når_inntektsmelding_uten_id() {
+    void skal_ta_med_arbeidsforhold_når_inntektsmelding_uten_id() {
         var ref1 = InternArbeidsforholdRef.nyRef();
         var orgnr = "999999999";
         lagIM(orgnr, null);
@@ -97,7 +97,7 @@ class OpptjeningMapperTilKalkulusTest {
     }
 
     @Test
-    public void skal_ta_med_flere_arbeidsforhold_når_inntektsmelding_uten_id() {
+    void skal_ta_med_flere_arbeidsforhold_når_inntektsmelding_uten_id() {
         var ref1 = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
         var ref3 = InternArbeidsforholdRef.nyRef();
@@ -117,7 +117,7 @@ class OpptjeningMapperTilKalkulusTest {
     }
 
     @Test
-    public void skal_håndtere_aktiviteter_med_og_uten_id_i_hos_arbeidsgivere() {
+    void skal_håndtere_aktiviteter_med_og_uten_id_i_hos_arbeidsgivere() {
         var ref1 = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
         var ref3 = InternArbeidsforholdRef.nyRef();
@@ -144,7 +144,7 @@ class OpptjeningMapperTilKalkulusTest {
     }
 
     @Test
-    public void flere_arbfor_samme_arbeidsgiver_noen_med_im_andre_uten() {
+    void flere_arbfor_samme_arbeidsgiver_noen_med_im_andre_uten() {
         var ref1 = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
         var ref3 = InternArbeidsforholdRef.nyRef();

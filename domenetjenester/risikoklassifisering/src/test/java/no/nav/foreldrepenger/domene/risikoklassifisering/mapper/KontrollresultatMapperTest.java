@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 
-public class KontrollresultatMapperTest {
+class KontrollresultatMapperTest {
 
     @Test
-    public void skal_gjøre_faresignal_respons_om_til_wrapper_ved_ikke_høy_risiko() {
+    void skal_gjøre_faresignal_respons_om_til_wrapper_ved_ikke_høy_risiko() {
         // Arrange
         var respons = new RisikovurderingResultatDto(RisikoklasseType.IKKE_HØY, null, null, null);
 
@@ -30,7 +30,7 @@ public class KontrollresultatMapperTest {
     }
 
     @Test
-    public void skal_gjøre_faresignal_respons_om_til_wrapper_ved_høy_risiko() {
+    void skal_gjøre_faresignal_respons_om_til_wrapper_ved_høy_risiko() {
         // Arrange
         var faresignaler = Arrays.asList("Dette er en test", "Dette er også en test", "123 321 987");
         var risikogruppe = new RisikogruppeDto(faresignaler);

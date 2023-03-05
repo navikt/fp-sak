@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class OppdaterFagsakStatusTjenesteTest {
+class OppdaterFagsakStatusTjenesteTest {
 
     @Mock
     private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
@@ -66,7 +66,7 @@ public class OppdaterFagsakStatusTjenesteTest {
     }
 
     @Test
-    public void oppdater_fasakstatus_når_engangsstønad() {
+    void oppdater_fasakstatus_når_engangsstønad() {
         var behandlingES = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingsresultat(Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET))
@@ -81,7 +81,7 @@ public class OppdaterFagsakStatusTjenesteTest {
 
 
     @Test
-    public void ikke_oppdater_fasakstatus_når_andre_behandligner_er_åpne() {
+    void ikke_oppdater_fasakstatus_når_andre_behandligner_er_åpne() {
         var åpenBehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingsresultat(Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET))
@@ -95,13 +95,13 @@ public class OppdaterFagsakStatusTjenesteTest {
     }
 
     @Test
-    public void oppdater_fagsakstatus_til_avsluttet_når_behandling_er_null() {
+    void oppdater_fagsakstatus_til_avsluttet_når_behandling_er_null() {
         var resultat = oppdaterFagsakStatusTjeneste.oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), null);
         assertThat(resultat).isEqualTo(FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET);
     }
 
     @Test
-    public void ikke_avslutt_fasakstatus_når_harYtelse_og_avslutningsdato() {
+    void ikke_avslutt_fasakstatus_når_harYtelse_og_avslutningsdato() {
         Long fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
@@ -115,7 +115,7 @@ public class OppdaterFagsakStatusTjenesteTest {
     }
 
     @Test
-    public void avslutt_fasakstatus_når_harYtelse_og_ingen_avslutningsdato() {
+    void avslutt_fasakstatus_når_harYtelse_og_ingen_avslutningsdato() {
         Long fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
@@ -128,7 +128,7 @@ public class OppdaterFagsakStatusTjenesteTest {
     }
 
     @Test
-    public void avslutt_fasakstatus_når_harYtelse_og_avslått() {
+    void avslutt_fasakstatus_når_harYtelse_og_avslått() {
         Long fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
@@ -140,7 +140,7 @@ public class OppdaterFagsakStatusTjenesteTest {
     }
 
     @Test
-    public void ikke_avslutt_sak_når_enkeltopphør_og_ikke_er_koblet_til_annen_part() {
+    void ikke_avslutt_sak_når_enkeltopphør_og_ikke_er_koblet_til_annen_part() {
         Long fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());

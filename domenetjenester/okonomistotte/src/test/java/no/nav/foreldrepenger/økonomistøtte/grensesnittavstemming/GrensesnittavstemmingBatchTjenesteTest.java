@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvitteringTe
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 
 @ExtendWith(MockitoExtension.class)
-public class GrensesnittavstemmingBatchTjenesteTest {
+class GrensesnittavstemmingBatchTjenesteTest {
 
     private GrensesnittavstemmingBatchTjeneste grensesnittavstemmingApplikasjonTjeneste;
 
@@ -50,7 +50,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     }
 
     @Test
-    public void avstemmingUtenOppdragSkalIkkeSendeAvstemmingsmeldinger() {
+    void avstemmingUtenOppdragSkalIkkeSendeAvstemmingsmeldinger() {
         // Arrange
         final var argMap = new HashMap<String, String>();
         argMap.put("tom", "23-08-2017");
@@ -72,7 +72,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     }
 
     @Test
-    public void avstemmingSkalSendeAvstemmingsmeldingerUtenParametere() {
+    void avstemmingSkalSendeAvstemmingsmeldingerUtenParametere() {
         // Arrange
         setupOppdragsliste();
         final var argMap = new HashMap<String, String>();
@@ -86,7 +86,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     }
 
     @Test
-    public void avstemmingSkalSendeAvstemmingsmeldinger() {
+    void avstemmingSkalSendeAvstemmingsmeldinger() {
         // Arrange
         setupOppdragsliste();
         final var argMap = new HashMap<String, String>();

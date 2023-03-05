@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @CdiDbAwareTest
-public class PersonopplysningDtoTjenesteTest {
+class PersonopplysningDtoTjenesteTest {
 
     @Inject
     PersonopplysningTjeneste personopplysningTjeneste;
@@ -33,7 +33,7 @@ public class PersonopplysningDtoTjenesteTest {
     }
 
     @Test
-    public void skal_takle_at_man_spør_etter_opplysninger_utenfor_tidsserien() {
+    void skal_takle_at_man_spør_etter_opplysninger_utenfor_tidsserien() {
         // sørger for at vi bommer når vi spør etter personstatus
         var enTilfeldigDato = LocalDate.of(1989, 9, 29);
         var behandling = lagBehandling();

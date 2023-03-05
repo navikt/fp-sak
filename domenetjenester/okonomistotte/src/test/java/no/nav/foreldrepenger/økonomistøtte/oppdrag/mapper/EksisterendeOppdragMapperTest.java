@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.SatsType;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 
-public class EksisterendeOppdragMapperTest {
+class EksisterendeOppdragMapperTest {
 
     LocalDate nå = LocalDate.now();
     Periode p1 = Periode.of(nå, nå.plusDays(5));
@@ -47,7 +47,7 @@ public class EksisterendeOppdragMapperTest {
     DelytelseId delytelseId3 = delytelseId2.neste();
 
     @Test
-    public void skal_mappe_eksisterende_oppdrag() {
+    void skal_mappe_eksisterende_oppdrag() {
         var oppdragskontroll = lagOppdragskontroll();
         var oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
         lagOrdinærLinje(oppdrag110, delytelseId1, p1, Satsen.dagsats(100), null);
@@ -64,7 +64,7 @@ public class EksisterendeOppdragMapperTest {
     }
 
     @Test
-    public void skal_mappe_brukket_kjede_til_to_kjeder() {
+    void skal_mappe_brukket_kjede_til_to_kjeder() {
         var oppdragskontroll = lagOppdragskontroll();
         var oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
         lagOrdinærLinje(oppdrag110, delytelseId1, p1, Satsen.dagsats(100), null);
@@ -81,7 +81,7 @@ public class EksisterendeOppdragMapperTest {
     }
 
     @Test
-    public void skal_mappe_kjede_med_opphør_og_fortsettelse_etter_opphør() {
+    void skal_mappe_kjede_med_opphør_og_fortsettelse_etter_opphør() {
         var opphørsdato = p1.getFom().plusDays(2);
 
         var oppdragskontroll = lagOppdragskontroll();

@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 
-public class BatchSchedulerTaskTest {
+class BatchSchedulerTaskTest {
 
     private BatchSchedulerTask task;
     private BatchSupportTjenesteTest testsupport;
@@ -28,7 +28,7 @@ public class BatchSchedulerTaskTest {
     }
 
     @Test
-    public void normal_dag_skal_ha_8_tasks_med_antalldager() {
+    void normal_dag_skal_ha_8_tasks_med_antalldager() {
         // Arrange
         task.doTask(taskData);
         var props = testsupport.getTaskDataList();

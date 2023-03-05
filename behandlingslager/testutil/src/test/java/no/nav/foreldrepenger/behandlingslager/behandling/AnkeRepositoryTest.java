@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioA
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class AnkeRepositoryTest extends EntityManagerAwareTest {
+class AnkeRepositoryTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private AnkeRepository ankeRepository;
@@ -27,7 +27,7 @@ public class AnkeRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_legge_til_og_hente_ankeresultat() {
+    void skal_legge_til_og_hente_ankeresultat() {
         var ankeBehandling = opprettBehandling();
 
         // Act
@@ -38,7 +38,7 @@ public class AnkeRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_og_hente_ankevurderingResultat() {
+    void skal_lagre_og_hente_ankevurderingResultat() {
         // Arrange
         var scenario = ScenarioAnkeEngangsstønad.forAvvistAnke(ScenarioFarSøkerEngangsstønad.forAdopsjon());
         var ankeBehandling = scenario.lagre(repositoryProvider);
@@ -59,7 +59,7 @@ public class AnkeRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void settPåAnketKlageBehandling() {
+    void settPåAnketKlageBehandling() {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         var ankeBehandling = scenario.lagre(repositoryProvider);
         var scenario2 = ScenarioFarSøkerEngangsstønad.forFødsel();

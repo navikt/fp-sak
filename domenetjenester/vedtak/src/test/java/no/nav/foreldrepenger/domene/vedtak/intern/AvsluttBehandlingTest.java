@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @ExtendWith(MockitoExtension.class)
-public class AvsluttBehandlingTest {
+class AvsluttBehandlingTest {
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -89,7 +89,7 @@ public class AvsluttBehandlingTest {
     }
 
     @Test
-    public void testAvsluttBehandlingUtenAndreBehandlingerISaken() {
+    void testAvsluttBehandlingUtenAndreBehandlingerISaken() {
         // Arrange
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
                 Collections.singletonList(behandling));
@@ -110,7 +110,7 @@ public class AvsluttBehandlingTest {
     }
 
     @Test
-    public void testAvsluttBehandlingMedAnnenBehandlingSomIkkeVenter() {
+    void testAvsluttBehandlingMedAnnenBehandlingSomIkkeVenter() {
         // Arrange
         var behandling2 = ScenarioMorSøkerEngangsstønad.forAdopsjon().lagMocked();
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
@@ -125,7 +125,7 @@ public class AvsluttBehandlingTest {
     }
 
     @Test
-    public void testAvsluttBehandlingMedAnnenBehandlingSomVenter() {
+    void testAvsluttBehandlingMedAnnenBehandlingSomVenter() {
         // Arrange
         var annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
         var tilstand = new BehandlingStegTilstand(annenBehandling,
@@ -145,7 +145,7 @@ public class AvsluttBehandlingTest {
     }
 
     @Test
-    public void testAvsluttBehandlingMedAnnenBehandlingSomErUnderIverksetting() {
+    void testAvsluttBehandlingMedAnnenBehandlingSomErUnderIverksetting() {
         // Arrange
         var annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
         var tilstand = new BehandlingStegTilstand(annenBehandling,
@@ -164,7 +164,7 @@ public class AvsluttBehandlingTest {
     }
 
     @Test
-    public void testAvsluttBehandlingMedToAndreBehandlingerSomVenterEldsteFørst() {
+    void testAvsluttBehandlingMedToAndreBehandlingerSomVenterEldsteFørst() {
         // Arrange
         var now = LocalDateTime.now();
         var annenBehandling = lagBehandling(now.minusDays(2), now);
@@ -200,7 +200,7 @@ public class AvsluttBehandlingTest {
 
 
     @Test
-    public void testAvsluttBehandlingMedToAndreBehandlingerSomVenterEldsteSist() {
+    void testAvsluttBehandlingMedToAndreBehandlingerSomVenterEldsteSist() {
         // Arrange
         var now = LocalDateTime.now();
         var annenBehandling = lagBehandling(now, now);

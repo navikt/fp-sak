@@ -76,7 +76,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @CdiDbAwareTest
-public class UttakStegImplTest {
+class UttakStegImplTest {
 
     private static final String ORGNR = "123";
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
@@ -131,7 +131,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skal_utføre_uten_aksjonspunkt_når_det_ikke_er_noe_som_skal_fastsettes_manuelt() {
+    void skal_utføre_uten_aksjonspunkt_når_det_ikke_er_noe_som_skal_fastsettes_manuelt() {
         var behandling = opprettBehandling();
 
         opprettPersonopplysninger(behandling);
@@ -149,7 +149,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skal_ha_aksjonspunkt_når_resultat_må_manuelt_fastsettes_her_pga_tomt_på_konto() {
+    void skal_ha_aksjonspunkt_når_resultat_må_manuelt_fastsettes_her_pga_tomt_på_konto() {
         var behandling = opprettBehandling();
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
@@ -169,7 +169,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skalBeregneStønadskontoVedFørsteBehandlingForFørsteForelder() {
+    void skalBeregneStønadskontoVedFørsteBehandlingForFørsteForelder() {
         var fagsakForFar = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.FARA)
                 .medSaksnummer(new Saksnummer("12345"))
                 .build();
@@ -236,7 +236,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skalBeregneStønadskontoNårDekningsgradErEndret() {
+    void skalBeregneStønadskontoNårDekningsgradErEndret() {
 
         var fødselsdato = LocalDate.of(2019, 2, 25);
         var fagsak = opprettFagsak();
@@ -292,7 +292,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skalBeregneStønadskontoPåNyttNårFødselErFørUke33() {
+    void skalBeregneStønadskontoPåNyttNårFødselErFørUke33() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var terminbekreftelse = FamilieHendelseBuilder
                 .oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD)
@@ -390,7 +390,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skal_ha_aktiv_uttak_resultat_etter_tilbakehopp_til_steget() {
+    void skal_ha_aktiv_uttak_resultat_etter_tilbakehopp_til_steget() {
         var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
@@ -407,7 +407,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skal_ikke_ha_aktiv_uttak_resultat_etter_tilbakehopp_over_steget() {
+    void skal_ikke_ha_aktiv_uttak_resultat_etter_tilbakehopp_over_steget() {
         var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
@@ -424,7 +424,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skal_ikke_ha_aktiv_uttak_resultat_etter_fremoverhopp_over_steget() {
+    void skal_ikke_ha_aktiv_uttak_resultat_etter_fremoverhopp_over_steget() {
         var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
@@ -441,7 +441,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skal_ha_aksjonspunkt_når_dødsdato_er_registert() {
+    void skal_ha_aksjonspunkt_når_dødsdato_er_registert() {
         var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
@@ -462,7 +462,7 @@ public class UttakStegImplTest {
     }
 
     @Test
-    public void skal_ha_aksjonspunkt_når_finnes_dødsdato_i_overstyrt_versjon() {
+    void skal_ha_aksjonspunkt_når_finnes_dødsdato_i_overstyrt_versjon() {
         var behandling = opprettBehandling();
         final var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
                 .tilbakestillBarn()

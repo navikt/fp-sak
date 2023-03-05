@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
+class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
     private static AktørId MOR_AKTØR_ID = AktørId.dummy();
 
@@ -62,7 +62,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_termin_og_gjensidig_oppgitt_søknad() {
+    void finn_mors_fagsak_dersom_termin_og_gjensidig_oppgitt_søknad() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -76,7 +76,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_mor_søker_termin_får_bekreftet_fødsel_og_gjensidig_oppgitt_søknad() {
+    void finn_mors_fagsak_dersom_mor_søker_termin_får_bekreftet_fødsel_og_gjensidig_oppgitt_søknad() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -90,7 +90,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_tidlig_fødsel_uten_at_barnet_er_registrert_i_TPS() {
+    void finn_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_tidlig_fødsel_uten_at_barnet_er_registrert_i_TPS() {
         // Oppsett
         settOppTpsStrukturer(true, false);
 
@@ -104,7 +104,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_for_tidlig_fødsel() {
+    void finn_mors_fagsak_dersom_mor_søker_termin_og_gjensidig_oppgitt_søknad_ved_for_tidlig_fødsel() {
         // Oppsett
         settOppTpsStrukturer(true);
 
@@ -117,7 +117,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_ikke_mors_nye_fagsak_ved_ulike_kull() {
+    void finn_ikke_mors_nye_fagsak_ved_ulike_kull() {
         // Oppsett
         settOppTpsStrukturer(true);
 
@@ -131,7 +131,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
 
     @Test
-    public void finn_mors_fagsak_dersom_mor_søker_termin_får_bekreftet_fødsel_og_gjensidig_oppgitt_søknad_ved_forsinket_fødsel_uten_at_barnet_er_registrert_i_TPS() {
+    void finn_mors_fagsak_dersom_mor_søker_termin_får_bekreftet_fødsel_og_gjensidig_oppgitt_søknad_ved_forsinket_fødsel_uten_at_barnet_er_registrert_i_TPS() {
         // Oppsett
         settOppTpsStrukturer(true, false);
 
@@ -145,7 +145,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_riktig_mors_fagsak_ved_ulike_kull() {
+    void finn_riktig_mors_fagsak_ved_ulike_kull() {
         // Oppsett
         settOppTpsStrukturer(true);
 
@@ -160,7 +160,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_termin_og_en_part_oppgir_annen_part() {
+    void finn_mors_fagsak_dersom_termin_og_en_part_oppgir_annen_part() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -174,7 +174,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finner_ikke_mors_fagsak_dersom_termin_og_ikke_oppgir_annen_part() {
+    void finner_ikke_mors_fagsak_dersom_termin_og_ikke_oppgir_annen_part() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -187,7 +187,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_surrogati_adopsjon() {
+    void finn_mors_fagsak_dersom_surrogati_adopsjon() {
         // Oppsett
         settOppTpsSurrogatiStrukturer();
 
@@ -201,7 +201,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_ikke_mors_fagsak_dersom_surrogati_adopsjon_og_skrivefeil_dato() {
+    void finn_ikke_mors_fagsak_dersom_surrogati_adopsjon_og_skrivefeil_dato() {
         // Oppsett
         settOppTpsSurrogatiStrukturer();
 
@@ -214,7 +214,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_termin_og_en_part_oppgir_annen_part_og_andre_oppgir_tredje_part() {
+    void finn_mors_fagsak_dersom_termin_og_en_part_oppgir_annen_part_og_andre_oppgir_tredje_part() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -228,7 +228,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_fagsak_dersom_fødsel_og_gjensidig_oppgitt_søknad() {
+    void finn_mors_fagsak_dersom_fødsel_og_gjensidig_oppgitt_søknad() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -242,7 +242,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_ingen_fagsak_dersom_mor_allerede_koblet() {
+    void finn_ingen_fagsak_dersom_mor_allerede_koblet() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -258,7 +258,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void mor_søker_far_har_gammel_sak() {
+    void mor_søker_far_har_gammel_sak() {
         // Oppsett
         settOppTpsStrukturer(false);
 
@@ -271,7 +271,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_ikke_fars_fagsak_dersom_det_finnes_ikke_relasjon_i_tps() {
+    void finn_ikke_fars_fagsak_dersom_det_finnes_ikke_relasjon_i_tps() {
         // Oppsett
         settOppTpsStrukturer(true);
 
@@ -283,7 +283,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finner_to_fagsaker_på_mor_og_lar_være_å_koble_til_noen_av_dem() {
+    void finner_to_fagsaker_på_mor_og_lar_være_å_koble_til_noen_av_dem() {
         // Arrange
         settOppTpsStrukturer(false);
 

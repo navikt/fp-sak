@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
-public class BeregningUttakTjenesteTest {
+class BeregningUttakTjenesteTest {
 
     private ForeldrepengerUttakTjeneste uttakTjeneste = Mockito.mock(ForeldrepengerUttakTjeneste.class);
     private YtelsesFordelingRepository ytelsesRepo = Mockito.mock(YtelsesFordelingRepository.class);
@@ -50,7 +50,7 @@ public class BeregningUttakTjenesteTest {
     private ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
     @Test
-    public void hente_gradering_fra_oppgittfordeling_førstegangsbehandling() {
+    void hente_gradering_fra_oppgittfordeling_førstegangsbehandling() {
         var periode = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2019, 5, 27), LocalDate.of(2019, 5, 31))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -127,7 +127,7 @@ public class BeregningUttakTjenesteTest {
     }
 
     @Test
-    public void hente_gradering_fra_oppgittfordeling_med_uttaksresultat_fra_original_behandling() {
+    void hente_gradering_fra_oppgittfordeling_med_uttaksresultat_fra_original_behandling() {
         // Skal hente gradering fra uttak fram til der oppgittfordeling starter
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
@@ -190,7 +190,7 @@ public class BeregningUttakTjenesteTest {
     }
 
     @Test
-    public void hente_gradering_fra_uttaksresultat_uten_oppgittfordeling() {
+    void hente_gradering_fra_uttaksresultat_uten_oppgittfordeling() {
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medTrekkonto(StønadskontoType.MØDREKVOTE)
@@ -227,7 +227,7 @@ public class BeregningUttakTjenesteTest {
     }
 
     @Test
-    public void hente_gradering_fra_oppgittfordeling_med_uttaksresultat_fra_original_behandling_frilans() {
+    void hente_gradering_fra_oppgittfordeling_med_uttaksresultat_fra_original_behandling_frilans() {
         // Skal hente gradering fra uttak fram til der oppgittfordeling starter
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var uttaksperiodeMedGradering = gradertUttaksperiode(null, UttakArbeidType.FRILANS, LocalDate.of(2019, 5, 15), LocalDate.of(2019, 5, 20));
@@ -263,7 +263,7 @@ public class BeregningUttakTjenesteTest {
     }
 
     @Test
-    public void hente_gradering_fra_oppgittfordeling_med_uttaksresultat_fra_original_behandling_sn() {
+    void hente_gradering_fra_oppgittfordeling_med_uttaksresultat_fra_original_behandling_sn() {
         // Skal hente gradering fra uttak fram til der oppgittfordeling starter
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var uttaksperiodeMedGradering = gradertUttaksperiode(null, UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, LocalDate.of(2019, 5, 15),
@@ -300,7 +300,7 @@ public class BeregningUttakTjenesteTest {
     }
 
     @Test
-    public void skal_finne_siste_uttaksdag_når_ytelsefordeling_finnes() {
+    void skal_finne_siste_uttaksdag_når_ytelsefordeling_finnes() {
         scenario.medBehandlingType(BehandlingType.REVURDERING);
         var oppgittPeriodeMedGradering = OppgittPeriodeBuilder.ny()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
@@ -323,7 +323,7 @@ public class BeregningUttakTjenesteTest {
     }
 
     @Test
-    public void skal_finne_siste_uttaksdag_når_ytelsefordeling_mangler() {
+    void skal_finne_siste_uttaksdag_når_ytelsefordeling_mangler() {
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var uttaksperiode = uttaksperiode(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 1));
 

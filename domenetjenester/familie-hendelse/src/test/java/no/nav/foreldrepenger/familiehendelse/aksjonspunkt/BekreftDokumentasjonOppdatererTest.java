@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
+class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -51,7 +51,7 @@ public class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_dokumentert_adopsjonsdato() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_dokumentert_adopsjonsdato() {
         // Arrange
         var opprinneligOvertakelsesdato = LocalDate.now();
         var bekreftetOvertakelsesdato = opprinneligOvertakelsesdato.plusDays(1);

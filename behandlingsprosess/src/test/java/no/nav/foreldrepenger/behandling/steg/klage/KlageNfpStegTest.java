@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioK
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
-public class KlageNfpStegTest {
+class KlageNfpStegTest {
 
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private KlageNfpSteg steg;
@@ -38,7 +38,7 @@ public class KlageNfpStegTest {
     }
 
     @Test
-    public void skalOppretteAksjonspunktManuellVurderingAvKlageNfpNårStegKjøres() {
+    void skalOppretteAksjonspunktManuellVurderingAvKlageNfpNårStegKjøres() {
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
         var klageBehandling = scenario.lagMocked();
         var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
@@ -57,7 +57,7 @@ public class KlageNfpStegTest {
     }
 
     @Test
-    public void skalOverhoppBakoverRyddeKlageVurderingRestultatOgLageHistorikkInnslag() {
+    void skalOverhoppBakoverRyddeKlageVurderingRestultatOgLageHistorikkInnslag() {
         // Arrange
 
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());

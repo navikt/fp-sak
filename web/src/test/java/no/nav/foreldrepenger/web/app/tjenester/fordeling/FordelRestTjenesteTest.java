@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.Abac
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class FordelRestTjenesteTest {
+class FordelRestTjenesteTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
 

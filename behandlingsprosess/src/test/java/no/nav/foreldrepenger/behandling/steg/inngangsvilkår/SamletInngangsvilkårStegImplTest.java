@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class SamletInngangsvilkårStegImplTest {
+class SamletInngangsvilkårStegImplTest {
 
     private BehandlingskontrollKontekst kontekst;
 
@@ -51,7 +51,7 @@ public class SamletInngangsvilkårStegImplTest {
     }
 
     @Test
-    public void skal_gjenskape_overstyring_mellomliggende_vilkår() {
+    void skal_gjenskape_overstyring_mellomliggende_vilkår() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
@@ -83,7 +83,7 @@ public class SamletInngangsvilkårStegImplTest {
     }
 
     @Test
-    public void alle_vilkår_oppfylt() {
+    void alle_vilkår_oppfylt() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)

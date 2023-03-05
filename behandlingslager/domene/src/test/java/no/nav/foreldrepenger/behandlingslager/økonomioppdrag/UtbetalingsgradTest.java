@@ -11,19 +11,19 @@ import org.junit.jupiter.api.Test;
 class UtbetalingsgradTest {
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter_utbetalingsgrad_0() {
+    void skal_bygge_instans_med_påkrevde_felter_utbetalingsgrad_0() {
         var gradVerdi = 0;
         var utbetalingsgrad = Utbetalingsgrad.prosent(gradVerdi);
         validerObjekt(utbetalingsgrad, gradVerdi);
     }
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter_utbetalingsgrad_100() {
+    void skal_bygge_instans_med_påkrevde_felter_utbetalingsgrad_100() {
         validerObjekt(Utbetalingsgrad._100, 100);
     }
 
     @Test
-    public void skal_feile_hvis_utbetalingsgrad_er_null() {
+    void skal_feile_hvis_utbetalingsgrad_er_null() {
         Exception thrown = assertThrows(
             NullPointerException.class,
             () -> Utbetalingsgrad.prosent(null)
@@ -33,7 +33,7 @@ class UtbetalingsgradTest {
     }
 
     @Test
-    public void skal_feile_hvis_utbetalingsgrad_er_mindre_en_0() {
+    void skal_feile_hvis_utbetalingsgrad_er_mindre_en_0() {
         final var verdi = -100;
         Exception thrown = assertThrows(
             IllegalArgumentException.class,
@@ -45,7 +45,7 @@ class UtbetalingsgradTest {
     }
 
     @Test
-    public void skal_feile_hvis_utbetalingsgrad_er_storre_en_100() {
+    void skal_feile_hvis_utbetalingsgrad_er_storre_en_100() {
         final var verdi = 110;
         Exception thrown = assertThrows(
             IllegalArgumentException.class,

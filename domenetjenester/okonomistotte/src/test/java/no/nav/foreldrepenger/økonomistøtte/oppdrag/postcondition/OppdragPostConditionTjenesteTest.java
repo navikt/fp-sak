@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
 
-public class OppdragPostConditionTjenesteTest {
+class OppdragPostConditionTjenesteTest {
 
     LocalDate forrigeSøndag = LocalDate.of(2020, 11, 22);
     LocalDate mandag = forrigeSøndag.plusDays(1);
@@ -23,12 +23,12 @@ public class OppdragPostConditionTjenesteTest {
     LocalDate nesteMandag = mandag.plusDays(7);
 
     @Test
-    public void skal_ikke_finne_differanse_mellom_identiske_ytelser() {
+    void skal_ikke_finne_differanse_mellom_identiske_ytelser() {
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(Ytelse.EMPTY, Ytelse.EMPTY, Betalingsmottaker.BRUKER)).isEmpty();
     }
 
     @Test
-    public void skal_ignorere_helger_for_satstype_dagsats() {
+    void skal_ignorere_helger_for_satstype_dagsats() {
         var ytelseKontinuerlig = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(Periode.of(mandag, fredag), Satsen.dagsats(100)))
             .leggTilPeriode(new YtelsePeriode(Periode.of(nesteMandag, nesteMandag), Satsen.dagsats(100)))
@@ -41,7 +41,7 @@ public class OppdragPostConditionTjenesteTest {
     }
 
     @Test
-    public void skal_finne_differanse() {
+    void skal_finne_differanse() {
         var ytelse1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, mandag), Satsen.dagsats(100))).build();
 
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(Ytelse.EMPTY, ytelse1, Betalingsmottaker.BRUKER)).contains(new OppdragPostConditionTjeneste.TilkjentYtelseDifferanse(mandag, null, 100));

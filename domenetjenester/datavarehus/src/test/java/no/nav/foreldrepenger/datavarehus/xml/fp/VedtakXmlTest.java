@@ -93,7 +93,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
-public class VedtakXmlTest {
+class VedtakXmlTest {
 
     private static final AktørId BRUKER_AKTØR_ID = AktørId.dummy();
     private static final Saksnummer SAKSNUMMER = new Saksnummer("12345");
@@ -155,7 +155,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml(EntityManager em) {
+    void skal_opprette_vedtaks_xml(EntityManager em) {
         var behandling = byggBehandlingMedVedtak(em);
         var avkortetXmlElement = "avkortet>";
 

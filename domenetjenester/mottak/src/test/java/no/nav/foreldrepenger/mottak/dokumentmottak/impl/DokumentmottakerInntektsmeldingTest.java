@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class DokumentmottakerInntektsmeldingTest {
+class DokumentmottakerInntektsmeldingTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -97,7 +97,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_oppdatere_ukomplett_behandling_med_IM_dersom_fagsak_har_avsluttet_behandling_og_åpen_behandling_og_kompletthet_ikke_passert() {
+    void skal_oppdatere_ukomplett_behandling_med_IM_dersom_fagsak_har_avsluttet_behandling_og_åpen_behandling_og_kompletthet_ikke_passert() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -123,7 +123,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_oppdatere_behandling_vurdere_kompletthet_og_spole_til_nytt_startpunkt_dersom_fagsak_har_avsluttet_behandling_har_åpen_behandling_og_kompletthet_passert() {
+    void skal_oppdatere_behandling_vurdere_kompletthet_og_spole_til_nytt_startpunkt_dersom_fagsak_har_avsluttet_behandling_har_åpen_behandling_og_kompletthet_passert() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -153,7 +153,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_lagre_dokument_og_vurdere_kompletthet_dersom_inntektsmelding_på_åpen_behandling() {
+    void skal_lagre_dokument_og_vurdere_kompletthet_dersom_inntektsmelding_på_åpen_behandling() {
         // Arrange - opprette åpen behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP);
@@ -174,7 +174,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_lagre_dokument_og_vurdere_kompletthet_dersom_inntektsmelding_etterlyst() {
+    void skal_lagre_dokument_og_vurdere_kompletthet_dersom_inntektsmelding_etterlyst() {
         // Arrange - opprette åpen behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP);
@@ -195,7 +195,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_opprette_revurdering_dersom_inntektsmelding_på_avsluttet_behandling() {
+    void skal_opprette_revurdering_dersom_inntektsmelding_på_avsluttet_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -223,7 +223,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_opprette_førstegangsbehandling() {
+    void skal_opprette_førstegangsbehandling() {
 
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
                 fagsakRepository, fagsakRelasjonRepository);
@@ -243,7 +243,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_opprette_køet_revurdering_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
+    void skal_opprette_køet_revurdering_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
@@ -271,7 +271,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_opprette_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
+    void skal_opprette_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
         var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
@@ -303,7 +303,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_oppdatere_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_finnes() {
+    void skal_oppdatere_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_finnes() {
         // Arrange - opprette køet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -323,7 +323,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_lage_ny_førstegangsbehandling_med_inntektsmeldingen_etter_henlagt_førstegangsbehandling() {
+    void skal_lage_ny_førstegangsbehandling_med_inntektsmeldingen_etter_henlagt_førstegangsbehandling() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingsresultat(
@@ -348,7 +348,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_ikke_lage_ny_førstegangsbehandling_med_inntektsmeldingen_når_det_finnes_en_åpen_behandling() {
+    void skal_ikke_lage_ny_førstegangsbehandling_med_inntektsmeldingen_når_det_finnes_en_åpen_behandling() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
@@ -367,7 +367,7 @@ public class DokumentmottakerInntektsmeldingTest {
     }
 
     @Test
-    public void skal_ikke_lage_ny_førstegangsbehandling_med_inntektsmeldingen_når_forrige_behandling_er_innvilget() {
+    void skal_ikke_lage_ny_førstegangsbehandling_med_inntektsmeldingen_når_forrige_behandling_er_innvilget() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));

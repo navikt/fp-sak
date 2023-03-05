@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunk
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class ForeslåBeregningsgrunnlagStegTest {
+class ForeslåBeregningsgrunnlagStegTest {
 
     @Mock
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
@@ -99,7 +99,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
     }
 
     @Test
-    public void stegUtførtUtenAksjonspunkter() {
+    void stegUtførtUtenAksjonspunkter() {
         // Arrange
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
 
@@ -112,7 +112,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
     }
 
     @Test
-    public void stegUtførtNårRegelResultatInneholderAutopunkt() {
+    void stegUtførtNårRegelResultatInneholderAutopunkt() {
         // Arrange
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
         var aksjonspunktResultat = BeregningAvklaringsbehovResultat

@@ -39,10 +39,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(MockitoExtension.class)
-public class DokVurderingKopiererTest {
+class DokVurderingKopiererTest {
 
     @Test
-    public void skalKopiereVurderingVedLikePerioder() {
+    void skalKopiereVurderingVedLikePerioder() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalBehandlingPerioder = List.of(OppgittPeriodeBuilder.ny()
@@ -71,7 +71,7 @@ public class DokVurderingKopiererTest {
 
 
     @Test
-    public void skalIkkeKopiereVurderingVedIkkeGodkjent() {
+    void skalIkkeKopiereVurderingVedIkkeGodkjent() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalBehandlingPerioder = List.of(OppgittPeriodeBuilder.ny()
@@ -97,7 +97,7 @@ public class DokVurderingKopiererTest {
     }
 
     @Test
-    public void skalIkkeKopiereVurderingVedAnnenOverføringsårsak() {
+    void skalIkkeKopiereVurderingVedAnnenOverføringsårsak() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalBehandlingPerioder = List.of(OppgittPeriodeBuilder.ny()
@@ -126,7 +126,7 @@ public class DokVurderingKopiererTest {
 
 
     @Test
-    public void skalSplittePeriodeFinneVurderingFraOriginalBehandlingHvisUtvidetPeriode() {
+    void skalSplittePeriodeFinneVurderingFraOriginalBehandlingHvisUtvidetPeriode() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalBehandlingPerioder = List.of(OppgittPeriodeBuilder.ny()
@@ -158,7 +158,7 @@ public class DokVurderingKopiererTest {
     }
 
     @Test
-    public void skalFinneVurderingOriginalBehandlingHvisKrympetPeriode() {
+    void skalFinneVurderingOriginalBehandlingHvisKrympetPeriode() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalBehandlingPerioder = List.of(OppgittPeriodeBuilder.ny()
@@ -186,7 +186,7 @@ public class DokVurderingKopiererTest {
 
 
     @Test
-    public void skalBrukeVurderingSelvOmEndretGradering() {
+    void skalBrukeVurderingSelvOmEndretGradering() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
 
@@ -233,7 +233,7 @@ public class DokVurderingKopiererTest {
     }
 
     @Test
-    public void utviderPeriodeUtenUttakOgLeggerTilSenereUttakFraUR() {
+    void utviderPeriodeUtenUttakOgLeggerTilSenereUttakFraUR() {
         var fom0 = LocalDate.of(2022, 10, 4);
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
@@ -300,7 +300,7 @@ public class DokVurderingKopiererTest {
     }
 
     @Test
-    public void prod_overstyrt_uttak_utsettelse_med_konto() {
+    void prod_overstyrt_uttak_utsettelse_med_konto() {
         var fom = LocalDate.of(2022, 1, 3);
         var fom0 = LocalDate.of(2022, 1, 10);
         var tom = LocalDate.of(2022, 6, 10);

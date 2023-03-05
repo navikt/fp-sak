@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
-public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
+class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
@@ -57,7 +57,7 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_behandlingsvedtak_for_revurdering_med_opphør() {
+    void skal_opprette_behandlingsvedtak_for_revurdering_med_opphør() {
         // Arrange
         var originalBehandling = lagInnvilgetOriginalBehandling();
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)

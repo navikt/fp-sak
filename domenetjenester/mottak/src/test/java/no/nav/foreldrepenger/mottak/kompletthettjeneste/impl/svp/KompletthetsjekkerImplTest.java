@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp.Kompletthetssjek
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
+class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
     private static final LocalDate STARTDATO_PERMISJON = LocalDate.now().plusWeeks(1);
     private BehandlingRepositoryProvider repositoryProvider;
@@ -89,7 +89,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_sende_brev_når_inntektsmelding_mangler() {
+    void skal_sende_brev_når_inntektsmelding_mangler() {
         // Arrange
         var behandling =  ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         mockManglendeInntektsmeldingGrunnlag();

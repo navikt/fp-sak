@@ -14,10 +14,10 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class FinnAktivitetsavtalerForUtbetalingsgradTest {
+class FinnAktivitetsavtalerForUtbetalingsgradTest {
 
     @Test
-    public void skal_returnere_ingen_avtaler_ved_ingen_avtaler() {
+    void skal_returnere_ingen_avtaler_ved_ingen_avtaler() {
         // Arrange
         Collection<AktivitetsAvtale> avtaler = List.of();
         var jordmorsdato = LocalDate.now();
@@ -31,7 +31,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     }
 
     @Test
-    public void skal_returnere_ingen_avtaler_ved_ingen_overlapp() {
+    void skal_returnere_ingen_avtaler_ved_ingen_overlapp() {
         // Arrange
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
@@ -48,7 +48,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     }
 
     @Test
-    public void skal_returnere_en_avtale_ved_overlapp_siste_dag() {
+    void skal_returnere_en_avtale_ved_overlapp_siste_dag() {
         // Arrange
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
@@ -65,7 +65,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     }
 
     @Test
-    public void skal_returnere_en_avtale_ved_overlapp_første_dag() {
+    void skal_returnere_en_avtale_ved_overlapp_første_dag() {
         // Arrange
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
@@ -82,7 +82,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     }
 
     @Test
-    public void skal_returnere_en_avtale_ved_2_avtaler_overlapp_jordmorsdato_og_termindato() {
+    void skal_returnere_en_avtale_ved_2_avtaler_overlapp_jordmorsdato_og_termindato() {
         // Arrange
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
@@ -104,7 +104,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     }
 
     @Test
-    public void skal_returnere_2_avtaler_ved_2_avtaler_som_ligger_like_langt_fra_jordmorsdato() {
+    void skal_returnere_2_avtaler_ved_2_avtaler_som_ligger_like_langt_fra_jordmorsdato() {
         // Arrange
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);
@@ -125,7 +125,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     }
 
     @Test
-    public void skal_returnere_velge_avtaler_etter_jordmorsdato_foran_avtaler_før() {
+    void skal_returnere_velge_avtaler_etter_jordmorsdato_foran_avtaler_før() {
         // Arrange
         var jordmorsdato = LocalDate.now();
         var termindato = jordmorsdato.plusDays(15);

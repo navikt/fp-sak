@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
-public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
+class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -59,7 +59,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_uttak_periode_mor() {
+    void skal_finne_fud_søkt_uttak_periode_mor() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt, skjæringstidspunkt.plusWeeks(3).minusDays(1))
@@ -89,7 +89,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_grunnbeløp_søkt_uttak_periode_mor() {
+    void skal_finne_fud_grunnbeløp_søkt_uttak_periode_mor() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt.plusDays(5), skjæringstidspunkt.plusWeeks(3).minusDays(1))
@@ -117,7 +117,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_grunnbeløp_tidlig_fødsel() {
+    void skal_finne_fud_grunnbeløp_tidlig_fødsel() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt, skjæringstidspunkt.plusWeeks(3).minusDays(1))
@@ -146,7 +146,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_uttak_periode_far_overføring() {
+    void skal_finne_fud_søkt_uttak_periode_far_overføring() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt, skjæringstidspunkt.plusWeeks(3).minusDays(1))
@@ -165,7 +165,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_uttak_periode_far_utsettelse() {
+    void skal_finne_fud_søkt_uttak_periode_far_utsettelse() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder1 = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt.plusWeeks(31), skjæringstidspunkt.plusWeeks(35).minusDays(1))
@@ -187,7 +187,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_uttak_periode_far_før_fødsel_uten_termin() {
+    void skal_finne_fud_søkt_uttak_periode_far_før_fødsel_uten_termin() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt.minusWeeks(1), skjæringstidspunkt.plusWeeks(1).minusDays(1))
@@ -205,7 +205,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_uttak_periode_far_før_termin() {
+    void skal_finne_fud_søkt_uttak_periode_far_før_termin() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt.minusWeeks(1), skjæringstidspunkt.plusWeeks(1).minusDays(1))
@@ -227,7 +227,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_uttak_periode_far_før_termin_juster_fødsel() {
+    void skal_finne_fud_søkt_uttak_periode_far_før_termin_juster_fødsel() {
         var termindato = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(termindato, termindato.plusWeeks(2).minusDays(1))
@@ -250,7 +250,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_uttak_periode_far_før_fødsel_termin_avkorter_fud_beregning() {
+    void skal_finne_fud_søkt_uttak_periode_far_før_fødsel_termin_avkorter_fud_beregning() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(skjæringstidspunkt.minusWeeks(3), skjæringstidspunkt.plusWeeks(1).minusDays(1))
@@ -270,7 +270,7 @@ public class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_finne_fud_søkt_utsettelse_fra_start() {
+    void skal_finne_fud_søkt_utsettelse_fra_start() {
         // Sikre fritt uttak
         utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(12)), repositoryProvider);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);

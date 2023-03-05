@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
-public class EndringerHarBegrunnelseValideringTest {
+class EndringerHarBegrunnelseValideringTest {
 
     @Test
-    public void okAlleHarBegrunnelse() {
+    void okAlleHarBegrunnelse() {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.MANUELL_BEHANDLING));
         var nyePerioder = List.of(periode("Ny begrunnelse", PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
@@ -30,7 +30,7 @@ public class EndringerHarBegrunnelseValideringTest {
     }
 
     @Test
-    public void feilVedTomBegrunnelse() {
+    void feilVedTomBegrunnelse() {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.MANUELL_BEHANDLING));
         var nyePerioder = List.of(periode("", PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
@@ -38,7 +38,7 @@ public class EndringerHarBegrunnelseValideringTest {
     }
 
     @Test
-    public void feilVedNullBegrunnelse() {
+    void feilVedNullBegrunnelse() {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.MANUELL_BEHANDLING));
         var nyePerioder = List.of(periode(null, PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
@@ -46,7 +46,7 @@ public class EndringerHarBegrunnelseValideringTest {
     }
 
     @Test
-    public void okÅMangleBegrunnelseHvisIngenEndring() {
+    void okÅMangleBegrunnelseHvisIngenEndring() {
         var opprinnelig = List.of(periode(null, PeriodeResultatType.INNVILGET));
         var nyePerioder = List.of(periode(null, PeriodeResultatType.INNVILGET));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);
@@ -54,7 +54,7 @@ public class EndringerHarBegrunnelseValideringTest {
     }
 
     @Test
-    public void okÅMangleBegrunnelseHvisBareTrekkdagerEndring() {
+    void okÅMangleBegrunnelseHvisBareTrekkdagerEndring() {
         var opprinnelig = List.of(periode(new Trekkdager(10)));
         var nyePerioder = List.of(periode(new Trekkdager(15)));
         var validering = new EndringerHarBegrunnelseValidering(opprinnelig);

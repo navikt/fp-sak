@@ -25,10 +25,10 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDtoTjeneste;
 
-public class MedlemDtoTjenesteTest {
+class MedlemDtoTjenesteTest {
 
     @Test
-    public void skal_lage_medlem_dto() {
+    void skal_lage_medlem_dto() {
         var navn = "Lisa gikk til skolen";
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var stp = LocalDate.now();
@@ -77,7 +77,7 @@ public class MedlemDtoTjenesteTest {
     }
 
     @Test
-    public void skal_sette_fom_til_endring_i_personopplysningers_gjeldende_fra() {
+    void skal_sette_fom_til_endring_i_personopplysningers_gjeldende_fra() {
         var navn = "Lisa gikk til skolen";
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -125,7 +125,7 @@ public class MedlemDtoTjenesteTest {
     }
 
     @Test
-    public void skal_lage_inntekt_for_ektefelle() {
+    void skal_lage_inntekt_for_ektefelle() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var navn = "Lisa gikk til skolen";
@@ -179,7 +179,7 @@ public class MedlemDtoTjenesteTest {
     }
 
     @Test
-    public void dto_før_registerinnhenting() {
+    void dto_før_registerinnhenting() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
 

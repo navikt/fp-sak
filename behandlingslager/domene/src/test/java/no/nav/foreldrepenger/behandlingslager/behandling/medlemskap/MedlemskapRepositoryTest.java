@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class MedlemskapRepositoryTest extends EntityManagerAwareTest {
+class MedlemskapRepositoryTest extends EntityManagerAwareTest {
 
     private MedlemskapRepository repository;
     private FagsakRepository fagsakRepository;
@@ -32,7 +32,7 @@ public class MedlemskapRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_eldste_versjon_av_aggregat() {
+    void skal_hente_eldste_versjon_av_aggregat() {
         var behandling = lagBehandling();
         var perioder = new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.FORELOPIG).build();
         var behandlingId = behandling.getId();
@@ -55,7 +55,7 @@ public class MedlemskapRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_vurdering_av_løpende_medlemskap() {
+    void skal_lagre_vurdering_av_løpende_medlemskap() {
         var behandling = lagBehandling();
         var vurderingsdato = LocalDate.now();
         var builder = new VurdertMedlemskapPeriodeEntitet.Builder();

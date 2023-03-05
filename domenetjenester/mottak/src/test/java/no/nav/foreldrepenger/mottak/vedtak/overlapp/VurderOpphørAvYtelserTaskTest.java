@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderOpphørAvYtelserTaskTest {
+class VurderOpphørAvYtelserTaskTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -29,7 +29,7 @@ public class VurderOpphørAvYtelserTaskTest {
     private VurderOpphørAvYtelser vurderOpphørAvYtelser;
 
     @Test
-    public void vurderOpphørForFørstegangsbehandling() {
+    void vurderOpphørForFørstegangsbehandling() {
         var scenario = lagBehandlingFP(BehandlingType.FØRSTEGANGSSØKNAD);
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser,
@@ -47,7 +47,7 @@ public class VurderOpphørAvYtelserTaskTest {
     }
 
     @Test
-    public void ikkeVurderOpphørForRevurderingsbehandling() {
+    void ikkeVurderOpphørForRevurderingsbehandling() {
         var scenario = lagBehandlingFP(BehandlingType.REVURDERING);
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser,

@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
   Denne testklassen fokuserer på at aggregatet (Beregningsresultat) bygges opp korrekt over suksessive transaksjoner
     som er forventet i use-caser.
  */
-public class BeregningResultatTest extends EntityManagerAwareTest {
+class BeregningResultatTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakReposiory;
@@ -50,7 +50,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_beregningsresultat_uten_beregning_dersom_ikke_finnes_fra_før() {
+    void skal_opprette_nytt_beregningsresultat_uten_beregning_dersom_ikke_finnes_fra_før() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         var behandling1 = opprettBehandling();
@@ -64,7 +64,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_koble_beregning_til_beregningsresultat() {
+    void skal_koble_beregning_til_beregningsresultat() {
         var beregning = new LegacyESBeregning(1000L, antallBarn, antallBarn*1000, LocalDateTime.now());
         assertThat(beregning.getBeregningResultat()).isNull();
         var behandling1 = opprettBehandling();
@@ -82,7 +82,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_beregningsresultat_med_beregning_dersom_ikke_finnes_fra_før() {
+    void skal_opprette_nytt_beregningsresultat_med_beregning_dersom_ikke_finnes_fra_før() {
         // Act
         // TX_1: Opprette nytt beregningsresultat med beregningsinfo
         var beregning = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
@@ -100,7 +100,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gjenbruke_beregningsresultat_fra_tidligere_behandling_ved_opprettelse_av_ny_behandling() {
+    void skal_gjenbruke_beregningsresultat_fra_tidligere_behandling_ved_opprettelse_av_ny_behandling() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         var beregning = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
@@ -131,7 +131,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_beregningsresultat_dersom_gjenbrukt_resultat_fra_tidligere_behandling_oppdateres() {
+    void skal_opprette_nytt_beregningsresultat_dersom_gjenbrukt_resultat_fra_tidligere_behandling_oppdateres() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         var beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
@@ -166,7 +166,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_nytt_beregningsresultat_dersom_resultat_fra_tidligere_behandling_allerede_er_oppdatert() {
+    void skal_ikke_opprette_nytt_beregningsresultat_dersom_resultat_fra_tidligere_behandling_allerede_er_oppdatert() {
         // Act
         // TX_1: Opprette nytt beregningsresultat
         var beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());
@@ -210,7 +210,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_bevare_vilkårresultat_ved_oppdatering_av_beregingsresultat() {
+    void skal_bevare_vilkårresultat_ved_oppdatering_av_beregingsresultat() {
         // Act
         // TX_1: Opprette Behandlingsresultat med Beregningsresultat
         var beregning1 = new LegacyESBeregning(sats, antallBarn, tilkjentYtelse, LocalDateTime.now());

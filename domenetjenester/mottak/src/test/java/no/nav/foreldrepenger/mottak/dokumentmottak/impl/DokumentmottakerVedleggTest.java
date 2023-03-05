@@ -44,7 +44,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @CdiDbAwareTest
-public class DokumentmottakerVedleggTest {
+class DokumentmottakerVedleggTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -85,7 +85,7 @@ public class DokumentmottakerVedleggTest {
     }
 
     @Test
-    public void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_eller_har_en_behandling() {
+    void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_eller_har_en_behandling() {
         // Arrange
         var fagsak = nyMorFødselFagsak();
         var fagsakId = fagsak.getId();
@@ -111,7 +111,7 @@ public class DokumentmottakerVedleggTest {
     }
 
     @Test
-    public void skal_vurdere_kompletthet_når_ustrukturert_dokument_på_åpen_behandling() {
+    void skal_vurdere_kompletthet_når_ustrukturert_dokument_på_åpen_behandling() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP);
@@ -130,7 +130,7 @@ public class DokumentmottakerVedleggTest {
     }
 
     @Test
-    public void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_og_komplett() {
+    void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_og_komplett() {
         // Arrange
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
@@ -159,7 +159,7 @@ public class DokumentmottakerVedleggTest {
     }
 
     @Test
-    public void skal_opprette_task_for_å_vurdere_dokument_når_klageinstans_har_sendt_brev_til_scanning() {
+    void skal_opprette_task_for_å_vurdere_dokument_når_klageinstans_har_sendt_brev_til_scanning() {
         // Arrange
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
@@ -195,7 +195,7 @@ public class DokumentmottakerVedleggTest {
      * som ikke er klage
      */
     @Test
-    public void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_hent_behandlende_enhet_fra_ikke_klagebehandling() {
+    void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_hent_behandlende_enhet_fra_ikke_klagebehandling() {
         final var førstegangssøknadEnhetsId = "0450";
         final var klageEnhetsId = "5000";
 
@@ -228,7 +228,7 @@ public class DokumentmottakerVedleggTest {
     }
 
     @Test
-    public void skal_ikke_opprette_køet_behandling_når_ingen_tidligere_behandling() {
+    void skal_ikke_opprette_køet_behandling_når_ingen_tidligere_behandling() {
         // Arrange - opprette fagsak uten behandling
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
                 repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
@@ -245,7 +245,7 @@ public class DokumentmottakerVedleggTest {
     }
 
     @Test
-    public void skal_opprette_task_for_å_vurdere_dokument_når_dokumenttype_er_udefinert() {
+    void skal_opprette_task_for_å_vurdere_dokument_når_dokumenttype_er_udefinert() {
         final var førstegangssøknadEnhetsId = "0450";
         final var klageEnhetsId = "5000";
 

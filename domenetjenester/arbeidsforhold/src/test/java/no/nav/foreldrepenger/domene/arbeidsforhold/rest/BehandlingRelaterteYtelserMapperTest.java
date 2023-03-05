@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class BehandlingRelaterteYtelserMapperTest {
+class BehandlingRelaterteYtelserMapperTest {
     private static final LocalDate I_DAG = LocalDate.now();
     private static final Saksnummer SAKSNUMMER_9999 = new Saksnummer("9999");
     private static final Saksnummer SAKSNUMMER_11111 = new Saksnummer("11111");
@@ -41,7 +41,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     private final Fagsak fagsakFødsel = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, navBruker, null, SAKSNUMMER_11111);
 
     @Test
-    public void skal_returnerer_tilgrensende_ytelser_for_soker() {
+    void skal_returnerer_tilgrensende_ytelser_for_soker() {
         var ytelser = List.of(
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),
@@ -60,7 +60,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     }
 
     @Test
-    public void skal_returnerer_tilgrensende_ytelser_for_annen_forelder() {
+    void skal_returnerer_tilgrensende_ytelser_for_annen_forelder() {
         var ytelser = List.of(
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),
@@ -81,7 +81,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     }
 
     @Test
-    public void skal_mapper_fagsak_til_tilgrensendeYtelserdto() {
+    void skal_mapper_fagsak_til_tilgrensendeYtelserdto() {
         fagsakFødsel.setAvsluttet();
 
         var tilgrensendeYtelserDto = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsakFødsel, I_DAG.minusDays(5));
@@ -94,7 +94,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     }
 
     @Test
-    public void skal_returnerer_6_tom_tilgrensende_ytelser_for_soker() {
+    void skal_returnerer_6_tom_tilgrensende_ytelser_for_soker() {
         @SuppressWarnings("unchecked")
         List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(Collections.EMPTY_LIST,
                 RELATERT_YTELSE_TYPER_FOR_SØKER);
@@ -107,7 +107,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     }
 
     @Test
-    public void skal_returnerer_2_tom_tilgrensende_ytelser_for_soker() {
+    void skal_returnerer_2_tom_tilgrensende_ytelser_for_soker() {
         @SuppressWarnings("unchecked")
         List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(Collections.EMPTY_LIST,
                 RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
@@ -120,7 +120,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     }
 
     @Test
-    public void skal_returnerer_sortert_tilgrensende_ytelser_for_soker() {
+    void skal_returnerer_sortert_tilgrensende_ytelser_for_soker() {
         var tilgrensendeYtelserDtos = List.of(
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
                         I_DAG.minusDays(365), I_DAG.plusDays(360)),
@@ -157,7 +157,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     }
 
     @Test
-    public void skal_returnerer_sortert_tilgrensende_ytelser_for_annen_forelder() {
+    void skal_returnerer_sortert_tilgrensende_ytelser_for_annen_forelder() {
         var tilgrensendeYtelserDtos = List.of(
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_9999, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),

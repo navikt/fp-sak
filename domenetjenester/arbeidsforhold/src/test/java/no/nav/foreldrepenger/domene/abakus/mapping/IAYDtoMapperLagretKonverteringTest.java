@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class IAYDtoMapperLagretKonverteringTest {
+class IAYDtoMapperLagretKonverteringTest {
 
     private static final LocalDate DATO = LocalDate.now();
     private static final String ORGNR = KUNSTIG_ORG;
@@ -49,7 +49,7 @@ public class IAYDtoMapperLagretKonverteringTest {
     }
 
     @Test
-    public void skal_lagre_ned_inntekt_arbeid_ytelser() {
+    void skal_lagre_ned_inntekt_arbeid_ytelser() {
         var behandlingId = 1L;
         var aktørId = AktørId.dummy();
 

@@ -24,7 +24,7 @@ class VentPåSykemeldingTest {
     private static final LocalDate STP = LocalDate.of(2020, 6, 1);
 
     @Test
-    public void skal_ikke_gi_frist_når_det_ikke_finnes_sykepenger() {
+    void skal_ikke_gi_frist_når_det_ikke_finnes_sykepenger() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(5), 14);
         var ytelseBuilder = lagYtelse(RelatertYtelseType.FRISINN, periode, RelatertYtelseTilstand.LØPENDE);
@@ -39,7 +39,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_ikke_gi_frist_når_det_ikke_finnes_løpende_sykepenger() {
+    void skal_ikke_gi_frist_når_det_ikke_finnes_løpende_sykepenger() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(5), 14);
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.AVSLUTTET);
@@ -54,7 +54,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_ikke_gi_frist_når_det_er_løpende_sykepenger_og_sykemelding_er_motatt_på_stp() {
+    void skal_ikke_gi_frist_når_det_er_løpende_sykepenger_og_sykemelding_er_motatt_på_stp() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(5), 14);
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
@@ -69,7 +69,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_ikke_gi_frist_når_det_er_løpende_sykepenger_ikke_basert_på_dagpenger() {
+    void skal_ikke_gi_frist_når_det_er_løpende_sykepenger_ikke_basert_på_dagpenger() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(20), 10);
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
@@ -85,7 +85,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_gi_frist_når_det_er_løpende_sykepenger_av_dagpenger_og_sykemelding_mangler_på_stp() {
+    void skal_gi_frist_når_det_er_løpende_sykepenger_av_dagpenger_og_sykemelding_mangler_på_stp() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(20), 14);
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
@@ -101,7 +101,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_ikke_bry_seg_om_andre_ytelser() {
+    void skal_ikke_bry_seg_om_andre_ytelser() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(20), 14);
         var ytelseBuilderSP = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
@@ -120,7 +120,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_ikke_vente_når_vi_behandler_over_2_uker_etter_stp() {
+    void skal_ikke_vente_når_vi_behandler_over_2_uker_etter_stp() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2020, 5, 1);
         var dagensDato = LocalDate.of(2020, 5, 31);
@@ -133,7 +133,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_gi_korrekt_frist_når_vi_behandler_under_2_uker_etter_stp() {
+    void skal_gi_korrekt_frist_når_vi_behandler_under_2_uker_etter_stp() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2020, 5, 1);
         var dagensDato = LocalDate.of(2020, 5, 14);
@@ -146,7 +146,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_gi_korrekt_frist_når_stp_er_etter_behandlingstidspunkt() {
+    void skal_gi_korrekt_frist_når_stp_er_etter_behandlingstidspunkt() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2020, 5, 15);
         var dagensDato = LocalDate.of(2020, 5, 1);
@@ -159,7 +159,7 @@ class VentPåSykemeldingTest {
     }
 
     @Test
-    public void skal_vente_hvis_vedtak_på_stp_er_åpent() {
+    void skal_vente_hvis_vedtak_på_stp_er_åpent() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(20), 30);
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.ÅPEN);

@@ -38,7 +38,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
+class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
 
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -74,7 +74,7 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_teste_at_behandlingÅrsakDto_får_korrekte_verdier() {
+    void skal_teste_at_behandlingÅrsakDto_får_korrekte_verdier() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medDefaultFordeling(LocalDate.now());
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());

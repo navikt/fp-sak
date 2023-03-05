@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-public class PerioderUtenHelgUtilTest {
+class PerioderUtenHelgUtilTest {
 
 
     private static final LocalDate SØNDAG_FØR_UKE_1 = LocalDate.of(2017, 1, 1);
@@ -20,13 +20,13 @@ public class PerioderUtenHelgUtilTest {
     private final LocalDate tirsdagUke2 = dag(DayOfWeek.TUESDAY, 2);
 
     @Test
-    public void skal_si_at_datoer_er_like() {
+    void skal_si_at_datoer_er_like() {
         assertThat(datoerLikeNårHelgIgnoreres(lørdagUke1, søndagUke1)).isTrue();
         assertThat(datoerLikeNårHelgIgnoreres(lørdagUke1, mandagUke2)).isTrue();
     }
 
     @Test
-    public void skal_si_at_datoer_er_ulike() {
+    void skal_si_at_datoer_er_ulike() {
         assertThat(datoerLikeNårHelgIgnoreres(fredagUke1, mandagUke2)).isFalse();
         assertThat(datoerLikeNårHelgIgnoreres(tirsdagUke2, lørdagUke1)).isFalse();
         assertThat(datoerLikeNårHelgIgnoreres(fredagUke1, lørdagUke1)).isFalse();

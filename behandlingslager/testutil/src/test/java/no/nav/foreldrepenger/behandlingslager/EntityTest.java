@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
  * Sjekker alle entiteter er mappet korrekt. Ligger i web slik at den fanger
  * alle orm filer lagt i ulike moduler.
  */
-public class EntityTest {
+class EntityTest {
 
     private static final EntityManagerFactory entityManagerFactory;
     static {

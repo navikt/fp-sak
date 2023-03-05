@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ToForeldreBarnDødTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class ToForeldreBarnDødTjenesteTest {
+class ToForeldreBarnDødTjenesteTest {
 
     @Mock
     private ForeldrepengerUttakTjeneste uttakTjeneste;
@@ -52,7 +52,7 @@ public class ToForeldreBarnDødTjenesteTest {
     }
 
     @Test
-    public void skal_velge_behandling_f1_når_f1_har_aktivt_uttak() {
+    void skal_velge_behandling_f1_når_f1_har_aktivt_uttak() {
         // Arrange Foreldre1 (F1) har aktivt uttak nå, og velges automatisk
         var uttakF1 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now().minusDays(15)));
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
@@ -69,7 +69,7 @@ public class ToForeldreBarnDødTjenesteTest {
     }
 
     @Test
-    public void skal_velge_behandling_f1_når_f1_har_nærmeste_uttak() {
+    void skal_velge_behandling_f1_når_f1_har_nærmeste_uttak() {
         // Arrange Foreldre1 (F1) har nærmeste uttak fremover i tid.
         // Nærmeste dato for F1 er 11 dager frem i tid;
         // Nærmeste dato for F2 er 7 dager tilbake i tid, men pga bufferet trekker fra
@@ -91,7 +91,7 @@ public class ToForeldreBarnDødTjenesteTest {
     }
 
     @Test
-    public void skal_velge_behandling_f2_når_f1_har_nærmeste_uttak_men_ingen_utbetaling() {
+    void skal_velge_behandling_f2_når_f1_har_nærmeste_uttak_men_ingen_utbetaling() {
         // Arrange Foreldre1 (F1) har nærmeste uttak fremover i tid.
         // Nærmeste dato for F1 er 11 dager frem i tid, men denne perioden har
         // utbetaling lik 0. velger bakover i tid.
@@ -115,7 +115,7 @@ public class ToForeldreBarnDødTjenesteTest {
     }
 
     @Test
-    public void skal_velge_behandling_f1_når_f2_ikke_har_uttaksresultat() {
+    void skal_velge_behandling_f1_når_f2_ikke_har_uttaksresultat() {
         // Arrange
         var uttakF1 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
         when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
@@ -130,7 +130,7 @@ public class ToForeldreBarnDødTjenesteTest {
     }
 
     @Test
-    public void skal_velge_behandling_f2_når_f1_ikke_har_uttaksresultat() {
+    void skal_velge_behandling_f2_når_f1_ikke_har_uttaksresultat() {
         // Arrange
         var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
         when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.empty());
@@ -145,7 +145,7 @@ public class ToForeldreBarnDødTjenesteTest {
     }
 
     @Test
-    public void skal_velge_behandling_f1_når_ingen_av_behandlingene_har_uttaksresultat() {
+    void skal_velge_behandling_f1_når_ingen_av_behandlingene_har_uttaksresultat() {
         // Arrange
         when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.empty());
         when(uttakTjeneste.hentUttakHvisEksisterer(Mockito.eq(behandlingF2.getId()))).thenReturn(Optional.empty());

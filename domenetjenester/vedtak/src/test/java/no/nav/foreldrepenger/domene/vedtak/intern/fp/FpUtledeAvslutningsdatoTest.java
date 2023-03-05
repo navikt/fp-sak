@@ -61,7 +61,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class FpUtledeAvslutningsdatoTest {
+class FpUtledeAvslutningsdatoTest {
 
     private FpUtledeAvslutningsdato fpUtledeAvslutningsdato;
     private static final int SØKNADSFRIST_I_MÅNEDER = 3;
@@ -115,7 +115,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoHvorIngenFamiliehendelseEllerAvslutningsdato() {
+    void avslutningsdatoHvorIngenFamiliehendelseEllerAvslutningsdato() {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
@@ -137,7 +137,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoHvorAlleBarnaDøde() {
+    void avslutningsdatoHvorAlleBarnaDøde() {
         // Arrange
         var fødselsdato = LocalDate.now().minusDays(5);
         var dødsdato = fødselsdato.plusWeeks(1);
@@ -166,7 +166,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoHvorDetIkkeErUttak() {
+    void avslutningsdatoHvorDetIkkeErUttak() {
 
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
@@ -193,7 +193,7 @@ public class FpUtledeAvslutningsdatoTest {
 
     }
     @Test
-    public void avslutningsdatoVedOpphørOgIkkeKobletTilAnnenPart() {
+    void avslutningsdatoVedOpphørOgIkkeKobletTilAnnenPart() {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
@@ -226,7 +226,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoVedOpphørOgErKobletTilAnnenPart() {
+    void avslutningsdatoVedOpphørOgErKobletTilAnnenPart() {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak))
@@ -259,7 +259,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoHvorStønadsdagerErOppbrukt() {
+    void avslutningsdatoHvorStønadsdagerErOppbrukt() {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         var fødselsdato = LocalDate.now().minusDays(5);
@@ -290,7 +290,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoHvorDetErStønadsdagerIgjen() {
+    void avslutningsdatoHvorDetErStønadsdagerIgjen() {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
@@ -328,7 +328,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoNårNyttBarn() {
+    void avslutningsdatoNårNyttBarn() {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
@@ -368,7 +368,7 @@ public class FpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void avslutningsdatoNårNyttBarnMedToTetteOgRestdagerIgjenr() {
+    void avslutningsdatoNårNyttBarnMedToTetteOgRestdagerIgjenr() {
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));

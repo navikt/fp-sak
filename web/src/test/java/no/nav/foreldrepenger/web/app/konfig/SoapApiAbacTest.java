@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
-public class SoapApiAbacTest {
+class SoapApiAbacTest {
 
     private static Collection<Method> soapMethods;
 
@@ -25,7 +25,7 @@ public class SoapApiAbacTest {
      * går igjennom her *
      */
     @Test
-    public void test_at_alle_soapmetoder_er_annotert_med_BeskyttetRessurs() {
+    void test_at_alle_soapmetoder_er_annotert_med_BeskyttetRessurs() {
         for (var soapMethod : SoapApiTester.finnAlleSoapMetoder()) {
             if (soapMethod.getAnnotation(BeskyttetRessurs.class) == null) {
                 throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + soapMethod);
@@ -41,7 +41,7 @@ public class SoapApiAbacTest {
      * går igjennom her
      */
     @Test
-    public void test_at_alle_input_parametre_til_soapmetoder_er_annotert_med_TilpassetAbacAttributt() {
+    void test_at_alle_input_parametre_til_soapmetoder_er_annotert_med_TilpassetAbacAttributt() {
         var feilmelding = "Parameter type %s på metode %s.%s må ha annotering " + TilpassetAbacAttributt.class.getSimpleName() + ".\n";
         var feilmeldinger = new StringBuilder();
         for (var soapMethod : soapMethods) {

@@ -81,7 +81,7 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class SøknadMapperTest {
+class SøknadMapperTest {
 
     private static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
     @Mock
@@ -114,7 +114,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapForeldrepenger() {
+    void test_mapForeldrepenger() {
         var dto = new ManuellRegistreringForeldrepengerDto();
         dto.setAnnenForelderInformert(false);
         oppdaterDtoForFødsel(dto, true, LocalDate.now().minusWeeks(3), 1);
@@ -122,7 +122,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void testMedDekningsgrad() {
+    void testMedDekningsgrad() {
         var dto = new ManuellRegistreringForeldrepengerDto();
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
 
@@ -133,12 +133,12 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void testUtenDekningsgrad() {
+    void testUtenDekningsgrad() {
         assertThat(YtelseSøknadMapper.mapDekningsgrad(new ManuellRegistreringForeldrepengerDto())).isNull();
     }
 
     @Test
-    public void test_mapOverfoeringsperiode() {
+    void test_mapOverfoeringsperiode() {
         var overføringsperiode = new OverføringsperiodeDto();
         overføringsperiode.setOverforingArsak(INSTITUSJONSOPPHOLD_ANNEN_FORELDER);
 
@@ -148,7 +148,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapUtsettelsesperiode() {
+    void test_mapUtsettelsesperiode() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var utsettelserDto = opprettUtsettelseDto(fraDato, tomDato, FELLESPERIODE);
@@ -161,7 +161,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapFedrekvotePeriodeDto() {
+    void test_mapFedrekvotePeriodeDto() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var fedrekvotePeriodeDto = opprettPermisjonPeriodeDto(fraDato, tomDato, FEDREKVOTE, null);
@@ -173,7 +173,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapMødrekvotePeriodeDto() {
+    void test_mapMødrekvotePeriodeDto() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(
@@ -185,7 +185,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapForeldrepengerFørFødselPeriode() {
+    void test_mapForeldrepengerFørFødselPeriode() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(
@@ -197,7 +197,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapGraderingsperiode() {
+    void test_mapGraderingsperiode() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var prosentAndel = BigDecimal.valueOf(15);
@@ -214,7 +214,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapGraderingsperiode_arbeidsprosent_desimal() {
+    void test_mapGraderingsperiode_arbeidsprosent_desimal() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var prosentAndel = BigDecimal.valueOf(15.55);
@@ -231,7 +231,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapFellesPeriodeDto() {
+    void test_mapFellesPeriodeDto() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
 
@@ -245,7 +245,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapUttaksperioder_gradering() {
+    void test_mapUttaksperioder_gradering() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var prosentAndel = BigDecimal.valueOf(15);
@@ -256,7 +256,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapUttaksperioder_gradering_med_samtidig_uttak() {
+    void test_mapUttaksperioder_gradering_med_samtidig_uttak() {
         var graderingDto = opprettGraderingDto(LocalDate.now(), LocalDate.now().plusDays(3), BigDecimal.valueOf(15),
             FEDREKVOTE, true, false, false, null);
         graderingDto.setHarSamtidigUttak(true);
@@ -270,7 +270,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapUttaksperioder_samtidig_uttak() {
+    void test_mapUttaksperioder_samtidig_uttak() {
         var periode = opprettPermisjonPeriodeDto(LocalDate.of(2018, 1, 1), LocalDate.of(2018, 1, 1), FELLESPERIODE,
             ARBEID_OG_UTDANNING);
         periode.setHarSamtidigUttak(true);
@@ -284,7 +284,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapUttaksperioder_opphold() {
+    void test_mapUttaksperioder_opphold() {
         var oppholdDto = new OppholdDto();
         oppholdDto.setPeriodeFom(LocalDate.now().minusDays(1));
         oppholdDto.setPeriodeTom(LocalDate.now());
@@ -299,7 +299,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapUttaksperioder_permisjonperioder() {
+    void test_mapUttaksperioder_permisjonperioder() {
         // Test av permisjonsperiodene:
         // dato før fødsel -> fødselsdato -> mødrekvote
         var perminsjonstartFørFødsel = LocalDate.now().minusWeeks(3);
@@ -323,7 +323,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapUttaksperioder_fellesperioder() {
+    void test_mapUttaksperioder_fellesperioder() {
         var mødrekvoteSlutt = LocalDate.now().plusWeeks(3);
         var fellesperiodeSlutt = mødrekvoteSlutt.plusWeeks(4);
 
@@ -341,7 +341,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_map_mors_aktivitet_uføretrygd() {
+    void test_map_mors_aktivitet_uføretrygd() {
         var mødrekvoteSlutt = LocalDate.now().plusWeeks(3);
         var fellesperiodeSlutt = mødrekvoteSlutt.plusWeeks(4);
 
@@ -356,7 +356,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_map_mors_aktivitet_ikke_oppgitt() {
+    void test_map_mors_aktivitet_ikke_oppgitt() {
         var mødrekvoteSlutt = LocalDate.now().plusWeeks(3);
         var fellesperiodeSlutt = mødrekvoteSlutt.plusWeeks(4);
 
@@ -371,7 +371,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapFordeling_morSøkerMenfarRettPåFedrekvote() {
+    void test_mapFordeling_morSøkerMenfarRettPåFedrekvote() {
         var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
         var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(),
             FORELDREPENGER_FØR_FØDSEL, null);
@@ -385,7 +385,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_skal_ta_inn_papirsøknadDTO_mappe_til_xml_så_mappe_til_domenemodell() {
+    void test_skal_ta_inn_papirsøknadDTO_mappe_til_xml_så_mappe_til_domenemodell() {
         var navBruker = opprettBruker();
         var dto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
@@ -435,7 +435,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_verdikjeden_fra_papirsøknad_til_domenemodell_mor_søker_med_mødrekvote_periode_før_fødsel_utsettelse() {
+    void test_verdikjeden_fra_papirsøknad_til_domenemodell_mor_søker_med_mødrekvote_periode_før_fødsel_utsettelse() {
         var navBruker = opprettBruker();
         var fødselsdato = LocalDate.now().minusDays(10);
         var mødrekvoteSlutt = fødselsdato.plusWeeks(10);
@@ -498,7 +498,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapFordeling_morAleneomsorg() {
+    void test_mapFordeling_morAleneomsorg() {
         var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
         var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now(), LocalDate.now().plusWeeks(3), MØDREKVOTE,
             null);
@@ -511,7 +511,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapRettigheter_farRettPåFedrekvote() {
+    void test_mapRettigheter_farRettPåFedrekvote() {
         var dto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
         dto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
@@ -524,7 +524,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapRettigheter_morAleneomsorg() {
+    void test_mapRettigheter_morAleneomsorg() {
         var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
@@ -536,7 +536,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapRettigheter_bareFarRett_morUfør() {
+    void test_mapRettigheter_bareFarRett_morUfør() {
         var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
@@ -551,7 +551,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapRettigheter_bareFarRett_morEØS() {
+    void test_mapRettigheter_bareFarRett_morEØS() {
         var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
@@ -568,7 +568,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void skal_ikke_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_i_grunnlaget() {
+    void skal_ikke_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(Optional.of(kvinne));
         when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.of(mock(OppgittOpptjening.class)));
@@ -611,7 +611,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void skal_mappe_og_lagre_oppgitt_opptjening_når_det_ikke_finnes_i_grunnlaget() {
+    void skal_mappe_og_lagre_oppgitt_opptjening_når_det_ikke_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(Optional.of(kvinne));
         when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.empty());

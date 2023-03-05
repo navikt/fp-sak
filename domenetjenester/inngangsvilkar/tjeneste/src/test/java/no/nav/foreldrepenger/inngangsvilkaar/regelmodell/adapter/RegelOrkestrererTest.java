@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.RegelOrkestrerer;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.vedtak.exception.TekniskException;
 
-public class RegelOrkestrererTest {
+class RegelOrkestrererTest {
 
     private RegelOrkestrerer orkestrerer;
 
@@ -45,7 +45,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kalle_regeltjeneste_for_fødselsvilkåret_og_oppdatere_vilkårresultat() {
+    void skal_kalle_regeltjeneste_for_fødselsvilkåret_og_oppdatere_vilkårresultat() {
         // Arrange
         var vilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
@@ -64,7 +64,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kalle_regeltjeneste_for_adopsjonsvilkåret_og_oppdatere_vilkårresultat() {
+    void skal_kalle_regeltjeneste_for_adopsjonsvilkåret_og_oppdatere_vilkårresultat() {
         // Arrange
         var vilkårType = VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
@@ -82,7 +82,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kalle_regeltjeneste_for_medlemskapvilkåret_og_oppdatere_vilkårresultat() {
+    void skal_kalle_regeltjeneste_for_medlemskapvilkåret_og_oppdatere_vilkårresultat() {
         // Arrange
         var vilkårType = VilkårType.MEDLEMSKAPSVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
@@ -100,7 +100,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kalle_regeltjeneste_for_søknadsfristvilkåret_og_oppdatere_vilkårresultat() {
+    void skal_kalle_regeltjeneste_for_søknadsfristvilkåret_og_oppdatere_vilkårresultat() {
         // Arrange
         var vilkårType = VilkårType.SØKNADSFRISTVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
@@ -118,7 +118,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kalle_regeltjeneste_for_omsorgsvilkåret_og_oppdatere_vilkårresultat() {
+    void skal_kalle_regeltjeneste_for_omsorgsvilkåret_og_oppdatere_vilkårresultat() {
         // Arrange
         var vilkårType = VilkårType.OMSORGSVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
@@ -136,7 +136,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kalle_regeltjeneste_for_foreldreansvarsvilkår1_og_oppdatere_vilkårresultat() {
+    void skal_kalle_regeltjeneste_for_foreldreansvarsvilkår1_og_oppdatere_vilkårresultat() {
         // Arrange
         var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
@@ -154,7 +154,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kalle_regeltjeneste_for_foreldreansvarsvilkår2_og_oppdatere_vilkårresultat() {
+    void skal_kalle_regeltjeneste_for_foreldreansvarsvilkår2_og_oppdatere_vilkårresultat() {
         // Arrange
         var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
@@ -172,7 +172,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_ikke_returnere_aksjonspunkter_fra_regelmotor_dersom_allerede_overstyrt() {
+    void skal_ikke_returnere_aksjonspunkter_fra_regelmotor_dersom_allerede_overstyrt() {
         // Arrange
         var behandling = lagBehandling();
 
@@ -193,7 +193,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_returnere_aksjonspunkter_fra_regelmotor_dersom_allerede_manuelt_vurdert() {
+    void skal_returnere_aksjonspunkter_fra_regelmotor_dersom_allerede_manuelt_vurdert() {
         // Arrange
         var behandling = lagBehandling();
         var vilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
@@ -214,7 +214,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_bare_vurdere_vilkår_som_er_støttet_og_finnes_på_behandlingen() {
+    void skal_bare_vurdere_vilkår_som_er_støttet_og_finnes_på_behandlingen() {
         // Arrange
         var behandling = lagBehandling();
 
@@ -255,7 +255,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_sammenstille_individuelle_vilkårsutfall_til_ett_samlet_vilkårresultat() {
+    void skal_sammenstille_individuelle_vilkårsutfall_til_ett_samlet_vilkårresultat() {
         // Enkelt vilkårutfall
         assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT))).isEqualTo(VilkårResultatType.AVSLÅTT);
         assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_VURDERT))).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
@@ -269,7 +269,7 @@ public class RegelOrkestrererTest {
     }
 
     @Test
-    public void skal_kaste_feil_dersom_vilkårsresultat_ikke_kan_utledes() {
+    void skal_kaste_feil_dersom_vilkårsresultat_ikke_kan_utledes() {
         assertThrows(TekniskException.class, () -> VilkårResultatType.utledInngangsvilkårUtfall(Set.of()));
     }
 

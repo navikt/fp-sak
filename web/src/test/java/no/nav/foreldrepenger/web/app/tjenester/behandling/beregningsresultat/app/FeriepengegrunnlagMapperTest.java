@@ -43,7 +43,7 @@ class FeriepengegrunnlagMapperTest {
     }
 
     @Test
-    public void tester_at_feriepenger_mappes() {
+    void tester_at_feriepenger_mappes() {
         // Arrange : nyPeriode
         var nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
@@ -63,7 +63,7 @@ class FeriepengegrunnlagMapperTest {
     }
 
     @Test
-    public void skal_ikke_mappe_når_ingen_feriepengeandeler() {
+    void skal_ikke_mappe_når_ingen_feriepengeandeler() {
         // Arrange : nyPeriode
         opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,

@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 @ExtendWith(MockitoExtension.class)
-public class BesteberegningFødendeKvinneTjenesteTest {
+class BesteberegningFødendeKvinneTjenesteTest {
 
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2018, 7, 1);
@@ -87,7 +87,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skal_ikkje_gi_fødende_kvinne_for_adopsjon() {
+    void skal_ikkje_gi_fødende_kvinne_for_adopsjon() {
         // Act
         var erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.MORA, FamilieHendelseType.ADOPSJON);
 
@@ -96,7 +96,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skal_ikkje_gi_fødende_kvinne_for_far_fødsel() {
+    void skal_ikkje_gi_fødende_kvinne_for_far_fødsel() {
         // Act
         var erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.FARA, FamilieHendelseType.FØDSEL);
 
@@ -105,7 +105,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skal_gi_fødende_kvinne_for_mor_fødsel() {
+    void skal_gi_fødende_kvinne_for_mor_fødsel() {
         // Act
         var erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.MORA, FamilieHendelseType.FØDSEL);
 
@@ -114,7 +114,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skalGiBesteberegningNårDagpengerPåStp() {
+    void skalGiBesteberegningNårDagpengerPåStp() {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
@@ -128,7 +128,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skalGiBesteberegningNårSykepengerMedOvergangFraDagpenger() {
+    void skalGiBesteberegningNårSykepengerMedOvergangFraDagpenger() {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fraOrgnr(OpptjeningAktivitetType.ARBEID,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
@@ -155,7 +155,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skalIkkeGiBesteberegningIkkeDagpengerPåStp() {
+    void skalIkkeGiBesteberegningIkkeDagpengerPåStp() {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(3)));
@@ -168,7 +168,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void overstyrtBGSkalIkkeGiAutomatiskBesteberegning() {
+    void overstyrtBGSkalIkkeGiAutomatiskBesteberegning() {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
@@ -185,7 +185,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void fjernetDagpengerISaksbehandling() {
+    void fjernetDagpengerISaksbehandling() {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(lagfamilieHendelse()));
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));

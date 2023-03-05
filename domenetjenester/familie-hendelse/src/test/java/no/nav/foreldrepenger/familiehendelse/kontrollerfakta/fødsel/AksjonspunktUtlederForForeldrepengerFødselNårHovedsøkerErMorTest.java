@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
-public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extends EntityManagerAwareTest {
+class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extends EntityManagerAwareTest {
 
     private static final LocalDate TERMINDAT0_NÅ = LocalDate.now();
     private static final LocalDate TERMINDATO_27_SIDEN = LocalDate.now().minusDays(27);
@@ -67,7 +67,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_termindato_mer_enn_25_dager_siden() {
+    void sjekk_manglende_fødsel_dersom_termindato_mer_enn_25_dager_siden() {
         var behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDATO_27_SIDEN);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -80,7 +80,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_fødsel_og_mer_enn_14_dager_siden_fødsel() {
+    void sjekk_manglende_fødsel_dersom_fødsel_og_mer_enn_14_dager_siden_fødsel() {
         var behandling = opprettBehandlingMedOppgittFødsel(FØDSEL_17_SIDEN);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -89,7 +89,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void sjekk_autopunkt_vent_på_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
+    void sjekk_autopunkt_vent_på_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
         var behandling = opprettBehandlingMedOppgittFødsel(LocalDate.now().minusDays(3));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -100,7 +100,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
+    void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
 
         // Oppsett
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
@@ -113,7 +113,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
+    void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
         // Oppsett
 
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
@@ -126,7 +126,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void avklar_terminbekreftelse_dersom_termindato_nå_og_mangler_løpende_arbeid() {
+    void avklar_terminbekreftelse_dersom_termindato_nå_og_mangler_løpende_arbeid() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDAT0_NÅ);
         //Act
@@ -138,7 +138,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void ingen_aksjonspunkter_dersom_løpende_arbeid() {
+    void ingen_aksjonspunkter_dersom_løpende_arbeid() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTerminOgArbeidsForhold(TERMINDAT0_NÅ, Tid.TIDENES_ENDE);
         var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste));
@@ -151,7 +151,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void ingen_aksjonspunkter_dersom_tidsavgrenset_arbforhold_over_stp() {
+    void ingen_aksjonspunkter_dersom_tidsavgrenset_arbforhold_over_stp() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTerminOgArbeidsForhold(TERMINDAT0_NÅ, LocalDate.now().plusMonths(6));
         var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste));
@@ -164,7 +164,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void avklar_terminbekreftelse_dersom_har_avsluttet_arbeidsforhold() {
+    void avklar_terminbekreftelse_dersom_har_avsluttet_arbeidsforhold() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTerminOgArbeidsForhold(TERMINDAT0_NÅ, AVSLUTTET_TIDSPUNKT);
         //Act

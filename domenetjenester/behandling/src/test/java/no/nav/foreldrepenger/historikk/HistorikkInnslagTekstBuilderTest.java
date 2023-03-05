@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 
-public class HistorikkInnslagTekstBuilderTest {
+class HistorikkInnslagTekstBuilderTest {
 
     @Test
-    public void testHistorikkinnslagTekstSakRetur() {
+    void testHistorikkinnslagTekstSakRetur() {
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.SAK_RETUR);
 

@@ -26,7 +26,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
-public class SaksbehandlingDokumentmottakTjenesteTest {
+class SaksbehandlingDokumentmottakTjenesteTest {
 
     private static final Long FAGSAK_ID = 1L;
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("2");
@@ -48,7 +48,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     }
 
     @Test
-    public void skal_ta_imot_ankommet_saksdokument_og_opprette_prosesstask() {
+    void skal_ta_imot_ankommet_saksdokument_og_opprette_prosesstask() {
         // Arrange
         var saksdokument = new MottattDokument.Builder()
                 .medFagsakId(FAGSAK_ID)
@@ -74,7 +74,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     }
 
     @Test
-    public void skal_støtte_at_journalpostId_er_null() {
+    void skal_støtte_at_journalpostId_er_null() {
         // Arrange
         var saksdokument = new MottattDokument.Builder()
                 .medFagsakId(FAGSAK_ID)
@@ -96,7 +96,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     }
 
     @Test
-    public void motta_ubehandlet() {
+    void motta_ubehandlet() {
         // Arrange
         var md1 = new MottattDokument.Builder()
             .medJournalPostId(new JournalpostId("123"))
@@ -120,7 +120,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     }
 
     @Test
-    public void motta_behandlet() {
+    void motta_behandlet() {
         // Arrange
         var behandling = mock(Behandling.class);
         when(behandling.getId()).thenReturn(789L);

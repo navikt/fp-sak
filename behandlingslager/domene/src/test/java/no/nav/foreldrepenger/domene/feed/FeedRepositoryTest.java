@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 //Trengs en omskriving hvis testene skal kunne kjøres i parallell
-public class FeedRepositoryTest extends EntityManagerAwareTest {
+class FeedRepositoryTest extends EntityManagerAwareTest {
 
     private static final String TYPE2 = "type2";
     private static final String TYPE1 = "type1";
@@ -61,7 +61,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_fp_hendelse() {
+    void skal_lagre_fp_hendelse() {
         lagreHendelser();
         var utgåendeHendelse = byggUtgåendeFpHendelse();
         long id = feedRepository.lagre(utgåendeHendelse);
@@ -74,7 +74,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_svp_hendelse() {
+    void skal_lagre_svp_hendelse() {
         lagreHendelser();
         var utgåendeHendelse = byggUtgåendeSvpHendelse();
         long id = feedRepository.lagre(utgåendeHendelse);
@@ -87,19 +87,19 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnere_true_hvis_hendelse_med_kilde_id_eksisterer() {
+    void skal_returnere_true_hvis_hendelse_med_kilde_id_eksisterer() {
         lagreHendelser();
         assertThat(feedRepository.harHendelseMedKildeId(KILDE_ID)).isTrue();
     }
 
     @Test
-    public void skal_returnere_false_hvis_hendelse_med_kilde_id_ikke_eksisterer() {
+    void skal_returnere_false_hvis_hendelse_med_kilde_id_ikke_eksisterer() {
         lagreHendelser();
         assertThat(feedRepository.harHendelseMedKildeId("eksisterer_ikke")).isFalse();
     }
 
     @Test
-    public void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
+    void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
         lagreHendelser();
         assertThat(feedRepository.harHendelseMedKildeId("ny_kilde")).isFalse();
         var utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD)
@@ -112,7 +112,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_hendelser_med_type1() {
+    void skal_hente_hendelser_med_type1() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder()
@@ -124,7 +124,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_alle_hendelser_med_sekvens_id_større_enn_sist_lest() {
+    void skal_hente_alle_hendelser_med_sekvens_id_større_enn_sist_lest() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId2MedSek2.getSekvensnummer() - 1)
@@ -134,7 +134,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnerer_tom_liste_hvis_result_set_er_tom() {
+    void skal_returnerer_tom_liste_hvis_result_set_er_tom() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(nesteSeksvensnummer() + 100).medMaxAntall(100L).build());
@@ -143,7 +143,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_alle_hendelser_med_aktør_id() {
+    void skal_hente_alle_hendelser_med_aktør_id() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(0L).medAktørId(AKTØR_ID_2).medMaxAntall(100L).build());
@@ -152,7 +152,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_max_antall_1() {
+    void skal_hente_max_antall_1() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
@@ -162,7 +162,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_max_antall_4_med_hopp_i_sekvensnummer() {
+    void skal_hente_max_antall_4_med_hopp_i_sekvensnummer() {
         lagreHendelser();
         var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)

@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 @ExtendWith(JpaExtension.class)
-public class BekreftOpptjeningPeriodeAksjonspunktTest {
+class BekreftOpptjeningPeriodeAksjonspunktTest {
 
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
@@ -75,7 +75,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     }
 
     @Test
-    public void skal_lagre_ned_bekreftet_kunstig_arbeidsforhold() {
+    void skal_lagre_ned_bekreftet_kunstig_arbeidsforhold() {
         var iDag = LocalDate.now();
         final var behandling = opprettBehandling();
 
@@ -120,7 +120,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     }
 
     @Test
-    public void skal_lagre_ned_bekreftet_aksjonspunkt() {
+    void skal_lagre_ned_bekreftet_aksjonspunkt() {
         var iDag = LocalDate.now();
         final var behandling = opprettBehandling();
 
@@ -173,7 +173,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     }
 
     @Test
-    public void skal_lagre_endring_i_periode_for_egen_næring() {
+    void skal_lagre_endring_i_periode_for_egen_næring() {
         var iDag = LocalDate.now();
         final var behandling = opprettBehandling();
 

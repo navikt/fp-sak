@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
+class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
 
     private static final BigDecimal ARBEIDSPROSENT_30 = new BigDecimal(30);
     private static final String AG1 = "123";
@@ -57,7 +57,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_inngangsvilkår_dersom_skjæringstidspunkt_er_endret() {
+    void skal_returnere_inngangsvilkår_dersom_skjæringstidspunkt_er_endret() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 
@@ -78,7 +78,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_opplysningplikt_ved_endret_stp_tross_gradering() {
+    void skal_returnere_opplysningplikt_ved_endret_stp_tross_gradering() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 
@@ -98,7 +98,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_beregning_dersom_søker_gradering_på_andel_uten_dagsats() {
+    void skal_returnere_beregning_dersom_søker_gradering_på_andel_uten_dagsats() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 
@@ -116,7 +116,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void startpunkt_uttak_dersom_søknad_gradering_og_orig_behandling_har_ingen_aktiviter_lik_null_dagsats() {
+    void startpunkt_uttak_dersom_søknad_gradering_og_orig_behandling_har_ingen_aktiviter_lik_null_dagsats() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 
@@ -133,7 +133,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void startpunkt_beregning_dersom_søknad_gradering_og_orig_behandling_har_en_aktivitet_lik_null_dagsats() {
+    void startpunkt_beregning_dersom_søknad_gradering_og_orig_behandling_har_en_aktivitet_lik_null_dagsats() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 
@@ -151,7 +151,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_beregning_dersom_søker_gradering_og_kunn_ett_arbeidsforhold_i_orginalbehandling() {
+    void skal_returnere_beregning_dersom_søker_gradering_og_kunn_ett_arbeidsforhold_i_orginalbehandling() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 
@@ -169,7 +169,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void startpunkt_beregning_dersom_søknad_er_endringssøknad_med_gradering() {
+    void startpunkt_beregning_dersom_søknad_er_endringssøknad_med_gradering() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 
@@ -190,7 +190,7 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void startpunkt_uttak_dersom_søknad_er_endringssøknad_uten_gradering() {
+    void startpunkt_uttak_dersom_søknad_er_endringssøknad_uten_gradering() {
         // Arrange
         var originalBehandling = lagFørstegangsBehandling();
 

@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Aksjonspu
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringFødselsvilkåretDto;
 
 @CdiDbAwareTest
-public class AbstractOverstyringshåndtererTest {
+class AbstractOverstyringshåndtererTest {
 
     private static final String IKKE_OK = "ikke født likevel";
 
@@ -29,7 +29,7 @@ public class AbstractOverstyringshåndtererTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Test
-    public void skal_reaktivere_inaktivt_aksjonspunkt() {
+    void skal_reaktivere_inaktivt_aksjonspunkt() {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
         var ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
         AksjonspunktTestSupport.setTilUtført(ap, "OK");

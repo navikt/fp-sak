@@ -29,7 +29,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 
 @ExtendWith(MockitoExtension.class)
-public class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
+class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
 
     private static final long BEHANDLINGID = 802L;
 
@@ -48,7 +48,7 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
     }
 
     @Test
-    public void testHandleMessageWithUnparseableMessage() throws JMSException, IOException, URISyntaxException {
+    void testHandleMessageWithUnparseableMessage() throws JMSException, IOException, URISyntaxException {
         // Arrange
         var message = opprettKvitteringXml("parsingFeil.xml");
 
@@ -57,7 +57,7 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
     }
 
     @Test
-    public void testHandleMessageWithStatusOk() throws JMSException, IOException, URISyntaxException {
+    void testHandleMessageWithStatusOk() throws JMSException, IOException, URISyntaxException {
         // Arrange
         var message = opprettKvitteringXml("statusOk.xml");
 
@@ -72,7 +72,7 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
     }
 
     @Test
-    public void testHandleMessageWithStatusFeil() throws JMSException, IOException, URISyntaxException {
+    void testHandleMessageWithStatusFeil() throws JMSException, IOException, URISyntaxException {
         // Arrange
         var message = opprettKvitteringXml("statusFeil.xml");
 

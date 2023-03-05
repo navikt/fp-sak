@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SøknadsperiodeFristTjenesteImpl;
 
-public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
+class SøknadsfristvilkårTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -33,7 +33,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_oppfylt_når_elektronisk_søknad_og_søknad_mottat_innen_6_mnd_fra_skjæringstidspunkt() {
+    void skal_vurdere_vilkår_som_oppfylt_når_elektronisk_søknad_og_søknad_mottat_innen_6_mnd_fra_skjæringstidspunkt() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medElektroniskRegistrert(true);
@@ -52,7 +52,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_vurdert_når_elektronisk_søknad_og_søknad_ikke_mottat_innen_6_mnd_fra_skjæringstidspunkt() {
+    void skal_vurdere_vilkår_som_ikke_vurdert_når_elektronisk_søknad_og_søknad_ikke_mottat_innen_6_mnd_fra_skjæringstidspunkt() {
         final var ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT = 100;
 
         // Arrange
@@ -70,7 +70,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_oppfylt_når_papirsøknad_og_søknad_mottat_innen_6_mnd_og_2_dager_fra_skjæringstidspunkt() {
+    void skal_vurdere_vilkår_som_oppfylt_når_papirsøknad_og_søknad_mottat_innen_6_mnd_og_2_dager_fra_skjæringstidspunkt() {
         // Arrange
         var behandling = mockBehandling(false, LocalDate.now().minusMonths(6), LocalDate.now());
 
@@ -93,7 +93,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_lørdag_pluss_2_virkedager() {
+    void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_lørdag_pluss_2_virkedager() {
 
         var mottattMandag = LocalDate.of(2017, 9, 4);
         var mottattTirsdag = mottattMandag.plusDays(1);
@@ -117,7 +117,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_søndag_pluss_2_virkedager() {
+    void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_søndag_pluss_2_virkedager() {
 
         var mottattMandag = LocalDate.of(2017, 9, 4);
         var mottattTirsdag = mottattMandag.plusDays(1);
@@ -141,7 +141,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_fredag_pluss_2_virkedager() {
+    void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_fredag_pluss_2_virkedager() {
 
         var mottattMandag = LocalDate.of(2017, 9, 4);
         var mottattTirsdag = mottattMandag.plusDays(1);
@@ -165,7 +165,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_torsdag_pluss_2_virkedager_og_her_treffer_månedsslutt() {
+    void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_torsdag_pluss_2_virkedager_og_her_treffer_månedsslutt() {
 
         var mottattMandag = LocalDate.of(2017, 9, 11);
         var mottattTirsdag = mottattMandag.plusDays(1);

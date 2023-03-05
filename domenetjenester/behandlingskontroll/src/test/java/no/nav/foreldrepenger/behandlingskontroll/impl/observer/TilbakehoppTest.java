@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class TilbakehoppTest {
+class TilbakehoppTest {
 
     private BehandlingStegType steg1;
     private BehandlingStegType steg2;
@@ -83,59 +83,59 @@ public class TilbakehoppTest {
     }
 
     @Test
-    public void skal_ikke_røre_utførte_aksjonspunkt_som_oppsto_i_steget_det_hoppes_tilbake_til() {
+    void skal_ikke_røre_utførte_aksjonspunkt_som_oppsto_i_steget_det_hoppes_tilbake_til() {
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtAP(identifisertI(steg1), løsesI(steg2, INN)));
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtAP(identifisertI(steg1), løsesI(steg2, UT)));
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtAP(identifisertI(steg1), løsesI(steg3, INN)));
     }
 
     @Test
-    public void skal_avbryte_åpent_aksjonspunkt_som_oppsto_i_steget_det_hoppes_tilbake_til_inngang() {
+    void skal_avbryte_åpent_aksjonspunkt_som_oppsto_i_steget_det_hoppes_tilbake_til_inngang() {
         assertAPAvbrytesVedTilbakehopp(fra(steg2, UT), til(steg2, INN), medAP(identifisertI(steg2), løsesI(steg2, UT), OPPRETTET, false));
         assertAPAvbrytesVedTilbakehopp(fra(steg3, INN), til(steg2, INN), medAP(identifisertI(steg2), løsesI(steg3, INN), OPPRETTET, false));
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2, UT), medAP(identifisertI(steg2), løsesI(steg3, UT), OPPRETTET, false));
     }
 
     @Test
-    public void skal_ikke_endre_aksjonspunkter_som_oppsto_før_til_steget_og_som_skulle_utføres_i_eller_etter_til_steget() {
+    void skal_ikke_endre_aksjonspunkter_som_oppsto_før_til_steget_og_som_skulle_utføres_i_eller_etter_til_steget() {
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2), medUtførtAP(identifisertI(steg1), løsesI(steg2, UT)));
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2), medUtførtAP(identifisertI(steg1), løsesI(steg3, INN)));
     }
 
     @Test
-    public void skal_avbryte_aksjonspunkter_som_oppsto_etter_tilsteget() {
+    void skal_avbryte_aksjonspunkter_som_oppsto_etter_tilsteget() {
         assertAPAvbrytesVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtAP(identifisertI(steg2), løsesI(steg2, UT)));
         assertAPAvbrytesVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtAP(identifisertI(steg2), løsesI(steg3, INN)));
         assertAPAvbrytesVedTilbakehopp(fra(steg6, UT), til(steg1), medUtførtAP(identifisertI(steg6), løsesI(steg6, UT)));
     }
 
     @Test
-    public void skal_avbryte_utførte_aksjonspunkter_spesial_es_sfv() {
+    void skal_avbryte_utførte_aksjonspunkter_spesial_es_sfv() {
         assertAPAvbrytesVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtAP(identifisertI(steg2), løsesI(steg2, UT)));
         assertAPAvbrytesVedTilbakehopp(fra(steg2, UT), til(steg1), medUtførtAP(identifisertI(steg2), løsesI(steg2, UT)));
         assertAPAvbrytesVedTilbakehopp(fra(steg2, INN), til(steg1), medUtførtAP(identifisertI(steg2), løsesI(steg2, UT)));
     }
 
     @Test
-    public void skal_ikke_endre_utførte_aksjonspunkter_som_oppsto_i_steget_det_hoppes_til() {
+    void skal_ikke_endre_utførte_aksjonspunkter_som_oppsto_i_steget_det_hoppes_til() {
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2, INN), medUtførtAP(identifisertI(steg2), løsesI(steg2, UT)));
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2, UT), medUtførtAP(identifisertI(steg2), løsesI(steg3, INN)));
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2, UT), medUtførtAP(identifisertI(steg2), løsesI(steg2, UT)));
     }
 
     @Test
-    public void skal_ikke_gjøre_noe_med_aksjonspunkt_som_oppsto_og_løstes_før_steget_det_hoppes_til() {
+    void skal_ikke_gjøre_noe_med_aksjonspunkt_som_oppsto_og_løstes_før_steget_det_hoppes_til() {
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2), medUtførtAP(identifisertI(steg1), løsesI(steg1, UT)));
     }
 
     @Test
-    public void skal_ikke_gjøre_noe_med_aksjonspunkt_som_oppsto_før_steget_det_hoppes_til_og_som_løses_etter_punktet_det_hoppes_fra() {
+    void skal_ikke_gjøre_noe_med_aksjonspunkt_som_oppsto_før_steget_det_hoppes_til_og_som_løses_etter_punktet_det_hoppes_fra() {
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2),
                 medAP(identifisertI(steg1), løsesI(steg3, UT), medStatus(AksjonspunktStatus.OPPRETTET)));
     }
 
     @Test
-    public void skal_gjenopprette_et_overstyrings_aksjonspunkt_når_det_hoppes() {
+    void skal_gjenopprette_et_overstyrings_aksjonspunkt_når_det_hoppes() {
         assertAPGjenåpnesVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtOverstyringAP(identifisertI(steg1), løsesI(steg2, UT)));
         assertAPGjenåpnesVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtOverstyringAP(identifisertI(steg1), løsesI(steg2, UT)));
         assertAPGjenåpnesVedTilbakehopp(fra(steg3, INN), til(steg1), medUtførtOverstyringAP(identifisertI(steg2), løsesI(steg2, UT)));
@@ -144,7 +144,7 @@ public class TilbakehoppTest {
     }
 
     @Test
-    public void skal_kalle_transisjoner_på_steg_det_hoppes_over() {
+    void skal_kalle_transisjoner_på_steg_det_hoppes_over() {
         assertThat(transisjonerVedTilbakehopp(fra(steg3, INN), til(steg1))).containsOnly(StegTransisjon.hoppTilbakeOver(steg1),
                 StegTransisjon.hoppTilbakeOver(steg2), StegTransisjon.hoppTilbakeOver(steg3));
         assertThat(transisjonerVedTilbakehopp(fra(steg3, INN), til(steg2))).containsOnly(StegTransisjon.hoppTilbakeOver(steg2),
@@ -153,7 +153,7 @@ public class TilbakehoppTest {
     }
 
     @Test
-    public void skal_ta_med_transisjon_på_steg_det_hoppes_fra_for_overstyring() {
+    void skal_ta_med_transisjon_på_steg_det_hoppes_fra_for_overstyring() {
         assertThat(transisjonerVedOverstyrTilbakehopp(fra(steg3, INN), til(steg1))).containsOnly(StegTransisjon.hoppTilbakeOver(steg1),
                 StegTransisjon.hoppTilbakeOver(steg2), StegTransisjon.hoppTilbakeOver(steg3));
         assertThat(transisjonerVedOverstyrTilbakehopp(fra(steg3, INN), til(steg2))).containsOnly(StegTransisjon.hoppTilbakeOver(steg2),

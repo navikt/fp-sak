@@ -21,14 +21,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Aksjonspu
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringSokersOpplysingspliktDto;
 
 @CdiDbAwareTest
-public class SøkersopplysningspliktOverstyringhåndtererTest {
+class SøkersopplysningspliktOverstyringhåndtererTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_søkers_opplysningsplikt_overstyrt() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_søkers_opplysningsplikt_overstyrt() {
         // Arrange
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();

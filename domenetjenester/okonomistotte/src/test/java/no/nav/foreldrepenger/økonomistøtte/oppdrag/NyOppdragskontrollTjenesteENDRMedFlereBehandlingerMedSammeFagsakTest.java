@@ -35,7 +35,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
     }
 
     @Test
-    public void skalKunneSendeOpphørPåOpphørNårEndringsdatoBlirEndretTilEnTidligereEndringsdatoISisteBehandling() {
+    void skalKunneSendeOpphørPåOpphørNårEndringsdatoBlirEndretTilEnTidligereEndringsdatoISisteBehandling() {
 
         // Arrange
         var førsteEndringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(7);
@@ -181,7 +181,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
      * Revurdering 2: Endret andel for bruker og arbeidsgiver som en ny mottaker, periode1:1-4, periode2: 5-20
      */
     @Test
-    public void testEndringAvKodeNårEnFørstegangsbehandlingBlirOpphørtAvRevurderingOgEnNyFørstegangsbehandlingBlirOpprettetPåSammeFagsakMedEndringAvBrukerOgNyAndelForArbeidsgiver() {
+    void testEndringAvKodeNårEnFørstegangsbehandlingBlirOpphørtAvRevurderingOgEnNyFørstegangsbehandlingBlirOpprettetPåSammeFagsakMedEndringAvBrukerOgNyAndelForArbeidsgiver() {
 
         // Arrange
         var utbetalingsgrad = BigDecimal.valueOf(100);
@@ -248,7 +248,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
     }
 
     @Test
-    public void skalTesteKjedingAvOppdragslinje150NårEnFørstegangsbehandlingBlirOpphørtAvEnRevurderingOgEnNyFørstegangsbehandlingBlirOpprettet() {
+    void skalTesteKjedingAvOppdragslinje150NårEnFørstegangsbehandlingBlirOpphørtAvEnRevurderingOgEnNyFørstegangsbehandlingBlirOpprettet() {
 
         // Arrange
         var beregningsresultatFP_1 = buildBeregningsresultatEntenForBrukerEllerArbgvr(true, true);
@@ -283,7 +283,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
      * Forventet resultat: Skal ikke sende opphør for bruker i revurdering#2
      */
     @Test
-    public void skalIkkeSendeOpphørForEnMottakerSomHaddeEnFullstendigOpphørIForrigeBehandling() {
+    void skalIkkeSendeOpphørForEnMottakerSomHaddeEnFullstendigOpphørIForrigeBehandling() {
 
         // Arrange
 
@@ -374,7 +374,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
      * Revurdering#2: Både bruker og arbeidsgiver er mottaker
      */
     @Test
-    public void skalSendeEndringsoppdragForAndreRevurderingNårFørsteRevurderingGjelderFullstendigOpphør() {
+    void skalSendeEndringsoppdragForAndreRevurderingNårFørsteRevurderingGjelderFullstendigOpphør() {
 
         // Arrange
 
@@ -451,7 +451,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
      * Revurdering#2: Både virksomhet og virksomhet2 er mottakere
      */
     @Test
-    public void skalIkkeSendeOpphørForEnAvDeArbeidsgivereneSomEnDelAvEndringsoppdragIAndreRevurderingNårFørsteRevurderingHaddeFullstendigOpphørForDenneArbeidsgiveren() {
+    void skalIkkeSendeOpphørForEnAvDeArbeidsgivereneSomEnDelAvEndringsoppdragIAndreRevurderingNårFørsteRevurderingHaddeFullstendigOpphørForDenneArbeidsgiveren() {
 
         // Arrange
 
@@ -535,7 +535,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
      * Revurdering#3(b3): Bruker er mottaker, Inntektskategori: AT, To perioder: b3Periode1-b3Periode2, Endringsdato=b3Periode2.getTom().plusDays(1)
      */
     @Test
-    public void skalKunneSendeNyePerioderEtterEndringsdatoIAndreRevurderingNårFørsteRevurderingHarKunOpphør() {
+    void skalKunneSendeNyePerioderEtterEndringsdatoIAndreRevurderingNårFørsteRevurderingHarKunOpphør() {
 
         // Arrange
         var utbetalingsgrad = BigDecimal.valueOf(100);
@@ -637,7 +637,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
      * * </ul>
      */
     @Test
-    public void skalKunneSendeOpphørPåForrigeOpphørNårEndringsdatoErEtterSisteTilkjentYtelseperiodeForBrukerMedFlereInntekskategoriIAndreRevurdering() {
+    void skalKunneSendeOpphørPåForrigeOpphørNårEndringsdatoErEtterSisteTilkjentYtelseperiodeForBrukerMedFlereInntekskategoriIAndreRevurdering() {
 
         // Arrange
         // Førstegangsbehandling
@@ -757,7 +757,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
          * * </ul>
          */
     @Test
-    public void skalKunneSendeOpphørPåForrigeOpphørNårEndringsdatoErEtterSisteTilkjentYtelseperiodeForBrukerIAndreRevurdering() {
+    void skalKunneSendeOpphørPåForrigeOpphørNårEndringsdatoErEtterSisteTilkjentYtelseperiodeForBrukerIAndreRevurdering() {
 
         // Arrange
         var utbetalingsgrad = BigDecimal.valueOf(100);
@@ -847,7 +847,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
      * * </ul>
      */
     @Test
-    public void skalKunneSendeOpphørPåForrigeOpphørNårEndringsdatoErEtterSisteTilkjentYtelseperiodeForArbeidsgiverIAndreRevurdering() {
+    void skalKunneSendeOpphørPåForrigeOpphørNårEndringsdatoErEtterSisteTilkjentYtelseperiodeForArbeidsgiverIAndreRevurdering() {
 
         // Arrange
         var utbetalingsgrad = BigDecimal.valueOf(100);
@@ -915,7 +915,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
     }
 
     @Test
-    public void skalTesteKjedingAvOppdragslinje150NårDetErFlereRevurderingerISammeSak() {
+    void skalTesteKjedingAvOppdragslinje150NårDetErFlereRevurderingerISammeSak() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(true, true);
 
@@ -945,7 +945,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
     }
 
     @Test
-    public void skalIkkeFeileMedManglerBeregningsresultatPeriodeHvisOpphørAvOpphør_TFP_1063() {
+    void skalIkkeFeileMedManglerBeregningsresultatPeriodeHvisOpphørAvOpphør_TFP_1063() {
         // Arrange
         // Førstegangsbehandling
         var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();

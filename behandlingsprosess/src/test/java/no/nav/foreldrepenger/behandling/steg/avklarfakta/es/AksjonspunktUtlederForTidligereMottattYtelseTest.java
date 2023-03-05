@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.YtelserSammeBarnTjeneste;
 
-public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwareTest {
+class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwareTest {
 
     private static final LocalDate FØDSELSDATO = LocalDate.now();
     private static final LocalDate TERMINDATO = LocalDate.now();
@@ -40,7 +40,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_ikke_har_mottatt_stønad_før() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_ikke_har_mottatt_stønad_før() {
         // Arrange
         var aktørId = AktørId.dummy();
         var annenAktørId = AktørId.dummy();
@@ -59,7 +59,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_har_mottatt_stønad_lenge_før() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_har_mottatt_stønad_lenge_før() {
         // Arrange
         var aktørId = AktørId.dummy();
         var annenAktørId = AktørId.dummy();
@@ -78,7 +78,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_soker_har_mottatt_stønad_før() {
+    void skal_opprette_aksjonspunkt_om_soker_har_mottatt_stønad_før() {
         // Arrange
         var aktørId = AktørId.dummy();
         var annenAktørId = AktørId.dummy();
@@ -99,7 +99,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_soker_har_foreldrepenge_sak_under_behandling() {
+    void skal_opprette_aksjonspunkt_om_soker_har_foreldrepenge_sak_under_behandling() {
         // Arrange
         var aktørId = AktørId.dummy();
         var annenAktørId = AktørId.dummy();
@@ -120,7 +120,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_hvis_behandling_har_type_REVURDERING() {
+    void skal_ikke_opprette_aksjonspunkt_hvis_behandling_har_type_REVURDERING() {
         // Arrange
         var aktørId = AktørId.dummy();
         var annenAktørId = AktørId.dummy();
@@ -141,7 +141,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
 
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_soker_annenpart_har_mottatt_fp_før() {
+    void skal_opprette_aksjonspunkt_om_soker_annenpart_har_mottatt_fp_før() {
         // Arrange
         var aktørId = AktørId.dummy();
         var annenAktørId = AktørId.dummy();

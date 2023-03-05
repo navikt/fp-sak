@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.dbstoette.DBTestUtil;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class SatsTypeTest {
+class SatsTypeTest {
 
     private BeregningsresultatRepository beregningRepository;
     private EntityManager entityManager;
@@ -27,7 +27,7 @@ public class SatsTypeTest {
     }
 
     @Test
-    public void skal_teste_verdier_for_sats_gbeløp_og_gsnitt() {
+    void skal_teste_verdier_for_sats_gbeløp_og_gsnitt() {
         //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
         var grunnbeløpListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
             .stream()
@@ -43,7 +43,7 @@ public class SatsTypeTest {
     }
 
     @Test
-    public void skal_teste_gsnitt_fom_tom_er_1jan_og_31des() {
+    void skal_teste_gsnitt_fom_tom_er_1jan_og_31des() {
         //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
         var gsnittListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
             .stream()
@@ -58,7 +58,7 @@ public class SatsTypeTest {
     }
 
     @Test
-    public void skal_teste_hvert_år_mellom_1964_2018_har_gverdi_for_feb15() {
+    void skal_teste_hvert_år_mellom_1964_2018_har_gverdi_for_feb15() {
         for (var i = 1967; i <= 2018; i++) {
             var sats = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.of(i, 2, 15));
             assertThat(sats).isNotNull();
@@ -67,7 +67,7 @@ public class SatsTypeTest {
     }
 
     @Test
-    public void skal_teste_gverdi_stiger_hvert_år() {
+    void skal_teste_gverdi_stiger_hvert_år() {
         for (var i = 1967; i <= 2016; i++) {
             final var localDate = LocalDate.of(i, 9, 15);
             final var sats = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate);

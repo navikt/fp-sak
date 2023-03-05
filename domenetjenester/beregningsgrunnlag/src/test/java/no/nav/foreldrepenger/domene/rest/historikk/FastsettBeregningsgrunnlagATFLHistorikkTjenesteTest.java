@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(JpaExtension.class)
-public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
+class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     private static final String NAV_ORGNR = "889640782";
     private static final BigDecimal GRUNNBELØP = BigDecimal.valueOf(90000);
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
@@ -78,7 +78,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
+    void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
         // Arrange
         var bg = buildOgLagreBeregningsgrunnlag(false);
 
@@ -110,7 +110,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_FL() {
+    void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_FL() {
         // Arrange
         var bg = buildOgLagreBeregningsgrunnlag(true);
 

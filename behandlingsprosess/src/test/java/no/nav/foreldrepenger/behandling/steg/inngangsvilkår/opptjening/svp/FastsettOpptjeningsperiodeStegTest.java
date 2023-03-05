@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
 
 @CdiDbAwareTest
-public class FastsettOpptjeningsperiodeStegTest {
+class FastsettOpptjeningsperiodeStegTest {
 
     private static final String ORGNR = "100";
     private final int ANTALL_DAGER_SVANGERSKAP_SKAL_SJEKKE_FOR_OPPTJENING = 28;
@@ -79,7 +79,7 @@ public class FastsettOpptjeningsperiodeStegTest {
     }
 
     @Test
-    public void skal_fastsette_opptjeningsperioden_for_SVP_til_28_dager() {
+    void skal_fastsette_opptjeningsperioden_for_SVP_til_28_dager() {
         // Arrange
         var scenario = byggBehandlingScenario();
         var behandling = lagre(scenario);
@@ -105,7 +105,7 @@ public class FastsettOpptjeningsperiodeStegTest {
     }
 
     @Test
-    public void skal_vurdere_opptjeningsvilkåret_for_SVP_til_oppfylt() {
+    void skal_vurdere_opptjeningsvilkåret_for_SVP_til_oppfylt() {
         // Arrange
         var scenario = byggBehandlingScenario();
         var behandling = lagre(scenario);
@@ -144,7 +144,7 @@ public class FastsettOpptjeningsperiodeStegTest {
     }
 
     @Test
-    public void skal_vurdere_opptjeningsvilkåret_for_SVP_til_ikke_oppfylt_når_søker_ikke_har_nok_arbeid() {
+    void skal_vurdere_opptjeningsvilkåret_for_SVP_til_ikke_oppfylt_når_søker_ikke_har_nok_arbeid() {
         // Arrange
         var scenario = byggBehandlingScenario();
         var behandling = lagre(scenario);
@@ -174,7 +174,7 @@ public class FastsettOpptjeningsperiodeStegTest {
     }
 
     @Test
-    public void skal_vurdere_opptjeningsvilkåret_for_SVP_til_oppfylt_når_søker_bare_har_aktivitet() {
+    void skal_vurdere_opptjeningsvilkåret_for_SVP_til_oppfylt_når_søker_bare_har_aktivitet() {
         // Arrange
         var scenario = byggBehandlingScenario();
         var behandling = lagre(scenario);

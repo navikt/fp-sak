@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Utbetalingsgrad;
 
 
-public class TilkjentYtelseMapperTest {
+class TilkjentYtelseMapperTest {
 
     LocalDate jan1 = LocalDate.of(2020, 1, 1);
     LocalDate jan2 = LocalDate.of(2020, 1, 2);
@@ -42,7 +42,7 @@ public class TilkjentYtelseMapperTest {
     BeregningsresultatEntitet entitet = new BeregningsresultatEntitet();
 
     @Test
-    public void skal_mappe_en_periode_med_en_andel_til_en_kjede_med_en_periode() {
+    void skal_mappe_en_periode_med_en_andel_til_en_kjede_med_en_periode() {
         var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
         lagAndelTilBruker(Inntektskategori.FRILANSER, 100, periode1);
         var perioder = Arrays.asList(periode1);
@@ -64,7 +64,7 @@ public class TilkjentYtelseMapperTest {
     }
 
     @Test
-    public void skal_mappe_utbetalingsgrad_riktig_summeres() {
+    void skal_mappe_utbetalingsgrad_riktig_summeres() {
         var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
 
         BeregningsresultatAndel.builder()
@@ -104,7 +104,7 @@ public class TilkjentYtelseMapperTest {
     }
 
     @Test
-    public void skal_slå_sammen_andeler_som_mapper_til_samme_mottaker_og_klassekode() {
+    void skal_slå_sammen_andeler_som_mapper_til_samme_mottaker_og_klassekode() {
         var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
         lagAndelTilBruker(Inntektskategori.DAGPENGER, 100, periode1);
         lagAndelTilBruker(Inntektskategori.ARBEIDSAVKLARINGSPENGER, 200, periode1);
@@ -128,7 +128,7 @@ public class TilkjentYtelseMapperTest {
     }
 
     @Test
-    public void skal_ignore_andel_med_0_dagsats() {
+    void skal_ignore_andel_med_0_dagsats() {
         var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan1).build(entitet);
         lagAndelTilBruker(Inntektskategori.DAGPENGER, 0, periode1);
         var periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan2, jan2).build(entitet);
@@ -153,7 +153,7 @@ public class TilkjentYtelseMapperTest {
     }
 
     @Test
-    public void skal_mappe_refusjon_inkl_feriepenger() {
+    void skal_mappe_refusjon_inkl_feriepenger() {
         var brFeriepenger = BeregningsresultatFeriepenger.builder()
             .medFeriepengerPeriodeFom(LocalDate.of(2021, 5, 1))
             .medFeriepengerPeriodeTom(LocalDate.of(2021, 5, 31))
@@ -198,7 +198,7 @@ public class TilkjentYtelseMapperTest {
     }
 
     @Test
-    public void skal_mappe_andeler_fra_private_arbeidsgivere_til_bruker() {
+    void skal_mappe_andeler_fra_private_arbeidsgivere_til_bruker() {
         var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
         lagAndelTilBruker(Inntektskategori.ARBEIDSTAKER, 1000, periode1);
         lagAndelTilOrg(Arbeidsgiver.person(new AktørId(1234567891234L)), 500, periode1);

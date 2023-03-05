@@ -6,24 +6,24 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
-public class PersonIdentTest {
+class PersonIdentTest {
 
     private static final String NASJONALT_TEST_FNR = "10108000398";
 
     @Test
-    public void gyldigFoedselsnummer_Fnr() {
+    void gyldigFoedselsnummer_Fnr() {
         assertThat(PersonIdent.erGyldigFnr(NASJONALT_TEST_FNR)).isTrue();
 
         assertThat(new PersonIdent(NASJONALT_TEST_FNR).erDnr()).isFalse();
     }
 
     @Test
-    public void gyldigFoedselsnummer_Masker() {
+    void gyldigFoedselsnummer_Masker() {
         assertThat(new PersonIdent(NASJONALT_TEST_FNR)).hasToString("PersonIdent<ident=1010******8>");
     }
 
     @Test
-    public void gyldigFoedselsnummer_Dnr() {
+    void gyldigFoedselsnummer_Dnr() {
         var testDnr = "65038300827";
         assertThat(PersonIdent.erGyldigFnr(testDnr)).isTrue();
 
@@ -31,7 +31,7 @@ public class PersonIdentTest {
     }
 
     @Test
-    public void ugyldigFoedselsnummer() {
+    void ugyldigFoedselsnummer() {
         var foedselsnummer = NASJONALT_TEST_FNR.replace("398", "388");
         assertThat(PersonIdent.erGyldigFnr(foedselsnummer)).isFalse();
 

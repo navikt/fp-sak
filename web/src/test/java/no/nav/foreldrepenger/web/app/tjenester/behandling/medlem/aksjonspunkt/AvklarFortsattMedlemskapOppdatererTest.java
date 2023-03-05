@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(JpaExtension.class)
-public class AvklarFortsattMedlemskapOppdatererTest {
+class AvklarFortsattMedlemskapOppdatererTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private final LocalDate now = LocalDate.now();
@@ -40,7 +40,7 @@ public class AvklarFortsattMedlemskapOppdatererTest {
     }
 
     @Test
-    public void avklar_fortsatt_medlemskap() {
+    void avklar_fortsatt_medlemskap() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()

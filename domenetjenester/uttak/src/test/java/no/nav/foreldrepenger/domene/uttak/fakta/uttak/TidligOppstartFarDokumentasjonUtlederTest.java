@@ -162,7 +162,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
     }
 
     @Test
-    public void farEllerMedmorSøktOmUttakRundtFødsel() {
+    void farEllerMedmorSøktOmUttakRundtFødsel() {
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medSamtidigUttak(true)
@@ -185,7 +185,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
     }
 
     @Test
-    public void farEllerMedmorSøktOmUttakRundtFødselForLangPeriode() {
+    void farEllerMedmorSøktOmUttakRundtFødselForLangPeriode() {
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medSamtidigUttak(true)
@@ -213,7 +213,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
     }
 
     @Test
-    public void farEllerMedmorSøktForeldrepengerForTidligUtTilSjekk() {
+    void farEllerMedmorSøktForeldrepengerForTidligUtTilSjekk() {
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medSamtidigUttak(true)
@@ -237,7 +237,7 @@ class TidligOppstartFarDokumentasjonUtlederTest {
     }
 
     @Test
-    public void bfhrSøktOmUttakRundtFødselMorUfør() {
+    void bfhrSøktOmUttakRundtFødselMorUfør() {
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, FOM.plusWeeks(2).minusDays(3))

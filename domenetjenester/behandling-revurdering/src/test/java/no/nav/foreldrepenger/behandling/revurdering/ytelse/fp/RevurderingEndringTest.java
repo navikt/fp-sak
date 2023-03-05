@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class RevurderingEndringTest {
+class RevurderingEndringTest {
 
     private final RevurderingEndring revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
 
@@ -38,7 +38,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void jaHvisRevurderingMedUendretUtfall() {
+    void jaHvisRevurderingMedUendretUtfall() {
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
@@ -64,7 +64,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void kasterFeilHvisRevurderingMedUendretUtfallOgOpphørAvYtelsen() {
+    void kasterFeilHvisRevurderingMedUendretUtfallOgOpphørAvYtelsen() {
         // Arrange
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
@@ -88,7 +88,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void neiHvisRevurderingMedEndring() {
+    void neiHvisRevurderingMedEndring() {
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
@@ -104,7 +104,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void neiHvisRevurderingMedOpphør() {
+    void neiHvisRevurderingMedOpphør() {
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
@@ -119,7 +119,7 @@ public class RevurderingEndringTest {
     }
 
     @Test
-    public void neiHvisFørstegangsbehandling() {
+    void neiHvisFørstegangsbehandling() {
         var originalBehandling = opprettOriginalBehandling();
         assertThat(revurderingEndring.erRevurderingMedUendretUtfall(originalBehandling)).isFalse();
     }

@@ -61,7 +61,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(JpaExtension.class)
-public class InntektsmeldingTjenesteTest {
+class InntektsmeldingTjenesteTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final EksternArbeidsforholdRef ARBEIDSFORHOLD_ID_EKSTERN = EksternArbeidsforholdRef.ref("1");
@@ -101,7 +101,7 @@ public class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ta_med_arbeidsforhold_det_ikke_er_søkt_for_når_manglende_im_utledes_for_svp() {
+    void skal_ikke_ta_med_arbeidsforhold_det_ikke_er_søkt_for_når_manglende_im_utledes_for_svp() {
         // Arrange
         var arbId1Intern = ARBEIDSFORHOLD_ID;
 

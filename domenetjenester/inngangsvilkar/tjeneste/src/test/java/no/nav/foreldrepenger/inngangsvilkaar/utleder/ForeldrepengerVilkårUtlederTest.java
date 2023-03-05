@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
-public class ForeldrepengerVilkårUtlederTest {
+class ForeldrepengerVilkårUtlederTest {
 
     @Test
-    public void skal_opprette_vilkår_for_far_som_søker_stønad_foreldrepenger_fødsel() {
+    void skal_opprette_vilkår_for_far_som_søker_stønad_foreldrepenger_fødsel() {
         // Arrange
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -38,7 +38,7 @@ public class ForeldrepengerVilkårUtlederTest {
     }
 
     @Test
-    public void skal_opprette_vilkår_for_mor_som_søker_stønad_foreldrepenger_adopsjon() {
+    void skal_opprette_vilkår_for_mor_som_søker_stønad_foreldrepenger_adopsjon() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));

@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 
-public class VarselRevurderingStegImplTest {
+class VarselRevurderingStegImplTest {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollKontekst kontekst;
@@ -43,7 +43,7 @@ public class VarselRevurderingStegImplTest {
     }
 
     @Test
-    public void utførerUtenAksjonspunktVedAvvikIAntallBarn() {
+    void utførerUtenAksjonspunktVedAvvikIAntallBarn() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
         // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
@@ -56,7 +56,7 @@ public class VarselRevurderingStegImplTest {
     }
 
     @Test
-    public void utførerUtenAksjonspunktVedVedtakMellomUke26Og29() {
+    void utførerUtenAksjonspunktVedVedtakMellomUke26Og29() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE))
                 .build();
         // Whitebox.setInternalState(behandling, "id", behandlingId);
@@ -71,7 +71,7 @@ public class VarselRevurderingStegImplTest {
     }
 
     @Test
-    public void varslerAutomatiskOgSetterBehandlingPåVentNårIngenBarnITps() {
+    void varslerAutomatiskOgSetterBehandlingPåVentNårIngenBarnITps() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)).build();
         // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
@@ -89,7 +89,7 @@ public class VarselRevurderingStegImplTest {
     }
 
     @Test
-    public void utførerMedAksjonspunktVedManueltOpprettetRevurdering() {
+    void utførerMedAksjonspunktVedManueltOpprettetRevurdering() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_I_LOVANDVENDELSE)).build();
         behandling.setId(behandlingId);
         // Whitebox.setInternalState(behandling, "id", behandlingId);

@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class InnsynTjenesteTest {
+class InnsynTjenesteTest {
 
     @Inject
     private BehandlingskontrollTjeneste behandlingKontrollTjeneste;
@@ -63,7 +63,7 @@ public class InnsynTjenesteTest {
     }
 
     @Test
-    public void skal_opprette_innsynsbehandling_på_fagsak() {
+    void skal_opprette_innsynsbehandling_på_fagsak() {
         // arrange
         var opprinneligBehandling = scenario.lagre(repositoryProvider);
         var saksnummer = opprinneligBehandling.getFagsak().getSaksnummer();
@@ -76,7 +76,7 @@ public class InnsynTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_opprette_flere_behandlingsresultat_men_oppdatere_eksisterende_når_det_kommer_endringer() {
+    void skal_ikke_opprette_flere_behandlingsresultat_men_oppdatere_eksisterende_når_det_kommer_endringer() {
         // arrange
         var opprinneligBehandling = scenario.lagre(repositoryProvider);
         var saksnummer = opprinneligBehandling.getFagsak().getSaksnummer();

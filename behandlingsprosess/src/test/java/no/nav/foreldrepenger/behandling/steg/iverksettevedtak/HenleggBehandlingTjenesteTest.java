@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class HenleggBehandlingTjenesteTest {
+class HenleggBehandlingTjenesteTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -96,7 +96,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_med_brev() {
+    void skal_henlegge_behandling_med_brev() {
         // Arrange
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
@@ -110,7 +110,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_uten_brev() {
+    void skal_henlegge_behandling_uten_brev() {
         // Arrange
         var behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
 
@@ -124,7 +124,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_med_aksjonspunkt() {
+    void skal_henlegge_behandling_med_aksjonspunkt() {
         // Arrange
         var behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
@@ -142,7 +142,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_henlegge_behandling_ved_dødsfall() {
+    void skal_henlegge_behandling_ved_dødsfall() {
         // Arrange
         var behandlingsresultat = BehandlingResultatType.HENLAGT_BRUKER_DØD;
 
@@ -156,7 +156,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_henlegge_behandling_som_er_satt_på_vent() {
+    void kan_henlegge_behandling_som_er_satt_på_vent() {
         // Arrange
         var def = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, def);
@@ -171,7 +171,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_henlegge_behandling_der_vedtak_er_foreslått() {
+    void kan_henlegge_behandling_der_vedtak_er_foreslått() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
@@ -181,7 +181,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_ikke_henlegge_behandling_der_vedtak_er_fattet() {
+    void kan_ikke_henlegge_behandling_der_vedtak_er_fattet() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
@@ -193,7 +193,7 @@ public class HenleggBehandlingTjenesteTest {
     }
 
     @Test
-    public void kan_ikke_henlegge_behandling_som_allerede_er_henlagt() {
+    void kan_ikke_henlegge_behandling_som_allerede_er_henlagt() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET).buildFor(behandling);
         var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;

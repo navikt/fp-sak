@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 
-public class BeregningsgrunnlagDiffSjekkerTest {
+class BeregningsgrunnlagDiffSjekkerTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.fra(
@@ -32,7 +32,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
 
 
     @Test
-    public void skalReturnereTrueOmUlikeGrunnbeløp() {
+    void skalReturnereTrueOmUlikeGrunnbeløp() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
@@ -57,7 +57,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalReturnereTrueOmUlikeAktivitetstatuser() {
+    void skalReturnereTrueOmUlikeAktivitetstatuser() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(
@@ -80,7 +80,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalReturnereTrueOmUliktAntallPerioder() {
+    void skalReturnereTrueOmUliktAntallPerioder() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(
@@ -113,7 +113,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalReturnereTrueOmUliktAntallAndeler() {
+    void skalReturnereTrueOmUliktAntallAndeler() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
@@ -160,7 +160,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalReturnereTrueOmUlikAktivitetstatusPåAndelMedSammeAndelsnr() {
+    void skalReturnereTrueOmUlikAktivitetstatusPåAndelMedSammeAndelsnr() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
@@ -205,7 +205,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
 
 
     @Test
-    public void skalReturnereTrueOmUlikArbeidsgiverPåAndelMedSammeAndelsnr() {
+    void skalReturnereTrueOmUlikArbeidsgiverPåAndelMedSammeAndelsnr() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
@@ -251,7 +251,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalReturnereFalseArbeidstakerIngenDiff() {
+    void skalReturnereFalseArbeidstakerIngenDiff() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
@@ -299,7 +299,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalIkkeGiForskjellPåAndelerHvisBeggeManglerArbeidsforhold() {
+    void skalIkkeGiForskjellPåAndelerHvisBeggeManglerArbeidsforhold() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(
@@ -343,7 +343,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligAvvik() {
+    void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligAvvik() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(
@@ -380,7 +380,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligInntektMenLiktAvvik() {
+    void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligInntektMenLiktAvvik() {
         // Arrange
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(
@@ -417,7 +417,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalIkkeGiForskjellNårSammenligningsgrunnlagPrStatusListeErLik() {
+    void skalIkkeGiForskjellNårSammenligningsgrunnlagPrStatusListeErLik() {
         var sammenligningsgrunnlagPrStatusAt = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusAt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
@@ -443,7 +443,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeInneholderSammeTyper() {
+    void skalGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeInneholderSammeTyper() {
         var sammenligningsgrunnlagPrStatusAt = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusAt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
@@ -471,7 +471,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeHarLikeVerdierForSammeType() {
+    void skalGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeHarLikeVerdierForSammeType() {
         var avvikPromilleAtAktivt = BigDecimal.ZERO;
         var avvikPromilleAtForrige = BigDecimal.valueOf(10);
         var sammenligningsgrunnlagPrStatusAtAktivt = new SammenligningsgrunnlagPrStatus.Builder();
@@ -519,7 +519,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalIkkeGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeErSattForBeggeBeregningsgrunnlag() {
+    void skalIkkeGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeErSattForBeggeBeregningsgrunnlag() {
         var beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build();
         var resultat = BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(beregningsgrunnlagEntitet,
             beregningsgrunnlagEntitet);
@@ -527,7 +527,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     }
 
     @Test
-    public void skalReturnereTrueNårSammenligningsgrunnlagPrStatusListeIkkeErSattForDetEneBeregningsgrunnlaget() {
+    void skalReturnereTrueNårSammenligningsgrunnlagPrStatusListeIkkeErSattForDetEneBeregningsgrunnlaget() {
         var sammenligningsgrunnlagPrStatusAt = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusAt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);

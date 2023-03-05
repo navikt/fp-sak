@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
-public class InntektsmeldingAggregatEntitetTest {
+class InntektsmeldingAggregatEntitetTest {
 
     private static final String ORGNR = "123";
 
     @Test
-    public void skal_lagre_i_riktig_rekkefølge() {
+    void skal_lagre_i_riktig_rekkefølge() {
         var nå = LocalDateTime.now();
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
@@ -35,7 +35,7 @@ public class InntektsmeldingAggregatEntitetTest {
     }
 
     @Test
-    public void skal_bruk_ar_hvis_altinn_involvert() {
+    void skal_bruk_ar_hvis_altinn_involvert() {
         var nå = LocalDateTime.now();
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
@@ -57,7 +57,7 @@ public class InntektsmeldingAggregatEntitetTest {
     }
 
     @Test
-    public void skal_ikke_lagre_når_eldre_kanalreferanse_kommer_inn_med_lik_innsendingstidspunkt() {
+    void skal_ikke_lagre_når_eldre_kanalreferanse_kommer_inn_med_lik_innsendingstidspunkt() {
         var nå = LocalDateTime.now();
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
@@ -79,7 +79,7 @@ public class InntektsmeldingAggregatEntitetTest {
     }
 
     @Test
-    public void skal_tolke_null_i_kanalreferanse_som_gammel_ved_like_innsendingstidspunkt() {
+    void skal_tolke_null_i_kanalreferanse_som_gammel_ved_like_innsendingstidspunkt() {
         var nå = LocalDateTime.now();
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
@@ -102,7 +102,7 @@ public class InntektsmeldingAggregatEntitetTest {
     }
 
     @Test
-    public void skal_benytte_innsendingstidpunkt_hvis_de_er_ulike() {
+    void skal_benytte_innsendingstidpunkt_hvis_de_er_ulike() {
         var nå = LocalDateTime.now();
         var omTi = LocalDateTime.now().plusMinutes(10);
         var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);

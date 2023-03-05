@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
-public class EngangsstønadVilkårUtlederTest {
+class EngangsstønadVilkårUtlederTest {
 
     @Test
-    public void skal_opprette_vilkår_for_mor_som_søker_stønad_fødsel() {
+    void skal_opprette_vilkår_for_mor_som_søker_stønad_fødsel() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -38,7 +38,7 @@ public class EngangsstønadVilkårUtlederTest {
     }
 
     @Test
-    public void skal_opprette_vilkår_for_mor_som_søker_stønad_adopsjon() {
+    void skal_opprette_vilkår_for_mor_som_søker_stønad_adopsjon() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
@@ -55,7 +55,7 @@ public class EngangsstønadVilkårUtlederTest {
     }
 
     @Test
-    public void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon() {
+    void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medAdoptererAlene(true)
@@ -74,7 +74,7 @@ public class EngangsstønadVilkårUtlederTest {
     }
 
     @Test
-    public void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon_ikke_alene() {
+    void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon_ikke_alene() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now())
@@ -93,7 +93,7 @@ public class EngangsstønadVilkårUtlederTest {
     }
 
     @Test
-    public void skal_opprette_vilkår_når_far_søker_om_omsorgsovertakelse_ved_fødsel() {
+    void skal_opprette_vilkår_når_far_søker_om_omsorgsovertakelse_ved_fødsel() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()

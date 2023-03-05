@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class KompletthetssjekkerManglendeVedleggTest {
+class KompletthetssjekkerManglendeVedleggTest {
 
     private static final Saksnummer SAKSNUMMER  = new Saksnummer("9999");
 
@@ -46,7 +46,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
     }
 
     @Test
-    public void skal_regne_søknaden_som_komplett_når_JournalTjeneste_har_alle_dokumentene() {
+    void skal_regne_søknaden_som_komplett_når_JournalTjeneste_har_alle_dokumentene() {
         // Arrange
         Set<DokumentTypeId> dokumentTypeIds = new HashSet<>();
         dokumentTypeIds.add(dokumentTypeIdDokumentasjonAvTerminEllerFødsel);
@@ -82,7 +82,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
     }
 
     @Test
-    public void skal_regne_søknaden_som_ukomplett_når_JournalTjeneste_ikke_har_alle_dokumentene() {
+    void skal_regne_søknaden_som_ukomplett_når_JournalTjeneste_ikke_har_alle_dokumentene() {
         // Arrange
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(Collections.singleton(dokumentTypeIdUdefinert));
 
@@ -110,7 +110,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
     }
 
     @Test
-    public void skal_også_håndtere_at_dokumentene_kommer_i_motsatt_rekkefølge_på_søknaden() {
+    void skal_også_håndtere_at_dokumentene_kommer_i_motsatt_rekkefølge_på_søknaden() {
         // Arrange
         Set<DokumentTypeId> dokumentTypeIds = new HashSet<>();
         dokumentTypeIds.add(dokumentTypeIdDokumentasjonAvTerminEllerFødsel);
@@ -141,7 +141,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
     }
 
     @Test
-    public void skal_regne_søknaden_som_komplett_hvis_den_ikke_inneholder_vedlegg() {
+    void skal_regne_søknaden_som_komplett_hvis_den_ikke_inneholder_vedlegg() {
         // Arrange
         var behandling = lagBehandling();
         var søknad = new SøknadEntitet.Builder().build();

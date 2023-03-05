@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.mottak.hendelser.freg.FødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.FødselForretningshendelseSaksvelger;
 
 @ExtendWith(MockitoExtension.class)
-public class FødselForretningshendelseSaksvelgerTest {
+class FødselForretningshendelseSaksvelgerTest {
 
     public static final LocalDate FØDSELSDATO = LocalDate.now();
 
@@ -75,7 +75,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_sak_som_er_åpen_foreldrepengesak() {
+    void skal_velge_sak_som_er_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -96,7 +96,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_sak_som_er_avsluttet_foreldrepengesak() {
+    void skal_ikke_velge_sak_som_er_avsluttet_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -114,7 +114,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_sak_som_er_åpen_engangsstønadsak() {
+    void skal_velge_sak_som_er_åpen_engangsstønadsak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -135,7 +135,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_sak_som_er_avsluttet_engangsstønadsak_med_innvilget_vedtak() {
+    void skal_velge_sak_som_er_avsluttet_engangsstønadsak_med_innvilget_vedtak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -158,7 +158,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_avslått_vedtak() {
+    void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_avslått_vedtak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -177,7 +177,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_tidligere_barn() {
+    void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_tidligere_barn() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -195,7 +195,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_svangerskapspengersak_der_fødselsdatoen_er_før_tilkjent_ytelse_sluttdato() {
+    void skal_velge_svangerskapspengersak_der_fødselsdatoen_er_før_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
@@ -219,7 +219,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_svangerskapspengersak_der_fødselsdatoen_er_lik_tilkjent_ytelse_sluttdato() {
+    void skal_velge_svangerskapspengersak_der_fødselsdatoen_er_lik_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
@@ -243,7 +243,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_svangerskapspengersak_der_fødselsdatoen_er_etter_tilkjent_ytelse_sluttdato() {
+    void skal_ikke_velge_svangerskapspengersak_der_fødselsdatoen_er_etter_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
@@ -264,7 +264,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void annullert_fødselshendelse_skal_treffe_åpen_foreldrepengesak() {
+    void annullert_fødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -283,7 +283,7 @@ public class FødselForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void korrigert_fødselshendelse_skal_treffe_åpen_foreldrepengesak() {
+    void korrigert_fødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);

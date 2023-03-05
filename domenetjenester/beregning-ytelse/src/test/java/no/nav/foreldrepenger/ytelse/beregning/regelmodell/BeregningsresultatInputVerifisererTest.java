@@ -21,12 +21,12 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakRes
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class BeregningsresultatInputVerifisererTest {
+class BeregningsresultatInputVerifisererTest {
     private List<BeregningsgrunnlagPeriode> bgPerioder = new ArrayList<>();
     private List<UttakResultatPeriode> uttakPerioder = new ArrayList<>();
 
     @Test
-    public void skal_teste_at_uttak_andeler_kun_valideres_mot_bg_andeler_i_sin_egen_periode() {
+    void skal_teste_at_uttak_andeler_kun_valideres_mot_bg_andeler_i_sin_egen_periode() {
         var arbfor1 = lagBGArbeidsforhold("999999999", null, false);
         var arbfor2 = lagBGArbeidsforhold("999999998", null, false);
         lagBGPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(2020, 8, 31), arbfor1);
@@ -45,7 +45,7 @@ public class BeregningsresultatInputVerifisererTest {
     }
 
     @Test
-    public void skal_ikke_validere_andeler_som_ligger_i_perioder_med_fom_etter_siste_uttaksdag() {
+    void skal_ikke_validere_andeler_som_ligger_i_perioder_med_fom_etter_siste_uttaksdag() {
         var arbfor1 = lagBGArbeidsforhold("999999999", null, false);
         var arbfor2 = lagBGArbeidsforhold("999999998", null, false);
         lagBGPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(2020, 8, 31), arbfor1);
@@ -59,7 +59,7 @@ public class BeregningsresultatInputVerifisererTest {
     }
 
     @Test
-    public void en_periode_skal_matches_med_uttak() {
+    void en_periode_skal_matches_med_uttak() {
         var arbfor1 = lagBGArbeidsforhold("999999999", null, false);
         lagBGPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(9999, 12, 31), arbfor1);
         var uttakAktivitet = lagUttakAktivitet("999999999", null, false);

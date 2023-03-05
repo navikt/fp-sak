@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AksjonspunktGodkjenningDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
-public class AksjonspunktRestTjenesteTest {
+class AksjonspunktRestTjenesteTest {
 
     // skal_håndtere_overlappende_perioder data
     private static final LocalDate now = LocalDate.now();
@@ -65,7 +65,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    public void skal_bekrefte_terminbekreftelse() throws Exception {
+    void skal_bekrefte_terminbekreftelse() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
                 new BekreftTerminbekreftelseAksjonspunktDto(
@@ -80,7 +80,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    public void skal_bekrefte_fødsel() throws Exception {
+    void skal_bekrefte_fødsel() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsdato, null)};
         aksjonspunkt.add(
@@ -96,7 +96,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    public void skal_bekrefte_antall_barn() throws Exception {
+    void skal_bekrefte_antall_barn() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
                 new SjekkManglendeFodselDto(
@@ -112,7 +112,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    public void skal_bekrefte_fatte_vedtak_med_aksjonspunkt_godkjent() throws Exception {
+    void skal_bekrefte_fatte_vedtak_med_aksjonspunkt_godkjent() throws Exception {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos = new ArrayList<>();
@@ -129,7 +129,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() {
+    void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(

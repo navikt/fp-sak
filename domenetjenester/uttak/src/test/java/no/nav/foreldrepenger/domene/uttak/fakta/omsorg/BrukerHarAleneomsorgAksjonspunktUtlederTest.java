@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class BrukerHarAleneomsorgAksjonspunktUtlederTest {
+class BrukerHarAleneomsorgAksjonspunktUtlederTest {
 
     private UttakRepositoryProvider repositoryProvider;
 
@@ -36,7 +36,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void ingen_aksjonspunkter_dersom_søker_oppgitt_ikke_ha_aleneomsorg() {
+    void ingen_aksjonspunkter_dersom_søker_oppgitt_ikke_ha_aleneomsorg() {
         var behandling = behandlingMedOppgittRettighet(true, false);
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -45,7 +45,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void aksjonspunkter_dersom_søker_oppgitt_ha_aleneomsorg_men_oppgitt_annenForeldre_og_ha_samme_address_som_bruker() {
+    void aksjonspunkter_dersom_søker_oppgitt_ha_aleneomsorg_men_oppgitt_annenForeldre_og_ha_samme_address_som_bruker() {
         var behandling = behandlingMedOppgittRettighet(false, true);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.annenpartHarSammeBosted(ref)).thenReturn(true);
@@ -66,7 +66,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void aksjonspunkter_dersom_bruker_ikke_oppgitt_annenForeldre_men_er_gift_og_ha_samme_address_som_bruker() {
+    void aksjonspunkter_dersom_bruker_ikke_oppgitt_annenForeldre_men_er_gift_og_ha_samme_address_som_bruker() {
         var behandling = behandlingMedOppgittRettighet(false, true);
         when(personopplysninger.ektefelleHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(true);
         when(personopplysninger.harOppgittAnnenpartMedNorskID(BehandlingReferanse.fra(behandling))).thenReturn(false);

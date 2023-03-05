@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
 
-public class ManuellRegistreringForeldrepengerValidatorTest {
+class ManuellRegistreringForeldrepengerValidatorTest {
 
     @Test
-    public void skal_validere_dekningsgrad() {
+    void skal_validere_dekningsgrad() {
         DekningsgradDto dekningsgrad = null;
         var feltFeil = ManuellRegistreringSøknadValidator.validerDekningsgrad(dekningsgrad);
         assertThat(feltFeil).as("Dekningsgrad skal ikke kunne være null").isNotEmpty();
@@ -33,7 +33,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fellesperiode_for_far_eller_medmor_dato_satt_til_null() {
+    void skal_validere_fellesperiode_for_far_eller_medmor_dato_satt_til_null() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
 
@@ -48,7 +48,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fellesperiode_for_far_eller_medmor_overlappende_perioder() {
+    void skal_validere_fellesperiode_for_far_eller_medmor_overlappende_perioder() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
 
@@ -63,7 +63,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fellesperiode_for_far_eller_medmor() {
+    void skal_validere_fellesperiode_for_far_eller_medmor() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
 
@@ -74,7 +74,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fellesperiode_for_far_eller_medmor_start_for_sluttdato() {
+    void skal_validere_fellesperiode_for_far_eller_medmor_start_for_sluttdato() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
 
@@ -89,7 +89,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fedrekvote_dato_satt_til_null() {
+    void skal_validere_fedrekvote_dato_satt_til_null() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FEDREKVOTE));
 
@@ -104,7 +104,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fedrekvote_overlappende_perioder() {
+    void skal_validere_fedrekvote_overlappende_perioder() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FEDREKVOTE));
 
@@ -119,7 +119,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fedrekvote_start_for_sluttdato() {
+    void skal_validere_fedrekvote_start_for_sluttdato() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FEDREKVOTE));
 
@@ -134,7 +134,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_fedrekvote() {
+    void skal_validere_fedrekvote() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FEDREKVOTE));
 
@@ -145,7 +145,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_finne_manglende_mors_aktivitet_far_foreldrepenger() {
+    void skal_finne_manglende_mors_aktivitet_far_foreldrepenger() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FORELDREPENGER));
 
@@ -154,7 +154,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_ignorere_manglende_mors_aktivitet_far_fedrekvote() {
+    void skal_ignorere_manglende_mors_aktivitet_far_fedrekvote() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigPermisjonPeriode(UttakPeriodeType.FEDREKVOTE));
 
@@ -163,7 +163,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_utsettelse_dato_satt_til_null() {
+    void skal_validere_utsettelse_dato_satt_til_null() {
         var utsettelsePerioder = lagGyldigUtsettelsePerioder();
 
         // Setter en av datoene i perioden til null
@@ -175,7 +175,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_utsettelse_overlappende_perioder() {
+    void skal_validere_utsettelse_overlappende_perioder() {
         var utsettelsePerioder = lagGyldigUtsettelsePerioder();
 
         // Gjør perioder overlappende
@@ -187,7 +187,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_utsettelse_start_for_sluttdato() {
+    void skal_validere_utsettelse_start_for_sluttdato() {
         var utsettelsePerioder = lagGyldigUtsettelsePerioder();
 
         // Sett start før slutt
@@ -199,7 +199,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_utsettelse_årsak_må_være_satt() {
+    void skal_validere_utsettelse_årsak_må_være_satt() {
         var utsettelsePerioder = lagGyldigUtsettelsePerioder();
 
         // Sett start årsak til null
@@ -211,7 +211,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_utsettelse() {
+    void skal_validere_utsettelse() {
         var utsettelsePerioder = lagGyldigUtsettelsePerioder();
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerUtsettelse(utsettelsePerioder);
@@ -219,7 +219,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_dato_satt_til_null() {
+    void skal_validere_gradering_dato_satt_til_null() {
         var graderingPerioder = lagGyldigGraderingPerioder();
 
         // Setter en av datoene i perioden til null
@@ -231,7 +231,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_overlappende_perioder() {
+    void skal_validere_gradering_overlappende_perioder() {
         var graderingPerioder = lagGyldigGraderingPerioder();
 
         // Gjør perioder overlappende
@@ -243,7 +243,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_start_for_sluttdato() {
+    void skal_validere_gradering_start_for_sluttdato() {
         var graderingPerioder = lagGyldigGraderingPerioder();
 
         // Sett start før slutt
@@ -255,7 +255,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_prosentandel_må_være_satt() {
+    void skal_validere_gradering_prosentandel_må_være_satt() {
         var graderingPerioder = lagGyldigGraderingPerioder();
 
         // Sett start årsak til null
@@ -267,7 +267,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_samtidig_uttak_samtidig_uttaksprosent_må_være_satt() {
+    void skal_validere_gradering_samtidig_uttak_samtidig_uttaksprosent_må_være_satt() {
         var graderingPerioder = lagGyldigGraderingPerioder();
 
         // Sett start årsak til null
@@ -280,7 +280,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_periode_må_være_satt() {
+    void skal_validere_gradering_periode_må_være_satt() {
         var graderingPerioder = lagGyldigGraderingPerioder();
 
         // Sett gradering periode til null
@@ -292,7 +292,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering() {
+    void skal_validere_gradering() {
         var graderingPerioder = lagGyldigGraderingPerioder();
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerGradering(graderingPerioder);
@@ -337,7 +337,7 @@ public class ManuellRegistreringForeldrepengerValidatorTest {
     }
 
     @Test
-    public void skal_validere_at_frilansperioder_må_være_satt() {
+    void skal_validere_at_frilansperioder_må_være_satt() {
         var frilansDto = new FrilansDto();
         frilansDto.setHarSokerPeriodeMedFrilans(true);
         frilansDto.setPerioder(new ArrayList<>());

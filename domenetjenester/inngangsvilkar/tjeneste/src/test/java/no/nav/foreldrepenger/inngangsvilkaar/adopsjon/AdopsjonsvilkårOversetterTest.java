@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
-public class AdopsjonsvilkårOversetterTest {
+class AdopsjonsvilkårOversetterTest {
 
     private AdopsjonsvilkårOversetter adopsjonsoversetter;
 
@@ -54,7 +54,7 @@ public class AdopsjonsvilkårOversetterTest {
     }
 
     @Test
-    public void skal_mappe_fra_domeneadoosjon_til_regeladopsjon() {
+    void skal_mappe_fra_domeneadoosjon_til_regeladopsjon() {
         // Arrange
         var søknadsdato = LocalDate.now().plusDays(1);
         var søknadFødselsdato = LocalDate.now().plusDays(2);

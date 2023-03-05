@@ -13,10 +13,10 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Adopsjon;
 
-public class AdopsjonGrunnlagByggerTest {
+class AdopsjonGrunnlagByggerTest {
 
     @Test
-    public void skalLeggeTilAdopsjonInformasjon_IngenAnkomstNorgeDatoEllerStebarnsadopsjon() {
+    void skalLeggeTilAdopsjonInformasjon_IngenAnkomstNorgeDatoEllerStebarnsadopsjon() {
         var grunnlag = byggGrunnlag(fpGrunnlag(null, false));
 
         assertThat(grunnlag.getAnkomstNorgeDato()).isNull();
@@ -31,7 +31,7 @@ public class AdopsjonGrunnlagByggerTest {
     }
 
     @Test
-    public void skalLeggeTilAdopsjonInformasjon_IngenAnkomstNorgeDatoOgStebarnsadopsjonTrue() {
+    void skalLeggeTilAdopsjonInformasjon_IngenAnkomstNorgeDatoOgStebarnsadopsjonTrue() {
         var grunnlag = byggGrunnlag(fpGrunnlag(null, true));
 
         assertThat(grunnlag.getAnkomstNorgeDato()).isNull();
@@ -39,7 +39,7 @@ public class AdopsjonGrunnlagByggerTest {
     }
 
     @Test
-    public void skalLeggeTilAdopsjonInformasjon_AnkomstNorgeDatoOgStebarnsadopsjonTrue() {
+    void skalLeggeTilAdopsjonInformasjon_AnkomstNorgeDatoOgStebarnsadopsjonTrue() {
         var ankomstNorgeDato = LocalDate.now().plusWeeks(2);
         var grunnlag = byggGrunnlag(fpGrunnlag(ankomstNorgeDato, true));
 
@@ -48,7 +48,7 @@ public class AdopsjonGrunnlagByggerTest {
     }
 
     @Test
-    public void skalLeggeTilAdopsjonInformasjon_AnkomstNorgeDatoOgStebarnsadopsjonFalse() {
+    void skalLeggeTilAdopsjonInformasjon_AnkomstNorgeDatoOgStebarnsadopsjonFalse() {
         var ankomstNorgeDato = LocalDate.now().plusWeeks(2);
         var grunnlag = byggGrunnlag(fpGrunnlag(ankomstNorgeDato, false));
 

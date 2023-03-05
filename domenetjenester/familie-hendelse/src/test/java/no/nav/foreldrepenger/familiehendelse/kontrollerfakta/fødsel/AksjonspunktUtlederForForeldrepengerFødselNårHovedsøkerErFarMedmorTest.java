@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
-public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest extends EntityManagerAwareTest {
+class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest extends EntityManagerAwareTest {
 
     private static final LocalDate TERMINDAT0_NÅ = LocalDate.now();
     private static final LocalDate FØDSEL_17_SIDEN = LocalDate.now().minusDays(27);
@@ -61,7 +61,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     @Test
-    public void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
+    void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
         // Oppsett
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
 
@@ -81,7 +81,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
+    void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
         // Oppsett
         var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
 
@@ -93,7 +93,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     @Test
-    public void sjekk_aksjonspunkter_når_søker_oppgir_termindato() {
+    void sjekk_aksjonspunkter_når_søker_oppgir_termindato() {
         var behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDAT0_NÅ);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -103,7 +103,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     @Test
-    public void sjekk_aksjonspunkter_når_søker_oppgir_termindato_wlb() {
+    void sjekk_aksjonspunkter_når_søker_oppgir_termindato_wlb() {
         var behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDAT0_NÅ);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInputMedMinsterettFar(behandling));
 
@@ -112,7 +112,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     @Test
-    public void ingen_aksjonspunkter_dersom_løpende_arbeid() {
+    void ingen_aksjonspunkter_dersom_løpende_arbeid() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTerminOgArbeidsForhold(TERMINDAT0_NÅ, Tid.TIDENES_ENDE);
         var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste));
@@ -125,7 +125,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_fødsel_og_mer_enn_14_dager_siden_fødsel() {
+    void sjekk_manglende_fødsel_dersom_fødsel_og_mer_enn_14_dager_siden_fødsel() {
         var behandling = opprettBehandlingMedOppgittFødsel(FØDSEL_17_SIDEN);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -134,7 +134,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     @Test
-    public void sjekk_autopunkt_vent_på_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
+    void sjekk_autopunkt_vent_på_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
         var behandling = opprettBehandlingMedOppgittFødsel(LocalDate.now().minusDays(1));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 

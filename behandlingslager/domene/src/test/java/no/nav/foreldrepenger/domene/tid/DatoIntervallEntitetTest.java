@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-public class DatoIntervallEntitetTest {
+class DatoIntervallEntitetTest {
 
     @Test
-    public void equalsTest() {
+    void equalsTest() {
         var datoIntervallEntitet1 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 10, 31));
         var datoIntervallEntitet2 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 10, 31));
 
@@ -18,7 +18,7 @@ public class DatoIntervallEntitetTest {
     }
 
     @Test
-    public void notEqualTest() {
+    void notEqualTest() {
         var datoIntervallEntitet1 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 10, 31));
         var datoIntervallEntitet2 = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 10, 30));
 

@@ -62,7 +62,7 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurder
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ExtendWith(JpaExtension.class)
-public class ErEndringIUttakTest {
+class ErEndringIUttakTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
 
@@ -120,7 +120,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_perioder() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_perioder() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -145,7 +145,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_aktiviteter() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_aktiviteter() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -173,7 +173,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_trekkdager_i_aktivitet() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_trekkdager_i_aktivitet() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -200,7 +200,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_ikke_gi_endring_i_uttak_null_trekkdager_ulik_konto() {
+    void skal_ikke_gi_endring_i_uttak_null_trekkdager_ulik_konto() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -227,7 +227,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void case_fra_prod_bør_gi_ingen_endring() {
+    void case_fra_prod_bør_gi_ingen_endring() {
         // Arrange
         var dato = LocalDate.of(2020, 4, 9);
         var orig1 = new LocalDateInterval(dato, LocalDate.of(2020, 4, 30));
@@ -281,7 +281,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void case_fra_prod_bør_gi_endring_avslag() {
+    void case_fra_prod_bør_gi_endring_avslag() {
         // Arrange
         var dato = LocalDate.of(2020, 3, 31);
         var orig1 = new LocalDateInterval(dato, LocalDate.of(2020, 4, 27));
@@ -355,7 +355,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_arbeidsprosent_i_aktivitet_etter_endringstidspunktet() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_arbeidsprosent_i_aktivitet_etter_endringstidspunktet() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -382,7 +382,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_utbetatlingsgrad_i_aktivitet() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_utbetatlingsgrad_i_aktivitet() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -409,7 +409,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_stønadskonto() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_stønadskonto() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -432,7 +432,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_resultatType() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_resultatType() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -455,7 +455,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_samtidig_uttak() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_samtidig_uttak() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -478,7 +478,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_om_det_er_avvik_i_gradering_utfall_i_aktivitet() {
+    void skal_gi_endring_i_uttak_om_det_er_avvik_i_gradering_utfall_i_aktivitet() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -505,7 +505,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_dersom_begge_uttak_mangler() {
+    void skal_gi_ingen_endring_dersom_begge_uttak_mangler() {
         // Act
         var endringIUttak = new UttakResultatHolderFP(Optional.empty(), null).harUlikUttaksplan(
                 new UttakResultatHolderFP(Optional.empty(), null));
@@ -515,7 +515,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_dersom_uttakene_har_forskjellig_antall_aktiviteter() {
+    void skal_gi_endring_i_uttak_dersom_uttakene_har_forskjellig_antall_aktiviteter() {
         // Arrange
         var dato = LocalDate.now();
 
@@ -542,7 +542,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_dersom_uttakene_har_like_aktiviteter_men_forskjellig_uttakskonto() {
+    void skal_gi_endring_i_uttak_dersom_uttakene_har_like_aktiviteter_men_forskjellig_uttakskonto() {
         // Arrange
         var dato = LocalDate.now();
 
@@ -567,7 +567,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_dersom_uttakene_har_samme_antall_perioder_men_med_ulik_fom_og_tom() {
+    void skal_gi_endring_i_uttak_dersom_uttakene_har_samme_antall_perioder_men_med_ulik_fom_og_tom() {
         // Arrange
         var dato = LocalDate.now();
 
@@ -592,7 +592,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_gi_endring_i_uttak_dersom_kun_et_av_uttakene_har_periode_med_flerbarnsdager() {
+    void skal_gi_endring_i_uttak_dersom_kun_et_av_uttakene_har_periode_med_flerbarnsdager() {
         // Arrange
         var dato = LocalDate.now();
 
@@ -617,7 +617,7 @@ public class ErEndringIUttakTest {
     }
 
     @Test
-    public void skal_ikkje_gi_endring_i_uttak_om_det_ikkje_er_avvik() {
+    void skal_ikkje_gi_endring_i_uttak_om_det_ikkje_er_avvik() {
         // Arrange
         var dato = LocalDate.now();
         var førstegangsbehandling = opprettFørstegangsbehandling();

@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
-public class AvklarOmErBosattTest {
+class AvklarOmErBosattTest {
 
     private static final LocalDate SKJÆRINGSDATO = LocalDate.now();
 
@@ -55,7 +55,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt_ved_udefinert_personstatus() {
+    void skal_få_aksjonspunkt_ved_udefinert_personstatus() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
@@ -71,7 +71,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt_ved_utvandret_personstatus() {
+    void skal_få_aksjonspunkt_ved_utvandret_personstatus() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
@@ -87,7 +87,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_gi_medlem_resultat_AVKLAR_OM_ER_BOSATT() {
+    void skal_gi_medlem_resultat_AVKLAR_OM_ER_BOSATT() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
@@ -103,7 +103,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_ikke_gi_medlem_resultat_AVKLAR_OM_ER_BOSATT() {
+    void skal_ikke_gi_medlem_resultat_AVKLAR_OM_ER_BOSATT() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
@@ -120,7 +120,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_ikke_få_aksjonspunkt_når_bruker_har_utenlandsk_postadresse_og_dekningsgraden_er_frivillig_medlem() {
+    void skal_ikke_få_aksjonspunkt_når_bruker_har_utenlandsk_postadresse_og_dekningsgraden_er_frivillig_medlem() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
@@ -143,7 +143,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_ikke_få_aksjonspunkt_når_bruker_har_utenlandsk_postadresse_og_dekningsgraden_er_ikke_medlem() {
+    void skal_ikke_få_aksjonspunkt_når_bruker_har_utenlandsk_postadresse_og_dekningsgraden_er_ikke_medlem() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
@@ -166,7 +166,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_dersom_minst_to_av_spørsmål_til_bruker_om_tilknytning_er_nei() {
+    void skal_opprette_aksjonspunkt_dersom_minst_to_av_spørsmål_til_bruker_om_tilknytning_er_nei() {
         // Arrange
         var oppholdUtlandForrigePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder()
                 .erTidligereOpphold(true)
@@ -187,7 +187,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_ikke_skal_bo_i_norge_de_neste_12_månedene() {
+    void skal_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_ikke_skal_bo_i_norge_de_neste_12_månedene() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO);
@@ -214,7 +214,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_skal_bo_i_mange_land_i_fremtiden_men_til_sammen_under_12_måneder() {
+    void skal_ikke_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_skal_bo_i_mange_land_i_fremtiden_men_til_sammen_under_12_måneder() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO);
@@ -259,7 +259,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_skal_bo_i_mange_land_i_fremtiden_men_til_sammen_mer_12_måneder() {
+    void skal_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_skal_bo_i_mange_land_i_fremtiden_men_til_sammen_mer_12_måneder() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO);
@@ -304,7 +304,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_dersom_søker_har_søkt_fødsel_og_ikke_skal_bo_i_norge_de_neste_12_månedene() {
+    void skal_ikke_opprette_aksjonspunkt_dersom_søker_har_søkt_fødsel_og_ikke_skal_bo_i_norge_de_neste_12_månedene() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittTilknytning();
@@ -329,7 +329,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_oppholder_seg_i_utland_i_under_12_fremtidige_måneder() {
+    void skal_ikke_opprette_aksjonspunkt_dersom_søker_har_søkt_termin_og_oppholder_seg_i_utland_i_under_12_fremtidige_måneder() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO);
@@ -356,7 +356,7 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_dersom_bare_ett_av_spørsmål_til_bruker_om_tilknytning_er_nei() {
+    void skal_ikke_opprette_aksjonspunkt_dersom_bare_ett_av_spørsmål_til_bruker_om_tilknytning_er_nei() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();

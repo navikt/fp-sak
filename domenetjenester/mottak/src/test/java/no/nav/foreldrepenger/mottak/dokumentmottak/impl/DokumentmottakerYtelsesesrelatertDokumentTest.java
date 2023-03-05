@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class DokumentmottakerYtelsesesrelatertDokumentTest {
+class DokumentmottakerYtelsesesrelatertDokumentTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -82,7 +82,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     }
 
     @Test
-    public void skal_opprette_vurder_dokument_oppgave_dersom_avslått_behandling() {
+    void skal_opprette_vurder_dokument_oppgave_dersom_avslått_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
@@ -105,7 +105,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     }
 
     @Test
-    public void skal_opprette_førstegangsbehandling_dersom_avslått_behandling_har_entydig_avslag() {
+    void skal_opprette_førstegangsbehandling_dersom_avslått_behandling_har_entydig_avslag() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT)
@@ -133,7 +133,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     }
 
     @Test
-    public void skal_opprette_vurder_dokument_oppgave_dersom_opphørt_behandling() {
+    void skal_opprette_vurder_dokument_oppgave_dersom_opphørt_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
@@ -158,7 +158,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     }
 
     @Test
-    public void skal_ikke_opprette_førstegangsbehandling_dersom_opphørt_behandling() {
+    void skal_ikke_opprette_førstegangsbehandling_dersom_opphørt_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET)

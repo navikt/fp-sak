@@ -40,7 +40,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragUtenFeriepenger() {
+    void skalSendeOppdragUtenFeriepenger() {
         // Arrange
         var gruppertYtelse = buildTilkjentYtelseFP();
 
@@ -71,7 +71,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
      * Revurdering: BehandlingVedtak=Innvilget, BehandlingResultat=Foreldrepenger endret, Finnes tilkjent ytelse=Ja
      */
     @Test
-    public void skalSendeFørstegangsOppdragIRevurderingNårOriginalErInnvilgetOgFinnesIkkeTilkjentYtelseIOriginal() {
+    void skalSendeFørstegangsOppdragIRevurderingNårOriginalErInnvilgetOgFinnesIkkeTilkjentYtelseIOriginal() {
         // Arrange
         var gruppertYtelse = GruppertYtelse.builder()
             .leggTilKjede(
@@ -114,7 +114,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
      * Revurdering: BehandlingVedtak=Innvilget, BehandlingResultat=Innvilget, Finnes tilkjent ytelse=Ja
      */
     @Test
-    public void skalSendeFørstegangsOppdragIRevurderingNårOriginalErAvslagOgFinnesIkkeTilkjentYtelseIOriginal() {
+    void skalSendeFørstegangsOppdragIRevurderingNårOriginalErAvslagOgFinnesIkkeTilkjentYtelseIOriginal() {
         // Arrange
         var gruppertYtelse = GruppertYtelse.builder()
             .leggTilKjede(
@@ -154,7 +154,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragMedFlereInntektskategoriIFørstegangsbehandling() {
+    void skalSendeOppdragMedFlereInntektskategoriIFørstegangsbehandling() {
         // Arrange
         var gruppertYtelse = buildTilkjentYtelseMedFlereInntektskategoriFP(true);
         var inputBuilder = getInputStandardBuilder(gruppertYtelse);
@@ -183,7 +183,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragMedFlereArbeidsgiverSomMottakerIFørstegangsbehandling() {
+    void skalSendeOppdragMedFlereArbeidsgiverSomMottakerIFørstegangsbehandling() {
         // Arrange
         var gruppertYtelse = buildTilkjentYtelseMedFlereAndelerSomArbeidsgiver();
         var inputBuilder = getInputStandardBuilder(gruppertYtelse);
@@ -212,7 +212,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragHvorBrukerOgArbeidsgiverErMottakerOgBrukerHarFlereAndeler() {
+    void skalSendeFørstegangsoppdragHvorBrukerOgArbeidsgiverErMottakerOgBrukerHarFlereAndeler() {
         // Arrange
         var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -255,7 +255,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalOppretteFørstegangsoppdragFP() {
+    void skalOppretteFørstegangsoppdragFP() {
         // Arrange
         var gruppertYtelse = buildTilkjentYtelseFP();
         var builder = getInputStandardBuilder(gruppertYtelse);
@@ -299,7 +299,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBruker() {
+    void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBruker() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -334,7 +334,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilPrivatArbeidsgiver() {
+    void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilPrivatArbeidsgiver() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -367,7 +367,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBådePrivatArbeidsgiverOgBruker() {
+    void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBådePrivatArbeidsgiverOgBruker() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -400,7 +400,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBruker() {
+    void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBruker() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -437,7 +437,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBeggeToArbeidsgivere() {
+    void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBeggeToArbeidsgivere() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -487,7 +487,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilAlle() {
+    void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilAlle() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -537,7 +537,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeFørstegangsoppdragForAdopsjonMedTilsvarendeKlassekode() {
+    void skalSendeFørstegangsoppdragForAdopsjonMedTilsvarendeKlassekode() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -566,7 +566,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skal_sende_oppdrag_for_svangerskapspenger() {
+    void skal_sende_oppdrag_for_svangerskapspenger() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);

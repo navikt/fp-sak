@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.Risikovurderin
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 
-public class KontrollDtoTjenesteTest {
+class KontrollDtoTjenesteTest {
 
     private KontrollDtoTjeneste kontrollDtoTjeneste;
 
@@ -39,7 +39,7 @@ public class KontrollDtoTjenesteTest {
     }
 
     @Test
-    public void skal_teste_at_dto_lages_korrekt_når_resultatet_mangler() {
+    void skal_teste_at_dto_lages_korrekt_når_resultatet_mangler() {
         // Arrange
         when(risikovurderingTjeneste.hentRisikoklassifisering(referanse)).thenReturn(Optional.empty());
 
@@ -52,7 +52,7 @@ public class KontrollDtoTjenesteTest {
     }
 
     @Test
-    public void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_ikke_høy() {
+    void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_ikke_høy() {
         // Arrange
         when(risikovurderingTjeneste.hentRisikoklassifisering(referanse))
                 .thenReturn(Optional.of(lagFaresignalWrapper(Kontrollresultat.IKKE_HØY, Collections.emptyList())));
@@ -69,7 +69,7 @@ public class KontrollDtoTjenesteTest {
     }
 
     @Test
-    public void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_høy() {
+    void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_høy() {
         // Arrange
         var faresignaler = Arrays.asList("Grunn en", "Grunn to", "Grunn tre", "Grunn 4", "Grunn 5");
         when(risikovurderingTjeneste.hentRisikoklassifisering(referanse))

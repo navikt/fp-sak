@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class PersonopplysningGrunnlagDiffTest {
+class PersonopplysningGrunnlagDiffTest {
 
     private static final AktørId EKTEFELLE_AKTØR_ID = AktørId.dummy();
     private static final AktørId BARN_AKTØR_ID = AktørId.dummy();
@@ -22,7 +22,7 @@ public class PersonopplysningGrunnlagDiffTest {
     private static final AktørId ANNEN_AKTØR_ID = AktørId.dummy();
 
     @Test
-    public void skal_ikke_identifisere_som_kun_endring_fødsel_dersom_ingen_diff() {
+    void skal_ikke_identifisere_som_kun_endring_fødsel_dersom_ingen_diff() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -40,7 +40,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_identifisere_som_kun_ny_fødsel_dersom_diff_kun_omfatter_melding_om_fødsel() {
+    void skal_identifisere_som_kun_ny_fødsel_dersom_diff_kun_omfatter_melding_om_fødsel() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -64,7 +64,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_identifisere_som_kun_ny_fødsel_dersom_diff_kun_omfatter_etterregistrering_fødsel_annenpart() {
+    void skal_identifisere_som_kun_ny_fødsel_dersom_diff_kun_omfatter_etterregistrering_fødsel_annenpart() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -96,7 +96,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_identifisere_som_ingen_endring_ved_ekteskap_annen_part() {
+    void skal_identifisere_som_ingen_endring_ved_ekteskap_annen_part() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -132,7 +132,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_identifisere_som_endring_ved_ekteskap_tredje_part() {
+    void skal_identifisere_som_endring_ved_ekteskap_tredje_part() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -169,7 +169,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_ikke_identifisere_som_kun_endring_fødsel_dersom_diff_omfatter_mer_enn_melding_om_fødsel() {
+    void skal_ikke_identifisere_som_kun_endring_fødsel_dersom_diff_omfatter_mer_enn_melding_om_fødsel() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -194,7 +194,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_identifisere_som_kun_endring_fødsel_dersom_diff_omfatter_ektefelle_i_tillegg_til_nytt_barn() {
+    void skal_identifisere_som_kun_endring_fødsel_dersom_diff_omfatter_ektefelle_i_tillegg_til_nytt_barn() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -227,7 +227,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_ikke_identifisere_som_kun_endring_fødsel_dersom_diff_omfatter_ny_ektefelle_i_tillegg_til_nytt_barn() {
+    void skal_ikke_identifisere_som_kun_endring_fødsel_dersom_diff_omfatter_ny_ektefelle_i_tillegg_til_nytt_barn() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
@@ -254,7 +254,7 @@ public class PersonopplysningGrunnlagDiffTest {
     }
 
     @Test
-    public void skal_identifisere_som_kun_ny_fødsel_dersom_diff_kun_omfatter_melding_om_fødsel_barn_nummer_to() {
+    void skal_identifisere_som_kun_ny_fødsel_dersom_diff_kun_omfatter_melding_om_fødsel_barn_nummer_to() {
         // Arrange
         final var orginalt = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
         final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);

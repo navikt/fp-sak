@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelserDto;
 
-public class TilgrensendeYtelserDtoTest {
+class TilgrensendeYtelserDtoTest {
     private static final LocalDate I_DAG = LocalDate.now();
 
     @Test
-    public void skal_sortere_null_first() {
+    void skal_sortere_null_first() {
         var tilgrensendeYtelserDtos = Arrays.asList(
                 lagTilgrensendeYtelserDto(I_DAG.minusYears(3)),
                 lagTilgrensendeYtelserDto(I_DAG.minusDays(2)),

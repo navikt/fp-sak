@@ -7,10 +7,10 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
-public class YtelsePeriodeTest {
+class YtelsePeriodeTest {
 
     @Test
-    public void skal_summere_perioder_som_har_samme_typer() {
+    void skal_summere_perioder_som_har_samme_typer() {
         var idag = LocalDate.now();
         var periode = Periode.of(idag, idag.plusDays(3));
         var yp1 = new YtelsePeriode(periode, Satsen.dagsats(100));
@@ -23,7 +23,7 @@ public class YtelsePeriodeTest {
     }
 
     @Test
-    public void skal_rapportere_sum_for_dagytelse() {
+    void skal_rapportere_sum_for_dagytelse() {
         var enTirsdag = LocalDate.of(2020, 11, 24);
         var nesteTirsdag = LocalDate.of(2020, 12, 1);
         var periode = Periode.of(enTirsdag, nesteTirsdag);
@@ -32,7 +32,7 @@ public class YtelsePeriodeTest {
     }
 
     @Test
-    public void skal_rapportere_sum_for_engangsutbetaling() {
+    void skal_rapportere_sum_for_engangsutbetaling() {
         var førsteMai = LocalDate.of(2020, 5, 1);
         var sisteMai = LocalDate.of(2020, 5, 31);
         var periode = Periode.of(førsteMai, sisteMai);

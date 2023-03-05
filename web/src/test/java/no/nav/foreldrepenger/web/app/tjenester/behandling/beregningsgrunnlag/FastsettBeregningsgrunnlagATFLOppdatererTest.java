@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeid
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class FastsettBeregningsgrunnlagATFLOppdatererTest {
+class FastsettBeregningsgrunnlagATFLOppdatererTest {
     private FastsettBeregningsgrunnlagATFLOppdaterer oppdaterer;
 
     @Mock
@@ -75,7 +75,7 @@ public class FastsettBeregningsgrunnlagATFLOppdatererTest {
     }
 
     @Test
-    public void skal_håndtere_overflødig_fastsett_tidsbegrenset_arbeidsforhold_aksjonspunkt() {
+    void skal_håndtere_overflødig_fastsett_tidsbegrenset_arbeidsforhold_aksjonspunkt() {
         // Arrange
         when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(anyLong()))
                 .thenReturn(BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build());

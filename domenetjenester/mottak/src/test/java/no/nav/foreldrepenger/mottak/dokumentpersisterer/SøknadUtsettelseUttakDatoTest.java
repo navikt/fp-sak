@@ -17,10 +17,10 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
-public class SøknadUtsettelseUttakDatoTest {
+class SøknadUtsettelseUttakDatoTest {
 
     @Test
-    public void finnUttakUtsettelseFraEndringssøknad() {
+    void finnUttakUtsettelseFraEndringssøknad() {
         var baseDato = LocalDate.now();
         var uttaksPeriode = new Uttaksperiode();
         uttaksPeriode.setFom(baseDato);
@@ -47,7 +47,7 @@ public class SøknadUtsettelseUttakDatoTest {
     }
 
     @Test
-    public void finnUttakUtsettelseFraFørstegangssøknad() {
+    void finnUttakUtsettelseFraFørstegangssøknad() {
         var baseDato = LocalDate.now();
         var utsettelsePeriode = new Utsettelsesperiode();
         var uttaksPeriode = new Uttaksperiode();

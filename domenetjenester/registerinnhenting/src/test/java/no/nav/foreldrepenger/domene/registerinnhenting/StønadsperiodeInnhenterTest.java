@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.StønadsperiodeTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ExtendWith(MockitoExtension.class)
-public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
+class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
 
 
@@ -103,7 +103,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
      */
 
     @Test
-    public void behandlingMorFPIngenNyereSaker() {
+    void behandlingMorFPIngenNyereSaker() {
         var eldreBehandling = lagBehandlingMor(FH_DATO_ELDRE, AKTØR_ID_MOR, null);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(eldreBehandling.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
@@ -124,7 +124,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void behandlingMorFPToTette() {
+    void behandlingMorFPToTette() {
         var nyereBehandling = lagBehandlingMor(FH_DATO_YNGRE, AKTØR_ID_MOR, null);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyereBehandling.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
@@ -147,7 +147,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void behandlingMorSVPHarInnvilgetFPSammeBarn() {
+    void behandlingMorSVPHarInnvilgetFPSammeBarn() {
 
         var avsluttetFPBehMor = lagBehandlingMor(FH_DATO.minusWeeks(1), AKTØR_ID_MOR, null);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(avsluttetFPBehMor.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
@@ -171,7 +171,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void behandlingFarDerMorHarNySakTette() {
+    void behandlingFarDerMorHarNySakTette() {
         var nyereBehandling = lagBehandlingMor(FH_DATO_YNGRE, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyereBehandling.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
@@ -197,7 +197,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void behandlingFarSøkerForEldreBarnEtterMorHarSakForNyttBarn() {
+    void behandlingFarSøkerForEldreBarnEtterMorHarSakForNyttBarn() {
         var nyereBehandling = lagBehandlingMor(FH_DATO_YNGRE, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyereBehandling.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
@@ -222,7 +222,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void behandlingFarDerMorHarNySakMensFarHarSøktNySak() {
+    void behandlingFarDerMorHarNySakMensFarHarSøktNySak() {
         var nyereBehandling = lagBehandlingMor(FH_DATO_YNGRE, AKTØR_ID_MOR, MEDF_AKTØR_ID);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(nyereBehandling.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));
         Mockito.lenient().when(fhGrunnlagAnnenMock.getGjeldendeVersjon()).thenReturn(familieHendelseAnnenMock);
@@ -267,7 +267,7 @@ public class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void behandlingMorSVPHarTidligereInnvilgetSVPAnnenTermindato() {
+    void behandlingMorSVPHarTidligereInnvilgetSVPAnnenTermindato() {
 
         var avsluttetFPBehMor = lagBehandlingSVP(AKTØR_ID_MOR);
         Mockito.lenient().when(familieHendelseTjeneste.finnAggregat(avsluttetFPBehMor.getId())).thenReturn(Optional.of(fhGrunnlagAnnenMock));

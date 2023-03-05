@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class VilkårResultatTest extends EntityManagerAwareTest {
+class VilkårResultatTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
 
@@ -26,7 +26,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gjenbruke_vilkårresultat_i_ny_behandling_når_det_ikke_er_endret() {
+    void skal_gjenbruke_vilkårresultat_i_ny_behandling_når_det_ikke_er_endret() {
         // Arrange
         var behandling = lagBehandling();
         lagreBehandling(behandling);
@@ -61,7 +61,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_vilkårresultat_i_ny_behandling_når_det_endrer_vilkårresultat() {
+    void skal_opprette_nytt_vilkårresultat_i_ny_behandling_når_det_endrer_vilkårresultat() {
         // Arrange
         var behandling = lagBehandling();
         lagreBehandling(behandling);
@@ -94,7 +94,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_og_hente_vilkår_med_avslagsårsak() {
+    void skal_lagre_og_hente_vilkår_med_avslagsårsak() {
         // Arrange
         var behandling = lagBehandling();
         lagreBehandling(behandling);
@@ -123,7 +123,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_legge_til_vilkår() {
+    void skal_legge_til_vilkår() {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
@@ -150,7 +150,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_vilkår_med_nytt_utfall() {
+    void skal_oppdatere_vilkår_med_nytt_utfall() {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
@@ -173,7 +173,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_overstyre_vilkår() {
+    void skal_overstyre_vilkår() {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
@@ -214,7 +214,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_beholde_tidligere_overstyring_inkl_avslagsårsak_når_manuell_vurdering_oppdateres() {
+    void skal_beholde_tidligere_overstyring_inkl_avslagsårsak_når_manuell_vurdering_oppdateres() {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
@@ -243,7 +243,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fjerne_vilkår() {
+    void skal_fjerne_vilkår() {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()

@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.ManuellRegistreri
 import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.PermisjonPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.TidsromPermisjonDto;
 
-public class ManuellRegistreringEndringssøknadValidatorTest {
+class ManuellRegistreringEndringssøknadValidatorTest {
 
     ManuellRegistreringEndringsøknadDto registreringDto;
 
@@ -31,7 +31,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gyldig_fellesperiode() {
+    void skal_validere_gyldig_fellesperiode() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -41,7 +41,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_fellesperiode_start_for_sluttdato() {
+    void skal_validere_fellesperiode_start_for_sluttdato() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -56,7 +56,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_dato_satt_til_null() {
+    void skal_validere_gradering_dato_satt_til_null() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -71,7 +71,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_overlappende_perioder() {
+    void skal_validere_gradering_overlappende_perioder() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -86,7 +86,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_start_for_sluttdato() {
+    void skal_validere_gradering_start_for_sluttdato() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -101,7 +101,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_prosentandel_må_være_satt() {
+    void skal_validere_gradering_prosentandel_må_være_satt() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -115,7 +115,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering_periode_må_være_satt() {
+    void skal_validere_gradering_periode_må_være_satt() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -129,7 +129,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gradering() {
+    void skal_validere_gradering() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -139,7 +139,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_gyldig_utsettelse() {
+    void skal_validere_gyldig_utsettelse() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setUtsettelsePeriode(lagGyldigUtsettelsePerioder());
         registreringDto.setTidsromPermisjon(permisjon);
@@ -153,7 +153,7 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
     }
 
     @Test
-    public void skal_validere_utsettelse_årsak_må_være_satt() {
+    void skal_validere_utsettelse_årsak_må_være_satt() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setUtsettelsePeriode(lagGyldigUtsettelsePerioder());
         registreringDto.setTidsromPermisjon(permisjon);

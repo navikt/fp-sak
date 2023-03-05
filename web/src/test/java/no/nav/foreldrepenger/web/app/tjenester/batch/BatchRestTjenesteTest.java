@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.batch.feil.InvalidArgumentsVLBatchException;
 import no.nav.foreldrepenger.web.app.tjenester.batch.args.BatchArgumentsDto;
 
-public class BatchRestTjenesteTest {
+class BatchRestTjenesteTest {
 
     private BatchRestTjeneste tjeneste;
 
@@ -34,7 +34,7 @@ public class BatchRestTjenesteTest {
     }
 
     @Test
-    public void skal_gi_status_400_ved_ukjent_batchname() {
+    void skal_gi_status_400_ved_ukjent_batchname() {
         when(batchSupportTjeneste.finnBatchTjenesteForNavn(any())).thenReturn(null);
         @SuppressWarnings("resource")
         final var response = tjeneste.startBatch(new BatchNameDto("asdf"), null);
@@ -42,7 +42,7 @@ public class BatchRestTjenesteTest {
     }
 
     @Test
-    public void skal_gi_exception_ved_ugyldig_job_parametere() {
+    void skal_gi_exception_ved_ugyldig_job_parametere() {
         final var stringBatchTjenesteHashMap = new HashMap<String, BatchTjeneste>();
         final var value = mock(BatchTjeneste.class);
         final var args = new BatchArgumentsDto();
@@ -61,7 +61,7 @@ public class BatchRestTjenesteTest {
     }
 
     @Test
-    public void skal_kalle_paa_tjeneste_ved_gyldig_() {
+    void skal_kalle_paa_tjeneste_ved_gyldig_() {
         final var stringBatchTjenesteHashMap = new HashMap<String, BatchTjeneste>();
         Map<String, String> arguments = new HashMap<>();
         final var gyldigeBatchArguments = new GyldigeBatchArguments(arguments);

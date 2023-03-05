@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @CdiDbAwareTest
-public class IverksetteVedtakStegYtelseTest {
+class IverksetteVedtakStegYtelseTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -66,7 +66,7 @@ public class IverksetteVedtakStegYtelseTest {
     }
 
     @Test
-    public void vurder_gitt_venterPåInfotrygd_venterTidligereBehandling_skal_VENT_TIDLIGERE_BEHANDLING() {
+    void vurder_gitt_venterPåInfotrygd_venterTidligereBehandling_skal_VENT_TIDLIGERE_BEHANDLING() {
         // Arrange
         opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(true);
@@ -86,7 +86,7 @@ public class IverksetteVedtakStegYtelseTest {
     }
 
     @Test
-    public void vurder_gitt_ikkeVenterPåInfotrygd_ikkeVenterTidligereBehandling_skal_gi_empty() {
+    void vurder_gitt_ikkeVenterPåInfotrygd_ikkeVenterTidligereBehandling_skal_gi_empty() {
         // Arrange
         opprettBehandlingVedtak(VedtakResultatType.INNVILGET, IverksettingStatus.IKKE_IVERKSATT);
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(false);

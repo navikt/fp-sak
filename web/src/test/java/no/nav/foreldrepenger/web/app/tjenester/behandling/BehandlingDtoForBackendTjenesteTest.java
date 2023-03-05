@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
 
-public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
+class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
 
     private static final String ANSVARLIG_SAKSBEHANDLER = "ABCD";
     private static final BehandlingÅrsakType BEHANDLING_ÅRSAK_TYPE = BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
@@ -52,7 +52,7 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_lage_BehandlingDto() {
+    void skal_lage_BehandlingDto() {
         var saksnummer = new Saksnummer("12345");
         var fagsak = byggFagsak(aktørId, saksnummer);
         var behandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
@@ -75,7 +75,7 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_lage_BehandlingDto_og_finne_opprinnelig_søknad_med_språkvalgNN() {
+    void skal_lage_BehandlingDto_og_finne_opprinnelig_søknad_med_språkvalgNN() {
         var saksnummer = new Saksnummer("111112");
         var fagsak = byggFagsak(aktørId, saksnummer);
         var førstegangsBehandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
@@ -99,7 +99,7 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_lage_BehandlingDto_og_hente_språkvalg_fra_navbruker() {
+    void skal_lage_BehandlingDto_og_hente_språkvalg_fra_navbruker() {
         var saksnummer = new Saksnummer("111113");
         var fagsak = byggFagsak(aktørId, saksnummer);
         var førstegangsBehandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);

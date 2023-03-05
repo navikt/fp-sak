@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
-public class StartpunktTjenesteImplTest {
+class StartpunktTjenesteImplTest {
 
     private StartpunktTjenesteImpl startpunktTjenesteSvp;
 
@@ -21,7 +21,7 @@ public class StartpunktTjenesteImplTest {
     }
 
     @Test
-    public void skal_utlede_startpunkt_opplysningsplikt_når_det_er_endring() {
+    void skal_utlede_startpunkt_opplysningsplikt_når_det_er_endring() {
         // Arrange
         var endringsresultatDiff = opprettEndringsresultat(1L, 2L);// Forskjellig ID indikerer endring
 
@@ -33,7 +33,7 @@ public class StartpunktTjenesteImplTest {
     }
 
     @Test
-    public void skal_utlede_startpunkt_udefinert_når_det_ikke_er_endring() {
+    void skal_utlede_startpunkt_udefinert_når_det_ikke_er_endring() {
         // Arrange
         var endringsresultatDiff = opprettEndringsresultat(1L, 1L);// Lik ID indikerer ingen endring
 

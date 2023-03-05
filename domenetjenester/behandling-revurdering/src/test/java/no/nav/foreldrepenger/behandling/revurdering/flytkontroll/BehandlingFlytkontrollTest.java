@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 
-public class BehandlingFlytkontrollTest {
+class BehandlingFlytkontrollTest {
 
     private static Long FAGSAK_ID = 1L;
     private static Long FAGSAK_AP_ID = 2L;
@@ -70,13 +70,13 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void fgangSkalIkkeVenteNårUkoblet() {
+    void fgangSkalIkkeVenteNårUkoblet() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.empty());
         assertThat(flytkontroll.uttaksProsessenSkalVente(BEHANDLING_ID)).isFalse();
     }
 
     @Test
-    public void fgangSkalIkkeVenteNårKobletIngenBehandlinger() {
+    void fgangSkalIkkeVenteNårKobletIngenBehandlinger() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 Collections.emptyList());
@@ -84,7 +84,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void fgangSkalIkkeVenteNårKobletBehandlingErFørUttak() {
+    void fgangSkalIkkeVenteNårKobletBehandlingErFørUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 List.of(behandlingAnnenPart));
@@ -94,7 +94,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void fgangSkalVenteNårKobletBehandlingErIUttak() {
+    void fgangSkalVenteNårKobletBehandlingErIUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 List.of(behandlingAnnenPart));
@@ -104,7 +104,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void fgangSkalVenteNårKobletHarBerørt() {
+    void fgangSkalVenteNårKobletHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 List.of(behandlingBerørt));
@@ -114,7 +114,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void berørtSkalVenteNårKobletHarBerørtFørSynk() {
+    void berørtSkalVenteNårKobletHarBerørtFørSynk() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
             List.of(behandlingBerørt));
@@ -124,7 +124,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void berørtSkalVenteNårKobletHarBerørtIUttak() {
+    void berørtSkalVenteNårKobletHarBerørtIUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
             List.of(behandlingBerørt));
@@ -134,7 +134,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void berørtSkalVenteNårKobletHarBerørtPåVentVedSynk() {
+    void berørtSkalVenteNårKobletHarBerørtPåVentVedSynk() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
             List.of(behandlingBerørt));
@@ -148,7 +148,7 @@ public class BehandlingFlytkontrollTest {
 
 
     @Test
-    public void revurderingSkalVenteNårSammeSakHarBerørt() {
+    void revurderingSkalVenteNårSammeSakHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(
                 List.of(behandlingBerørt));
@@ -160,13 +160,13 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void nyrevurderingSkalIkkeVenteNårUkoblet() {
+    void nyrevurderingSkalIkkeVenteNårUkoblet() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.empty());
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isFalse();
     }
 
     @Test
-    public void nyrevurderingSkalIkkeVenteNårKobletIngenBehandlinger() {
+    void nyrevurderingSkalIkkeVenteNårKobletIngenBehandlinger() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 Collections.emptyList());
@@ -174,7 +174,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void nyrevurderingSkalIkkeVenteNårKobletFørstegangBehandlingErFørUttak() {
+    void nyrevurderingSkalIkkeVenteNårKobletFørstegangBehandlingErFørUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 List.of(behandlingAnnenPart));
@@ -185,7 +185,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void nyrevurderingSkalVenteNårKobletRevurderingBehandlingErFørUttak() {
+    void nyrevurderingSkalVenteNårKobletRevurderingBehandlingErFørUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 List.of(behandlingAnnenPart));
@@ -196,7 +196,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void nyrevurderingSkalVenteNårKobletFørstegangBehandlingErIUttak() {
+    void nyrevurderingSkalVenteNårKobletFørstegangBehandlingErIUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 List.of(behandlingAnnenPart));
@@ -207,7 +207,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void nyrevurderingSkalVenteNårKobletHarBerørt() {
+    void nyrevurderingSkalVenteNårKobletHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
                 List.of(behandlingBerørt));
@@ -217,7 +217,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void nyrevurderingSkalIkkeVenteNårSammesakHarÅpenBehandling() {
+    void nyrevurderingSkalIkkeVenteNårSammesakHarÅpenBehandling() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(
                 List.of(behandlingSammeSak));
@@ -226,7 +226,7 @@ public class BehandlingFlytkontrollTest {
     }
 
     @Test
-    public void nyrevurderingSkalVenteNårSammeSakHarBerørt() {
+    void nyrevurderingSkalVenteNårSammeSakHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(
                 List.of(behandlingBerørt));

@@ -48,7 +48,7 @@ class KravperioderMapperTest {
     private List<Inntektsmelding> aktiveInntektsmeldinger = new ArrayList<>();
 
     @Test
-    public void inntektsmelding_med_et_arbeidsforhold_mappes_korrekt() {
+    void inntektsmelding_med_et_arbeidsforhold_mappes_korrekt() {
         var ag = Arbeidsgiver.virksomhet("99999999");
         var ref = InternArbeidsforholdRef.nyRef();
         lagRegisterArbeid(ag, ref, førStp(500), etterSTP(500));
@@ -61,7 +61,7 @@ class KravperioderMapperTest {
     }
 
     @Test
-    public void inntektsmelding_med_to_arbeidsforhold_ulike_bedrifter_mappes_korrekt() {
+    void inntektsmelding_med_to_arbeidsforhold_ulike_bedrifter_mappes_korrekt() {
         var ag = Arbeidsgiver.virksomhet("99999999");
         var ag2 = Arbeidsgiver.virksomhet("99999998");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -79,7 +79,7 @@ class KravperioderMapperTest {
     }
 
     @Test
-    public void inntektsmelding_med_to_arbeidsforhold_i_samme_bedrift_med_id() {
+    void inntektsmelding_med_to_arbeidsforhold_i_samme_bedrift_med_id() {
         var ag = Arbeidsgiver.virksomhet("99999999");
         var ref = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
@@ -94,7 +94,7 @@ class KravperioderMapperTest {
     }
 
     @Test
-    public void inntektsmelding_med_to_arbeidsforhold_i_samme_bedrift_en_uten_id() {
+    void inntektsmelding_med_to_arbeidsforhold_i_samme_bedrift_en_uten_id() {
         var ag = Arbeidsgiver.virksomhet("99999999");
         var ref = InternArbeidsforholdRef.nyRef();
         lagRegisterArbeid(ag, ref, førStp(500), etterSTP(500));
@@ -108,7 +108,7 @@ class KravperioderMapperTest {
     }
 
     @Test
-    public void inntektsmelding_med_et_manuelt_opprettet_arbeidsforhold() {
+    void inntektsmelding_med_et_manuelt_opprettet_arbeidsforhold() {
         var ag = Arbeidsgiver.virksomhet("99999999");
         var ref = InternArbeidsforholdRef.nyRef();
         lagOverstyrtArbeid(ag, ref, førStp(500), etterSTP(500));
@@ -121,7 +121,7 @@ class KravperioderMapperTest {
     }
 
     @Test
-    public void inntektsmeldinger_med_et_manuelt_opprettet_arbeidsforhold_og_et_vanlig() {
+    void inntektsmeldinger_med_et_manuelt_opprettet_arbeidsforhold_og_et_vanlig() {
         var ag1 = Arbeidsgiver.virksomhet("99999999");
         var ag2 = Arbeidsgiver.virksomhet("99999998");
         var ref1 = InternArbeidsforholdRef.nyRef();
@@ -140,7 +140,7 @@ class KravperioderMapperTest {
     }
 
     @Test
-    public void gammel_og_ny_im_for_samme_arbeidsforhold() {
+    void gammel_og_ny_im_for_samme_arbeidsforhold() {
         var ag1 = Arbeidsgiver.virksomhet("99999999");
         var ref1 = InternArbeidsforholdRef.nyRef();
         lagOverstyrtArbeid(ag1, ref1, førStp(500), etterSTP(500));
@@ -178,7 +178,7 @@ class KravperioderMapperTest {
     }
 
     @Test
-    public void gammel_og_ny_im_for_samme_arbeidsforhold_ulike_perioder() {
+    void gammel_og_ny_im_for_samme_arbeidsforhold_ulike_perioder() {
         var ag1 = Arbeidsgiver.virksomhet("99999999");
         var ref1 = InternArbeidsforholdRef.nyRef();
         lagOverstyrtArbeid(ag1, ref1, førStp(500), etterSTP(500));

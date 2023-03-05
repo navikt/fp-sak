@@ -33,7 +33,7 @@ import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
-public class RisikoklassifiseringUtførTaskTest {
+class RisikoklassifiseringUtførTaskTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private static final Long BEHANDLING_ID = 123342L;
     private static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
@@ -65,7 +65,7 @@ public class RisikoklassifiseringUtførTaskTest {
     }
 
     @Test
-    public void skal_produsere_melding_til_kafka() {
+    void skal_produsere_melding_til_kafka() {
         lagBehandling();
         var ref = BehandlingReferanse.fra(behandling);
         forberedelse(ref, true);

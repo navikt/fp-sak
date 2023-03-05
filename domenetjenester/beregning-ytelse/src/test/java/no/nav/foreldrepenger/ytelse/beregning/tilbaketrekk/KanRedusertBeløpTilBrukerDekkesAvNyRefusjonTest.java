@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
+class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_lik_dagsats_for_bruker_lik_refusjon_lik() {
+    void skal_gi_nei_hvis_inntekt_lik_dagsats_for_bruker_lik_refusjon_lik() {
         // Arrange
         var originalDagsatsBruker = 600;
         var revurderingRefusjon = 1500;
@@ -25,7 +25,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_lik_dagsats_for_bruker_lik_og_ingen_refusjon_i_original_og_revurdering() {
+    void skal_gi_nei_hvis_inntekt_lik_dagsats_for_bruker_lik_og_ingen_refusjon_i_original_og_revurdering() {
         // Arrange
         var originalDagsatsBruker = 2100;
         var revurderingRefusjon = 0;
@@ -43,7 +43,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_lik_refusjon_lik_ingen_dagsats_til_bruker_i_original_og_revurdering() {
+    void skal_gi_nei_hvis_inntekt_lik_refusjon_lik_ingen_dagsats_til_bruker_i_original_og_revurdering() {
         // Arrange
         var originalDagsatsBruker = 0;
         var revurderingRefusjon = 2100;
@@ -61,7 +61,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_lik_refusjon_økt_og_dagsats_for_bruker_redusert() {
+    void skal_gi_ja_hvis_inntekt_lik_refusjon_økt_og_dagsats_for_bruker_redusert() {
         // Arrange
         var originalDagsatsBruker = 1800;
         var revurderingRefusjon = 1100;
@@ -79,7 +79,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_lik_refusjon_redusert_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_lik_refusjon_redusert_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 600;
         var revurderingRefusjon = 900;
@@ -97,7 +97,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_refusjon_lik_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_økt_refusjon_lik_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 100;
         var revurderingRefusjon = 800;
@@ -115,7 +115,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_finnes_ingen_refusjon_i_original_og_revurdering() {
+    void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_finnes_ingen_refusjon_i_original_og_revurdering() {
         // Arrange
         var originalDagsatsBruker = 900;
         var revurderingRefusjon = 0;
@@ -133,7 +133,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_og_ingen_endring_til_bruker() {
+    void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_og_ingen_endring_til_bruker() {
         // Arrange
         var originalDagsatsBruker = 100;
         var revurderingRefusjon = 2000;
@@ -151,7 +151,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_ingen_refusjon_i_forrige_og_revurdering() {
+    void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_ingen_refusjon_i_forrige_og_revurdering() {
         // Arrange
         var originalDagsatsBruker = 0;
         var revurderingRefusjon = 2100;
@@ -169,7 +169,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 100;
         var revurderingRefusjon = 1200;
@@ -187,7 +187,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_fra_null_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_fra_null_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 900;
         var revurderingRefusjon = 1100;
@@ -205,7 +205,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_fra_null_og_refusjon_økt() {
+    void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_fra_null_og_refusjon_økt() {
         // Arrange
         var originalDagsatsBruker = 0;
         var revurderingRefusjon = 1100;
@@ -223,7 +223,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_økt_refusjon_økt_og_dagsats_for_bruker_redusert() {
+    void skal_gi_ja_hvis_inntekt_økt_refusjon_økt_og_dagsats_for_bruker_redusert() {
         // Arrange
         var originalDagsatsBruker = 800;
         var revurderingRefusjon = 1500;
@@ -241,7 +241,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_økt_refusjon_økt_fra_null_og_dagsats_for_bruker_redusert() {
+    void skal_gi_ja_hvis_inntekt_økt_refusjon_økt_fra_null_og_dagsats_for_bruker_redusert() {
         // Arrange
         var originalDagsatsBruker = 900;
         var revurderingRefusjon = 1500;
@@ -259,7 +259,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_økt_dagsats_for_bruker_opphørt_og_refusjon_økt() {
+    void skal_gi_ja_hvis_inntekt_økt_dagsats_for_bruker_opphørt_og_refusjon_økt() {
         // Arrange
         var originalDagsatsBruker = 800;
         var revurderingRefusjon = 2100;
@@ -277,7 +277,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_refusjon_redusert_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_økt_refusjon_redusert_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 100;
         var revurderingRefusjon = 700;
@@ -295,7 +295,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_refusjon_opphørt_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_økt_refusjon_opphørt_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 100;
         var revurderingRefusjon = 0;
@@ -313,7 +313,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_økt_refusjon_redusert_og_dagsats_for_bruker_økt_fra_null() {
+    void skal_gi_nei_hvis_inntekt_økt_refusjon_redusert_og_dagsats_for_bruker_økt_fra_null() {
         // Arrange
         var originalDagsatsBruker = 0;
         var revurderingRefusjon = 700;
@@ -331,7 +331,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_ingen_refusjon_i_original_og_revurdering_og_dagsats_for_bruker_redusert() {
+    void skal_gi_nei_hvis_inntekt_redusert_ingen_refusjon_i_original_og_revurdering_og_dagsats_for_bruker_redusert() {
         // Arrange
         var originalDagsatsBruker = 2100;
         var revurderingRefusjon = 0;
@@ -349,7 +349,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_dagsats_for_bruker_opphører_og_refusjon_finnes_ikke_i_forrige_og_revurdering() {
+    void skal_gi_nei_hvis_dagsats_for_bruker_opphører_og_refusjon_finnes_ikke_i_forrige_og_revurdering() {
         // Arrange
         var originalDagsatsBruker = 2100;
         var revurderingRefusjon = 0;
@@ -367,7 +367,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_og_dagsats_for_bruker_redusert() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_og_dagsats_for_bruker_redusert() {
         // Arrange
         var originalDagsatsBruker = 900;
         var revurderingRefusjon = 1200;
@@ -385,7 +385,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
         // Arrange
         var originalDagsatsBruker = 1500;
         var revurderingRefusjon = 600;
@@ -403,7 +403,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_og_dagsats_for_bruker_opphører() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_og_dagsats_for_bruker_opphører() {
         // Arrange
         var originalDagsatsBruker = 1400;
         var revurderingRefusjon = 700;
@@ -421,7 +421,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_er_lik() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_er_lik() {
         // Arrange
         var originalDagsatsBruker = 1000;
         var revurderingRefusjon = 400;
@@ -439,7 +439,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_dagsats_for_bruker_lik_og_refusjon_opphører() {
+    void skal_gi_nei_hvis_inntekt_redusert_dagsats_for_bruker_lik_og_refusjon_opphører() {
         // Arrange
         var originalDagsatsBruker = 1400;
         var revurderingRefusjon = 0;
@@ -457,7 +457,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert() {
+    void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert() {
         // Arrange
         var originalDagsatsBruker = 1000;
         var revurderingRefusjon = 300;
@@ -475,7 +475,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert_like_mye() {
+    void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert_like_mye() {
         // Arrange
         var originalDagsatsBruker = 1400;
         var revurderingRefusjon = 600;
@@ -493,7 +493,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert_mer_enn_refusjon() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert_mer_enn_refusjon() {
         // Arrange
         var originalDagsatsBruker = 1900;
         var revurderingRefusjon = 100;
@@ -511,7 +511,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_opphørt() {
+    void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_opphørt() {
         // Arrange
         var originalDagsatsBruker = 1500;
         var revurderingRefusjon = 1400;
@@ -529,7 +529,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 500;
         var revurderingRefusjon = 800;
@@ -547,7 +547,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_opphørt_og_dagsats_for_bruker_økt() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_opphørt_og_dagsats_for_bruker_økt() {
         // Arrange
         var originalDagsatsBruker = 500;
         var revurderingRefusjon = 0;
@@ -565,7 +565,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_økt_fra_null() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_økt_fra_null() {
         // Arrange
         var originalDagsatsBruker = 0;
         var revurderingRefusjon = 1200;
@@ -583,7 +583,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_og_dagsats_for_bruker_redusert() {
+    void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_og_dagsats_for_bruker_redusert() {
         // Arrange
         var originalDagsatsBruker = 1400;
         var revurderingRefusjon = 800;
@@ -601,7 +601,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
+    void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
         // Arrange
         var originalDagsatsBruker = 2000;
         var revurderingRefusjon = 200;
@@ -619,7 +619,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_opphørt() {
+    void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_opphørt() {
         // Arrange
         var originalDagsatsBruker = 800;
         var revurderingRefusjon = 1400;
@@ -637,7 +637,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_redusert_til_null_hvor_endring_er_mer_enn_ny_refusjon() {
+    void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_redusert_til_null_hvor_endring_er_mer_enn_ny_refusjon() {
         // Arrange
         var originalDagsatsBruker = 2000;
         var revurderingRefusjon = 200;
@@ -655,7 +655,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_økt_fra_null_og_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_økt_fra_null_og_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
         // Arrange
         var originalDagsatsBruker = 2100;
         var revurderingRefusjon = 800;
@@ -673,7 +673,7 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
     }
 
     @Test
-    public void skal_gi_nei_hvis_inntekt_redusert_refusjon_økt_fra_null_dagsats_for_bruker_redusert_hvor_endring_er_mer_enn_ny_refusjon() {
+    void skal_gi_nei_hvis_inntekt_redusert_refusjon_økt_fra_null_dagsats_for_bruker_redusert_hvor_endring_er_mer_enn_ny_refusjon() {
         // Arrange
         var originalDagsatsBruker = 2100;
         var revurderingRefusjon = 200;

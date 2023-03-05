@@ -11,12 +11,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 
-public class SkjæringstidspunktUtilsTest {
+class SkjæringstidspunktUtilsTest {
 
     private final SkjæringstidspunktUtils innhentingIntervall = new SkjæringstidspunktUtils();
 
     @Test
-    public void skal_gi_false_hvis_like() {
+    void skal_gi_false_hvis_like() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now();
         var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
@@ -28,7 +28,7 @@ public class SkjæringstidspunktUtilsTest {
     }
 
     @Test
-    public void skal_gi_false_hvis_innenfor() {
+    void skal_gi_false_hvis_innenfor() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusMonths(1);
         var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD);
@@ -44,7 +44,7 @@ public class SkjæringstidspunktUtilsTest {
     }
 
     @Test
-    public void skal_gi_true_hvis_før() {
+    void skal_gi_true_hvis_før() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().minusYears(1);
 
@@ -61,7 +61,7 @@ public class SkjæringstidspunktUtilsTest {
     }
 
     @Test
-    public void skal_gi_true_hvis_etter() {
+    void skal_gi_true_hvis_etter() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusMonths(13);
 

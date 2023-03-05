@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(MockitoExtension.class)
-public class VergeOppdatererTest {
+class VergeOppdatererTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_VERGE;
 
@@ -62,7 +62,7 @@ public class VergeOppdatererTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_bekreftet() {
+    void skal_generere_historikkinnslag_ved_bekreftet() {
         // Behandling
         var behandling = opprettBehandling();
         var dto = opprettDtoVerge();

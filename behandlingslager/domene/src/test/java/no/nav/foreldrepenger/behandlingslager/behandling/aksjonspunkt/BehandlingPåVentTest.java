@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-public class BehandlingPåVentTest {
+class BehandlingPåVentTest {
 
     private Fagsak fagsak;
 
@@ -22,20 +22,20 @@ public class BehandlingPåVentTest {
     }
 
     @Test
-    public void testErIkkePåVentUtenInnslag() {
+    void testErIkkePåVentUtenInnslag() {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         assertFalse(behandling.isBehandlingPåVent());
     }
 
     @Test
-    public void testErPåVentEttInnslag() {
+    void testErPåVentEttInnslag() {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
         assertTrue(behandling.isBehandlingPåVent());
     }
 
     @Test
-    public void testErIkkePåVentEttInnslag() {
+    void testErIkkePåVentEttInnslag() {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
@@ -43,7 +43,7 @@ public class BehandlingPåVentTest {
     }
 
     @Test
-    public void testErPåVentNårVenterPåOpptjeningsopplysninger() {
+    void testErPåVentNårVenterPåOpptjeningsopplysninger() {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING);
         assertTrue(behandling.isBehandlingPåVent());

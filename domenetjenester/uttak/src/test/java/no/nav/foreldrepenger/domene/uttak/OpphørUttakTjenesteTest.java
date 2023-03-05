@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class OpphørUttakTjenesteTest {
+class OpphørUttakTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final OpphørUttakTjeneste opphørUttakTjeneste = new OpphørUttakTjeneste(repositoryProvider);
@@ -33,7 +33,7 @@ public class OpphørUttakTjenesteTest {
     }
 
     @Test
-    public void skal_kun_komme_når_behandlingsresultatet_er_av_typen_opphør() {
+    void skal_kun_komme_når_behandlingsresultatet_er_av_typen_opphør() {
         var skjæringstidspunkt = LocalDate.now();
         var originalBehandling = opprettOriginalBehandling(repositoryProvider);
         var revurdering = opprettOpphørtRevurdering(originalBehandling);
@@ -68,7 +68,7 @@ public class OpphørUttakTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_fom_dato_til_tidligste_opphørte_periode_etter_seneste_innvilgede_periode() {
+    void skal_returnere_fom_dato_til_tidligste_opphørte_periode_etter_seneste_innvilgede_periode() {
         // arrange
         var skjæringstidspunkt = LocalDate.now();
         var originalBehandling = opprettOriginalBehandling(repositoryProvider);
@@ -91,7 +91,7 @@ public class OpphørUttakTjenesteTest {
     }
 
     @Test
-    public void skal_bruke_skjæringstidspunkt_hvis_alle_perioder_har_fått_opphør_eller_avslagsårsak() {
+    void skal_bruke_skjæringstidspunkt_hvis_alle_perioder_har_fått_opphør_eller_avslagsårsak() {
         // arrange
         var originalBehandling = opprettOriginalBehandling(repositoryProvider);
         var revurdering = opprettOpphørtRevurdering(originalBehandling);

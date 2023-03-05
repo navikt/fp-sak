@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arb
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
+class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
 
     private static final LocalDate STP = LocalDate.now();
     private static final LocalDateInterval PERIODE = LocalDateInterval.withPeriodAfterDate(STP, Period.ofMonths(10));
@@ -34,7 +34,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     private static final BigDecimal UTBETALINGSGRAD = BigDecimal.valueOf(100);
 
     @Test
-    public void skal_ikkje_lage_feriepengeresultat_om_årsbeløp_avrundes_til_0() {
+    void skal_ikkje_lage_feriepengeresultat_om_årsbeløp_avrundes_til_0() {
         // Arrange
         var periode = lagPeriodeMedAndel(BigDecimal.valueOf(0.1));
         var beregningsresultat = lagVlBeregningsresultat();
@@ -51,7 +51,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     }
 
     @Test
-    public void skal_lage_feriepengeresultat_om_årsbeløp_ikkje_avrundes_til_0() {
+    void skal_lage_feriepengeresultat_om_årsbeløp_ikkje_avrundes_til_0() {
         // Arrange
         var periode = lagPeriodeMedAndel(BigDecimal.valueOf(1.5));
         var beregningsresultat = lagVlBeregningsresultat();

@@ -11,10 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 
-public class PeriodeSplitterMotVenstreTest {
+class PeriodeSplitterMotVenstreTest {
 
     @Test
-    public void justert_periode_er_etter_ikke_flyttbar_periode() {
+    void justert_periode_er_etter_ikke_flyttbar_periode() {
         var utsettelsePgaFerie = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 11), LocalDate.of(2018, 6, 17)).build();
         var uttakPeriode = builder().medPeriode(LocalDate.of(2018, 6, 25), LocalDate.of(2018, 7, 1)).build();
 
@@ -26,7 +26,7 @@ public class PeriodeSplitterMotVenstreTest {
     }
 
     @Test
-    public void justert_periode_kommer_før_ikke_flyttbar_periode() {
+    void justert_periode_kommer_før_ikke_flyttbar_periode() {
         var utsettelsePgaFerie = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 18), LocalDate.of(2018, 6, 24)).build();
         var uttakPeriode = builder().medPeriode(LocalDate.of(2018, 6, 25), LocalDate.of(2018, 7, 1)).build();
 
@@ -38,7 +38,7 @@ public class PeriodeSplitterMotVenstreTest {
     }
 
     @Test
-    public void justert_periode_overlapper_på_slutten_av_ikke_flyttbar_periode() {
+    void justert_periode_overlapper_på_slutten_av_ikke_flyttbar_periode() {
         var utsettelsePgaFerie = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 11), LocalDate.of(2018, 6, 17)).build();
         var uttakPeriode = builder().medPeriode(LocalDate.of(2018, 6, 25), LocalDate.of(2018, 7, 1)).build();
 
@@ -55,7 +55,7 @@ public class PeriodeSplitterMotVenstreTest {
 
 
     @Test
-    public void justert_periode_flyttes_mellom_to_ikke_flyttbar_perioder() {
+    void justert_periode_flyttes_mellom_to_ikke_flyttbar_perioder() {
         var utsettelsePgaFerie1 = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 4), LocalDate.of(2018, 6, 10)).build();
         var utsettelsePgaFerie2 = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 18), LocalDate.of(2018, 6, 24)).build();
         var uttakPeriode = builder().medPeriode(LocalDate.of(2018, 6, 25), LocalDate.of(2018, 7, 1)).build();
@@ -69,7 +69,7 @@ public class PeriodeSplitterMotVenstreTest {
     }
 
     @Test
-    public void justert_periode_flyttes_før_to_ikke_flyttbar_perioder() {
+    void justert_periode_flyttes_før_to_ikke_flyttbar_perioder() {
         var utsettelsePgaFerie1 = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 4), LocalDate.of(2018, 6, 10)).build();
         var utsettelsePgaFerie2 = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 18), LocalDate.of(2018, 6, 24)).build();
         var uttakPeriode = builder().medPeriode(LocalDate.of(2018, 6, 25), LocalDate.of(2018, 7, 1)).build();
@@ -83,7 +83,7 @@ public class PeriodeSplitterMotVenstreTest {
     }
 
     @Test
-    public void justert_periode_overlapper_på_begynnelsen_av_ikke_flyttbar_periode() {
+    void justert_periode_overlapper_på_begynnelsen_av_ikke_flyttbar_periode() {
         var utsettelsePgaFerie = builder().medÅrsak(UtsettelseÅrsak.FERIE).medPeriode(LocalDate.of(2018, 6, 18), LocalDate.of(2018, 6, 24)).build();
         var uttakPeriode = builder().medPeriode(LocalDate.of(2018, 6, 25), LocalDate.of(2018, 7, 1)).build();
 

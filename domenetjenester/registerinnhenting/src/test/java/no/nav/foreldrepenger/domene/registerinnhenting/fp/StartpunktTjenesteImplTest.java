@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
-public class StartpunktTjenesteImplTest {
+class StartpunktTjenesteImplTest {
 
     private StartpunktTjeneste tjeneste;
 
@@ -46,7 +46,7 @@ public class StartpunktTjenesteImplTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_for_endret_aggregat() {
+    void skal_returnere_startpunkt_for_endret_aggregat() {
         // Arrange
         // To forskjellige id-er indikerer endring på grunnlag
         long grunnlagId1 = 1L, grunnlagId2 = 2L;
@@ -66,7 +66,7 @@ public class StartpunktTjenesteImplTest {
     }
 
     @Test
-    public void skal_gi_startpunkt_udefinert_dersom_ingen_endringer_på_aggregater() {
+    void skal_gi_startpunkt_udefinert_dersom_ingen_endringer_på_aggregater() {
         // Arrange
         // To lik id-er indikerer ingen endring på grunnlag
         var grunnlagId1 = 1L;
@@ -79,7 +79,7 @@ public class StartpunktTjenesteImplTest {
     }
 
     @Test
-    public void rotnode_skal_ikke_tas_med() {
+    void rotnode_skal_ikke_tas_med() {
         var endringsresultat = EndringsresultatDiff.opprettForSporingsendringer();
 
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(endringsresultat);

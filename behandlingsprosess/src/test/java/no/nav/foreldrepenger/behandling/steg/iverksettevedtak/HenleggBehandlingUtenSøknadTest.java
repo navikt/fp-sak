@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
-public class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
+class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -39,7 +39,7 @@ public class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void kan_henlegge_behandling_uten_søknad_som_er_satt_på_vent() {
+    void kan_henlegge_behandling_uten_søknad_som_er_satt_på_vent() {
         var scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
                                                                                  // f.eks der inntektsmelding kommer først.
                 .forFødselUtenSøknad(AktørId.dummy())

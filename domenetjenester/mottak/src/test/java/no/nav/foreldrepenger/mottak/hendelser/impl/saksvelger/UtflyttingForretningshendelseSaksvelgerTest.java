@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.UtflyttingForretningshendelseSaksvelger;
 
 @ExtendWith(MockitoExtension.class)
-public class UtflyttingForretningshendelseSaksvelgerTest {
+class UtflyttingForretningshendelseSaksvelgerTest {
 
     public static final LocalDate UTFLYTTINGSDATO = LocalDate.now();
 
@@ -71,7 +71,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_sak_som_er_åpen_foreldrepengesak() {
+    void skal_velge_sak_som_er_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -92,7 +92,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
 
 
     @Test
-    public void skal_velge_sak_som_er_avsluttet_engangsstønadsak_med_innvilget_vedtak() {
+    void skal_velge_sak_som_er_avsluttet_engangsstønadsak_med_innvilget_vedtak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -114,7 +114,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_avslått_vedtak() {
+    void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_avslått_vedtak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -134,7 +134,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_tidligere_barn() {
+    void skal_ikke_velge_sak_som_er_avsluttet_engangsstønadsak_med_tidligere_barn() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
@@ -155,7 +155,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_foreldrepengersak_der_utflyttingsdatoen_er_før_tilkjent_ytelse_sluttdato() {
+    void skal_velge_foreldrepengersak_der_utflyttingsdatoen_er_før_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -177,7 +177,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_svangerskapspengersak_der_utflyttingsdatoen_er_lik_tilkjent_ytelse_sluttdato() {
+    void skal_velge_svangerskapspengersak_der_utflyttingsdatoen_er_lik_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
@@ -199,7 +199,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_ikke_velge_foreldrepengersak_der_utflyttingsdatoen_er_etter_tilkjent_ytelse_sluttdato() {
+    void skal_ikke_velge_foreldrepengersak_der_utflyttingsdatoen_er_etter_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -220,7 +220,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void annullert_utflyttingshendelse_skal_ikke_treffe_foreldrepengesak() {
+    void annullert_utflyttingshendelse_skal_ikke_treffe_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);

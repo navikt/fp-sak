@@ -61,7 +61,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderFagsystemTjenesteImplTest {
+class VurderFagsystemTjenesteImplTest {
 
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     @Mock
@@ -99,7 +99,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreVLHvisSakErFlaggetSkalBehandlesAvInfotrygd() {
+    void nesteStegSkalVæreVLHvisSakErFlaggetSkalBehandlesAvInfotrygd() {
         var vfData = byggVurderFagsystem(BehandlingTema.FORELDREPENGER_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
 
@@ -118,7 +118,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreManuellHvisEndringPåSakFlaggetSkalBehandlesAvInfotrygd() {
+    void nesteStegSkalVæreManuellHvisEndringPåSakFlaggetSkalBehandlesAvInfotrygd() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), RelasjonsRolleType.MORA, ÅPEN_SAKSNUMMER_1);
         fagsak.setStengt(true);
         var vfData = byggVurderFagsystem(BehandlingTema.FORELDREPENGER_FØDSEL, true);
@@ -134,7 +134,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreVLHvisEndringMedSaksnummer() {
+    void nesteStegSkalVæreVLHvisEndringMedSaksnummer() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), RelasjonsRolleType.MORA, ÅPEN_SAKSNUMMER_1);
         var vfData = byggVurderFagsystem(BehandlingTema.FORELDREPENGER_FØDSEL, true);
         vfData.setDokumentTypeId(DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD);
@@ -155,7 +155,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void nesteStegSkalVæreVLHvisIngenSakPasserMenDetFinnesEnAvsluttetSak() {
+    void nesteStegSkalVæreVLHvisIngenSakPasserMenDetFinnesEnAvsluttetSak() {
         var terminDatdato = LocalDate.of(2017, 7, 1);
 
         var vfData = byggVurderFagsystemMedTermin(terminDatdato.plusYears(1), BehandlingTema.FORELDREPENGER_FØDSEL, true);
@@ -181,7 +181,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereTrueNårFagÅrsakTypeErUdefinertOgBehandlingTemaErForeldrePenger() {
+    void skalReturnereTrueNårFagÅrsakTypeErUdefinertOgBehandlingTemaErForeldrePenger() {
         var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
 
         lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
@@ -192,7 +192,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereManuellBehandlingNårFlereÅpneSakerFinnesPåBruker() {
+    void skalReturnereManuellBehandlingNårFlereÅpneSakerFinnesPåBruker() {
         var fagsystem = byggVurderFagsystem(BehandlingTema.FORELDREPENGER, true);
         when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
 
@@ -219,7 +219,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesMedStatusOpprett() {
+    void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesMedStatusOpprett() {
         var terminDatdato = LocalDate.of(2019, 1, 1);
         var fagsystem = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.FORELDREPENGER_FØDSEL, true);
         when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
@@ -238,7 +238,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesMedStatusLøpende() {
+    void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesMedStatusLøpende() {
         var terminDatdato = LocalDate.of(2019, 1, 1);
         var fagsystem = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.FORELDREPENGER_FØDSEL, true);
         when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
@@ -258,7 +258,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVLMedSaksnummerNårSaksnummerFraSøknadFinnesIVL() {
+    void skalReturnereVLMedSaksnummerNårSaksnummerFraSøknadFinnesIVL() {
         var fagsystem = byggVurderFagsystemMedAnnenPart(BehandlingTema.FORELDREPENGER_FØDSEL, ANNEN_PART_ID, ÅPEN_SAKSNUMMER_1,
                 BRUKER_AKTØR_ID, JOURNALPOST_ID, BARN_TERMINDATO, BARN_FØDSELSDATO);
 
@@ -271,7 +271,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereManuellBehandlingNårSaksnummrFraSøknadIkkeFinnesIVLOgAnnenPartIkkeHarSakForSammeBarnIVL() {
+    void skalReturnereManuellBehandlingNårSaksnummrFraSøknadIkkeFinnesIVLOgAnnenPartIkkeHarSakForSammeBarnIVL() {
         var fagsystem = byggVurderFagsystemMedAnnenPart(BehandlingTema.FORELDREPENGER_FØDSEL, ANNEN_PART_ID, ÅPEN_SAKSNUMMER_1,
                 BRUKER_AKTØR_ID, JOURNALPOST_ID, BARN_TERMINDATO, BARN_FØDSELSDATO);
 
@@ -291,7 +291,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVLNårSøknadIkkeHarSaksnummmerOgAnnenPartHarSakForSammeBarnIVL() {
+    void skalReturnereVLNårSøknadIkkeHarSaksnummmerOgAnnenPartHarSakForSammeBarnIVL() {
         var fagsystem = byggVurderFagsystemMedAnnenPart(BehandlingTema.FORELDREPENGER_FØDSEL, ANNEN_PART_ID, null, BRUKER_AKTØR_ID,
                 JOURNALPOST_ID, BARN_TERMINDATO, BARN_FØDSELSDATO);
 
@@ -312,7 +312,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVLNårSøknadIkkeHarSaksnummerOgAnnenPartIkkeHarSakForSammeBarnIVL() {
+    void skalReturnereVLNårSøknadIkkeHarSaksnummerOgAnnenPartIkkeHarSakForSammeBarnIVL() {
         var fagsystem = byggVurderFagsystemMedAnnenPart(BehandlingTema.FORELDREPENGER_FØDSEL, ANNEN_PART_ID, null, BRUKER_AKTØR_ID,
                 JOURNALPOST_ID, BARN_TERMINDATO, BARN_FØDSELSDATO);
 

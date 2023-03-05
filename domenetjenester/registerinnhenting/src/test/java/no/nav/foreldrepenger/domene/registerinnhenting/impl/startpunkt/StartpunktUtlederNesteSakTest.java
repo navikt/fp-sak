@@ -21,13 +21,13 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(MockitoExtension.class)
-public class StartpunktUtlederNesteSakTest {
+class StartpunktUtlederNesteSakTest {
 
     @Mock
     private NesteSakRepository nesteSakRepository;
 
     @Test
-    public void skal_returnere_startpunkt_udefinert_dersom_ingen_neste_sak() {
+    void skal_returnere_startpunkt_udefinert_dersom_ingen_neste_sak() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -39,7 +39,7 @@ public class StartpunktUtlederNesteSakTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_udefinert_dersom_lik_startdato_neste_sak() {
+    void skal_returnere_startpunkt_udefinert_dersom_lik_startdato_neste_sak() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -58,7 +58,7 @@ public class StartpunktUtlederNesteSakTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_uttak_dersom_oppstått_neste_sak() {
+    void skal_returnere_startpunkt_uttak_dersom_oppstått_neste_sak() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -76,7 +76,7 @@ public class StartpunktUtlederNesteSakTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_uttak_dersom_ulik_startdato_neste_sak() {
+    void skal_returnere_startpunkt_uttak_dersom_ulik_startdato_neste_sak() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)

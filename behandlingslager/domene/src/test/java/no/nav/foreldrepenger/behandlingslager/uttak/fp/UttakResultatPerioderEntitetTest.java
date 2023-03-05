@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 
-public class UttakResultatPerioderEntitetTest {
+class UttakResultatPerioderEntitetTest {
 
     private LocalDate start;
     private UttakResultatPerioderEntitet perioder;
@@ -24,7 +24,7 @@ public class UttakResultatPerioderEntitetTest {
     }
 
     @Test
-    public void periode_skal_sorteres_når_de_hentes_ut() {
+    void periode_skal_sorteres_når_de_hentes_ut() {
         perioder = new UttakResultatPerioderEntitet();
         // Legger til periodene i feil rekkefølge
         perioder.leggTilPeriode(lagPeriode(start.plusWeeks(2), start.plusWeeks(3).minusDays(1)));
@@ -42,7 +42,7 @@ public class UttakResultatPerioderEntitetTest {
     }
 
     @Test
-    public void skal_feile_dersom_det_blir_lagt_til_overlappende_perioder() {
+    void skal_feile_dersom_det_blir_lagt_til_overlappende_perioder() {
         start = LocalDate.now();
         perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(lagPeriode(start, start.plusWeeks(6)));

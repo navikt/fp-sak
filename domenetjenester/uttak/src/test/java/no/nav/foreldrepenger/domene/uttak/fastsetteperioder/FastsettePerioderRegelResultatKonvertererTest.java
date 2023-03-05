@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.InnvilgetÅrsak;
 
-public class FastsettePerioderRegelResultatKonvertererTest {
+class FastsettePerioderRegelResultatKonvertererTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
@@ -62,7 +62,7 @@ public class FastsettePerioderRegelResultatKonvertererTest {
     }
 
     @Test
-    public void utsettelse_pga_arbeid_skal_sette_stillingsprosent_som_arbeidsprosent() {
+    void utsettelse_pga_arbeid_skal_sette_stillingsprosent_som_arbeidsprosent() {
 
         var periodeFom = LocalDate.of(2020, 1, 1);
         var periodeTom = LocalDate.of(2020, 2, 2);

@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
-public class VurderOpptjeningsvilkårStegTest {
+class VurderOpptjeningsvilkårStegTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
@@ -31,7 +31,7 @@ public class VurderOpptjeningsvilkårStegTest {
     }
 
     @Test
-    public void skal_lagre_resultat_av_opptjeningsvilkår() {
+    void skal_lagre_resultat_av_opptjeningsvilkår() {
 
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();

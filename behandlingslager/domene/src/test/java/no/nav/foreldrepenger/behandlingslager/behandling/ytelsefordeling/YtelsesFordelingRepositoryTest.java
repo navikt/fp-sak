@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
+class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
 
     private FagsakRepository fagsakRepository;
     private YtelsesFordelingRepository repository;
@@ -37,7 +37,7 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_grunnlaget() {
+    void skal_lagre_grunnlaget() {
         var behandling = opprettBehandlingMedYtelseFordeling();
         //Endre periode for å teste overstyring
         var periode_12 = OppgittPeriodeBuilder.ny()

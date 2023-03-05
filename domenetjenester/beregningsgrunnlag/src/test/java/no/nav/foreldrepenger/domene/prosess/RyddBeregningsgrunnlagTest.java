@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(JpaExtension.class)
-public class RyddBeregningsgrunnlagTest {
+class RyddBeregningsgrunnlagTest {
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingReferanse referanse;
@@ -40,7 +40,7 @@ public class RyddBeregningsgrunnlagTest {
     }
 
     @Test
-    public void ryddForeslåBeregningsgrunnlagVedTilbakeføring_skalReaktivereForeslå() {
+    void ryddForeslåBeregningsgrunnlagVedTilbakeføring_skalReaktivereForeslå() {
         // Arrange
         var opprettet = opprettBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(referanse.behandlingId(), opprettet, BeregningsgrunnlagTilstand.OPPRETTET);

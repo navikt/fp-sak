@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
-public class BrevRestTjenesteTest {
+class BrevRestTjenesteTest {
 
     private BrevRestTjeneste brevRestTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
@@ -48,7 +48,7 @@ public class BrevRestTjenesteTest {
     }
 
     @Test
-    public void bestillerDokument() {
+    void bestillerDokument() {
         // Arrange
         var behandlingId = 2L;
         var bestillBrevDto = new BestillBrevDto(behandlingId, UUID.randomUUID(), INNHENTE_OPPLYSNINGER, "Dette er en fritekst");
@@ -61,7 +61,7 @@ public class BrevRestTjenesteTest {
     }
 
     @Test
-    public void harSendtVarselOmRevurdering() {
+    void harSendtVarselOmRevurdering() {
         // Arrange
         when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(mock(Behandling.class));

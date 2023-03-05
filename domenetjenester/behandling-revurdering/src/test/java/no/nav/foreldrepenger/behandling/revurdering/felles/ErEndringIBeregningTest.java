@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import static no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutlederTest.ARBEIDSFORHOLDLISTE;
-import static no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutlederTest.ORGNR;
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.ARBEIDSFORHOLDLISTE;
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.ORGNR;
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.SKJÆRINGSTIDSPUNKT_BEREGNING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -11,21 +12,22 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 
-public class ErEndringIBeregningTest {
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_BEREGNING = LocalDate.now();
+class ErEndringIBeregningTest {
 
     @Test
-    public void skal_gi_ingen_endring_i_beregningsgrunnlag_ved_like_grunnlag() {
+    void skal_gi_ingen_endring_i_beregningsgrunnlag_ved_like_grunnlag() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 0));
@@ -45,7 +47,7 @@ public class ErEndringIBeregningTest {
     }
 
     @Test
-    public void skal_gi_endring_når_vi_mangler_beregningsgrunnlag_på_en_av_behandlingene() {
+    void skal_gi_endring_når_vi_mangler_beregningsgrunnlag_på_en_av_behandlingene() {
         // Arrange
         // Revurderingsgrunnlag
         var p1Rev = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 0));
@@ -60,7 +62,7 @@ public class ErEndringIBeregningTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_vi_mangler_begge_beregningsgrunnlag() {
+    void skal_gi_ingen_endring_når_vi_mangler_begge_beregningsgrunnlag() {
         // Act
         var endring = ErEndringIBeregning.vurder(Optional.empty(), Optional.empty());
 
@@ -69,7 +71,7 @@ public class ErEndringIBeregningTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_vi_har_like_mange_perioder_med_med_forskjellige_fom_og_tom() {
+    void skal_gi_ingen_endring_når_vi_har_like_mange_perioder_med_med_forskjellige_fom_og_tom() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 500));
@@ -90,7 +92,7 @@ public class ErEndringIBeregningTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_vi_har_like_mange_perioder_med_forskjellig_startdato() {
+    void skal_gi_ingen_endring_når_vi_har_like_mange_perioder_med_forskjellig_startdato() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 500));
@@ -110,7 +112,7 @@ public class ErEndringIBeregningTest {
     }
 
     @Test
-    public void skal_gi_endring_i_beregningsgrunnlag_ved_ulik_dagsats_på_periodenivå() {
+    void skal_gi_endring_i_beregningsgrunnlag_ved_ulik_dagsats_på_periodenivå() {
         // Arrange
         // Originalgrunnlag
         var p1Org = byggBGPeriode(SKJÆRINGSTIDSPUNKT_BEREGNING, etterSTP(50), byggAndel(AktivitetStatus.ARBEIDSTAKER, 1500, 300));

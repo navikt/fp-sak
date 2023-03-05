@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class BehandlingEntitetTest extends EntityManagerAwareTest {
+class BehandlingEntitetTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -27,7 +27,7 @@ public class BehandlingEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_ny_behandling_på_ny_fagsak() {
+    void skal_opprette_ny_behandling_på_ny_fagsak() {
 
         var behandling = opprettOgLagreBehandling();
 
@@ -47,7 +47,7 @@ public class BehandlingEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_ny_behandling_på_fagsak_med_tidligere_behandling() {
+    void skal_opprette_ny_behandling_på_fagsak_med_tidligere_behandling() {
 
         var behandling = opprettOgLagreBehandling();
 
@@ -70,7 +70,7 @@ public class BehandlingEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_ny_behandling_med_søknad() {
+    void skal_opprette_ny_behandling_med_søknad() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
@@ -92,7 +92,7 @@ public class BehandlingEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_nytt_behandlingsgrunnlag_når_endring_skjer_på_samme_behandling_som_originalt_lagd_for() {
+    void skal_ikke_opprette_nytt_behandlingsgrunnlag_når_endring_skjer_på_samme_behandling_som_originalt_lagd_for() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
                 .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()

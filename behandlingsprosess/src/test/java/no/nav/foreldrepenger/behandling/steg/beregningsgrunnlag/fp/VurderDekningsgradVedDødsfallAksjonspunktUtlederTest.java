@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.VurderDekningsgradVedDødsfallAksjonspunktUtleder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 
-public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
+class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
 
     private LocalDate fødselsdato;
 
@@ -21,7 +21,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     }
 
     @Test
-    public void skal_ikke_få_aksjonspunkt5087_når_dødsdato_er_seks_uker_pluss_en_dag() {
+    void skal_ikke_få_aksjonspunkt5087_når_dødsdato_er_seks_uker_pluss_en_dag() {
         // Arrange
         var dødsdato = fødselsdato.plusWeeks(6).plusDays(1);
         var barnList = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
@@ -35,7 +35,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt5087_når_dødsdato_er_seks_uker_minus_en_dag() {
+    void skal_få_aksjonspunkt5087_når_dødsdato_er_seks_uker_minus_en_dag() {
         // Arrange
         var dødsdato = fødselsdato.plusWeeks(6).minusDays(1);
         var barnList = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
@@ -49,7 +49,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt5087_når_dødsdato_er_seks_uker() {
+    void skal_få_aksjonspunkt5087_når_dødsdato_er_seks_uker() {
         // Arrange
         var dødsdato = fødselsdato.plusWeeks(6);
         var barnList = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
@@ -62,7 +62,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt5087_når_dekningsgrad_er_annerledes_en_80() {
+    void skal_få_aksjonspunkt5087_når_dekningsgrad_er_annerledes_en_80() {
         // Arrange
         var dødsdato = fødselsdato.plusWeeks(6);
         var barn = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
@@ -76,7 +76,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt5087_når_barn_ikke_finnes() {
+    void skal_få_aksjonspunkt5087_når_barn_ikke_finnes() {
         // Arrange
         var dekningsgrad = 80;
 

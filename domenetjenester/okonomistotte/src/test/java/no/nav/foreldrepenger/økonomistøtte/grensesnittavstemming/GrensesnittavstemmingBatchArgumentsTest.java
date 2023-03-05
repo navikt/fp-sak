@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 
-public class GrensesnittavstemmingBatchArgumentsTest {
+class GrensesnittavstemmingBatchArgumentsTest {
 
     public static final String ANTALL_DAGER = "antallDager";
     public static final String FAGOMRÅDE = "fagomrade";
@@ -14,7 +14,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     public static final String FOM = "fom";
 
     @Test
-    public void skal_parse_antall_dager() {
+    void skal_parse_antall_dager() {
         final var argMap = new HashMap<String, String>();
         argMap.put(ANTALL_DAGER, "5");
         argMap.put(FAGOMRÅDE, "FP");
@@ -25,7 +25,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_parse_antall_8_dager() {
+    void skal_parse_antall_8_dager() {
         final var argMap = new HashMap<String, String>();
         argMap.put(ANTALL_DAGER, "8");
         argMap.put(FAGOMRÅDE, "FP");
@@ -36,7 +36,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_parse_antall_9_dager_utover_max() {
+    void skal_parse_antall_9_dager_utover_max() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FAGOMRÅDE, "FP");
         argMap.put(ANTALL_DAGER, "9");
@@ -47,7 +47,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_parse_dato() {
+    void skal_parse_dato() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FOM, "01-11-2014");
         argMap.put(TOM, "07-11-2014");
@@ -59,7 +59,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_parse_dato_periode_utover_max() {
+    void skal_parse_dato_periode_utover_max() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FOM, "01-11-2014");
         argMap.put(TOM, "09-11-2014");
@@ -71,7 +71,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_parse_dato_periode_7_dager() {
+    void skal_parse_dato_periode_7_dager() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FOM, "01-11-2014");
         argMap.put(TOM, "08-11-2014");
@@ -83,7 +83,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_ikke_feile_ved_satt_for_mange_properties() {
+    void skal_ikke_feile_ved_satt_for_mange_properties() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FOM, "01-11-2014");
         argMap.put(TOM, "20-11-2014");
@@ -94,7 +94,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_feile_fordi_satt_parametre_er_ikke_entydig() {
+    void skal_feile_fordi_satt_parametre_er_ikke_entydig() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FOM, "01-11-2014");
         argMap.put(ANTALL_DAGER, "5");
@@ -104,7 +104,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_feile_fordi_fagområde_er_ikke_satt() {
+    void skal_feile_fordi_fagområde_er_ikke_satt() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FOM, "01-11-2014");
         argMap.put(ANTALL_DAGER, "5");
@@ -113,7 +113,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_feile_fordi_fagområde_er_feil() {
+    void skal_feile_fordi_fagområde_er_feil() {
         final var argMap = new HashMap<String, String>();
         argMap.put(FOM, "01-11-2014");
         argMap.put(ANTALL_DAGER, "5");
@@ -123,7 +123,7 @@ public class GrensesnittavstemmingBatchArgumentsTest {
     }
 
     @Test
-    public void skal_feile_fordi_fagområde_er_null() {
+    void skal_feile_fordi_fagområde_er_null() {
         final var argMap = new HashMap<String, String>();
         argMap.put(ANTALL_DAGER, "8");
         var args = new GrensesnittavstemmingBatchArguments(argMap);

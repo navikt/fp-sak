@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
-public class UtledNyeTilretteleggingerTjenesteTest {
+class UtledNyeTilretteleggingerTjenesteTest {
 
     private final SvangerskapspengerRepository svangerskapspengerRepository = Mockito.mock(SvangerskapspengerRepository.class);
     private final UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste = Mockito
@@ -29,7 +29,7 @@ public class UtledNyeTilretteleggingerTjenesteTest {
             svangerskapspengerRepository, utledTilretteleggingerMedArbeidsgiverTjeneste);
 
     @Test
-    public void skal_utlede_tilrettelegginger_med_og_uten_arbeidsgiver() {
+    void skal_utlede_tilrettelegginger_med_og_uten_arbeidsgiver() {
 
         // Arrange
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
@@ -55,7 +55,7 @@ public class UtledNyeTilretteleggingerTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_exception_når_ingen_grunnlag_blir_funnet() {
+    void skal_kaste_exception_når_ingen_grunnlag_blir_funnet() {
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
         var skjæringstidspunkt = Skjæringstidspunkt.builder().build();
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.empty());

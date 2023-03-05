@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwareTest {
+class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwareTest {
 
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("2");
     private static final AktørId AKTØR_ID = new AktørId("0000000000000");
@@ -93,7 +93,7 @@ public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwa
     }
 
     @Test
-    public void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() {
+    void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() {
         // Arrange
         var prosessTask = ProsessTaskData.forProsessTask(PubliserPersistertDokumentHendelseTask.class);
         prosessTask.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID.getId());

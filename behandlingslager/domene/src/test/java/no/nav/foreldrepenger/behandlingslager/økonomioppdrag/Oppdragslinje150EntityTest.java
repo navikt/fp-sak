@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class Oppdragslinje150EntityTest {
+class Oppdragslinje150EntityTest {
     private Oppdragslinje150.Builder oppdragslinje150Builder;
     private Oppdragslinje150 oppdragslinje150;
     private Oppdragslinje150 oppdragslinje150_2;
@@ -49,7 +49,7 @@ public class Oppdragslinje150EntityTest {
     }
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter() {
+    void skal_bygge_instans_med_påkrevde_felter() {
         oppdragslinje150 = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KODEENDRINGLINJE);
@@ -68,7 +68,7 @@ public class Oppdragslinje150EntityTest {
     }
 
     @Test
-    public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
+    void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
         // mangler kodeEndringLinje
         try {
             oppdragslinje150Builder.build();
@@ -103,7 +103,7 @@ public class Oppdragslinje150EntityTest {
     }
 
     @Test
-    public void skal_håndtere_null_this_feilKlasse_i_equals() {
+    void skal_håndtere_null_this_feilKlasse_i_equals() {
         oppdragslinje150 = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(oppdragslinje150).isNotNull();
@@ -112,7 +112,7 @@ public class Oppdragslinje150EntityTest {
     }
 
     @Test
-    public void skal_ha_refleksiv_equalsOgHashCode() {
+    void skal_ha_refleksiv_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
         oppdragslinje150_2 = oppdragslinje150Builder.build();
@@ -126,7 +126,7 @@ public class Oppdragslinje150EntityTest {
     }
 
     @Test
-    public void skal_bruke_KodeKlassifik_i_equalsOgHashCode() {
+    void skal_bruke_KodeKlassifik_i_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
         oppdragslinje150Builder.medKodeKlassifik(KodeKlassifik.FERIEPENGER_BRUKER);
@@ -138,7 +138,7 @@ public class Oppdragslinje150EntityTest {
     }
 
     @Test
-    public void skal_bruke_KodeEndringLinje_i_equalsOgHashCode() {
+    void skal_bruke_KodeEndringLinje_i_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
         oppdragslinje150Builder.medKodeEndringLinje(KodeEndringLinje.ENDR);
@@ -150,7 +150,7 @@ public class Oppdragslinje150EntityTest {
     }
 
     @Test
-    public void skal_bruke_KodeStatusLinje_i_equalsOgHashCode() {
+    void skal_bruke_KodeStatusLinje_i_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
         oppdragslinje150Builder.medKodeStatusLinje(KodeStatusLinje.OPPH);

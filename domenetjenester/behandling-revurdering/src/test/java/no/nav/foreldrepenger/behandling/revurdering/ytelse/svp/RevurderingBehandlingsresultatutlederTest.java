@@ -75,7 +75,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
-public class RevurderingBehandlingsresultatutlederTest {
+class RevurderingBehandlingsresultatutlederTest {
 
     public static final String ORGNR = KUNSTIG_ORG;
     private static final LocalDate SKJÆRINGSTIDSPUNKT_BEREGNING = LocalDate.now();
@@ -161,7 +161,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Ikke oppfylt inngangsvilkår i perioden
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_1_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
+    void tilfelle_1_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
         // Arrange
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -209,7 +209,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Ikkje oppfylt inngangsvilkår i perioden
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_2_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
+    void tilfelle_2_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
         // Arrange
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -257,7 +257,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Siste uttaksperiode avslått med opphørsårsak
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_3_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
+    void tilfelle_3_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -308,7 +308,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Siste uttaksperiode IKKJE avslått med opphørsårsak
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_4_med_endring_i_uttak_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak() {
+    void tilfelle_4_med_endring_i_uttak_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak() {
         // Arrange
         var endringsdato = LocalDate.of(2018, 1, 1);
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -359,7 +359,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_5_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_Endring_i_beregning() {
+    void tilfelle_5_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_Endring_i_beregning() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -413,7 +413,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_6_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_endring_i_beregning_og_uttak() {
+    void tilfelle_6_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_endring_i_beregning_og_uttak() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -469,7 +469,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning: Nei
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_7_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_uttak() {
+    void tilfelle_7_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_uttak() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -524,7 +524,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning: kun endring i fordeling av ytelsen
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_8_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_fordeling_av_ytelsen() {
+    void tilfelle_8_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_fordeling_av_ytelsen() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -579,7 +579,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning: Nei
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_9_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
+    void tilfelle_9_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -634,7 +634,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // i fordeling)
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_9_ulik_rekkefølge_av_andeler_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
+    void tilfelle_9_ulik_rekkefølge_av_andeler_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -682,7 +682,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_ingen_vedtaksbrev_når_ingen_endring_og_varsel_om_revurdering_ikke_er_sendt() {
+    void skal_gi_ingen_vedtaksbrev_når_ingen_endring_og_varsel_om_revurdering_ikke_er_sendt() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -729,7 +729,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_original_revurdering_også_hadde_avslått_siste_uttaksperiode() {
+    void skal_gi_ingen_endring_når_original_revurdering_også_hadde_avslått_siste_uttaksperiode() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -775,7 +775,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_opphør_når_det_er_flere_perioder_som_avslås() {
+    void skal_gi_opphør_når_det_er_flere_perioder_som_avslås() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -822,7 +822,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_endring_når_original_revurdering_ikke_har_samme_skalHindreTilbakketrekk() {
+    void skal_gi_endring_når_original_revurdering_ikke_har_samme_skalHindreTilbakketrekk() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -872,7 +872,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_endring_når_original_revurdering_mangler_skalHindreTilbakketrekk() {
+    void skal_gi_endring_når_original_revurdering_mangler_skalHindreTilbakketrekk() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
@@ -922,7 +922,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_original_revurdering_har_samme_skalHindreTilbakketrekk() {
+    void skal_gi_ingen_endring_når_original_revurdering_har_samme_skalHindreTilbakketrekk() {
         // Arrange
         var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);

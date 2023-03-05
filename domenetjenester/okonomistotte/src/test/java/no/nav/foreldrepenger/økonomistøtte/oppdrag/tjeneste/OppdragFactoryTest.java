@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYt
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.FagområdeMapper;
 
-public class OppdragFactoryTest {
+class OppdragFactoryTest {
 
     Saksnummer saksnummer = new Saksnummer("FooBAR");
     LocalDate dag1 = LocalDate.of(2020, 11, 9);
@@ -35,13 +35,13 @@ public class OppdragFactoryTest {
     OppdragFactory oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, FagsakYtelseType.FORELDREPENGER, saksnummer);
 
     @Test
-    public void skal_få_ingen_oppdrag_for_tomt_førstegangsvedtak() {
+    void skal_få_ingen_oppdrag_for_tomt_førstegangsvedtak() {
         var resultat = oppdragFactory.lagOppdrag(OverordnetOppdragKjedeOversikt.TOM, GruppertYtelse.TOM);
         assertThat(resultat).isEmpty();
     }
 
     @Test
-    public void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
+    void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
         var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_SELVSTENDIG, Betalingsmottaker.BRUKER);
         var målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
@@ -64,7 +64,7 @@ public class OppdragFactoryTest {
     }
 
     @Test
-    public void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
+    void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
         var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
         var målbilde = GruppertYtelse.builder()
@@ -89,7 +89,7 @@ public class OppdragFactoryTest {
     }
 
     @Test
-    public void skal_lage_ett_oppdrag_til_hver_mottaker() {
+    void skal_lage_ett_oppdrag_til_hver_mottaker() {
         var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         var nøkkelYtelseTilArbeidsgiver1 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000001"));
         var nøkkelYtelseTilArbeidsgiver2 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000002"));
@@ -122,7 +122,7 @@ public class OppdragFactoryTest {
     }
 
     @Test
-    public void skal_bare_lage_oppdrag_for_mottaker_med_endring() {
+    void skal_bare_lage_oppdrag_for_mottaker_med_endring() {
         var arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
         var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         var nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), arbeidsgiver);
@@ -149,7 +149,7 @@ public class OppdragFactoryTest {
     }
 
     @Test
-    public void skal_bare_lage_oppdrag_for_alle_mottakere_når_det_er_satt_flagg_for_dette() {
+    void skal_bare_lage_oppdrag_for_alle_mottakere_når_det_er_satt_flagg_for_dette() {
 
         var arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
         var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
@@ -187,7 +187,7 @@ public class OppdragFactoryTest {
     }
 
     @Test
-    public void skal_ikke_endre_periode_for_feriepenger_hvis_felles_endringsdato_er_i_mai() {
+    void skal_ikke_endre_periode_for_feriepenger_hvis_felles_endringsdato_er_i_mai() {
 
         var ytelseFom = LocalDate.of(2020, 4, 1);
         var ytelseTom = LocalDate.of(2021, 6, 1);

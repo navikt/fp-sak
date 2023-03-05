@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeAndelDto;
 
 @ExtendWith(MockitoExtension.class)
-public class BeregningsresultatMedUttaksplanMapperTest {
+class BeregningsresultatMedUttaksplanMapperTest {
 
     private static final LocalDate P1_FOM = LocalDate.now();
     private static final LocalDate P1_TOM = LocalDate.now().plusDays(10);
@@ -63,7 +63,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalLageDto() {
+    void skalLageDto() {
         var behandling = lagBehandling(); // Behandling
         Behandlingsresultat.opprettFor(behandling);
         var beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat uten perioder
@@ -76,7 +76,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalLageEnPeriodePerBeregningsresultatPeriode() {
+    void skalLageEnPeriodePerBeregningsresultatPeriode() {
         var behandling = lagBehandling(); // Behandling
         Behandlingsresultat.opprettFor(behandling);
         var beregningsresultat = lagBeregningsresultatAggregatFP(behandling).getBgBeregningsresultatFP(); // Beregingsresultat
@@ -113,7 +113,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalLageEnPeriodePerBeregningsresultatPeriodeUtenUttakResultat() {
+    void skalLageEnPeriodePerBeregningsresultatPeriodeUtenUttakResultat() {
         // Arrange
         var behandling = lagBehandling(); // Behandling
         Behandlingsresultat.opprettFor(behandling);
@@ -144,7 +144,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalBeregneDagsatsPerPeriode() {
+    void skalBeregneDagsatsPerPeriode() {
         var behandling = lagBehandling(); // Behandling
         var virksomhet = arbeidsgiver("1234");
 
@@ -167,7 +167,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalLageAndelerPerPeriodeEttArbeidsforhold() {
+    void skalLageAndelerPerPeriodeEttArbeidsforhold() {
         // Arrange 1: Kun andel for søker
         var virksomhet = arbeidsgiver("1234");
 
@@ -199,7 +199,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalLageAndelerPerPeriodeToArbeidsforhold() {
+    void skalLageAndelerPerPeriodeToArbeidsforhold() {
         var virksomhet1 = arbeidsgiver("1234");
         var virksomhet2 = arbeidsgiver("3456");
 
@@ -232,7 +232,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalLageAndelerForKombibasjonsstatuser() {
+    void skalLageAndelerForKombibasjonsstatuser() {
         // Arrange 1
         var behandling = lagBehandling();
         Behandlingsresultat.opprettFor(behandling);
@@ -262,7 +262,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalSlåSammenAndelerMedSammeArbeidsforholdId() {
+    void skalSlåSammenAndelerMedSammeArbeidsforholdId() {
         // Arrange
         var virksomhet = arbeidsgiver("1234");
 
@@ -292,7 +292,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     @Test
-    public void skalFinneRiktigSisteUtbetalingsdato() {
+    void skalFinneRiktigSisteUtbetalingsdato() {
         var virksomhet1 = arbeidsgiver("123");
         var virksomhet2 = arbeidsgiver("456");
         var virksomhet3 = arbeidsgiver("789");

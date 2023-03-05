@@ -48,7 +48,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(JpaExtension.class)
-public class OpptjeningInntektArbeidYtelseTjenesteTest {
+class OpptjeningInntektArbeidYtelseTjenesteTest {
 
     public static final String NAV_ORG_NUMMER = "889640782";
 
@@ -77,7 +77,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
     }
 
     @Test
-    public void skal_utlede_en_periode_for_egen_næring() {
+    void skal_utlede_en_periode_for_egen_næring() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -113,7 +113,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
     }
 
     @Test
-    public void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode_for_vilkår_godkjent() {
+    void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode_for_vilkår_godkjent() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -140,7 +140,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
     }
 
     @Test
-    public void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode_for_vilkår_underkjent() {
+    void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode_for_vilkår_underkjent() {
         // Arrange
         var iDag = LocalDate.now();
         final var behandling = opprettBehandling();

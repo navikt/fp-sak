@@ -13,14 +13,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
 @ExtendWith(CdiAwareExtension.class)
-public class ManuellRegistreringOppdatererTest {
+class ManuellRegistreringOppdatererTest {
 
     @Inject
     @Any
     private ManuellRegistreringOppdaterer registreringOppdaterer;
 
     @Test
-    public void test_har_instanser() {
+    void test_har_instanser() {
         assertThat(registreringOppdaterer.finnSøknadMapper(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD)).isNotNull();
 
         assertThat(registreringOppdaterer.finnSøknadMapper(FagsakYtelseType.FORELDREPENGER, BehandlingType.REVURDERING)).isNotNull();

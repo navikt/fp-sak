@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
 
-public class OppdragKjedeFactoryTest {
+class OppdragKjedeFactoryTest {
 
     LocalDate nå = LocalDate.now();
     Periode p1 = Periode.of(nå, nå.plusDays(5));
@@ -33,7 +33,7 @@ public class OppdragKjedeFactoryTest {
 
 
     @Test
-    public void skal_ikke_lage_kjede_når_førstegangsvedtak_er_tomt() {
+    void skal_ikke_lage_kjede_når_førstegangsvedtak_er_tomt() {
         var tidligereOppdrag = OppdragKjede.builder().build();
         var nyYtelse = Ytelse.builder().build();
         var factory = OppdragKjedeFactory.lagForNyMottaker(fagsystemId);
@@ -42,7 +42,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_kjede_sammen_perioder_i_førstegangsvedtak() {
+    void skal_kjede_sammen_perioder_i_førstegangsvedtak() {
         var tidligereOppdrag = OppdragKjede.builder().build();
         var nyYtelse = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
@@ -61,7 +61,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_søtte_fullstendig_opphør() {
+    void skal_søtte_fullstendig_opphør() {
         var tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)
@@ -92,7 +92,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_støtte_opphør_fra_spesifikk_dato() {
+    void skal_støtte_opphør_fra_spesifikk_dato() {
         var tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)
@@ -160,7 +160,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_støtte_endring_fra_spesifikk_dato_inne_i_periode_fra_tilkjent_ytelse() {
+    void skal_støtte_endring_fra_spesifikk_dato_inne_i_periode_fra_tilkjent_ytelse() {
         var tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)
@@ -202,7 +202,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_opphøre_fra_starten_og_sende_alle_perioder_når_det_legges_til_en_tidligere_periode() {
+    void skal_opphøre_fra_starten_og_sende_alle_perioder_når_det_legges_til_en_tidligere_periode() {
         var eksisterendeKjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
@@ -227,7 +227,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_søtte_fullstendig_opphør_av_feriepenger() {
+    void skal_søtte_fullstendig_opphør_av_feriepenger() {
         var tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(mai)
@@ -246,7 +246,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_ikke_bruke_opphørslinje_men_bare_overskrive_forrige_periode_ved_endring_i_feriepenger() {
+    void skal_ikke_bruke_opphørslinje_men_bare_overskrive_forrige_periode_ved_endring_i_feriepenger() {
         var tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(mai)
@@ -266,7 +266,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_støtte_å_splitte_periode() {
+    void skal_støtte_å_splitte_periode() {
         var dag1 = LocalDate.now();
         var dag2 = dag1.plusDays(1);
         var dag3 = dag1.plusDays(2);
@@ -302,7 +302,7 @@ public class OppdragKjedeFactoryTest {
     }
 
     @Test
-    public void skal_håndtere_at_første_dato_i_kjeden_ikke_er_i_første_linje() {
+    void skal_håndtere_at_første_dato_i_kjeden_ikke_er_i_første_linje() {
         var kjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-05.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-100")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medRefDelytelseId(DelytelseId.parse("x-1-100")).build())

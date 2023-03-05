@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.SekvensId
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 @ExtendWith(MockitoExtension.class)
-public class VedtakJsonFeedRestTjenesteTest {
+class VedtakJsonFeedRestTjenesteTest {
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
     private VedtakJsonFeedRestTjeneste tjeneste;
@@ -37,7 +37,7 @@ public class VedtakJsonFeedRestTjenesteTest {
     }
 
     @Test
-    public void skal_delegere_til_hent_fp_vedtak_tjeneste() {
+    void skal_delegere_til_hent_fp_vedtak_tjeneste() {
         var sisteLestSekvensIdParam = new SekvensIdParam("1");
         var maxAntallParam = new MaxAntallParam("100");
         var hendelseTypeParam = new HendelseTypeParam(Meldingstype.FORELDREPENGER_ENDRET.getType());
@@ -52,7 +52,7 @@ public class VedtakJsonFeedRestTjenesteTest {
     }
 
     @Test
-    public void skal_delegere_til_hent_svp_vedtak_tjeneste() {
+    void skal_delegere_til_hent_svp_vedtak_tjeneste() {
         var sisteLestSekvensIdParam = new SekvensIdParam("1");
         var maxAntallParam = new MaxAntallParam("100");
         var hendelseTypeParam = new HendelseTypeParam(Meldingstype.SVANGERSKAPSPENGER_ENDRET.getType());
@@ -66,7 +66,7 @@ public class VedtakJsonFeedRestTjenesteTest {
     }
 
     @Test
-    public void skal_delegere_til_hent_fp_vedtak_tjeneste_med_default_params() {
+    void skal_delegere_til_hent_fp_vedtak_tjeneste_med_default_params() {
         var sisteLestSekvensIdParam = new SekvensIdParam("1");
         var maxAntallParam = new MaxAntallParam("100");
         var hendelseTypeParam = new HendelseTypeParam("");
@@ -82,7 +82,7 @@ public class VedtakJsonFeedRestTjenesteTest {
     }
 
     @Test
-    public void skal_delegere_til_hent_svp_vedtak_tjeneste_med_default_params() {
+    void skal_delegere_til_hent_svp_vedtak_tjeneste_med_default_params() {
         var sisteLestSekvensIdParam = new SekvensIdParam("1");
         var maxAntallParam = new MaxAntallParam("100");
         var hendelseTypeParam = new HendelseTypeParam("");

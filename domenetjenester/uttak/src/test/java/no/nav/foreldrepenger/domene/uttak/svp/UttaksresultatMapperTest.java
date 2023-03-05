@@ -21,10 +21,10 @@ import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperiode;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperioder;
 
-public class UttaksresultatMapperTest {
+class UttaksresultatMapperTest {
 
     @Test
-    public void mapping_av_regelmodell() {
+    void mapping_av_regelmodell() {
         var aktørId = AktørId.dummy();
         var internRef = InternArbeidsforholdRef.nyRef().getReferanse();
 

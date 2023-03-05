@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest {
+class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest {
 
     private final ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
@@ -59,7 +59,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     }
 
     @Test
-    public void skal_oppdatere_vilkår_for_omsorg() {
+    void skal_oppdatere_vilkår_for_omsorg() {
         // Arrange
         var forelderId = AktørId.dummy();
 
@@ -126,7 +126,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     }
 
     @Test
-    public void skal_sette_andre_aksjonspunkter_knyttet_til_omsorgsvilkåret_som_utført() {
+    void skal_sette_andre_aksjonspunkter_knyttet_til_omsorgsvilkåret_som_utført() {
         // Arrange
         var forelderId = AktørId.dummy();
         var dødsdato = LocalDate.now();
@@ -170,7 +170,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_omsorgsovertakelsesdato() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_omsorgsovertakelsesdato() {
         // Arrange
         var omsorgsovertakelsesdatoOppgitt = LocalDate.of(2019, 3, 4);
         var omsorgsovertakelsesdatoBekreftet = omsorgsovertakelsesdatoOppgitt.plusDays(1);

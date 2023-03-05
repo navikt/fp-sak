@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class AutomatiskFagsakAvslutningBatchTjenesteTest {
+class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
     private AutomatiskFagsakAvslutningBatchTjeneste tjeneste;
     private BehandlingRepository behandlingRepository;
@@ -34,7 +34,7 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
     }
 
     @Test
-    public void skal_kjøre_batch_uten_feil() {
+    void skal_kjøre_batch_uten_feil() {
         var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         fagsak1.setId(1L);
         var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);

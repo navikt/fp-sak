@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.UttakHistorikkUtil;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class UttakHistorikkUtilTest {
+class UttakHistorikkUtilTest {
 
     private static final Behandling BEHANDLING = mockBehandling();
     private static final LocalDate DEFAULT_FOM = LocalDate.now();
@@ -44,7 +44,7 @@ public class UttakHistorikkUtilTest {
     public static final InternArbeidsforholdRef ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.namedRef("TEST-REF");
 
     @Test
-    public void skalLageHistorikkInnslagForPeriodeResultatTypeHvisEndring() {
+    void skalLageHistorikkInnslagForPeriodeResultatTypeHvisEndring() {
         var manuell = PeriodeResultatType.MANUELL_BEHANDLING;
         var gjeldende = enkeltPeriode(manuell);
 
@@ -65,7 +65,7 @@ public class UttakHistorikkUtilTest {
     }
 
     @Test
-    public void skalIkkeLageHistorikkInnslagForPeriodeResultatTypeHvisIngenEndring() {
+    void skalIkkeLageHistorikkInnslagForPeriodeResultatTypeHvisIngenEndring() {
         var gjeldende = enkeltPeriode(PeriodeResultatType.INNVILGET);
 
         var perioder = nyMedResultatType(PeriodeResultatType.INNVILGET, new ArbeidsgiverLagreDto(ORGNR));
@@ -77,7 +77,7 @@ public class UttakHistorikkUtilTest {
     }
 
     @Test
-    public void skalLageHistorikkinnslagAvSplitting() {
+    void skalLageHistorikkinnslagAvSplitting() {
         var fom = LocalDate.now();
         var tom = fom.plusWeeks(3);
         var tomSplitPeriode1 = fom.plusWeeks(1);
@@ -114,7 +114,7 @@ public class UttakHistorikkUtilTest {
     }
 
     @Test
-    public void skalLageHistorikkinnslagAvBådeSplittingEndringAvPeriode() {
+    void skalLageHistorikkinnslagAvBådeSplittingEndringAvPeriode() {
         var fom = LocalDate.now();
         var tom = fom.plusWeeks(3);
         var tomSplitPeriode1 = fom.plusWeeks(1);
@@ -136,7 +136,7 @@ public class UttakHistorikkUtilTest {
     }
 
     @Test
-    public void skalLageHistorikkinnslagAvBådeSplittingEndringAvPeriodeVedFastsetting() {
+    void skalLageHistorikkinnslagAvBådeSplittingEndringAvPeriodeVedFastsetting() {
         var fom = LocalDate.now();
         var tom = fom.plusWeeks(3);
         var tomSplitPeriode1 = fom.plusWeeks(1);
@@ -158,7 +158,7 @@ public class UttakHistorikkUtilTest {
     }
 
     @Test
-    public void skalLageHistorikkInnslagForPerioderMedPrivatpersonSomArbeidsgiver() {
+    void skalLageHistorikkInnslagForPerioderMedPrivatpersonSomArbeidsgiver() {
         var manuell = PeriodeResultatType.MANUELL_BEHANDLING;
         var arbeidsgiverAktørId = AktørId.dummy();
         var privateperson = Arbeidsgiver.person(arbeidsgiverAktørId);

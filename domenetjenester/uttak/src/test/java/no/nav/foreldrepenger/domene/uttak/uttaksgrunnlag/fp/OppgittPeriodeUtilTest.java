@@ -13,10 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 
-public class OppgittPeriodeUtilTest {
+class OppgittPeriodeUtilTest {
 
     @Test
-    public void sorterEtterFom() {
+    void sorterEtterFom() {
         var periode1 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2018, 6, 11), LocalDate.of(2018, 6, 17))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -33,7 +33,7 @@ public class OppgittPeriodeUtilTest {
     }
 
     @Test
-    public void første_søkte_dato_kan_være_overføringsperiode() {
+    void første_søkte_dato_kan_være_overføringsperiode() {
 
         var førstePeriodeOverføring = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -52,7 +52,7 @@ public class OppgittPeriodeUtilTest {
     }
 
     @Test
-    public void første_søkte_dato_kan_være_vanlig_uttaksperiode() {
+    void første_søkte_dato_kan_være_vanlig_uttaksperiode() {
 
         var førstePeriodeUttaksperiode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -71,7 +71,7 @@ public class OppgittPeriodeUtilTest {
     }
 
     @Test
-    public void første_søkte_dato_kan_være_utsettelseperioder() {
+    void første_søkte_dato_kan_være_utsettelseperioder() {
 
         var førstePeriodeUtsettelse = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -90,7 +90,7 @@ public class OppgittPeriodeUtilTest {
     }
 
     @Test
-    public void første_søkte_dato_skal_ikke_være_oppholdsperioder() {
+    void første_søkte_dato_skal_ikke_være_oppholdsperioder() {
 
         var førstePeriodeOpphold = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -109,7 +109,7 @@ public class OppgittPeriodeUtilTest {
     }
 
     @Test
-    public void skal_slå_sammen_like_perioder() {
+    void skal_slå_sammen_like_perioder() {
         var p1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 25))
@@ -126,7 +126,7 @@ public class OppgittPeriodeUtilTest {
     }
 
     @Test
-    public void skal_slå_sammen_like_perioder_hvis_eneste_hull_er_helg() {
+    void skal_slå_sammen_like_perioder_hvis_eneste_hull_er_helg() {
         var p1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 27))
@@ -143,7 +143,7 @@ public class OppgittPeriodeUtilTest {
     }
 
     @Test
-    public void skal_ikke_slå_sammen_like_perioder_hvis_hull() {
+    void skal_ikke_slå_sammen_like_perioder_hvis_hull() {
         var p1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 27))

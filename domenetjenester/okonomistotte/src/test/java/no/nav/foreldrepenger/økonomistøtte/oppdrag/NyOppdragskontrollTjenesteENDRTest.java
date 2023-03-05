@@ -43,7 +43,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeEndringsoppdragOppdragMedFeriepengerNårEndringsdatoErFørsteUttaksdag() {
+    void skalSendeEndringsoppdragOppdragMedFeriepengerNårEndringsdatoErFørsteUttaksdag() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatFP(true);
 
@@ -70,7 +70,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragMedOmpostering116HvisAvslåttInntrekk() {
+    void skalSendeOppdragMedOmpostering116HvisAvslåttInntrekk() {
         // Arrange
         var b1fom = LocalDate.of(I_ÅR, 1, 1);
         var b1tom = LocalDate.of(I_ÅR, 8, 20);
@@ -99,7 +99,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragMedOmpostering116HvisIkkeAvslåttInntrekkOgDetFinnesForrigeOppdrag() {
+    void skalSendeOppdragMedOmpostering116HvisIkkeAvslåttInntrekkOgDetFinnesForrigeOppdrag() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var b1Periode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -327,7 +327,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragMedOmpostering116OgSetteDatoOmposterFomTilFørsteUttaksdatoFraForrigeBehandlingForBrukerNårEndringsdatoErTidligere() {
+    void skalSendeOppdragMedOmpostering116OgSetteDatoOmposterFomTilFørsteUttaksdatoFraForrigeBehandlingForBrukerNårEndringsdatoErTidligere() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var b1Periode = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
@@ -364,7 +364,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Periode 2: Dagsats bruker 300 kr
      */
     @Test
-    public void skalSendeOppdragFomEndringsdatoNårDetErEndringFraAndrePeriodeIRevurdering() {
+    void skalSendeOppdragFomEndringsdatoNårDetErEndringFraAndrePeriodeIRevurdering() {
         // Arrange
         var b1fom = LocalDate.of(I_ÅR, 8, 1);
         var b1tom = LocalDate.of(I_ÅR, 8, 20);
@@ -418,7 +418,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skal_sende_oppdrag_hvor_den_første_perioden_i_original_behandling_ikke_har_en_korresponderende_periode() {
+    void skal_sende_oppdrag_hvor_den_første_perioden_i_original_behandling_ikke_har_en_korresponderende_periode() {
         // Arrange
         var b1fom = LocalDate.of(I_ÅR, 8, 1);
         var b1tom = LocalDate.of(I_ÅR, 8, 10);
@@ -467,7 +467,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skal_sende_oppdrag_hvor_den_siste_perioden_i_revurderingen_ikke_har_en_korresponderende_periode() {
+    void skal_sende_oppdrag_hvor_den_siste_perioden_i_revurderingen_ikke_har_en_korresponderende_periode() {
         // Arrange
         var b1fom = LocalDate.of(I_ÅR, 8, 1);
         var b1tom = LocalDate.of(I_ÅR, 8, 10);
@@ -536,7 +536,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Periode 2: Dagsats bruker 200 kr; fom-tom: 16.05 - 30.05
      */
     @Test
-    public void skal_sende_oppdrag_når_forrige_og_ny_behanling_har_to_perioder_og_det_blir_endring_i_andel_i_andre_periode_i_revurdering() {
+    void skal_sende_oppdrag_når_forrige_og_ny_behanling_har_to_perioder_og_det_blir_endring_i_andel_i_andre_periode_i_revurdering() {
 
         // Arrange
         var b1p1fom = LocalDate.of(I_ÅR, 5, 1);
@@ -599,7 +599,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Periode 2: Dagsats bruker 200 kr; fom-tom: 11.05 - 30.05
      */
     @Test
-    public void skal_sende_oppdrag_når_forrige_og_ny_behandling_har_to_perioder_og_det_blir_endring_midt_i_første_periode_i_forrige() {
+    void skal_sende_oppdrag_når_forrige_og_ny_behandling_har_to_perioder_og_det_blir_endring_midt_i_første_periode_i_forrige() {
 
         // Arrange
         var b1p1fom = LocalDate.of(I_ÅR, 5, 1);
@@ -658,7 +658,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Periode 2: Dagsats bruker 200 kr; fom-tom: 21.05 - 30.05
      */
     @Test
-    public void skal_sende_oppdrag_når_forrige_og_ny_behanling_har_to_perioder_og_andre_periode_i_original_behandlingen_blir_til_2_perioder_i_revurdering() {
+    void skal_sende_oppdrag_når_forrige_og_ny_behanling_har_to_perioder_og_andre_periode_i_original_behandlingen_blir_til_2_perioder_i_revurdering() {
 
         // Arrange
         var b1p1fom = LocalDate.of(I_ÅR, 5, 1);
@@ -718,7 +718,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Periode 2: Dagsats bruker 200 kr; fom-tom: 21.05 - 10.06
      */
     @Test
-    public void skal_opphøre_hele_forrige_oppdrag_og_sende_ny_oppdrag_når_første_uttaksdato_av_revurdering_blir_tidligere_enn_første_uttaksdato_av_forrige() {
+    void skal_opphøre_hele_forrige_oppdrag_og_sende_ny_oppdrag_når_første_uttaksdato_av_revurdering_blir_tidligere_enn_første_uttaksdato_av_forrige() {
 
         // Arrange
         var b1p1fom = LocalDate.of(I_ÅR, 5, 1);
@@ -775,7 +775,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skal_sende_oppdrag_hvor_det_blir_en_ny_mottaker_i_revurdering() {
+    void skal_sende_oppdrag_hvor_det_blir_en_ny_mottaker_i_revurdering() {
         // Arrange
         var b1fom = LocalDate.of(I_ÅR, 8, 1);
         var b1tom = LocalDate.of(I_ÅR, 8, 20);
@@ -825,7 +825,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeEndringsoppdragNårEndringsdatoErMidtIFørstePeriodeIRevurderingOgDetErFlereMottakereSomBrukerOgArbeidsgiver() {
+    void skalSendeEndringsoppdragNårEndringsdatoErMidtIFørstePeriodeIRevurderingOgDetErFlereMottakereSomBrukerOgArbeidsgiver() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatFP();
 
@@ -852,7 +852,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalOppretteEndringsoppdragNårBehandlingsresultatErInnvilgetOgForrigeOppdragEksisterer() {
+    void skalOppretteEndringsoppdragNårBehandlingsresultatErInnvilgetOgForrigeOppdragEksisterer() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatFP(true);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -882,7 +882,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Første uttaksdato
      */
     @Test
-    public void skalSendeEndringsoppdragNårDetErEnKlassekodeIForrigeOgFlereKlassekodeINyOppdrag() {
+    void skalSendeEndringsoppdragNårDetErEnKlassekodeIForrigeOgFlereKlassekodeINyOppdrag() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var b1Periode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -932,7 +932,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Første uttaksdato
      */
     @Test
-    public void skalSendeEndringsoppdragNårDetErFlereKlassekodeBådeIForrigeOgNyOppdragOgDeErLike() {
+    void skalSendeEndringsoppdragNårDetErFlereKlassekodeBådeIForrigeOgNyOppdragOgDeErLike() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -963,7 +963,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Første uttaksdato
      */
     @Test
-    public void skalSendeEndringsoppdragNårDetErFlereKlassekodeBådeIForrigeOgNyOppdragOgEnInntektskategoriIForrigeBehandlingBlirAnnerledesIRevurdering() {
+    void skalSendeEndringsoppdragNårDetErFlereKlassekodeBådeIForrigeOgNyOppdragOgEnInntektskategoriIForrigeBehandlingBlirAnnerledesIRevurdering() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1024,7 +1024,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Første uttaksdato
      */
     @Test
-    public void skalSendeEndringsoppdragNårDetErFlereKlassekodeBådeIForrigeOgNyOppdragOgDeErUlike() {
+    void skalSendeEndringsoppdragNårDetErFlereKlassekodeBådeIForrigeOgNyOppdragOgDeErUlike() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1112,7 +1112,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Revurdering: Mottaker: Bruker, En inntektskategori i periode 1 (AT(orgnr2)) og to i periode 2 (AT(orgnr1)), AT(orgnr2))
      */
     @Test
-    public void skalSendeEndringsOppdragOgSlåArbeidstakerAndelerSammenHvisBrukerHarFlereISammePeriode() {
+    void skalSendeEndringsOppdragOgSlåArbeidstakerAndelerSammenHvisBrukerHarFlereISammePeriode() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1163,7 +1163,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeEndringsOppdragHvisEndringIUtbetalingsgrad() {
+    void skalSendeEndringsOppdragHvisEndringIUtbetalingsgrad() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1216,7 +1216,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeEndringsoppdragNårDetErFlereKlassekodeIForrigeOppdragOgEnNyKlassekodeINyOppdrag() {
+    void skalSendeEndringsoppdragNårDetErFlereKlassekodeIForrigeOppdragOgEnNyKlassekodeINyOppdrag() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -1243,7 +1243,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragMedEnInntektskategoriIOriginalOgFlereIRevurdering() {
+    void skalSendeOppdragMedEnInntektskategoriIOriginalOgFlereIRevurdering() {
         // Førstegang behandling
         var fom = LocalDate.of(I_ÅR, 8, 1);
         var tom = LocalDate.of(I_ÅR, 8, 7);
@@ -1266,7 +1266,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragNårEnMottakerHarFlereAndelerMedSammeKlassekodeIEnPeriode() {
+    void skalSendeOppdragNårEnMottakerHarFlereAndelerMedSammeKlassekodeIEnPeriode() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER);
@@ -1298,7 +1298,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalOppretteEndringsoppdragNårBehandlingsresultatErOpphørOgOpphørsdatoErEtterStp() {
+    void skalOppretteEndringsoppdragNårBehandlingsresultatErOpphørOgOpphørsdatoErEtterStp() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -1327,7 +1327,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisEndringsdatoErEtterSisteDatoITidligereOppdragForBruker() {
+    void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisEndringsdatoErEtterSisteDatoITidligereOppdragForBruker() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(true, false);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -1365,7 +1365,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisDetErFlereMottakereSomErArbeidsgivereOgEndringsdatoErEtterSisteDatoINyTilkjentYtelse() {
+    void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisDetErFlereMottakereSomErArbeidsgivereOgEndringsdatoErEtterSisteDatoINyTilkjentYtelse() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -1429,7 +1429,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalOppdatereRefusjonsInfoTilSisteutbetalingsdagHvisIkkeOpphør() {
+    void skalOppdatereRefusjonsInfoTilSisteutbetalingsdagHvisIkkeOpphør() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -1493,7 +1493,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalOppdatereRefusjonsInfoHvisFørsteUttaksdagBlirTidligere() {
+    void skalOppdatereRefusjonsInfoHvisFørsteUttaksdagBlirTidligere() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -1554,7 +1554,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalOppdatereRefusjonsInfoHvisFørsteUttaksdagBlirSenere() {
+    void skalOppdatereRefusjonsInfoHvisFørsteUttaksdagBlirSenere() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
@@ -1620,7 +1620,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Første uttaksdato
      */
     @Test
-    public void skalSendeFullstendigOpphørForBrukerMedFlereInntektskategoriIEndringsoppdragNårBrukerErIkkeMottakerIRevurderingLenger() {
+    void skalSendeFullstendigOpphørForBrukerMedFlereInntektskategoriIEndringsoppdragNårBrukerErIkkeMottakerIRevurderingLenger() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1702,7 +1702,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Startdato av andre periode i revurdering
      */
     @Test
-    public void skalIkkeSendeOpphørForBrukerMedFlereInntektskategoriIEndringsoppdragNårEndringsdatoErEtterSistePeriodeTomIForrigeBehandling() {
+    void skalIkkeSendeOpphørForBrukerMedFlereInntektskategoriIEndringsoppdragNårEndringsdatoErEtterSistePeriodeTomIForrigeBehandling() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1762,7 +1762,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: En dag senere enn siste periode tom i revurdering
      */
     @Test
-    public void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisEndringsdatoErEtterSistePeriodeTomIRevurderingForBrukerMedFlereInntektskategoriIForrigeBehandling() {
+    void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisEndringsdatoErEtterSistePeriodeTomIRevurderingForBrukerMedFlereInntektskategoriIForrigeBehandling() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1839,7 +1839,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: En dag senere enn siste periode tom i revurdering
      */
     @Test
-    public void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisEndringsdatoErEtterSistePeriodeTomIRevurderingForBrukerMedFlereInntektskategoriIBådeForrigeOgNyBehandling() {
+    void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisEndringsdatoErEtterSistePeriodeTomIRevurderingForBrukerMedFlereInntektskategoriIBådeForrigeOgNyBehandling() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -1911,7 +1911,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeEndringsoppdragHvisDetErFlereMottakereSomErArbeidsgiverOgFinnesMerEnnToBeregningsresultatPerioder() {
+    void skalSendeEndringsoppdragHvisDetErFlereMottakereSomErArbeidsgiverOgFinnesMerEnnToBeregningsresultatPerioder() {
         // Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 5);
@@ -1987,7 +1987,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Start dato av siste periode i revurdering
      */
     @Test
-    public void skalSendeEndringsoppdragUtenOpphørNårDetBlirLagtTilEnNyTilkjentYtelsePeriodeIRevurderingForBrukerMedFlereKlassekode() {
+    void skalSendeEndringsoppdragUtenOpphørNårDetBlirLagtTilEnNyTilkjentYtelsePeriodeIRevurderingForBrukerMedFlereKlassekode() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();
@@ -2093,7 +2093,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Start dato av siste periode i revurdering
      */
     @Test
-    public void skalSendeEndringsoppdragUtenOpphørNårDetBlirLagtTilEnNyTilkjentYtelsePeriodeIRevurderingForBrukerMedEnKlassekode() {
+    void skalSendeEndringsoppdragUtenOpphørNårDetBlirLagtTilEnNyTilkjentYtelsePeriodeIRevurderingForBrukerMedEnKlassekode() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();
@@ -2176,7 +2176,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Start dato av andre periode i revurdering
      */
     @Test
-    public void skalIkkeSendeOppdragForArbeidsgiverHvisDetFinnesIngenAndelerFomEndringsdatoIRevurderingOgIngenAndelerSomSkalOpphøresIForrige() {
+    void skalIkkeSendeOppdragForArbeidsgiverHvisDetFinnesIngenAndelerFomEndringsdatoIRevurderingOgIngenAndelerSomSkalOpphøresIForrige() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();
@@ -2244,7 +2244,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Start dato av andre periode i revurdering
      */
     @Test
-    public void skalIkkeSendeOppdragForBrukerHvisDetFinnesIngenAndelerFomEndringsdatoIRevurderingOgIngenAndelerSomSkalOpphøresIForrige() {
+    void skalIkkeSendeOppdragForBrukerHvisDetFinnesIngenAndelerFomEndringsdatoIRevurderingOgIngenAndelerSomSkalOpphøresIForrige() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();
@@ -2311,7 +2311,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Endringsdato: Start dato av andre periode i revurdering
      */
     @Test
-    public void skalIkkeSendeOppdragForBrukerMedFlereInntektskategoriHvisDetFinnesIngenAndelerFomEndringsdatoIRevurderingOgIngenAndelerSomSkalOpphøresIForrige() {
+    void skalIkkeSendeOppdragForBrukerMedFlereInntektskategoriHvisDetFinnesIngenAndelerFomEndringsdatoIRevurderingOgIngenAndelerSomSkalOpphøresIForrige() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();
@@ -2377,7 +2377,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Andeler: AT(virksomhet) og AT(Privat arbgvr)
      */
     @Test
-    public void skalSendeEndringsOppdragOgSlåATAndelerSammenHvisBrukerHarArbeidsforholdHosBådeEnOrganisasjonOgPrivatArbeidsgiver() {
+    void skalSendeEndringsOppdragOgSlåATAndelerSammenHvisBrukerHarArbeidsforholdHosBådeEnOrganisasjonOgPrivatArbeidsgiver() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -2433,7 +2433,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Andeler: AT(virksomhet), AT(Privat arbgvr), Refusjon - AT(Privat arbgvr)
      */
     @Test
-    public void skalSendeEndringsOppdragOgSlåATAndelerSammenHvisBrukerHarArbeidsforholdHosBådeEnOrganisasjonOgPrivatArbgvrOgFinnesRefusjonTilPrivatArbgvr() {
+    void skalSendeEndringsOppdragOgSlåATAndelerSammenHvisBrukerHarArbeidsforholdHosBådeEnOrganisasjonOgPrivatArbgvrOgFinnesRefusjonTilPrivatArbgvr() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -2547,7 +2547,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Andeler: Refusjon - AT(Privat arbgvr)
      */
     @Test
-    public void skalSendeFørstegangsoppdragForBrukerSomEnDelAvEndringsOppdragNårPrivatArbgvrIkkeErMottakerIForrigeOgHarRefusjonFørstegangIRevurdering() {
+    void skalSendeFørstegangsoppdragForBrukerSomEnDelAvEndringsOppdragNårPrivatArbgvrIkkeErMottakerIForrigeOgHarRefusjonFørstegangIRevurdering() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();
@@ -2597,7 +2597,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Ny revurdering med to ny oppfylte perioder med hhv refusjon og utbetaling til bruker<br
      */
     @Test
-    public void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfaller() {
+    void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfaller() {
         // Arrange
         var b10fom = LocalDate.of(I_ÅR, 7, 1);
         var b10tom = LocalDate.of(I_ÅR, 7, 31);
@@ -2658,7 +2658,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Prodscenario der ytelse omfordeles fra 1 ag til bruker, deretter omfordeles den andre ag til bruker. Oppretter ikke 110 for siste revurdering.
      */
     @Test
-    public void skalSendeOmfordeleFlereArbeidsgivereSerielt() {
+    void skalSendeOmfordeleFlereArbeidsgivereSerielt() {
         // Arrange
         var b10fom = LocalDate.of(I_ÅR-1, 11, 2);
         var b10tom = LocalDate.of(I_ÅR-1, 11, 19);
@@ -2887,7 +2887,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Prodscenario der bruker suksessivt mister ytelse. Til man til slutt står uten og det skal sendes opphørsoppdrag
      */
     @Test
-    public void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfallerBrukerErOpphørtTidligere() {
+    void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfallerBrukerErOpphørtTidligere() {
         // Arrange
         var bminfom = LocalDate.of(I_ÅR, 7, 13);
         var bmaxtom = LocalDate.of(I_ÅR, 10, 23);
@@ -2992,7 +2992,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      * Prodscenario med omfordeling fra delvis ref til kun direkte utbetaling og så opphør
      */
     @Test
-    public void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfallerArbeidsgiverErOpphørtTidligere() {
+    void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfallerArbeidsgiverErOpphørtTidligere() {
         // Arrange
         var bminfom = LocalDate.of(I_ÅR, 3, 23);
         var bmaxtom = LocalDate.of(I_ÅR, 7, 3);

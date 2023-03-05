@@ -26,7 +26,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalIkkeLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirIngenEndringIÅrsbeløpForBeggeToFeriepengeår() {
+    void skalIkkeLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirIngenEndringIÅrsbeløpForBeggeToFeriepengeår() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -63,7 +63,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirEndringForBeggeToFeriepengeår() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirEndringForBeggeToFeriepengeår() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -107,7 +107,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirEndringKunIBeregningForAndreFeriepengeåretOgFørsteRevurderingHarBeregningForBeggeToÅr() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirEndringKunIBeregningForAndreFeriepengeåretOgFørsteRevurderingHarBeregningForBeggeToÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -142,7 +142,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirEndringKunIBeregningForFørsteFeriepengeåretOgFørsteRevurderingHarBeregningForBeggeToÅr() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirEndringKunIBeregningForFørsteFeriepengeåretOgFørsteRevurderingHarBeregningForBeggeToÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -178,7 +178,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingNårBeregningEndrerSegForFørsteFeriepengeårOgFørsteRevurderingHarOpphørPåAndreÅr() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingNårBeregningEndrerSegForFørsteFeriepengeårOgFørsteRevurderingHarOpphørPåAndreÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -222,7 +222,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingNårBeregningEndrerSegForFørsteFeriepengeårOgFørsteRevurderingHarOpphørPåFørsteÅr() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingNårBeregningEndrerSegForFørsteFeriepengeårOgFørsteRevurderingHarOpphørPåFørsteÅr() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -264,7 +264,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirNyFeriepengerBeregningForFørsteÅrOgIngenEndringForAndreÅr() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirNyFeriepengerBeregningForFørsteÅrOgIngenEndringForAndreÅr() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -307,7 +307,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirNyFeriepengerBeregningForAndreÅrOgIngenEndringForFørsteÅr() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingNårDetBlirNyFeriepengerBeregningForAndreÅrOgIngenEndringForFørsteÅr() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -349,7 +349,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingEtterFullstendingOpphørPåBeggeFeriepengeårPåFørsteRevurdering() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingEtterFullstendingOpphørPåBeggeFeriepengeårPåFørsteRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -391,7 +391,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåBeggeFeriepengeår() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåBeggeFeriepengeår() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -435,7 +435,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåBeggeFeriepengeårEtterFørsteRevurderingHaddeEndringIÅrsbeløpForBeggeToÅr() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåBeggeFeriepengeårEtterFørsteRevurderingHaddeEndringIÅrsbeløpForBeggeToÅr() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -477,7 +477,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåAndreFeriepengeår() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåAndreFeriepengeår() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -522,7 +522,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåFørsteFeriepengeårNårDetErEndringForDetteFeriepengeåretIFørsteRevurdering() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåFørsteFeriepengeårNårDetErEndringForDetteFeriepengeåretIFørsteRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -567,7 +567,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåAndreFeriepengeårEtterEndringIAndreÅrsbeløpIFørsteRevurdering() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåAndreFeriepengeårEtterEndringIAndreÅrsbeløpIFørsteRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
@@ -623,7 +623,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     }
 
     @Test
-    public void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåAndreFeriepengeårNårDetErEndringForDetteFeriepengeåretIFørsteRevurdering() {
+    void skalLagesOppdragForFeriepengerPåAndreRevurderingSomSenderOpphørPåAndreFeriepengeårNårDetErEndringForDetteFeriepengeåretIFørsteRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var oppdragskontroll = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);

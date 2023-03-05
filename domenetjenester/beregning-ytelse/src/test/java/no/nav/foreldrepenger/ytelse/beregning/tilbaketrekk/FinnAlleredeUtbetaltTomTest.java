@@ -7,10 +7,10 @@ import java.time.Month;
 
 import org.junit.jupiter.api.Test;
 
-public class FinnAlleredeUtbetaltTomTest {
+class FinnAlleredeUtbetaltTomTest {
 
     @Test
-    public void dagens_dato_4_februar() {
+    void dagens_dato_4_februar() {
         // Act
         var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 4));
 
@@ -19,7 +19,7 @@ public class FinnAlleredeUtbetaltTomTest {
     }
 
     @Test
-    public void dagens_dato_15_februar() {
+    void dagens_dato_15_februar() {
         // Act
         var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 18));
 
@@ -28,7 +28,7 @@ public class FinnAlleredeUtbetaltTomTest {
     }
 
     @Test
-    public void dagens_dato_16_februar() {
+    void dagens_dato_16_februar() {
         // Act
         var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 19));
 
@@ -37,7 +37,7 @@ public class FinnAlleredeUtbetaltTomTest {
     }
 
     @Test
-    public void dagens_dato_1_mars() {
+    void dagens_dato_1_mars() {
         // Act
         var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.MARCH, 1));
 
@@ -46,7 +46,7 @@ public class FinnAlleredeUtbetaltTomTest {
     }
 
     @Test
-    public void dagens_dato_16_februar_2020() {
+    void dagens_dato_16_februar_2020() {
         // Act
         var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.FEBRUARY, 19));
 
@@ -55,7 +55,7 @@ public class FinnAlleredeUtbetaltTomTest {
     }
 
     @Test
-    public void dagens_dato_8_desember_2020() {
+    void dagens_dato_8_desember_2020() {
         // Act
         var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.DECEMBER, 8));
 
@@ -64,7 +64,7 @@ public class FinnAlleredeUtbetaltTomTest {
     }
 
     @Test
-    public void dagens_dato_7_desember_2020() {
+    void dagens_dato_7_desember_2020() {
         // Act
         var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.DECEMBER, 7));
 

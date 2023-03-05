@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.kontrakter.risk.v1.RisikogruppeDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
-public class RisikovurderingTjenesteTest {
+class RisikovurderingTjenesteTest {
 
     private final FpriskTjeneste fpriskTjeneste = mock(FpriskTjeneste.class);
     private final ProsessTaskTjeneste prosessTaskTjeneste = mock(ProsessTaskTjeneste.class);
@@ -42,7 +42,7 @@ public class RisikovurderingTjenesteTest {
     }
 
     @Test
-    public void skal_teste_at_vi_returnerer_tom_hvis_ikke_noe_resultat_mottas_fra_fprisk() {
+    void skal_teste_at_vi_returnerer_tom_hvis_ikke_noe_resultat_mottas_fra_fprisk() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.empty());
 
@@ -54,7 +54,7 @@ public class RisikovurderingTjenesteTest {
     }
 
     @Test
-    public void skal_teste_at_aksjonspunkt_opprettes_når_risiko_er_høy() {
+    void skal_teste_at_aksjonspunkt_opprettes_når_risiko_er_høy() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.HØY, Collections.emptyList(), null)));
 
@@ -66,7 +66,7 @@ public class RisikovurderingTjenesteTest {
     }
 
     @Test
-    public void skal_teste_at_aksjonspunkt_ikke_opprettes_når_risiko_er_lav() {
+    void skal_teste_at_aksjonspunkt_ikke_opprettes_når_risiko_er_lav() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(RisikoklasseType.IKKE_HØY, Collections.emptyList(), null)));
 
@@ -78,7 +78,7 @@ public class RisikovurderingTjenesteTest {
     }
 
     @Test
-    public void skal_teste_at_aksjonspunkt_ikke_opprettes_det_mangler_kontrollresultat() {
+    void skal_teste_at_aksjonspunkt_ikke_opprettes_det_mangler_kontrollresultat() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.empty());
 

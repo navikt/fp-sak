@@ -17,12 +17,12 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class InngangsvilkårGrunnlagByggerTest {
+class InngangsvilkårGrunnlagByggerTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
-    public void setterInngangsvilkåreneErOppfylt() {
+    void setterInngangsvilkåreneErOppfylt() {
         var bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
 
         var scenario = ScenarioMorSøkerForeldrepenger
@@ -55,7 +55,7 @@ public class InngangsvilkårGrunnlagByggerTest {
     }
 
     @Test
-    public void setterInngangsvilkåreneErAvslått() {
+    void setterInngangsvilkåreneErAvslått() {
         var bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();

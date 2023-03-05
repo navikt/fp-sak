@@ -57,7 +57,7 @@ import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
+class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
@@ -100,7 +100,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalSetteBehandlingsresultatInnvilgetNårVilkårOppfylt() {
+    void skalSetteBehandlingsresultatInnvilgetNårVilkårOppfylt() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
@@ -114,7 +114,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalFjerneAvslagsårsakNårInnvilget() {
+    void skalFjerneAvslagsårsakNårInnvilget() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
@@ -129,7 +129,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalKalleBestemBehandlingsresultatForRevurderingNårInnvilgetRevurdering() {
+    void skalKalleBestemBehandlingsresultatForRevurderingNårInnvilgetRevurdering() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
@@ -145,7 +145,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalSetteBehandlingsresultatAvslåttNårVilkårAvslåttFørstegangsbehandling() {
+    void skalSetteBehandlingsresultatAvslåttNårVilkårAvslåttFørstegangsbehandling() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
@@ -159,7 +159,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalKalleBestemBehandlingsresultatNårAvslåttRevurdering() {
+    void skalKalleBestemBehandlingsresultatNårAvslåttRevurdering() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
@@ -174,7 +174,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalSetteBehandlingsresultatAvslåttNårVilkårAvslåttFørstegangsbehandlingInfotrygd() {
+    void skalSetteBehandlingsresultatAvslåttNårVilkårAvslåttFørstegangsbehandlingInfotrygd() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
@@ -190,7 +190,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalKalleBestemBehandlingsresultatNårVilkårAvslåttRevurderingInfotrygd() {
+    void skalKalleBestemBehandlingsresultatNårVilkårAvslåttRevurderingInfotrygd() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandling = scenario.lagre(repositoryProvider);
@@ -206,7 +206,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void skalKalleBestemBehandlingsresultatNårAvslåttRevurderingPåAvslåttFørstegangsbehandling() {
+    void skalKalleBestemBehandlingsresultatNårAvslåttRevurderingPåAvslåttFørstegangsbehandling() {
 
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();

@@ -46,7 +46,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @CdiDbAwareTest
-public class OpprettNyFørstegangsbehandlingTest {
+class OpprettNyFørstegangsbehandlingTest {
 
     private static final long MOTTATT_DOKUMENT_ID = 5L;
     private static final long MOTTATT_DOKUMENT_PAPIR_SØKNAD_ID = 3L;
@@ -219,7 +219,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_kaste_exception_når_behandling_fortsatt_er_åpen() {
+    void skal_kaste_exception_når_behandling_fortsatt_er_åpen() {
         mockMottatteDokumentRepository(repositoryProvider);
         // Act and expect Exception
         assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(),
@@ -227,14 +227,14 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_kaste_exception_når_behandling_ikke_eksisterer() {
+    void skal_kaste_exception_når_behandling_ikke_eksisterer() {
         mockMottatteDokumentRepository(repositoryProvider);
         // Act and expect Exception
         assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(-1L, new Saksnummer("050"), false));
     }
 
     @Test
-    public void skal_opprette_etter_klagebehandling() {
+    void skal_opprette_etter_klagebehandling() {
         // Arrange
         mockMottatteDokumentRepository(repositoryProvider);
         behandling.avsluttBehandling();
@@ -263,7 +263,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_opprette_uten_behandling() {
+    void skal_opprette_uten_behandling() {
         // Arrange
         behandling.avsluttBehandling();
         mockMottatteDokumentRepositoryElsokUtenBehandling(repositoryProvider);
@@ -279,7 +279,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_opprette_med_behandling() {
+    void skal_opprette_med_behandling() {
         // Arrange
         behandling.avsluttBehandling();
         mockMottatteDokumentRepositoryElsokMedBehandling(repositoryProvider);
@@ -295,7 +295,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_opprette_med_behandling_basert_på_inntektsmelding_når_søknad_mangler() {
+    void skal_opprette_med_behandling_basert_på_inntektsmelding_når_søknad_mangler() {
         // Arrange
         behandling.avsluttBehandling();
         mockMottatteDokumentRepositoryImMedBehandling(repositoryProvider);
@@ -311,7 +311,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_feile_når_det_verken_er_søknad_eller_inntektsmelding_i_mottatte_dokument() {
+    void skal_feile_når_det_verken_er_søknad_eller_inntektsmelding_i_mottatte_dokument() {
         // Arrange
         behandling.avsluttBehandling();
         mockMottatteDokumentRepositoryUtenSøknadEllerIm(repositoryProvider);
@@ -322,7 +322,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_feile_uten_tidligere_klagebehandling() {
+    void skal_feile_uten_tidligere_klagebehandling() {
         // Arrange
         mockMottatteDokumentRepository(repositoryProvider);
         behandling.avsluttBehandling();
@@ -333,7 +333,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen() {
+    void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen() {
         // Act
         mockMottatteDokumentRepository(repositoryProvider);
         behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
@@ -346,7 +346,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen_elektronisk() {
+    void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen_elektronisk() {
         // Act
         mockMottatteDokumentRepositoryElsokMedBehandling(repositoryProvider);
         behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
@@ -359,7 +359,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     @Test
-    public void skal_kaste_funksjonell_feil_når_behandlingen_er_lukket() {
+    void skal_kaste_funksjonell_feil_når_behandlingen_er_lukket() {
         // Arrange
         mockMottatteDokumentRepository(repositoryProvider);
         behandling.avsluttBehandling();

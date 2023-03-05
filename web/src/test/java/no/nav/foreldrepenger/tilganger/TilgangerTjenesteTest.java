@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-public class TilgangerTjenesteTest {
+class TilgangerTjenesteTest {
 
     private static final String gruppenavnSaksbehandler = "Saksbehandler";
     private static final String gruppenavnVeileder = "Veileder";
@@ -28,7 +28,7 @@ public class TilgangerTjenesteTest {
     }
 
     @Test
-    public void skalMappeSaksbehandlerGruppeTilKanSaksbehandleRettighet() {
+    void skalMappeSaksbehandlerGruppeTilKanSaksbehandleRettighet() {
         var brukerUtenforSaksbehandlerGruppe = getTestBruker();
         var brukerISaksbehandlerGruppe = getTestBruker(gruppenavnSaksbehandler);
 
@@ -41,7 +41,7 @@ public class TilgangerTjenesteTest {
     }
 
     @Test
-    public void skalMappeVeilederGruppeTilKanVeiledeRettighet() {
+    void skalMappeVeilederGruppeTilKanVeiledeRettighet() {
         var brukerUtenforVeilederGruppe = getTestBruker();
         var brukerIVeilederGruppe = getTestBruker(gruppenavnVeileder);
 
@@ -53,7 +53,7 @@ public class TilgangerTjenesteTest {
     }
 
     @Test
-    public void skalMappeBeslutterGruppeTilKanBeslutteRettighet() {
+    void skalMappeBeslutterGruppeTilKanBeslutteRettighet() {
         var brukerUtenforBeslutterGruppe = getTestBruker();
         var brukerIBeslutterGruppe = getTestBruker(gruppenavnBeslutter);
 
@@ -65,7 +65,7 @@ public class TilgangerTjenesteTest {
     }
 
     @Test
-    public void skalMappeOverstyrerGruppeTilKanOverstyreRettighet() {
+    void skalMappeOverstyrerGruppeTilKanOverstyreRettighet() {
         var brukerUtenforOverstyrerGruppe = getTestBruker();
         var brukerIOverstyrerGruppe = getTestBruker(gruppenavnOverstyrer);
 
@@ -77,7 +77,7 @@ public class TilgangerTjenesteTest {
     }
 
     @Test
-    public void skalMappeEgenAnsattGruppeTilKanBehandleEgenAnsattRettighet() {
+    void skalMappeEgenAnsattGruppeTilKanBehandleEgenAnsattRettighet() {
         var brukerUtenforEgenAnsattGruppe = getTestBruker();
         var brukerIEgenAnsattGruppe = getTestBruker(gruppenavnEgenAnsatt);
 
@@ -89,7 +89,7 @@ public class TilgangerTjenesteTest {
     }
 
     @Test
-    public void skalMappeKode6GruppeTilKanBehandleKode6Rettighet() {
+    void skalMappeKode6GruppeTilKanBehandleKode6Rettighet() {
         var brukerUtenforKode6Gruppe = getTestBruker();
         var brukerIKode6Gruppe = getTestBruker(gruppenavnKode6);
 
@@ -101,7 +101,7 @@ public class TilgangerTjenesteTest {
     }
 
     @Test
-    public void skalMappeKode7GruppeTilKanBehandleKode7Rettighet() {
+    void skalMappeKode7GruppeTilKanBehandleKode7Rettighet() {
         var brukerUtenforKode7Gruppe = getTestBruker();
         var brukerIKode7Gruppe = getTestBruker(gruppenavnKode7);
 

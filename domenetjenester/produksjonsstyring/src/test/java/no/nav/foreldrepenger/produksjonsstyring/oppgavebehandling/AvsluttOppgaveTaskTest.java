@@ -31,7 +31,7 @@ public class AvsluttOppgaveTaskTest  {
     }
 
     @Test
-    public void skal_utføre_tasken_avslutt_oppgave() {
+    void skal_utføre_tasken_avslutt_oppgave() {
 
         var oppgaveId = "99";
 

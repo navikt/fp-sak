@@ -13,10 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class MedlemEndringIdentifisererTest {
+class MedlemEndringIdentifisererTest {
 
     @Test
-    public void skal_indikere_endring_før_stp() {
+    void skal_indikere_endring_før_stp() {
         var aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
         final var set = new HashSet<MedlemskapPerioderEntitet>();
         final var builder = new MedlemskapPerioderBuilder();
@@ -28,7 +28,7 @@ public class MedlemEndringIdentifisererTest {
     }
 
     @Test
-    public void skal_ikke_indikere_endring_hele_før_stp() {
+    void skal_ikke_indikere_endring_hele_før_stp() {
         var aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
         final var set = new HashSet<MedlemskapPerioderEntitet>();
         final var builder = new MedlemskapPerioderBuilder();
@@ -40,7 +40,7 @@ public class MedlemEndringIdentifisererTest {
     }
 
     @Test
-    public void skal_indikere_endring_etter_stp() {
+    void skal_indikere_endring_etter_stp() {
         final var set = new HashSet<MedlemskapPerioderEntitet>();
         final var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(5), LocalDate.now().plusMonths(5));

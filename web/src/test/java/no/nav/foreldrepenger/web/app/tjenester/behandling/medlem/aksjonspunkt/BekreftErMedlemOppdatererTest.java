@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
+class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
@@ -41,7 +41,7 @@ public class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void bekreft_er_medlem_vurdering() {
+    void bekreft_er_medlem_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()

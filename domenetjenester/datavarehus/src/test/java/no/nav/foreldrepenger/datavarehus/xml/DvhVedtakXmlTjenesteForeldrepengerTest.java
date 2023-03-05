@@ -111,7 +111,7 @@ import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
-public class DvhVedtakXmlTjenesteForeldrepengerTest {
+class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private static final AktørId BRUKER_AKTØR_ID = AktørId.dummy();
     private static final Saksnummer SAKSNUMMER = new Saksnummer("12345");
@@ -201,7 +201,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_med_oppdrag() {
+    void skal_opprette_vedtaks_xml_med_oppdrag() {
         var behandling = byggBehandlingMedVedtak();
 
         Long delytelseId = 65L;

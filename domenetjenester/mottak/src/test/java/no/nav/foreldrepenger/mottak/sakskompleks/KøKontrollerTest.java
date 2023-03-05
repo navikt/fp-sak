@@ -33,7 +33,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class KøKontrollerTest {
+class KøKontrollerTest {
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     @Mock
@@ -69,7 +69,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void skal_ikke_oppdatere_behandling_med_henleggelse_når_original_behandling_er_siste_vedtak() {
+    void skal_ikke_oppdatere_behandling_med_henleggelse_når_original_behandling_er_siste_vedtak() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
@@ -88,7 +88,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void skal_oppdatere_behandling_med_henleggelse_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
+    void skal_oppdatere_behandling_med_henleggelse_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
@@ -113,7 +113,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void skal_oprette_task_for_start_behandling_når_uten_køet_behandling() {
+    void skal_oprette_task_for_start_behandling_når_uten_køet_behandling() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak())).thenReturn(Optional.empty());
@@ -126,7 +126,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void skal_starte_hvis_en_2part_behandling_ligger_før_uttak() {
+    void skal_starte_hvis_en_2part_behandling_ligger_før_uttak() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagMocked();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -139,7 +139,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void skal_ikke_starte_hvis_en_2part_behandling_ligger_til_vedtak() {
+    void skal_ikke_starte_hvis_en_2part_behandling_ligger_til_vedtak() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -155,7 +155,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void sakskompleks_lagre_oppdater_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
+    void sakskompleks_lagre_oppdater_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
@@ -176,7 +176,7 @@ public class KøKontrollerTest {
     }
 
     @Test
-    public void sakskompleks_skal_oppdatere_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
+    void sakskompleks_skal_oppdatere_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
         // Arrange
         var morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)

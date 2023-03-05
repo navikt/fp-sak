@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
-public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
+class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -329,7 +329,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_setteAleneomsorgOgAnnenForelderHarRettFalse_nårYtelsefordelingMangler() {
+    void skal_setteAleneomsorgOgAnnenForelderHarRettFalse_nårYtelsefordelingMangler() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(null);
         var behandling = scenario.lagre(repositoryProvider);

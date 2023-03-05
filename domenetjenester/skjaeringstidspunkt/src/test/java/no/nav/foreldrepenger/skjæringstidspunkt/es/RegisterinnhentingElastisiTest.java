@@ -7,12 +7,12 @@ import java.time.Period;
 
 import org.junit.jupiter.api.Test;
 
-public class RegisterinnhentingElastisiTest {
+class RegisterinnhentingElastisiTest {
 
     private RegisterInnhentingIntervall innhentingIntervall = new RegisterInnhentingIntervall(Period.parse("P9M"), Period.parse("P6M"));
 
     @Test
-    public void skal_gi_false_hvis_like() {
+    void skal_gi_false_hvis_like() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now();
 
@@ -21,7 +21,7 @@ public class RegisterinnhentingElastisiTest {
     }
 
     @Test
-    public void skal_gi_false_hvis_innenfor() {
+    void skal_gi_false_hvis_innenfor() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusMonths(1);
 
@@ -30,7 +30,7 @@ public class RegisterinnhentingElastisiTest {
     }
 
     @Test
-    public void skal_gi_true_hvis_før() {
+    void skal_gi_true_hvis_før() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().minusYears(1);
 
@@ -39,7 +39,7 @@ public class RegisterinnhentingElastisiTest {
     }
 
     @Test
-    public void skal_gi_true_hvis_etter() {
+    void skal_gi_true_hvis_etter() {
         var oppgitt = LocalDate.now();
         var bekreftet = LocalDate.now().plusYears(1);
 

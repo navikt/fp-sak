@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 class FraEntitetTilBehandlingsmodellMapperTest {
 
     @Test
-    public void tester_mapping_beregningsgrunnlag() {
+    void tester_mapping_beregningsgrunnlag() {
         var bg = bgFraJson();
         var mappetGrunnlag = FraEntitetTilBehandlingsmodellMapper.mapBeregningsgrunnlagGrunnlag(bg);
 
