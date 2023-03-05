@@ -46,7 +46,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
     }
 
     @Test
-    public void skal_opprette_ny_førstegangsbehandling_når_forrige_behandling_var_avslått() {
+    void skal_opprette_ny_førstegangsbehandling_når_forrige_behandling_var_avslått() {
         //Arrange
         var mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
         var mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
@@ -86,7 +86,7 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
     }
 
     @Test
-    public void gittAvslåttBehandlingForEngangsstønadSkalOppretteNyFørstegangsbehandlingFraGrunnlag() {
+    void gittAvslåttBehandlingForEngangsstønadSkalOppretteNyFørstegangsbehandlingFraGrunnlag() {
         //Arrange
         var mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
         var mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);

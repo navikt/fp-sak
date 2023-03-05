@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjons
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt.VurderFeilutbetalingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt.VurderFeilutbetalingOppdaterer;
 
-public class VurderFeilutbetalingOppdatererTest {
+class VurderFeilutbetalingOppdatererTest {
 
     private TilbakekrevingRepository repository = mock(TilbakekrevingRepository.class);
     private HistorikkTjenesteAdapter historikkTjenesteAdapter = mock(HistorikkTjenesteAdapter.class);
@@ -41,7 +41,7 @@ public class VurderFeilutbetalingOppdatererTest {
     }
 
     @Test
-    public void skal_lagre_at_videre_behandling_behandle_i_Infotrygd_når_det_er_valgt() {
+    void skal_lagre_at_videre_behandling_behandle_i_Infotrygd_når_det_er_valgt() {
         var varseltekst = "varsel";
         var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, varseltekst);
 
@@ -57,7 +57,7 @@ public class VurderFeilutbetalingOppdatererTest {
     }
 
     @Test
-    public void skal_feile_når_Inntrekk_er_forsøkt_valgt() {
+    void skal_feile_når_Inntrekk_er_forsøkt_valgt() {
         var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.INNTREKK, null);
 
         assertThrows(IllegalArgumentException.class,

@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class BehandlingRepositoryTest extends EntityManagerAwareTest {
+class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     private static final String ANSVARLIG_SAKSBEHANDLER = "Ansvarlig Saksbehandler";
     private final static int REVURDERING_DAGER_TILBAKE = 60;
@@ -87,7 +87,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_behandling_gitt_id() {
+    void skal_finne_behandling_gitt_id() {
 
         // Arrange
         var behandling = opprettBuilderForBehandling().build();
@@ -108,7 +108,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_alle_behandlinger_fra_fagsak() {
+    void skal_hente_alle_behandlinger_fra_fagsak() {
 
         var builder = opprettBuilderForBehandling();
         lagreBehandling(builder);
@@ -126,7 +126,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_behandling_med_årsak() {
+    void skal_finne_behandling_med_årsak() {
         var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
         var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
@@ -140,7 +140,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_siste_behandling_basert_på_fagsakId() {
+    void skal_hente_siste_behandling_basert_på_fagsakId() {
 
         var builder = opprettBuilderForBehandling();
 
@@ -153,7 +153,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_siste_klage_basert_på_fagsakId() {
+    void skal_hente_siste_klage_basert_på_fagsakId() {
 
         var builder = opprettBuilderForBehandling();
 
@@ -176,7 +176,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_siste_innvilget_eller_endret_på_fagsakId() {
+    void skal_hente_siste_innvilget_eller_endret_på_fagsakId() {
         var forVedtak = opprettBuilderForVedtak();
         var behandlingsresultat = getBehandlingsresultat(behandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
@@ -194,7 +194,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_siste_behandling_ekskluder_basert_på_fagsakId() {
+    void skal_hente_siste_behandling_ekskluder_basert_på_fagsakId() {
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
@@ -209,7 +209,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kunne_lagre_vedtak() {
+    void skal_kunne_lagre_vedtak() {
         var vedtak = opprettBuilderForVedtak().build();
 
         var lås = behandlingRepository.taSkriveLås(behandling);
@@ -226,7 +226,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_behandling_gitt_korrekt_uuid() {
+    void skal_finne_behandling_gitt_korrekt_uuid() {
         // Arrange
         var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
@@ -240,7 +240,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_behandling_gitt_feil_uuid() {
+    void skal_ikke_finne_behandling_gitt_feil_uuid() {
         // Arrange
         var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
@@ -254,7 +254,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
 
     @Test
-    public void skal_kunne_lagre_konsekvens_for_ytelsen() {
+    void skal_kunne_lagre_konsekvens_for_ytelsen() {
         behandling = opprettBehandlingMedTermindato();
         var behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
@@ -264,7 +264,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void dersom_man_lagrer_konsekvens_for_ytelsen_flere_ganger_skal_kun_den_siste_lagringen_gjelde() {
+    void dersom_man_lagrer_konsekvens_for_ytelsen_flere_ganger_skal_kun_den_siste_lagringen_gjelde() {
         behandling = opprettBehandlingMedTermindato();
         var behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
@@ -289,14 +289,14 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_liste_over_revurderingsaarsaker() {
+    void skal_hente_liste_over_revurderingsaarsaker() {
         var stringVurderÅrsakMap = VurderÅrsak.kodeMap();
         assertThat(stringVurderÅrsakMap).hasSize(5);
         assertThat(stringVurderÅrsakMap.containsValue(VurderÅrsak.FEIL_FAKTA)).isTrue();
     }
 
     @Test
-    public void skal_slette_vilkår_som_blir_fjernet_til_tross_for_at_Hibernate_har_problemer_med_orphan_removal() {
+    void skal_slette_vilkår_som_blir_fjernet_til_tross_for_at_Hibernate_har_problemer_med_orphan_removal() {
         // Arrange
         var fagsak = byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
         behandling = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, LocalDate.now(), LocalDate.now());
@@ -343,7 +343,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
 
     @Test
-    public void skal_finne_for_automatisk_gjenopptagelse_naar_alle_kriterier_oppfylt() {
+    void skal_finne_for_automatisk_gjenopptagelse_naar_alle_kriterier_oppfylt() {
 
         // Arrange
         var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
@@ -368,7 +368,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_lukket_aksjonspunkt() {
+    void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_lukket_aksjonspunkt() {
         var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         var aksjonspunkt = opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "ferdig");
@@ -382,7 +382,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_aksjonspunkt_frist_ikke_utgaatt() {
+    void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_aksjonspunkt_frist_ikke_utgaatt() {
 
         // Arrange
         var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
@@ -396,7 +396,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_aksjonspunkt_er_køet() {
+    void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_aksjonspunkt_er_køet() {
 
         // Arrange
         var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
@@ -410,7 +410,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_for_automatisk_gjenopptagelse_når_aksjonspunt_er_avbrutt() {
+    void skal_ikke_finne_for_automatisk_gjenopptagelse_når_aksjonspunt_er_avbrutt() {
         // Arrange
         var behandling = opprettBehandlingForAutomatiskGjenopptagelse();
         var aksjonspunkt = opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
@@ -425,7 +425,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_for_gjenopplivelse_naar_alle_kriterier_oppfylt() {
+    void skal_finne_for_gjenopplivelse_naar_alle_kriterier_oppfylt() {
 
         // Arrange
         var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
@@ -458,7 +458,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprettholde_id_etter_endringer() {
+    void skal_opprettholde_id_etter_endringer() {
 
         // Lagre Personopplysning
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -467,7 +467,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_årsaker_for_behandling() {
+    void skal_finne_årsaker_for_behandling() {
 
         // Arrange
         var behandling = opprettBuilderForBehandling()
@@ -485,7 +485,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_årsakstyper_for_behandling() {
+    void skal_finne_årsakstyper_for_behandling() {
 
         // Arrange
         var behandling = opprettBuilderForBehandling()
@@ -503,7 +503,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_noen_årsakstyper_hvis_ingen() {
+    void skal_ikke_finne_noen_årsakstyper_hvis_ingen() {
 
         // Arrange
         var behandling = opprettBuilderForBehandling()
@@ -518,7 +518,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_noen_årsaker_hvis_ingen() {
+    void skal_ikke_finne_noen_årsaker_hvis_ingen() {
 
         // Arrange
         var behandling = opprettBuilderForBehandling()
@@ -533,7 +533,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void avsluttet_dato_skal_ha_dato_og_tid() {
+    void avsluttet_dato_skal_ha_dato_og_tid() {
         // Arrange
         var avsluttetDato = LocalDateTime.now();
         var behandling = opprettBuilderForBehandling().medAvsluttetDato(avsluttetDato)

@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 
-public class SøknadsperiodeFristTjenesteImplTest {
+class SøknadsperiodeFristTjenesteImplTest {
 
     @Test
-    public void skal_utlede_skjæringstidspunktet() {
+    void skal_utlede_skjæringstidspunktet() {
         var forventetSkjæringstidspunkt = LocalDate.of(2019, 7, 10);
 
         var jordmorsDato = LocalDate.of(2019, Month.APRIL, 1);

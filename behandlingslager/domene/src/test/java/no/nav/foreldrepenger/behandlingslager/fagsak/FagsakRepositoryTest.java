@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class FagsakRepositoryTest extends EntityManagerAwareTest {
+class FagsakRepositoryTest extends EntityManagerAwareTest {
 
     private FagsakRepository fagsakRepository;
 
@@ -23,7 +23,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
 
 
     @Test
-    public void skal_finne_eksakt_fagsak_gitt_id() {
+    void skal_finne_eksakt_fagsak_gitt_id() {
         var aktørId = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
@@ -34,7 +34,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_unik_fagsak_gitt_id() {
+    void skal_finne_unik_fagsak_gitt_id() {
         var aktørId = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
@@ -45,7 +45,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_fagsak_gitt_saksnummer() {
+    void skal_finne_fagsak_gitt_saksnummer() {
         var aktørId = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");
 
@@ -56,7 +56,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_fagsak_gitt_aktør_id() {
+    void skal_finne_fagsak_gitt_aktør_id() {
         var aktørId = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");
 
@@ -67,7 +67,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_fagsaker_uten_behandling() {
+    void skal_finne_fagsaker_uten_behandling() {
         var aktørId = AktørId.dummy();
         var aktørId1 = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");
@@ -81,7 +81,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_journalpost_gitt_journalpost_id() {
+    void skal_finne_journalpost_gitt_journalpost_id() {
         var aktørId = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");
         var journalpostId = new JournalpostId("30000");

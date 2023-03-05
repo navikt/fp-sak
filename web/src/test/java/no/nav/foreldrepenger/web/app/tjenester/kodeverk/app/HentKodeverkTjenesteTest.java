@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
-public class HentKodeverkTjenesteTest {
+class HentKodeverkTjenesteTest {
 
     @Test
-    public void skal_filtere_arbeidtyper() {
+    void skal_filtere_arbeidtyper() {
         var tjeneste = new HentKodeverkTjeneste(new BehandlendeEnhetTjeneste());
 
         var resultat = tjeneste.hentGruppertKodeliste();

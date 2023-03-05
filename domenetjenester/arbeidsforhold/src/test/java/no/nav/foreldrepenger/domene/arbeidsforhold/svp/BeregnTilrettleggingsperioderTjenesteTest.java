@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(JpaExtension.class)
-public class BeregnTilrettleggingsperioderTjenesteTest {
+class BeregnTilrettleggingsperioderTjenesteTest {
 
     private static final String ARBEIDSGIVER_ORGNR = KUNSTIG_ORG;
     public static final InternArbeidsforholdRef ARB_1 = InternArbeidsforholdRef.namedRef("arb1");
@@ -61,7 +61,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_beregne_perioder() {
+    void skal_beregne_perioder() {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         var behandling = scenario.lagre(iayRepositoryProvider);
         var termindato = LocalDate.now().plusDays(22);
@@ -98,7 +98,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_beregne_perioder_riktig_ved_to_arbeidsforhold_i_samme_bedrift() {
+    void skal_beregne_perioder_riktig_ved_to_arbeidsforhold_i_samme_bedrift() {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         var behandling = scenario.lagre(iayRepositoryProvider);
         var termindato = LocalDate.now().plusDays(22);
@@ -146,7 +146,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_beregne_perioder_riktig_ved_to_arbeidsforhold_i_samme_bedrift_der_det_ene_er_inaktivt_og_man_søker_uten_arbeidsforholdId() {
+    void skal_beregne_perioder_riktig_ved_to_arbeidsforhold_i_samme_bedrift_der_det_ene_er_inaktivt_og_man_søker_uten_arbeidsforholdId() {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         var behandling = scenario.lagre(iayRepositoryProvider);
         var termindato = LocalDate.now().plusDays(22);

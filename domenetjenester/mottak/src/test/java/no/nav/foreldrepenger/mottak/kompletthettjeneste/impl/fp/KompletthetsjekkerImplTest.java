@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.Kompletthetssjekker
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
+class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
     private static final LocalDate STARTDATO_PERMISJON = LocalDate.now().plusWeeks(1);
     private static final String KODE_INNLEGGELSE = "I000037";
@@ -107,7 +107,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_at_kompletthet_er_oppfylt() {
+    void skal_finne_at_kompletthet_er_oppfylt() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
@@ -120,7 +120,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_at_kompletthet_ikke_er_oppfylt_når_inntektsmelding_mangler() {
+    void skal_finne_at_kompletthet_ikke_er_oppfylt_når_inntektsmelding_mangler() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmelding();
@@ -137,7 +137,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_sende_brev_når_inntektsmelding_finnes() {
+    void skal_ikke_sende_brev_når_inntektsmelding_finnes() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(Collections.emptyMap());
@@ -157,7 +157,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_sende_brev_når_frister_passert() {
+    void skal_ikke_sende_brev_når_frister_passert() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
@@ -176,7 +176,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_sende_brev_når_etterlysning_sendt() {
+    void skal_ikke_sende_brev_når_etterlysning_sendt() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
@@ -195,7 +195,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_etterlyse_mer_enn_3ukerfør() {
+    void skal_etterlyse_mer_enn_3ukerfør() {
         // Arrange
         var stp = LocalDate.now().plusDays(2).plusWeeks(3);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
@@ -224,7 +224,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_sende_brev_når_inntektsmelding_mangler() {
+    void skal_sende_brev_når_inntektsmelding_mangler() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
@@ -243,7 +243,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_at_kompletthet_ikke_er_oppfylt_når_vedlegg_til_søknad_mangler() {
+    void skal_finne_at_kompletthet_ikke_er_oppfylt_når_vedlegg_til_søknad_mangler() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         opprettSøknadMedPåkrevdVedlegg(behandling);
@@ -258,7 +258,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_at_kompletthet_er_oppfylt_når_vedlegg_til_søknad_finnes_i_joark() {
+    void skal_finne_at_kompletthet_er_oppfylt_når_vedlegg_til_søknad_finnes_i_joark() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
@@ -283,7 +283,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnere_hvilke_vedlegg_som_mangler() {
+    void skal_returnere_hvilke_vedlegg_som_mangler() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         opprettSøknadMedPåkrevdVedlegg(behandling);

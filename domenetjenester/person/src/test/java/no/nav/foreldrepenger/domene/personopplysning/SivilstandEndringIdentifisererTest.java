@@ -13,12 +13,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class SivilstandEndringIdentifisererTest {
+class SivilstandEndringIdentifisererTest {
 
     private AktørId AKTØRID = AktørId.dummy();
 
     @Test
-    public void testSivilstandUendret() {
+    void testSivilstandUendret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -28,7 +28,7 @@ public class SivilstandEndringIdentifisererTest {
     }
 
     @Test
-    public void testSivilstandEndret() {
+    void testSivilstandEndret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(SivilstandType.UGIFT);
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);

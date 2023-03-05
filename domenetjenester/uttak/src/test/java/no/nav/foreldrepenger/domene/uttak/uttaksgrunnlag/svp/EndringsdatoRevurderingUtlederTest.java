@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class EndringsdatoRevurderingUtlederTest {
+class EndringsdatoRevurderingUtlederTest {
 
     private static final LocalDate FØRSTE_DAG = LocalDate.now();
     private static final LocalDate SISTE_DAG = LocalDate.now().plusMonths(3);
@@ -36,7 +36,7 @@ public class EndringsdatoRevurderingUtlederTest {
     private final EndringsdatoRevurderingUtlederImpl utleder = new EndringsdatoRevurderingUtlederImpl(repositoryProvider);
 
     @Test
-    public void skal_utlede_endringsdato_fra_uttak_resultat() {
+    void skal_utlede_endringsdato_fra_uttak_resultat() {
         // Arrange
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var behandlingresultatBuilder = Behandlingsresultat.builder();

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
 /** Lagt til web for å sjekke orm filer fra alle moduler. */
-public class SjekkCollectionsOrderedIEntiteterTest {
+class SjekkCollectionsOrderedIEntiteterTest {
 
     private static final EntityManagerFactory entityManagerFactory;
 

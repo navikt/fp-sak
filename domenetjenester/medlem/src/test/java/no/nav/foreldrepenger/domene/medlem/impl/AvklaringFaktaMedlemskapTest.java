@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
 
-public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
+class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSDATO_FØDSEL = LocalDate.now().plusDays(1);
 
@@ -59,7 +59,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_gyldig_medlems_periode() {
+    void skal_ikke_opprette_aksjonspunkt_ved_gyldig_medlems_periode() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -92,7 +92,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_dekningsgrad_lik_ikke_medlem() {
+    void skal_ikke_opprette_aksjonspunkt_ved_dekningsgrad_lik_ikke_medlem() {
         // Arrange
         var gyldigPeriode = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.FTL_2_9_1_B)
@@ -118,7 +118,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt_når_dekningsrad_er_av_type_uavklart() {
+    void skal_få_aksjonspunkt_når_dekningsrad_er_av_type_uavklart() {
         // Arrange
         var gyldigPeriode = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.OPPHOR)
@@ -145,7 +145,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_ulik_usa() {
+    void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_ulik_usa() {
         // Arrange
         var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
@@ -171,7 +171,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_utvandret() {
+    void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_utvandret() {
         // Arrange
         var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
@@ -197,7 +197,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_lik_usa() {
+    void skal_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_lik_usa() {
         // Arrange
         var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.UNNTATT)
@@ -223,7 +223,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_status_utvandret() {
+    void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_status_utvandret() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -241,7 +241,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_nordisk() {
+    void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_nordisk() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -259,7 +259,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_inntekt_siste_3mnd() {
+    void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_inntekt_siste_3mnd() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -294,7 +294,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_ikke_inntekt_siste_3mnd() {
+    void skal_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_ikke_inntekt_siste_3mnd() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -312,7 +312,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_vurdering_etter_stp() {
+    void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_vurdering_etter_stp() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -330,7 +330,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_annen() {
+    void skal_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_annen() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -348,7 +348,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_region_eøs_med_opphold() {
+    void skal_ikke_opprette_aksjonspunkt_ved_region_eøs_med_opphold() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -366,7 +366,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_ved_region_3land_med_opphold() {
+    void skal_ikke_opprette_aksjonspunkt_ved_region_3land_med_opphold() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
@@ -384,7 +384,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_ved_region_3land_med_delvis_opphold() {
+    void skal_opprette_aksjonspunkt_ved_region_3land_med_delvis_opphold() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);

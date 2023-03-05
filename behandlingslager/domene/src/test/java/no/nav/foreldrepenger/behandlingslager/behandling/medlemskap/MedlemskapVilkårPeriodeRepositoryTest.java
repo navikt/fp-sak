@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class MedlemskapVilkårPeriodeRepositoryTest extends EntityManagerAwareTest {
+class MedlemskapVilkårPeriodeRepositoryTest extends EntityManagerAwareTest {
 
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private FagsakRepository fagsakRepository;
@@ -35,7 +35,7 @@ public class MedlemskapVilkårPeriodeRepositoryTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_lagre_overstyring() {
+    void skal_lagre_overstyring() {
         var behandling = lagBehandling();
         var builderIkkeOppfylt = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var periodeBuilderIkkeOppylt = builderIkkeOppfylt.getPeriodeBuilder();

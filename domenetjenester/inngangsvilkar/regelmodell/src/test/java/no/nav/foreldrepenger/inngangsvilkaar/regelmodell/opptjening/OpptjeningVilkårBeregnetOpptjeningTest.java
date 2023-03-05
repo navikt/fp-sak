@@ -15,13 +15,13 @@ import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
-public class OpptjeningVilkårBeregnetOpptjeningTest {
+class OpptjeningVilkårBeregnetOpptjeningTest {
 
     private final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
     private final Aktivitet aktivitet = new Aktivitet(ARBEID, "BigCorp", Aktivitet.ReferanseType.ORGNR);
 
     @Test
-    public void skal_få_ikke_godkjent_for_beregnet_opptjening_med_mellomliggende_periode_og_for_kort_varighet() {
+    void skal_få_ikke_godkjent_for_beregnet_opptjening_med_mellomliggende_periode_og_for_kort_varighet() {
         var maksMellomliggendeDager = 14;
 
         var dt1 = LocalDate.of(2017, 10, 01);
@@ -73,7 +73,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
     }
 
     @Test
-    public void skal_få_avslag_når_bekreftet_opptjening_er_5mnd_og_antatt_opptjening_er_6mnd() {
+    void skal_få_avslag_når_bekreftet_opptjening_er_5mnd_og_antatt_opptjening_er_6mnd() {
         var maksMellomliggendeDager = 14;
 
         var behandlingstidspunkt = LocalDate.now();
@@ -118,7 +118,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
     }
 
     @Test
-    public void skal_få_ikke_oppfylt_når_bekreftet_opptjening_er_4mnd_og_antatt_opptjening_er_5mnd() {
+    void skal_få_ikke_oppfylt_når_bekreftet_opptjening_er_4mnd_og_antatt_opptjening_er_5mnd() {
         var maksMellomliggendeDager = 14;
 
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);

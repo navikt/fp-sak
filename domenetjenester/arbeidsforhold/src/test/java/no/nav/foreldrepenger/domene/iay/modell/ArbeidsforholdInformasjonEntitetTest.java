@@ -11,10 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 
-public class ArbeidsforholdInformasjonEntitetTest {
+class ArbeidsforholdInformasjonEntitetTest {
 
     @Test
-    public void skal_beholde_referanse_til() {
+    void skal_beholde_referanse_til() {
         var virksomhet1 = new Virksomhet.Builder().medOrgnr("1234").build();
         var virksomhet2 = new Virksomhet.Builder().medOrgnr("5678").build();
         var arbeidsgiver1 = Arbeidsgiver.fra(virksomhet1);

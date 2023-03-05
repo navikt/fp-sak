@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class ForeslåVedtakRevurderingStegImplTest {
+class ForeslåVedtakRevurderingStegImplTest {
 
     @Mock
     private ForeslåVedtakTjeneste foreslåVedtakTjeneste;
@@ -100,7 +100,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_når_samme_beregningsgrunnlag() {
+    void skal_ikke_opprette_aksjonspunkt_når_samme_beregningsgrunnlag() {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
@@ -114,7 +114,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_når_revurdering_har_mindre_beregningsgrunnlag() {
+    void skal_opprette_aksjonspunkt_når_revurdering_har_mindre_beregningsgrunnlag() {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
@@ -129,7 +129,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_avslått() {
+    void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_avslått() {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
@@ -140,7 +140,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_opphør() {
+    void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_opphør() {
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR)
                 .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
@@ -151,7 +151,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
     }
 
     @Test
-    public void test_tilbakehopp() {
+    void test_tilbakehopp() {
         foreslåVedtakRevurderingStegForeldrepenger.vedHoppOverBakover(kontekstRevurdering, null, null, null);
         revurdering = behandlingRepository.hentBehandling(revurdering.getId());
         assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).isEmpty();

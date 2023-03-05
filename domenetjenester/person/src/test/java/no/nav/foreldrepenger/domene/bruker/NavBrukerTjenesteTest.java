@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
-public class NavBrukerTjenesteTest {
+class NavBrukerTjenesteTest {
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -32,13 +32,13 @@ public class NavBrukerTjenesteTest {
     }
 
     @Test
-    public void test_hent_forvent_tomt_svar() {
+    void test_hent_forvent_tomt_svar() {
         var navBruker = brukerTjeneste.hentBrukerForAktørId(AktørId.dummy());
         assertThat(navBruker).isEmpty();
     }
 
     @Test
-    public void test_opprett_ny_bruker() {
+    void test_opprett_ny_bruker() {
         var aktør = AktørId.dummy();
         when(personinfoAdapter.hentForetrukketSpråk(aktør)).thenReturn(new PersoninfoSpråk(aktør, Språkkode.EN));
 
@@ -49,7 +49,7 @@ public class NavBrukerTjenesteTest {
     }
 
     @Test
-    public void test_hent_bruker() {
+    void test_hent_bruker() {
         var aktør = AktørId.dummy();
         when(personinfoAdapter.hentForetrukketSpråk(aktør)).thenReturn(new PersoninfoSpråk(aktør, Språkkode.NB));
 

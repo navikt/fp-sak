@@ -11,33 +11,33 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.exception.TekniskException;
 
-public class VedtakXMLTilHTMLTransformatorTest {
+class VedtakXMLTilHTMLTransformatorTest {
 
     @Test
-    public void skal_få_exception_ved_transformasjon_av_helt_feil_XML() {
+    void skal_få_exception_ved_transformasjon_av_helt_feil_XML() {
         assertThrows(TekniskException.class, () -> VedtakXMLTilHTMLTransformator.transformer("tull", 1L));
     }
 
     @Test
-    public void skal_transformere_XML_til_HTML_ugyldig_v2() throws Exception {
+    void skal_transformere_XML_til_HTML_ugyldig_v2() throws Exception {
         var inputXML = les("/eksempel_vedtakXML_ugyldig_v2.xml");
         assertThrows(TekniskException.class, () -> VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
     }
 
     @Test
-    public void skal_transformere_XML_til_HTML_v2() throws Exception {
+    void skal_transformere_XML_til_HTML_v2() throws Exception {
         var inputXML = les("/eksempel_vedtakXML_engangstønad_validert.xml");
         assertDoesNotThrow(() -> VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
     }
 
     @Test
-    public void skal_transformere_XML_til_HTML_v2_fp() throws Exception {
+    void skal_transformere_XML_til_HTML_v2_fp() throws Exception {
         var inputXML = les("/eksempel-vedtak-fp.xml");
         assertDoesNotThrow(() -> VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
     }
 
     @Test
-    public void skal_transformere_XML_til_HTML() throws Exception {
+    void skal_transformere_XML_til_HTML() throws Exception {
         var forventet = les("/eksempel-vedtakHTML.html");
         var inputXML = les("/eksempel-vedtakXML.xml");
         var resultat = VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L);
@@ -46,7 +46,7 @@ public class VedtakXMLTilHTMLTransformatorTest {
     }
 
     @Test
-    public void skal_transformere_XML_til_HTML_for_tilfelle_med_verge() throws Exception {
+    void skal_transformere_XML_til_HTML_for_tilfelle_med_verge() throws Exception {
         var forventet = les("/eksempel-vedtak-es-fødsel-verge.html");
         var inputXML = les("/eksempel-vedtak-es-fødsel-verge.xml");
         var resultat = cleanWhitespace(VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
@@ -54,7 +54,7 @@ public class VedtakXMLTilHTMLTransformatorTest {
     }
 
     @Test
-    public void skal_transformere_XML_til_HTML_for_tilfelle_med_omsorgsovertakelse_og_familierelasjoner() throws Exception {
+    void skal_transformere_XML_til_HTML_for_tilfelle_med_omsorgsovertakelse_og_familierelasjoner() throws Exception {
         var forventet = les("/eksempel-vedtak-es-omsorgsovertakelse-barn.html");
         var inputXML = les("/eksempel-vedtak-es-omsorgsovertakelse-barn.xml");
         var resultat = cleanWhitespace(VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));

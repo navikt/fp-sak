@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.domene.uttak.saldo.svp.MaksDatoUttakTjenesteImpl;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class SvpUtledeAvslutningsdatoTest {
+class SvpUtledeAvslutningsdatoTest {
     private SvpUtledeAvslutningsdato utledeAvslutningsdato;
     private static final int KLAGEFRIST_I_MÅNEDER = 3;
 
@@ -85,7 +85,7 @@ public class SvpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void finner_avslutningsdato_fra_sisteuttaksdato(){
+    void finner_avslutningsdato_fra_sisteuttaksdato(){
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
@@ -102,7 +102,7 @@ public class SvpUtledeAvslutningsdatoTest {
     }
 
     @Test
-    public void finner_ingen_sisteuttaksdato_for_avslutning(){
+    void finner_ingen_sisteuttaksdato_for_avslutning(){
         // Arrange
         var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));

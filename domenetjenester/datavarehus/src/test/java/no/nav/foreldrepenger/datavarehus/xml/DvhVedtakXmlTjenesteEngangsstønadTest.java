@@ -58,7 +58,7 @@ import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
-public class DvhVedtakXmlTjenesteEngangsstønadTest {
+class DvhVedtakXmlTjenesteEngangsstønadTest {
     private static final AktørId BRUKER_AKTØR_ID = AktørId.dummy();
     private static final Saksnummer SAKSNUMMER = new Saksnummer("12345");
     private static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
@@ -122,7 +122,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_med_oppdrag(EntityManager em) {
+    void skal_opprette_vedtaks_xml_med_oppdrag(EntityManager em) {
         var behandling = byggFødselBehandlingMedVedtak(em, true);
         Long delytelseId = 65L;
         var delytelseXmlElement = String.format("delytelseId>%s</", delytelseId);
@@ -140,7 +140,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_innvilget_uten_oppdrag(EntityManager em) {
+    void skal_opprette_vedtaks_xml_innvilget_uten_oppdrag(EntityManager em) {
         var behandling = byggFødselBehandlingMedVedtak(em, true);
         var delytelseXmlElement = "delytelseId>";
 
@@ -154,7 +154,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_avslag_uten_oppdrag(EntityManager em) {
+    void skal_opprette_vedtaks_xml_avslag_uten_oppdrag(EntityManager em) {
         var behandling = byggFødselBehandlingMedVedtak(em, false);
         var delytelseXmlElement = "delytelseId>";
 
@@ -168,7 +168,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_adopsjon(EntityManager em) {
+    void skal_opprette_vedtaks_xml_adopsjon(EntityManager em) {
         var behandling = byggAdopsjonMedVedtak(em, true);
         var adopsjonXmlElement = "adopsjon>";
 

@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.Fo
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslåVedtakAksjonspunktOppdaterer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.OpprettToTrinnsgrunnlag;
 
-public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
+class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
     private static final String ANSVARLIG_SAKSBEHANLDER = "saksbehandler";
@@ -98,7 +98,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void bekreft_foreslå_vedtak_aksjonspkt_setter_ansvarlig_saksbehandler() {
+    void bekreft_foreslå_vedtak_aksjonspkt_setter_ansvarlig_saksbehandler() {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.medSøknadHendelse().medFødselsDato(now);
@@ -124,7 +124,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void bekreft_foreslå_vedtak_aksjonspunkt_lagrer_begrunnelse_og_overstyrende_fritekst_i_behandling_dokument() {
+    void bekreft_foreslå_vedtak_aksjonspunkt_lagrer_begrunnelse_og_overstyrende_fritekst_i_behandling_dokument() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
@@ -151,7 +151,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void bekreft_foreslå_vedtak_aksjonspunkt_uten_overstyrende_fritekst_fjerner_fritekst_i_behandling_dokument() {
+    void bekreft_foreslå_vedtak_aksjonspunkt_uten_overstyrende_fritekst_fjerner_fritekst_i_behandling_dokument() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(now);
@@ -183,7 +183,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void oppdaterer_aksjonspunkt_med_beslutters_vurdering_ved_totrinnskontroll() {
+    void oppdaterer_aksjonspunkt_med_beslutters_vurdering_ved_totrinnskontroll() {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
                 .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
@@ -215,7 +215,7 @@ public class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void oppdaterer_aksjonspunkt_med_godkjent_totrinnskontroll() {
+    void oppdaterer_aksjonspunkt_med_godkjent_totrinnskontroll() {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
                 .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);

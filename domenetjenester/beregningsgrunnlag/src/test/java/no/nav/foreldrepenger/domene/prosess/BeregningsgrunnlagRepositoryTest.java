@@ -48,7 +48,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(JpaExtension.class)
-public class BeregningsgrunnlagRepositoryTest {
+class BeregningsgrunnlagRepositoryTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
 
@@ -67,7 +67,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void skal_kopiere_med_register_aktiviteter_fra_original_behandling() {
+    void skal_kopiere_med_register_aktiviteter_fra_original_behandling() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningAktivitetAggregat = lagAktivitetAggregat();
@@ -100,7 +100,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreRegisterBeregningAktiviteterOgBeregningsgrunnlag() {
+    void lagreRegisterBeregningAktiviteterOgBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningAktivitetAggregat = lagAktivitetAggregat();
@@ -142,7 +142,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreSaksbehandletBeregningAktiviteterOgHentBeregningsgrunnlag() {
+    void lagreSaksbehandletBeregningAktiviteterOgHentBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningAktivitetAggregat = lagAktivitetAggregat();
@@ -161,7 +161,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreOverstyring() {
+    void lagreOverstyring() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningAktivitetAggregat = lagAktivitetAggregat();
@@ -190,7 +190,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_refusjon_overstrying() {
+    void skal_lagre_refusjon_overstrying() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsgrunnlag = buildBeregningsgrunnlag();
@@ -262,7 +262,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreBeregningsgrunnlagOgHentBeregningsgrunnlagGrunnlag() {
+    void lagreBeregningsgrunnlagOgHentBeregningsgrunnlagGrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsgrunnlag = buildBeregningsgrunnlag();
@@ -281,7 +281,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void skalHentSisteBeregningsgrunnlagGrunnlag() {
+    void skalHentSisteBeregningsgrunnlagGrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsgrunnlag1 = buildBeregningsgrunnlag();
@@ -305,7 +305,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void skalReaktiverBeregningsgrunnlagGrunnlag() {
+    void skalReaktiverBeregningsgrunnlagGrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsgrunnlag1 = buildBeregningsgrunnlag();
@@ -335,7 +335,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreOgHenteBeregningsgrunnlag() {
+    void lagreOgHenteBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsgrunnlag = buildBeregningsgrunnlag();
@@ -354,7 +354,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreOgHenteBeregningsgrunnlagMedPrivatpersonSomArbgiver() {
+    void lagreOgHenteBeregningsgrunnlagMedPrivatpersonSomArbgiver() {
         // Arrange
         var behandling = opprettBehandling();
         var aktørId = AktørId.dummy();
@@ -394,7 +394,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreBeregningsgrunnlagOgUnderliggendeTabeller(EntityManager em) {
+    void lagreBeregningsgrunnlagOgUnderliggendeTabeller(EntityManager em) {
         // Arrange
         var behandling = opprettBehandling();
         var beregningsgrunnlag = buildBeregningsgrunnlag();
@@ -441,7 +441,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void toBehandlingerKanHaSammeBeregningsgrunnlag() {
+    void toBehandlingerKanHaSammeBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var behandling2 = opprettBehandling();
@@ -465,7 +465,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void skalHenteRiktigBeregningsgrunnlagBasertPåId() {
+    void skalHenteRiktigBeregningsgrunnlagBasertPåId() {
         // Arrange
         var behandling = opprettBehandling();
         var behandling2 = opprettBehandling();

@@ -18,13 +18,13 @@ import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
-public class BeregningsgrunnlagGrunnlagTest {
+class BeregningsgrunnlagGrunnlagTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private static final Intervall PERIODE = Intervall.fraOgMedTilOgMed(LocalDate.of(2019, Month.MARCH, 1), TIDENES_ENDE);
 
     @Test
-    public void skal_returnere_register() {
+    void skal_returnere_register() {
         var beregningAktivitetSN = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.NÆRING)
@@ -56,7 +56,7 @@ public class BeregningsgrunnlagGrunnlagTest {
     }
 
     @Test
-    public void skal_returnere_overstyringer() {
+    void skal_returnere_overstyringer() {
         var beregningAktivitetSN = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.NÆRING)
@@ -92,7 +92,7 @@ public class BeregningsgrunnlagGrunnlagTest {
     }
 
     @Test
-    public void skal_returnere_overstyringer_når_saksbehandlet_finnes() {
+    void skal_returnere_overstyringer_når_saksbehandlet_finnes() {
         var beregningAktivitetSN = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.NÆRING)

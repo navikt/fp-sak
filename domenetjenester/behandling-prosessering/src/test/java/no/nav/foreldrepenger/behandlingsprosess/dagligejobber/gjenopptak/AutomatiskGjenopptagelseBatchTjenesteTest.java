@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.EmptyBatchArguments;
 
-public class AutomatiskGjenopptagelseBatchTjenesteTest {
+class AutomatiskGjenopptagelseBatchTjenesteTest {
 
     private AutomatiskGjenopptagelseBatchTjeneste batchTjeneste; // objektet vi tester
 
@@ -28,7 +28,7 @@ public class AutomatiskGjenopptagelseBatchTjenesteTest {
     }
 
     @Test
-    public void skal_gi_respons() {
+    void skal_gi_respons() {
         // Arrange
         var response = "-1";
         when(mockTjeneste.gjenopptaBehandlinger()).thenReturn(response);

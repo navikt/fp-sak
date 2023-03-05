@@ -22,12 +22,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class PersonstatusEndringIdentifisererTest {
+class PersonstatusEndringIdentifisererTest {
 
     private AktørId AKTØRID = AktørId.dummy();
 
     @Test
-    public void testPersonstatusUendret() {
+    void testPersonstatusUendret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -37,7 +37,7 @@ public class PersonstatusEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonstatusUendret_flere_statuser() {
+    void testPersonstatusUendret_flere_statuser() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
@@ -49,7 +49,7 @@ public class PersonstatusEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonstatusEndret_ekstra_status_lagt_til() {
+    void testPersonstatusEndret_ekstra_status_lagt_til() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
@@ -61,7 +61,7 @@ public class PersonstatusEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonstatusEndret_status_endret_type() {
+    void testPersonstatusEndret_status_endret_type() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
@@ -73,7 +73,7 @@ public class PersonstatusEndringIdentifisererTest {
     }
 
     @Test
-    public void testPersonstatusUendret_men_rekkefølge_i_liste_endret() {
+    void testPersonstatusUendret_men_rekkefølge_i_liste_endret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(

@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class KontrollDvhEntityTest {
+class KontrollDvhEntityTest {
 
     @Test
-    public void skal_bygge_instans_av_kontrollDvh() {
+    void skal_bygge_instans_av_kontrollDvh() {
         var kontrollDvh = DatavarehusTestUtils.byggKontrollDvh();
 
         assertThat(kontrollDvh.getBehandlingAksjonTransIdMax()).isEqualTo(DatavarehusTestUtils.BEHANDLING_AKSJON_TRANS_ID_MAX);

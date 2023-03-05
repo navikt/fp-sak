@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
+class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
 
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
     private static final LocalDate FØDSELSDATO = LocalDate.now();
@@ -52,7 +52,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void ingen_aksjonspunkt_dersom_bruker_oppgitt_omsorg_til_barnet_men_barnet_er_ikke_født() {
+    void ingen_aksjonspunkt_dersom_bruker_oppgitt_omsorg_til_barnet_men_barnet_er_ikke_født() {
         var behandling = opprettBehandling(TERMINDATO);
         var familieHendelse = FamilieHendelse.forFødsel(TERMINDATO, null, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
@@ -62,7 +62,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_men_barn_har_ikke_sammebosted() {
+    void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_men_barn_har_ikke_sammebosted() {
         var behandling = opprettBehandling(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
@@ -82,7 +82,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void aksjonspunkt_dersom_far_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
+    void aksjonspunkt_dersom_far_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
         var behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgFarSøker();
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
@@ -91,7 +91,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_far_ikke_mor() {
+    void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_far_ikke_mor() {
         var behandling = opprettBehandlingForFødselOgBarnBorSammenMedFarIkkeMorOgMorSøker(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
@@ -100,7 +100,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void ingen_aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
+    void ingen_aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
         var behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgMorSøker(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
@@ -109,7 +109,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void aksjonspunkt_dersom_mor_søker_og_ikke_oppgitt_omsorg_til_barnet_med_lengre_søknadsperioden() {
+    void aksjonspunkt_dersom_mor_søker_og_ikke_oppgitt_omsorg_til_barnet_med_lengre_søknadsperioden() {
         var periode1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FØDSELSDATO, FØDSELSDATO.plusWeeks(6))
@@ -126,7 +126,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void ingen_aksjonspunkt_dersom_barn_er_død_selvom_de_ikke_har_samme_adresse() {
+    void ingen_aksjonspunkt_dersom_barn_er_død_selvom_de_ikke_har_samme_adresse() {
         var behandling = opprettBehandling(FØDSELSDATO);
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1))
@@ -138,7 +138,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void aksjonspunkt_dersom_ikke_alle_barn_er_død_fordi_det_levende_barnet_ikke_har_samme_bostedsadresse() {
+    void aksjonspunkt_dersom_ikke_alle_barn_er_død_fordi_det_levende_barnet_ikke_har_samme_bostedsadresse() {
         var behandling = opprettBehandling(FØDSELSDATO);
         var familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO), new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
@@ -149,7 +149,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bosted() {
+    void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bosted() {
         var behandling = opprettBehandlingForFødselSammeBosted(FØDSELSDATO);
         var familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO), new Barn()), 2);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
@@ -160,7 +160,7 @@ public class AvklarLøpendeOmsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    public void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bostedsadresse() {
+    void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bostedsadresse() {
         var behandling = opprettBehandlingForFødselMedLikBostedsadresse(FØDSELSDATO);
         var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of( new Barn(), new Barn()), 2))

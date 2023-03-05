@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.aksjonspunkt.Vu
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class VurderInnsynOppdatererTest {
+class VurderInnsynOppdatererTest {
 
     private LocalDate idag = LocalDate.now();
 
@@ -70,7 +70,7 @@ public class VurderInnsynOppdatererTest {
     }
 
     @Test
-    public void skal_sette_innsynsbehandling_på_vent() {
+    void skal_sette_innsynsbehandling_på_vent() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medSøknadsdato(idag);

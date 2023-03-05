@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 
-public class SimulerInntrekkSjekkeTjenesteTest {
+class SimulerInntrekkSjekkeTjenesteTest {
 
     private SimulerInntrekkSjekkeTjeneste simulerInntrekkSjekkeTjeneste;
     private Behandling behandling;
@@ -56,7 +56,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
     }
 
     @Test
-    public void sjekkIntrekk_når_Tilbakekreving_valg_ikke_finnes() {
+    void sjekkIntrekk_når_Tilbakekreving_valg_ikke_finnes() {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(Optional.empty());
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
@@ -64,7 +64,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
     }
 
     @Test
-    public void sjekkIntrekk_når_Tilbakekreving_valg_ikke_inntrekk() {
+    void sjekkIntrekk_når_Tilbakekreving_valg_ikke_inntrekk() {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
@@ -72,7 +72,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
     }
 
     @Test
-    public void sjekkIntrekk_når_aksjonpunkt_er_vurder_intrekk() {
+    void sjekkIntrekk_når_aksjonpunkt_er_vurder_intrekk() {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.INNTREKK));
         when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, -2345L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
@@ -82,7 +82,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
     }
 
     @Test
-    public void sjekkIntrekk_når_aksjonpunkt_er_vurder_feilutbetaling() {
+    void sjekkIntrekk_når_aksjonpunkt_er_vurder_feilutbetaling() {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.INNTREKK));
         when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2345L, 0L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);

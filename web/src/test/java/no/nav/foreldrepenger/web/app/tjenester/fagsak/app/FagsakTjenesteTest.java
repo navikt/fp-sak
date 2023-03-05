@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
-public class FagsakTjenesteTest {
+class FagsakTjenesteTest {
 
     private static final String FNR = new FiktiveFnr().nesteFnr();
     private static final AktørId AKTØR_ID = AktørId.dummy();
@@ -77,7 +77,7 @@ public class FagsakTjenesteTest {
     }
 
     @Test
-    public void skal_hente_saker_på_fnr() {
+    void skal_hente_saker_på_fnr() {
         var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(AKTØR_ID));
 
@@ -102,7 +102,7 @@ public class FagsakTjenesteTest {
     }
 
     @Test
-    public void skal_hente_saker_på_saksreferanse() {
+    void skal_hente_saker_på_saksreferanse() {
         var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         // Whitebox.setInternalState(fagsak, "id", -1L);
@@ -123,7 +123,7 @@ public class FagsakTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_tomt_view_når_fagsakens_bruker_er_ukjent_for_tps() {
+    void skal_returnere_tomt_view_når_fagsakens_bruker_er_ukjent_for_tps() {
         // Arrange
         var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
@@ -135,13 +135,13 @@ public class FagsakTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_tomt_view_dersom_søkestreng_ikke_er_gyldig_fnr_eller_saksnr() {
+    void skal_returnere_tomt_view_dersom_søkestreng_ikke_er_gyldig_fnr_eller_saksnr() {
         var view = tjeneste.søkFagsakDto("ugyldig_søkestreng");
         assertThat(view).isEmpty();
     }
 
     @Test
-    public void skal_returnere_tomt_view_ved_ukjent_fnr() {
+    void skal_returnere_tomt_view_ved_ukjent_fnr() {
         when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.empty());
 
         var view = tjeneste.søkFagsakDto(FNR);
@@ -150,7 +150,7 @@ public class FagsakTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_tomt_view_ved_ukjent_saksnr() {
+    void skal_returnere_tomt_view_ved_ukjent_saksnr() {
         System.out.println(DefaultJsonMapper.toJson(new TestSak(new SaksnummerDto("921345678"))));
         var view = tjeneste.søkFagsakDto(valueOf(SAKSNUMMER));
         assertThat(view).isEmpty();

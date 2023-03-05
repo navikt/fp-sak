@@ -58,7 +58,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
-public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
+class UtledVurderingsdatoerForMedlemskapTjenesteTest {
 
     @Inject
     private BehandlingRepositoryProvider provider;
@@ -76,7 +76,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
     @Test
-    public void skal_ikke_utlede_dato_når_overlappende_perioder_uten_endring_i_medl() {
+    void skal_ikke_utlede_dato_når_overlappende_perioder_uten_endring_i_medl() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusWeeks(53);
@@ -115,7 +115,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     @Test
-    public void skal_utlede_dato_når_overlappende_perioder_med_endring_i_periode_med_senest_beslutningsdato() {
+    void skal_utlede_dato_når_overlappende_perioder_med_endring_i_periode_med_senest_beslutningsdato() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusWeeks(53);
@@ -166,7 +166,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     @Test
-    public void skal_utled_vurderingsdato_ved_endring_i_medlemskapsperioder() {
+    void skal_utled_vurderingsdato_ved_endring_i_medlemskapsperioder() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusWeeks(53);
@@ -193,7 +193,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     @Test
-    public void skal_utled_vurderingsdato_ved_endring_personopplysninger_statsborgerskap() {
+    void skal_utled_vurderingsdato_ved_endring_personopplysninger_statsborgerskap() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusYears(3);
@@ -225,7 +225,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     @Test
-    public void skal_utled_vurderingsdato_ved_endring_personopplysninger_personstatus_skal_ikke_se_på_død() {
+    void skal_utled_vurderingsdato_ved_endring_personopplysninger_personstatus_skal_ikke_se_på_død() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusYears(3);
@@ -262,7 +262,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     @Test
-    public void skal_utled_vurderingsdato_ved_endring_personopplysninger_adressetype() {
+    void skal_utled_vurderingsdato_ved_endring_personopplysninger_adressetype() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusYears(3);
@@ -299,7 +299,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     @Test
-    public void skal_utlede_vurderingsdato_ved_opphold_tom_i_uttaket() {
+    void skal_utlede_vurderingsdato_ved_opphold_tom_i_uttaket() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusWeeks(53);
@@ -328,7 +328,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_utlede_vurderingsdato_som_ligger_før_skjæringstidspunkt() {
+    void skal_ikke_utlede_vurderingsdato_som_ligger_før_skjæringstidspunkt() {
         // Arrange
         var startdato = LocalDate.now();
         var sluttdato = startdato.plusWeeks(51);

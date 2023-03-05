@@ -23,11 +23,11 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Periode;
 
-public class FastsettePerioderRevurderingUtilTest {
+class FastsettePerioderRevurderingUtilTest {
 
 
     @Test
-    public void skalSplitteOppUttaksresultatPeriodeHvisEndringsdatoErIPerioden() {
+    void skalSplitteOppUttaksresultatPeriodeHvisEndringsdatoErIPerioden() {
         var opprinneligePerioder = new UttakResultatPerioderEntitet();
         var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
@@ -65,7 +65,7 @@ public class FastsettePerioderRevurderingUtilTest {
     }
 
     @Test
-    public void skalIkkeKopiereUttaksperioderTattAvAnnenpartFraForrigeUttaksresultat() {
+    void skalIkkeKopiereUttaksperioderTattAvAnnenpartFraForrigeUttaksresultat() {
         var opprinneligePerioder = new UttakResultatPerioderEntitet();
         var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
@@ -94,7 +94,7 @@ public class FastsettePerioderRevurderingUtilTest {
     }
 
     @Test
-    public void skalRegneUtTrekkdagerKorrektVedSplittingHvisIkkeSamtidigUttakMenHarSamtidigUttaksprosent() {
+    void skalRegneUtTrekkdagerKorrektVedSplittingHvisIkkeSamtidigUttakMenHarSamtidigUttaksprosent() {
         var opprinneligePerioder = new UttakResultatPerioderEntitet();
         var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
@@ -122,7 +122,7 @@ public class FastsettePerioderRevurderingUtilTest {
     }
 
     @Test
-    public void skalFjerneUttaksperioderFørEndringsdatoSomBareErTommeHelger() {
+    void skalFjerneUttaksperioderFørEndringsdatoSomBareErTommeHelger() {
         var opprinneligePerioder = new UttakResultatPerioderEntitet();
         var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)

@@ -46,7 +46,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(JpaExtension.class)
-public class VurderRefusjonHistorikkTjenesteTest {
+class VurderRefusjonHistorikkTjenesteTest {
     private static final String NAV_ORGNR = "889640782";
     private static final Arbeidsgiver VIRKSOMHET = Arbeidsgiver.virksomhet(NAV_ORGNR);
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -70,7 +70,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     @Test
-    public void lag_historikk_når_ikkje_gyldig_utvidelse() {
+    void lag_historikk_når_ikkje_gyldig_utvidelse() {
         // Arrange
         var grunnlag = lagBeregningsgrunnlag();
         var dto = lagDto(false);
@@ -86,7 +86,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     @Test
-    public void oppdater_når_gyldig_utvidelse() {
+    void oppdater_når_gyldig_utvidelse() {
         // Arrange
         var grunnlag = lagBeregningsgrunnlag();
         var dto = lagDto(true);
@@ -102,7 +102,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     @Test
-    public void oppdater_når_gyldig_utvidelse_med_forrige_satt_til_false() {
+    void oppdater_når_gyldig_utvidelse_med_forrige_satt_til_false() {
         // Arrange
         var forrige = lagBeregningsgrunnlagMedOverstyring(SKJÆRINGSTIDSPUNKT.plusMonths(1));
         var grunnlag = lagBeregningsgrunnlag();
@@ -119,7 +119,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     @Test
-    public void oppdater_når_gyldig_utvidelse_med_forrige_satt_til_true() {
+    void oppdater_når_gyldig_utvidelse_med_forrige_satt_til_true() {
         // Arrange
         var forrige = lagBeregningsgrunnlagMedOverstyring(SKJÆRINGSTIDSPUNKT);
         var grunnlag = lagBeregningsgrunnlag();
@@ -136,7 +136,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     @Test
-    public void oppdater_når_ikkje_gyldig_utvidelse_og_forrige_satt_til_ikkje_gyldig() {
+    void oppdater_når_ikkje_gyldig_utvidelse_og_forrige_satt_til_ikkje_gyldig() {
         // Arrange
         var forrige = lagBeregningsgrunnlagMedOverstyring(SKJÆRINGSTIDSPUNKT.plusMonths(1));
         var grunnlag = lagBeregningsgrunnlag();
@@ -153,7 +153,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     @Test
-    public void oppdater_når_ikkje_gyldig_utvidelse_og_forrige_satt_til_gyldig() {
+    void oppdater_når_ikkje_gyldig_utvidelse_og_forrige_satt_til_gyldig() {
         // Arrange
         var forrige = lagBeregningsgrunnlagMedOverstyring(SKJÆRINGSTIDSPUNKT);
         var grunnlag = lagBeregningsgrunnlag();

@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
-public class KlageNkStegTest {
+class KlageNkStegTest {
 
     @Test
-    public void skalUtføreUtenAksjonspunktNårBehandlingsresultatTypeIkkeErYtelsesStadfestet() {
+    void skalUtføreUtenAksjonspunktNårBehandlingsresultatTypeIkkeErYtelsesStadfestet() {
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forAvvistNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon());
         var klageBehandling = scenario.lagMocked();

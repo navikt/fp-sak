@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(JpaExtension.class)
-public class HendelsePublisererTjenesteTest {
+class HendelsePublisererTjenesteTest {
 
     private static final LocalDate INNVILGET_PERIODE_FØRSTE_DAG = VirkedagUtil.fomVirkedag(LocalDate.now());
     private static final LocalDate INNVILGET_PERIODE_SISTE_DAG = VirkedagUtil.tomVirkedag(
@@ -67,7 +67,7 @@ public class HendelsePublisererTjenesteTest {
     }
 
     @Test
-    public void skal_sette_første_og_siste_stønadsdag_lik_siste_innvilgede_periode() {
+    void skal_sette_første_og_siste_stønadsdag_lik_siste_innvilgede_periode() {
         var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
         var nyttBer = lagBeregningsresultat(AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT, 0, 0);
         var vedtak = byggBehandlingVedtakOgBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
@@ -98,7 +98,7 @@ public class HendelsePublisererTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_ned_førstegangssøknad() {
+    void skal_lagre_ned_førstegangssøknad() {
         var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
 
         var vedtak = byggBehandlingVedtakOgBehandling(null, BehandlingType.FØRSTEGANGSSØKNAD,
@@ -120,7 +120,7 @@ public class HendelsePublisererTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_lagre_ned_vedtak_som_ikke_endrer_stønadsperiode() {
+    void skal_ikke_lagre_ned_vedtak_som_ikke_endrer_stønadsperiode() {
         var berRes = lagBeregningsresultat(NY_PERIODE_FØRSTE_DAG, NY_PERIODE_SISTE_DAG, 100, 100);
         var nyttBer = lagBeregningsresultat(NY_PERIODE_FØRSTE_DAG, NY_PERIODE_SISTE_DAG, 100, 100);
 
@@ -136,7 +136,7 @@ public class HendelsePublisererTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_ned_revurdering_med_endrede_utbet_perioder() {
+    void skal_lagre_ned_revurdering_med_endrede_utbet_perioder() {
         var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG, INNVILGET_PERIODE_SISTE_DAG, 100, 100);
         var nyttBer = lagBeregningsresultat(NY_PERIODE_FØRSTE_DAG, NY_PERIODE_SISTE_DAG, 100, 100);
 
@@ -159,7 +159,7 @@ public class HendelsePublisererTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_ned_revurdering_opphørt() {
+    void skal_lagre_ned_revurdering_opphørt() {
         var berRes = lagBeregningsresultat(INNVILGET_PERIODE_FØRSTE_DAG,
             INNVILGET_PERIODE_SISTE_DAG, 100, 100);
         var nyttBer = lagBeregningsresultat(AVSLÅTT_PERIODE_START, AVSLÅTT_PERIODE_SLUTT, 0, 0);

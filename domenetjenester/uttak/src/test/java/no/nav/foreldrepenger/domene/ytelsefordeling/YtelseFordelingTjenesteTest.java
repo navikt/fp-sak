@@ -15,14 +15,14 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class YtelseFordelingTjenesteTest {
+class YtelseFordelingTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelseFordelingTjeneste tjeneste = new YtelseFordelingTjeneste(
         repositoryProvider.getYtelsesFordelingRepository());
 
     @Test
-    public void test_bekreft_aksjonspunkt_annenforelder_har_ikke_rett() {
+    void test_bekreft_aksjonspunkt_annenforelder_har_ikke_rett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -36,7 +36,7 @@ public class YtelseFordelingTjenesteTest {
     }
 
     @Test
-    public void test_bekreft_aksjonspunkt_annenforelder_har_rett() {
+    void test_bekreft_aksjonspunkt_annenforelder_har_rett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -50,7 +50,7 @@ public class YtelseFordelingTjenesteTest {
     }
 
     @Test
-    public void skalKasteExceptionHvisOverlappIPerioder() {
+    void skalKasteExceptionHvisOverlappIPerioder() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var periode1 = mødrekvote(LocalDate.now(), LocalDate.now().plusWeeks(1));
         var periode2 = mødrekvote(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(2));

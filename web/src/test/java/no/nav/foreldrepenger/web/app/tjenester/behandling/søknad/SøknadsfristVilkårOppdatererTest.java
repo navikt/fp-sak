@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.SoknadsfristAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.SøknadsfristOppdaterer;
 
-public class SøknadsfristVilkårOppdatererTest {
+class SøknadsfristVilkårOppdatererTest {
     private HistorikkInnslagTekstBuilder tekstBuilder;
 
     private HistorikkTjenesteAdapter lagMockHistory() {
@@ -29,7 +29,7 @@ public class SøknadsfristVilkårOppdatererTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_soknadsfrist() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_soknadsfrist() {
         // Arrange
         var oppdatertSoknadsfristOk = true;
 

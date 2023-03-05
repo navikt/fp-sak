@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class SendInformasjonsbrevBatchTjenesteTest {
+class SendInformasjonsbrevBatchTjenesteTest {
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -76,7 +76,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
    }
 
     @Test
-    public void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
+    void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, uttakFom, false);
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), false);
         var svar = tjeneste.launch(batchArgs);
@@ -84,7 +84,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     }
 
     @Test
-    public void skal_finne_en_sak_til_revurdering(EntityManager em) {
+    void skal_finne_en_sak_til_revurdering(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom, false);
         var svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(SendInformasjonsbrevBatchTjeneste.BATCHNAVN + "-1");

@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class OppdragKvitteringEntityTest {
+class OppdragKvitteringEntityTest {
 
     private OppdragKvittering.Builder oppdragKvitteringBuilder;
     private OppdragKvittering oppdragKvittering;
@@ -37,7 +37,7 @@ public class OppdragKvitteringEntityTest {
     }
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter() {
+    void skal_bygge_instans_med_påkrevde_felter() {
         oppdragKvittering = lagOppdragKvitteringMedPaakrevdeFelter().build();
 
         assertThat(oppdragKvittering.getAlvorlighetsgrad()).isEqualTo(ALVORLIGHETSGRAD);
@@ -46,7 +46,7 @@ public class OppdragKvitteringEntityTest {
     }
 
     @Test
-    public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
+    void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
         // mangler oppdrag110
         try {
             oppdragKvitteringBuilder.build();
@@ -57,7 +57,7 @@ public class OppdragKvitteringEntityTest {
     }
 
     @Test
-    public void skal_håndtere_null_this_feilKlasse_i_equals() {
+    void skal_håndtere_null_this_feilKlasse_i_equals() {
         oppdragKvittering = lagOppdragKvitteringMedPaakrevdeFelter().build();
 
         assertThat(oppdragKvittering).isNotNull();
@@ -66,7 +66,7 @@ public class OppdragKvitteringEntityTest {
     }
 
     @Test
-    public void skal_ha_refleksiv_equalsOgHashCode() {
+    void skal_ha_refleksiv_equalsOgHashCode() {
         oppdragKvitteringBuilder = lagOppdragKvitteringMedPaakrevdeFelter();
         oppdragKvittering = oppdragKvitteringBuilder.build();
 
@@ -83,7 +83,7 @@ public class OppdragKvitteringEntityTest {
     }
 
     @Test
-    public void skal_bruke_MeldingKode_i_equalsOgHashCode() {
+    void skal_bruke_MeldingKode_i_equalsOgHashCode() {
         oppdragKvitteringBuilder = lagOppdragKvitteringMedPaakrevdeFelter();
         oppdragKvittering = oppdragKvitteringBuilder.build();
 

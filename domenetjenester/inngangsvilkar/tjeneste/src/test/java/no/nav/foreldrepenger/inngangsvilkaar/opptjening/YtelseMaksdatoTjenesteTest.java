@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
+class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -59,14 +59,14 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finnesIngenVedtattBehandlingForMorSkalReturnereOptionalEmpty() {
+    void finnesIngenVedtattBehandlingForMorSkalReturnereOptionalEmpty() {
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getRelasjonsRolleType());
         assertThat(morsMaksdato).isEmpty();
     }
 
     @Test
-    public void beregnerMorsMaksdato() {
+    void beregnerMorsMaksdato() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morsBehandling = scenario.lagre(repositoryProvider);
         var perioder = new UttakResultatPerioderEntitet();
@@ -135,7 +135,7 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void beregnerMorsMaksdatoVedFlereArbeidsforholdOgGradering() {
+    void beregnerMorsMaksdatoVedFlereArbeidsforholdOgGradering() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
         var uttak = new UttakResultatPerioderEntitet();
@@ -197,7 +197,7 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalHåndtereAtAlleMorsPerioderErAvslåttMed0Trekkdager() {
+    void skalHåndtereAtAlleMorsPerioderErAvslåttMed0Trekkdager() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morsBehandling = scenario.lagre(repositoryProvider);
         var perioder = new UttakResultatPerioderEntitet();

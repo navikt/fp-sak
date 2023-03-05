@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
-public class AvstemmingTest {
+class AvstemmingTest {
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter() {
+    void skal_bygge_instans_med_påkrevde_felter() {
         var avstemming = Avstemming.ny();
         validerObjekt(avstemming);
     }
@@ -29,7 +29,7 @@ public class AvstemmingTest {
     }
 
     @Test
-    public void skal_feile_hvis_tidspunkt_er_null() {
+    void skal_feile_hvis_tidspunkt_er_null() {
         Exception thrown = assertThrows(
             NullPointerException.class,
             () -> Avstemming.fra(null)

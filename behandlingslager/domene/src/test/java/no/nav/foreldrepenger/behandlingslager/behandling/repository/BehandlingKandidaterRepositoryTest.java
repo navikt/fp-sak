@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 
-public class BehandlingKandidaterRepositoryTest extends EntityManagerAwareTest {
+class BehandlingKandidaterRepositoryTest extends EntityManagerAwareTest {
 
 
     private BehandlingKandidaterRepository behandlingKandidaterRepository;
@@ -29,7 +29,7 @@ public class BehandlingKandidaterRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_en_kandidat_for_automatisk_gjenopptagelse() {
+    void skal_finne_en_kandidat_for_automatisk_gjenopptagelse() {
         // Arrange
         var behandling = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);

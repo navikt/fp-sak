@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class VergeBuilderTest {
+class VergeBuilderTest {
 
     private NavBruker vergeBruker = NavBruker.opprettNyNB(AktørId.dummy());
 
     @Test
-    public void ska_opprette_verge() {
+    void ska_opprette_verge() {
         // Act
         var vergeEntitet = new VergeBuilder()
             .medVergeType(VergeType.BARN)
@@ -29,7 +29,7 @@ public class VergeBuilderTest {
     }
 
     @Test
-    public void skal_støtte_at_TOM_er_null_og_sette_tidenes_ende() {
+    void skal_støtte_at_TOM_er_null_og_sette_tidenes_ende() {
         // Act
         var vergeEntitet = new VergeBuilder()
             .medVergeType(VergeType.BARN)

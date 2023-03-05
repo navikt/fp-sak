@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
-public class EndringskontrollerTest {
+class EndringskontrollerTest {
 
     private KontrollerFaktaInngangsVilkårUtleder kontrollerFaktaTjenesteMock;
     private Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenesterMock;
@@ -67,7 +67,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_oppdatere_startpunkt_ved_tilbakespoling_til_punkt_før_nåværende_startpunkt() {
+    void skal_oppdatere_startpunkt_ved_tilbakespoling_til_punkt_før_nåværende_startpunkt() {
         // Arrange
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
@@ -92,7 +92,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_håndtere_koarb_utgang_til_inngang() {
+    void skal_håndtere_koarb_utgang_til_inngang() {
         // Arrange
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
@@ -117,7 +117,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_spole_til_start_når_førstegangsbehandling_får_utledet_startpunkt_til_venstre_for_aktivt_steg() {
+    void skal_spole_til_start_når_førstegangsbehandling_får_utledet_startpunkt_til_venstre_for_aktivt_steg() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .lagMocked();
@@ -139,7 +139,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_ikke_spole_til_start_når_førstegangsbehandling_får_utledet_startpunkt_udefinert() {
+    void skal_ikke_spole_til_start_når_førstegangsbehandling_får_utledet_startpunkt_udefinert() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -160,7 +160,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_ikke_oppdatere_startpunkt_ved_tilbakespoling_til_punkt_etter_nåværende_startpunkt() {
+    void skal_ikke_oppdatere_startpunkt_ved_tilbakespoling_til_punkt_etter_nåværende_startpunkt() {
         // Arrange
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
@@ -182,7 +182,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_ikke_oppdatere_startpunkt_hvis_vi_ikke_har_grunnlag_for_å_si_at_nytt_startpunkt_er_tidligere() {
+    void skal_ikke_oppdatere_startpunkt_hvis_vi_ikke_har_grunnlag_for_å_si_at_nytt_startpunkt_er_tidligere() {
         // Arrange
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
@@ -203,7 +203,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_spole_til_start_når_manglende_fødsel_gir_startpunkt_til_venstre_for_aktivt_steg() {
+    void skal_spole_til_start_når_manglende_fødsel_gir_startpunkt_til_venstre_for_aktivt_steg() {
         // Arrange
         var fdato = LocalDate.now().minusWeeks(3);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(List.of(fdato))
@@ -228,7 +228,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_avbryte_avklar_termin_når_det_finnes_fødsel() {
+    void skal_avbryte_avklar_termin_når_det_finnes_fødsel() {
         // Arrange
         var fdato = LocalDate.now().minusWeeks(3);
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
@@ -275,7 +275,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_og_startpunkt_er_samme_steg_som_behandlingen_står_i() {
+    void skal_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_og_startpunkt_er_samme_steg_som_behandlingen_står_i() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
@@ -297,7 +297,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_med_op_og_startpunkt_er_senere_steg_som_behandlingen_står_i() {
+    void skal_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_med_op_og_startpunkt_er_senere_steg_som_behandlingen_står_i() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -324,7 +324,7 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_ikke_spole_til_INNGANG_når_behandlingen_står_i_INNGANG_og_startpunkt_er_samme_steg_som_behandlingen_står_i() {
+    void skal_ikke_spole_til_INNGANG_når_behandlingen_står_i_INNGANG_og_startpunkt_er_samme_steg_som_behandlingen_står_i() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)

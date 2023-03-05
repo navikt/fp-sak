@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteI
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @CdiDbAwareTest
-public class BeregneYtelseStegImplTest {
+class BeregneYtelseStegImplTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -81,7 +81,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     @Test
-    public void skal_beregne_sats_basert_på_antall_barn() {
+    void skal_beregne_sats_basert_på_antall_barn() {
         // Arrange
         var antallBarn = 2;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, LocalDate.now());
@@ -103,7 +103,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     @Test
-    public void skal_beregne_sats_for_fødsel_i_2017() {
+    void skal_beregne_sats_for_fødsel_i_2017() {
         // Arrange
         var antallBarn = 2;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, LocalDate.of(2017, 10, 1));
@@ -128,7 +128,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     @Test
-    public void skal_ved_tilbakehopp_fremover_rydde_avklarte_fakta() {
+    void skal_ved_tilbakehopp_fremover_rydde_avklarte_fakta() {
         // Arrange
         var antallBarn = 1;
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
@@ -148,7 +148,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     @Test
-    public void skal_ved_tilbakehopp_fremover_ikke_rydde_overstyrte_beregninger() {
+    void skal_ved_tilbakehopp_fremover_ikke_rydde_overstyrte_beregninger() {
         // Arrange
         var antallBarn = 1;
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());
@@ -172,7 +172,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     @Test
-    public void skal_ved_fremhopp_rydde_avklarte_fakta_inkludert_overstyrte_beregninger() {
+    void skal_ved_fremhopp_rydde_avklarte_fakta_inkludert_overstyrte_beregninger() {
         // Arrange
         var antallBarn = 1;
         var behandling = byggGrunnlag(antallBarn, LocalDate.now());

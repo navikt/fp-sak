@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(JpaExtension.class)
-public class AutomatiskArenaReguleringBatchTjenesteTest {
+class AutomatiskArenaReguleringBatchTjenesteTest {
 
     private BehandlingRepository behandlingRepository;
     private AutomatiskArenaReguleringBatchTjeneste tjeneste;
@@ -83,7 +83,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_saker_til_revurdering() {
+    void skal_ikke_finne_saker_til_revurdering() {
         var revurdering1 = opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.minusDays(5));
         var revurdering2 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         var kandidater = tjeneste.hentKandidater(batchArgs)
@@ -94,7 +94,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
     }
 
     @Test
-    public void skal_finne_tre_saker_til_revurdering() {
+    void skal_finne_tre_saker_til_revurdering() {
         var kandidat1 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2));
         var kandidat2 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2));
         var kandidat3 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));

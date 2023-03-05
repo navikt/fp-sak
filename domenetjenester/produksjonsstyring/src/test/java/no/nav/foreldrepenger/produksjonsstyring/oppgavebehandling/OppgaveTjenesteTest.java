@@ -34,7 +34,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
-public class OppgaveTjenesteTest extends EntityManagerAwareTest {
+class OppgaveTjenesteTest extends EntityManagerAwareTest {
 
     private static final String FNR = "00000000000";
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
@@ -69,7 +69,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_oppgave_basert_på_fagsakId() {
+    void skal_opprette_oppgave_basert_på_fagsakId() {
         var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         var behandling = lagBehandling();
@@ -83,7 +83,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_oppgave_liste() {
+    void skal_hente_oppgave_liste() {
         var behandling = lagBehandling();
         when(oppgaveRestKlient.finnÅpneOppgaver(eq(List.of(Oppgavetype.VURDER_DOKUMENT.getKode(), "VUR_VL")), any(), any(), any())).thenReturn(List.of(OPPGAVE));
         when(oppgaveRestKlient.finnÅpneOppgaverAvType(eq(Oppgavetype.VURDER_KONSEKVENS_YTELSE), any(), any(), any())).thenReturn(List.of());
@@ -96,7 +96,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_oppgave_vurder_konsekvens_basert_på_fagsakId() {
+    void skal_opprette_oppgave_vurder_konsekvens_basert_på_fagsakId() {
         var behandling = lagBehandling();
         var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
@@ -110,7 +110,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprettOppgaveStopUtbetalingAvARENAYtelse() {
+    void opprettOppgaveStopUtbetalingAvARENAYtelse() {
         var behandling = lagBehandling();
 
         var forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));
@@ -132,7 +132,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver() {
+    void opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver() {
         var behandling = lagBehandling();
         when(personinfoAdapter.hentFnr(behandling.getAktørId())).thenReturn(Optional.of(new PersonIdent(FNR)));
         var forventetFrist = VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1));

@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
 import no.nav.foreldrepenger.xmlutils.DateUtil;
 
-public class ØkonomioppdragMapperTest {
+class ØkonomioppdragMapperTest {
 
     private static final String REFUNDERES_ID = "123456789";
 
@@ -50,19 +50,19 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void testMapVedtaksDataToOppdragES() {
+    void testMapVedtaksDataToOppdragES() {
         var oppdrag110 = OppdragTestDataHelper.lagOppdrag110ES(oppdragskontroll, 1L);
         verifyMapVedtaksDataToOppdrag(List.of(oppdrag110), false, oppdragskontroll.getBehandlingId());
     }
 
     @Test
-    public void testMapVedtaksDataToOppdragFP() {
+    void testMapVedtaksDataToOppdragFP() {
         var oppdrag110 = lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.FPREF, true, true, true);
         verifyMapVedtaksDataToOppdrag(List.of(oppdrag110), true, oppdragskontroll.getBehandlingId());
     }
 
     @Test
-    public void testMapVedtaksDataToOppdragFPNårOpp150IkkeErSortert() {
+    void testMapVedtaksDataToOppdragFPNårOpp150IkkeErSortert() {
         //Arrange
         var oppdrag110_1 = lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.FP, true, true, false);
         var oppdrag110List = List.of(oppdrag110_1);
@@ -98,7 +98,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void generer_xml_for_oppdrag110_uten_kvittinger_ES() {
+    void generer_xml_for_oppdrag110_uten_kvittinger_ES() {
         lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.REFUTG, true, true, false);
         var oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
         assertThat(oppdragXmlListe).hasSize(1);
@@ -106,7 +106,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void generer_xml_for_oppdrag110_uten_kvittinger_FP() {
+    void generer_xml_for_oppdrag110_uten_kvittinger_FP() {
         lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.FP, true, true, true);
         lagOppdrag110(oppdragskontroll, 2L, KodeFagområde.FP, true, true, true);
         var oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
@@ -116,7 +116,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void ikke_generer_xml_for_oppdrag110_med_positiv_kvittering_ES() {
+    void ikke_generer_xml_for_oppdrag110_med_positiv_kvittering_ES() {
         lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.REFUTG, true, true, false);
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
         var oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
@@ -124,7 +124,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void ikke_generer_xml_for_oppdrag110_med_negativ_kvittering_ES() {
+    void ikke_generer_xml_for_oppdrag110_med_negativ_kvittering_ES() {
         lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.REFUTG, true, true, false);
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
         var oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
@@ -132,7 +132,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void ikke_generer_xml_for_oppdrag110_med_positiv_kvittering_FP() {
+    void ikke_generer_xml_for_oppdrag110_med_positiv_kvittering_FP() {
         lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.FP, true, true, true);
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
         var oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
@@ -140,7 +140,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void ikke_generer_xml_for_oppdrag110_med_negativ_kvittering_FP() {
+    void ikke_generer_xml_for_oppdrag110_med_negativ_kvittering_FP() {
         lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.FP, true, true, true);
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
         var oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
@@ -148,7 +148,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     @Test
-    public void mapperOmpostering116() {
+    void mapperOmpostering116() {
         OppdragTestDataHelper.lagOppdrag110(oppdragskontroll, 2L, KodeFagområde.FP, true, true, true, true);
         OppdragTestDataHelper.lagOppdrag110(oppdragskontroll, 1L, KodeFagområde.FP, true, true, true, true);
         List<Oppdrag> oppdragGenerertList = new ArrayList<>();

@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class OpptjeningsvilkårMellomregningTest {
+class OpptjeningsvilkårMellomregningTest {
 
     @Test
-    public void skal_håndtere_overlappende_perioder() {
+    void skal_håndtere_overlappende_perioder() {
         final var aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, "123", Aktivitet.ReferanseType.ORGNR);
 
         var aktiviteter = List.of(

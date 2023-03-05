@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
  * Dokumentasjon:
  * https://confluence.adeo.no/display/MODNAV/5g+Fordele+beregningsgrunnlag+riktig+bakover+i+tid
  */
-public class FinnEndringerIUtbetaltYtelseTest {
+class FinnEndringerIUtbetaltYtelseTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private static final LocalDate BEREGNINGSRESULTAT_PERIODE_TOM = SKJÆRINGSTIDSPUNKT.plusDays(33);
@@ -39,7 +39,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 1a: Ingen endring
      */
     @Test
-    public void ingen_endring_bruker_arbeidsgiver() {
+    void ingen_endring_bruker_arbeidsgiver() {
         // Arrange
 
         var forrigeAndeler = List.of(
@@ -60,7 +60,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 1b: Ingen endring
      */
     @Test
-    public void ingen_endring_bruker() {
+    void ingen_endring_bruker() {
         // Arrange
         var forrigeAndeler = List.of(lagAndel(true, 2100));
         var bgAndeler = List.of(lagAndel(true, 2100));
@@ -76,7 +76,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 1c: Ingen endring
      */
     @Test
-    public void ingen_endring_arbeidsgiver() {
+    void ingen_endring_arbeidsgiver() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 0),
@@ -96,7 +96,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 2: Utbetaling tidligere til bruker skulle vært til arbeidsgiver
      */
     @Test
-    public void utbetaling_tidligere_til_bruker_skulle_vært_til_ag() {
+    void utbetaling_tidligere_til_bruker_skulle_vært_til_ag() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1800),
@@ -124,7 +124,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 3: Utbetaling var tidligere til arbeidsgiver, skulle vært til bruker
      */
     @Test
-    public void utbetaling_var_tidligere_til_ag_skulle_vært_til_bruker() {
+    void utbetaling_var_tidligere_til_ag_skulle_vært_til_bruker() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 600),
@@ -144,7 +144,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 4: økt inntekt, økning utbetales arbeidsgiver
      */
     @Test
-    public void økt_inntekt_økning_utbetales_arbeidsgiver() {
+    void økt_inntekt_økning_utbetales_arbeidsgiver() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 100),
@@ -164,7 +164,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 4.2: økt inntekt, alt utbetales til bruker før og etter
      */
     @Test
-    public void økt_inntekt_økning_utbetales_bruker() {
+    void økt_inntekt_økning_utbetales_bruker() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 900));
@@ -182,7 +182,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 5.1: økt inntekt, fordeles til arbeidsgiver
      */
     @Test
-    public void økt_inntekt_utbetales_arbeidsgiver() {
+    void økt_inntekt_utbetales_arbeidsgiver() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 100),
@@ -202,7 +202,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 5.2: økt inntekt, fordeles til arbeidsgiver, 0 til bruker
      */
     @Test
-    public void økt_inntekt_utbetales_arbeidsgiver_0_til_bruker() {
+    void økt_inntekt_utbetales_arbeidsgiver_0_til_bruker() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 0),
@@ -222,7 +222,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 6a: økt inntekt, mer til bruker, mer til arbeidsgiver
      */
     @Test
-    public void case6a() {
+    void case6a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 100),
@@ -242,7 +242,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 6b: økt inntekt, mer til bruker, mer til arbeidsgiver
      */
     @Test
-    public void case6b() {
+    void case6b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 900),
@@ -262,7 +262,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 6c: økt inntekt, mer til bruker, mer til arbeidsgiver
      */
     @Test
-    public void case6c() {
+    void case6c() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 0),
@@ -282,7 +282,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 7a: økt inntekt, mindre til bruker, mer til arbeidsgiver
      */
     @Test
-    public void case7a() {
+    void case7a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 800),
@@ -310,7 +310,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 7b: Økt inntekt, mindre til bruker, mer til arbeidsgiver
      */
     @Test
-    public void case7b() {
+    void case7b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 900),
@@ -338,7 +338,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 7c: Økt inntekt, mindre til bruker, mer til arbeidsgiver
      */
     @Test
-    public void case7c() {
+    void case7c() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 800),
@@ -366,7 +366,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 8a: økt inntekt, mindre til AG, mer til bruker
      */
     @Test
-    public void case8a() {
+    void case8a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 100),
@@ -386,7 +386,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 8b: økt inntekt, mindre til AG, mer til bruker
      */
     @Test
-    public void case8b() {
+    void case8b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 800),
@@ -406,7 +406,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 8c: økt inntekt, mindre til AG, mer til bruker
      */
     @Test
-    public void case8c() {
+    void case8c() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 0),
@@ -426,7 +426,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 9a: redusert inntekt, mindre til bruker, ingen refusjon
      */
     @Test
-    public void case9a() {
+    void case9a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2100),
@@ -446,7 +446,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 9b: redusert inntekt, mindre til bruker, ingen refusjon
      */
     @Test
-    public void case9b() {
+    void case9b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2100));
@@ -465,7 +465,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * bruker, begrenset til utbetalt refusjon.
      */
     @Test
-    public void case10a() {
+    void case10a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 900),
@@ -494,7 +494,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * bruker, begrenset til utbetalt refusjon.
      */
     @Test
-    public void case10b() {
+    void case10b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1200),
@@ -515,7 +515,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * bruker, begrenset til utbetalt refusjon.
      */
     @Test
-    public void case10c() {
+    void case10c() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1500),
@@ -535,7 +535,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 11a: redusert inntekt, mindre refusjon
      */
     @Test
-    public void case11a() {
+    void case11a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1000),
@@ -555,7 +555,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 11b: redusert inntekt, mindre refusjon
      */
     @Test
-    public void case11b() {
+    void case11b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1400),
@@ -575,7 +575,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 12a: redusert inntekt, mindre refusjon og mindre tilbruker
      */
     @Test
-    public void case12a() {
+    void case12a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1000),
@@ -603,7 +603,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 12b:
      */
     @Test
-    public void case12b() {
+    void case12b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 600),
@@ -631,7 +631,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 12c:
      */
     @Test
-    public void case12c() {
+    void case12c() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1400),
@@ -659,7 +659,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 12d:
      */
     @Test
-    public void case12d() {
+    void case12d() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1900),
@@ -679,7 +679,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 13a: redusert inntekt, mindre refusjon, mer til bruker
      */
     @Test
-    public void case13a() {
+    void case13a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 500),
@@ -699,7 +699,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 13b: redusert inntekt, mindre refusjon, mer til bruker
      */
     @Test
-    public void case13b() {
+    void case13b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 500),
@@ -719,7 +719,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 13c: redusert inntekt, mindre refusjon, mer til bruker
      */
     @Test
-    public void case13c() {
+    void case13c() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 0),
@@ -739,7 +739,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 14a:
      */
     @Test
-    public void case14a() {
+    void case14a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1400),
@@ -767,7 +767,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 14b:
      */
     @Test
-    public void case14b() {
+    void case14b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 800),
@@ -795,7 +795,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 14c:
      */
     @Test
-    public void case14c() {
+    void case14c() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2000),
@@ -815,7 +815,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case 14d:
      */
     @Test
-    public void case14d() {
+    void case14d() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2000),
@@ -837,7 +837,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * bruker vil aldri kunne bli mindre enn refusjon.
      */
     @Test
-    public void case15a() {
+    void case15a() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2100),
@@ -859,7 +859,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * bruker vil aldri kunne bli mindre enn refusjon.
      */
     @Test
-    public void case15b() {
+    void case15b() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2100),
@@ -879,7 +879,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * Case: Ny IM slår sammen andeler med referanse til en andel uten referanse.
      */
     @Test
-    public void slåttSammenAndelerMistetReferanse() {
+    void slåttSammenAndelerMistetReferanse() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 1100, REF1),
@@ -910,7 +910,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * ref.
      */
     @Test
-    public void slåSammenAndelerMedOgUtenRefTilEnSomManglerRef() {
+    void slåSammenAndelerMedOgUtenRefTilEnSomManglerRef() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 500, REF1),
@@ -947,7 +947,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * likevel omfordele, da det ikke er noen andre andeler å matche med.
      */
     @Test
-    public void skalKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårKunEnAndelFinnes() {
+    void skalKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårKunEnAndelFinnes() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()));
@@ -976,7 +976,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
      * fordele
      */
     @Test
-    public void skalIkkeKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårFlereAndelerFinnes() {
+    void skalIkkeKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårFlereAndelerFinnes() {
         // Arrange
         var forrigeAndeler = List.of(
                 lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()),

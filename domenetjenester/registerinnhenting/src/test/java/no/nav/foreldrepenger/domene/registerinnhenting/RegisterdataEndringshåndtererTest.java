@@ -46,7 +46,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
 
 @ExtendWith(MockitoExtension.class)
-public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
+class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
 
     private static final AktørId SØKER_AKTØR_ID = AktørId.dummy();
     private static final PersonstatusType PERSONSTATUS = PersonstatusType.BOSA;
@@ -83,7 +83,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnere_når_behandling_er_før_registerinnhenting() {
+    void skal_returnere_når_behandling_er_før_registerinnhenting() {
         // Arrange
         var behandling = scenarioFødsel
             .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP)
@@ -97,7 +97,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnere_når_forrige_innhenting_var_i_inneværende_døgn() {
+    void skal_returnere_når_forrige_innhenting_var_i_inneværende_døgn() {
         // Arrange
         scenarioFødsel.medOpplysningerOppdatertTidspunkt(LocalDateTime.now());
         var behandling = scenarioFødsel
@@ -111,7 +111,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_skru_behandlingen_tilbake_når_det_er_diff_i_personinformasjon() {
+    void skal_skru_behandlingen_tilbake_når_det_er_diff_i_personinformasjon() {
         // Arrange
         var søker = opprettSøkerinfo();
 
@@ -135,7 +135,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_oppdatere_registeropplysninger_hvis_det_er_berørt_behandling() {
+    void skal_ikke_oppdatere_registeropplysninger_hvis_det_er_berørt_behandling() {
         // Arrange
         var søker = opprettSøkerinfo();
 
@@ -154,7 +154,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_starte_behandlingen_på_nytt_25_dager_etter_termin_og_ingen_fødselsdato() {
+    void skal_starte_behandlingen_på_nytt_25_dager_etter_termin_og_ingen_fødselsdato() {
         // Arrange
         var søker = opprettSøkerinfo();
 
@@ -178,7 +178,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_starte_i_SRB_når_tre_uker_etter_termin_og_ingen_fødselsdato() {
+    void skal_starte_i_SRB_når_tre_uker_etter_termin_og_ingen_fødselsdato() {
         // Arrange
         var fDato = LocalDate.now().minusWeeks(3);
 
@@ -200,7 +200,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_starte_behandlingen_på_nytt_for_adopsjonssak_der_ingenting_er_endret() {
+    void skal_ikke_starte_behandlingen_på_nytt_for_adopsjonssak_der_ingenting_er_endret() {
         // Arrange
         var opplysningerOppdatertTidspunkt = LocalDateTime.now().minusDays(1);
         var søker = opprettSøkerinfo();

@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
-public class BehandlingskontrollEventPublisererTest {
+class BehandlingskontrollEventPublisererTest {
     private final BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private final FagsakYtelseType fagsakYtelseType = FagsakYtelseType.ENGANGSTØNAD;
 
@@ -59,7 +59,7 @@ public class BehandlingskontrollEventPublisererTest {
     }
 
     @Test
-    public void skal_fyre_event_for_aksjonspunkt_funnet_ved_prosessering() {
+    void skal_fyre_event_for_aksjonspunkt_funnet_ved_prosessering() {
         var scenario = TestScenario.forEngangsstønad();
         var behandling = scenario.lagre(serviceProvider);
 
@@ -76,7 +76,7 @@ public class BehandlingskontrollEventPublisererTest {
     }
 
     @Test
-    public void skal_fyre_event_for_behandlingskontroll_startet_stoppet_ved_prosessering() {
+    void skal_fyre_event_for_behandlingskontroll_startet_stoppet_ved_prosessering() {
         // Arrange
         var scenario = nyttScenario(STEG_1);
 
@@ -96,7 +96,7 @@ public class BehandlingskontrollEventPublisererTest {
     }
 
     @Test
-    public void skal_fyre_event_for_behandlingskontroll_behandlingsteg_status_endring_ved_prosessering() {
+    void skal_fyre_event_for_behandlingskontroll_behandlingsteg_status_endring_ved_prosessering() {
         // Arrange
         var scenario = nyttScenario(STEG_1);
 
@@ -131,7 +131,7 @@ public class BehandlingskontrollEventPublisererTest {
     }
 
     @Test
-    public void skal_fyre_event_for_behandlingskontroll_tilbakeføring_ved_prosessering() {
+    void skal_fyre_event_for_behandlingskontroll_tilbakeføring_ved_prosessering() {
         // Arrange
         var scenario = nyttScenario(STEG_3);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, STEG_4);
@@ -152,7 +152,7 @@ public class BehandlingskontrollEventPublisererTest {
     }
 
     @Test
-    public void skal_fyre_event_for_behandlingskontroll_behandlingsteg_overgang_ved_prosessering() {
+    void skal_fyre_event_for_behandlingskontroll_behandlingsteg_overgang_ved_prosessering() {
         // Arrange
         var scenario = nyttScenario(STEG_1);
 

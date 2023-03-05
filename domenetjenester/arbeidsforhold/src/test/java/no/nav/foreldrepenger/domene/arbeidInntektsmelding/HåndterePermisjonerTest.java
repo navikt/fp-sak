@@ -50,7 +50,7 @@ class HåndterePermisjonerTest {
     }
 
     @Test
-    public void skal_ikke_finne_mangel_når_permisjonen_har_sluttdato() {
+    void skal_ikke_finne_mangel_når_permisjonen_har_sluttdato() {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         var behandling = scenario.lagre(repositoryProvider);
         var behandlingReferanse = lagReferanse(behandling);
@@ -79,7 +79,7 @@ class HåndterePermisjonerTest {
     }
 
     @Test
-    public void skal_finne_mangel_når_permisjonen_ikke_har_sluttdato() {
+    void skal_finne_mangel_når_permisjonen_ikke_har_sluttdato() {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         var behandling = scenario.lagre(repositoryProvider);
         var behandlingReferanse = lagReferanse(behandling);
@@ -108,7 +108,7 @@ class HåndterePermisjonerTest {
     }
 
     @Test
-    public void skal_finne_mangel_når_permisjon_uten_sluttdato_ikke_er_bekreftet() {
+    void skal_finne_mangel_når_permisjon_uten_sluttdato_ikke_er_bekreftet() {
 
         // Arrange
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
@@ -144,7 +144,7 @@ class HåndterePermisjonerTest {
     }
 
     @Test
-    public void skal_ikke_finne_mangel_når_permisjon_uten_sluttdato_er_bekreftet() {
+    void skal_ikke_finne_mangel_når_permisjon_uten_sluttdato_er_bekreftet() {
 
         // Arrange
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
@@ -179,7 +179,7 @@ class HåndterePermisjonerTest {
         assertThat(arbForholdMedPermUtenSluttdato.get(0).årsak()).isEqualTo(AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO);
     }
     @Test
-    public void har_relevant_permisjon_for_tilretteleggingFom() {
+    void har_relevant_permisjon_for_tilretteleggingFom() {
 
         // Arrange
         var tilretteleggingFom = LocalDate.now();
@@ -201,7 +201,7 @@ class HåndterePermisjonerTest {
         assertThat(erPermisjonInnenfor).isTrue();
     }
     @Test
-    public void har_ikke_relevant_permisjon_for_tilretteleggingFom() {
+    void har_ikke_relevant_permisjon_for_tilretteleggingFom() {
         // Arrange
         var tilretteleggingFom = LocalDate.now();
 

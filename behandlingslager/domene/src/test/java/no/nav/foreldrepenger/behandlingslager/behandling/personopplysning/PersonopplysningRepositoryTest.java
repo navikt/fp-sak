@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
-public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
+class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
 
     private PersonopplysningRepository repository;
     private FagsakRepository fagsakRepository;
@@ -36,7 +36,7 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_eldste_versjon_av_aggregat() {
+    void skal_hente_eldste_versjon_av_aggregat() {
         final var personinfo = lagPerson();
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(personinfo.getAktørId()));
         fagsakRepository.opprettNy(fagsak);

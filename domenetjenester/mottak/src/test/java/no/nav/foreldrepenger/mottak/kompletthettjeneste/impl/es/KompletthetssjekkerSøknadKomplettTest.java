@@ -28,12 +28,12 @@ import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 /**
  * Test for kompletthetssjekk for engangsstønad
  */
-public class KompletthetssjekkerSøknadKomplettTest {
+class KompletthetssjekkerSøknadKomplettTest {
 
     private Kompletthetsjekker testObjekt;
 
     @Test
-    public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_adopsjon_og_mangler_vedlegg() {
+    void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_adopsjon_og_mangler_vedlegg() {
         var behandling = lagMocketBehandling(false, false, true, LocalDate.now(), false);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
@@ -45,49 +45,49 @@ public class KompletthetssjekkerSøknadKomplettTest {
     }
 
     @Test
-    public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_adopsjon_og_mangler_ikke_vedlegg() {
+    void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_adopsjon_og_mangler_ikke_vedlegg() {
         var behandling = lagMocketBehandling(false, false, false, LocalDate.now(), false);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
-    public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_mangler_vedlegg() {
+    void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_mangler_vedlegg() {
         var behandling = lagMocketBehandling(false, true, true, LocalDate.now(), true);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
-    public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_mangler_ikke_vedlegg() {
+    void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_mangler_ikke_vedlegg() {
         var behandling = lagMocketBehandling(false, true, false, LocalDate.now(), true);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
-    public void elektronisk_reg_søknad_skal_behandles_som_ikke_komplett_ved_adopsjon_og_manglende_vedlegg() {
+    void elektronisk_reg_søknad_skal_behandles_som_ikke_komplett_ved_adopsjon_og_manglende_vedlegg() {
         var behandling = lagMocketBehandling(true, false, true, LocalDate.now(), false);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isFalse();
     }
 
     @Test
-    public void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_manglende_vedlegg_hvis_bekrefet_i_TPS() {
+    void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_manglende_vedlegg_hvis_bekrefet_i_TPS() {
         var behandling = lagMocketBehandling(true, true, true, LocalDate.now(), true);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
-    public void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_barn_finnes_i_tps_og_mangler_ikke_vedlegg() {
+    void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_barn_finnes_i_tps_og_mangler_ikke_vedlegg() {
         var behandling = lagMocketBehandling(true, true, false, LocalDate.now(), true);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
-    public void elektronisk_reg_søknad_skal_behandles_som_være_komplett_ved_fødsel_og_barn_finnes_ikke_i_tps_og_mangler_ikke_vedlegg() {
+    void elektronisk_reg_søknad_skal_behandles_som_være_komplett_ved_fødsel_og_barn_finnes_ikke_i_tps_og_mangler_ikke_vedlegg() {
         var behandling = lagMocketBehandling(true, true, false, LocalDate.now(), false);
         var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();

@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class EtterkontrollRepositoryTest {
+class EtterkontrollRepositoryTest {
 
     private final static int revurderingDagerTilbake = 60;
 
@@ -48,7 +48,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void skal_finne_kandidat_til_revurdering() {
+    void skal_finne_kandidat_til_revurdering() {
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
@@ -63,7 +63,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void sjekk_at_behandlingen_blir_etterkontrollert_og_ikke_klagen() {
+    void sjekk_at_behandlingen_blir_etterkontrollert_og_ikke_klagen() {
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
         var klage = Behandling.forKlage(behandling.getFagsak()).build();
         behandlingRepository.lagre(klage, behandlingRepository.taSkriveLås(klage));
@@ -80,7 +80,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void behandling_som_har_vært_etterkontrollert_skal_ikke_være_kandidat_til_revurdering() {
+    void behandling_som_har_vært_etterkontrollert_skal_ikke_være_kandidat_til_revurdering() {
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
@@ -97,7 +97,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void skal_ikke_velge_henlagt_behandling() {
+    void skal_ikke_velge_henlagt_behandling() {
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake);
 
         var innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
@@ -126,7 +126,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void fagsak_som_har_eksisterende_etterkontrollsbehandling_skal_ikke_være_kandidat_til_revurdering() {
+    void fagsak_som_har_eksisterende_etterkontrollsbehandling_skal_ikke_være_kandidat_til_revurdering() {
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
@@ -150,7 +150,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void skal_hente_ut_siste_vedtak_til_revurdering(EntityManager entityManager) {
+    void skal_hente_ut_siste_vedtak_til_revurdering(EntityManager entityManager) {
         final var grunnlagRepository = new FamilieHendelseRepository(entityManager);
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
         var terminDato = LocalDate.now().minusDays(revurderingDagerTilbake + 2);
@@ -193,7 +193,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void behandling_med_nyere_termindato_skal_ikke_være_kandidat_til_revurdering() {
+    void behandling_med_nyere_termindato_skal_ikke_være_kandidat_til_revurdering() {
         var behandling = opprettRevurderingsKandidat(0);
 
         var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
@@ -244,7 +244,7 @@ public class EtterkontrollRepositoryTest {
     }
 
     @Test
-    public void skal_finne_nyeste_innvilgete_avsluttede_behandling_som_ikke_er_henlagt() {
+    void skal_finne_nyeste_innvilgete_avsluttede_behandling_som_ikke_er_henlagt() {
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         var innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(

@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 @ExtendWith(MockitoExtension.class)
-public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest {
+class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -58,7 +58,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
     }
 
     @Test
-    public void skal_fastsette_periode_til_mors_maksdato_far_sammenhengende_uttak_start_etter_mor_maks() {
+    void skal_fastsette_periode_til_mors_maksdato_far_sammenhengende_uttak_start_etter_mor_maks() {
         var fødselsdato = LocalDate.now().minusMonths(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
@@ -105,7 +105,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
     }
 
     @Test
-    public void skal_fastsette_periode_til_første_uttak_far_sammenhengende_uttak_start_før_mor_maks() {
+    void skal_fastsette_periode_til_første_uttak_far_sammenhengende_uttak_start_før_mor_maks() {
         var fødselsdato = LocalDate.now().minusMonths(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.minusWeeks(4);
@@ -152,7 +152,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
     }
 
     @Test
-    public void skal_fastsette_periode_til_første_uttak_far_fritt_uttak() {
+    void skal_fastsette_periode_til_første_uttak_far_fritt_uttak() {
         var fødselsdato = LocalDate.now().minusWeeks(4);
         var morsmaksdato = fødselsdato.plusWeeks(31);
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
@@ -199,7 +199,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
     }
 
     @Test
-    public void skal_fastsette_periode_til_første_uttak_far_wlb() {
+    void skal_fastsette_periode_til_første_uttak_far_wlb() {
         var fødselsdato = LocalDate.now();
         var termindato = LocalDate.now();
         var førsteUttaksdato = termindato.minusDays(3);

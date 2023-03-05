@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.PersonopplysningerForUttakStub;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class AvklarteDatoerTjenesteTest {
+class AvklarteDatoerTjenesteTest {
 
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(
@@ -32,7 +32,7 @@ public class AvklarteDatoerTjenesteTest {
     private final GrunnlagOppretter grunnlagOppretter = new GrunnlagOppretter(repositoryProvider);
 
     @Test
-    public void opprett_avklarte_datoer_for_søknad_med_termindato() {
+    void opprett_avklarte_datoer_for_søknad_med_termindato() {
         var behandling = grunnlagOppretter.lagreBehandling();
         var termindato = LocalDate.of(2019, Month.SEPTEMBER, 1);
         grunnlagOppretter.lagreUttaksgrenser(behandling.getId(), LocalDate.of(2019, Month.AUGUST, 1));
@@ -62,7 +62,7 @@ public class AvklarteDatoerTjenesteTest {
     }
 
     @Test
-    public void opprett_avklarte_datoer_for_søknad_med_fødselsdato() {
+    void opprett_avklarte_datoer_for_søknad_med_fødselsdato() {
         var behandling = grunnlagOppretter.lagreBehandling();
         var termindato = LocalDate.of(2019, Month.SEPTEMBER, 1);
         var fødselsdato = termindato.plusDays(2);

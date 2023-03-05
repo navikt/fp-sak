@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class BehandlingsresultatTest extends EntityManagerAwareTest {
+class BehandlingsresultatTest extends EntityManagerAwareTest {
 
 
     private BehandlingRepository behandlingRepository;
@@ -23,7 +23,7 @@ public class BehandlingsresultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_ny_behandlingsresultat() {
+    void skal_opprette_ny_behandlingsresultat() {
         var behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
         var behandlingsresultat = behandlingsresultatBuilder.build();
 
@@ -32,7 +32,7 @@ public class BehandlingsresultatTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_ny_behandlingsresultat_og_lagre_med_ikke_fastsatt_vilkårresultat() {
+    void skal_opprette_ny_behandlingsresultat_og_lagre_med_ikke_fastsatt_vilkårresultat() {
         var behandling = opprettBehandling();
 
         var behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();

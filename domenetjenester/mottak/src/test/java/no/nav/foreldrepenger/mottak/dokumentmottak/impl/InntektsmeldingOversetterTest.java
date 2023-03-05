@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.I
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingWrapper;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
 
-public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
+class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
 
     private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private final FileToStringUtil fileToStringUtil = new FileToStringUtil();
@@ -64,7 +64,7 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void mappe_inntektsmelding_til_domene() throws IOException, URISyntaxException {
+    void mappe_inntektsmelding_til_domene() throws IOException, URISyntaxException {
         final var behandling = opprettScenarioOgLagreInntektsmelding("inntektsmelding.xml");
 
         final var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
@@ -82,7 +82,7 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalVedMappingLeseBeløpPerMndForNaturalytelseForGjenopptakelseFraOpphørListe() throws IOException, URISyntaxException {
+    void skalVedMappingLeseBeløpPerMndForNaturalytelseForGjenopptakelseFraOpphørListe() throws IOException, URISyntaxException {
         final var behandling = opprettScenarioOgLagreInntektsmelding(
             "inntektsmelding_naturalytelse_gjenopptak_ignorer_belop.xml");
 
@@ -103,7 +103,7 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalMappeOgPersistereKorrektInnsendingsdato() throws IOException, URISyntaxException {
+    void skalMappeOgPersistereKorrektInnsendingsdato() throws IOException, URISyntaxException {
         // Arrange
         final var behandling = opprettBehandling();
         var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
@@ -131,7 +131,7 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalVedMottakAvNyInntektsmeldingPåSammeArbeidsforholdIkkeOverskriveHvisPersistertErNyereEnnMottatt() throws IOException, URISyntaxException {
+    void skalVedMottakAvNyInntektsmeldingPåSammeArbeidsforholdIkkeOverskriveHvisPersistertErNyereEnnMottatt() throws IOException, URISyntaxException {
         // Arrange
         final var behandling = opprettBehandling();
         var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
@@ -172,7 +172,7 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalVedMottakAvNyInntektsmeldingPåSammeArbeidsforholdOverskriveHvisPersistertErEldreEnnMottatt() throws IOException, URISyntaxException {
+    void skalVedMottakAvNyInntektsmeldingPåSammeArbeidsforholdOverskriveHvisPersistertErEldreEnnMottatt() throws IOException, URISyntaxException {
         // Arrange
         final var behandling = opprettBehandling();
         var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");

@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
-public class VurderSøknadsfristOppdatererTest {
+class VurderSøknadsfristOppdatererTest {
 
     @Inject
     private @Any Instance<VurderSøknadsfristOppdaterer> tjeneste;
@@ -45,7 +45,7 @@ public class VurderSøknadsfristOppdatererTest {
     private SøknadRepository søknadRepository;
 
     @Test
-    public void skal_oppdatere_behandlingsresultet_med_uttaksperiodegrense(EntityManager em) {
+    void skal_oppdatere_behandlingsresultet_med_uttaksperiodegrense(EntityManager em) {
         // Arrange
         var nyMottattDato = LocalDate.of(2018, 1, 15);
         var førsteLovligeUttaksdag = LocalDate.of(2017, 10, 1);
@@ -69,7 +69,7 @@ public class VurderSøknadsfristOppdatererTest {
     }
 
     @Test
-    public void skal_oppdatere_behandlingsresultat_med_eksisterende_uttaksperiodegrense(EntityManager em) {
+    void skal_oppdatere_behandlingsresultat_med_eksisterende_uttaksperiodegrense(EntityManager em) {
         // Arrange
         var gammelMottatDato = LocalDate.of(2018, 3, 15);
 
@@ -93,7 +93,7 @@ public class VurderSøknadsfristOppdatererTest {
     }
 
     @Test
-    public void lagrerMottattDatoFraSøknadVedEndringFraGyldigGrunnTilIkkeGyldigGrunn(EntityManager em) {
+    void lagrerMottattDatoFraSøknadVedEndringFraGyldigGrunnTilIkkeGyldigGrunn(EntityManager em) {
         var behandling = byggBehandlingMedYf(em);
         var mottattDatoSøknad = LocalDate.of(2019, 1, 1);
         var søknad = new SøknadEntitet.Builder()

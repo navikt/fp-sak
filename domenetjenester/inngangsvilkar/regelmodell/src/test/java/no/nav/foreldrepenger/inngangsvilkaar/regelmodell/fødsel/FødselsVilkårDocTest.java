@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
-public class FødselsVilkårDocTest {
+class FødselsVilkårDocTest {
 
 
     private static final String gammelJson = """
@@ -30,7 +30,7 @@ public class FødselsVilkårDocTest {
         """;
 
     @Test
-    public void kanDeserialisereGammeltFormat() throws JsonProcessingException {
+    void kanDeserialisereGammeltFormat() throws JsonProcessingException {
         var gsource = new FødselsvilkårGrunnlag(RegelKjønn.KVINNE, null, LocalDate.of(2021,4,22),
             null, LocalDate.of(2021,5,20), 1,
             false, false, true,
@@ -40,7 +40,7 @@ public class FødselsVilkårDocTest {
     }
 
     @Test
-    public void kanSerialisereDeserialisereNyttFormat() throws JsonProcessingException {
+    void kanSerialisereDeserialisereNyttFormat() throws JsonProcessingException {
         var gsource = new FødselsvilkårGrunnlag(RegelKjønn.MANN, RegelSøkerRolle.FARA, LocalDate.now().minusWeeks(1),
             null, LocalDate.now().plusMonths(1), 1,
             false, false, true,
@@ -92,7 +92,7 @@ public class FødselsVilkårDocTest {
         """;
 
     @Test
-    public void kanSerialisereDeserialisereEldgammeltFormat() throws JsonProcessingException {
+    void kanSerialisereDeserialisereEldgammeltFormat() throws JsonProcessingException {
         var grunnlag = DefaultJsonMapper.getObjectMapper().readValue(eldgammelJson, FødselsvilkårGrunnlagLegacy.class);
         assertThat(grunnlag.behandlingsdato()).isEqualTo(LocalDate.of(2018,2,5));
         assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(LocalDate.of(2017,8,5));

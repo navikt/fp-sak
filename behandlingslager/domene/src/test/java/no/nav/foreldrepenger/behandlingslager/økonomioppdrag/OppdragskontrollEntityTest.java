@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class OppdragskontrollEntityTest {
+class OppdragskontrollEntityTest {
     private Oppdragskontroll.Builder oppdragskontrollBuilder;
     private Oppdragskontroll oppdragskontroll;
     private Oppdragskontroll oppdragskontroll_2;
@@ -27,7 +27,7 @@ public class OppdragskontrollEntityTest {
     }
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter() {
+    void skal_bygge_instans_med_påkrevde_felter() {
         oppdragskontroll = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(oppdragskontroll.getSaksnummer()).isEqualTo(SAKSID);
@@ -35,7 +35,7 @@ public class OppdragskontrollEntityTest {
     }
 
     @Test
-    public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
+    void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
 
         // mangler behandlingId
         try {
@@ -75,7 +75,7 @@ public class OppdragskontrollEntityTest {
     }
 
     @Test
-    public void skal_håndtere_null_this_feilKlasse_i_equals() {
+    void skal_håndtere_null_this_feilKlasse_i_equals() {
         oppdragskontroll = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(oppdragskontroll).isNotNull();
@@ -84,7 +84,7 @@ public class OppdragskontrollEntityTest {
     }
 
     @Test
-    public void skal_ha_refleksiv_equalsOgHashCode() {
+    void skal_ha_refleksiv_equalsOgHashCode() {
         oppdragskontrollBuilder = lagBuilderMedPaakrevdeFelter();
         oppdragskontroll = oppdragskontrollBuilder.build();
         oppdragskontroll_2 = oppdragskontrollBuilder.build();
@@ -98,7 +98,7 @@ public class OppdragskontrollEntityTest {
     }
 
     @Test
-    public void skal_bruke_SaksId_i_equalsOgHashCode() {
+    void skal_bruke_SaksId_i_equalsOgHashCode() {
         oppdragskontrollBuilder = lagBuilderMedPaakrevdeFelter();
         oppdragskontroll = oppdragskontrollBuilder.build();
         oppdragskontrollBuilder.medSaksnummer(new Saksnummer("701"));
@@ -110,7 +110,7 @@ public class OppdragskontrollEntityTest {
     }
 
     @Test
-    public void skal_bruke_VenterKvittering_i_equalsOgHashCode() {
+    void skal_bruke_VenterKvittering_i_equalsOgHashCode() {
         oppdragskontrollBuilder = lagBuilderMedPaakrevdeFelter();
         oppdragskontroll = oppdragskontrollBuilder.build();
         oppdragskontrollBuilder.medVenterKvittering(Boolean.FALSE);

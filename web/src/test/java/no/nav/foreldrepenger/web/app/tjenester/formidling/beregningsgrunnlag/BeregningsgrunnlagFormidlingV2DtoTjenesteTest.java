@@ -29,7 +29,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
 
 
     @Test
-    public void tester_mapping() {
+    void tester_mapping() {
         // Arrange
         var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
             .medBeregningsgrunnlag(buildBeregningsgrunnlag())

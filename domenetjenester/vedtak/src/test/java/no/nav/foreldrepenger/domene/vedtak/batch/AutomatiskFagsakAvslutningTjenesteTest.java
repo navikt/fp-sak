@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class AutomatiskFagsakAvslutningTjenesteTest {
+class AutomatiskFagsakAvslutningTjenesteTest {
 
     private AutomatiskFagsakAvslutningTjeneste automatiskFagsakAvslutningTjeneste;
 
@@ -38,7 +38,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
     }
 
     @Test
-    public void ingen_fagsak_avslutning() {
+    void ingen_fagsak_avslutning() {
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of());
 
         automatiskFagsakAvslutningTjeneste.avsluttFagsaker("", LocalDate.now());
@@ -46,7 +46,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
     }
 
     @Test
-    public void en_fagsak_avslutning() {
+    void en_fagsak_avslutning() {
         var fagsak = lagFagsak(FagsakStatus.LØPENDE);
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of(fagsak));
 
@@ -55,7 +55,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
     }
 
     @Test
-    public void en_fagsak_avslutning_med_berørt_sak() {
+    void en_fagsak_avslutning_med_berørt_sak() {
         var fagsak = lagFagsak(FagsakStatus.LØPENDE);
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of(fagsak));
 

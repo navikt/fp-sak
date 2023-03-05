@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class OpprettOppgaveVurderDokumentTaskTest {
+class OpprettOppgaveVurderDokumentTaskTest {
 
     private static final long FAGSAK_ID = 2L;
 
@@ -40,7 +40,7 @@ public class OpprettOppgaveVurderDokumentTaskTest {
     }
 
     @Test
-    public void skal_opprette_oppgave_for_å_vurdere_dokument_basert_på_fagsakId() {
+    void skal_opprette_oppgave_for_å_vurdere_dokument_basert_på_fagsakId() {
         // Arrange
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderDokumentTask.class);
         prosessTaskData.setFagsakId(FAGSAK_ID);

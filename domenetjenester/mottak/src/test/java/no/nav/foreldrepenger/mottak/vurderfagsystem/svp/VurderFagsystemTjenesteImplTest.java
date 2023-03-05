@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.impl.VurderFagsystemTestUtil
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderFagsystemTjenesteImplTest {
+class VurderFagsystemTjenesteImplTest {
 
     public static final long FAGSAK_EN_ID = 111L;
     public static final long FAGSAK_TO_ID = 222L;
@@ -74,7 +74,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereSjekkInfotrygdHvisBrukerIkkeHarSakIVL() {
+    void skalReturnereSjekkInfotrygdHvisBrukerIkkeHarSakIVL() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.INNTEKTSMELDING);
         vurderFagsystem.setÅrsakInnsendingInntektsmelding("");
@@ -87,7 +87,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereManuellBehandlingdHvisBrukerHarMerEnnEnSakIVLMedåpenFørstegangsbehandling() {
+    void skalReturnereManuellBehandlingdHvisBrukerHarMerEnnEnSakIVLMedåpenFørstegangsbehandling() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.INNTEKTSMELDING);
         vurderFagsystem.setÅrsakInnsendingInntektsmelding("");
@@ -116,7 +116,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereManuellBehandlingHvisBrukerHarAvsluttetSakIVLMedFamiliehendelseIPerioden() {
+    void skalReturnereManuellBehandlingHvisBrukerHarAvsluttetSakIVLMedFamiliehendelseIPerioden() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         vurderFagsystem.setStrukturertSøknad(true);
@@ -135,7 +135,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVLMedSakHvisBrukerHarÅpenSakIVLMedMatchendeFH() {
+    void skalReturnereVLMedSakHvisBrukerHarÅpenSakIVLMedMatchendeFH() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         vurderFagsystem.setBarnTermindato(LocalDate.now().plusMonths(2));
@@ -157,7 +157,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereManuellMedSakHvisBrukerHarAvsluttetSakIVLMedMatchendeFH() {
+    void skalReturnereManuellMedSakHvisBrukerHarAvsluttetSakIVLMedMatchendeFH() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         vurderFagsystem.setBarnTermindato(LocalDate.now().plusMonths(2));
@@ -178,7 +178,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVLHvisBrukerHarÅpenSakIVLMedIkkeMatchendeFH() {
+    void skalReturnereVLHvisBrukerHarÅpenSakIVLMedIkkeMatchendeFH() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         vurderFagsystem.setBarnTermindato(LocalDate.now().plusMonths(6));
@@ -200,7 +200,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVedtaksløsningenForInntektsmeldingHvisBrukerHarSakIVLMedFamiliehendelseUtenforPerioden() {
+    void skalReturnereVedtaksløsningenForInntektsmeldingHvisBrukerHarSakIVLMedFamiliehendelseUtenforPerioden() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.INNTEKTSMELDING);
         vurderFagsystem.setÅrsakInnsendingInntektsmelding("");
@@ -226,7 +226,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVLMedSaksnummerHvisBrukerHarNøyaktigEnSakMedÅpenFørstegangsbehandlingSomVenterPåSøknad() {
+    void skalReturnereVLMedSaksnummerHvisBrukerHarNøyaktigEnSakMedÅpenFørstegangsbehandlingSomVenterPåSøknad() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         vurderFagsystem.setStrukturertSøknad(true);
@@ -249,7 +249,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereManuellVurderingHvisBrukerHarNøyaktigEnSakMedÅpenFørstegangsbehandlingSomAlleredeHarSøknadOgDetKommerEnNySøknad() {
+    void skalReturnereManuellVurderingHvisBrukerHarNøyaktigEnSakMedÅpenFørstegangsbehandlingSomAlleredeHarSøknadOgDetKommerEnNySøknad() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         vurderFagsystem.setStrukturertSøknad(true);
@@ -270,7 +270,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereVLForVedleggNårÅpenBehandling() {
+    void skalReturnereVLForVedleggNårÅpenBehandling() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         vurderFagsystem.setStrukturertSøknad(true);
@@ -291,7 +291,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereManuellVurderingForVedleggNårHenlagt() {
+    void skalReturnereManuellVurderingForVedleggNårHenlagt() {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         vurderFagsystem.setStrukturertSøknad(false);

@@ -16,11 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
-public class BehandlingVedtakDvhMapperTest {
+class BehandlingVedtakDvhMapperTest {
 
 
     @Test
-    public void skal_mappe_til_behandling_vedtak_dvh() {
+    void skal_mappe_til_behandling_vedtak_dvh() {
         var behandling = byggBehandling();
         var vedtak = BehandlingVedtak.builder()
                 .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)

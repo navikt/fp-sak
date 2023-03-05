@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYt
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 
 
-public class LagOppdragTjenesteTest {
+class LagOppdragTjenesteTest {
     Saksnummer saksnummer = new Saksnummer("FooBAR");
     Long enBehandlingId = 1000001L;
     boolean vanligInntrekkbeslutning = true;
@@ -40,13 +40,13 @@ public class LagOppdragTjenesteTest {
     LocalDate vedtaksdato = dag1;
 
     @Test
-    public void skal_få_ingen_oppdrag_for_tomt_førstegangsvedtak() {
+    void skal_få_ingen_oppdrag_for_tomt_førstegangsvedtak() {
         var resultat = LagOppdragTjeneste.lagOppdrag(lagTomInput());
         assertThat(resultat).isEmpty();
     }
 
     @Test
-    public void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
+    void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
         var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
         BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
@@ -73,7 +73,7 @@ public class LagOppdragTjenesteTest {
     }
 
     @Test
-    public void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
+    void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
         var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
         var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
         var andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);

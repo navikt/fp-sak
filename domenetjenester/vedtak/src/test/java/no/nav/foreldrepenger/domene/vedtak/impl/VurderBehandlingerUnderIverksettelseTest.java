@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class VurderBehandlingerUnderIverksettelseTest {
+class VurderBehandlingerUnderIverksettelseTest {
 
     private EntityManager entityManager;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -53,7 +53,7 @@ public class VurderBehandlingerUnderIverksettelseTest {
     }
 
     @Test
-    public void neiHvisIngenAnnenBehandling() {
+    void neiHvisIngenAnnenBehandling() {
         var førstegangBehandling = lagreBehandling();
         // Act
         var resultat = tjeneste.vurder(førstegangBehandling);
@@ -63,7 +63,7 @@ public class VurderBehandlingerUnderIverksettelseTest {
     }
 
     @Test
-    public void neiHvisAnnenBehandlingErIverksatt() {
+    void neiHvisAnnenBehandlingErIverksatt() {
         // Arrange
         var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IVERKSATT);
@@ -78,7 +78,7 @@ public class VurderBehandlingerUnderIverksettelseTest {
     }
 
     @Test
-    public void jaHvisAnnenBehandlingErIkkeIverksatt() {
+    void jaHvisAnnenBehandlingErIkkeIverksatt() {
         // Arrange
         var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IKKE_IVERKSATT);
@@ -93,7 +93,7 @@ public class VurderBehandlingerUnderIverksettelseTest {
     }
 
     @Test
-    public void neiForFørstegangsbehandlingNårRevurderingErUnderIverksetting() {
+    void neiForFørstegangsbehandlingNårRevurderingErUnderIverksetting() {
         // Arrange
         var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IKKE_IVERKSATT);
@@ -108,7 +108,7 @@ public class VurderBehandlingerUnderIverksettelseTest {
     }
 
     @Test
-    public void neiHvisInnsynOgAnnenBehandlingUnderIverksetting() {
+    void neiHvisInnsynOgAnnenBehandlingUnderIverksetting() {
         // Arrange
         var førstegangScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenarioInnsyn = ScenarioInnsynEngangsstønad.innsyn(førstegangScenario);

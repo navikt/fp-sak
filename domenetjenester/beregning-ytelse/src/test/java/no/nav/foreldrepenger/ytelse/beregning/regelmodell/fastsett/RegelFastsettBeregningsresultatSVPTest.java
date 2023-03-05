@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakRes
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class RegelFastsettBeregningsresultatSVPTest {
+class RegelFastsettBeregningsresultatSVPTest {
     private static final LocalDate START = LocalDate.now();
     private static final LocalDate MIDT_1 = LocalDate.now().plusWeeks(3);
     private static final LocalDate MIDT_2 = LocalDate.now().plusWeeks(10);
@@ -39,7 +39,7 @@ public class RegelFastsettBeregningsresultatSVPTest {
     private static final Arbeidsforhold ARBEIDSFORHOLD_3 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("333", UUID.randomUUID().toString());
 
     @Test
-    public void skalTesteSVPUttaksperioderMedForskjelligeAntallAktiviteter() {
+    void skalTesteSVPUttaksperioderMedForskjelligeAntallAktiviteter() {
         // Arrange
         var periodeMap = Map.of(
                 PERIODE_1, List.of(ARBEIDSFORHOLD_1),

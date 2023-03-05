@@ -17,7 +17,7 @@ import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.Identliste;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
-public class AktørTjenesteTest {
+class AktørTjenesteTest {
 
     private AktørTjeneste aktørTjeneste;
 
@@ -32,7 +32,7 @@ public class AktørTjenesteTest {
     }
 
     @Test
-    public void basics_hent_aktørid() {
+    void basics_hent_aktørid() {
         Mockito.when(pdlMock.hentIdenter(any(), any()))
                 .thenReturn(new Identliste(List.of(new IdentInformasjon(aktørId.getId(), IdentGruppe.AKTORID, false))));
 
@@ -42,7 +42,7 @@ public class AktørTjenesteTest {
     }
 
     @Test
-    public void basics_hent_ident() {
+    void basics_hent_ident() {
         Mockito.when(pdlMock.hentIdenter(any(), any()))
                 .thenReturn(new Identliste(List.of(new IdentInformasjon(fnr.getIdent(), IdentGruppe.FOLKEREGISTERIDENT, false))));
 

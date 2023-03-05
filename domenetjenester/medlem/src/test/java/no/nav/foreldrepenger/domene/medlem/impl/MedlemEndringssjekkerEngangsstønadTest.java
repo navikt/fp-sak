@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 
-public class MedlemEndringssjekkerEngangsstønadTest {
+class MedlemEndringssjekkerEngangsstønadTest {
     private MedlemEndringssjekker endringssjekker;
 
     @BeforeEach
@@ -20,7 +20,7 @@ public class MedlemEndringssjekkerEngangsstønadTest {
 
 
     @Test
-    public void skal_finne_endring_når_det_kommer_en_ekstra_medlemskapsperiode() {
+    void skal_finne_endring_når_det_kommer_en_ekstra_medlemskapsperiode() {
         // Arrange
         var periode1 = new MedlemskapPerioderBuilder()
             .medMedlId(1L)
@@ -37,7 +37,7 @@ public class MedlemEndringssjekkerEngangsstønadTest {
     }
 
     @Test
-    public void skal_finne_endring_når_det_forsvinner_en_medlemskapsperiode() {
+    void skal_finne_endring_når_det_forsvinner_en_medlemskapsperiode() {
         // Arrange
         var periode1 = new MedlemskapPerioderBuilder()
             .medMedlId(1L)
@@ -54,7 +54,7 @@ public class MedlemEndringssjekkerEngangsstønadTest {
     }
 
     @Test
-    public void skal_finne_endring_når_en_medlemskapsperiode_endres() {
+    void skal_finne_endring_når_en_medlemskapsperiode_endres() {
         // Arrange
         var periode1 = new MedlemskapPerioderBuilder()
             .medMedlId(1L)

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
+class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
 
     private EntityManager entityManager;
     private LagretVedtakRepository lagretVedtakRepository;
@@ -29,7 +29,7 @@ public class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_ny_lagretVedtak() {
+    void skal_lagre_ny_lagretVedtak() {
         var lagretVedtak = lagLagretVedtakMedPaakrevdeFelter();
 
         lagretVedtakRepository.lagre(lagretVedtak);
@@ -44,7 +44,7 @@ public class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_lagretVedtak_med_id() {
+    void skal_finne_lagretVedtak_med_id() {
         var lagretVedtakLagret = lagLagretVedtakMedPaakrevdeFelter();
         entityManager.persist(lagretVedtakLagret);
         entityManager.flush();

@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.Totrinnsaks
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnskontrollAksjonspunkterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollAksjonspunkterDto;
 
-public class TotrinnskontrollAksjonspunkterTjenesteTest {
+class TotrinnskontrollAksjonspunkterTjenesteTest {
 
     private static final BehandlingStegType STEG_KONTROLLER_FAKTA = BehandlingStegType.KONTROLLER_FAKTA;
     private static final BehandlingStegType STEG_FATTE_VEDTAK = BehandlingStegType.FATTE_VEDTAK;
@@ -53,7 +53,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
@@ -66,7 +66,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_ingen_totrinnsvurdering_og_ingen_aksjonspunkter(){
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
@@ -79,7 +79,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -101,7 +101,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
         var ttvGodkjent = false;
@@ -121,7 +121,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_omhandler_mottat_stotte_eller_omsorgsovertakelse(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_omhandler_mottat_stotte_eller_omsorgsovertakelse(){
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -155,7 +155,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottat_stotte(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottat_stotte(){
 
         // Arrange
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
@@ -206,7 +206,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_men_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhander_omsorgsovertakelse(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_men_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhander_omsorgsovertakelse(){
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
@@ -252,7 +252,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottate_stotte_men_hvor_skjermlenketypen_blir_underfinert(){
+    void skal_hente_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhandler_mottate_stotte_men_hvor_skjermlenketypen_blir_underfinert(){
 
         // Arrange
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
@@ -291,7 +291,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_status_FATTE_VEDTAK_og_ingen_totrinnsvurdering_og_ett_aksjonspunkt(){
+    void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_status_FATTE_VEDTAK_og_ingen_totrinnsvurdering_og_ett_aksjonspunkt(){
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -318,7 +318,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_skjermlenketype_og_ett_ikke_godkjent_totrinnskontrollaksjonspunkt_for_behandling_med_en_godkjent_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_har_samme_aksjonspunktdefinisjon(){
+    void skal_hente_en_skjermlenketype_og_ett_ikke_godkjent_totrinnskontrollaksjonspunkt_for_behandling_med_en_godkjent_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_har_samme_aksjonspunktdefinisjon(){
 
         var adFraAksjonspunkt = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
         var adFraTotrinnvurdering = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
@@ -351,7 +351,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_avbrutt_aksjonspunkt(){
+    void skal_hente_en_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_avbrutt_aksjonspunkt(){
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
@@ -375,7 +375,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_en_totrinnsvurdering_med_et_aksjonspunktdefinisjon_som_gir_en_undefinert_skjermlenketype(){
+    void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_en_totrinnsvurdering_med_et_aksjonspunktdefinisjon_som_gir_en_undefinert_skjermlenketype(){
 
         // Arrange
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
@@ -397,7 +397,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_ingen_totrinnaksjonspunktvurdering(){
+    void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_ingen_totrinnaksjonspunktvurdering(){
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(Collections.emptyList());
@@ -408,7 +408,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     @Test
-    public void skal_hente_en_skjermlenketype_og_to_totrinnskontrollaksjonspunkt_for_behandling_med_to_totrinnsvurdering_med_aksjonspunktdefinisjoner_som_omhandler_mottat_stotte(){
+    void skal_hente_en_skjermlenketype_og_to_totrinnskontrollaksjonspunkt_for_behandling_med_to_totrinnsvurdering_med_aksjonspunktdefinisjoner_som_omhandler_mottat_stotte(){
 
         // Arrange
         var aksjonspunktDefinisjon1 = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;

@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
+class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
 
     private FamilieHendelseRepository repository;
     private FagsakRepository fagsakRepository;
@@ -31,7 +31,7 @@ public class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lage_søknad_versjon() {
+    void skal_lage_søknad_versjon() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         final var builder = Behandling.forFørstegangssøknad(fagsak);
@@ -66,7 +66,7 @@ public class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_med_endring_i_vilkår() {
+    void skal_lagre_med_endring_i_vilkår() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         final var builder = Behandling.forFørstegangssøknad(fagsak);
@@ -118,7 +118,7 @@ public class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_eldste_versjon_av_aggregat() {
+    void skal_hente_eldste_versjon_av_aggregat() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         final var builder = Behandling.forFørstegangssøknad(fagsak);

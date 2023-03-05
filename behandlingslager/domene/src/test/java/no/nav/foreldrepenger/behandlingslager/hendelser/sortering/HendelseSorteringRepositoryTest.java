@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringReposit
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
+class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
 
     private HendelseSorteringRepository sorteringRepository;
     private PersonopplysningRepository personopplysningRepository;
@@ -45,7 +45,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_1_aktørId_fra_fagsak() {
+    void skal_hente_1_aktørId_fra_fagsak() {
         var personer = genererFagsaker(1);
 
         var aktørId = personer.get(0);
@@ -58,7 +58,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnere_tom_liste_når_aktør_id_ikke_er_knyttet_til_sak() {
+    void skal_returnere_tom_liste_når_aktør_id_ikke_er_knyttet_til_sak() {
         // setup
         @SuppressWarnings("unused")
         var personer = genererFagsaker(4); // aktør ID: 100 - 103
@@ -73,7 +73,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returnere_4_aktør_ider_fra_fagsaker() {
+    void skal_returnere_4_aktør_ider_fra_fagsaker() {
         var personer = genererFagsaker(6);
 
         var finnAktørIder = personer.stream().limit(4).collect(Collectors.toList());
@@ -83,7 +83,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_publisere_videre_hendelser_på_avsluttede_saker() {
+    void skal_ikke_publisere_videre_hendelser_på_avsluttede_saker() {
         var personinfoList = genererPersonInfo(3);
 
         var navBrukerMedAvsluttetSak = NavBruker.opprettNyNB(personinfoList.get(0));
@@ -116,7 +116,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_publisere_videre_hendelser_på_saker_om_engangsstønad() {
+    void skal_publisere_videre_hendelser_på_saker_om_engangsstønad() {
         // Arrange
         var personinfoList = genererPersonInfo(1);
         var navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
@@ -135,7 +135,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_publisere_videre_hendelser_på_saker_om_svangerskapspenger() {
+    void skal_publisere_videre_hendelser_på_saker_om_svangerskapspenger() {
         // Arrange
         var personinfoList = genererPersonInfo(1);
         var navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
@@ -154,7 +154,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_match_på_både_mor_og_barn_i_behandlingsgrunnlaget() {
+    void skal_finne_match_på_både_mor_og_barn_i_behandlingsgrunnlaget() {
         // Arrange
         var barnAktørId = AktørId.dummy();
         var fødselsdato = LocalDate.now();
@@ -208,7 +208,7 @@ public class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_match_på_barn_i_behandlingsgrunnlaget_når_relasjonen_mangler() {
+    void skal_ikke_finne_match_på_barn_i_behandlingsgrunnlaget_når_relasjonen_mangler() {
         // Arrange
         var barnAktørId = AktørId.dummy();
         var fødselsdato = LocalDate.now();

@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
+class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
 
     private static final String VKY_TASK_TYPE = OpprettOppgaveVurderKonsekvensTask.class.getAnnotation(ProsessTask.class).value();
 
@@ -28,7 +28,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
 
 
     @Test
-    public void opprett_task_stadfest_NK() {
+    void opprett_task_stadfest_NK() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forStadfestetNK(abstractScenario);
@@ -46,7 +46,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprett_task_medhold_NFP() {
+    void opprett_task_medhold_NFP() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractScenario);
@@ -65,7 +65,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
 
 
     @Test
-    public void opprett_task_medhold_NK() {
+    void opprett_task_medhold_NK() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(abstractScenario);
@@ -83,7 +83,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprett_task_opphevet_NK() {
+    void opprett_task_opphevet_NK() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forOpphevetNK(abstractScenario);
@@ -107,7 +107,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprett_task_hjemsendt_NK() {
+    void opprett_task_hjemsendt_NK() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forHjemsendtNK(abstractScenario);
@@ -125,7 +125,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprett_task_avvist_NK() {
+    void opprett_task_avvist_NK() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forAvvistNK(abstractScenario);
@@ -143,7 +143,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void ikke_opprett_task_avvist_NFP() {
+    void ikke_opprett_task_avvist_NFP() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forAvvistNFP(abstractScenario);
@@ -158,7 +158,7 @@ public class MottaKlageAnkeVedtakTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void ikke_opprett_task_mangler_resultat() {
+    void ikke_opprett_task_mangler_resultat() {
         // Arrange
         var abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(abstractScenario);

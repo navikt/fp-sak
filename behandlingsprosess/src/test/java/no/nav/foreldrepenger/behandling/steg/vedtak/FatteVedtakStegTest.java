@@ -93,7 +93,7 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
-public class FatteVedtakStegTest {
+class FatteVedtakStegTest {
 
     private static final String BEHANDLENDE_ENHET = "Stord";
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -173,7 +173,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void skal_feile_hvis_behandling_i_feil_tilstand() {
+    void skal_feile_hvis_behandling_i_feil_tilstand() {
         // Arrange
         var antallBarn = 1;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.SØKERS_RELASJON_TIL_BARN,
@@ -185,7 +185,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void skal_fatte_positivt_vedtak() {
+    void skal_fatte_positivt_vedtak() {
         // Arrange
         var antallBarn = 2;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
@@ -203,7 +203,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void revurdering_med_endret_utfall_skal_ha_nytt_vedtak() {
+    void revurdering_med_endret_utfall_skal_ha_nytt_vedtak() {
         // Opprinnelig behandling med vedtak
         var antallBarn = 1;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
@@ -234,7 +234,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void revurdering_med_endret_antall_barn_skal_ha_nytt_vedtak() {
+    void revurdering_med_endret_antall_barn_skal_ha_nytt_vedtak() {
         var originalAntallBarn = 1;
         var faktiskAntallBarn = 2;
         var kontekst = byggBehandlingsgrunnlagForFødsel(originalAntallBarn, BehandlingStegType.FATTE_VEDTAK,
@@ -266,7 +266,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void revurdering_med_samme_utfall_innvilget_skal_ha_beslutning() {
+    void revurdering_med_samme_utfall_innvilget_skal_ha_beslutning() {
         var antallBarn = 1;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
@@ -308,7 +308,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void revurdering_med_samme_utfall_avslag_skal_ha_beslutning() {
+    void revurdering_med_samme_utfall_avslag_skal_ha_beslutning() {
         var antallBarn = 1;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, false, antallBarn);
@@ -338,7 +338,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void skal_lukke_godkjent_aksjonspunkter_og_sette_steg_til_utført(EntityManager entityManager) {
+    void skal_lukke_godkjent_aksjonspunkter_og_sette_steg_til_utført(EntityManager entityManager) {
         // Arrange
         var vedtakRepository = new LagretVedtakRepository(entityManager);
 
@@ -400,7 +400,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent(EntityManager entityManager) {
+    void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent(EntityManager entityManager) {
         var vedtakRepository = new LagretVedtakRepository(entityManager);
 
         var søknadRepository = mock(SøknadRepository.class);
@@ -482,7 +482,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void skal_fatte_negativt_vedtak() {
+    void skal_fatte_negativt_vedtak() {
         // Arrange
         var antallBarn = 1;
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());

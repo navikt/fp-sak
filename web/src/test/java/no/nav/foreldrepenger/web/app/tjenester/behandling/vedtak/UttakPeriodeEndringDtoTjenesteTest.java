@@ -27,7 +27,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @CdiDbAwareTest
-public class UttakPeriodeEndringDtoTjenesteTest {
+class UttakPeriodeEndringDtoTjenesteTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -50,7 +50,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     }
 
     @Test
-    public void hent_endring_på_uttak_perioder_med_aksjonspunkt_fastsett_uttakperioder_finn_endret_utakk_resultat_periode() {
+    void hent_endring_på_uttak_perioder_med_aksjonspunkt_fastsett_uttakperioder_finn_endret_utakk_resultat_periode() {
 
         // Legg til opprinnelig periode
         var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, dato,
@@ -83,7 +83,7 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     }
 
     @Test
-    public void hent_endring_på_uttak_perioder_med_aksjonspunkt_overstyring_av_uttakperioder_finn_lagt_til_utakk_resultat_periode() {
+    void hent_endring_på_uttak_perioder_med_aksjonspunkt_overstyring_av_uttakperioder_finn_lagt_til_utakk_resultat_periode() {
 
         // Legg til opprinnelig periode
         var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.MANUELL_BEHANDLING, dato,

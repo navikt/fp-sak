@@ -58,7 +58,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
 @ExtendWith(JpaExtension.class)
-public class BehandlingDvhMapperTest {
+class BehandlingDvhMapperTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
 
@@ -74,7 +74,7 @@ public class BehandlingDvhMapperTest {
     private static final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
 
     @Test
-    public void skal_mappe_familiehendelse_til_behandling_dvh_ikke_vedtatt() {
+    void skal_mappe_familiehendelse_til_behandling_dvh_ikke_vedtatt() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.OPPHØR, false);
@@ -92,7 +92,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_uten_vedtak() {
+    void skal_mappe_til_behandling_dvh_uten_vedtak() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.IKKE_FASTSATT, false);
@@ -122,7 +122,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_foerste_stoenadsdag(EntityManager entityManager) {
+    void skal_mappe_til_behandling_dvh_foerste_stoenadsdag(EntityManager entityManager) {
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -159,7 +159,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_ikke_vedtatt() {
+    void skal_mappe_til_behandling_dvh_ikke_vedtatt() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.OPPHØR, false);
@@ -175,7 +175,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_vedtatt() {
+    void skal_mappe_til_behandling_dvh_vedtatt() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, true);
@@ -191,7 +191,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_ferdig() {
+    void skal_mappe_til_behandling_dvh_ferdig() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, true);
@@ -207,7 +207,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_ikke_ferdig() {
+    void skal_mappe_til_behandling_dvh_ikke_ferdig() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, false);
@@ -223,7 +223,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_abrutt() {
+    void skal_mappe_til_behandling_dvh_abrutt() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET, true);
@@ -239,7 +239,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_til_behandling_dvh_ikke_abrutt() {
+    void skal_mappe_til_behandling_dvh_ikke_abrutt() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.IKKE_FASTSATT, false);
@@ -255,7 +255,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void mapping_klage_med_påklagd_behandling() {
+    void mapping_klage_med_påklagd_behandling() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenarioMorSøkerEngangsstønad, BehandlingResultatType.AVSLÅTT, true);
@@ -281,7 +281,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void mapping_klage_uten_påklagd_behandling() {
+    void mapping_klage_uten_påklagd_behandling() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
 
@@ -304,7 +304,7 @@ public class BehandlingDvhMapperTest {
     }
 
     @Test
-    public void skal_mappe_vedtak_id() {
+    void skal_mappe_vedtak_id() {
         var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.INNVILGET, true);

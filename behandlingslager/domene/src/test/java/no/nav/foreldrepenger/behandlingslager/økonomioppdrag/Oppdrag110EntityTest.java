@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class Oppdrag110EntityTest {
+class Oppdrag110EntityTest {
     private Oppdrag110.Builder oppdrag110Builder;
     private Oppdrag110 oppdrag110;
     private Oppdrag110 oppdrag110_2;
@@ -33,7 +33,7 @@ public class Oppdrag110EntityTest {
     }
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter() {
+    void skal_bygge_instans_med_påkrevde_felter() {
         oppdrag110 = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KODEENDRING);
@@ -45,7 +45,7 @@ public class Oppdrag110EntityTest {
     }
 
     @Test
-    public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
+    void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
         // mangler kodeEndring
         try {
             oppdrag110Builder.build();
@@ -93,7 +93,7 @@ public class Oppdrag110EntityTest {
     }
 
     @Test
-    public void skal_håndtere_null_this_feilKlasse_i_equals() {
+    void skal_håndtere_null_this_feilKlasse_i_equals() {
         oppdrag110 = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(oppdrag110).isNotNull();
@@ -102,7 +102,7 @@ public class Oppdrag110EntityTest {
     }
 
     @Test
-    public void skal_ha_refleksiv_equalsOgHashCode() {
+    void skal_ha_refleksiv_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
         oppdrag110_2 = oppdrag110Builder.build();
@@ -116,7 +116,7 @@ public class Oppdrag110EntityTest {
     }
 
     @Test
-    public void skal_bruke_KodeEndring_i_equalsOgHashCode() {
+    void skal_bruke_KodeEndring_i_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
         oppdrag110Builder.medKodeEndring(KodeEndring.UEND);
@@ -128,7 +128,7 @@ public class Oppdrag110EntityTest {
     }
 
     @Test
-    public void skal_bruke_FagsystemId_i_equalsOgHashCode() {
+    void skal_bruke_FagsystemId_i_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
         oppdrag110Builder.medFagSystemId(251L);
@@ -140,7 +140,7 @@ public class Oppdrag110EntityTest {
     }
 
     @Test
-    public void skal_bruke_SaksbehId_i_equalsOgHashCode() {
+    void skal_bruke_SaksbehId_i_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
         oppdrag110Builder.medFagSystemId(201L);

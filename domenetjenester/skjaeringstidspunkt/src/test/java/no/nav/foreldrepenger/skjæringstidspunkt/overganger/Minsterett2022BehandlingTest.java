@@ -15,10 +15,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
-public class Minsterett2022BehandlingTest {
+class Minsterett2022BehandlingTest {
 
     @Test
-    public void skal_returnere_uten_minsterett_uttak_hvis_bekreftet_hendelse_før_dato() {
+    void skal_returnere_uten_minsterett_uttak_hvis_bekreftet_hendelse_før_dato() {
         // Arrange
         var ikraftredelse = LocalDate.of(2022, 8, 2);
         var skjæringsdato = ikraftredelse.minusWeeks(4);
@@ -35,7 +35,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_minsterett_hvis_bekreftet_hendelse_etter_dato() {
+    void skal_returnere_minsterett_hvis_bekreftet_hendelse_etter_dato() {
         // Arrange
         var ikraftredelse = LocalDate.of(2022, 8, 2);
         var skjæringsdato = ikraftredelse;
@@ -53,7 +53,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_minsterett_hvis_bekreftet_termin_20_dager_etter() {
+    void skal_returnere_minsterett_hvis_bekreftet_termin_20_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(20);
         var skjæringsdato = ikraftredelse;
@@ -72,7 +72,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_minsterett_hvis_bekreftet_termin_2_dager_etter() {
+    void skal_returnere_minsterett_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -91,7 +91,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_uten_minsterett_uttak_hvis_bekreftet_termin_2_dager_før() {
+    void skal_returnere_uten_minsterett_uttak_hvis_bekreftet_termin_2_dager_før() {
         // Arrange
         var ikraftredelse = LocalDate.now().plusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -110,7 +110,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_minsterett_hvis_søkt_adopsjon_2_dager_etter() {
+    void skal_returnere_minsterett_hvis_søkt_adopsjon_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -129,7 +129,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_minsterett_hvis_søkt_fødsel_10_dager_etter() {
+    void skal_returnere_minsterett_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(10);
         var skjæringsdato = ikraftredelse;
@@ -147,7 +147,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_minsterett_hvis_søkt_termin_30_dager_etter() {
+    void skal_returnere_minsterett_hvis_søkt_termin_30_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(30);
         var skjæringsdato = ikraftredelse;
@@ -165,7 +165,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_uten_minsterett_uttak_pga_medforelder() {
+    void skal_returnere_uten_minsterett_uttak_pga_medforelder() {
         // Arrange
         var ikraftredelse = LocalDate.of(2022, 8, 2);
         var skjæringsdato = ikraftredelse.minusWeeks(4);
@@ -197,7 +197,7 @@ public class Minsterett2022BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_minsterett_pga_medforelder() {
+    void skal_returnere_minsterett_pga_medforelder() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(30);
         var skjæringsdato = ikraftredelse;

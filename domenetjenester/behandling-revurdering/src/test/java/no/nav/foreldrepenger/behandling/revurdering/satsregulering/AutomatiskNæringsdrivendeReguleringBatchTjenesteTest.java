@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
+class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -73,7 +73,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
+    void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats,
                 gammelSats); // Har åpen behandling
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats,
@@ -83,7 +83,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
     }
 
     @Test
-    public void skal_finne_tre_saker_til_revurdering(EntityManager em) {
+    void skal_finne_tre_saker_til_revurdering(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats,
                 gammelSats); // Skal plukke
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats,

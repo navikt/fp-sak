@@ -62,7 +62,7 @@ import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelserDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class IAYDtoMapperRoundtripTest {
+class IAYDtoMapperRoundtripTest {
 
     private final UUID uuid = UUID.randomUUID();
     private final LocalDate fom = LocalDate.now();
@@ -82,7 +82,7 @@ public class IAYDtoMapperRoundtripTest {
     private final IAYFraDtoMapper fraDtoMapper = new IAYFraDtoMapper(aktørId);
 
     @Test
-    public void roundtrip_mapping_dto_til_grunnlag() {
+    void roundtrip_mapping_dto_til_grunnlag() {
         // Arrange
         var dto = lagIAYGrunnlag();
 

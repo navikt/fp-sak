@@ -62,7 +62,7 @@ import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
-public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
+class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
 
     private final BehandlingRepositoryProvider provider;
     private final BehandlingRepository behandlingRepository;
@@ -107,7 +107,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     @Test
-    public void skal_kontrollere_fakta_for_løpende_medlemskap() {
+    void skal_kontrollere_fakta_for_løpende_medlemskap() {
         // Arrange
         var termin = LocalDate.now().plusDays(40); // Default oppsett
         var datoMedEndring = termin;
@@ -149,7 +149,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     @Test
-    public void skal_ikke_vurdere_løpende_medlemskap_hvis_opprinnelig_medlemskap_er_avslått() {
+    void skal_ikke_vurdere_løpende_medlemskap_hvis_opprinnelig_medlemskap_er_avslått() {
         // Arrange
         var datoMedEndring = LocalDate.now().plusDays(10);
         var ettÅrSiden = LocalDate.now().minusYears(1);

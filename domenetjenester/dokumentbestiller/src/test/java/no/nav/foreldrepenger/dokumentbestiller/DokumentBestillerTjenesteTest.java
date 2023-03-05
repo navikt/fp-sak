@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 
 @ExtendWith(MockitoExtension.class)
-public class DokumentBestillerTjenesteTest {
+class DokumentBestillerTjenesteTest {
 
     @Mock
     private DokumentBestiller dokumentBestiller;
@@ -33,7 +33,7 @@ public class DokumentBestillerTjenesteTest {
     }
 
     @Test
-    public void skal_bestille_brev_fra_fpformidling() {
+    void skal_bestille_brev_fra_fpformidling() {
         // Arrange
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario);

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRep
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class HentOppdragMedPositivKvitteringTest {
+class HentOppdragMedPositivKvitteringTest {
 
     private HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering;
 
@@ -51,7 +51,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalHenteOppdrag110MedPositivKvitteringForBehandling() {
+    void skalHenteOppdrag110MedPositivKvitteringForBehandling() {
 
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
 
@@ -61,7 +61,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalHenteOppdrag110MedNegativOgPositivKvitteringForBehandling() {
+    void skalHenteOppdrag110MedNegativOgPositivKvitteringForBehandling() {
 
         lagToOppdrag110MedPositivOgNegativKvittering();
 
@@ -71,7 +71,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalIkkeHenteOppdrag110MedNegativKvitteringForBehandling() {
+    void skalIkkeHenteOppdrag110MedNegativKvitteringForBehandling() {
 
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
 
@@ -81,7 +81,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalIkkeHenteOppdrag110UtenKvitteringForBehandling() {
+    void skalIkkeHenteOppdrag110UtenKvitteringForBehandling() {
 
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
 
@@ -89,7 +89,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalHenteOppdrag110MedPositivKvitteringForBehandlingFeilHvisVenter() {
+    void skalHenteOppdrag110MedPositivKvitteringForBehandlingFeilHvisVenter() {
 
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
 
@@ -99,7 +99,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalHenteOppdrag110MedNegativOgPositivKvitteringForBehandlingFeilHvisVenter() {
+    void skalHenteOppdrag110MedNegativOgPositivKvitteringForBehandlingFeilHvisVenter() {
 
         lagToOppdrag110MedPositivOgNegativKvittering();
 
@@ -109,7 +109,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalIkkeHenteOppdrag110MedNegativKvitteringForBehandlingFeilHvisVenter() {
+    void skalIkkeHenteOppdrag110MedNegativKvitteringForBehandlingFeilHvisVenter() {
 
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
 
@@ -119,14 +119,14 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalIkkeHenteOppdrag110UtenKvitteringForBehandlingFeilHvisVenter() {
+    void skalIkkeHenteOppdrag110UtenKvitteringForBehandlingFeilHvisVenter() {
 
         assertThrows(IllegalStateException.class, () -> hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling));
 
     }
 
     @Test
-    public void skalHenteOppdrag110MedPositivKvitteringForSaksnummer() {
+    void skalHenteOppdrag110MedPositivKvitteringForSaksnummer() {
 
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
 
@@ -136,7 +136,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalHenteOppdrag110MedNegativOgPositivKvitteringForSaksnummer() {
+    void skalHenteOppdrag110MedNegativOgPositivKvitteringForSaksnummer() {
 
         lagToOppdrag110MedPositivOgNegativKvittering();
 
@@ -146,7 +146,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalIkkeHenteOppdrag110MedNegativKvitteringForSaksnummer() {
+    void skalIkkeHenteOppdrag110MedNegativKvitteringForSaksnummer() {
 
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
 
@@ -156,7 +156,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     @Test
-    public void skalIkkeHenteOppdrag110UtenKvitteringForSaksnummer() {
+    void skalIkkeHenteOppdrag110UtenKvitteringForSaksnummer() {
 
         var resultater = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
@@ -178,7 +178,7 @@ public class HentOppdragMedPositivKvitteringTest {
      * Revurdering: Skal kun bruke Oppdrag110 med positiv kvittering. Altså 1 og 3.
      */
     @Test
-    public void skalKunHenteOppdrag110MedPositivKvitteringForSaksnummer() {
+    void skalKunHenteOppdrag110MedPositivKvitteringForSaksnummer() {
 
         var oppdragskontroll = OppdragTestDataHelper.oppdragskontrollUtenOppdrag();
         var oppdrag1 = OppdragTestDataHelper.lagOppdrag110ES(oppdragskontroll, 1L);

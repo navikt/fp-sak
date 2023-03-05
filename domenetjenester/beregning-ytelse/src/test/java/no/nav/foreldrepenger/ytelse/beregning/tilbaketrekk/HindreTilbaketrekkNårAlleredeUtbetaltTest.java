@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
+class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, Month.JANUARY, 20);
     private static final LocalDate SISTE_UTTAKSDAG = LocalDate.of(2019, Month.APRIL, 4);
@@ -35,7 +35,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
 
     @Test
-    public void omfordeling_med_2_tilkomne_arbeidsforhold_skal_ikke_ta_med_tilkommet_i_flyttbar_dagsats() {
+    void omfordeling_med_2_tilkomne_arbeidsforhold_skal_ikke_ta_med_tilkommet_i_flyttbar_dagsats() {
         // Arrange
         final var PERIODE_FOM = LocalDate.of(2020, 3, 24);
         final var GAMMELT_ARBEID = ARBEIDSGIVER1;
@@ -121,7 +121,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     }
 
     @Test
-    public void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid_for_tilkommet_arbeidsforhold() {
+    void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid_for_tilkommet_arbeidsforhold() {
         // Arrange
         var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
@@ -197,7 +197,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
      * dagens dato: 04.02
      */
     @Test
-    public void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid() {
+    void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid() {
         // Arrange
         var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         var forventetDagsats = 1000;
@@ -262,7 +262,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
      * dagens dato: 04.02
      */
     @Test
-    public void skal_avkorte_men_ikke_omfordele_fra_bruker() {
+    void skal_avkorte_men_ikke_omfordele_fra_bruker() {
         // Arrange
         var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
@@ -359,7 +359,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
      * dagens dato: 04.02
      */
     @Test
-    public void skal_fordele_refusjon_til_to_nye_arbeidsgivere() {
+    void skal_fordele_refusjon_til_to_nye_arbeidsgivere() {
         // Arrange
         var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
@@ -462,7 +462,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     }
 
     @Test
-    public void skalIkkeOmfordeleTilTilkommetArbeidsforholdISammeOrganisasjonNårEndring() {
+    void skalIkkeOmfordeleTilTilkommetArbeidsforholdISammeOrganisasjonNårEndring() {
         // Arrange
         var dagensDato = SISTE_UTTAKSDAG.plusMonths(2);
         var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);

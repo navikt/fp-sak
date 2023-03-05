@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
+class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
 
     @Mock
     private FamilieHendelseRepository familieHendelseRepositoryMock;
@@ -52,7 +52,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
     }
 
     @Test
-    public void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_mor() {
+    void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_mor() {
         var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
@@ -65,7 +65,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
     }
 
     @Test
-    public void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_far() {
+    void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_far() {
         var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
@@ -77,7 +77,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
     }
 
     @Test
-    public void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_medmor() {
+    void skal_utlede_aksjonspunkt_basert_på_fakta_om_fp_til_medmor() {
         var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getFagsak()).thenReturn(fagsakMock);

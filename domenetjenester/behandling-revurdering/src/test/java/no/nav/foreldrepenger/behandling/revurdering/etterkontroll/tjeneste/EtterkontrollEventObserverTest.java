@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class EtterkontrollEventObserverTest {
+class EtterkontrollEventObserverTest {
 
     private static AktørId GITT_MOR_AKTØR_ID = AktørId.dummy();
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
@@ -59,7 +59,7 @@ public class EtterkontrollEventObserverTest {
     }
 
     @Test
-    public void observerFamiliehendelseEvent() {
+    void observerFamiliehendelseEvent() {
 
         var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 
@@ -85,7 +85,7 @@ public class EtterkontrollEventObserverTest {
     }
 
     @Test
-    public void observerBehandlingVedtakEvent() {
+    void observerBehandlingVedtakEvent() {
 
         var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 

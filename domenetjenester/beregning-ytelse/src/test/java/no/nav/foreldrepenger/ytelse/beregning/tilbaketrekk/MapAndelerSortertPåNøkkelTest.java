@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class MapAndelerSortertPåNøkkelTest {
+class MapAndelerSortertPåNøkkelTest {
     private static final LocalDate STARTDATO_YTELSE = LocalDate.of(2019, 9, 1);
     private static final Arbeidsgiver AG1 = Arbeidsgiver.virksomhet("999999999");
     private static final Arbeidsgiver AG2 = Arbeidsgiver.virksomhet("888888888");
@@ -32,7 +32,7 @@ public class MapAndelerSortertPåNøkkelTest {
     private BeregningsresultatPeriode periode = lagResultatMedPeriode();
 
     @Test
-    public void skal_mappe_en_arbeidsgiver_med_et_arbeidsforhold() {
+    void skal_mappe_en_arbeidsgiver_med_et_arbeidsforhold() {
         // Arrange
         var andel = lagAndelForPeriode(periode, AG1, REF1);
 
@@ -47,7 +47,7 @@ public class MapAndelerSortertPåNøkkelTest {
     }
 
     @Test
-    public void skal_ikke_legge_til_flere_andeler_hos_samme_ag_med_samme_referanse() {
+    void skal_ikke_legge_til_flere_andeler_hos_samme_ag_med_samme_referanse() {
         // Arrange
         var andel = lagAndelForPeriode(periode, AG1, REF1);
         lagAndelForPeriode(periode, AG1, REF1);
@@ -63,7 +63,7 @@ public class MapAndelerSortertPåNøkkelTest {
     }
 
     @Test
-    public void skal_mappe_to_arbeidsgivere_med_et_arbeidsforhold() {
+    void skal_mappe_to_arbeidsgivere_med_et_arbeidsforhold() {
         // Arrange
         var andel1 = lagAndelForPeriode(periode, AG1, REF1);
         var andel2 = lagAndelForPeriode(periode, AG2, REF1);
@@ -85,7 +85,7 @@ public class MapAndelerSortertPåNøkkelTest {
     }
 
     @Test
-    public void skal_mappe_en_arbeidsgiver_med_to_arbeidsforhold() {
+    void skal_mappe_en_arbeidsgiver_med_to_arbeidsforhold() {
         // Arrange
         var andel1 = lagAndelForPeriode(periode, AG1, REF1);
         var andel2 = lagAndelForPeriode(periode, AG1, REF2);
@@ -103,7 +103,7 @@ public class MapAndelerSortertPåNøkkelTest {
     }
 
     @Test
-    public void skal_mappe_en_arbeidsgiver_med_fire_arbeidsforhold_deriblant_en_med_nullref() {
+    void skal_mappe_en_arbeidsgiver_med_fire_arbeidsforhold_deriblant_en_med_nullref() {
         // Arrange
         var andel1 = lagAndelForPeriode(periode, AG1, REF1);
         var andel2 = lagAndelForPeriode(periode, AG1, REF2);
@@ -125,7 +125,7 @@ public class MapAndelerSortertPåNøkkelTest {
     }
 
     @Test
-    public void skal_mappe_tre_arbeidsgiver_med_forskjellige_antall_arbeidsforhold_deriblant_en_med_nullref() {
+    void skal_mappe_tre_arbeidsgiver_med_forskjellige_antall_arbeidsforhold_deriblant_en_med_nullref() {
         // Arrange
         var andel1 = lagAndelForPeriode(periode, AG1, REF1); // Ny nøkkel
         var andel2 = lagAndelForPeriode(periode, AG1, REF2);

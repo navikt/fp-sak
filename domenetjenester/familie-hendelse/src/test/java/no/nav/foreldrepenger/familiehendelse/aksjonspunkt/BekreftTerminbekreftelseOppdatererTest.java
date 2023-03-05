@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
+class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
 
@@ -52,7 +52,7 @@ public class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_terminbekreftelse() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_terminbekreftelse() {
         // Arrange
         var opprinneligTermindato = LocalDate.now();
         var avklartTermindato = opprinneligTermindato.plusDays(1);
@@ -111,7 +111,7 @@ public class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_oppdatere_terminbekreftelse() {
+    void skal_oppdatere_terminbekreftelse() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
@@ -149,7 +149,7 @@ public class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_trigge_totrinnsbehandling_når_aksjonspunkt_bekreftes_på_nytt_etter_tilbakehopp() {
+    void skal_trigge_totrinnsbehandling_når_aksjonspunkt_bekreftes_på_nytt_etter_tilbakehopp() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()

@@ -25,7 +25,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
-public class OpprettProsessTaskIverksettTest {
+class OpprettProsessTaskIverksettTest {
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
@@ -38,7 +38,7 @@ public class OpprettProsessTaskIverksettTest {
     }
 
     @Test
-    public void skalIkkeAvslutteOppgave() {
+    void skalIkkeAvslutteOppgave() {
         // Arrange
 
         // Act
@@ -54,7 +54,7 @@ public class OpprettProsessTaskIverksettTest {
     }
 
     @Test
-    public void testOpprettIverksettingstasker() {
+    void testOpprettIverksettingstasker() {
         // Arrange
         var behandling = opprettBehandling();
 

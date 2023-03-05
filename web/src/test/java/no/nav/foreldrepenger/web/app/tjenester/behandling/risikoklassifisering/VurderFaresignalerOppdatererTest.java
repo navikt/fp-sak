@@ -31,7 +31,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
+class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
     private HistorikkTjenesteAdapter historikkAdapter;
 
@@ -58,7 +58,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lage_korrekt_historikkinnslag_når_det_ikke_finnes_tidligere_vurdering() {
+    void skal_lage_korrekt_historikkinnslag_når_det_ikke_finnes_tidligere_vurdering() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(null)));
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_UENDRET);
@@ -85,7 +85,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
+    void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INGEN_INNVIRKNING)));
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_REDUSERT);
@@ -113,7 +113,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
+    void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.of(lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering.INNVIRKNING)));
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INGEN_INNVIRKNING);
@@ -141,7 +141,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_feile_om_det_ikke_finnes_en_risikoklassifisering_for_behandlingen() {
+    void skal_feile_om_det_ikke_finnes_en_risikoklassifisering_for_behandlingen() {
         // Arrange
         when(fpriskTjeneste.hentFaresignalerForBehandling(any())).thenReturn(Optional.empty());
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.AVSLAG_FARESIGNAL);

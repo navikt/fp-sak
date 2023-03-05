@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
-public class BatchTjenesteTest {
+class BatchTjenesteTest {
 
     @Inject
     @Any
     private Instance<BatchTjeneste> batchTjenester;
 
     @Test
-    public void skal_ha_unike_batch_navn() {
+    void skal_ha_unike_batch_navn() {
         final List<String> services = new ArrayList<>();
         final List<String> failed = new ArrayList<>();
         for (var batchTjeneste : batchTjenester) {

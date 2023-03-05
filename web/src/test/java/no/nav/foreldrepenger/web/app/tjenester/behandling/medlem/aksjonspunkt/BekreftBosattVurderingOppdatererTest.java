@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class BekreftBosattVurderingOppdatererTest extends EntityManagerAwareTest {
+class BekreftBosattVurderingOppdatererTest extends EntityManagerAwareTest {
 
     private LocalDate now = LocalDate.now();
 
@@ -41,7 +41,7 @@ public class BekreftBosattVurderingOppdatererTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void bekreft_bosett_vurdering() {
+    void bekreft_bosett_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()

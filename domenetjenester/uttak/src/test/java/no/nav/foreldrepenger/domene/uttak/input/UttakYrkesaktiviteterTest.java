@@ -25,10 +25,10 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class UttakYrkesaktiviteterTest {
+class UttakYrkesaktiviteterTest {
 
     @Test
-    public void stillingsprosent_ved_flere_overlappende_aktivitetsavtaler_på_dato_skal_velge_stilling_med_seneste_fom() {
+    void stillingsprosent_ved_flere_overlappende_aktivitetsavtaler_på_dato_skal_velge_stilling_med_seneste_fom() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(new UttakRepositoryStubProvider());
         var dato = LocalDate.of(2020, 5, 4);
@@ -64,7 +64,7 @@ public class UttakYrkesaktiviteterTest {
     }
 
     @Test
-    public void skal_tåle_null_stillingsprosent_på_aktivitetsavtale() {
+    void skal_tåle_null_stillingsprosent_på_aktivitetsavtale() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(new UttakRepositoryStubProvider());
         var dato = LocalDate.of(2020, 5, 4);

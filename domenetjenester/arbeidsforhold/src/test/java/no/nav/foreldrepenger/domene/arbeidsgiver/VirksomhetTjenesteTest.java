@@ -18,13 +18,13 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYS
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
 
 @ExtendWith(JpaExtension.class)
-public class VirksomhetTjenesteTest {
+class VirksomhetTjenesteTest {
     private static final String ORGNR = KUNSTIG_ORG;
     private static final String NAVN = "Kunstig virksomhet";
     private static final LocalDate REGISTRERTDATO = LocalDate.of(1978, 1, 1);
 
     @Test
-    public void skal_kalle_consumer_og_oversette_response(EntityManager entityManager) {
+    void skal_kalle_consumer_og_oversette_response(EntityManager entityManager) {
         // Arrange
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
         scenario.lagre(new IAYRepositoryProvider(entityManager));

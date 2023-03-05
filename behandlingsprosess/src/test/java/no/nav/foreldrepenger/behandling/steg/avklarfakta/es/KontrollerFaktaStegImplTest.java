@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
-public class KontrollerFaktaStegImplTest {
+class KontrollerFaktaStegImplTest {
 
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
 
@@ -78,7 +78,7 @@ public class KontrollerFaktaStegImplTest {
     }
 
     @Test
-    public void skal_ved_overhopp_bakover_rydde_avklarte_fakta() {
+    void skal_ved_overhopp_bakover_rydde_avklarte_fakta() {
         var fagsak = behandling.getFagsak();
         // Arrange
         var lås = behandlingRepository.taSkriveLås(behandling);

@@ -67,7 +67,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
-public class VedtakXmlTest {
+class VedtakXmlTest {
     private static final String KLAGE_BEGRUNNELSE = "Begrunnelse for klagevurdering er bla.bla.bla.";
     private static final String BEHANDLENDE_ENHET_ID = "1234";
 
@@ -137,7 +137,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_termindato() {
+    void skal_opprette_xml_med_termindato() {
 
         var behandling = opprettBehandlingMedTermindato(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, true);
@@ -146,7 +146,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_termindato_avslag() {
+    void skal_opprette_xml_med_termindato_avslag() {
 
         var behandling = opprettBehandlingMedTermindato(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, false);
@@ -155,7 +155,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_adopsjon() {
+    void skal_opprette_xml_med_adopsjon() {
 
         var behandling = opprettBehandlingMedAdopsjon(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, true);
@@ -164,7 +164,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_fødsel() {
+    void skal_opprette_xml_med_fødsel() {
 
         var behandling = opprettBehandlingMedFødsel(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(behandling, true);
@@ -173,7 +173,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_klage_avvist() {
+    void skal_opprette_xml_med_klage_avvist() {
         // Arrange
         var behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forAvvistNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
                 null);
@@ -182,7 +182,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_klage_medhold() {
+    void skal_opprette_xml_med_klage_medhold() {
         // Arrange
         var behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forMedholdNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
                 KlageMedholdÅrsak.NYE_OPPLYSNINGER);
@@ -191,7 +191,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_klage_oppheve_ytelsesvedtak() {
+    void skal_opprette_xml_med_klage_oppheve_ytelsesvedtak() {
         // Arrange
         var behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forOpphevetNK(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
                 KlageMedholdÅrsak.PROSESSUELL_FEIL);
@@ -200,7 +200,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_xml_med_klage_stadfeste_ytelsesvedtak() {
+    void skal_opprette_xml_med_klage_stadfeste_ytelsesvedtak() {
         // Arrange
         final var adopsjon = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         adopsjon.medSøknadHendelse()
@@ -379,7 +379,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void testTilCalendar() {
+    void testTilCalendar() {
         var localDate = LocalDate.of(2017, Month.APRIL, 18);
         var calendar = VedtakXmlUtil.tilCalendar(localDate);
         assertThat(calendar.get(Calendar.YEAR)).isEqualTo(2017);

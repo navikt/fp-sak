@@ -12,10 +12,10 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDt
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
 
-public class ManuellRegistreringSvangerskapspengerValidatorTest {
+class ManuellRegistreringSvangerskapspengerValidatorTest {
 
     @Test
-    public void skal_ikke_gi_valideringsfeil_dersom_alt_er_utfylt() {
+    void skal_ikke_gi_valideringsfeil_dersom_alt_er_utfylt() {
         var dto = lagStandardDtoUtenValideringsfeil();
 
         var feltFeilDtos = ManuellRegistreringSvangerskapspengerValidator.validerOpplysninger(dto);
@@ -24,7 +24,7 @@ public class ManuellRegistreringSvangerskapspengerValidatorTest {
     }
 
     @Test
-    public void skal_rapportere_valideringsfeil_dersom_termindato_mangler() {
+    void skal_rapportere_valideringsfeil_dersom_termindato_mangler() {
         var dto = lagStandardDtoUtenValideringsfeil();
         dto.setTermindato(null);
 
@@ -36,7 +36,7 @@ public class ManuellRegistreringSvangerskapspengerValidatorTest {
     }
 
     @Test
-    public void skal_rapportere_valideringsfeil_dersom_mottatdato_mangler() {
+    void skal_rapportere_valideringsfeil_dersom_mottatdato_mangler() {
         var dto = lagStandardDtoUtenValideringsfeil();
         dto.setMottattDato(null);
 
@@ -48,7 +48,7 @@ public class ManuellRegistreringSvangerskapspengerValidatorTest {
     }
 
     @Test
-    public void skal_rapportere_valideringsfeil_dersom_frilans_mangler_perioder() {
+    void skal_rapportere_valideringsfeil_dersom_frilans_mangler_perioder() {
         var dto = lagStandardDtoUtenValideringsfeil();
         dto.getFrilans().setHarSokerPeriodeMedFrilans(true);
         dto.getFrilans().setPerioder(Collections.emptyList());
@@ -61,7 +61,7 @@ public class ManuellRegistreringSvangerskapspengerValidatorTest {
     }
 
     @Test
-    public void skal_rapportere_valideringsfeil_dersom_egen_virksomhet_mangler_virksomhetnavn() {
+    void skal_rapportere_valideringsfeil_dersom_egen_virksomhet_mangler_virksomhetnavn() {
         var dto = lagStandardDtoUtenValideringsfeil();
         dto.getEgenVirksomhet().setHarArbeidetIEgenVirksomhet(true);
         var virksomhet = new VirksomhetDto();

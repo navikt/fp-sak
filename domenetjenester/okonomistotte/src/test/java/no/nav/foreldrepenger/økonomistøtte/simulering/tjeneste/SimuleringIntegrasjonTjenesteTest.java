@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlie
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragForventetNedetidException;
 import no.nav.vedtak.exception.IntegrasjonException;
 
-public class SimuleringIntegrasjonTjenesteTest {
+class SimuleringIntegrasjonTjenesteTest {
 
     private static final Long BEHANDLING_ID = 1234L;
 

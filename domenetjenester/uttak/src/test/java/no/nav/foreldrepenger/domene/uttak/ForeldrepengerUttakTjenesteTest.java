@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 class ForeldrepengerUttakTjenesteTest {
 
     @Test
-    public void skal_mappe_uttak() {
+    void skal_mappe_uttak() {
         var repositoryProvider = new UttakRepositoryStubProvider();
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusMonths(6);

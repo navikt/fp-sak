@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 @ExtendWith(JpaExtension.class)
-public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
+class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
 
     private final AktørId AKTØRID = AktørId.dummy();
     private final LocalDate skjæringstidspunkt = LocalDate.now();
@@ -55,7 +55,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
     }
 
     @Test
-    public void skal_gi_aksjonspunkt_for_fiktivt_arbeidsforhold() {
+    void skal_gi_aksjonspunkt_for_fiktivt_arbeidsforhold() {
         // Arrange
         var behandling = opprettBehandling();
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);

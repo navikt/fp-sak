@@ -22,14 +22,14 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class StatsborgerskapEndringIdentifisererTest {
+class StatsborgerskapEndringIdentifisererTest {
 
     private static final LocalDate IDAG = LocalDate.now();
 
     private AktørId AKTØRID = AktørId.dummy();
 
     @Test
-    public void testStatsborgerskapUendret() {
+    void testStatsborgerskapUendret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(Landkoder.NOR));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
@@ -41,7 +41,7 @@ public class StatsborgerskapEndringIdentifisererTest {
     }
 
     @Test
-    public void testStatsborgerskapUendret_flere_koder() {
+    void testStatsborgerskapUendret_flere_koder() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(Landkoder.POL, Landkoder.SWE));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
@@ -53,7 +53,7 @@ public class StatsborgerskapEndringIdentifisererTest {
     }
 
     @Test
-    public void testStatsborgerskapUendret_men_rekkefølge_i_liste_endret() {
+    void testStatsborgerskapUendret_men_rekkefølge_i_liste_endret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(Landkoder.NOR, Landkoder.SWE));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
@@ -65,7 +65,7 @@ public class StatsborgerskapEndringIdentifisererTest {
     }
 
     @Test
-    public void testStatsborgerskapEndret() {
+    void testStatsborgerskapEndret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(Landkoder.POL));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
@@ -77,7 +77,7 @@ public class StatsborgerskapEndringIdentifisererTest {
     }
 
     @Test
-    public void testStatsborgerskapEndret_endret_type() {
+    void testStatsborgerskapEndret_endret_type() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(Landkoder.FRA, Landkoder.USA));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
@@ -89,7 +89,7 @@ public class StatsborgerskapEndringIdentifisererTest {
     }
 
     @Test
-    public void testStatsborgerskapEndret_ekstra_statsborgerskap_lagt_til() {
+    void testStatsborgerskapEndret_ekstra_statsborgerskap_lagt_til() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(Landkoder.CHE));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(

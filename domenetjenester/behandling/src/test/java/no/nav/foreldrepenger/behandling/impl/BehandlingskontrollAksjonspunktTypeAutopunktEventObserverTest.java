@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 
-public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
+class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
     private HistorikkInnslagForAksjonspunktEventObserver observer; // objectet vi tester
 
@@ -57,7 +57,7 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     }
 
     @Test
-    public void skalMåleTidForFørsteAksjonspunktUtførtFødsel() {
+    void skalMåleTidForFørsteAksjonspunktUtførtFødsel() {
 
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt), null);
 
@@ -67,7 +67,7 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     }
 
     @Test
-    public void skalIkkeOppretteHistorikkForManuellPunkt() {
+    void skalIkkeOppretteHistorikkForManuellPunkt() {
 
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt), null);
 
@@ -77,7 +77,7 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     }
 
     @Test
-    public void skalOppretteEnHistorikkForAutoPunktOgSjekkPåResultat() {
+    void skalOppretteEnHistorikkForAutoPunktOgSjekkPåResultat() {
 
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt, autopunkt), null);
 
@@ -98,7 +98,7 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     }
 
     @Test
-    public void skalOppretteToHistorikkForAutoPunkt() {
+    void skalOppretteToHistorikkForAutoPunkt() {
 
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt, autopunkt), null);
 

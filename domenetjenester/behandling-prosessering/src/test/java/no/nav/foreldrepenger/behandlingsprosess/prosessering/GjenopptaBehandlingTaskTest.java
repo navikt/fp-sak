@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
-public class GjenopptaBehandlingTaskTest {
+class GjenopptaBehandlingTaskTest {
 
     private GjenopptaBehandlingTask task; // objektet vi tester
 
@@ -36,7 +36,7 @@ public class GjenopptaBehandlingTaskTest {
     }
 
     @Test
-    public void skal_gjenoppta_behandling() {
+    void skal_gjenoppta_behandling() {
         final Long behandlingId = 10L;
 
         var scenario = ScenarioMorSøkerEngangsstønad

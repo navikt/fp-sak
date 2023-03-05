@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
-public class DokumentmottakerKlageTest {
+class DokumentmottakerKlageTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -106,7 +106,7 @@ public class DokumentmottakerKlageTest {
     }
 
     @Test
-    public void skal_starte_behandling_av_klage() {
+    void skal_starte_behandling_av_klage() {
         // Arrange
         var behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
         var fagsak = behandling.getFagsak();
@@ -123,7 +123,7 @@ public class DokumentmottakerKlageTest {
     }
 
     @Test
-    public void skal_vurdere_dokument_ved_ettersendelse() {
+    void skal_vurdere_dokument_ved_ettersendelse() {
         // Arrange
         var behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
         var fagsak = behandling.getFagsak();
@@ -140,7 +140,7 @@ public class DokumentmottakerKlageTest {
     }
 
     @Test
-    public void skal_vurdere_dokument_ved_tidligere_klage() {
+    void skal_vurdere_dokument_ved_tidligere_klage() {
         // Arrange
         var behandling = byggAvsluttetKlage();
         var fagsak = behandling.getFagsak();
@@ -157,7 +157,7 @@ public class DokumentmottakerKlageTest {
     }
 
     @Test
-    public void skal_vurdere_dokument_fra_tidligere() {
+    void skal_vurdere_dokument_fra_tidligere() {
         // Arrange
         var behandling = byggAvsluttetKlage();
         var fagsak = behandling.getFagsak();
@@ -175,7 +175,7 @@ public class DokumentmottakerKlageTest {
     }
 
     @Test
-    public void skal_kaste_feil_når_det_kommer_inn_klage_og_det_ikke_finnes_en_vanlig_behandlig() {
+    void skal_kaste_feil_når_det_kommer_inn_klage_og_det_ikke_finnes_en_vanlig_behandlig() {
         // Arrange
         var fagsak = nyMorFødselFagsak();
         var fagsakId = fagsak.getId();

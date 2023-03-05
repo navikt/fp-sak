@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class VergeRepositoryTest extends EntityManagerAwareTest {
+class VergeRepositoryTest extends EntityManagerAwareTest {
 
     private static final LocalDate GYLDIG_FOM = LocalDate.now().minusYears(1);
     private static final LocalDate GYLDIG_TOM = LocalDate.now().plusYears(3);
@@ -39,7 +39,7 @@ public class VergeRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_og_hente_ut_vergeinformasjon() {
+    void skal_lagre_og_hente_ut_vergeinformasjon() {
         // Arrange
         var bruker = opprettBruker();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
@@ -75,7 +75,7 @@ public class VergeRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kopiere_vergegrunnlag_fra_tidligere_behandling() {
+    void skal_kopiere_vergegrunnlag_fra_tidligere_behandling() {
         // Arrange
         var bruker = opprettBruker();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);

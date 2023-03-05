@@ -17,12 +17,12 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 
-public class ErInntektNærSkjæringstidspunktTest {
+class ErInntektNærSkjæringstidspunktTest {
 
     private static final Arbeidsgiver VIRKSOMHET = Arbeidsgiver.virksomhet("987654321");
 
     @Test
-    public void skjæringstidspunkt_og_behandlingstidspunkt_01_i_samme_måned_inntekt_for_måneden_før() {
+    void skjæringstidspunkt_og_behandlingstidspunkt_01_i_samme_måned_inntekt_for_måneden_før() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.JANUARY, 1);
@@ -36,7 +36,7 @@ public class ErInntektNærSkjæringstidspunktTest {
     }
 
     @Test
-    public void skjæringstidspunkt_og_behandlingstidspunkt_31_i_samme_måned_inntekt_for_måneden_før() {
+    void skjæringstidspunkt_og_behandlingstidspunkt_31_i_samme_måned_inntekt_for_måneden_før() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.JANUARY, 31);
@@ -50,7 +50,7 @@ public class ErInntektNærSkjæringstidspunktTest {
     }
 
     @Test
-    public void skjæringstidspunkt_og_behandlingstidspunkt_01_i_samme_måned_inntekt_to_månedener_før() {
+    void skjæringstidspunkt_og_behandlingstidspunkt_01_i_samme_måned_inntekt_to_månedener_før() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.JANUARY, 1);
@@ -64,7 +64,7 @@ public class ErInntektNærSkjæringstidspunktTest {
     }
 
     @Test
-    public void skjæringstidspunkt_og_behandlingstidspunkt_31_i_samme_måned_inntekt_to_månedener_før() {
+    void skjæringstidspunkt_og_behandlingstidspunkt_31_i_samme_måned_inntekt_to_månedener_før() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.JANUARY, 31);
@@ -78,7 +78,7 @@ public class ErInntektNærSkjæringstidspunktTest {
     }
 
     @Test
-    public void behandlingstidspunkt_første_dag_i_måneden_etter_stp_og_inntekt_i_måneden_med_stp() {
+    void behandlingstidspunkt_første_dag_i_måneden_etter_stp_og_inntekt_i_måneden_med_stp() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.FEBRUARY, 1);
@@ -92,7 +92,7 @@ public class ErInntektNærSkjæringstidspunktTest {
     }
 
     @Test
-    public void behandlingstidspunkt_siste_dag_i_måneden_etter_inntekt_i_måneden_med_skjæringstidspunkt() {
+    void behandlingstidspunkt_siste_dag_i_måneden_etter_inntekt_i_måneden_med_skjæringstidspunkt() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.FEBRUARY, 28);
@@ -106,7 +106,7 @@ public class ErInntektNærSkjæringstidspunktTest {
     }
 
     @Test
-    public void behandlingstidspunkt_første_dag_i_måneden_etter_inntekt_for_måneden_før_skjæringstidspunkt() {
+    void behandlingstidspunkt_første_dag_i_måneden_etter_inntekt_for_måneden_før_skjæringstidspunkt() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.FEBRUARY, 1);
@@ -120,7 +120,7 @@ public class ErInntektNærSkjæringstidspunktTest {
     }
 
     @Test
-    public void behandlingstidspunkt_siste_dag_i_måneden_etter_inntekt_for_måneden_før_skjæringstidspunkt() {
+    void behandlingstidspunkt_siste_dag_i_måneden_etter_inntekt_for_måneden_før_skjæringstidspunkt() {
         // Arrange
         var skjæringstidspunkt = LocalDate.of(2019, Month.JANUARY, 15);
         var behandlingstidspunkt = LocalDate.of(2019, Month.FEBRUARY, 28);

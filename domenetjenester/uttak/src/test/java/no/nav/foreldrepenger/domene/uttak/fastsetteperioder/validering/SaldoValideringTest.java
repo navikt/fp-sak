@@ -16,10 +16,10 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.vedtak.exception.TekniskException;
 
-public class SaldoValideringTest {
+class SaldoValideringTest {
 
     @Test
-    public void annenpart_ikke_berørt_skal_ikke_godkjennes_hvis_negativ_saldo_og_ikke_nok_dager_å_frigi() {
+    void annenpart_ikke_berørt_skal_ikke_godkjennes_hvis_negativ_saldo_og_ikke_nok_dager_å_frigi() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.nokDagerÅFrigiPåAnnenpart(FELLESPERIODE)).thenReturn(false);
@@ -29,7 +29,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void annenpart_ikke_berørt_skal_godkjennes_hvis_negativ_saldo_og_nok_dager_å_frigi() {
+    void annenpart_ikke_berørt_skal_godkjennes_hvis_negativ_saldo_og_nok_dager_å_frigi() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.nokDagerÅFrigiPåAnnenpart(FELLESPERIODE)).thenReturn(true);
@@ -39,7 +39,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void berørt_skal_godkjennes_hvis_ikke_negativ_saldo() {
+    void berørt_skal_godkjennes_hvis_ikke_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(false);
         when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);
@@ -49,7 +49,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void berørt_skal_ikke_godkjennes_hvis_negativ_saldo() {
+    void berørt_skal_ikke_godkjennes_hvis_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         var validering = new SaldoValidering(saldoUtregning, true, true);
@@ -58,7 +58,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void ikke_annenpart_skal_ikke_godkjennes_hvis_negativ_saldo() {
+    void ikke_annenpart_skal_ikke_godkjennes_hvis_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         var validering = new SaldoValidering(saldoUtregning, false, false);
@@ -67,7 +67,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void ikke_annenpart_skal_godkjennes_hvis_ikke_negativ_saldo() {
+    void ikke_annenpart_skal_godkjennes_hvis_ikke_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(false);
         when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);
@@ -77,7 +77,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void skal_kunne_gå_negativ_hvis_samtidig_uttak_ikke_berørt() {
+    void skal_kunne_gå_negativ_hvis_samtidig_uttak_ikke_berørt() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.søktSamtidigUttak(FELLESPERIODE)).thenReturn(true);
@@ -88,7 +88,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void skal_ikke_kunne_gå_negativ_hvis_samtidig_på_annen_kontotype() {
+    void skal_ikke_kunne_gå_negativ_hvis_samtidig_på_annen_kontotype() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FEDREKVOTE)).thenReturn(true);
         when(saldoUtregning.søktSamtidigUttak(FELLESPERIODE)).thenReturn(true);
@@ -99,7 +99,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void skal_ikke_kunne_gå_negativ_hvis_samtidig_uttak_berørt() {
+    void skal_ikke_kunne_gå_negativ_hvis_samtidig_uttak_berørt() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.søktSamtidigUttak(FELLESPERIODE)).thenReturn(true);
@@ -110,7 +110,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void ikke_kunne_gå_negativ_på_dager_uten_aktivitetskrav() {
+    void ikke_kunne_gå_negativ_på_dager_uten_aktivitetskrav() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FORELDREPENGER)).thenReturn(false);
         when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(10));
@@ -125,7 +125,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void ikke_kunne_gå_negativ_på_minsterett() {
+    void ikke_kunne_gå_negativ_på_minsterett() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FORELDREPENGER)).thenReturn(false);
         when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);

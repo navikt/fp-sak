@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
+class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
     private static final String OSLO = "0103";
 
@@ -66,7 +66,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_behandlingsgrunnlag_med_søknad() {
+    void skal_opprette_nytt_behandlingsgrunnlag_med_søknad() {
         // Arrange
         var søknadsdato = LocalDate.now();
         var fødselsdato = LocalDate.now().plusDays(1);
@@ -102,7 +102,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_behandlingsgrunnlag_med_adopsjon() {
+    void skal_opprette_nytt_behandlingsgrunnlag_med_adopsjon() {
         // Arrange
         var søknadsdato = LocalDate.now();
         var fødselAdopsjonsdato = LocalDate.now();
@@ -144,7 +144,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_eksisterende_søknad_med_endringer_i_adopsjon() {
+    void skal_oppdatere_eksisterende_søknad_med_endringer_i_adopsjon() {
         // Arrange
         var søknadsdato = LocalDate.now();
         var fødselAdopsjonsdato = LocalDate.now();
@@ -194,7 +194,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_behandlingsgrunnlag_med_søknad_adopsjon_barn() {
+    void skal_opprette_nytt_behandlingsgrunnlag_med_søknad_adopsjon_barn() {
         // Arrange
         var søknadsdato = LocalDate.now();
         var fødselAdopsjonsdato = LocalDate.now();
@@ -222,7 +222,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_behandlingsgrunnlag_med_fødsel() {
+    void skal_opprette_nytt_behandlingsgrunnlag_med_fødsel() {
         // Arrange
         var fødselsdato = LocalDate.now();
 
@@ -249,7 +249,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_behandlingsgrunnlag_med_terminbekreftelse() {
+    void skal_opprette_nytt_behandlingsgrunnlag_med_terminbekreftelse() {
         // Arrange
         var termindato = LocalDate.now();
         var utstedtDato = LocalDate.now().minusMonths(2);
@@ -287,7 +287,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_nytt_behandlingsgrunnlag_med_omsorgsovertakelse() {
+    void skal_opprette_nytt_behandlingsgrunnlag_med_omsorgsovertakelse() {
         // Arrange
         var omsorgsovertakelsesdato = LocalDate.now();
 
@@ -320,7 +320,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_innsette_bekrefet_barn_og_oppdatere_ved_endring() {
+    void skal_innsette_bekrefet_barn_og_oppdatere_ved_endring() {
         var fødselsdato = LocalDate.now();
         var oppdatertFødselsdato = fødselsdato.plusDays(1);
         var forelderAktørId = AktørId.dummy();
@@ -441,7 +441,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_innsette_nytt_bekreftet_barn_dersom_barnet_ikke_finnes_fra_før() {
+    void skal_innsette_nytt_bekreftet_barn_dersom_barnet_ikke_finnes_fra_før() {
 
         var forelderAktørId = AktørId.dummy();
         var fødselsdatoBarn1 = LocalDate.now();
@@ -558,7 +558,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_innsette_bekrefet_forelder_og_oppdatere_ved_endring() {
+    void skal_innsette_bekrefet_forelder_og_oppdatere_ved_endring() {
         var dødsdato = LocalDate.now();
         var fødselsdato = dødsdato.minusYears(50);
         var oppdatertDødsdato = dødsdato.plusDays(1);
@@ -644,7 +644,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_innsette_bekrefet_forelder() {
+    void skal_innsette_bekrefet_forelder() {
         var dødsdato = LocalDate.now();
         var fødselsdato = dødsdato.minusYears(50);
         var forelder = AktørId.dummy();
@@ -697,7 +697,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kunne_lagre_statsborgerskap_til_en_bekrefet_forelder() {
+    void skal_kunne_lagre_statsborgerskap_til_en_bekrefet_forelder() {
         var dødsdatoForelder1 = LocalDate.now();
 
         var aktørId = AktørId.dummy();
@@ -755,7 +755,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kunne_lagre_medlemskap_perioder() {
+    void skal_kunne_lagre_medlemskap_perioder() {
         // Arrange
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusDays(100);
@@ -789,7 +789,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kunne_lagre_medlemskap() {
+    void skal_kunne_lagre_medlemskap() {
         var behandling = lagBehandling();
 
         var vurdertMedlemskap = new VurdertMedlemskapBuilder()

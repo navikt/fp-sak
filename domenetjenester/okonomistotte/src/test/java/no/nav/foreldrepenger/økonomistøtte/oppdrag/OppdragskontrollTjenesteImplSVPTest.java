@@ -23,7 +23,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
     }
 
     @Test
-    public void skal_sende_oppdrag_for_svangerskapspenger() {
+    void skal_sende_oppdrag_for_svangerskapspenger() {
         //Arrange
         var beregningsresultat = buildEmptyBeregningsresultatFP();
 

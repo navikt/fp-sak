@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Datoer;
 
-public class DatoerGrunnlagByggerTest {
+class DatoerGrunnlagByggerTest {
 
     private final LocalDate førsteUttaksdato = LocalDate.now().minusWeeks(12);
     private UttakRepositoryProvider repositoryProvider;
@@ -42,7 +42,7 @@ public class DatoerGrunnlagByggerTest {
     }
 
     @Test
-    public void skal_ha_familiehendelsedato() {
+    void skal_ha_familiehendelsedato() {
         var familiehendelsedato = LocalDate.now().plusWeeks(3);
         var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), null);
 
@@ -52,7 +52,7 @@ public class DatoerGrunnlagByggerTest {
     }
 
     @Test
-    public void søker_har_ingen_dødsdato() {
+    void søker_har_ingen_dødsdato() {
         LocalDate søkersDødsdato = null;
         var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
 
@@ -62,7 +62,7 @@ public class DatoerGrunnlagByggerTest {
     }
 
     @Test
-    public void søker_har_dødsdato() {
+    void søker_har_dødsdato() {
         var familiehendelsedato = LocalDate.now().minusWeeks(1);
         var søkersDødsdato = familiehendelsedato.plusDays(2);
         var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato);
@@ -73,7 +73,7 @@ public class DatoerGrunnlagByggerTest {
     }
 
     @Test
-    public void barn_har_dødsdato() {
+    void barn_har_dødsdato() {
         var familiehendelsedato = LocalDate.now().plusWeeks(3);
         LocalDate søkersDødsdato = null;
         var barnsDødsdato = familiehendelsedato.plusWeeks(1);
@@ -87,7 +87,7 @@ public class DatoerGrunnlagByggerTest {
     }
 
     @Test
-    public void barn_har_dødsdato_men_flere_barn() {
+    void barn_har_dødsdato_men_flere_barn() {
         var familiehendelsedato = LocalDate.now().plusWeeks(3);
         LocalDate søkersDødsdato = null;
         var barnsDødsdato = familiehendelsedato.plusWeeks(1);

@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @CdiDbAwareTest
-public class KontrollerFaktaStegImplTest {
+class KontrollerFaktaStegImplTest {
 
     private Behandling behandling;
     private final BehandlingRepositoryProvider repositoryProvider;
@@ -90,7 +90,7 @@ public class KontrollerFaktaStegImplTest {
     }
 
     @Test
-    public void skal_utlede_inngangsvilkår_for_svp() {
+    void skal_utlede_inngangsvilkår_for_svp() {
         var fagsak = behandling.getFagsak();
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);

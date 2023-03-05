@@ -94,7 +94,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     }
 
     @Test
-    public void bekrefte_avklart_permisjon_uten_sluttdato() {
+    void bekrefte_avklart_permisjon_uten_sluttdato() {
         // Arrange
         final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, NAV_ORGNR, InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID), inntektArbeidYtelseAggregatBuilder);
@@ -135,7 +135,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     }
 
     @Test
-    public void ikke_overstyre_eksisterende_overstyringer_gjort_i_5085_5080() {
+    void ikke_overstyre_eksisterende_overstyringer_gjort_i_5085_5080() {
         // Arrange
         final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, NAV_ORGNR, InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID), inntektArbeidYtelseAggregatBuilder);

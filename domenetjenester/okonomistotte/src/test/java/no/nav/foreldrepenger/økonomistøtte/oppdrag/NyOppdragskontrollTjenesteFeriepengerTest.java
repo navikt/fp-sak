@@ -38,7 +38,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Nei, erBeløpForskjelligeForFPÅr2 = Nei
      */
     @Test
-    public void skalIkkeSendeOppdragForFeriepengerNårDetIkkeErEndringIÅrsbeløp() {
+    void skalIkkeSendeOppdragForFeriepengerNårDetIkkeErEndringIÅrsbeløp() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 15000L, 10000L);
@@ -72,7 +72,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Nei, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOppdragKunForAndreFeriepengeårSomHaddeEndringAvÅrsbeløpIRevurdering() {
+    void skalSendeOppdragKunForAndreFeriepengeårSomHaddeEndringAvÅrsbeløpIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 15000L, 10000L);
@@ -136,7 +136,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Nei
      */
     @Test
-    public void skalSendeOppdragKunForFørsteFeriepengeårSomHaddeEndringAvÅrsbeløpIRevurdering() {
+    void skalSendeOppdragKunForFørsteFeriepengeårSomHaddeEndringAvÅrsbeløpIRevurdering() {
         // Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 9000L, 11000L);
@@ -177,7 +177,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOppdragForAlleFeriepengeårNårDetBlirEndringAvÅrsbeløpForAlleFeriepengeårIRevurdering() {
+    void skalSendeOppdragForAlleFeriepengeårNårDetBlirEndringAvÅrsbeløpForAlleFeriepengeårIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 8000L);
@@ -228,7 +228,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOppdragForAlleFeriepengeårNårDetEksistererIngenFeriepengerIForrigeBehandling() {
+    void skalSendeOppdragForAlleFeriepengeårNårDetEksistererIngenFeriepengerIForrigeBehandling() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
@@ -275,7 +275,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Nei, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOppdragKunForAndreFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerOgRevurderingHarDetIAndreÅr() {
+    void skalSendeOppdragKunForAndreFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerOgRevurderingHarDetIAndreÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
@@ -317,7 +317,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Nei
      */
     @Test
-    public void skalSendeOppdragKunForFørsteFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerOgRevurderingHarDetIFørsteÅr() {
+    void skalSendeOppdragKunForFørsteFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerOgRevurderingHarDetIFørsteÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
@@ -359,7 +359,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOppdragForAlleFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerForAndreÅrOgRevurderingHarDetForBeggeToÅr() {
+    void skalSendeOppdragForAlleFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerForAndreÅrOgRevurderingHarDetForBeggeToÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 6500L, 0L);
@@ -420,7 +420,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Nei, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOppdragKunForAndreFeriepengeårNårForrigeBehandlingHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅrUtenEndringForFørsteÅr() {
+    void skalSendeOppdragKunForAndreFeriepengeårNårForrigeBehandlingHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅrUtenEndringForFørsteÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 6500L, 0L);
@@ -463,7 +463,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOppdragForAlleFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅr() {
+    void skalSendeOppdragForAlleFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 7500L);
@@ -525,7 +525,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Nei
      */
     @Test
-    public void skalSendeOppdragKunForFørsteFeriepengeårNårForrigeBehandlingHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅrUtenEndringForAndreÅr() {
+    void skalSendeOppdragKunForFørsteFeriepengeårNårForrigeBehandlingHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅrUtenEndringForAndreÅr() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 7000L);
@@ -568,7 +568,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeEnOppdragForOpphørOgEnForEndringNårFørsteFeriepengeårEndrerSegOgAndreFeriepengeårOpphørerIRevurdering() {
+    void skalSendeEnOppdragForOpphørOgEnForEndringNårFørsteFeriepengeårEndrerSegOgAndreFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 12000L, 10000L);
@@ -621,7 +621,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Nei, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeKunEnOppdragForOpphørNårFørsteFeriepengeårIkkeEndrerSegOgAndreFeriepengeårOpphørerIRevurdering() {
+    void skalSendeKunEnOppdragForOpphørNårFørsteFeriepengeårIkkeEndrerSegOgAndreFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
@@ -658,7 +658,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeEnOppdragForOpphørOgEnForEndringNårAndreFeriepengeårEndrerSegOgFørsteFeriepengeårOpphørerIRevurdering() {
+    void skalSendeEnOppdragForOpphørOgEnForEndringNårAndreFeriepengeårEndrerSegOgFørsteFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 12000L, 10000L);
@@ -708,7 +708,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Nei, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeKunEnOppdragForOpphørNårAndreFeriepengeårIkkeEndrerSegOgFørsteFeriepengeårOpphørerIRevurdering() {
+    void skalSendeKunEnOppdragForOpphørNårAndreFeriepengeårIkkeEndrerSegOgFørsteFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
@@ -745,7 +745,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = Ja
      */
     @Test
-    public void skalSendeOpphørPåoriginaltOppdragForFeriepengerNårDetIkkeErFeriepengerIRevurdering() {
+    void skalSendeOpphørPåoriginaltOppdragForFeriepengerNårDetIkkeErFeriepengerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
@@ -787,7 +787,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = N/A
      */
     @Test
-    public void skalSendeOpphørPåFørsteFeriepengeårNårDetIkkeErFeriepengerIRevurdering() {
+    void skalSendeOpphørPåFørsteFeriepengeårNårDetIkkeErFeriepengerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 11000L, 0L);
@@ -817,7 +817,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * Endring i årsbeløp: erBeløpForskjelligeForFPÅr1 = Ja, erBeløpForskjelligeForFPÅr2 = N/A
      */
     @Test
-    public void skalSendeOpphørPåAndreFeriepengeårNårDetIkkeErFeriepengerIRevurdering() {
+    void skalSendeOpphørPåAndreFeriepengeårNårDetIkkeErFeriepengerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 9500L);
@@ -847,7 +847,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
      * ErBeløpForskjelligeForFPÅr1 = N/A, erBeløpForskjelligeForFPÅr2 = N/A
      */
     @Test
-    public void skalIkkeLagesOppdragHvisDetFinnesIngenFeriepengerIFørstegangsbehandlingOgRevurdering() {
+    void skalIkkeLagesOppdragHvisDetFinnesIngenFeriepengerIFørstegangsbehandlingOgRevurdering() {
         //Arrange
         //Førstegangsbehandling
         var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
@@ -866,7 +866,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     }
 
     @Test
-    public void skalSendeOppdragForFeriepengerNårDetGjelderAdopsjon() {
+    void skalSendeOppdragForFeriepengerNårDetGjelderAdopsjon() {
         //Arrange
         //Act
         //Førstegangsbehandling

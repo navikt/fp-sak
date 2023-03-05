@@ -31,7 +31,7 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     }
 
     @Test
-    public void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
+    void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
         //Arrange
         var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
@@ -53,7 +53,7 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     }
 
     @Test
-    public void gittAvslåttBehandlingPgaManglendeDokMedUtløptFristForInnsendingSkalOppretteTaskForÅVurdereDokument() {
+    void gittAvslåttBehandlingPgaManglendeDokMedUtløptFristForInnsendingSkalOppretteTaskForÅVurdereDokument() {
         //Arrange
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
         var behandling = opprettBehandling(
@@ -74,7 +74,7 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     }
 
     @Test
-    public void gittAvslåttBehandlingMenIkkePgaManglendeDokMedSkalOppretteTaskForÅVurdereDokument() {
+    void gittAvslåttBehandlingMenIkkePgaManglendeDokMedSkalOppretteTaskForÅVurdereDokument() {
         //Arrange
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
         var behandling = opprettBehandling(
@@ -95,7 +95,7 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     }
 
     @Test
-    public void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteTaskForÅVurdereDokumentNårVedleggetErTypeAnnet() {
+    void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteTaskForÅVurdereDokumentNårVedleggetErTypeAnnet() {
         //Arrange
         Mockito.doReturn(true).when(dokumentmottakerFellesSpied).skalOppretteNyFørstegangsbehandling(any());
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());

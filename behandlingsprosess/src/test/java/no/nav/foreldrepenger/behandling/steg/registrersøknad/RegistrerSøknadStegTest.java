@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
-public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
+class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
@@ -48,7 +48,7 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprette_registrer_endringssøknad_aksjonspunkt_hvis_mottatt_førstegangssøknad_i_en_revurdering() {
+    void opprette_registrer_endringssøknad_aksjonspunkt_hvis_mottatt_førstegangssøknad_i_en_revurdering() {
 
         var aktørId = AktørId.dummy();
         var fagsakId = fagsakRepository
@@ -79,7 +79,7 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprett_registrer_papirsøknad_svangerskapspenger_hvis_fagsaktype_er_svp() {
+    void opprett_registrer_papirsøknad_svangerskapspenger_hvis_fagsaktype_er_svp() {
 
         var aktørId = AktørId.dummy();
         var fagsakId = fagsakRepository

@@ -81,7 +81,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.Stønadskont
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
 
-public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
+class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -126,7 +126,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_for_mors_uttaksplan() {
+    void riktig_saldo_for_mors_uttaksplan() {
 
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
@@ -234,7 +234,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void saldo_for_arbeidstype_uten_arbeidsgiver() {
+    void saldo_for_arbeidstype_uten_arbeidsgiver() {
 
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
@@ -298,7 +298,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
 
     @Test
-    public void riktig_saldo_for_mors_dersom_for_mange_dager_blir_trukket() {
+    void riktig_saldo_for_mors_dersom_for_mange_dager_blir_trukket() {
 
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
@@ -357,7 +357,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_for_mors_uttaksplan_ved_flerbarnsdager() {
+    void riktig_saldo_for_mors_uttaksplan_ved_flerbarnsdager() {
 
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
@@ -424,7 +424,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_for_far_som_stjeler_flerbarnsdager_fra_mor() {
+    void riktig_saldo_for_far_som_stjeler_flerbarnsdager_fra_mor() {
 
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
@@ -477,7 +477,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_for_mors_uttaksplan_med_flere_arbeidsforhold() {
+    void riktig_saldo_for_mors_uttaksplan_med_flere_arbeidsforhold() {
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         var virksomhetForMor1 = arbeidsgiver("123");
@@ -548,7 +548,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_med_uttak_på_både_mor_og_fars_uten_overlapp() {
+    void riktig_saldo_med_uttak_på_både_mor_og_fars_uten_overlapp() {
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         var virksomhetForMor = arbeidsgiver("123");
@@ -596,7 +596,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp() {
+    void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp() {
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         var virksomhetForMor = arbeidsgiver("123");
@@ -692,7 +692,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp_og_samtidig_uttak() {
+    void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp_og_samtidig_uttak() {
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         var virksomhetForMor = arbeidsgiver("123");
@@ -739,7 +739,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp_og_gradering_på_motpart() {
+    void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp_og_gradering_på_motpart() {
         var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         var virksomhetForMor1 = arbeidsgiver("123");

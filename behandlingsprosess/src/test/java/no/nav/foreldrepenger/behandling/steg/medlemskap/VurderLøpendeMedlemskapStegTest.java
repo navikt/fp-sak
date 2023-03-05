@@ -62,7 +62,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.VurderLøpendeMedlemskap;
 
 @CdiDbAwareTest
-public class VurderLøpendeMedlemskapStegTest {
+class VurderLøpendeMedlemskapStegTest {
 
     private BehandlingRepositoryProvider provider;
     private BehandlingRepository behandlingRepository;
@@ -97,7 +97,7 @@ public class VurderLøpendeMedlemskapStegTest {
     }
 
     @Test
-    public void skal_gi_avslag() {
+    void skal_gi_avslag() {
         // Arrange
         var termin = LocalDate.now().plusDays(40); // Default i test
         var datoMedEndring = termin;

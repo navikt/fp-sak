@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.Opptjenin
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
-public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
+class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
     private final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
 
@@ -21,7 +21,7 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
     private final Aktivitet noCorp = new Aktivitet(ARBEID, "NoCorp", Aktivitet.ReferanseType.ORGNR);
 
     @Test
-    public void skal_beregne_underkjente_perioder_med_arbeid_ved_sammenligning_med_inntekt_grunnlag() {
+    void skal_beregne_underkjente_perioder_med_arbeid_ved_sammenligning_med_inntekt_grunnlag() {
         var dt1 = LocalDate.of(2017, 9, 02);
         var dt2 = LocalDate.of(2017, 9, 07);
         var dt3 = LocalDate.of(2017, 10, 10);
@@ -59,7 +59,7 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
     }
 
     @Test
-    public void skal_beregne_antatt_godkjent_arbeid() {
+    void skal_beregne_antatt_godkjent_arbeid() {
         var dt1 = LocalDate.of(2017, 11, 02);
         var dt2 = LocalDate.of(2017, 11, 07);
         var dt3 = LocalDate.of(2017, 12, 10);
@@ -97,7 +97,7 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
     }
 
     @Test
-    public void skal_beregne_antatt_godkjent_over_underkjent_arbeid_der_de_overlapper() {
+    void skal_beregne_antatt_godkjent_over_underkjent_arbeid_der_de_overlapper() {
         var dt1 = LocalDate.of(2017, 10, 02);
         var dt2 = LocalDate.of(2017, 10, 07);
         var dt3 = LocalDate.of(2017, 12, 10);

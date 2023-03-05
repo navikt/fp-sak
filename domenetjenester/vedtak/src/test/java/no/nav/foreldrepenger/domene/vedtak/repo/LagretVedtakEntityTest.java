@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 
-public class LagretVedtakEntityTest {
+class LagretVedtakEntityTest {
     private LagretVedtak.Builder lagretVedtakBuilder;
     private LagretVedtak lagretVedtak;
     private LagretVedtak lagretVedtak2;
@@ -24,7 +24,7 @@ public class LagretVedtakEntityTest {
     }
 
     @Test
-    public void skal_bygge_instans_med_påkrevde_felter() {
+    void skal_bygge_instans_med_påkrevde_felter() {
         lagretVedtak = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(lagretVedtak.getFagsakId()).isEqualTo(FAGSAK_ID);
@@ -33,7 +33,7 @@ public class LagretVedtakEntityTest {
     }
 
     @Test
-    public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
+    void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
         // mangler fagsakId
         assertThatThrownBy(() -> lagretVedtakBuilder.build())
             .isInstanceOf(NullPointerException.class)
@@ -53,14 +53,14 @@ public class LagretVedtakEntityTest {
     }
 
     @Test
-    public void skal_håndtere_null_this_feilKlasse_i_equals() {
+    void skal_håndtere_null_this_feilKlasse_i_equals() {
         lagretVedtak = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(lagretVedtak).isNotNull();
     }
 
     @Test
-    public void skal_ha_refleksiv_equalsOgHashCode() {
+    void skal_ha_refleksiv_equalsOgHashCode() {
         lagretVedtakBuilder = lagBuilderMedPaakrevdeFelter();
         lagretVedtak = lagretVedtakBuilder.build();
         lagretVedtak2 = lagretVedtakBuilder.build();
@@ -74,7 +74,7 @@ public class LagretVedtakEntityTest {
     }
 
     @Test
-    public void skal_bruke_fagsakId_i_equalsOgHashCode() {
+    void skal_bruke_fagsakId_i_equalsOgHashCode() {
         lagretVedtakBuilder = lagBuilderMedPaakrevdeFelter();
         lagretVedtak = lagretVedtakBuilder.build();
         lagretVedtakBuilder.medFagsakId(302L);
@@ -85,7 +85,7 @@ public class LagretVedtakEntityTest {
     }
 
     @Test
-    public void skal_bruke_behandlingId_i_equalsOgHashCode() {
+    void skal_bruke_behandlingId_i_equalsOgHashCode() {
         lagretVedtakBuilder = lagBuilderMedPaakrevdeFelter();
         lagretVedtak = lagretVedtakBuilder.build();
         lagretVedtakBuilder.medBehandlingId(525L);
@@ -97,7 +97,7 @@ public class LagretVedtakEntityTest {
     }
 
     @Test
-    public void skal_bruke_dokument_i_equalsOgHashCode() {
+    void skal_bruke_dokument_i_equalsOgHashCode() {
         lagretVedtakBuilder = lagBuilderMedPaakrevdeFelter();
         lagretVedtak = lagretVedtakBuilder.build();
         lagretVedtakBuilder.medXmlClob("<?xml version=\"1.0\" encoding=\"UTF-8\"?><element>XML string</element>");

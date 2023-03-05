@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class VurderInnsynStegTest extends EntityManagerAwareTest {
+class VurderInnsynStegTest extends EntityManagerAwareTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
 
@@ -31,7 +31,7 @@ public class VurderInnsynStegTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_liste_ut_aksjonspunktet_for_vurder_innsyn() {
+    void skal_liste_ut_aksjonspunktet_for_vurder_innsyn() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBruker(AKTØR_ID_MOR, NavBrukerKjønn.KVINNE);
 

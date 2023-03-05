@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesUtils;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.es.VurderFagsystemTjenesteESImpl;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
-public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest extends EntityManagerAwareTest {
+class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest extends EntityManagerAwareTest {
 
     private static final Period FRIST_INNSENDING_PERIODE = Period.ofWeeks(6);
 
@@ -73,7 +73,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     }
 
     @Test
-    public void skalTilManuellVurderingHvisBehandlingErAvslåttPgaManglendeDokOgInnsendtDokErEtterFristForInnsending() {
+    void skalTilManuellVurderingHvisBehandlingErAvslåttPgaManglendeDokOgInnsendtDokErEtterFristForInnsending() {
         opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
                 VedtakResultatType.AVSLAG, DATO_ETTER_FRISTEN);
         var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
@@ -89,7 +89,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     }
 
     @Test
-    public void skalReturnereVedtaksløsningMedSaksnummerVurderingHvisBehandlingErAvslåttPgaManglendeDokOgInnsendtDokErFørFristForInnsending() {
+    void skalReturnereVedtaksløsningMedSaksnummerVurderingHvisBehandlingErAvslåttPgaManglendeDokOgInnsendtDokErFørFristForInnsending() {
         // Arrange
         var behandling = opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
                 VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
@@ -106,7 +106,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     }
 
     @Test
-    public void skalReturnereVedtaksløsningMedSaksnummerVurderingHvisEttersendelsePåAngittSak() {
+    void skalReturnereVedtaksløsningMedSaksnummerVurderingHvisEttersendelsePåAngittSak() {
         // Arrange
         var behandling = opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
                 VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
@@ -124,7 +124,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     }
 
     @Test
-    public void skalTilManuellVurderingHvisBehandlingIkkeErAvslåttPgaManglendeDokOgInnsendtDokErFørFristForInnsending() {
+    void skalTilManuellVurderingHvisBehandlingIkkeErAvslåttPgaManglendeDokOgInnsendtDokErFørFristForInnsending() {
         opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING,
                 VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
         var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
@@ -140,7 +140,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     }
 
     @Test
-    public void skalTilManuellVurderingHvisBehandlingIkkeErAvslåttPgaManglendeDokOgInnsendtDokErEtterFristForInnsending() {
+    void skalTilManuellVurderingHvisBehandlingIkkeErAvslåttPgaManglendeDokOgInnsendtDokErEtterFristForInnsending() {
         opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING,
                 VedtakResultatType.AVSLAG, DATO_ETTER_FRISTEN);
         var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
@@ -156,7 +156,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     }
 
     @Test
-    public void skalTilManuellVurderingHvisBehandlingstypeErKlage() {
+    void skalTilManuellVurderingHvisBehandlingstypeErKlage() {
         var behandling = opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT,
                 Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING, VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
         var vfData = opprettVurderFagsystem(BehandlingTema.UDEFINERT);

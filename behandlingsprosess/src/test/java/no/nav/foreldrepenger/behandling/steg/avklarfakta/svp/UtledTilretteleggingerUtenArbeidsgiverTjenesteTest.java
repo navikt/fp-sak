@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class UtledTilretteleggingerUtenArbeidsgiverTjenesteTest {
+class UtledTilretteleggingerUtenArbeidsgiverTjenesteTest {
 
     @Test
-    public void skal_filtrer_bort_tilrettelegginger_med_arbeidsgiver() {
+    void skal_filtrer_bort_tilrettelegginger_med_arbeidsgiver() {
 
         // Arrange
         var tilrettelegging_1 = new SvpTilretteleggingEntitet.Builder().medArbeidsgiver(Arbeidsgiver.virksomhet("123")).build();

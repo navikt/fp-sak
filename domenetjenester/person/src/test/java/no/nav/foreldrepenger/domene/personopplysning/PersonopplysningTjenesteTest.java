@@ -14,11 +14,11 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class PersonopplysningTjenesteTest {
+class PersonopplysningTjenesteTest {
 
 
     @Test
-    public void skal_hente_gjeldende_personinformasjon_på_tidspunkt() {
+    void skal_hente_gjeldende_personinformasjon_på_tidspunkt() {
         var tidspunkt = LocalDate.now();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultSøknadTerminbekreftelse();

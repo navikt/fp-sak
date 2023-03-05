@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederF
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityManagerAwareTest {
+class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityManagerAwareTest {
 
     private static final String NAV_ORGNR = "889640782";
 
@@ -53,7 +53,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunktet_5051() {
+    void skal_ikke_opprette_aksjonspunktet_5051() {
         // Arrange
         var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
@@ -73,7 +73,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_når_ingen_arbeidsavtaler_har_0_stillingsprosent() {
+    void skal_ikke_opprette_aksjonspunkt_når_ingen_arbeidsavtaler_har_0_stillingsprosent() {
         // Arrange
         var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
@@ -87,7 +87,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent_for_forenklet_oppgjørsordning() {
+    void skal_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent_for_forenklet_oppgjørsordning() {
         // Arrange
         var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
@@ -123,7 +123,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent() {
+    void skal_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent() {
         // Arrange
         var aktørId1 = AktørId.dummy();
         var tilOgMed = LocalDate.now().plusMonths(1);
@@ -147,7 +147,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent_men_utfor_periode() {
+    void skal_ikke_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent_men_utfor_periode() {
         // Arrange
         var aktørId1 = AktørId.dummy();
 

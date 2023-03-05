@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ExtendWith(MockitoExtension.class)
-public class SendBrevForAutopunktTest {
+class SendBrevForAutopunktTest {
 
     @Spy
     DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -63,13 +63,13 @@ public class SendBrevForAutopunktTest {
     }
 
     @Test
-    public void sendBrevForSøknadIkkeMottattFørsteGang() {
+    void sendBrevForSøknadIkkeMottattFørsteGang() {
         sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
     @Test
-    public void sendBrevForSøknadIkkeMottattFørsteGangInfoBrev() {
+    void sendBrevForSøknadIkkeMottattFørsteGangInfoBrev() {
         var scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultBekreftetTerminbekreftelse();
         scenarioMorSøkerForeldrepenger.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
@@ -86,7 +86,7 @@ public class SendBrevForAutopunktTest {
     }
 
     @Test
-    public void sendBrevForSøknadIkkeMottattFørsteGangInfoBrevOpphold() {
+    void sendBrevForSøknadIkkeMottattFørsteGangInfoBrevOpphold() {
         var scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultBekreftetTerminbekreftelse();
         scenarioMorSøkerForeldrepenger.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
@@ -117,27 +117,27 @@ public class SendBrevForAutopunktTest {
     }
 
     @Test
-    public void sendBrevForTidligSøknadFørsteGang() {
+    void sendBrevForTidligSøknadFørsteGang() {
         sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
     @Test
-    public void sendBrevForTidligSøknadBareEnGang() {
+    void sendBrevForTidligSøknadBareEnGang() {
         doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
         sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling);
         Mockito.verify(dokumentBestillerTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
     @Test
-    public void sendBrevForVenterPåFødsel() {
+    void sendBrevForVenterPåFødsel() {
         var spyAp = Mockito.spy(aksjonspunkt);
         sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, spyAp);
         Mockito.verify(dokumentBestillerTjeneste, times(1)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
     @Test
-    public void sendBrevForVenterFødselBareEnGang() {
+    void sendBrevForVenterFødselBareEnGang() {
         doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
         var spyAp = Mockito.spy(aksjonspunkt);
         sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, spyAp);

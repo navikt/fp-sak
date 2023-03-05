@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
+class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -50,7 +50,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_avslag_barn_adopteres_er_over_15_år_på_overtakelsesdato() {
+    void skal_gi_avslag_barn_adopteres_er_over_15_år_på_overtakelsesdato() {
         var behandling = settOppAdopsjonBehandlingFor(16, false, NavBrukerKjønn.KVINNE, false, LocalDate.of(2018, 1, 1));
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
@@ -65,7 +65,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_avslag_dersom_stønadsperiode_for_annen_forelder_er_brukt_opp() {
+    void skal_gi_avslag_dersom_stønadsperiode_for_annen_forelder_er_brukt_opp() {
         var maksdatoForeldrepenger = LocalDate.of(2018, 8, 1);
         var omsorgsovertakelsedato = LocalDate.of(2018, 9, 1);
 
@@ -89,7 +89,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_innvilgelse_dersom_stønadsperiode_for_annen_forelder_ikke_er_brukt_opp() {
+    void skal_gi_innvilgelse_dersom_stønadsperiode_for_annen_forelder_ikke_er_brukt_opp() {
         var maksdatoForeldrepenger = LocalDate.of(2018, 6, 1);
         var omsorgsovertakelsedato = LocalDate.of(2018, 5, 1);
 
@@ -114,7 +114,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_innvilgelse_dersom_kvinne_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
+    void skal_gi_innvilgelse_dersom_kvinne_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
         var behandling = settOppAdopsjonBehandlingFor(
             10, false, NavBrukerKjønn.KVINNE, false, LocalDate.of(2018, 1, 1));
 
@@ -127,7 +127,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_innvilgelse_dersom_mann_alene_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
+    void skal_gi_innvilgelse_dersom_mann_alene_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
         var behandling = settOppAdopsjonBehandlingFor(
             10, false, NavBrukerKjønn.MANN, true, LocalDate.of(2018, 1, 1));
 

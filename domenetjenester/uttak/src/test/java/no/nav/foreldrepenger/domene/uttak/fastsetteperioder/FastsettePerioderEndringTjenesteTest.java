@@ -26,12 +26,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class FastsettePerioderEndringTjenesteTest {
+class FastsettePerioderEndringTjenesteTest {
 
     private static final Behandling BEHANDLING = mock(Behandling.class);
 
     @Test
-    public void endretPeriodeSkalVæreEndring() {
+    void endretPeriodeSkalVæreEndring() {
         var opprinneligPerioder = new UttakResultatPerioderEntitet();
         var opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.TEN);
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
@@ -55,7 +55,7 @@ public class FastsettePerioderEndringTjenesteTest {
     }
 
     @Test
-    public void splittingAvPeriodeSkalGiEnSlettingOgToLagtTilEndringer() {
+    void splittingAvPeriodeSkalGiEnSlettingOgToLagtTilEndringer() {
         var opprinneligPerioder = new UttakResultatPerioderEntitet();
         var opprinneligPeriode = minimumPeriode().build();
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
@@ -95,7 +95,7 @@ public class FastsettePerioderEndringTjenesteTest {
     }
 
     @Test
-    public void skalReturnereTomListeHvisOverstyrtErNull() {
+    void skalReturnereTomListeHvisOverstyrtErNull() {
         var opprinneligPerioder = new UttakResultatPerioderEntitet();
         var opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.ZERO);
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
@@ -111,7 +111,7 @@ public class FastsettePerioderEndringTjenesteTest {
     }
 
     @Test
-    public void endretPeriodeSkalVæreEndringFlereAktiviteter() {
+    void endretPeriodeSkalVæreEndringFlereAktiviteter() {
         var opprinneligPerioder = new UttakResultatPerioderEntitet();
 
         var opprinneligPeriode = minimumPeriode().build();

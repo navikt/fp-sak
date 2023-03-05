@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragskontrollTj
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper;
 
 @ExtendWith(MockitoExtension.class)
-public class SimulerOppdragTjenesteESTest {
+class SimulerOppdragTjenesteESTest {
 
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
 
@@ -90,7 +90,7 @@ public class SimulerOppdragTjenesteESTest {
     }
 
     @Test
-    public void simulerOppdrag_uten_behandling_vedtak_ES() {
+    void simulerOppdrag_uten_behandling_vedtak_ES() {
         // Act
         var oppdragskontroll = simulerOppdragTjeneste.hentOppdragskontrollForBehandling(behandlingId);
         var resultat = OppdragsKontrollDtoMapper.tilDto(oppdragskontroll.get());

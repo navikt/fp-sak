@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class FagsakTjenesteTest {
+class FagsakTjenesteTest {
 
     private FagsakTjeneste tjeneste;
 
@@ -62,7 +62,7 @@ public class FagsakTjenesteTest {
     }
 
     @Test
-    public void skal_oppdatere_fagsakrelasjon_med_barn_og_endret_kjønn() {
+    void skal_oppdatere_fagsakrelasjon_med_barn_og_endret_kjønn() {
         fagsak = lagNyFagsak();
         var barnsFødselsdato = LocalDate.of(2017, JANUARY, 1);
         var barnAktørId = AktørId.dummy();
@@ -118,7 +118,7 @@ public class FagsakTjenesteTest {
     }
 
     @Test
-    public void opprettFlereFagsakerSammeBruker() {
+    void opprettFlereFagsakerSammeBruker() {
         // Opprett en fagsak i systemet
         fagsak = lagNyFagsak();
         fagsak.setStatus(FagsakStatus.LØPENDE);

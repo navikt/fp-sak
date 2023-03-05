@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class OppdragKjedeTest {
+class OppdragKjedeTest {
 
     LocalDate nå = LocalDate.now();
     Periode p1 = Periode.of(nå, nå.plusDays(5));
@@ -15,7 +15,7 @@ public class OppdragKjedeTest {
     Periode p3 = Periode.of(nå.plusDays(11), nå.plusDays(11));
 
     @Test
-    public void skal_konvertere_enkel_kjede_til_ytelse() {
+    void skal_konvertere_enkel_kjede_til_ytelse() {
         var kjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Satsen.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).medRefDelytelseId(DelytelseId.parse("FOO001001")).build())
@@ -30,7 +30,7 @@ public class OppdragKjedeTest {
     }
 
     @Test
-    public void skal_konvertere_kjede_med_opphør_til_ytelse() {
+    void skal_konvertere_kjede_med_opphør_til_ytelse() {
 
         var kjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
@@ -47,7 +47,7 @@ public class OppdragKjedeTest {
     }
 
     @Test
-    public void skal_konvertere_kjede_med_opphør_inne_i_linje_til_ytelse() {
+    void skal_konvertere_kjede_med_opphør_inne_i_linje_til_ytelse() {
         var kjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Satsen.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).medRefDelytelseId(DelytelseId.parse("FOO001001")).build())
@@ -64,7 +64,7 @@ public class OppdragKjedeTest {
     }
 
     @Test
-    public void identisk_tidsperiode_skal_overskrive_tidligere_verdi_i_samme_tidsperiode() {
+    void identisk_tidsperiode_skal_overskrive_tidligere_verdi_i_samme_tidsperiode() {
         //metoden brukes typisk bare for feriepenger
 
         var kjede = OppdragKjede.builder()
@@ -79,7 +79,7 @@ public class OppdragKjedeTest {
     }
 
     @Test
-    public void skal_ha_at_oppdragslinjer_implisitt_opphører_det_som_har_senere_periode() {
+    void skal_ha_at_oppdragslinjer_implisitt_opphører_det_som_har_senere_periode() {
         //metoden brukes typisk bare for feriepenger
 
         var kjede = OppdragKjede.builder()
@@ -94,7 +94,7 @@ public class OppdragKjedeTest {
     }
 
     @Test
-    public void skal_kreve_at_oppdragslinjer_i_kjeden_peker_på_hverandre() {
+    void skal_kreve_at_oppdragslinjer_i_kjeden_peker_på_hverandre() {
         var exception = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Satsen.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).build())
@@ -104,7 +104,7 @@ public class OppdragKjedeTest {
     }
 
     @Test
-    public void skal_ikke_kreve_at_oppdragslinje_peker_på_forrige_når_alt_tidligere_er_opphørt() {
+    void skal_ikke_kreve_at_oppdragslinje_peker_på_forrige_når_alt_tidligere_er_opphørt() {
         var kjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).medOpphørFomDato(p1.getFom()).build())

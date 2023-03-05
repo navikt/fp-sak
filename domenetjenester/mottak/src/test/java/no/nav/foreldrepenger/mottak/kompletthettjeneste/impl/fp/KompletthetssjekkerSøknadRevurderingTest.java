@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
 
-public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
+class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
     private static final String TERMINBEKREFTELSE = "I000041";
     private static final String DOK_INNLEGGELSE = "I000037";
@@ -49,7 +49,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_påkrevd_vedlegg_finnes_i_journal() {
+    void skal_utlede_at_et_påkrevd_vedlegg_finnes_i_journal() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
@@ -71,7 +71,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_påkrevd_vedlegg_ikke_finnes_i_journal() {
+    void skal_utlede_at_et_påkrevd_vedlegg_ikke_finnes_i_journal() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
@@ -94,7 +94,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_påkrevd_vedlegg_ikke_finnes_i_journal_når_det_ble_mottatt_før_gjeldende_vedtak() {
+    void skal_utlede_at_et_påkrevd_vedlegg_ikke_finnes_i_journal_når_det_ble_mottatt_før_gjeldende_vedtak() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
@@ -118,7 +118,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_påkrevd_vedlegg_som_finnes_i_mottatte_dokumenter_ikke_mangler_selv_om_vedlegget_fra_journal_har_mottatt_dato_null() {
+    void skal_utlede_at_et_påkrevd_vedlegg_som_finnes_i_mottatte_dokumenter_ikke_mangler_selv_om_vedlegget_fra_journal_har_mottatt_dato_null() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
@@ -148,7 +148,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_påkrevd_vedlegg_som_ikke_finnes_i_mottatte_dokumenter_mangler_når_vedlegget_fra_journal_har_mottatt_dato_null() {
+    void skal_utlede_at_et_påkrevd_vedlegg_som_ikke_finnes_i_mottatte_dokumenter_mangler_når_vedlegget_fra_journal_har_mottatt_dato_null() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
@@ -172,7 +172,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_dokument_som_er_påkrevd_som_følger_av_utsettelse_ikke_finnes_i_journal() {
+    void skal_utlede_at_et_dokument_som_er_påkrevd_som_følger_av_utsettelse_ikke_finnes_i_journal() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = scenario.lagre(repositoryProvider);
@@ -192,7 +192,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_dokument_som_er_påkrevd_som_følger_av_utsettelse_finnes_i_journal() {
+    void skal_utlede_at_et_dokument_som_er_påkrevd_som_følger_av_utsettelse_finnes_i_journal() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = scenario.lagre(repositoryProvider);
@@ -211,7 +211,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     }
 
     @Test
-    public void skal_utlede_at_et_dokument_som_er_påkrevd_finnes_ved_vedtak_samme_dag() {
+    void skal_utlede_at_et_dokument_som_er_påkrevd_finnes_ved_vedtak_samme_dag() {
         // Arrange
         var søknadsDato = LocalDate.now().minusWeeks(2);
         var scenario = testUtil.opprettRevurderingsscenarioForMor();

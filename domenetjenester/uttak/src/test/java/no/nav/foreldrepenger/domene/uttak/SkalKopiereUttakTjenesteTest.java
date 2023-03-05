@@ -34,49 +34,49 @@ class SkalKopiereUttakTjenesteTest {
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
-    public void endret_arbeid_skal_ikke_kopiere() {
+    void endret_arbeid_skal_ikke_kopiere() {
         assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING), true, true)).isFalse();
     }
 
     @Test
-    public void endret_inntektsmelding_sammen_med_søknad_skal_ikke_kopiere() {
+    void endret_inntektsmelding_sammen_med_søknad_skal_ikke_kopiere() {
         assertThat(
             skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING, RE_ENDRING_FRA_BRUKER), false, true)).isFalse();
     }
 
     @Test
-    public void endret_inntektsmelding_skal_kopiere() {
+    void endret_inntektsmelding_skal_kopiere() {
         assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING), false, true)).isTrue();
     }
 
     @Test
-    public void endret_inntektsmelding_men_årsak_om_død_skal_ikke_kopiere() {
+    void endret_inntektsmelding_men_årsak_om_død_skal_ikke_kopiere() {
         assertThat(skalKopiereStegResultat(Set.of(RE_HENDELSE_DØD_BARN), false, true)).isFalse();
     }
 
     @Test
-    public void endret_inntektsmelding_men_opplysninger_om_død_endret_skal_ikke_kopiere() {
+    void endret_inntektsmelding_men_opplysninger_om_død_endret_skal_ikke_kopiere() {
         assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING), false, true, true)).isFalse();
     }
 
     @Test
-    public void endret_inntektsmelding_og_g_reg_skal_kopiere() {
+    void endret_inntektsmelding_og_g_reg_skal_kopiere() {
         assertThat(
             skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING, RE_SATS_REGULERING), false, true)).isTrue();
     }
 
     @Test
-    public void endret_inntektsmelding_i_førstegangsbehandling_skal_ikke_kopiere() {
+    void endret_inntektsmelding_i_førstegangsbehandling_skal_ikke_kopiere() {
         assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING), false, false)).isFalse();
     }
 
     @Test
-    public void g_reg_skal_kopiere() {
+    void g_reg_skal_kopiere() {
         assertThat(skalKopiereStegResultat(Set.of(RE_SATS_REGULERING), false, true)).isTrue();
     }
 
     @Test
-    public void saksbehandler_har_ikke_avklart_startdato_skal_kopiere() {
+    void saksbehandler_har_ikke_avklart_startdato_skal_kopiere() {
         var uttakInput = lagInput(Set.of(RE_ENDRET_INNTEKTSMELDING), true, false);
         var tjeneste = opprettTjeneste(false);
 
@@ -86,7 +86,7 @@ class SkalKopiereUttakTjenesteTest {
     }
 
     @Test
-    public void saksbehandler_har_avklart_startdato_skal_ikke_kopiere() {
+    void saksbehandler_har_avklart_startdato_skal_ikke_kopiere() {
         var uttakInput = lagInput(Set.of(RE_ENDRET_INNTEKTSMELDING), true, false);
         var tjeneste = opprettTjeneste(false);
 
@@ -95,7 +95,7 @@ class SkalKopiereUttakTjenesteTest {
     }
 
     @Test
-    public void endret_inntektsmelding_skal_ikke_kopiere_hvis_fødsel() {
+    void endret_inntektsmelding_skal_ikke_kopiere_hvis_fødsel() {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(originalBehandling, Set.of(RE_ENDRET_INNTEKTSMELDING));

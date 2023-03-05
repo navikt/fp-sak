@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
+class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider;
@@ -51,7 +51,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void setter_behandlingsresultat_avslag_med_avslagsårsak() {
+    void setter_behandlingsresultat_avslag_med_avslagsårsak() {
         // Arrange
         var behandling = vilkårOppsett(VilkårUtfallType.IKKE_OPPFYLT, VilkårResultatType.AVSLÅTT);
 
@@ -77,7 +77,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void setter_behandlingsresultat_innvilget() {
+    void setter_behandlingsresultat_innvilget() {
         // Arrange
         var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
 
@@ -91,7 +91,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void setter_konsekvens_for_ytelse_ingen_endring() {
+    void setter_konsekvens_for_ytelse_ingen_endring() {
         doReturn(true).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
         var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
         foreslåBehandlingsresultat(behandling);
@@ -101,7 +101,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void setter_ikke_konsekvens_for_ytelse() {
+    void setter_ikke_konsekvens_for_ytelse() {
         var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
         foreslåBehandlingsresultat(behandling);
         var konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();

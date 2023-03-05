@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class NøkkeltallBehandlingRepositoryTest {
+class NøkkeltallBehandlingRepositoryTest {
 
     private NøkkeltallBehandlingRepository nøkkeltallBehandlingRepository;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -35,7 +35,7 @@ public class NøkkeltallBehandlingRepositoryTest {
     }
 
     @Test
-    public void skalRapportereBehandlingPåVent() {
+    void skalRapportereBehandlingPåVent() {
         var søknad = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlendeEnhet("4833")
             .medDefaultFordeling(LocalDate.now().plusDays(20))

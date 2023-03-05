@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class HistorikkRepositoryTest {
+class HistorikkRepositoryTest {
 
     private HistorikkRepository historikkRepository;
     private BehandlingRepository behandlingRepository;
@@ -41,7 +41,7 @@ public class HistorikkRepositoryTest {
     }
 
     @Test
-    public void lagrerHistorikkinnslag() {
+    void lagrerHistorikkinnslag() {
         var behandling = opprettBehandling();
 
         var historikkinnslag = new Historikkinnslag();
@@ -75,7 +75,7 @@ public class HistorikkRepositoryTest {
     }
 
     @Test
-    public void henterAlleHistorikkinnslagForBehandling() {
+    void henterAlleHistorikkinnslagForBehandling() {
         var behandling = opprettBehandling();
 
         var vedtakFattet = new Historikkinnslag();

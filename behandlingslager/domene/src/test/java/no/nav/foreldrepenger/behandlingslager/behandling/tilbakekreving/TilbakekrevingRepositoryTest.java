@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
+class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
 
     private TilbakekrevingRepository repository;
 
@@ -22,14 +22,14 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_empty_når_det_hentes_for_behandling_som_ikke_har_tilbakekrevingsvalg() {
+    void skal_gi_empty_når_det_hentes_for_behandling_som_ikke_har_tilbakekrevingsvalg() {
         var behandling = Mockito.mock(Behandling.class);
         when(behandling.getId()).thenReturn(2L);
         assertThat(repository.hent(2L)).isEmpty();
     }
 
     @Test
-    public void skal_lagre_og_hente_tilbakekrevingsvalg() {
+    void skal_lagre_og_hente_tilbakekrevingsvalg() {
         var behandling = opprettBehandling();
 
         var valg = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varsel");
@@ -44,7 +44,7 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_tilbakekrevingsvalg() {
+    void skal_oppdatere_tilbakekrevingsvalg() {
         var behandling = opprettBehandling();
 
         var valg1 = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varseltekst");
@@ -62,7 +62,7 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagrer_tilbakekreving_inntrekk() {
+    void lagrer_tilbakekreving_inntrekk() {
         // Arrange
         var behandling = opprettBehandling();
 
@@ -75,7 +75,7 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void oppdaterer_tilbakekreving_inntrekk() {
+    void oppdaterer_tilbakekreving_inntrekk() {
         // Arrange
         var behandling = opprettBehandling();
 

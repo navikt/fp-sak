@@ -46,7 +46,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragForOpphør() {
+    void skalSendeOppdragForOpphør() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatFP();
 
@@ -72,7 +72,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragForOpphørNårFørstegangsbehandlingHarFlereInntektskategori() {
+    void skalSendeOppdragForOpphørNårFørstegangsbehandlingHarFlereInntektskategori() {
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(false);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
@@ -94,7 +94,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOpphørFørstSomEnDelAvEndringsoppdragForBruker() {
+    void skalSendeOpphørFørstSomEnDelAvEndringsoppdragForBruker() {
         // Arrange
         var fom = LocalDate.of(I_ÅR, 8, 1);
         var tom = LocalDate.of(I_ÅR, 8, 20);
@@ -122,7 +122,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void opphørSkalIkkeSendesHvisEndringstidspunktErEtterAlleTidligereOppdragForBrukerMedFlereKlassekode() {
+    void opphørSkalIkkeSendesHvisEndringstidspunktErEtterAlleTidligereOppdragForBrukerMedFlereKlassekode() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true);
 
@@ -187,7 +187,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void opphørSkalIkkeSendesForYtelseHvisEndringsdatoErEtterSisteTomDatoITidligereOppdragForArbeidsgiver() {
+    void opphørSkalIkkeSendesForYtelseHvisEndringsdatoErEtterSisteTomDatoITidligereOppdragForArbeidsgiver() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(false, true);
 
@@ -219,7 +219,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void opphørSkalIkkeSendesHvisEndringstidspunktErEtterSisteDatoITidligereOppdrForBrukerMedFlereKlassekodeIForrigeBeh() {
+    void opphørSkalIkkeSendesHvisEndringstidspunktErEtterSisteDatoITidligereOppdrForBrukerMedFlereKlassekodeIForrigeBeh() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(false);
 
@@ -249,7 +249,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void opphørsDatoenMåSettesLikFørsteDatoVedtakFomNårDenneErSenereEnnEndringstdpktBruker() {
+    void opphørsDatoenMåSettesLikFørsteDatoVedtakFomNårDenneErSenereEnnEndringstdpktBruker() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(true, true);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -275,7 +275,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void opphørsDatoenMåSettesLikFørsteDatoVedtakFomNårDenneErSenereEnnEndringstdpktForBrukerMedFlereKlassekode() {
+    void opphørsDatoenMåSettesLikFørsteDatoVedtakFomNårDenneErSenereEnnEndringstdpktForBrukerMedFlereKlassekode() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(false);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -300,7 +300,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void opphørsDatoenMåSettesLikFørsteDatoVedtakFomAvForrigeOppdragNårDenneErSenereEnnEndringstdpktArbgvr() {
+    void opphørsDatoenMåSettesLikFørsteDatoVedtakFomAvForrigeOppdragNårDenneErSenereEnnEndringstdpktArbgvr() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(false, true);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -326,7 +326,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void retest_av_sak_fagsystem_160364_k27_opplyser_ikke_rett_refusjons_maksdato() {
+    void retest_av_sak_fagsystem_160364_k27_opplyser_ikke_rett_refusjons_maksdato() {
         // Arrange
         var stønadsdatoFom = LocalDate.now().plusDays(3);
         var stønadsdatoTom = stønadsdatoFom.plusDays(10);
@@ -404,7 +404,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void opphørSkalIkkeSendesHvisEndringstidspunktErEtterSisteDatoITidligereOppdragForBruker() {
+    void opphørSkalIkkeSendesHvisEndringstidspunktErEtterSisteDatoITidligereOppdragForBruker() {
         // Arrange
         var beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(true, false);
         var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
@@ -434,7 +434,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     // Førstegangsbehandling: VedtakResultat=Innvilget, Behandlingsresultat=Innvilget, FinnnesTilkjentYtelse=Ja
     // Revurdering: VedtakResultat=Innvilget, Behandlingsresultat=Foreldrepenger endret, FinnesTilkjentYtelse=Nei(Utbetalingsgrad=0)
     @Test
-    public void skalSendeOpphørNårForrigeBehandlingHarTilkjentYtelseOgRevurderingHarIngenTilkjentYtelsePgaNullUtbetalingsgradSomBlirSattIUttak() {
+    void skalSendeOpphørNårForrigeBehandlingHarTilkjentYtelseOgRevurderingHarIngenTilkjentYtelsePgaNullUtbetalingsgradSomBlirSattIUttak() {
         // Arrange
         var fom = LocalDate.of(I_ÅR, 8, 1);
         var tom = LocalDate.of(I_ÅR, 8, 15);
@@ -470,7 +470,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    public void skalSendeOppdragUtenOmposteringHvisFullstendigOpphørPåBruker() {
+    void skalSendeOppdragUtenOmposteringHvisFullstendigOpphørPåBruker() {
         // Arrange
         var b1fom = LocalDate.of(I_ÅR, 1, 1);
         var b1tom = LocalDate.of(I_ÅR, 8, 20);

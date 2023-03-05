@@ -76,7 +76,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
-public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
+class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private VedtaksHendelseHåndterer vedtaksHendelseHåndterer;
 
     @Mock
@@ -107,7 +107,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void ingenOverlappOmsorgspengerSVP() {
+    void ingenOverlappOmsorgspengerSVP() {
         var svp = leggPerioderPå(
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100));
@@ -126,7 +126,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void overlappOmsorgspengerSVP() {
+    void overlappOmsorgspengerSVP() {
         var svp = leggPerioderPå(
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
@@ -152,7 +152,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void ingenOverlappOMPSVPGradertPeriode() {
+    void ingenOverlappOMPSVPGradertPeriode() {
         var svp = leggPerioderPå(
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
@@ -173,7 +173,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void overlappOMPSVPGradertPeriode() {
+    void overlappOMPSVPGradertPeriode() {
         var svp = leggPerioderPå(
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
@@ -199,7 +199,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void overlappOpplæringspengerSVP() {
+    void overlappOpplæringspengerSVP() {
         Behandling svp = leggPerioderPå(
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
@@ -217,7 +217,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
+    void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
         // given
         Behandling fpBehandling = leggPerioderPå(lagBehandlingFP(),
             periodeMedGrad("2020-03-01", "2020-04-30", 100));
@@ -243,7 +243,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void vedtak_om_PSB_som_IKKE_overlapper_med_FP_skaper_ingen_tasks() {
+    void vedtak_om_PSB_som_IKKE_overlapper_med_FP_skaper_ingen_tasks() {
         // given
         Behandling fpBehandling = leggPerioderPå(
             lagBehandlingFP(),

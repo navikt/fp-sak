@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
 
-public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
+class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
 
     private static final AktørId MOR_AKTØR_ID = AktørId.dummy();
 
@@ -46,7 +46,7 @@ public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_enhet_normal_sak() {
+    void finn_mors_enhet_normal_sak() {
         // Oppsett
         var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
         when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
@@ -57,7 +57,7 @@ public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_mors_enhet_annenpart_kode6() {
+    void finn_mors_enhet_annenpart_kode6() {
         // Oppsett
         when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
         when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.empty());
@@ -74,7 +74,7 @@ public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finn_enhet_etter_kobling_far_relasjon_kode6() {
+    void finn_enhet_etter_kobling_far_relasjon_kode6() {
         // Oppsett
         when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
         when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.empty());

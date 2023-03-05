@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
 
 @CdiDbAwareTest
-public class FastsettUttakOppdatererTest {
+class FastsettUttakOppdatererTest {
 
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
@@ -69,7 +69,7 @@ public class FastsettUttakOppdatererTest {
     }
 
     @Test
-    public void skalReturnereUtenOveropp() {
+    void skalReturnereUtenOveropp() {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(2);
         var aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
@@ -128,7 +128,7 @@ public class FastsettUttakOppdatererTest {
     }
 
     @Test
-    public void skalAvbryteOverstyringAksjonspunktHvisDetEksisterer() {
+    void skalAvbryteOverstyringAksjonspunktHvisDetEksisterer() {
         var fom = LocalDate.of(2019, 1, 1);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultSøknadTerminbekreftelse()

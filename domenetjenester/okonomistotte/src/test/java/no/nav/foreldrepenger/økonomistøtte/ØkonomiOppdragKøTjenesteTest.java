@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRep
 import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 @ExtendWith(MockitoExtension.class)
-public class ØkonomiOppdragKøTjenesteTest {
+class ØkonomiOppdragKøTjenesteTest {
     private final Long behandlingId = 1L;
 
     private ØkonomiOppdragKøTjeneste oppdragKøTjeneste;
@@ -37,7 +37,7 @@ public class ØkonomiOppdragKøTjenesteTest {
     }
 
     @Test
-    public void skal_sende_økonomi_oppdrag() {
+    void skal_sende_økonomi_oppdrag() {
         var oppdrag = OppdragTestDataHelper.oppdragskontrollUtenOppdrag();
         lagOppdrag110(oppdrag, 1L, KodeFagområde.FP, true, true, false);
         lagOppdrag110(oppdrag, 1L, KodeFagområde.FP, true, true, false);
@@ -49,7 +49,7 @@ public class ØkonomiOppdragKøTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_sende_økonomi_oppdrag() {
+    void skal_ikke_sende_økonomi_oppdrag() {
         when(økonomiRepository.finnOppdragForBehandling(behandlingId)).thenReturn(Optional.empty());
 
         oppdragKøTjeneste.leggOppdragPåKø(behandlingId);

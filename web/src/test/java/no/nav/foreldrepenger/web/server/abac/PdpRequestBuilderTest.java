@@ -31,7 +31,7 @@ import no.nav.vedtak.sikkerhet.abac.pipdata.PipBehandlingStatus;
 import no.nav.vedtak.sikkerhet.abac.pipdata.PipFagsakStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class PdpRequestBuilderTest {
+class PdpRequestBuilderTest {
 
     private static final String DUMMY_ID_TOKEN = "dummyheader.dymmypayload.dummysignaturee";
 
@@ -60,7 +60,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_hente_saksstatus_og_behandlingsstatus_når_behandlingId_er_input() {
+    void skal_hente_saksstatus_og_behandlingsstatus_når_behandlingId_er_input() {
         var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_ID, BEHANDLING_ID);
 
@@ -82,7 +82,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_angi_aktørId_gitt_journalpost_id_som_input() {
+    void skal_angi_aktørId_gitt_journalpost_id_som_input() {
         var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID.getVerdi());
 
@@ -95,7 +95,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_hente_fnr_fra_alle_tilknyttede_saker_når_det_kommer_inn_søk_etter_saker_for_aktørid() {
+    void skal_hente_fnr_fra_alle_tilknyttede_saker_når_det_kommer_inn_søk_etter_saker_for_aktørid() {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, AKTØR_0.getId());
 
         Set<Long> fagsakIder = new HashSet<>();
@@ -114,7 +114,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_bare_sende_fnr_vider_til_pdp() {
+    void skal_bare_sende_fnr_vider_til_pdp() {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, PERSON_0);
 
         var request = requestBuilder.lagAppRessursData(attributter);
@@ -122,7 +122,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_ta_inn_aksjonspunkt_id_og_sende_videre_aksjonspunkt_typer() {
+    void skal_ta_inn_aksjonspunkt_id_og_sende_videre_aksjonspunkt_typer() {
         var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL)
                 .leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
@@ -132,7 +132,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_slå_opp_og_sende_videre_fnr_når_aktør_id_er_input() {
+    void skal_slå_opp_og_sende_videre_fnr_når_aktør_id_er_input() {
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR_1.getId());
 
         var request = requestBuilder.lagAppRessursData(attributter);
@@ -140,7 +140,7 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
-    public void skal_ikke_godta_at_det_sendes_inn_fagsak_id_og_behandling_id_som_ikke_stemmer_overens() {
+    void skal_ikke_godta_at_det_sendes_inn_fagsak_id_og_behandling_id_som_ikke_stemmer_overens() {
 
         var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FAGSAK_ID, 123L);
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, 1234L));

@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 
 @ExtendWith(JpaExtension.class)
-public class UttakInputTjenesteTest {
+class UttakInputTjenesteTest {
 
     private UttakInputTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -53,7 +53,7 @@ public class UttakInputTjenesteTest {
     }
 
     @Test
-    public void skal_hente_behandlingsårsaker_fra_behandling() {
+    void skal_hente_behandlingsårsaker_fra_behandling() {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
                 .lagre(repositoryProvider);
         var årsak = BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
@@ -69,7 +69,7 @@ public class UttakInputTjenesteTest {
     }
 
     @Test
-    public void skal_sette_om_behandling_er_manuelt_behandlet() {
+    void skal_sette_om_behandling_er_manuelt_behandlet() {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
                 .lagre(repositoryProvider);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -83,7 +83,7 @@ public class UttakInputTjenesteTest {
     }
 
     @Test
-    public void skal_sette_om_opplysninger_om_død_er_endret_hvis_det_er_endringer() {
+    void skal_sette_om_opplysninger_om_død_er_endret_hvis_det_er_endringer() {
         var behandlingMedEndretOpplysningerOmDød = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultSøknadTerminbekreftelse().medDefaultFordeling(LocalDate.of(2019, 1, 1))
                 .lagre(repositoryProvider);
@@ -102,7 +102,7 @@ public class UttakInputTjenesteTest {
     }
 
     @Test
-    public void skal_sette_om_opplysninger_om_død_er_endret_hvis_det_er_ingen_endringer() {
+    void skal_sette_om_opplysninger_om_død_er_endret_hvis_det_er_ingen_endringer() {
         var behandlingUtenEndringIOpplysninger = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultSøknadTerminbekreftelse().medDefaultFordeling(LocalDate.of(2019, 1, 1))
                 .lagre(repositoryProvider);

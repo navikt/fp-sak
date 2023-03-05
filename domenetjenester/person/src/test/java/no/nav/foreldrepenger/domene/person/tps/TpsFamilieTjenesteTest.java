@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ExtendWith(MockitoExtension.class)
-public class TpsFamilieTjenesteTest {
+class TpsFamilieTjenesteTest {
 
     private static final AktørId AKTØR = AktørId.dummy();
     @Mock
@@ -46,7 +46,7 @@ public class TpsFamilieTjenesteTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         final var mottattDato = LocalDate.now().minusDays(30);
         final var intervall = new LocalDateInterval(mottattDato.minusWeeks(6), mottattDato.plusWeeks(6));
         final var antallBarn = 1;

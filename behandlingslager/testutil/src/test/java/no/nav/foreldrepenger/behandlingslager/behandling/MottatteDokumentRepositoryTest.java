@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
-public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
+class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
 
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlingRepository behandlingRepository;
@@ -28,7 +28,7 @@ public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_alle_MottatteDokument_på_behandlingId() {
+    void skal_hente_alle_MottatteDokument_på_behandlingId() {
         var behandling = opprettBehandling(opprettFagsak());
         opprettDokument(behandling);
         //Act
@@ -40,7 +40,7 @@ public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_alle_MottatteDokument_på_fagsakId() {
+    void skal_hente_alle_MottatteDokument_på_fagsakId() {
         var fagsak = opprettFagsak();
         var behandling1 = opprettBehandling(fagsak);
         var behandling2 = opprettBehandling(fagsak);
@@ -56,7 +56,7 @@ public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_MottattDokument_på_id() {
+    void skal_hente_MottattDokument_på_id() {
         var fagsak = opprettFagsak();
         var behandling1 = opprettBehandling(fagsak);
         var behandling2 = opprettBehandling(fagsak);

@@ -47,7 +47,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
     }
 
     @Test
-    public void skal_opprette_ny_førstegangsbehandling_ved_innsending_av_ny_søknad_kompletthet_ikke_passert() {
+    void skal_opprette_ny_førstegangsbehandling_ved_innsending_av_ny_søknad_kompletthet_ikke_passert() {
         // Pre-Arrange: Registerdata + fagsak
         var mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
         var mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);

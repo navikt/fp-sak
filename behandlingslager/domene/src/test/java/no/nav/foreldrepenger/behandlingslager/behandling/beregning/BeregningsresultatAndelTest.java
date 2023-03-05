@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
-public class BeregningsresultatAndelTest {
+class BeregningsresultatAndelTest {
 
     private static final String ORGNR = "6543795";
 
@@ -31,7 +31,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_alle_feltene_er_satt_uten_arbeidsgiver() {
+    void andel_hvor_alle_feltene_er_satt_uten_arbeidsgiver() {
         var andel = BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -51,7 +51,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_alle_feltene_er_satt_med_arbeidsgiver() {
+    void andel_hvor_alle_feltene_er_satt_med_arbeidsgiver() {
         var andel = BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(false)
                 .medDagsats(550)
@@ -71,7 +71,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_brukerErMottaker_er_true_og_arbeidsgiver_er_satt() {
+    void andel_hvor_brukerErMottaker_er_true_og_arbeidsgiver_er_satt() {
         var andel = BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -91,7 +91,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_brukerErMottaker_er_false_og_arbeidsgiver_er_null() {
+    void andel_hvor_brukerErMottaker_er_false_og_arbeidsgiver_er_null() {
         assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(false)
                 .medDagsats(550)
@@ -104,7 +104,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_brukerErMottaker_ikke_er_satt() {
+    void andel_hvor_brukerErMottaker_ikke_er_satt() {
         assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
                 .medDagsats(550)
                 .medStillingsprosent(BigDecimal.valueOf(100))
@@ -116,7 +116,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_dagsats_ikke_er_satt() {
+    void andel_hvor_dagsats_ikke_er_satt() {
         assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medStillingsprosent(BigDecimal.valueOf(100))
@@ -128,7 +128,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_stillingsprosent_ikke_er_satt() {
+    void andel_hvor_stillingsprosent_ikke_er_satt() {
         assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -140,7 +140,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_utbetalingsgrad_ikke_er_satt() {
+    void andel_hvor_utbetalingsgrad_ikke_er_satt() {
         assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -152,7 +152,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_dagsatsFraBg_ikke_er_satt() {
+    void andel_hvor_dagsatsFraBg_ikke_er_satt() {
         assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -164,7 +164,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_inntektskategori_ikke_er_satt() {
+    void andel_hvor_inntektskategori_ikke_er_satt() {
         assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -176,7 +176,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_utbetalingsgraden_er_minus_1() {
+    void andel_hvor_utbetalingsgraden_er_minus_1() {
         assertThrows(IllegalStateException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -189,7 +189,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_utbetalingsgraden_er_101() {
+    void andel_hvor_utbetalingsgraden_er_101() {
         assertThrows(IllegalStateException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
@@ -202,7 +202,7 @@ public class BeregningsresultatAndelTest {
     }
 
     @Test
-    public void andel_hvor_inntektskategorien_er_udefinert() {
+    void andel_hvor_inntektskategorien_er_udefinert() {
         assertThrows(IllegalStateException.class, () -> BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)

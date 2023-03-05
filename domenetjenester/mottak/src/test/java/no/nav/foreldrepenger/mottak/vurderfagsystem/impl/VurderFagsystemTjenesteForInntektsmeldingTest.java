@@ -66,7 +66,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderFagsystemTjenesteForInntektsmeldingTest {
+class VurderFagsystemTjenesteForInntektsmeldingTest {
 
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     @Mock
@@ -110,7 +110,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesOgÅrsakInnsendingErEndring() {
+    void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesOgÅrsakInnsendingErEndring() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
                 LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -128,7 +128,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereManuellVurderingMedNårFlereÅpneSakerEneHalvGammel() {
+    void skalReturnereManuellVurderingMedNårFlereÅpneSakerEneHalvGammel() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -157,7 +157,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereVedtaksløsningVurderingMedNårFlereÅpneSakerEneErGammel() {
+    void skalReturnereVedtaksløsningVurderingMedNårFlereÅpneSakerEneErGammel() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -186,7 +186,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereManuellVurderingMedNårFlereÅpneSakerAlleErGamle() {
+    void skalReturnereManuellVurderingMedNårFlereÅpneSakerAlleErGamle() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -219,7 +219,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereVedtaksløsningVurderingMedNårÅpenSakerErGammelMenInnenforBR() {
+    void skalReturnereVedtaksløsningVurderingMedNårÅpenSakerErGammelMenInnenforBR() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -244,7 +244,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereVedtaksløsningVurderingNårInnenforÅpenBehandlingMedSøknad() {
+    void skalReturnereVedtaksløsningVurderingNårInnenforÅpenBehandlingMedSøknad() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -273,7 +273,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereManuellVurderingMedÅpenSakAlleÅpenSakerErGammelOgUtenforBR() {
+    void skalReturnereManuellVurderingMedÅpenSakAlleÅpenSakerErGammelOgUtenforBR() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
             LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -331,7 +331,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalReturnereVLNårBrukerIkkeHarSakIVL() {
+    void skalReturnereVLNårBrukerIkkeHarSakIVL() {
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER,
                 LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
@@ -346,7 +346,7 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     }
 
     @Test
-    public void skalFinneArbeidsforholdForArbeidsgiverSomErPrivatperson() {
+    void skalFinneArbeidsforholdForArbeidsgiverSomErPrivatperson() {
         var arbeidsgiverAktørId = AktørId.dummy();
 
         var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,

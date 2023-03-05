@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class NavBrukerEntityTest extends EntityManagerAwareTest {
+class NavBrukerEntityTest extends EntityManagerAwareTest {
 
     @Test
-    public void skal_lagre_og_hente_søker() {
+    void skal_lagre_og_hente_søker() {
         var entityManager = getEntityManager();
         var navBrukerRepo = new NavBrukerRepository(entityManager);
 

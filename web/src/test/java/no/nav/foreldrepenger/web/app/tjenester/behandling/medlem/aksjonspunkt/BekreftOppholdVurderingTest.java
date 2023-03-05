@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
+class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
@@ -52,7 +52,7 @@ public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void bekreft_oppholdsrett_vurdering() {
+    void bekreft_oppholdsrett_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
@@ -92,7 +92,7 @@ public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void bekreft_lovlig_opphold_vurdering() {
+    void bekreft_lovlig_opphold_vurdering() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()

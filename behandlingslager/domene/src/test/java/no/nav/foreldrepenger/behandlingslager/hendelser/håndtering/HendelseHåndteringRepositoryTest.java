@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseHåndteringRepos
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class HendelseHåndteringRepositoryTest extends EntityManagerAwareTest {
+class HendelseHåndteringRepositoryTest extends EntityManagerAwareTest {
 
     private HendelseHåndteringRepository hendelseHåndteringRepository;
     private PersonopplysningRepository personopplysningRepository;
@@ -41,7 +41,7 @@ public class HendelseHåndteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_fagsak_på_barnets_aktørId_i_behandlingsgrunnlaget() {
+    void skal_finne_fagsak_på_barnets_aktørId_i_behandlingsgrunnlaget() {
         // Arrange
         var morAktørId = AktørId.dummy();
         var barnAktørId = AktørId.dummy();

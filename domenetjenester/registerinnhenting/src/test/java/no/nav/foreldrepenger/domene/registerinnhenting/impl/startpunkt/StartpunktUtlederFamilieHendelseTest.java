@@ -25,10 +25,10 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-public class StartpunktUtlederFamilieHendelseTest {
+class StartpunktUtlederFamilieHendelseTest {
 
     @Test
-    public void skal_returnere_startpunkt_opplysningsplikt_dersom_familiehendelse_bekreftes_og_endrer_skjæringspunkt() {
+    void skal_returnere_startpunkt_opplysningsplikt_dersom_familiehendelse_bekreftes_og_endrer_skjæringspunkt() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
         var nyBekreftetfødselsdato = origSkjæringsdato.minusDays(1); // fødselsdato før skjæringstidspunkt
@@ -59,7 +59,7 @@ public class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_opplysningsplikt_dersom_familiehendelse_flyttes_til_tidligere_dato() {
+    void skal_returnere_startpunkt_opplysningsplikt_dersom_familiehendelse_flyttes_til_tidligere_dato() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
         var origBekreftetfødselsdato = origSkjæringsdato;
@@ -91,7 +91,7 @@ public class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_srb_dersom_færre_barn_enn_søknad() {
+    void skal_returnere_startpunkt_srb_dersom_færre_barn_enn_søknad() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var skjæringsdato = LocalDate.now().minusWeeks(3);
@@ -129,7 +129,7 @@ public class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_beregning_dersom_tilkommet_dødfødsel_med_dekningsgrad80() {
+    void skal_returnere_startpunkt_beregning_dersom_tilkommet_dødfødsel_med_dekningsgrad80() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var skjæringsdato = LocalDate.now().minusWeeks(3);
@@ -172,7 +172,7 @@ public class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_uttak_dersom_tilkommet_dødfødsel_med_dekningsgrad100() {
+    void skal_returnere_startpunkt_uttak_dersom_tilkommet_dødfødsel_med_dekningsgrad100() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var skjæringsdato = LocalDate.now().minusWeeks(3);
@@ -213,7 +213,7 @@ public class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_opplysningsplikt_dersom_orig_skjæringstidspunkt_flyttes_tidligere() {
+    void skal_returnere_startpunkt_opplysningsplikt_dersom_orig_skjæringstidspunkt_flyttes_tidligere() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
         var nySkjæringsdato = LocalDate.now().minusDays(1);
@@ -245,7 +245,7 @@ public class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
-    public void skal_returnere_startpunkt_opplysningsplikt_dersom_far_justeres_ved_fødsel() {
+    void skal_returnere_startpunkt_opplysningsplikt_dersom_far_justeres_ved_fødsel() {
         // Arrange
         var origSkjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now()).plusDays(2);
         var nySkjæringsdato = origSkjæringsdato.plusDays(1);

@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
 @CdiDbAwareTest
-public class ForeslåVedtakTjenesteTest {
+class ForeslåVedtakTjenesteTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -89,7 +89,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void oppretterAksjonspunktVedTotrinnskontrollOgSetterStegPåVent() {
+    void oppretterAksjonspunktVedTotrinnskontrollOgSetterStegPåVent() {
         // Arrange
         leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true);
 
@@ -103,7 +103,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void setterTotrinnskontrollPaBehandlingHvisIkkeSattFraFør() {
+    void setterTotrinnskontrollPaBehandlingHvisIkkeSattFraFør() {
         // Arrange
         leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET, false);
 
@@ -115,7 +115,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void setterPåVentHvisÅpentAksjonspunktVedtakUtenTotrinnskontroll() {
+    void setterPåVentHvisÅpentAksjonspunktVedtakUtenTotrinnskontroll() {
         // Arrange
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
@@ -128,7 +128,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void nullstillerBehandlingHvisDetEksistererVedtakUtenTotrinnAksjonspunkt() {
+    void nullstillerBehandlingHvisDetEksistererVedtakUtenTotrinnAksjonspunkt() {
         // Arrange
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
@@ -140,7 +140,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void setterStegTilUtførtUtenAksjonspunktDersomIkkeTotrinnskontroll() {
+    void setterStegTilUtførtUtenAksjonspunktDersomIkkeTotrinnskontroll() {
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
@@ -150,7 +150,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void setterIkkeTotrinnskontrollPaBehandlingHvisDetIkkeErTotrinnskontroll() {
+    void setterIkkeTotrinnskontrollPaBehandlingHvisDetIkkeErTotrinnskontroll() {
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
@@ -160,7 +160,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void nullstillerFritekstfeltetDersomIkkeTotrinnskontroll() {
+    void nullstillerFritekstfeltetDersomIkkeTotrinnskontroll() {
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
@@ -170,7 +170,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void nullstillerIkkeFritekstfeltetDersomTotrinnskontroll() {
+    void nullstillerIkkeFritekstfeltetDersomTotrinnskontroll() {
         // Arrange
         leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true);
 
@@ -183,7 +183,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void lagerRiktigAksjonspunkterNårDetErOppgaveriGsak() {
+    void lagerRiktigAksjonspunkterNårDetErOppgaveriGsak() {
         // Arrange
         lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
         lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
@@ -200,7 +200,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void lagerIkkeNyeAksjonspunkterNårAksjonspunkterAlleredeFinnes() {
+    void lagerIkkeNyeAksjonspunkterNårAksjonspunkterAlleredeFinnes() {
         // Arrange
         leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, false);
         lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
@@ -216,7 +216,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void utførerUtenAksjonspunktHvisRevurderingIkkeOpprettetManueltOgIkkeTotrinnskontroll() {
+    void utførerUtenAksjonspunktHvisRevurderingIkkeOpprettetManueltOgIkkeTotrinnskontroll() {
         // Arrange
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
 
@@ -229,7 +229,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontroll() {
+    void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontroll() {
         // Arrange
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -250,7 +250,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void utførerUtenAksjonspunktHvisRevurderingIkkeManueltOpprettetOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
+    void utførerUtenAksjonspunktHvisRevurderingIkkeManueltOpprettetOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
         // Arrange
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
         behandling.setToTrinnsBehandling();
@@ -264,7 +264,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
+    void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
         // Arrange
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -286,7 +286,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void oppretterAksjonspunktVedTotrinnskontrollForRevurdering() {
+    void oppretterAksjonspunktVedTotrinnskontrollForRevurdering() {
         // Arrange
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
         leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET, true);
@@ -301,7 +301,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void skalUtføreUtenAksjonspunkterHvisKlageHarResultatHjemsendt() {
+    void skalUtføreUtenAksjonspunkterHvisKlageHarResultatHjemsendt() {
         // Arrange
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = ScenarioKlageEngangsstønad.forHjemsendtNK(scenario).lagre(repositoryProvider, klageRepository);

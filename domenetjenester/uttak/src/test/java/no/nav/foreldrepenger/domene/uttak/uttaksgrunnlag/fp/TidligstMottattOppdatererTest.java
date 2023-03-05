@@ -37,10 +37,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(MockitoExtension.class)
-public class TidligstMottattOppdatererTest {
+class TidligstMottattOppdatererTest {
 
     @Test
-    public void skalFinneTidligstMottattDatoFraOriginalBehandlingHvisMatchendePeriode() {
+    void skalFinneTidligstMottattDatoFraOriginalBehandlingHvisMatchendePeriode() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -67,7 +67,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void skalSplittePeriodeFinneTidligstMottattDatoFraOriginalBehandlingHvisUtvidetPeriode() {
+    void skalSplittePeriodeFinneTidligstMottattDatoFraOriginalBehandlingHvisUtvidetPeriode() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -98,7 +98,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void skalFinneTidligstMottattDatoFraOriginalBehandlingHvisKrympetPeriode() {
+    void skalFinneTidligstMottattDatoFraOriginalBehandlingHvisKrympetPeriode() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -126,7 +126,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void skalSplittePeriodeFinneTidligstMottattDatoFraOriginalBehandlingHvisHullIPeriode() {
+    void skalSplittePeriodeFinneTidligstMottattDatoFraOriginalBehandlingHvisHullIPeriode() {
         var fom = LocalDate.of(2020, 10, 9);
         var tom = LocalDate.of(2020, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -164,7 +164,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void skalSplitteSamtBrukeDatoFraInnvilgetGradertPeriodeMenIkkeForNyPeriode() {
+    void skalSplitteSamtBrukeDatoFraInnvilgetGradertPeriodeMenIkkeForNyPeriode() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -207,7 +207,7 @@ public class TidligstMottattOppdatererTest {
 
 
     @Test
-    public void skalBrukeDatoFraInnvilgetGradertPeriodeMenIkkeForNyPeriode() {
+    void skalBrukeDatoFraInnvilgetGradertPeriodeMenIkkeForNyPeriode() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -252,7 +252,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void skalBrukeDatoFraInnvilgetPeriodeMenIkkeForNyPeriode() {
+    void skalBrukeDatoFraInnvilgetPeriodeMenIkkeForNyPeriode() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -289,7 +289,7 @@ public class TidligstMottattOppdatererTest {
 
 
     @Test
-    public void leggerInnUtsettelseOgSenereUttak() {
+    void leggerInnUtsettelseOgSenereUttak() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
         var utsattFom = LocalDate.of(2022, 11, 1);
@@ -338,7 +338,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void utviderPeriodeUtenUttakOgLeggerTilSenereUttak() {
+    void utviderPeriodeUtenUttakOgLeggerTilSenereUttak() {
         var fom0 = LocalDate.of(2022, 10, 4);
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
@@ -385,7 +385,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void prod_komplisert_uttak_utsettelse_med_konto() {
+    void prod_komplisert_uttak_utsettelse_med_konto() {
         var fom = LocalDate.of(2022, 1, 3);
         var fom0 = LocalDate.of(2022, 1, 10);
         var tom = LocalDate.of(2022, 6, 10);
@@ -450,7 +450,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void skalSplitteSamtBrukeDatoFraInnvilgetGradertPeriodeMenIkkeForNyPeriodeFraUR() {
+    void skalSplitteSamtBrukeDatoFraInnvilgetGradertPeriodeMenIkkeForNyPeriodeFraUR() {
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
         var originalTidligstMottattDato = LocalDate.of(2020, 10, 10);
@@ -500,7 +500,7 @@ public class TidligstMottattOppdatererTest {
 
 
     @Test
-    public void utviderPeriodeUtenUttakOgLeggerTilSenereUttakFraUR() {
+    void utviderPeriodeUtenUttakOgLeggerTilSenereUttakFraUR() {
         var fom0 = LocalDate.of(2022, 10, 4);
         var fom = LocalDate.of(2022, 10, 10);
         var tom = LocalDate.of(2022, 11, 9);
@@ -563,7 +563,7 @@ public class TidligstMottattOppdatererTest {
     }
 
     @Test
-    public void prod_overstyrt_uttak_utsettelse_med_konto() {
+    void prod_overstyrt_uttak_utsettelse_med_konto() {
         var fom = LocalDate.of(2022, 1, 3);
         var fom0 = LocalDate.of(2022, 1, 10);
         var tom = LocalDate.of(2022, 6, 10);

@@ -26,7 +26,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
-public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
+class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
 
     private OppdaterSakOgBehandlingEventObserver observer;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -42,7 +42,7 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
     }
 
     @Test
-    public void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErOpprettet() {
+    void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErOpprettet() {
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
@@ -64,7 +64,7 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
     }
 
     @Test
-    public void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErAvsluttet() {
+    void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErAvsluttet() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 

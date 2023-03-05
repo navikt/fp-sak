@@ -16,13 +16,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPar
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class ForelderErDødEndringIdentifisererTest {
+class ForelderErDødEndringIdentifisererTest {
     private AktørId AKTØRID = AktørId.dummy();
     private AktørId AKTØRID_ANNEN_PART = AktørId.dummy();
 
 
     @Test
-    public void testDødsdatoUendret() {
+    void testDødsdatoUendret() {
         final var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato);
@@ -33,7 +33,7 @@ public class ForelderErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void testSøkerDør() {
+    void testSøkerDør() {
         final var dødsdato = LocalDate.now().minusDays(10);
 
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(null);
@@ -45,7 +45,7 @@ public class ForelderErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void testAnnenPartDør() {
+    void testAnnenPartDør() {
         LocalDate dødsdatoSøker = null;
         LocalDate dødsdatoAnnenPart1 = null;
         var dødsdatoAnnenPart2 = LocalDate.now();
@@ -58,7 +58,7 @@ public class ForelderErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void testDødsdatoEndret() {
+    void testDødsdatoEndret() {
         final var dødsdato = LocalDate.now().minusDays(10);
 
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato.minusDays(1));
@@ -70,7 +70,7 @@ public class ForelderErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void skal_detektere_brukes_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
+    void skal_detektere_brukes_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
         // Arrange
         final var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettTomtPersonopplysningGrunnlag();
@@ -85,7 +85,7 @@ public class ForelderErDødEndringIdentifisererTest {
     }
 
     @Test
-    public void skal_detektere_annen_parts_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
+    void skal_detektere_annen_parts_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
         // Arrange
         LocalDate dødsdatoSøker = null;
         var dødsdatoAnnenPart2 = LocalDate.now();

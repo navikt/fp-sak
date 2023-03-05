@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 
 @ExtendWith(MockitoExtension.class)
-public class SøknadMapperTest {
+class SøknadMapperTest {
 
     public static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
 
@@ -37,14 +37,14 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void test_mapEngangstønad() {
+    void test_mapEngangstønad() {
         var registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         oppdaterDtoForFødsel(registreringEngangsstonadDto, true, LocalDate.now().minusWeeks(3), 1);
         ytelseSøknadMapper.mapSøknad(registreringEngangsstonadDto, opprettBruker());
     }
 
     @Test
-    public void testMapperMedlemskapES_uten_utenlandsopphold() {
+    void testMapperMedlemskapES_uten_utenlandsopphold() {
 
         var registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         registreringEngangsstonadDto.setMottattDato(LocalDate.now());
@@ -59,7 +59,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void testMapperMedlemskapES_med_FremtidigUtenlandsopphold() {
+    void testMapperMedlemskapES_med_FremtidigUtenlandsopphold() {
 
         var land = "FRA";
         LocalDate periodeFom = LocalDate.now().plusMonths(2), periodeTom = LocalDate.now().plusMonths(5);
@@ -97,7 +97,7 @@ public class SøknadMapperTest {
     }
 
     @Test
-    public void testMapperMedlemskapES_med_TidligereUtenlandsopphold() {
+    void testMapperMedlemskapES_med_TidligereUtenlandsopphold() {
 
         final var land = "FRA";
         LocalDate periodeFom = LocalDate.now().minusMonths(6), periodeTom = LocalDate.now().minusMonths(3);

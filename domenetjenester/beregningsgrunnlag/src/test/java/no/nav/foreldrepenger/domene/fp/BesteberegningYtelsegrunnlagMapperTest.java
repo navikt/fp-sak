@@ -37,7 +37,7 @@ class BesteberegningYtelsegrunnlagMapperTest {
     private static final LocalDate STP = LocalDate.of(2021,1,1);
 
     @Test
-    public void skal_mappe_sykepenger() {
+    void skal_mappe_sykepenger() {
         YtelseBuilder sykeBuilder = lagSykepenger(DatoIntervallEntitet.fraOgMedTilOgMed(månederFørStp(15), månederFørStp(6)));
         lagYtelseGrunnlag(sykeBuilder, Arbeidskategori.DAGPENGER);
         YtelseFilter filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
@@ -51,7 +51,7 @@ class BesteberegningYtelsegrunnlagMapperTest {
     }
 
     @Test
-    public void skal_ikke_mappe_ubehandlede_ytelser_med_ugyldig_kategori() {
+    void skal_ikke_mappe_ubehandlede_ytelser_med_ugyldig_kategori() {
         YtelseBuilder sykeBuilder = lagSykepenger(DatoIntervallEntitet.fraOgMedTilOgMed(månederFørStp(15), månederFørStp(6)), RelatertYtelseTilstand.ÅPEN);
         lagYtelseGrunnlag(sykeBuilder, Arbeidskategori.UGYLDIG);
         YtelseFilter filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
@@ -60,7 +60,7 @@ class BesteberegningYtelsegrunnlagMapperTest {
     }
 
     @Test
-    public void skal_mappe_foreldrepenger() {
+    void skal_mappe_foreldrepenger() {
         var brres = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")

@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
+class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
 
     private static final LocalDateTime I_GÅR = LocalDateTime.now().minusDays(1);
     private static final LocalDate OM_TO_DAGER = LocalDate.now().plusDays(2);
@@ -30,7 +30,7 @@ public class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kopiere_grunnlaget_og_sette_kopiert_flagget() {
+    void skal_kopiere_grunnlaget_og_sette_kopiert_flagget() {
         // Arrange
         var fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.SVANGERSKAPSPENGER);
         var gammelBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);

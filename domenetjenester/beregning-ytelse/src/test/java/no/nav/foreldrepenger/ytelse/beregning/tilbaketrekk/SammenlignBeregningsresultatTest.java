@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SammenlignBeregningsresultatTest {
 
     @Test
-    public void skal_ikke_finne_diff_når_to_entiteter_er_like() {
+    void skal_ikke_finne_diff_når_to_entiteter_er_like() {
         var stp = LocalDate.now();
         var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -63,7 +63,7 @@ class SammenlignBeregningsresultatTest {
     }
 
     @Test
-    public void skal_finne_diff_når_to_entiteter_har_ulike_start_på_periode() {
+    void skal_finne_diff_når_to_entiteter_har_ulike_start_på_periode() {
         var stp = LocalDate.now();
         var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -109,7 +109,7 @@ class SammenlignBeregningsresultatTest {
     }
 
     @Test
-    public void skal_finne_diff_når_to_entiteter_har_ulike_utbetalingsgrad_på_andel() {
+    void skal_finne_diff_når_to_entiteter_har_ulike_utbetalingsgrad_på_andel() {
         var stp = LocalDate.now();
         var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")

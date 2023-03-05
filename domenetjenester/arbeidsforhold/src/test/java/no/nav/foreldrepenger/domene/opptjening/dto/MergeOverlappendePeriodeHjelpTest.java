@@ -11,10 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetKlassifisering;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 
-public class MergeOverlappendePeriodeHjelpTest {
+class MergeOverlappendePeriodeHjelpTest {
 
     @Test
-    public void skal_slå_sammen_perioder_riktig_2_godkjent_og_2_underkjent() {
+    void skal_slå_sammen_perioder_riktig_2_godkjent_og_2_underkjent() {
         var iDag = LocalDate.now();
         var akt1 = new OpptjeningAktivitet(iDag.minusMonths(10), iDag, OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE,
                 OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
@@ -38,7 +38,7 @@ public class MergeOverlappendePeriodeHjelpTest {
     }
 
     @Test
-    public void skal_slå_sammen_perioder_riktig_3_godkjente_og_1_mellomliggende() {
+    void skal_slå_sammen_perioder_riktig_3_godkjente_og_1_mellomliggende() {
         var iDag = LocalDate.now();
         var akt1 = new OpptjeningAktivitet(iDag.minusMonths(10), iDag, OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE,
                 OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
@@ -59,7 +59,7 @@ public class MergeOverlappendePeriodeHjelpTest {
     }
 
     @Test
-    public void skal_håndtere_perioder_som_ikke_henger_sammen() {
+    void skal_håndtere_perioder_som_ikke_henger_sammen() {
         var iDag = LocalDate.now();
         var akt1 = new OpptjeningAktivitet(iDag.minusMonths(3), iDag, OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE,
                 OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
@@ -81,7 +81,7 @@ public class MergeOverlappendePeriodeHjelpTest {
     }
 
     @Test
-    public void skal_slå_sammen_perioder_riktig_3_godkjente_og_1_mellomliggende_der_mellomliggende_blir_avkortet() {
+    void skal_slå_sammen_perioder_riktig_3_godkjente_og_1_mellomliggende_der_mellomliggende_blir_avkortet() {
         var iDag = LocalDate.now();
         var akt1 = new OpptjeningAktivitet(iDag.minusMonths(4), iDag.minusMonths(2), OpptjeningAktivitetType.ARBEID,
                 OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
@@ -105,7 +105,7 @@ public class MergeOverlappendePeriodeHjelpTest {
     }
 
     @Test
-    public void skal_bevare_bekreftet_avvist_som_ikke_overlapper() {
+    void skal_bevare_bekreftet_avvist_som_ikke_overlapper() {
         var akt1 = new OpptjeningAktivitet(LocalDate.of(2017, 8, 9),
                 LocalDate.of(2018, 4, 30), OpptjeningAktivitetType.ARBEID, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
         var akt2 = new OpptjeningAktivitet(LocalDate.of(2018, 3, 5),
@@ -130,7 +130,7 @@ public class MergeOverlappendePeriodeHjelpTest {
     }
 
     @Test
-    public void skal_bevare_bekreftet_avvist_som_ikke_overlapper_når_det_ligger_mellom_godkjent_periode() {
+    void skal_bevare_bekreftet_avvist_som_ikke_overlapper_når_det_ligger_mellom_godkjent_periode() {
         var akt1 = new OpptjeningAktivitet(LocalDate.of(2018, 1, 1),
                 LocalDate.of(2018, 2, 1), OpptjeningAktivitetType.ARBEID, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
         var akt2 = new OpptjeningAktivitet(LocalDate.of(2018, 4, 1),

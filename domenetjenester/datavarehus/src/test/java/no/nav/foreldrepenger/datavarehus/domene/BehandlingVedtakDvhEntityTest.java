@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class BehandlingVedtakDvhEntityTest {
+class BehandlingVedtakDvhEntityTest {
 
     @Test
-    public void skal_bygge_instans_av_behandlingVedtakDvh() {
+    void skal_bygge_instans_av_behandlingVedtakDvh() {
         var behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
 
         assertThat(behandlingVedtakDvh.getAnsvarligBeslutter()).isEqualTo(DatavarehusTestUtils.ANSVARLIG_BESLUTTER);

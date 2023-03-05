@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class FødselsvilkårMorTest extends EntityManagerAwareTest {
+class FødselsvilkårMorTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -50,7 +50,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_kvinne() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_kvinne() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -83,7 +83,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_mor_og_fødsel_bekreftet() {
+    void skal_vurdere_vilkår_som_oppfylt_når_søker_er_mor_og_fødsel_bekreftet() {
         // Arrange
         var behandling = lagBehandlingMedMorEllerMedmor(RelasjonsRolleType.MORA);
 
@@ -96,7 +96,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_mor_og_fødsel_bekreftet() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_mor_og_fødsel_bekreftet() {
         // Arrange
         var behandling = lagBehandlingMedMorEllerMedmor(RelasjonsRolleType.FARA);
 
@@ -110,7 +110,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_fødsel_ikke_bekreftet_termindato_ikke_passert_22_uker() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_når_fødsel_ikke_bekreftet_termindato_ikke_passert_22_uker() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
@@ -140,7 +140,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_fødsel_bekreftet_termindato_ikke_passert_22_uker() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_når_fødsel_bekreftet_termindato_ikke_passert_22_uker() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
@@ -170,7 +170,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_oppfylt_når_fødsel_ikke_bekreftet_termindato_passert_22_uker() {
+    void skal_vurdere_vilkår_som_oppfylt_når_fødsel_ikke_bekreftet_termindato_passert_22_uker() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
@@ -198,7 +198,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
@@ -226,7 +226,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
@@ -245,7 +245,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel_frist_passert() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel_frist_passert() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
@@ -264,7 +264,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_med_0_barn() {
+    void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_med_0_barn() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();

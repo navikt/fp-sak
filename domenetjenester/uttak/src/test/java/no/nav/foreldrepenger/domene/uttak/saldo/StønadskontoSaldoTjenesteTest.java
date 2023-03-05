@@ -44,12 +44,12 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIde
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
-public class StønadskontoSaldoTjenesteTest {
+class StønadskontoSaldoTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
-    public void skal_regne_ut_saldo_per_aktivitet() {
+    void skal_regne_ut_saldo_per_aktivitet() {
         var tjeneste = tjeneste();
         var behandling = behandlingMedKonto(
             Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
@@ -87,7 +87,7 @@ public class StønadskontoSaldoTjenesteTest {
     }
 
     @Test
-    public void skal_regne_ut_for_arbeidstaker_uten_arbeidsgiver() {
+    void skal_regne_ut_for_arbeidstaker_uten_arbeidsgiver() {
         var tjeneste = tjeneste();
         var behandling = behandlingMedKonto(
             Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
@@ -112,7 +112,7 @@ public class StønadskontoSaldoTjenesteTest {
     }
 
     @Test
-    public void skal_gi_riktig_konto_for_arbeidsforhold_som_starter_i_løpet_av_uttaket() {
+    void skal_gi_riktig_konto_for_arbeidsforhold_som_starter_i_løpet_av_uttaket() {
         var enOnsdag = LocalDate.of(2019, 12, 18);
         var tjeneste = tjeneste();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
@@ -208,7 +208,7 @@ public class StønadskontoSaldoTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_alle_aktiviteter_hvis_ingen_trekkdager() {
+    void skal_returnere_alle_aktiviteter_hvis_ingen_trekkdager() {
         var tjeneste = tjeneste();
         var behandling = behandlingMedKonto(
             Stønadskonto.builder().medMaxDager(15).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());

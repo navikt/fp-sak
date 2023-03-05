@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class DatavarehusRepositoryTest {
+class DatavarehusRepositoryTest {
 
 
     private DatavarehusRepository datavarehusRepository;
@@ -22,7 +22,7 @@ public class DatavarehusRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_fagsak_dvh() {
+    void skal_lagre_fagsak_dvh() {
         var fagsakDvh = DatavarehusTestUtils.byggFagsakDvhForTest();
 
         var id = datavarehusRepository.lagre(fagsakDvh);
@@ -31,7 +31,7 @@ public class DatavarehusRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_behandling_dvh() {
+    void skal_lagre_behandling_dvh() {
         var behandlingDvh = DatavarehusTestUtils.byggBehandlingDvh();
 
         var id = datavarehusRepository.lagre(behandlingDvh);
@@ -40,7 +40,7 @@ public class DatavarehusRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_behandling_steg_dvh() {
+    void skal_lagre_behandling_steg_dvh() {
         var behandlingStegDvh = DatavarehusTestUtils.byggBehandlingStegDvh();
 
         var id = datavarehusRepository.lagre(behandlingStegDvh);
@@ -49,7 +49,7 @@ public class DatavarehusRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_behandling_vedtak_dvh() {
+    void skal_lagre_behandling_vedtak_dvh() {
         var behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
 
         var id = datavarehusRepository.lagre(behandlingVedtakDvh);
@@ -58,7 +58,7 @@ public class DatavarehusRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_aksjonspunkt_dvh() {
+    void skal_lagre_aksjonspunkt_dvh() {
         var aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
 
         var id = datavarehusRepository.lagre(aksjonspunktDvh);
@@ -68,7 +68,7 @@ public class DatavarehusRepositoryTest {
 
 
     @Test
-    public void skal_lagre_behandling_kontroll_dvh() {
+    void skal_lagre_behandling_kontroll_dvh() {
         var kontrollDvh = DatavarehusTestUtils.byggKontrollDvh();
 
         var id = datavarehusRepository.lagre(kontrollDvh);
@@ -77,7 +77,7 @@ public class DatavarehusRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_vedtak_utbetaling_dvh(EntityManager entityManager) {
+    void skal_lagre_vedtak_utbetaling_dvh(EntityManager entityManager) {
         var vedtakUtbetalingDvh = DatavarehusTestUtils.byggVedtakUtbetalingDvh();
         var id = datavarehusRepository.lagre(vedtakUtbetalingDvh);
         entityManager.flush();
@@ -88,7 +88,7 @@ public class DatavarehusRepositoryTest {
     }
 
     @Test
-    public void skal_lagre_fagsakRelasjon_dvh() {
+    void skal_lagre_fagsakRelasjon_dvh() {
         var fagsakRelasjonDvh = DatavarehusTestUtils.byggFagsakRelasjonDvhForTest();
 
         var id = datavarehusRepository.lagre(fagsakRelasjonDvh);

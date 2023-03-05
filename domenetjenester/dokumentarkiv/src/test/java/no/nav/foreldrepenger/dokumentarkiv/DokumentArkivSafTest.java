@@ -34,7 +34,7 @@ import no.nav.saf.Variantformat;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
 @ExtendWith(MockitoExtension.class)
-public class DokumentArkivSafTest {
+class DokumentArkivSafTest {
 
     private static final JournalpostId JOURNAL_ID = new JournalpostId("42");
     private static final Saksnummer SAF_SAK = new Saksnummer("987123456");
@@ -56,7 +56,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skalRetunereDokumentListeMedJournalpostTypeUt() {
+    void skalRetunereDokumentListeMedJournalpostTypeUt() {
         var response = lagResponse();
         response.getJournalposter().add(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.U));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
@@ -73,7 +73,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skalRetunereDokumentListeMedJournalpostTypeInn() {
+    void skalRetunereDokumentListeMedJournalpostTypeInn() {
         var response = lagResponse();
         response.getJournalposter().add(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.I));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
@@ -85,7 +85,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skalRetunereDokumentListeMedUansettInnhold() {
+    void skalRetunereDokumentListeMedUansettInnhold() {
 
         when(saf.hentJournalpostInfo(any(), any())).thenReturn(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.I));
 
@@ -96,7 +96,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skalRetunereDokumenterAvVariantFormatARKIV() {
+    void skalRetunereDokumenterAvVariantFormatARKIV() {
         var response = lagResponse();
         response.getJournalposter().addAll(List.of(createJournalpost(Variantformat.ORIGINAL),
                 createJournalpost(Variantformat.ARKIV),
@@ -111,7 +111,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skalRetunereDokumentListeMedSisteTidspunktØverst() {
+    void skalRetunereDokumentListeMedSisteTidspunktØverst() {
         var response = lagResponse();
         response.getJournalposter().addAll(List.of(
             createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.U),
@@ -125,7 +125,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skalRetunereAlleDokumentTyper() {
+    void skalRetunereAlleDokumentTyper() {
         var lege = DokumentTypeId.LEGEERKLÆRING;
         var innlegg = DokumentTypeId.DOK_INNLEGGELSE;
         var response = lagResponse();
@@ -144,7 +144,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skalRetunereDokumentTyperSiden() {
+    void skalRetunereDokumentTyperSiden() {
         var lege = DokumentTypeId.LEGEERKLÆRING;
         var innlegg = DokumentTypeId.DOK_INNLEGGELSE;
         var response = lagResponse();
@@ -165,7 +165,7 @@ public class DokumentArkivSafTest {
     }
 
     @Test
-    public void skal_kalle_web_service_og_oversette_fra_() {
+    void skal_kalle_web_service_og_oversette_fra_() {
         // Arrange
 
         final byte[] bytesExpected = { 1, 2, 7 };

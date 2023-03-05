@@ -15,13 +15,13 @@ import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 
 @CdiDbAwareTest
-public class InngangsvilkårTjenesteTest {
+class InngangsvilkårTjenesteTest {
 
     @Inject
     InngangsvilkårTjeneste inngangsvilkårTjeneste;
 
     @Test
-    public void skal_slå_opp_inngangsvilkår() {
+    void skal_slå_opp_inngangsvilkår() {
         sjekkVilkårKonfigurasjon(VilkårType.FØDSELSVILKÅRET_MOR, FagsakYtelseType.FORELDREPENGER, false);
         sjekkVilkårKonfigurasjon(VilkårType.MEDLEMSKAPSVILKÅRET, FagsakYtelseType.FORELDREPENGER, false);
         sjekkVilkårKonfigurasjon(VilkårType.SØKNADSFRISTVILKÅRET, FagsakYtelseType.FORELDREPENGER, false);
@@ -32,7 +32,7 @@ public class InngangsvilkårTjenesteTest {
     }
 
     @Test
-    public void skal_slå_opp_inngangsvilkår_meg_fagsak_ytelse_type_der_inngangsvilkåret_er_forskjellig_pr_ytelse() {
+    void skal_slå_opp_inngangsvilkår_meg_fagsak_ytelse_type_der_inngangsvilkåret_er_forskjellig_pr_ytelse() {
         sjekkVilkårKonfigurasjon(VilkårType.OPPTJENINGSPERIODEVILKÅR, FagsakYtelseType.SVANGERSKAPSPENGER, true);
         sjekkVilkårKonfigurasjon(VilkårType.OPPTJENINGSPERIODEVILKÅR, FagsakYtelseType.FORELDREPENGER, true);
     }

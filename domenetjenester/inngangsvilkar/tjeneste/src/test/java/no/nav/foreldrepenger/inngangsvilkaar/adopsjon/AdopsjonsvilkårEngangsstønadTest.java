@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
+class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -47,7 +47,7 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_avslag_barn_adopteres_er_over_15_år_på_overtakelsesdato() {
+    void skal_gi_avslag_barn_adopteres_er_over_15_år_på_overtakelsesdato() {
         var behandling = settOppAdopsjonBehandlingForMor(16, false, NavBrukerKjønn.KVINNE, false);
 
         var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
@@ -62,7 +62,7 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_avslag_dersom_adoptert_barn_tilhører_ektefelle_eller_samboer() {
+    void skal_gi_avslag_dersom_adoptert_barn_tilhører_ektefelle_eller_samboer() {
         var behandling = settOppAdopsjonBehandlingForMor(10, true, NavBrukerKjønn.KVINNE, false);
 
         var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
@@ -78,7 +78,7 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_avslag_dersom_mann_ikke_adopterer_alene() {
+    void skal_gi_avslag_dersom_mann_ikke_adopterer_alene() {
         var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, false);
 
         var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
@@ -89,7 +89,7 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_innvilgelse_dersom_kvinne_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
+    void skal_gi_innvilgelse_dersom_kvinne_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
         var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.KVINNE, false);
 
         var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
@@ -101,7 +101,7 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_gi_innvilgelse_dersom_mann_alene_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
+    void skal_gi_innvilgelse_dersom_mann_alene_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
         var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, true);
 
         var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));

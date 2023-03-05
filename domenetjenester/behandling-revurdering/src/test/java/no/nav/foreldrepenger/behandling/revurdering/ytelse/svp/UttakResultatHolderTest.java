@@ -17,10 +17,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 
-public class UttakResultatHolderTest {
+class UttakResultatHolderTest {
 
     @Test
-    public void skal_returnere_false_når_det_ikke_er_noe_uttaksresultat() {
+    void skal_returnere_false_når_det_ikke_er_noe_uttaksresultat() {
         // Arrange
         var uttakResultatHolder = new UttakResultatHolderSVP(Optional.empty(), null);
 
@@ -32,7 +32,7 @@ public class UttakResultatHolderTest {
     }
 
     @Test
-    public void skal_returnere_true_når_alle_arbeidsforholdene_er_avslått() {
+    void skal_returnere_true_når_alle_arbeidsforholdene_er_avslått() {
         // Arrange
         var arbeidsforhold1 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
                 .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.UTTAK_KUN_PÅ_HELG)
@@ -56,7 +56,7 @@ public class UttakResultatHolderTest {
     }
 
     @Test
-    public void skal_sjekke_siste_periode_pr_arbeidsforhold_for_spesifikke_avslagsårsaker_og_gi_true_ved_funn() {
+    void skal_sjekke_siste_periode_pr_arbeidsforhold_for_spesifikke_avslagsårsaker_og_gi_true_ved_funn() {
         // Arrange
         var arbeidsforhold1 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
                 .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.INGEN)
@@ -88,7 +88,7 @@ public class UttakResultatHolderTest {
     }
 
     @Test
-    public void skal_sjekke_siste_periode_pr_arbeidsforhold_for_spesifikke_avslagsårsaker_og_gi_false_når_siste_ikke_er_på_lista() {
+    void skal_sjekke_siste_periode_pr_arbeidsforhold_for_spesifikke_avslagsårsaker_og_gi_false_når_siste_ikke_er_på_lista() {
         // Arrange
         var arbeidsforhold1 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
                 .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.INGEN)

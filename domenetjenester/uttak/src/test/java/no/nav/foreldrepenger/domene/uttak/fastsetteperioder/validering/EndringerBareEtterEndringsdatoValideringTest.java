@@ -13,10 +13,10 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
-public class EndringerBareEtterEndringsdatoValideringTest {
+class EndringerBareEtterEndringsdatoValideringTest {
 
     @Test
-    public void endring_av_periode_før_endringsdato_skal_føre_til_valideringsfeil() {
+    void endring_av_periode_før_endringsdato_skal_føre_til_valideringsfeil() {
         var perioder = List.of(periode(LocalDate.of(2017, 12, 1), LocalDate.of(2017, 12, 31), PeriodeResultatType.INNVILGET));
         var opprinneligePerioder = List.of(periode(LocalDate.of(2017, 12, 1), LocalDate.of(2017, 12, 31), PeriodeResultatType.AVSLÅTT));
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));
@@ -25,7 +25,7 @@ public class EndringerBareEtterEndringsdatoValideringTest {
     }
 
     @Test
-    public void ingen_endring_av_periode_før_endringsdato_skal_ikke_føre_til_valideringsfeil() {
+    void ingen_endring_av_periode_før_endringsdato_skal_ikke_føre_til_valideringsfeil() {
         var perioder = List.of(periode(LocalDate.of(2017, 12, 1), LocalDate.of(2017, 12, 31), PeriodeResultatType.INNVILGET));
         var opprinneligePerioder = List.of(periode(LocalDate.of(2017, 12, 1), LocalDate.of(2017, 12, 31), PeriodeResultatType.INNVILGET));
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));
@@ -35,7 +35,7 @@ public class EndringerBareEtterEndringsdatoValideringTest {
     }
 
     @Test
-    public void endring_av_periode_med_start_på_endringsdato_skal_ikke_føre_til_valideringsfeil() {
+    void endring_av_periode_med_start_på_endringsdato_skal_ikke_føre_til_valideringsfeil() {
         var perioder = List.of(periode(LocalDate.of(2018, 1, 1), LocalDate.of(2018, 1, 31), PeriodeResultatType.INNVILGET));
         var opprinneligePerioder = List.of(periode(LocalDate.of(2018, 1, 1), LocalDate.of(2018, 1, 31), PeriodeResultatType.AVSLÅTT));
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));
@@ -44,7 +44,7 @@ public class EndringerBareEtterEndringsdatoValideringTest {
     }
 
     @Test
-    public void endring_av_periode_med_start_etter_endringsdato_skal_ikke_føre_til_valideringsfeil() {
+    void endring_av_periode_med_start_etter_endringsdato_skal_ikke_føre_til_valideringsfeil() {
         var perioder = List.of(periode(LocalDate.of(2018, 1, 12), LocalDate.of(2018, 1, 31), PeriodeResultatType.INNVILGET));
         var opprinneligePerioder = List.of(periode(LocalDate.of(2018, 1, 12), LocalDate.of(2018, 1, 31), PeriodeResultatType.AVSLÅTT));
         var validering = new EndringerBareEtterEndringsdatoValidering(opprinneligePerioder, LocalDate.of(2018, 1, 1));

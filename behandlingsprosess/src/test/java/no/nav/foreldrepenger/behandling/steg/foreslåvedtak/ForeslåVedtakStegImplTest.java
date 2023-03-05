@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
-public class ForeslåVedtakStegImplTest {
+class ForeslåVedtakStegImplTest {
 
     private ForeslåVedtakTjeneste foreslåVedtakTjeneste = mock(ForeslåVedtakTjeneste.class);
 
     @Test
-    public void skalKalleTjeneste() {
+    void skalKalleTjeneste() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagMocked();

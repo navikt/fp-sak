@@ -22,12 +22,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
-public class JusterFordelingTjenesteTest {
+class JusterFordelingTjenesteTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 1, 1);
 
     @Test
-    public void normal_case_føder_på_termin() {
+    void normal_case_føder_på_termin() {
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15).minusDays(1));
         var fp = lagPeriode(FELLESPERIODE, fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(31).minusDays(1));
@@ -46,7 +46,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void foreldrepenger_før_fødsel_forkortes_ved_for_tidlig_fødsel() {
+    void foreldrepenger_før_fødsel_forkortes_ved_for_tidlig_fødsel() {
         var fødselsdato = LocalDate.of(2019, 1, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var oppgittePerioder = List.of(fpff);
@@ -63,7 +63,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void foreldrepenger_før_fødsel_forkortes_ved_for_tidlig_fødsel_flere_perioder() {
+    void foreldrepenger_før_fødsel_forkortes_ved_for_tidlig_fødsel_flere_perioder() {
         var fødselsdato = LocalDate.of(2019, 1, 14);
         var fpff1 = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusWeeks(1));
         //Denne blir helt borte
@@ -81,7 +81,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void antall_virkedager_for_periode_skal_være_det_samme_etter_justering() {
+    void antall_virkedager_for_periode_skal_være_det_samme_etter_justering() {
         //mandag
         var termin = LocalDate.of(2018, 10, 1);
 
@@ -113,7 +113,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void siste_periode_blir_fjernet_helt() {
+    void siste_periode_blir_fjernet_helt() {
         //mandag
         var termin = LocalDate.of(2018, 10, 1);
 
@@ -131,7 +131,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_siste_periode_er_ikke_flyttbar() {
+    void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_siste_periode_er_ikke_flyttbar() {
         var mødrekvote = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 23));
         var utsettelse = lagUtsettelse(LocalDate.of(2019, 8, 26), LocalDate.of(2019, 8, 26));
 
@@ -147,7 +147,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_slå_sammen_like_perioder() {
+    void skal_slå_sammen_like_perioder() {
         var mødrekvote1 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 19));
         var mødrekvote2 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20));
         var mødrekvote3 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 21), LocalDate.of(2019, 8, 21));
@@ -166,7 +166,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void ikke_skal_slå_sammen_perioder_der_mottatt_dato_er_ulik() {
+    void ikke_skal_slå_sammen_perioder_der_mottatt_dato_er_ulik() {
         var mottattDato1 = LocalDate.of(2020, 1, 1);
         var mødrekvote1 = OppgittPeriodeBuilder.ny().medPeriode(LocalDate.of(2019, 8, 15), LocalDate.of(2019, 8, 19))
             .medPeriodeType(MØDREKVOTE)
@@ -193,7 +193,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_slå_sammen_like_perioder_usortert() {
+    void skal_slå_sammen_like_perioder_usortert() {
         var foreldrepenger1 = lagPeriode(FORELDREPENGER, LocalDate.of(2019, 8, 26), LocalDate.of(2019, 10, 6));
         var foreldrepenger2 = lagPeriode(FORELDREPENGER, LocalDate.of(2019, 10, 7), LocalDate.of(2020, 1, 20));
 
@@ -209,7 +209,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_slå_sammen_like_perioder_gradering() {
+    void skal_slå_sammen_like_perioder_gradering() {
         var gradering1 = lagGradering(MØDREKVOTE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20), BigDecimal.TEN);
         var gradering2 = lagGradering(MØDREKVOTE, LocalDate.of(2019, 8, 21), LocalDate.of(2019, 8, 21), BigDecimal.TEN);
 
@@ -224,7 +224,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_slå_sammen_gradering_hvis_forskjellig_arbeidsprosent() {
+    void skal_ikke_slå_sammen_gradering_hvis_forskjellig_arbeidsprosent() {
         var gradering1 = lagGradering(MØDREKVOTE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20), BigDecimal.TEN);
         var gradering2 = lagGradering(MØDREKVOTE, LocalDate.of(2019, 8, 21), LocalDate.of(2019, 8, 21), BigDecimal.ONE);
 
@@ -236,7 +236,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_slå_sammen_like_perioder_avslutter_og_starter_i_en_helg() {
+    void skal_slå_sammen_like_perioder_avslutter_og_starter_i_en_helg() {
         var mødrekvote1 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 1), LocalDate.of(2019, 8, 3));
         var mødrekvote2 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 4), LocalDate.of(2019, 8, 20));
 
@@ -252,7 +252,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_de_to_siste_periodene_ikke_er_flyttbare() {
+    void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_de_to_siste_periodene_ikke_er_flyttbare() {
         var mødrekvote = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 23));
         var utsettelse1 = lagUtsettelse(LocalDate.of(2019, 8, 26), LocalDate.of(2019, 8, 26), ARBEID);
         var utsettelse2 = lagUtsettelse(LocalDate.of(2019, 8, 27), LocalDate.of(2019, 8, 27), FERIE);
@@ -269,7 +269,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_periode_ligger_mellom_to_ikke_flyttbare_perioder() {
+    void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_periode_ligger_mellom_to_ikke_flyttbare_perioder() {
         var mødrekvote = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 1), LocalDate.of(2019, 8, 16));
         var utsettelse1 = lagUtsettelse(LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 19));
         var fellesperiode = lagPeriode(FELLESPERIODE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20));
@@ -283,7 +283,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_fylle_hull_skapt_av_justering_med_siste_flyttbare_periode_før_hullet() {
+    void skal_fylle_hull_skapt_av_justering_med_siste_flyttbare_periode_før_hullet() {
         var mødrekvote1 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 16), LocalDate.of(2019, 8, 16));
         var utsettelse1 = lagUtsettelse(LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 19));
         var mødrekvote2 = lagPeriode(FELLESPERIODE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20));
@@ -301,7 +301,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_hele_perioden_bak_ikke_flyttbar_flyttes_igjennom() {
+    void skal_ikke_lage_hull_hvis_fødsel_før_termin_og_hele_perioden_bak_ikke_flyttbar_flyttes_igjennom() {
         var mødrekvote = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 16), LocalDate.of(2019, 8, 16));
         var utsettelse = lagUtsettelse(LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 19));
         var fellesperiode = lagPeriode(FELLESPERIODE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20));
@@ -315,7 +315,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_beholde_siste_uttaksdag_ved_fødsel_før_termin_og_hele_siste_perioden_flyttes_gjennom_en_ikke_flyttbar_periode() {
+    void skal_beholde_siste_uttaksdag_ved_fødsel_før_termin_og_hele_siste_perioden_flyttes_gjennom_en_ikke_flyttbar_periode() {
         var mødrekvote = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 8, 16), LocalDate.of(2019, 8, 16));
         var utsettelse = lagUtsettelse(LocalDate.of(2019, 8, 19), LocalDate.of(2019, 8, 19));
         var fellesperiode = lagPeriode(FELLESPERIODE, LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 20));
@@ -329,7 +329,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void siste_periode_før_utsettelse_blir_fjernet_helt() {
+    void siste_periode_før_utsettelse_blir_fjernet_helt() {
         //mandag
         var termin = LocalDate.of(2018, 10, 1);
 
@@ -352,7 +352,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void fødsel_før_termin_skal_ikke_skyve_manglende_perioder_i_helger_ut_i_virkedager() {
+    void fødsel_før_termin_skal_ikke_skyve_manglende_perioder_i_helger_ut_i_virkedager() {
         //mandag
         var termin = LocalDate.of(2019, 1, 14);
 
@@ -380,7 +380,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void søknadsperiode_i_helg_og_føder_før() {
+    void søknadsperiode_i_helg_og_føder_før() {
         //lørdag
         var termin = LocalDate.of(2019, 1, 12);
 
@@ -415,7 +415,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void søknadsperiode_i_helg_og_føder_etter() {
+    void søknadsperiode_i_helg_og_føder_etter() {
         //søndag
         var termin = LocalDate.of(2019, 1, 13);
 
@@ -451,7 +451,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void familehendelse_i_helg_og_føder_før() {
+    void familehendelse_i_helg_og_føder_før() {
         //torsdag
         var termin = LocalDate.of(2019, 1, 10);
 
@@ -485,7 +485,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_flytte_igjennom_hull_når_fødsel_er_etter_familehendelse() {
+    void skal_flytte_igjennom_hull_når_fødsel_er_etter_familehendelse() {
         //mandag
         var termin = LocalDate.of(2019, 1, 14);
         //starter mandag, avslutter torsdag
@@ -521,7 +521,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_flytte_igjennom_hull_når_fødsel_er_før_familehendelse() {
+    void skal_flytte_igjennom_hull_når_fødsel_er_før_familehendelse() {
         //mandag
         var termin = LocalDate.of(2019, 1, 14);
         //starter mandag, avslutter torsdag
@@ -557,7 +557,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void familehendelse_i_helg_og_føder_etter() {
+    void familehendelse_i_helg_og_føder_etter() {
         //torsdag
         var termin = LocalDate.of(2019, 1, 10);
 
@@ -599,7 +599,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void fødsel_etter_termin_skal_ikke_skyve_manglende_perioder_i_helger_ut_i_virkedager() {
+    void fødsel_etter_termin_skal_ikke_skyve_manglende_perioder_i_helger_ut_i_virkedager() {
         //mandag
         var termin = LocalDate.of(2018, 12, 10);
 
@@ -630,7 +630,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void foreldrepenger_før_fødsel_forsvinner_når_fødsel_er_4_uker_for_tidlig() {
+    void foreldrepenger_før_fødsel_forsvinner_når_fødsel_er_4_uker_for_tidlig() {
         var fødselsdato = LocalDate.of(2019, 1, 10);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(6).minusDays(1));
@@ -650,7 +650,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void sen_fødsel_der_familiehendelse_flyttes_innad_i_hull() {
+    void sen_fødsel_der_familiehendelse_flyttes_innad_i_hull() {
         var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(3));
         //hull mellom fpff og mødrekvote
@@ -674,7 +674,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void sen_fødsel_der_familiehendelse_flyttes_fra_ett_hull_til_et_annet() {
+    void sen_fødsel_der_familiehendelse_flyttes_fra_ett_hull_til_et_annet() {
         var termin = LocalDate.of(2019, 1, 15);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, LocalDate.of(2018, 12, 24), LocalDate.of(2019, 1, 11));
         //hull mellom fpff og mødrekvote 14 - 16
@@ -711,7 +711,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void tidlig_fødsel_der_familiehendelse_flyttes_innad_i_hull() {
+    void tidlig_fødsel_der_familiehendelse_flyttes_innad_i_hull() {
         var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusWeeks(2));
         //hull mellom fpff og mødrekvote
@@ -735,7 +735,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void tidlig_fødsel_der_familiehendelse_flyttes_til_ett_i_hull_ingen_virkedager_i_mellom() {
+    void tidlig_fødsel_der_familiehendelse_flyttes_til_ett_i_hull_ingen_virkedager_i_mellom() {
         var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusWeeks(2));
         //hull mellom fpff og mødrekvote
@@ -758,7 +758,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void sen_fødsel_der_familiehendelse_flyttes_til_en_utsettelse_virkedager_i_mellom() {
+    void sen_fødsel_der_familiehendelse_flyttes_til_en_utsettelse_virkedager_i_mellom() {
         var termin = LocalDate.of(2019, 1, 14);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, LocalDate.of(2018, 12, 24), LocalDate.of(2019, 1, 11));
         var mødrekvote1 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 1, 14), LocalDate.of(2019, 1, 18));
@@ -791,7 +791,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void fyller_på_med_fellesperiode_i_start_ved_fødsel_1_dag_etter_termin() {
+    void fyller_på_med_fellesperiode_i_start_ved_fødsel_1_dag_etter_termin() {
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(6).minusDays(3));
         var oppgittePerioder = List.of(fpff, mk);
@@ -820,7 +820,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_arve_mottatt_dato_fra_første_periode_på_fellesperiode_som_er_fylt_på_før_fødsel() {
+    void skal_arve_mottatt_dato_fra_første_periode_på_fellesperiode_som_er_fylt_på_før_fødsel() {
         var fpff = OppgittPeriodeBuilder.ny()
             .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
             .medPeriodeType(FORELDREPENGER_FØR_FØDSEL)
@@ -837,7 +837,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void utsettelses_skal_ikke_flyttes_dersom_fødsel_før_termin() {
+    void utsettelses_skal_ikke_flyttes_dersom_fødsel_før_termin() {
         var fødselsdato = LocalDate.of(2019, 1, 17);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(10).minusDays(1));
@@ -882,7 +882,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void utsettelses_skal_ikke_flyttes_dersom_fødsel_etter_termin() {
+    void utsettelses_skal_ikke_flyttes_dersom_fødsel_etter_termin() {
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(10).minusDays(1));
         var utsettelsePgaFerie = lagUtsettelse(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(14).minusDays(3));
@@ -931,7 +931,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_flytte_gjennom_flere_utsettelser_med_helg_i_mellom() {
+    void skal_flytte_gjennom_flere_utsettelser_med_helg_i_mellom() {
         //lørdag
         var fødselsdato = LocalDate.of(2019, 1, 14);
         //mandag
@@ -982,7 +982,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_fjerne_perioder_med_helg() {
+    void skal_fjerne_perioder_med_helg() {
         var termin = LocalDate.of(2019, 2, 23);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
         var mk1 = lagPeriode(MØDREKVOTE, termin, termin.plusDays(1));
@@ -995,7 +995,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_justere_mødrekvote_med_samtidig_uttak() {
+    void skal_justere_mødrekvote_med_samtidig_uttak() {
         var mk = OppgittPeriodeBuilder.ny()
             .medPeriode(fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(20))
             .medPeriodeType(MØDREKVOTE)
@@ -1032,7 +1032,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_tillate_overlapp_hvis_lik_fødselsdato() {
+    void skal_tillate_overlapp_hvis_lik_fødselsdato() {
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15));
         //overlapper 1 dag med mødrekvote
@@ -1045,7 +1045,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_tillate_overlapp_hvis_ulik_fødselsdato() {
+    void skal_tillate_overlapp_hvis_ulik_fødselsdato() {
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15));
         //overlapper 1 dag med mødrekvote
@@ -1058,7 +1058,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void ikke_fylle_hull_når_hele_siste_periode_skyves_igjen_hullet_ved_fødsel_før_termin() {
+    void ikke_fylle_hull_når_hele_siste_periode_skyves_igjen_hullet_ved_fødsel_før_termin() {
         var termindato = LocalDate.of(2022, 6, 7);
         var fødselsdato = termindato.minusWeeks(2);
         var fpff = OppgittPeriodeBuilder.ny()
@@ -1087,7 +1087,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin() {
+    void skal_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin() {
         var termindato = LocalDate.of(2022, 11, 9);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
         var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(6).minusDays(1));
@@ -1118,7 +1118,7 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
-    public void skal_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin_fyller_hele_hullet() {
+    void skal_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin_fyller_hele_hullet() {
         var termindato = LocalDate.of(2022, 11, 9);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
         var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(6).minusDays(1));

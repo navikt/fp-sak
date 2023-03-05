@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTest {
+class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -33,7 +33,7 @@ public class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_lagre_nye_tilrettelegginger_og_beholde_de_opprinnelige() {
+    void skal_lagre_nye_tilrettelegginger_og_beholde_de_opprinnelige() {
         // Arrange
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
 

@@ -73,7 +73,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_skal_ikke_opprette_berørt() {
+    void berørt_behandling_skal_ikke_opprette_berørt() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
@@ -87,7 +87,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void annenpart_uten_uttak_skal_ikke_opprette_berørt() {
+    void annenpart_uten_uttak_skal_ikke_opprette_berørt() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
@@ -101,7 +101,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void behandling_uten_uttak_skal_ikke_opprette_berørt() {
+    void behandling_uten_uttak_skal_ikke_opprette_berørt() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(LocalDate.now()).lagre(repositoryProvider);
         var behandlingAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(LocalDate.now()).lagre(repositoryProvider);
 
@@ -121,7 +121,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void behandling_med_negativ_saldo_skal_opprette_berørt() {
+    void behandling_med_negativ_saldo_skal_opprette_berørt() {
         var basedato = LocalDate.now();
 
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
@@ -201,7 +201,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void behandling_med_endret_stønadskonto_skal_opprette_berørt() {
+    void behandling_med_endret_stønadskonto_skal_opprette_berørt() {
         var basedato = LocalDate.now();
 
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(basedato.minusWeeks(7)).lagre(repositoryProvider);
@@ -238,7 +238,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_når_far_har_uttak_i_mellom_mors_uttaksperioder() {
+    void ikke_berørt_behandling_når_far_har_uttak_i_mellom_mors_uttaksperioder() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
         var startDatoFar = startDatoMor.plusMonths(3);
 
@@ -273,7 +273,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_når_far_har_overlapp_med_oppholdsperiode_i_mors_uttak() {
+    void ikke_berørt_behandling_når_far_har_overlapp_med_oppholdsperiode_i_mors_uttak() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
         var startDatoFar = startDatoMor.plusMonths(3);
 
@@ -314,7 +314,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_når_far_har_oppholdsperiode() {
+    void ikke_berørt_behandling_når_far_har_oppholdsperiode() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
         var startDatoFar = startDatoMor.plusMonths(3);
 
@@ -350,7 +350,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_når_eneste_overlapp_er_oppholdsperioder() {
+    void ikke_berørt_behandling_når_eneste_overlapp_er_oppholdsperioder() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var mødrekvote1 = new ForeldrepengerUttakPeriode.Builder()
@@ -416,7 +416,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_når_det_ikke_er_hull_første_6_ukene() {
+    void ikke_berørt_når_det_ikke_er_hull_første_6_ukene() {
         var startDatoMor = LocalDate.of(2021, 9, 27);
         var startDatoFar = LocalDate.of(2022, 1, 10);
 
@@ -471,7 +471,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_ved_overlapp_mellom_partene() {
+    void berørt_behandling_ved_overlapp_mellom_partene() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
@@ -500,7 +500,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_ved_overlapp_mellom_partene_der_annenpart_har_innvilget_utsettelse() {
+    void berørt_behandling_ved_overlapp_mellom_partene_der_annenpart_har_innvilget_utsettelse() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
@@ -536,7 +536,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_ved_overlapp_mellom_partene_før_endringsdato() {
+    void ikke_berørt_behandling_ved_overlapp_mellom_partene_før_endringsdato() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
         var endringsdato = startDatoMor.plusMonths(3);
 
@@ -576,7 +576,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel() {
+    void ikke_berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
         var startDatoFar = startDatoMor;
 
@@ -612,7 +612,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel_men_ikke_samtidig_uttak() {
+    void berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel_men_ikke_samtidig_uttak() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
         var startDatoFar = startDatoMor;
 
@@ -647,7 +647,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel_men_ikke_FAB() {
+    void berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel_men_ikke_FAB() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.of(2021, 11, 1));
         var startDatoFar = startDatoMor;
 
@@ -683,7 +683,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_dersom_overlapp_i_forbindelse_med_fødsel_og_senere() {
+    void berørt_behandling_dersom_overlapp_i_forbindelse_med_fødsel_og_senere() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
         var startDatoFar = startDatoMor;
 
@@ -719,7 +719,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_hvis_et_avslag_fører_til_hull_felles_plan() {
+    void berørt_behandling_hvis_et_avslag_fører_til_hull_felles_plan() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
@@ -755,7 +755,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void sjekk_at_ingen_berørt_behandling_fri_utsettelse() {
+    void sjekk_at_ingen_berørt_behandling_fri_utsettelse() {
         var fødselsdato = LocalDate.of(2022, 6, 6);
         var friPeriodeStart = fødselsdato.plusWeeks(7);
         var farStart = fødselsdato.plusWeeks(10);
@@ -803,7 +803,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void sjekk_at_berørt_behandling_ved_hull_første_seks_uker() {
+    void sjekk_at_berørt_behandling_ved_hull_første_seks_uker() {
         var fødselsdato = LocalDate.of(2022, 6, 6);
         var farStart = fødselsdato.plusWeeks(10);
         var morPeriode2 = fødselsdato.plusWeeks(15);
@@ -851,7 +851,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void sjekk_at_berørt_behandling_sammenhengende_uttak() {
+    void sjekk_at_berørt_behandling_sammenhengende_uttak() {
         var fødselsdato = LocalDate.of(2020, 1, 1);
         var friPeriodeStart = fødselsdato.plusWeeks(7);
         var farStart = fødselsdato.plusWeeks(10);
@@ -899,7 +899,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void berørt_behandling_hvis_tomt_uttak_fører_til_hull_i_tidsperiode_forbeholdt_mor() {
+    void berørt_behandling_hvis_tomt_uttak_fører_til_hull_i_tidsperiode_forbeholdt_mor() {
         var startDatoMor = LocalDate.of(2021, 12, 13);
 
         var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -934,7 +934,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_hvis_tomt_uttak_fører_til_hull_etter_tidsperiode_forbeholdt_mor() {
+    void ikke_berørt_behandling_hvis_tomt_uttak_fører_til_hull_etter_tidsperiode_forbeholdt_mor() {
         var startDatoMor = LocalDate.of(2021, 12, 13);
 
         //Annulleringsbehandling for far
@@ -973,7 +973,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_hvis_bruker_går_tom_for_dager_på_slutten_av_felles_uttaksplan() {
+    void ikke_berørt_behandling_hvis_bruker_går_tom_for_dager_på_slutten_av_felles_uttaksplan() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
@@ -1002,7 +1002,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_ved_overlapp_mellom_partene_når_br_konsekvens_er_ingen_endring() {
+    void ikke_berørt_behandling_ved_overlapp_mellom_partene_når_br_konsekvens_er_ingen_endring() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
@@ -1040,7 +1040,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_ved_overlapp_mellom_partene_men_behandlingen_er_henlagt() {
+    void ikke_berørt_behandling_ved_overlapp_mellom_partene_men_behandlingen_er_henlagt() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
@@ -1074,7 +1074,7 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void ikke_berørt_behandling_ved_overlapp_mellom_partene_der_bruker_har_avslått_utsettelse() {
+    void ikke_berørt_behandling_ved_overlapp_mellom_partene_der_bruker_har_avslått_utsettelse() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel();

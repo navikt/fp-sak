@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.EmptyBatchArguments;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak.AutomatiskGjenopptagelseTjeneste;
 
-public class GjenopplivBehandlingerBatchTjenesteTest {
+class GjenopplivBehandlingerBatchTjenesteTest {
 
     private GjenopplivBehandlingerBatchTjeneste batchTjeneste; // objektet vi tester
 
@@ -30,7 +30,7 @@ public class GjenopplivBehandlingerBatchTjenesteTest {
     }
 
     @Test
-    public void skal_gi_respons() {
+    void skal_gi_respons() {
         // Arrange
         var response = "-1";
         when(mockTjeneste.gjenopplivBehandlinger()).thenReturn(response);

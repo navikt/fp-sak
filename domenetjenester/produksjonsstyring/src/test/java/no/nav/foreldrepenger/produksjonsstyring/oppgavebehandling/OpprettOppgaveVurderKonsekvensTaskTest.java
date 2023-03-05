@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class OpprettOppgaveVurderKonsekvensTaskTest {
+class OpprettOppgaveVurderKonsekvensTaskTest {
 
     private static final long FAGSAK_ID = 2L;
     private OppgaveTjeneste oppgaveTjeneste;
@@ -43,7 +43,7 @@ public class OpprettOppgaveVurderKonsekvensTaskTest {
     }
 
     @Test
-    public void skal_opprette_oppgave_for_å_vurdere_konsekvens_basert_på_fagsakId() {
+    void skal_opprette_oppgave_for_å_vurdere_konsekvens_basert_på_fagsakId() {
         // Arrange
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
         prosessTaskData.setFagsakId(FAGSAK_ID);

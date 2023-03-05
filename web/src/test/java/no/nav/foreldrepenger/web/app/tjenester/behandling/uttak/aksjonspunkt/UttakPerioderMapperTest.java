@@ -27,13 +27,13 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class UttakPerioderMapperTest {
+class UttakPerioderMapperTest {
 
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.nyRef();
 
     @Test
-    public void skalBrukeProsentArbeidFraTidligere() {
+    void skalBrukeProsentArbeidFraTidligere() {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(1);
         var periode = new UttakResultatPeriodeLagreDto.Builder()
@@ -59,7 +59,7 @@ public class UttakPerioderMapperTest {
     }
 
     @Test
-    public void skalSkilleMellomFrilansOgAnnet() {
+    void skalSkilleMellomFrilansOgAnnet() {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(1);
         var frilans = new UttakResultatPeriodeAktivitetLagreDto.Builder()
@@ -103,7 +103,7 @@ public class UttakPerioderMapperTest {
     }
 
     @Test
-    public void skalSetteGraderingAvslagÅrsakTilUkjentHvisGraderingInnvilget() {
+    void skalSetteGraderingAvslagÅrsakTilUkjentHvisGraderingInnvilget() {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(1);
         var aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()

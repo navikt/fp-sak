@@ -18,12 +18,12 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class RegisterdataInnhenterTest {
+class RegisterdataInnhenterTest {
 
     private final String durationInstance = "PT10H";
 
     @Test
-    public void skal_innhente_registeropplysninger_på_nytt_når_det_ble_hentet_inn_i_går() {
+    void skal_innhente_registeropplysninger_på_nytt_når_det_ble_hentet_inn_i_går() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
@@ -39,7 +39,7 @@ public class RegisterdataInnhenterTest {
     }
 
     @Test
-    public void skal_ikke_innhente_registeropplysninger_på_nytt_når_det_nettopp_har_blitt_hentet_inn() {
+    void skal_ikke_innhente_registeropplysninger_på_nytt_når_det_nettopp_har_blitt_hentet_inn() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
@@ -55,7 +55,7 @@ public class RegisterdataInnhenterTest {
     }
 
     @Test
-    public void skal_ikke_innhente_registeropplysninger_på_nytt_når_det_ikke_har_blitt_hentet_inn_tidligere() {
+    void skal_ikke_innhente_registeropplysninger_på_nytt_når_det_ikke_har_blitt_hentet_inn_tidligere() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
@@ -71,7 +71,7 @@ public class RegisterdataInnhenterTest {
     }
 
     @Test
-    public void skal_innhente_registeropplysninger_ut_ifra_midnatt_når_konfigurasjonsverdien_mangler() {
+    void skal_innhente_registeropplysninger_ut_ifra_midnatt_når_konfigurasjonsverdien_mangler() {
         // Arrange
         var midnatt = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
 
@@ -89,7 +89,7 @@ public class RegisterdataInnhenterTest {
     }
 
     @Test
-    public void skal_innhente_registeropplysninger_mellom_midnatt_og_klokken_3_men_ikke_ellers_grunnet_konfigverdien() {
+    void skal_innhente_registeropplysninger_mellom_midnatt_og_klokken_3_men_ikke_ellers_grunnet_konfigverdien() {
         // Arrange
         var midnatt = LocalDate.now().atStartOfDay();
         var opplysningerOppdatertTidspunkt = midnatt.minusHours(1); // en time før midnatt
@@ -109,7 +109,7 @@ public class RegisterdataInnhenterTest {
     }
 
     @Test
-    public void skal_ikke_innhente_opplysninger_på_nytt_selvom_det_ble_hentet_inn_i_går_fordi_konfigverdien_er_mer_enn_midnatt() {
+    void skal_ikke_innhente_opplysninger_på_nytt_selvom_det_ble_hentet_inn_i_går_fordi_konfigverdien_er_mer_enn_midnatt() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
@@ -126,7 +126,7 @@ public class RegisterdataInnhenterTest {
     }
 
     @Test
-    public void kan_mappe_tilleggsopplysninger() {
+    void kan_mappe_tilleggsopplysninger() {
         // Arrange
         var json = """
             {

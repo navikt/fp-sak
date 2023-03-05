@@ -32,7 +32,7 @@ class KrrSpråkKlientTest {
     }
 
     @Test
-    public void krrResponsMappesTilSpråkkode() {
+    void krrResponsMappesTilSpråkkode() {
         forventMappingFraKrrResponsTilSpråkkode(KRR_BOKMÅL, Språkkode.NB);
         forventMappingFraKrrResponsTilSpråkkode(KRR_NYNORSK, Språkkode.NN);
         forventMappingFraKrrResponsTilSpråkkode(KRR_ENGELSK, Språkkode.EN);
@@ -41,7 +41,7 @@ class KrrSpråkKlientTest {
     }
 
     @Test
-    public void defaultBokmålVed404() {
+    void defaultBokmålVed404() {
         // biblioteket mapper 404 til IntegrasjonException
         when(restClient.sendReturnOptional(any(), any())).thenThrow(new IntegrasjonException("A", "Fant ikke, så her har du en 404."));
         var språk = krrSpråkKlient.finnSpråkkodeForBruker("123");
@@ -49,7 +49,7 @@ class KrrSpråkKlientTest {
     }
 
     @Test
-    public void propagerExceptionVedIntegrasjonExceptionUlik404() {
+    void propagerExceptionVedIntegrasjonExceptionUlik404() {
         when(restClient.sendReturnOptional(any(), any())).thenThrow(new IntegrasjonException("B", "Noe annet feil."));
         assertThatThrownBy(()-> krrSpråkKlient.finnSpråkkodeForBruker("123")).isInstanceOf(IntegrasjonException.class);
     }

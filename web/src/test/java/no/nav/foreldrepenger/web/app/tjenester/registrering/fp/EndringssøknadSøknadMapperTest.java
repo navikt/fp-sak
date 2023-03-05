@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class EndringssøknadSøknadMapperTest {
+class EndringssøknadSøknadMapperTest {
 
     @Mock
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -60,7 +60,7 @@ public class EndringssøknadSøknadMapperTest {
     }
 
     @Test
-    public void skal_treffe_guard_hvis_endringssøknad_sendes_inn_uten_at_det_er_reflektert_i_dokumenttypeid() {
+    void skal_treffe_guard_hvis_endringssøknad_sendes_inn_uten_at_det_er_reflektert_i_dokumenttypeid() {
         var navBruker = opprettBruker();
         var manuellRegistreringEndringsøknadDto = new ManuellRegistreringEndringsøknadDto();
         manuellRegistreringEndringsøknadDto.setAnnenForelderInformert(true);

@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
-public class Utsettelse2021BehandlingTest {
+class Utsettelse2021BehandlingTest {
 
     @Test
-    public void skal_returnere_sammenhengende_uttak_hvis_bekreftet_hendelse_før_dato() {
+    void skal_returnere_sammenhengende_uttak_hvis_bekreftet_hendelse_før_dato() {
         // Arrange
         var ikraftredelse = LocalDate.of(2021, 10, 1);
         var skjæringsdato = ikraftredelse.minusWeeks(4);
@@ -38,7 +38,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_fritt_uttak_hvis_bekreftet_hendelse_etter_dato() {
+    void skal_returnere_fritt_uttak_hvis_bekreftet_hendelse_etter_dato() {
         // Arrange
         var ikraftredelse = LocalDate.of(2021, 10, 1);
         var skjæringsdato = ikraftredelse;
@@ -56,7 +56,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_fritt_uttak_hvis_bekreftet_termin_20_dager_etter() {
+    void skal_returnere_fritt_uttak_hvis_bekreftet_termin_20_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(20);
         var skjæringsdato = ikraftredelse;
@@ -75,7 +75,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_fritt_uttak_hvis_bekreftet_termin_2_dager_etter() {
+    void skal_returnere_fritt_uttak_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -94,7 +94,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_sammenhengende_uttak_hvis_bekreftet_termin_2_dager_før() {
+    void skal_returnere_sammenhengende_uttak_hvis_bekreftet_termin_2_dager_før() {
         // Arrange
         var ikraftredelse = LocalDate.now().plusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -113,7 +113,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_fritt_uttak_hvis_søkt_adopsjon_2_dager_etter() {
+    void skal_returnere_fritt_uttak_hvis_søkt_adopsjon_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -132,7 +132,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_fritt_uttak_hvis_søkt_fødsel_10_dager_etter() {
+    void skal_returnere_fritt_uttak_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(10);
         var skjæringsdato = ikraftredelse;
@@ -150,7 +150,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_fritt_uttak_hvis_søkt_termin_30_dager_etter() {
+    void skal_returnere_fritt_uttak_hvis_søkt_termin_30_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(30);
         var skjæringsdato = ikraftredelse;
@@ -168,7 +168,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_sammenhengende_uttak_pga_medforelder() {
+    void skal_returnere_sammenhengende_uttak_pga_medforelder() {
         // Arrange
         var ikraftredelse = LocalDate.of(2021, 10, 1);
         var skjæringsdato = ikraftredelse.minusWeeks(4);
@@ -200,7 +200,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_returnere_fritt_uttak_pga_medforelder() {
+    void skal_returnere_fritt_uttak_pga_medforelder() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(30);
         var skjæringsdato = ikraftredelse;
@@ -235,7 +235,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_gi_endret_regler_ved_søkt_termin_etter_og_bekreftet_fødsel_før_ikrafttredelse() {
+    void skal_gi_endret_regler_ved_søkt_termin_etter_og_bekreftet_fødsel_før_ikrafttredelse() {
         var ikraftredelse = LocalDate.now();
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.minusWeeks(1);
@@ -270,7 +270,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_gi_uendret_regler_ved_søkt_termin_etter_og_bekreftet_fødsel_etter_ikrafttredelse() {
+    void skal_gi_uendret_regler_ved_søkt_termin_etter_og_bekreftet_fødsel_etter_ikrafttredelse() {
         var ikraftredelse = LocalDate.now();
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(2);
@@ -305,7 +305,7 @@ public class Utsettelse2021BehandlingTest {
     }
 
     @Test
-    public void skal_gi_uendret_regler_ved_søkt_termin_før_og_bekreftet_fødsel_før_ikrafttredelse() {
+    void skal_gi_uendret_regler_ved_søkt_termin_før_og_bekreftet_fødsel_før_ikrafttredelse() {
         var ikraftredelse = LocalDate.now();
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(2);

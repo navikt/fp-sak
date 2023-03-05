@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 
 @CdiDbAwareTest
-public class BeregneYtelseStegImplTest {
+class BeregneYtelseStegImplTest {
     private static final String ORGNR = "000000000";
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
@@ -90,7 +90,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     @Test
-    public void skalUtførStegForFørstegangsbehandling() {
+    void skalUtførStegForFørstegangsbehandling() {
         // Arrange
 
         when(beregnYtelseTjeneste.beregnYtelse(ArgumentMatchers.any())).thenReturn(opprettBeregningsresultat());
@@ -113,7 +113,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     @Test
-    public void skalSletteBeregningsresultatFPVedTilbakehopp() {
+    void skalSletteBeregningsresultatFPVedTilbakehopp() {
         // Arrange
         var behandling = byggGrunnlag(true, true);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);

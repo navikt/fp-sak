@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettCore2022;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
-public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
+class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -62,7 +62,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fastsette_periode_med_termindato() {
+    void skal_fastsette_periode_med_termindato() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(4))
@@ -92,7 +92,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fastsette_periode_ved_fødsel_mor() {
+    void skal_fastsette_periode_ved_fødsel_mor() {
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
@@ -110,7 +110,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fastsette_periode_ved_tidlig_uttak_termin_fødsel_mor() {
+    void skal_fastsette_periode_ved_tidlig_uttak_termin_fødsel_mor() {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(10).minusDays(1))
@@ -145,7 +145,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fastsette_periode_ved_fødsel_far() {
+    void skal_fastsette_periode_ved_fødsel_far() {
         var fødselsdato = LocalDate.now();
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(1L), LocalDate.now().plusWeeks(4))
@@ -180,7 +180,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fastsette_periode_ved_adopsjon_mor_søker() {
+    void skal_fastsette_periode_ved_adopsjon_mor_søker() {
         var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.KVINNE, false);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2018, 1, 1).minusDays(1L), LocalDate.now().plusWeeks(4))
@@ -199,7 +199,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fastsette_periode_ved_adopsjon_far_søker() {
+    void skal_fastsette_periode_ved_adopsjon_far_søker() {
         var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, false);
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2018, 1, 1).minusDays(1L), LocalDate.now().plusWeeks(4))

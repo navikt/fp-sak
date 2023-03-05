@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.skjæringstidspunkt.SøknadsperiodeFristTjeneste;
 
-public class SøknadsperiodeFristTjenesteImplTest extends EntityManagerAwareTest {
+class SøknadsperiodeFristTjenesteImplTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -28,7 +28,7 @@ public class SøknadsperiodeFristTjenesteImplTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_ignorere_utsettelser() {
+    void skal_ignorere_utsettelser() {
         var fedrekvoteFom = LocalDate.of(2021, 2, 4);
         var utsettelse1 = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
@@ -59,7 +59,7 @@ public class SøknadsperiodeFristTjenesteImplTest extends EntityManagerAwareTest
     }
 
     @Test
-    public void skal_returnere_empty_hvis_bare_utsettelser() {
+    void skal_returnere_empty_hvis_bare_utsettelser() {
         var fedrekvoteFom = LocalDate.of(2021, 2, 4);
         var utsettelse = OppgittPeriodeBuilder.ny()
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)

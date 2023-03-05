@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 
-public class MapAnsettelsesPeriodeOgPermisjonTest {
+class MapAnsettelsesPeriodeOgPermisjonTest {
     private static final LocalDate A = LocalDate.of(2019, JANUARY, 13);
     private static final LocalDate B = LocalDate.of(2019, FEBRUARY, 5);
     private static final LocalDate C = LocalDate.of(2019, FEBRUARY, 6);
@@ -39,7 +39,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     private static final InternArbeidsforholdRef REF = InternArbeidsforholdRef.nyRef();
 
     @Test
-    public void utenTomUtenPermisjon() {
+    void utenTomUtenPermisjon() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMed(A))
@@ -60,7 +60,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void utenTomMedPermisjonIMidten() {
+    void utenTomMedPermisjonIMidten() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMed(A))
@@ -96,7 +96,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void utenTomMedPermisjonIStarten() {
+    void utenTomMedPermisjonIStarten() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMed(A))
@@ -127,7 +127,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void utenTomMedPermisjonISlutten() {
+    void utenTomMedPermisjonISlutten() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMed(A))
@@ -158,7 +158,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void utenTomMedPermisjonHelePerioden() {
+    void utenTomMedPermisjonHelePerioden() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMed(A))
@@ -184,7 +184,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void toAnsettelsesPerioderIngenPermisjon() {
+    void toAnsettelsesPerioderIngenPermisjon() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
@@ -209,7 +209,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void toAnsettelsesPerioderPermisjonIMidten() {
+    void toAnsettelsesPerioderPermisjonIMidten() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
@@ -249,7 +249,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void treAnsettelsesPerioderPermisjonIMidten() {
+    void treAnsettelsesPerioderPermisjonIMidten() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
@@ -305,7 +305,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void toAnsettelsesPerioderPermisjonIStarten() {
+    void toAnsettelsesPerioderPermisjonIStarten() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
@@ -340,7 +340,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void toAnsettelsesPerioderPermisjonISlutten() {
+    void toAnsettelsesPerioderPermisjonISlutten() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))
@@ -380,7 +380,7 @@ public class MapAnsettelsesPeriodeOgPermisjonTest {
     }
 
     @Test
-    public void toAnsettelsesPerioderMedPermisjonHelePerioden() {
+    void toAnsettelsesPerioderMedPermisjonHelePerioden() {
         // Arrange
         var ap1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(A, B))

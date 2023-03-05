@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KobleSakerTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @CdiDbAwareTest
-public class TilknyttFagsakUtlandsAksjonspunktTest {
+class TilknyttFagsakUtlandsAksjonspunktTest {
 
     @Mock
     private KobleSakerTjeneste kobleSakerTjeneste;
@@ -37,7 +37,7 @@ public class TilknyttFagsakUtlandsAksjonspunktTest {
     private TilknyttFagsakSteg tilknyttFagsakSteg;
 
     @Test
-    public void utland_markering_dersom_oppgitt_mor_stønad_eøs() {
+    void utland_markering_dersom_oppgitt_mor_stønad_eøs() {
         // Arrange trinn 1: Behandle søknad om fødsel hvor barn ikke er registrert i TPS
         var fødselsdato = LocalDate.now().minusDays(15); // > 14 dager for å unngå ApDef.VENT_PÅ_FØDSEL
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();

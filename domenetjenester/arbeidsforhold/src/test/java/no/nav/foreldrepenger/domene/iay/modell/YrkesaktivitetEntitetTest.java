@@ -13,12 +13,12 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.konfig.Tid;
 
-public class YrkesaktivitetEntitetTest {
+class YrkesaktivitetEntitetTest {
 
     ArbeidsforholdInformasjonBuilder builder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
 
     @Test
-    public void skal_legge_overstyrt_periode_når_flere_aktivitetesavtaler_er_lik() {
+    void skal_legge_overstyrt_periode_når_flere_aktivitetesavtaler_er_lik() {
 
         // Arrange
         var fom = LocalDate.of(2015, 8, 1);
@@ -54,7 +54,7 @@ public class YrkesaktivitetEntitetTest {
     }
 
     @Test
-    public void skal_legge_overstyrt_periode_på_riktig_aktivitetsavtale_som_er_løpende_og_har_matchende_fom_når_det_finnes_flere() {
+    void skal_legge_overstyrt_periode_på_riktig_aktivitetsavtale_som_er_løpende_og_har_matchende_fom_når_det_finnes_flere() {
 
         // Arrange
         var fom1 = LocalDate.of(2009, 1, 1);
@@ -121,7 +121,7 @@ public class YrkesaktivitetEntitetTest {
     }
 
     @Test
-    public void skal_legge_overstyrt_periode_på_aktivitetsavtale_som_er_løpende_og_har_matchende_fom() {
+    void skal_legge_overstyrt_periode_på_aktivitetsavtale_som_er_løpende_og_har_matchende_fom() {
 
         // Arrange
         var fom = LocalDate.of(2015, 8, 1);
@@ -152,7 +152,7 @@ public class YrkesaktivitetEntitetTest {
     }
 
     @Test
-    public void skal_ikke_legge_overstyrt_periode_på_aktivitetsavtale_som_ikke_er_løpende_og_har_matchende_fom() {
+    void skal_ikke_legge_overstyrt_periode_på_aktivitetsavtale_som_ikke_er_løpende_og_har_matchende_fom() {
 
         // Arrange
         var fom = LocalDate.of(2015, 8, 1);
@@ -183,7 +183,7 @@ public class YrkesaktivitetEntitetTest {
     }
 
     @Test
-    public void skal_ikke_legge_overstyrt_periode_på_aktivitetsavtale_som_er_løpende_men_har_ikke_matchende_fom() {
+    void skal_ikke_legge_overstyrt_periode_på_aktivitetsavtale_som_er_løpende_men_har_ikke_matchende_fom() {
 
         // Arrange
         var fom = LocalDate.of(2015, 8, 1);
@@ -215,7 +215,7 @@ public class YrkesaktivitetEntitetTest {
     }
 
     @Test
-    public void skal_ikke_legge_overstyrt_periode_når_overstyrt_handling_ikke_er_BRUK_MED_OVERSTYRT_PERIODE() {
+    void skal_ikke_legge_overstyrt_periode_når_overstyrt_handling_ikke_er_BRUK_MED_OVERSTYRT_PERIODE() {
 
         // Arrange
         var fom = LocalDate.of(2015, 8, 1);

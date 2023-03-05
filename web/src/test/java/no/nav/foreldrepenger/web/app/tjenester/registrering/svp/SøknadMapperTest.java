@@ -15,12 +15,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 
-public class SøknadMapperTest {
+class SøknadMapperTest {
 
     private YtelseSøknadMapper ytelseSøknadMapper = new YtelseSøknadMapper();
 
     @Test
-    public void mapping_av_dto_struktur_til_xml_for_arbeidstaker_i_virksomhet() {
+    void mapping_av_dto_struktur_til_xml_for_arbeidstaker_i_virksomhet() {
         var behovsdato = LocalDate.of(2019, Month.SEPTEMBER, 19);
         var termindato = LocalDate.of(2020, Month.JANUARY, 1);
 

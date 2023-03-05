@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OmsorgDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.es.ManuellRegistreringEngangsstonadDto;
 
-public class ManuellRegistreringFellesValidatorTest {
+class ManuellRegistreringFellesValidatorTest {
 
     @Test
-    public void validererTidligereUtenlandsopphold() {
+    void validererTidligereUtenlandsopphold() {
         var forventetFeltnavn = "tidligereOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarTidligereOppholdUtenlands(true);
@@ -39,7 +39,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererTidligereUtenlandsoppholdDatoer() {
+    void validererTidligereUtenlandsoppholdDatoer() {
         var forventetFeltnavn = "tidligereOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarTidligereOppholdUtenlands(true);
@@ -99,7 +99,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererFremtidigUtenlandsoppholdDatoer() {
+    void validererFremtidigUtenlandsoppholdDatoer() {
         var forventetFeltnavn = "fremtidigOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarFremtidigeOppholdUtenlands(true);
@@ -140,7 +140,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererFremtidigUtenlandsopphold() {
+    void validererFremtidigUtenlandsopphold() {
         var forventetFeltnavn = "fremtidigOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarFremtidigeOppholdUtenlands(true);
@@ -157,7 +157,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerTerminEllerFødsel() {
+    void validerTerminEllerFødsel() {
         var forventetFeltnavn = "terminEllerFoedsel";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
@@ -192,7 +192,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererTermindato() {
+    void validererTermindato() {
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.FALSE);
@@ -202,7 +202,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererTerminBekreftelsesdato() {
+    void validererTerminBekreftelsesdato() {
         var forventetFeltnavn = "terminbekreftelseDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
@@ -250,7 +250,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererTerminbekreftelseAntallBarn() {
+    void validererTerminbekreftelseAntallBarn() {
         var forventetFeltnavn = "antallBarnFraTerminbekreftelse";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
@@ -275,7 +275,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererAntallBarnFoedsel() {
+    void validererAntallBarnFoedsel() {
         var forventetFeltnavn = "antallBarn";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
@@ -295,7 +295,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerAntallBarnAdopsjon() {
+    void validerAntallBarnAdopsjon() {
         var forventetFeltnavn = "antallBarn";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);
@@ -309,7 +309,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerFødselsdatoFødsel() {
+    void validerFødselsdatoFødsel() {
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.TRUE);
@@ -329,7 +329,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validererFødselsdatoAdopsjon() {
+    void validererFødselsdatoAdopsjon() {
         var forventetFeltnavn = "foedselsDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);
@@ -361,7 +361,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerOmsorgsoveFrtakelsesdato() {
+    void validerOmsorgsoveFrtakelsesdato() {
         var forventetFeltnavn = "omsorgsovertakelsesdato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);
@@ -381,7 +381,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerAnnenForelderUtenlandskFoedselsnummer() {
+    void validerAnnenForelderUtenlandskFoedselsnummer() {
         var forventetFeltnavn = "utenlandskFoedselsnummer";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         var annenForelderDto = new AnnenForelderDto();
@@ -398,7 +398,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerAnnenForelderFødselsnummer() {
+    void validerAnnenForelderFødselsnummer() {
         var forventetFeltnavn = "foedselsnummer";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         var annenForelderDto = new AnnenForelderDto();
@@ -420,7 +420,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    public void validerMottattdato() {
+    void validerMottattdato() {
         var forventetFeltnavn = "mottattDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
 

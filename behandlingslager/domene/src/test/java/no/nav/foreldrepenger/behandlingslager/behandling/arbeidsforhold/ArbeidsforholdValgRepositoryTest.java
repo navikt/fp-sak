@@ -33,7 +33,7 @@ class ArbeidsforholdValgRepositoryTest {
     }
 
     @Test
-    public void lagre_en_vurdering_på_nytt_grunnlag() {
+    void lagre_en_vurdering_på_nytt_grunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var vurdering = ArbeidsforholdValg.builder()
@@ -56,7 +56,7 @@ class ArbeidsforholdValgRepositoryTest {
     }
 
     @Test
-    public void skal_kunne_slette_valg_gjort() {
+    void skal_kunne_slette_valg_gjort() {
         // Arrange
         var behandling = opprettBehandling();
         var vurdering = ArbeidsforholdValg.builder()
@@ -86,7 +86,7 @@ class ArbeidsforholdValgRepositoryTest {
 
 
     @Test
-    public void lagre_flere_vurderinger_på_samme_grunnlag() {
+    void lagre_flere_vurderinger_på_samme_grunnlag() {
         // Arrange
         var behandling = opprettBehandling();
         var vurdering1 = ArbeidsforholdValg.builder()
@@ -120,7 +120,7 @@ class ArbeidsforholdValgRepositoryTest {
     }
 
     @Test
-    public void lagre_flere_vurderinger_hos_samme_ag() {
+    void lagre_flere_vurderinger_hos_samme_ag() {
         // Arrange
         var behandling = opprettBehandling();
         var ref1 = InternArbeidsforholdRef.nyRef();
@@ -158,7 +158,7 @@ class ArbeidsforholdValgRepositoryTest {
     }
 
     @Test
-    public void lagre_ny_vurdering_på_eksisterende_arbeidsforhold_uten_å_berøre_annet_arbeidsforhold() {
+    void lagre_ny_vurdering_på_eksisterende_arbeidsforhold_uten_å_berøre_annet_arbeidsforhold() {
         // Arrange 1
         var behandling = opprettBehandling();
         var vurdering1 = ArbeidsforholdValg.builder()

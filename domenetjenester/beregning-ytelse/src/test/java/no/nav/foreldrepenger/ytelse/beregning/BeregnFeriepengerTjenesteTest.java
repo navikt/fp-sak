@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
 @ExtendWith(JpaExtension.class)
 @ExtendWith(MockitoExtension.class)
-public class BeregnFeriepengerTjenesteTest {
+class BeregnFeriepengerTjenesteTest {
 
     @Mock
     private MapInputFraVLTilRegelGrunnlag inputTjeneste;
@@ -71,7 +71,7 @@ public class BeregnFeriepengerTjenesteTest {
     }
 
     @Test
-    public void skalBeregneFeriepenger() {
+    void skalBeregneFeriepenger() {
         var farsBehandling = lagBehandlingFar();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
@@ -90,7 +90,7 @@ public class BeregnFeriepengerTjenesteTest {
     }
 
     @Test
-    public void skalSjekkeFeriepengerMedAvvik() {
+    void skalSjekkeFeriepengerMedAvvik() {
         var farsBehandling = lagBehandlingFar();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
@@ -109,7 +109,7 @@ public class BeregnFeriepengerTjenesteTest {
     }
 
     @Test
-    public void skalSjekkeFeriepengerUtenAvvik() {
+    void skalSjekkeFeriepengerUtenAvvik() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);
@@ -126,7 +126,7 @@ public class BeregnFeriepengerTjenesteTest {
     }
 
     @Test
-    public void skalIkkeBeregneFeriepenger() {
+    void skalIkkeBeregneFeriepenger() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         var morsBehandling = scenario.lagre(repositoryProvider);

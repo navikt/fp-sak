@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class BeregnStønadskontoerTjenesteTest {
+class BeregnStønadskontoerTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -45,7 +45,7 @@ public class BeregnStønadskontoerTjenesteTest {
         repositoryProvider.getFpUttakRepository());
 
     @Test
-    public void bådeMorOgFarHarRettTermin() {
+    void bådeMorOgFarHarRettTermin() {
         var termindato = LocalDate.now().plusMonths(4);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
@@ -85,7 +85,7 @@ public class BeregnStønadskontoerTjenesteTest {
     }
 
     @Test
-    public void bådeMorOgFarHarRettFødsel() {
+    void bådeMorOgFarHarRettFødsel() {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
@@ -125,7 +125,7 @@ public class BeregnStønadskontoerTjenesteTest {
     }
 
     @Test
-    public void morAleneomsorgFødsel() {
+    void morAleneomsorgFødsel() {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
@@ -160,7 +160,7 @@ public class BeregnStønadskontoerTjenesteTest {
     }
 
     @Test
-    public void bareMorHarRettFødsel() {
+    void bareMorHarRettFødsel() {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForMor(AktørId.dummy());
 
@@ -196,7 +196,7 @@ public class BeregnStønadskontoerTjenesteTest {
     }
 
     @Test
-    public void barefarHarRettFødsel() {
+    void barefarHarRettFødsel() {
         var fødselsdato = LocalDate.now().minusWeeks(1);
         var behandling = opprettBehandlingForFar(AktørId.dummy());
 

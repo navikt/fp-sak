@@ -17,12 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
-public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
+class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
 
     private AksjonspunktUtlederForEngangsstønadAdopsjon utleder = new AksjonspunktUtlederForEngangsstønadAdopsjon();
 
     @Test
-    public void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_far() {
+    void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_far() {
         var aksjonspunktForFaktaForFar = aksjonspunktForFaktaForFar();
 
         assertThat(aksjonspunktForFaktaForFar).hasSize(3);
@@ -32,7 +32,7 @@ public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
     }
 
     @Test
-    public void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_mor() {
+    void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_mor() {
         var aksjonspunktForFaktaForMor = aksjonspunktForFaktaForMor();
 
         assertThat(aksjonspunktForFaktaForMor).hasSize(2);

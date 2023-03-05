@@ -54,7 +54,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
 @CdiDbAwareTest
-public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
+class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
 
     private static final String SAKS_BEHANDLER = "Z1236525";
     private static final AktørId AKTØR_ID_PRIVAT_ARBEIDSGIVER = AktørId.dummy();
@@ -102,7 +102,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     @Test
-    public void skalAndelMedEnPrivatArbeidsgiverReturnereEnAktørId() {
+    void skalAndelMedEnPrivatArbeidsgiverReturnereEnAktørId() {
         // Arrange
         var periode2Fom = now().minusMonths(6);
         var periode2Tom = now().minusMonths(3);
@@ -133,7 +133,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     @Test
-    public void skalVurdereFlerePrivatArbeidsgiver() {
+    void skalVurdereFlerePrivatArbeidsgiver() {
         // Arrange
         var periode1Fom = now().minusMonths(10);
         var periode1Tom = now().minusMonths(7);
@@ -164,7 +164,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     @Test
-    public void skalVurdereVedtakPerioderMedIngenTilsvarendeAndeler() {
+    void skalVurdereVedtakPerioderMedIngenTilsvarendeAndeler() {
         // Arrange
         var periode1Fom = now().minusMonths(10);
         var periode1Tom = now().minusMonths(7);
@@ -189,7 +189,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     @Test
-    public void skalIgnorereOppdrag150MedKodeStatusLinjeOpphør() {
+    void skalIgnorereOppdrag150MedKodeStatusLinjeOpphør() {
         // Arrange
         var periode1Fom = now().minusMonths(6);
         var periode1Tom = now().minusMonths(3);
@@ -212,7 +212,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     @Test
-    public void skalReturnereTomHvisBeregningsresultatFPFinnesIkke() {
+    void skalReturnereTomHvisBeregningsresultatFPFinnesIkke() {
         // Arrange
         var periode1Fom = now().minusMonths(6);
         var periode1Tom = now().minusMonths(3);
@@ -228,7 +228,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     @Test
-    public void skalReturnereTomHvisBeregningsperioderFinnesIkke() {
+    void skalReturnereTomHvisBeregningsperioderFinnesIkke() {
         // Arrange
         var periode1Fom = now().minusMonths(6);
         var periode1Tom = now().minusMonths(3);
@@ -247,7 +247,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     @Test
-    public void skalIkkeKasteExceptionHvisOppdragskontrollFinnesIkke() {
+    void skalIkkeKasteExceptionHvisOppdragskontrollFinnesIkke() {
         // Act
         testKlass.opprettOppgave(behandling);
 

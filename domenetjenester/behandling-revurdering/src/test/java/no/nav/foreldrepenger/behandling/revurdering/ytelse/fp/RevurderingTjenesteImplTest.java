@@ -48,7 +48,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 @CdiDbAwareTest
-public class RevurderingTjenesteImplTest {
+class RevurderingTjenesteImplTest {
 
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -84,7 +84,7 @@ public class RevurderingTjenesteImplTest {
     }
 
     @Test
-    public void skal_opprette_historikkinnslag_for_registrert_fødsel() {
+    void skal_opprette_historikkinnslag_for_registrert_fødsel() {
         var fødselsdato = LocalDate.parse("2017-09-04");
         var barn = Collections.singletonList(byggBaby(fødselsdato));
         new RevurderingHistorikk(historikkRepository).opprettHistorikkinnslagForFødsler(behandling, barn);
@@ -105,7 +105,7 @@ public class RevurderingTjenesteImplTest {
     }
 
     @Test
-    public void skal_opprette_korrekt_historikkinnslag_for_trillingfødsel_over_2_dager() {
+    void skal_opprette_korrekt_historikkinnslag_for_trillingfødsel_over_2_dager() {
         var fødselsdato1 = LocalDate.parse("2017-09-04");
         var fødselsdato2 = LocalDate.parse("2017-09-05");
         List<FødtBarnInfo> barn = new ArrayList<>();
@@ -134,7 +134,7 @@ public class RevurderingTjenesteImplTest {
     }
 
     @Test
-    public void skal_opprette_revurdering_for_foreldrepenger() {
+    void skal_opprette_revurdering_for_foreldrepenger() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()

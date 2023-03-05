@@ -46,7 +46,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @CdiDbAwareTest
-public class KontrollerFaktaRevurderingStegImplTest {
+class KontrollerFaktaRevurderingStegImplTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -58,7 +58,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     private KontrollerFaktaRevurderingStegImpl steg;
 
     @Test
-    public void skal_fjerne_aksjonspunkter_som_er_utledet_før_startpunktet() {
+    void skal_fjerne_aksjonspunkter_som_er_utledet_før_startpunktet() {
         var behandling = opprettRevurdering();
         var fagsak = behandling.getFagsak();
         // Arrange
@@ -74,7 +74,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void skal_ikke_fjerne_aksjonspunkter_som_er_utledet_etter_startpunktet() {
+    void skal_ikke_fjerne_aksjonspunkter_som_er_utledet_etter_startpunktet() {
         var behandling = opprettRevurdering();
         var fagsak = behandling.getFagsak();
         // Arrange
@@ -92,7 +92,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void må_nullstille_fordelingsperiode_hvis_ikke_er_endringssøknad() {
+    void må_nullstille_fordelingsperiode_hvis_ikke_er_endringssøknad() {
         var behandling = opprettRevurdering();
         var fagsak = behandling.getFagsak();
         // Arrange
@@ -111,7 +111,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void må_ikke_nullstille_fordelingsperiode_hvis_er_revurdering_med_førstegangssøknad_uten_uttak() {
+    void må_ikke_nullstille_fordelingsperiode_hvis_er_revurdering_med_førstegangssøknad_uten_uttak() {
         var søknadsperiode = OppgittPeriodeBuilder.ny()
                 .medPeriode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 5, 5))
                 .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
@@ -140,7 +140,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void må_ikke_nullstille_fordelingsperiode_hvis_er_revurdering_av_revurdering_uten_uttak() {
+    void må_ikke_nullstille_fordelingsperiode_hvis_er_revurdering_av_revurdering_uten_uttak() {
         var avslåttFørstegangsbehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .lagre(repositoryProvider);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
@@ -172,7 +172,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void må_ikke_nullstille_fordelingsperiode_hvis_er_endringssøknad() {
+    void må_ikke_nullstille_fordelingsperiode_hvis_er_endringssøknad() {
         var behandling = opprettRevurdering();
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(30);
@@ -199,7 +199,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void feriepenge_berørt_hopper_til_tilkjent() {
+    void feriepenge_berørt_hopper_til_tilkjent() {
         var behandling = opprettRevurdering(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         var fagsak = behandling.getFagsak();
         // Arrange
@@ -243,7 +243,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void skal_utlede_startpunkt_dersom_uttaksplan_på_original_behandling_mangler() {
+    void skal_utlede_startpunkt_dersom_uttaksplan_på_original_behandling_mangler() {
         // Arrange
         var revurdering = opprettRevurderingPgaBerørtBehandling();
         var fagsak = revurdering.getFagsak();
@@ -259,7 +259,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
-    public void skal_sette_startpunkt_inngangsvilkår_for_manuelt_opprettet_revurdering() {
+    void skal_sette_startpunkt_inngangsvilkår_for_manuelt_opprettet_revurdering() {
         var behandling = opprettRevurdering();
         // Arrange
         var builder = BehandlingÅrsak.builder(List.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL));

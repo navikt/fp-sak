@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøkn
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-public class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
+class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -61,7 +61,7 @@ public class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_finne_at_endringssøknad_er_mottatt_og_sette_på_vent_når_vedlegg_mangler() {
+    void skal_finne_at_endringssøknad_er_mottatt_og_sette_på_vent_når_vedlegg_mangler() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = lagre(scenario);
@@ -80,7 +80,7 @@ public class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_finne_at_endringssøknad_er_mottatt_og_at_forsendelsen_er_komplett_når_ingen_vedlegg_mangler() {
+    void skal_finne_at_endringssøknad_er_mottatt_og_at_forsendelsen_er_komplett_når_ingen_vedlegg_mangler() {
         // Arrange
         var scenario = testUtil.opprettRevurderingsscenarioForMor();
         var behandling = lagre(scenario);

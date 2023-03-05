@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
-public class ForeslåVedtakInnsynStegImplTest {
+class ForeslåVedtakInnsynStegImplTest {
 
     @Test
-    public void skal_gi_aksjonspunkt_for_å_manuelt_foreslå_vedtak_innsyn() {
+    void skal_gi_aksjonspunkt_for_å_manuelt_foreslå_vedtak_innsyn() {
         var steg = new ForeslåVedtakInnsynStegImpl();
         var resultat = steg.utførSteg(null);
 

@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResul
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 
 @CdiDbAwareTest
-public class SimulerOppdragStegTest {
+class SimulerOppdragStegTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private TilbakekrevingRepository tilbakekrevingRepository;
@@ -75,7 +75,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void skal_ha_aksjonspunkter_fra_aksjonspunktutleder_når_feature_er_enabled_men_skal_kalle_på_tjeneste_og_klient() {
+    void skal_ha_aksjonspunkter_fra_aksjonspunktutleder_når_feature_er_enabled_men_skal_kalle_på_tjeneste_og_klient() {
         // Arrange
         var oppdragskontroll = lagOppdragKontrollMedPåkrevdeFelter(123L);
         when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
@@ -101,7 +101,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void deaktiverer_eksisterende_tilbakekrevingValg_ved_hopp_over_bakover() {
+    void deaktiverer_eksisterende_tilbakekrevingValg_ved_hopp_over_bakover() {
         // Arrange
         tilbakekrevingRepository.lagre(behandling,
                 TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD,
@@ -123,7 +123,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void lagrer_automatisk_inntrekk_og_returnerer_ingen_aksjonspunkter_dersom_aksjonspunkt_for_inntrekk() {
+    void lagrer_automatisk_inntrekk_og_returnerer_ingen_aksjonspunkter_dersom_aksjonspunkt_for_inntrekk() {
         // Arrange
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
                 Optional.of(new SimuleringResultatDto(0L, -2354L, false)));
@@ -150,7 +150,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void skal_kalle_kanseller_oppdrag_ved_tilbakehopp() {
+    void skal_kalle_kanseller_oppdrag_ved_tilbakehopp() {
         // Arrange
         steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
                 simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpoppdragSystembrukerRestKlientMock,
@@ -166,7 +166,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void skal__ikke_kalle_kanseller_oppdrag_ved_tilbakehopp_tilSimulerOppdragSteget() {
+    void skal__ikke_kalle_kanseller_oppdrag_ved_tilbakehopp_tilSimulerOppdragSteget() {
         // Arrange
         steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
                 simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpoppdragSystembrukerRestKlientMock,
@@ -182,7 +182,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving() {
+    void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
                 Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
@@ -205,7 +205,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving_men_simuleringresultat_ikke_påvirke_grunnlag() {
+    void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving_men_simuleringresultat_ikke_påvirke_grunnlag() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
                 Optional.of(new SimuleringResultatDto(0L, 0L, true)));
@@ -225,7 +225,7 @@ public class SimulerOppdragStegTest {
     }
 
     @Test
-    public void utførSteg_ikke_lagrer_tilbakekrevingoppdater_for_åpen_tilbakekreving_når_simuleringresultat_ikke_finnes() {
+    void utførSteg_ikke_lagrer_tilbakekrevingoppdater_for_åpen_tilbakekreving_når_simuleringresultat_ikke_finnes() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
 
         steg = opprettSteg();

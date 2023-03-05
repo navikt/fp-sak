@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(JpaExtension.class)
-public class VurderTilbaketrekkTjenesteTest {
+class VurderTilbaketrekkTjenesteTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusMonths(2);
     public static final String ORGNR1 = KUNSTIG_ORG + "1";
@@ -85,7 +85,7 @@ public class VurderTilbaketrekkTjenesteTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt_for_arbeidsforhold_som_tilkommer_med_avsluttet_arbeidsforhold_i_ulike_virksomheter() {
+    void skal_få_aksjonspunkt_for_arbeidsforhold_som_tilkommer_med_avsluttet_arbeidsforhold_i_ulike_virksomheter() {
         // Arrange
         var behandling = opprettBehandling();
         lagUtbetaltBeregningsresultatMedEnAndelTilBruker(ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT);
@@ -100,7 +100,7 @@ public class VurderTilbaketrekkTjenesteTest {
     }
 
     @Test
-    public void skal_få_aksjonspunkt_for_arbeidsforhold_med_ansettelsesperioder_som_slutter_før_skjæringstidspunktet() {
+    void skal_få_aksjonspunkt_for_arbeidsforhold_med_ansettelsesperioder_som_slutter_før_skjæringstidspunktet() {
         // Arrange
         // Bygg IAY
         var behandling = opprettBehandling();

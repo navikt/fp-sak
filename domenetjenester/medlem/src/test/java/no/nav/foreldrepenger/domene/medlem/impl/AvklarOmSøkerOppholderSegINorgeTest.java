@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
-public class AvklarOmSøkerOppholderSegINorgeTest {
+class AvklarOmSøkerOppholderSegINorgeTest {
 
     @Inject
     private BehandlingRepositoryProvider provider;
@@ -59,7 +59,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_har_fodt() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_har_fodt() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -84,7 +84,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_har_fodt_søkt_termin() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_har_fodt_søkt_termin() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -115,7 +115,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_har_dato_for_omsorgsovertakelse() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_har_dato_for_omsorgsovertakelse() {
         // Arrange
         var omsorgsovertakelseDato = LocalDate.now();
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
@@ -135,7 +135,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_er_nordisk() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_er_nordisk() {
         // Arrange
         var termindato = LocalDate.now();
         var aktørId1 = AktørId.dummy();
@@ -170,7 +170,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_har_annet_statsborgerskap() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_har_annet_statsborgerskap() {
         // Arrange
         var termindato = LocalDate.now();
         var aktørId1 = AktørId.dummy();
@@ -197,7 +197,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_er_gift_med_nordisk() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_er_gift_med_nordisk() {
         // Arrange
         var termindato = LocalDate.now();
 
@@ -245,7 +245,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_er_gift_med_ANNET_statsborgerskap() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_er_gift_med_ANNET_statsborgerskap() {
         // Arrange
         var termindato = LocalDate.now();
 
@@ -293,7 +293,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_soker_har_hatt_inntekt_i_Norge_de_siste_tre_mnd() {
+    void skal_ikke_opprette_aksjonspunkt_om_soker_har_hatt_inntekt_i_Norge_de_siste_tre_mnd() {
         // Arrange
         var aktørId1 = AktørId.dummy();
         var fom = LocalDate.now().minusWeeks(3L);
@@ -337,7 +337,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_medsoker_har_hatt_inntekt_i_Norge_de_siste_tre_mnd() {
+    void skal_opprette_aksjonspunkt_om_medsoker_har_hatt_inntekt_i_Norge_de_siste_tre_mnd() {
         // Arrange
         var aktørId1 = AktørId.dummy();
         var aktørId2 = AktørId.dummy();
@@ -369,7 +369,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_termindato_ikke_har_passert_14_dager() {
+    void skal_ikke_opprette_aksjonspunkt_om_termindato_ikke_har_passert_14_dager() {
         // Arrange
         var termindato = LocalDate.now().minusDays(14L);
         var aktørId1 = AktørId.dummy();
@@ -396,7 +396,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_vent_om_termindato_har_passert_28_dager() {
+    void skal_ikke_opprette_vent_om_termindato_har_passert_28_dager() {
         // Arrange
         var termindato = LocalDate.now().minusMonths(2);
         var aktørId1 = AktørId.dummy();
@@ -427,7 +427,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     @Test
-    public void skal_oprette_aksjonspunkt_ved_uavklart_oppholdsrett() {
+    void skal_oprette_aksjonspunkt_ved_uavklart_oppholdsrett() {
         // Arrange
         var termindato = LocalDate.now().minusDays(15L);
         var aktørId1 = AktørId.dummy();

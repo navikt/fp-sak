@@ -97,7 +97,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Arbeidsgiver
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
 
-public class FastsettePerioderRegelAdapterTest {
+class FastsettePerioderRegelAdapterTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 6, 22);
     private final LocalDate mottattDato = LocalDate.of(2018, 6, 22);
@@ -137,7 +137,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skalReturnerePlanMedMødrekvotePeriode() {
+    void skalReturnerePlanMedMødrekvotePeriode() {
         // Arrange
         var fødselsdato = LocalDate.of(2021, 11, 4);
         var fpff = OppgittPeriodeBuilder.ny()
@@ -192,7 +192,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skalReturnerePlanMedHeleForeldrepengerFørFødselPeriode() {
+    void skalReturnerePlanMedHeleForeldrepengerFørFødselPeriode() {
         // Arrange
         var virksomhet = virksomhet();
         var fødselsdato = LocalDate.of(2018, 6, 22);
@@ -285,7 +285,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skalReturnereManuellBehandlingForPlanMedForTidligOppstartAvFedrekvote() {
+    void skalReturnereManuellBehandlingForPlanMedForTidligOppstartAvFedrekvote() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var startDato = fødselsdato.minusWeeks(3);
         var forventetKnekk = fødselsdato;
@@ -326,7 +326,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skalReturnerePlanMedManuelleFellesperiodeFørFødselNårSøkerErFar() {
+    void skalReturnerePlanMedManuelleFellesperiodeFørFødselNårSøkerErFar() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var startDatoFellesperiode = fødselsdato.minusWeeks(uker_før_fødsel_foreldrepenger_grense).minusWeeks(5);
         var sluttDatoFellesperiode = fødselsdato.minusWeeks(uker_før_fødsel_foreldrepenger_grense).minusWeeks(2);
@@ -368,7 +368,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void morSøkerFellesperiodeFørFødselMedOppholdFørForeldrepenger() {
+    void morSøkerFellesperiodeFørFødselMedOppholdFørForeldrepenger() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var startDatoFellesperiode = fødselsdato.minusWeeks(uker_før_fødsel_foreldrepenger_grense).minusWeeks(5);
         var sluttDatoFellesperiode = fødselsdato.minusWeeks(uker_før_fødsel_foreldrepenger_grense).minusWeeks(2);
@@ -414,7 +414,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void morSøkerFellesperiodeFørFødselMedOppholdInniPerioden() {
+    void morSøkerFellesperiodeFørFødselMedOppholdInniPerioden() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var startDatoFellesperiode1 = fødselsdato.minusWeeks(uker_før_fødsel_fellesperiode_grense);
         var sluttDatoFellesperiode1 = fødselsdato.minusWeeks(uker_før_fødsel_fellesperiode_grense).plusWeeks(2);
@@ -480,7 +480,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void søknadMedOppholdForAnnenForelderFellesperiodeOgIkkeNokDagerPåKontoTest() {
+    void søknadMedOppholdForAnnenForelderFellesperiodeOgIkkeNokDagerPåKontoTest() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var sluttDatoMødrekvote = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusDays(1);
 
@@ -563,7 +563,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void søknadMedMerEnnTilgjengeligDagerForOpphold() {
+    void søknadMedMerEnnTilgjengeligDagerForOpphold() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var sluttDatoMødrekvote = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusDays(1);
 
@@ -632,7 +632,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void morSøkerMødrekvoteOgFedrekvote_FårInnvilgetMødrekvoteOgFedrekvoteGårTilManuellBehandling() {
+    void morSøkerMødrekvoteOgFedrekvote_FårInnvilgetMødrekvoteOgFedrekvoteGårTilManuellBehandling() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var sluttDatoMødrekvote = fødselsdato.plusWeeks(veker_etter_fødsel_mødrekvote_grense).minusDays(1);
 
@@ -700,7 +700,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void morSkalFåAvslåttUtenTrekkdagerPåUtsettelsePgaSykdomIPeriodeFarTarUttak() {
+    void morSkalFåAvslåttUtenTrekkdagerPåUtsettelsePgaSykdomIPeriodeFarTarUttak() {
         var fødselsdato = LocalDate.of(2018, 10, 10);
         var morFpffFørstegangs = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
@@ -801,7 +801,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skal_avslå_periode_når_far_søker_fedrekvote_uten_å_ha_omsorg() {
+    void skal_avslå_periode_når_far_søker_fedrekvote_uten_å_ha_omsorg() {
         // Arrange
         var virksomhet = virksomhet();
         var fødselsdato = LocalDate.of(2018, 6, 22);
@@ -834,7 +834,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skal_ta_med_arbeidsforholdprosent_når_gradering_er_opplyst() {
+    void skal_ta_med_arbeidsforholdprosent_når_gradering_er_opplyst() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var start = fødselsdato.plusWeeks(20);
         var slutt = fødselsdato.plusWeeks(25).minusDays(1);
@@ -867,7 +867,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skal_fastsette_perioder_ved_adopsjon_uten_annenpart() {
+    void skal_fastsette_perioder_ved_adopsjon_uten_annenpart() {
         var startdato = LocalDate.of(2019, 10, 3);
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -891,7 +891,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void graderingSkalSettesRiktigEtterKjøringAvRegler() {
+    void graderingSkalSettesRiktigEtterKjøringAvRegler() {
         var arbeidsprosent = BigDecimal.valueOf(50);
         var virksomhetSomGradereresHos = virksomhet(new Orgnummer("orgnr1"));
         var annenVirksomhet = virksomhet(new Orgnummer("orgnr2"));
@@ -994,7 +994,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skalGi100UtbetalingIPeriodenHvisUtenforAnsettelsesperiode() {
+    void skalGi100UtbetalingIPeriodenHvisUtenforAnsettelsesperiode() {
         var virksomhet = virksomhet();
         var fødselsdato = LocalDate.of(2018, 10, 1);
         var oppgittFPFF = OppgittPeriodeBuilder.ny()
@@ -1060,7 +1060,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void graderingSkalSettesRiktigVedAvslagAvGraderingEtterKjøringAvRegler() {
+    void graderingSkalSettesRiktigVedAvslagAvGraderingEtterKjøringAvRegler() {
         // Søker gradert fpff slik at gradering avslås
         var arbeidsprosent = BigDecimal.valueOf(50);
         var virksomhet = virksomhet();
@@ -1103,7 +1103,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skal_ta_med_arbeidsforholdprosent_når_gradering_er_opplyst_også_når_periode_avviker_med_lørdag_søndag() {
+    void skal_ta_med_arbeidsforholdprosent_når_gradering_er_opplyst_også_når_periode_avviker_med_lørdag_søndag() {
 
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var start = mandag(fødselsdato.plusWeeks(20));
@@ -1139,7 +1139,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void utbetalingsgradSkalHa2Desimaler() {
+    void utbetalingsgradSkalHa2Desimaler() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var start = mandag(fødselsdato.plusWeeks(20));
         var slutt = start.plusWeeks(5).minusDays(1);
@@ -1173,7 +1173,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void samtidigUttaksprosentSkalHa2Desimaler() {
+    void samtidigUttaksprosentSkalHa2Desimaler() {
         var fødselsdato = LocalDate.of(2019, 6, 22);
         var start = mandag(fødselsdato.plusWeeks(20));
         var slutt = start.plusWeeks(5).minusDays(1);
@@ -1204,7 +1204,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skal_håndtere_manuell_behandling_av_for_tidlig_gradering() {
+    void skal_håndtere_manuell_behandling_av_for_tidlig_gradering() {
         var virksomhet = virksomhet();
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var fpff = OppgittPeriodeBuilder.ny()
@@ -1254,7 +1254,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skalPrependeUttaksresultatPerioderFørEndringsdatoVedRevurdering() {
+    void skalPrependeUttaksresultatPerioderFørEndringsdatoVedRevurdering() {
         // Lager opprinnelig uttak
 
         var uttakRevurderingTestUtil = new UttakRevurderingTestUtil(repositoryProvider,
@@ -1358,7 +1358,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void skalLageUttaksresultatMedOverføringperiode() {
+    void skalLageUttaksresultatMedOverføringperiode() {
         var fødselsdato = LocalDate.of(2019, 10, 10);
         var fedrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -1381,7 +1381,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void arbeidstaker_uten_arbeidsgiver_skal_fastsettes() {
+    void arbeidstaker_uten_arbeidsgiver_skal_fastsettes() {
         var fødselsdato = LocalDate.of(2019, 10, 10);
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -1405,7 +1405,7 @@ public class FastsettePerioderRegelAdapterTest {
      * Ligger søknader fra tidligere i prod med samtidig uttak og 0%
      */
     @Test
-    public void samtidigUttakPå0ProsentSkalTolkesSom100Prosent() {
+    void samtidigUttakPå0ProsentSkalTolkesSom100Prosent() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var mk = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -1438,7 +1438,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void utsettelse_pga_arbeid_under_100_stilling_skal_gå_til_manuelt() {
+    void utsettelse_pga_arbeid_under_100_stilling_skal_gå_til_manuelt() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var mk = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
@@ -1493,7 +1493,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void tilkommet_i_løpet_av_aktivitet_skal_arve_saldo() {
+    void tilkommet_i_løpet_av_aktivitet_skal_arve_saldo() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
         var arbeidsgiver1 = virksomhet(new Orgnummer("123"));
         var arbeidsgiver2 = virksomhet(new Orgnummer("456"));
@@ -1587,7 +1587,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void stillingsprosentPå0SkalGi100prosentUtbetalingOg0Arbeidstidsprosent() {
+    void stillingsprosentPå0SkalGi100prosentUtbetalingOg0Arbeidstidsprosent() {
 
         var fødselsdato = LocalDate.of(2018, 10, 1);
 
@@ -1651,7 +1651,7 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     @Test
-    public void stillingsprosentPåNullSkalGi100prosentUtbetalingOg0Arbeidstidsprosent() {
+    void stillingsprosentPåNullSkalGi100prosentUtbetalingOg0Arbeidstidsprosent() {
 
         var fødselsdato = LocalDate.of(2018, 10, 1);
 

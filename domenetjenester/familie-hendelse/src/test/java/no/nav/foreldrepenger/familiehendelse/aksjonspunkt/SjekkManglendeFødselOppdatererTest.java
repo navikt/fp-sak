@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 @ExtendWith(MockitoExtension.class)
-public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
+class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
@@ -73,7 +73,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
         // Arrange
         var oppdatertEktefellesBarn = true;
 
@@ -111,7 +111,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_antall_barn() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_antall_barn() {
         // Arrange
         var antallBarnOpprinnelig = 2;
         final var antallBarnTpsGjelderBekreftet = false;
@@ -152,7 +152,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_fødsel() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_fødsel() {
         // Arrange
         var opprinneligFødseldato = LocalDate.now();
         var avklartFødseldato = opprinneligFødseldato.plusDays(1);
@@ -198,7 +198,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_fødsel() {
+    void skal_oppdatere_fødsel() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
@@ -230,7 +230,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_fødsel_13m_gir_oppdater_grunnlag() {
+    void skal_oppdatere_fødsel_13m_gir_oppdater_grunnlag() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medSøknadsdato(now);
@@ -260,7 +260,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_trigge_totrinnskontroll_dersom_steget_utføres_to_ganger() {
+    void skal_trigge_totrinnskontroll_dersom_steget_utføres_to_ganger() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
@@ -297,7 +297,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_antall_barn_basert_på_saksbehandlers_oppgitte_antall() {
+    void skal_oppdatere_antall_barn_basert_på_saksbehandlers_oppgitte_antall() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
@@ -328,7 +328,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_oppdatere_antall_barn_basert_på_tps_dersom_flagg_satt() {
+    void skal_oppdatere_antall_barn_basert_på_tps_dersom_flagg_satt() {
         // Arrange
         var fødselsdatoFraSøknad = now;
         var fødselsdatoFraTps = now.minusDays(1);
@@ -366,7 +366,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_hive_exception_når_dokumentasjon_foreligger_og_fødselsdato_er_tom() {
+    void skal_hive_exception_når_dokumentasjon_foreligger_og_fødselsdato_er_tom() {
         // Arrange
         var fødselsdatoFraSøknad = now;
 

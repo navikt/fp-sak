@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehan
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
+class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
     private SakOgBehandlingTask observer;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -39,7 +39,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErOpprettet() {
+    void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErOpprettet() {
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
@@ -60,7 +60,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErAvsluttet() {
+    void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErAvsluttet() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 

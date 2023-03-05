@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
-public class PipRepositoryTest extends EntityManagerAwareTest {
+class PipRepositoryTest extends EntityManagerAwareTest {
 
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("42");
 
@@ -44,7 +44,7 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_behandligstatus_og_sakstatus_for_behandling() {
+    void skal_finne_behandligstatus_og_sakstatus_for_behandling() {
         var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         lagreBehandling(behandling);
 
@@ -56,13 +56,13 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_returne_tomt_resultat_når_det_søkes_etter_behandling_id_som_ikke_finnes() {
+    void skal_returne_tomt_resultat_når_det_søkes_etter_behandling_id_som_ikke_finnes() {
         var pipBehandlingsData = pipRepository.hentDataForBehandling(1241L);
         assertThat(pipBehandlingsData).isNotPresent();
     }
 
     @Test
-    public void skal_finne_alle_fagsaker_for_en_søker() {
+    void skal_finne_alle_fagsaker_for_en_søker() {
         var fagsak1 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var aktørId1 = fagsak1.getAktørId();
         var fagsak2 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
@@ -74,7 +74,7 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_aktoerId_for_fagsak() {
+    void skal_finne_aktoerId_for_fagsak() {
         var aktørId1 = AktørId.dummy();
         var fagsak = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER, aktørId1);
 
@@ -83,7 +83,7 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_fagsakId_knyttet_til_journalpostId() {
+    void skal_finne_fagsakId_knyttet_til_journalpostId() {
         var fagsak1 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         @SuppressWarnings("unused") var fagsak2 = behandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
         var journalpost1 = new Journalpost(JOURNALPOST_ID, fagsak1);
@@ -97,7 +97,7 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_aksjonspunktTyper_for_aksjonspunktKoder() {
+    void skal_finne_aksjonspunktTyper_for_aksjonspunktKoder() {
         var resultat1 = PipRepository.harAksjonspunktTypeOverstyring(Collections.singletonList(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING));
         assertThat(resultat1).isTrue();
 

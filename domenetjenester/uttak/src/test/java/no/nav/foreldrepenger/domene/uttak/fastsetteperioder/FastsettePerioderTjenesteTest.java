@@ -92,7 +92,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class FastsettePerioderTjenesteTest {
+class FastsettePerioderTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
@@ -128,7 +128,7 @@ public class FastsettePerioderTjenesteTest {
     private final UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
 
     @Test
-    public void skalInnvilgeFedrekvoteForMedmor() {
+    void skalInnvilgeFedrekvoteForMedmor() {
         // Setup
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now().minusWeeks(6);
@@ -193,7 +193,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void oppretterOgLagrerUttakResultatPlanOgUttakPerioderPerArbeidsgiver() {
+    void oppretterOgLagrerUttakResultatPlanOgUttakPerioderPerArbeidsgiver() {
         // Setup
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now();
@@ -242,7 +242,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void arbeidstidsprosentOgUtbetalingsgradSkalHa2Desimaler() {
+    void arbeidstidsprosentOgUtbetalingsgradSkalHa2Desimaler() {
         // Setup
         var mottattDato = LocalDate.now().minusWeeks(1);
         var fødselsdato = LocalDate.now().minusWeeks(8);
@@ -294,7 +294,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void skal_filtrere_ut_fri_utsettelse() {
+    void skal_filtrere_ut_fri_utsettelse() {
         var fødselsdato = LocalDate.of(2021, 10, 10);
         var oppgittMødrekvote1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(MØDREKVOTE)
@@ -329,7 +329,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_filtrere_ut_fri_utsettelse_når_bare_far_har_rett() {
+    void skal_ikke_filtrere_ut_fri_utsettelse_når_bare_far_har_rett() {
         var fødselsdato = LocalDate.of(2021, 10, 10);
         var oppgittFriUtsettelse1 = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.FRI)
@@ -380,7 +380,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void sletterGammeltResultatOgOppretterNyttResultatDersomOpprinneligResultatFinnesFraFør() {
+    void sletterGammeltResultatOgOppretterNyttResultatDersomOpprinneligResultatFinnesFraFør() {
         // Steg 1: Opprett uttaksplan med perioder
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now().minusMonths(3).withDayOfMonth(1);
@@ -443,7 +443,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void foreldrepengerFødsel_gi_innvilget() {
+    void foreldrepengerFødsel_gi_innvilget() {
         // Skal treffe UT1211 i foreldrepenger delregel
 
         // Setup
@@ -501,7 +501,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void oppretterOgLagrerUttakResultatPlanOgUttakPerioderPerNårArbeidsgivereErKombinasjonAvPrivatpersonOgVirksomhet() {
+    void oppretterOgLagrerUttakResultatPlanOgUttakPerioderPerNårArbeidsgivereErKombinasjonAvPrivatpersonOgVirksomhet() {
         // Setup
         var mottattDato = LocalDate.now().minusWeeks(1);
         var fødselsdato = LocalDate.now().minusWeeks(8);
@@ -569,7 +569,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void arbeidsforhold_skal_kunne_tilkomme_i_løpet_av_uttaket() {
+    void arbeidsforhold_skal_kunne_tilkomme_i_løpet_av_uttaket() {
         var virksomhet1 = Arbeidsgiver.virksomhet("123");
         var virksomhet2 = Arbeidsgiver.virksomhet("456");
         var fødselsdato = LocalDate.of(2019, 12, 4);
@@ -667,7 +667,7 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
-    public void overstyrtSkalLeggesTilOpprinnelig() {
+    void overstyrtSkalLeggesTilOpprinnelig() {
         // Steg 1: Opprett uttaksplan med perioder
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now().minusMonths(3).withDayOfMonth(1);

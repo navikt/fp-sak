@@ -31,12 +31,12 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class UttakStillingsprosentTjenesteTest {
+class UttakStillingsprosentTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
-    public void medOrgNrOgArbIdEnYrkesaktivitet() {
+    void medOrgNrOgArbIdEnYrkesaktivitet() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosent = BigDecimal.valueOf(77);
@@ -60,7 +60,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void medToArbeidsforholdSammeArbeidsgiverSammePeriode() {
+    void medToArbeidsforholdSammeArbeidsgiverSammePeriode() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosent1 = BigDecimal.valueOf(77);
@@ -86,7 +86,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void medToArbeidsforholdSammeArbeidsgiverUlikPeriode() {
+    void medToArbeidsforholdSammeArbeidsgiverUlikPeriode() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosent1 = BigDecimal.valueOf(77);
@@ -116,7 +116,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void skalMatcheSelvOmArbeidsgiverErNullMenYtelseHarArbeidsgiverRef() {
+    void skalMatcheSelvOmArbeidsgiverErNullMenYtelseHarArbeidsgiverRef() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosent = BigDecimal.valueOf(77);
@@ -136,7 +136,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void skalTaStillingsprosentFraFørsteAktivitetsavtaleIAnsettelsesperiodenHvisDetManglerAktivitetsavtaleFraStartenAvAnsettelsesperioden() {
+    void skalTaStillingsprosentFraFørsteAktivitetsavtaleIAnsettelsesperiodenHvisDetManglerAktivitetsavtaleFraStartenAvAnsettelsesperioden() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosentFørsteAktivitetsavtale = BigDecimal.valueOf(55);
@@ -171,7 +171,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void skalTaStillingsprosentFraSisteAktivitetsavtaleIAnsettelsesperiodenHvisDetManglerAktivitetsavtaleFraSluttenAvAnsettelsesperioden() {
+    void skalTaStillingsprosentFraSisteAktivitetsavtaleIAnsettelsesperiodenHvisDetManglerAktivitetsavtaleFraSluttenAvAnsettelsesperioden() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosentSisteAktivitetsavtale = BigDecimal.valueOf(55);
@@ -206,7 +206,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void skalBareSePåAktivitetsavtalerSomLiggerIEnAnsettelsePeriodeSomMatcherDato() {
+    void skalBareSePåAktivitetsavtalerSomLiggerIEnAnsettelsePeriodeSomMatcherDato() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosent1 = BigDecimal.valueOf(40);
@@ -254,7 +254,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void medYrkesaktivitetProsentSomErOver100() {
+    void medYrkesaktivitetProsentSomErOver100() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosent = BigDecimal.valueOf(500);
@@ -277,7 +277,7 @@ public class UttakStillingsprosentTjenesteTest {
     }
 
     @Test
-    public void medYrkesaktivitetProsentSomErUnder0() {
+    void medYrkesaktivitetProsentSomErUnder0() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         var stillingsprosent = BigDecimal.valueOf(-100);

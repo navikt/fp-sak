@@ -36,7 +36,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
-public class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
+class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
     private VedtaksHendelseObserver vedtaksHendelseObserver;
 
     @Mock
@@ -52,7 +52,7 @@ public class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprettRiktigeTasksForFpsakVedtakForeldrepenger() {
+    void opprettRiktigeTasksForFpsakVedtakForeldrepenger() {
         var fpBehandling = lagBehandlingFP();
         var fpYtelse = genererYtelseFpsak(fpBehandling);
 
@@ -68,7 +68,7 @@ public class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprettRiktigeTasksForFpsakVedtakSvangerskapspenger() {
+    void opprettRiktigeTasksForFpsakVedtakSvangerskapspenger() {
         var svpBehandling = lagBehandlingSVP();
         var svpYtelse = genererYtelseFpsak(svpBehandling);
 
@@ -84,7 +84,7 @@ public class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprettIngenTasksForFpsakVedtakEngangsstønad() {
+    void opprettIngenTasksForFpsakVedtakEngangsstønad() {
         var esBehandling = lagBehandlingES();
         var esYtelse = genererYtelseFpsak(esBehandling);
 

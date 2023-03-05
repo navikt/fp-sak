@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 
-public class InngangsvilkårSøkersOpplysningspliktTest {
+class InngangsvilkårSøkersOpplysningspliktTest {
 
     InngangsvilkårSøkersOpplysningsplikt testObjekt;
     private KompletthetsjekkerProvider kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
@@ -31,7 +31,7 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
     }
 
     @Test
-    public void komplett_søknad_skal_medføre_oppfylt() {
+    void komplett_søknad_skal_medføre_oppfylt() {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
         when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
             .thenReturn(true);
@@ -46,7 +46,7 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
     }
 
     @Test
-    public void ikke_komplett_søknad_skal_medføre_manuell_vurdering() {
+    void ikke_komplett_søknad_skal_medføre_manuell_vurdering() {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
         when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
             .thenReturn(false);
@@ -62,7 +62,7 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
     }
 
     @Test
-    public void revurdering_for_foreldrepenger_skal_alltid_medføre_oppfylt() {
+    void revurdering_for_foreldrepenger_skal_alltid_medføre_oppfylt() {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
         when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
             .thenReturn(false);

@@ -33,7 +33,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class VurderOgSendØkonomiOppdragTaskTest {
+class VurderOgSendØkonomiOppdragTaskTest {
 
     private static final Long BEHANDLING_ID = 139L;
 
@@ -70,7 +70,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     }
 
     @Test
-    public void testSkalSendeOppdrag() {
+    void testSkalSendeOppdrag() {
         // Arrange
         var oppdragskontroll = Oppdragskontroll.builder()
             .medBehandlingId(BEHANDLING_ID)
@@ -91,7 +91,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     }
 
     @Test
-    public void testSkalIkkeSendeOppdrag() {
+    void testSkalIkkeSendeOppdrag() {
         // Arrange
         when(prosessTaskData.getVentetHendelse()).thenReturn(Optional.empty());
 
@@ -105,7 +105,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     }
 
     @Test
-    public void testSkalBehandleKvittering() {
+    void testSkalBehandleKvittering() {
         // Arrange
         when(prosessTaskData.getVentetHendelse()).thenReturn(Optional.of(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING));
 

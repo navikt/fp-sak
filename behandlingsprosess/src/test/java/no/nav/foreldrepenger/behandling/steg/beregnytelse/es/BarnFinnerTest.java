@@ -17,12 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.vedtak.exception.FunksjonellException;
 
-public class BarnFinnerTest {
+class BarnFinnerTest {
 
     private final int maksStønadsalder = 15;
 
     @Test
-    public void skal_finne_antall_barn_basert_på_fødsel() {
+    void skal_finne_antall_barn_basert_på_fødsel() {
         // Arrange
         var antallBarnPåFødsel = 2;
         var scenario = byggBehandlingsgrunnlagForFødsel(antallBarnPåFødsel);
@@ -37,7 +37,7 @@ public class BarnFinnerTest {
     }
 
     @Test
-    public void skal_finne_antall_barn_basert_på_termin() {
+    void skal_finne_antall_barn_basert_på_termin() {
         // Arrange
         var antallBarnPåTerminBekreftelse = 2;
         var scenario = byggBehandlingsgrunnlagForTermin(antallBarnPåTerminBekreftelse);
@@ -52,7 +52,7 @@ public class BarnFinnerTest {
     }
 
     @Test
-    public void skal_finne_antall_barn_basert_på_adopsjon() {
+    void skal_finne_antall_barn_basert_på_adopsjon() {
         // Arrange
         var overtakelseDato = LocalDate.now();
         // Skal kun gis stønad for barn < 15 år, dvs 2 barn her
@@ -73,7 +73,7 @@ public class BarnFinnerTest {
     }
 
     @Test
-    public void skal_finne_antall_barn_basert_på_omsorgsovertakelse() {
+    void skal_finne_antall_barn_basert_på_omsorgsovertakelse() {
         // Arrange
         var scenario = byggBehandlingsgrunnlagForOmsorgsovertakelse(2);
         var behandling = scenario.lagMocked();
@@ -87,7 +87,7 @@ public class BarnFinnerTest {
     }
 
     @Test
-    public void skal_kaste_feil_dersom_antall_barn_ikke_kan_finnes_i_grunnlag() {
+    void skal_kaste_feil_dersom_antall_barn_ikke_kan_finnes_i_grunnlag() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();

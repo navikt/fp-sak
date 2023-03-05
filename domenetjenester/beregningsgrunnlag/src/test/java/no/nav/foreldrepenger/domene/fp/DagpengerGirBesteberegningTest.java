@@ -26,7 +26,7 @@ class DagpengerGirBesteberegningTest {
     private static final LocalDate STP = LocalDate.of(2020,6,2);
 
     @Test
-    public void skal_gi_true_ved_sykepenger_på_dagpenger_på_stp() {
+    void skal_gi_true_ved_sykepenger_på_dagpenger_på_stp() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.plusDays(1));
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
@@ -46,7 +46,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void skal_gi_true_ved_sykepenger_på_dagpenger_dagen_før_stp() {
+    void skal_gi_true_ved_sykepenger_på_dagpenger_dagen_før_stp() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.minusDays(1));
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
@@ -65,7 +65,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void skal_gi_false_ved_sykepenger_på_dagpenger_2_dager_før_stp() {
+    void skal_gi_false_ved_sykepenger_på_dagpenger_2_dager_før_stp() {
         // Arrange
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.minusDays(2));
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
@@ -84,7 +84,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void skal_gi_true_ved_dagpenger_etter_stp() {
+    void skal_gi_true_ved_dagpenger_etter_stp() {
         // Act
         var periode = new Periode(STP.minusDays(30), STP.plusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
@@ -97,7 +97,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void skal_gi_true_ved_dagpenger_som_starter_1_dag_før_stp() {
+    void skal_gi_true_ved_dagpenger_som_starter_1_dag_før_stp() {
         // Act
         var periode = new Periode(STP.minusDays(1), STP.plusDays(20));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
@@ -111,7 +111,7 @@ class DagpengerGirBesteberegningTest {
 
 
     @Test
-    public void skal_gi_true_ved_dagpenger_på_stp() {
+    void skal_gi_true_ved_dagpenger_på_stp() {
         // Act
         var periode = new Periode(STP.minusDays(30), STP);
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
@@ -124,7 +124,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void skal_gi_true_ved_dagpenger_dagen_før_stp() {
+    void skal_gi_true_ved_dagpenger_dagen_før_stp() {
         // Act
         var periode = new Periode(STP.minusDays(30), STP.minusDays(1));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
@@ -137,7 +137,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void skal_gi_false_ved_dagpenger_2_dager_før_stp() {
+    void skal_gi_false_ved_dagpenger_2_dager_før_stp() {
         // Act
         var periode = new Periode(STP.minusDays(30), STP.minusDays(2));
         var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
@@ -150,7 +150,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void når_stp_er_mandag_skal_vi_se_på_fredagen_før_for_sykepenger() {
+    void når_stp_er_mandag_skal_vi_se_på_fredagen_før_for_sykepenger() {
         // Act
         var mandagSTP = STP.minusDays(1);
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
@@ -170,7 +170,7 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
-    public void åpent_sykepengevedtak_skal_ikke_gi_besteberegning() {
+    void åpent_sykepengevedtak_skal_ikke_gi_besteberegning() {
         // Act
         LocalDate localDate = VirkedagUtil.tomVirkedag(LocalDate.of(2021, 6, 7));
         var mandagSTP = STP.minusDays(1);

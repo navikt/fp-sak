@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
-public class MedlemskapsvilkårTest {
+class MedlemskapsvilkårTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
@@ -89,7 +89,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1020
      */
     @Test
-    public void skal_vurdere_manuell_avklart_ikke_medlem_som_vilkår_ikke_oppfylt() {
+    void skal_vurdere_manuell_avklart_ikke_medlem_som_vilkår_ikke_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_A, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.UNNTAK);
@@ -110,7 +110,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1020
      */
     @Test
-    public void skal_vurdere_maskinelt_avklart_ikke_medlem_som_vilkår_ikke_oppfylt() {
+    void skal_vurdere_maskinelt_avklart_ikke_medlem_som_vilkår_ikke_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_6, Landkoder.NOR, PersonstatusType.BOSA);
         var behandling = lagre(scenario);
@@ -132,7 +132,7 @@ public class MedlemskapsvilkårTest {
      *
      */
     @Test
-    public void skal_vurdere_avklart_pliktig_medlem_som_vilkår_oppfylt() {
+    void skal_vurdere_avklart_pliktig_medlem_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_A, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM);
@@ -161,7 +161,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1025
      */
     @Test
-    public void skal_vurdere_utvandret_som_vilkår_ikke_oppfylt_ingen_relevant_arbeid_og_inntekt() {
+    void skal_vurdere_utvandret_som_vilkår_ikke_oppfylt_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, Landkoder.NOR, PersonstatusType.UTVA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
@@ -185,7 +185,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: oppfylt
      */
     @Test
-    public void skal_vurdere_utvandret_som_vilkår_oppfylt_når_relevant_arbeid_og_inntekt_finnes() {
+    void skal_vurdere_utvandret_som_vilkår_oppfylt_når_relevant_arbeid_og_inntekt_finnes() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, Landkoder.NOR, PersonstatusType.UTVA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
@@ -210,7 +210,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1025
      */
     @Test
-    public void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_relevant_arbeid_og_inntekt() {
+    void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_relevant_arbeid_og_inntekt() {
         // Arrange
         var landkode = Landkoder.POL;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, landkode, PersonstatusType.BOSA);
@@ -236,7 +236,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1025
      */
     @Test
-    public void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_ingen_relevant_arbeid_og_inntekt() {
+    void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
         var landkode = Landkoder.POL;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, landkode, PersonstatusType.BOSA);
@@ -263,7 +263,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: oppfylt
      */
     @Test
-    public void skal_vurdere_norsk_nordisk_statsborger_som_vilkår_oppfylt() {
+    void skal_vurdere_norsk_nordisk_statsborger_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.UDEFINERT, Landkoder.NOR, PersonstatusType.BOSA);
         leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.NOR);
@@ -290,7 +290,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: oppfylt
      */
     @Test
-    public void skal_vurdere_eøs_statsborger_med_oppholdsrett_som_vilkår_oppfylt() {
+    void skal_vurdere_eøs_statsborger_med_oppholdsrett_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
         leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.SWE);
@@ -317,7 +317,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1024
      */
     @Test
-    public void skal_vurdere_eøs_statsborger_uten_oppholdsrett_som_vilkår_ikke_oppfylt() {
+    void skal_vurdere_eøs_statsborger_uten_oppholdsrett_som_vilkår_ikke_oppfylt() {
         // Arrange
         var landkodeEOS = Landkoder.POL;
         var scenario = lagTestScenario(landkodeEOS, PersonstatusType.BOSA);
@@ -345,7 +345,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1023
      */
     @Test
-    public void skal_vurdere_annen_statsborger_uten_lovlig_opphold_som_vilkår_ikke_oppfylt() {
+    void skal_vurdere_annen_statsborger_uten_lovlig_opphold_som_vilkår_ikke_oppfylt() {
         // Arrange
         var land = Landkoder.ARG;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, land, PersonstatusType.BOSA);
@@ -374,7 +374,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: Ikke oppfylt, avslagsid 1023
      */
     @Test
-    public void skal_vurdere_annen_statsborger_med_oppholdstillatelse_som_vilkår_oppfylt() {
+    void skal_vurdere_annen_statsborger_med_oppholdstillatelse_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
         leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.ARG,
@@ -403,7 +403,7 @@ public class MedlemskapsvilkårTest {
      * Forventet: oppfylt
      */
     @Test
-    public void skal_vurdere_annen_statsborger_med_lovlig_opphold_som_vilkår_oppfylt() {
+    void skal_vurdere_annen_statsborger_med_lovlig_opphold_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
         leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.USA);
@@ -423,7 +423,7 @@ public class MedlemskapsvilkårTest {
      * (FP_VK_2.2.1) = NEI
      */
     @Test
-    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_utva_og_ingen_relevant_arbeid_og_inntekt() {
+    void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_utva_og_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
 
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_C, Landkoder.NOR, PersonstatusType.UTVA);
@@ -446,7 +446,7 @@ public class MedlemskapsvilkårTest {
      * (FP_VK_2.2.1) = JA
      */
     @Test
-    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_ureg_og_relevant_arbeid_og_inntekt_finnes() {
+    void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_ureg_og_relevant_arbeid_og_inntekt_finnes() {
         // Arrange
 
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_C, Landkoder.NOR, PersonstatusType.UREG);

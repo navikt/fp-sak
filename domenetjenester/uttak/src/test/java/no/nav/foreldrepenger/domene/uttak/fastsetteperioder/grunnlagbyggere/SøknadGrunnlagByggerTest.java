@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskont
 class SøknadGrunnlagByggerTest {
 
     @Test
-    public void byggerSøknadsperioder() {
+    void byggerSøknadsperioder() {
         var repositoryProvider = new UttakRepositoryStubProvider();
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var søknadGrunnlagBygger = new SøknadGrunnlagBygger(ytelsesFordelingRepository);

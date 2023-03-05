@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
+class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
     private EntityManager entityManager;
     private ØkonomioppdragRepository økonomioppdragRepository;
@@ -28,7 +28,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOgHenteOppdragskontroll() {
+    void lagreOgHenteOppdragskontroll() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
 
@@ -45,7 +45,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOgSøkeOppOppdragskontrollForPeriode() {
+    void lagreOgSøkeOppOppdragskontrollForPeriode() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var behandlingId = oppdrkontroll.getBehandlingId();
@@ -62,7 +62,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finnAlleOppdragUtenKvittering() {
+    void finnAlleOppdragUtenKvittering() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
@@ -76,7 +76,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void kastExceptionHvisFlereOppdragUtenKvitteringFinnes() {
+    void kastExceptionHvisFlereOppdragUtenKvitteringFinnes() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
@@ -91,7 +91,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void okHvisFlereOppdragFinnesMenKunEnnUtenKvittering() {
+    void okHvisFlereOppdragFinnesMenKunEnnUtenKvittering() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
@@ -112,7 +112,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOgSøkeOppOppdragskontrollForPeriodeUtenResultat() {
+    void lagreOgSøkeOppOppdragskontrollForPeriodeUtenResultat() {
         //Testene kjøres ikke mot tom db
         var førSize = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
             LocalDate.now().minusDays(1), KodeFagområde.REFUTG).size();
@@ -130,7 +130,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOppdrag110() {
+    void lagreOppdrag110() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
@@ -148,7 +148,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOppdragKvittering() {
+    void lagreOppdragKvittering() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdrag110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
@@ -172,7 +172,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void finnerAlleOppdragForSak() {
+    void finnerAlleOppdragForSak() {
         var saksnr = new Saksnummer("1234");
         var nyesteFagsystemId = 101L;
 
@@ -192,7 +192,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOppdragslinje150() {
+    void lagreOppdragslinje150() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
@@ -210,7 +210,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreRefusjonsinfo156() {
+    void lagreRefusjonsinfo156() {
         // Arrange
         var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);

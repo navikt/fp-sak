@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class OpptjeningsnøkkelTest {
+class OpptjeningsnøkkelTest {
 
     @Test
-    public void skal_gi_treff_når_både_arbeidsforholdId_og_orgnummer_er_like() {
+    void skal_gi_treff_når_både_arbeidsforholdId_og_orgnummer_er_like() {
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var orgnummer = "orgnummer";
         var nøkkel1 = new Opptjeningsnøkkel(arbeidsforholdId, orgnummer, null);
@@ -19,7 +19,7 @@ public class OpptjeningsnøkkelTest {
     }
 
     @Test
-    public void skal_ikke_treff_når_arbeidsforholdId_er_like_men_ikke_orgnummer() {
+    void skal_ikke_treff_når_arbeidsforholdId_er_like_men_ikke_orgnummer() {
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var orgnummer = "orgnummer";
         var orgnummer2 = "orgnummer2";
@@ -31,7 +31,7 @@ public class OpptjeningsnøkkelTest {
     }
 
     @Test
-    public void skal_gi_treff_når_arbeidsforholdId_er_null_på_en_av_nøklene_og_orgnummer_er_like() {
+    void skal_gi_treff_når_arbeidsforholdId_er_null_på_en_av_nøklene_og_orgnummer_er_like() {
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var orgnummer = "orgnummer";
         var nøkkel1 = new Opptjeningsnøkkel(null, orgnummer, null);
@@ -42,7 +42,7 @@ public class OpptjeningsnøkkelTest {
     }
 
     @Test
-    public void skal_gi_ikke_gi_treff_når_arbeidsforholdId_er_null_på_en_av_nøklene_og_orgnummer_er_ulike() {
+    void skal_gi_ikke_gi_treff_når_arbeidsforholdId_er_null_på_en_av_nøklene_og_orgnummer_er_ulike() {
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var orgnummer = "orgnummer";
         var orgnummer2 = "orgnummer2";
@@ -54,7 +54,7 @@ public class OpptjeningsnøkkelTest {
     }
 
     @Test
-    public void skal_gi_treff_når_aktør_id_er_like() {
+    void skal_gi_treff_når_aktør_id_er_like() {
         var aktørId = "123";
         var nøkkel1 = new Opptjeningsnøkkel(null, null, aktørId);
         var nøkkel2 = new Opptjeningsnøkkel(null, null, aktørId);
@@ -64,7 +64,7 @@ public class OpptjeningsnøkkelTest {
     }
 
     @Test
-    public void skal_ikke_gi_treff_når_aktør_id_er_ulike() {
+    void skal_ikke_gi_treff_når_aktør_id_er_ulike() {
         var aktørId = "123";
         var aktørId2 = "1234";
         var nøkkel1 = new Opptjeningsnøkkel(null, null, aktørId);

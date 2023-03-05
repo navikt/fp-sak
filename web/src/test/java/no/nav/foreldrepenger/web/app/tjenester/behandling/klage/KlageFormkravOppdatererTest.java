@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
 
 @ExtendWith(MockitoExtension.class)
-public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
+class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
     private static final UUID TILBAKEKREVING_BEHANDLING_UUID = UUID.randomUUID();
     private static final String TILBAKEKREVING_BEHANDLING_TYPE_NAVN = "Tilbakekreving";
@@ -82,7 +82,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_klage_aksjonspunkt_for_tilbakekreving_behandling() {
+    void skal_oppdatere_klage_aksjonspunkt_for_tilbakekreving_behandling() {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
                 TILBAKEKREVING_BEHANDLING_TYPE);
@@ -100,7 +100,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_klage_aksjonspunkt_til_tilbakekreving_behandling() {
+    void skal_oppdatere_klage_aksjonspunkt_til_tilbakekreving_behandling() {
         initKlage();
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(false, null);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(behandling,
@@ -145,7 +145,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_tilbakekreving_behandling() {
+    void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_tilbakekreving_behandling() {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
                 TILBAKEKREVING_BEHANDLING_TYPE);
@@ -197,7 +197,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_ingen_påklagd_vedtak() {
+    void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_ingen_påklagd_vedtak() {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
                 TILBAKEKREVING_BEHANDLING_TYPE);
@@ -240,7 +240,7 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_fpsak_behandling() {
+    void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_fpsak_behandling() {
         initKlage();
         var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
                 TILBAKEKREVING_BEHANDLING_TYPE);

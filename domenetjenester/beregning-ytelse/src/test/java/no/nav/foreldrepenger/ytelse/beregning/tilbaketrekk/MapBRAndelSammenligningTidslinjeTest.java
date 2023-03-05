@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 
-public class MapBRAndelSammenligningTidslinjeTest {
+class MapBRAndelSammenligningTidslinjeTest {
 
     private static final LocalDate STP = LocalDate.of(2019, 9, 1);
     private static final Arbeidsgiver AG1 = Arbeidsgiver.virksomhet("999999999");
@@ -28,7 +28,7 @@ public class MapBRAndelSammenligningTidslinjeTest {
     private static final InternArbeidsforholdRef REF2 = InternArbeidsforholdRef.nyRef();
 
     @Test
-    public void skal_teste_at_tidslinje_lages_korrekt_når_begge_resultat_er_like_og_ingenting_er_utbetalt() {
+    void skal_teste_at_tidslinje_lages_korrekt_når_begge_resultat_er_like_og_ingenting_er_utbetalt() {
         // Arrange
         var dagensdato = STP.minusDays(1);
         var periode = lagResultatMedPeriode(STP, STP.plusDays(15));
@@ -52,7 +52,7 @@ public class MapBRAndelSammenligningTidslinjeTest {
     }
 
     @Test
-    public void skal_teste_at_tidslinje_lages_korrekt_når_begge_resultat_er_like_og_noe_er_utbetalt() {
+    void skal_teste_at_tidslinje_lages_korrekt_når_begge_resultat_er_like_og_noe_er_utbetalt() {
         // Arrange
         var dagensdato = STP.plusDays(20);
         var periode = lagResultatMedPeriode(STP, STP.plusDays(15));
@@ -77,7 +77,7 @@ public class MapBRAndelSammenligningTidslinjeTest {
     }
 
     @Test
-    public void skal_teste_at_tidslinje_lages_korrekt_når_nytt_resultat_har_ekstra_andel_og_noe_er_utbetalt() {
+    void skal_teste_at_tidslinje_lages_korrekt_når_nytt_resultat_har_ekstra_andel_og_noe_er_utbetalt() {
         // Arrange
         var dagensdato = STP.plusDays(20);
 

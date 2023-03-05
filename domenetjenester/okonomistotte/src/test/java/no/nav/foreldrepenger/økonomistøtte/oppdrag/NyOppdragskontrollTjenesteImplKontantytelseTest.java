@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.OppdragskontrollTjenesteImpl;
 
-public class NyOppdragskontrollTjenesteImplKontantytelseTest {
+class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
     public static final long PROSESS_TASK_ID = 23L;
     public static final String BRUKER_FNR = "12345678901";
@@ -54,7 +54,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     @Test
-    public void opprettOppdragTestES() {
+    void opprettOppdragTestES() {
         // Arrange
         var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
@@ -71,7 +71,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     @Test
-    public void hentOppdragskontrollTestES() {
+    void hentOppdragskontrollTestES() {
         // Arrange
         // Arrange
         var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO.minusDays(1), SATS_ES);
@@ -95,7 +95,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     @Test
-    public void innvilgelseSomReferererTilTidligereOppdragPåSammeSak() {
+    void innvilgelseSomReferererTilTidligereOppdragPåSammeSak() {
         // Act 1: Førstegangsbehandling
         // Arrange
         var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
@@ -124,7 +124,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     @Test
-    public void avslagSomReferererTilTidligereOppdragPåSammeSak() {
+    void avslagSomReferererTilTidligereOppdragPåSammeSak() {
         // Act 1: Førstegangsbehandling
         // Arrange
         var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
@@ -151,7 +151,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     @Test
-    public void avslagSomReferererTilForrigeOppdragSomTilhørerFørsteRevurderingPåSammeSak() {
+    void avslagSomReferererTilForrigeOppdragSomTilhørerFørsteRevurderingPåSammeSak() {
         // Act 1: Førstegangsbehandling
         // Arrange
         var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO, SATS_ES);

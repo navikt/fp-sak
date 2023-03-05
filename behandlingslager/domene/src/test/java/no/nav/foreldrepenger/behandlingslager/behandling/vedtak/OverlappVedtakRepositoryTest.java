@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
-public class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
+class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
 
     private OverlappVedtakRepository overlappVedtakRepository;
 
@@ -27,7 +27,7 @@ public class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagre() {
+    void lagre() {
         // Arrange
         var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var periodeVL = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1),

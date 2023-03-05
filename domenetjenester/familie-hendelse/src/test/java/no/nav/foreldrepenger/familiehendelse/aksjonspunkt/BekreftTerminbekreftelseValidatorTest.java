@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 
-public class BekreftTerminbekreftelseValidatorTest {
+class BekreftTerminbekreftelseValidatorTest {
 
     private static Period tidlistUtstedelseAvTerminBekreftelse = Period.parse("P18W3D");
     private static BekreftTerminbekreftelseValidator validator;
@@ -21,7 +21,7 @@ public class BekreftTerminbekreftelseValidatorTest {
     }
 
     @Test
-    public void skal_ikke_validare_ok_når_utstedtdato_er_før_22_svangerskapsuke() {
+    void skal_ikke_validare_ok_når_utstedtdato_er_før_22_svangerskapsuke() {
         var utstedtdato = LocalDate.now().minusWeeks(18).minusDays(4);
         var termindato = LocalDate.now();
         var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
@@ -32,7 +32,7 @@ public class BekreftTerminbekreftelseValidatorTest {
     }
 
     @Test
-    public void skal_validare_ok_når_utstedtdato_er_10_uker_og_2_dager_før_termindato() {
+    void skal_validare_ok_når_utstedtdato_er_10_uker_og_2_dager_før_termindato() {
         var utstedtdato = LocalDate.now().minusWeeks(10).minusDays(2);
         var termindato = LocalDate.now();
         var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
@@ -44,7 +44,7 @@ public class BekreftTerminbekreftelseValidatorTest {
     }
 
     @Test
-    public void skal_validare_ok_når_utstedtdato_er_10_uker_og_1_dager_før_termindato() {
+    void skal_validare_ok_når_utstedtdato_er_10_uker_og_1_dager_før_termindato() {
         var utstedtdato = LocalDate.now().minusWeeks(10).minusDays(1);
         var termindato = LocalDate.now();
         var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,

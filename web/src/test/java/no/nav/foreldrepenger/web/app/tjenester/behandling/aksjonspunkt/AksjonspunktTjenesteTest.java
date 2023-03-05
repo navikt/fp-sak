@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekre
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
 
 @CdiDbAwareTest
-public class AksjonspunktTjenesteTest {
+class AksjonspunktTjenesteTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
     private static final LocalDate TERMINDATO = LocalDate.now().plusDays(40);
@@ -62,7 +62,7 @@ public class AksjonspunktTjenesteTest {
     }
 
     @Test
-    public void skal_sette_aksjonspunkt_til_utført_og_lagre_behandling() {
+    void skal_sette_aksjonspunkt_til_utført_og_lagre_behandling() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
         var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
@@ -80,7 +80,7 @@ public class AksjonspunktTjenesteTest {
     }
 
     @Test
-    public void skal_håndtere_aksjonspunkt_for_omsorgsvilkåret() {
+    void skal_håndtere_aksjonspunkt_for_omsorgsvilkåret() {
         var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         var behandling = scenario.lagre(repositoryProvider);
         var dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
@@ -98,7 +98,7 @@ public class AksjonspunktTjenesteTest {
     }
 
     @Test
-    public void skal_sette_ansvarlig_saksbehandler() {
+    void skal_sette_ansvarlig_saksbehandler() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
         var aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
@@ -116,7 +116,7 @@ public class AksjonspunktTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_sette_ansvarlig_saksbehandler_hvis_bekreftet_aksjonspunkt_er_fatter_vedtak() {
+    void skal_ikke_sette_ansvarlig_saksbehandler_hvis_bekreftet_aksjonspunkt_er_fatter_vedtak() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
         var aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
@@ -134,7 +134,7 @@ public class AksjonspunktTjenesteTest {
     }
 
     @Test
-    public void skal_sette_totrinn_når_revurdering_ap_medfører_endring_i_grunnlag() {
+    void skal_sette_totrinn_når_revurdering_ap_medfører_endring_i_grunnlag() {
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
@@ -152,7 +152,7 @@ public class AksjonspunktTjenesteTest {
     }
 
     @Test
-    public void skal_hoppe_til_uttak_ved_avslag_vilkår() {
+    void skal_hoppe_til_uttak_ved_avslag_vilkår() {
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);

@@ -22,10 +22,10 @@ import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class UtbetalingsgradBeregnerTest {
+class UtbetalingsgradBeregnerTest {
 
     @Test
-    public void skal_ikke_ignorere_perioder_i_aareg_som_ligger_mellom_jordmor_og_termindato() {
+    void skal_ikke_ignorere_perioder_i_aareg_som_ligger_mellom_jordmor_og_termindato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 28);
         var delvisTilrettelegging = LocalDate.of(2019, 7, 1);
@@ -74,7 +74,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_riktig_utbetalingsgrad_for_periodene() {
+    void skal_beregne_riktig_utbetalingsgrad_for_periodene() {
         // Arrange
         var jordmorsdato = LocalDate.now().minusDays(20);
         var helTilrettelegging = LocalDate.now().minusDays(20);
@@ -115,7 +115,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_riktig_utbetalingsgrad_når_det_finns_flere_delvise_perioder() {
+    void skal_beregne_riktig_utbetalingsgrad_når_det_finns_flere_delvise_perioder() {
         // Arrange
         var jordmorsdato = LocalDate.now().minusDays(20);
         var delvisTilrettelegging = LocalDate.now().minusDays(20);
@@ -161,7 +161,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_riktig_utbetalingsgrad_når_slutte_arbeid_er_oppgitt_i_søknad() {
+    void skal_beregne_riktig_utbetalingsgrad_når_slutte_arbeid_er_oppgitt_i_søknad() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var slutteArbeid = LocalDate.of(2019, 5, 15);
@@ -195,7 +195,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_riktig_utbetalingsgrad_når_delvis_til_rettelegging_er_oppgitt_i_søknad() {
+    void skal_beregne_riktig_utbetalingsgrad_når_delvis_til_rettelegging_er_oppgitt_i_søknad() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var delvisTilrettelegging = LocalDate.of(2019, 5, 15);
@@ -231,7 +231,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_riktig_utbetalingsgrad_når_delvis_til_rettelegging_er_oppgitt_i_søknad_fra_og_med_jordmorsdato() {
+    void skal_beregne_riktig_utbetalingsgrad_når_delvis_til_rettelegging_er_oppgitt_i_søknad_fra_og_med_jordmorsdato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var delvisTilrettelegging = LocalDate.of(2019, 5, 10);
@@ -265,7 +265,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_riktig_utbetalingsgrad_når_slutet_i_arbeid_er_oppgitt_i_søknad_fra_og_med_jordmorsdato() {
+    void skal_beregne_riktig_utbetalingsgrad_når_slutet_i_arbeid_er_oppgitt_i_søknad_fra_og_med_jordmorsdato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var sluttetIArbeid = LocalDate.of(2019, 5, 10);
@@ -299,7 +299,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_2_perioder_når_hel_tilrettelegging_og_sluttet_i_arbeid_er_oppgitt_i_søknad_og_hel_tilretteligging_er_fra_og_med_jordmorsdato() {
+    void skal_beregne_2_perioder_når_hel_tilrettelegging_og_sluttet_i_arbeid_er_oppgitt_i_søknad_og_hel_tilretteligging_er_fra_og_med_jordmorsdato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var sluttetIArbeid = LocalDate.of(2019, 5, 15);
@@ -336,7 +336,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_3_perioder_når_delvis_og_hel_tilrettelegging_er_oppgitt_i_søknad() {
+    void skal_beregne_3_perioder_når_delvis_og_hel_tilrettelegging_er_oppgitt_i_søknad() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var sluttetIArbeid = LocalDate.of(2019, 5, 12);
@@ -374,7 +374,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregn_3_perioder_hvis_hel_tilrettelegging_forekommer_noen_dager_etter_jordmorsdato() {
+    void skal_beregn_3_perioder_hvis_hel_tilrettelegging_forekommer_noen_dager_etter_jordmorsdato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var helTilrettelegging = LocalDate.of(2019, 5, 12);
@@ -414,7 +414,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_at_tilretteleggingen_er_satt_til_å_gjelde_før_jordsmorsdato() {
+    void skal_håndtere_at_tilretteleggingen_er_satt_til_å_gjelde_før_jordsmorsdato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var helTilrettelegging = LocalDate.of(2019, 5, 5);
@@ -450,7 +450,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_at_tilretteleggingen_er_satt_til_å_gjelde_etter_termin_minus_3_uker() {
+    void skal_håndtere_at_tilretteleggingen_er_satt_til_å_gjelde_etter_termin_minus_3_uker() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var helTilrettelegging = LocalDate.of(2019, 5, 25);
@@ -484,7 +484,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_at_søker_er_frilans() {
+    void skal_håndtere_at_søker_er_frilans() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var helTilrettelegging = LocalDate.of(2019, 5, 12);
@@ -518,7 +518,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_at_arbeidsforholdet_slutter_mitt_i_utbetalingsperioden() {
+    void skal_håndtere_at_arbeidsforholdet_slutter_mitt_i_utbetalingsperioden() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 10);
         var helTilrettelegging = LocalDate.of(2019, 5, 12);
@@ -558,7 +558,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_0_i_stillingsprosent() {
+    void skal_håndtere_0_i_stillingsprosent() {
         // Arrange
         var jordmorsdato = LocalDate.now().minusDays(20);
         var helTilrettelegging = LocalDate.now().minusDays(20);
@@ -599,7 +599,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_at_det_søkes_om_høyere_enn_opprinnelig_stillingsprosent() {
+    void skal_håndtere_at_det_søkes_om_høyere_enn_opprinnelig_stillingsprosent() {
         // Arrange
         var jordmorsdato = LocalDate.now().minusDays(20);
         var helTilrettelegging = LocalDate.now().minusDays(20);
@@ -643,7 +643,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_flere_0_i_stillingsprosent() {
+    void skal_håndtere_flere_0_i_stillingsprosent() {
         // Arrange
         var jordmorsdato = LocalDate.now().minusDays(20);
         var helTilrettelegging = LocalDate.now().minusDays(20);
@@ -688,7 +688,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void teste_3_aktivitetsavtaler_med_0_stillingsprosent() {
+    void teste_3_aktivitetsavtaler_med_0_stillingsprosent() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 9, 9);
         var slutteArbeid = LocalDate.of(2019, 9, 9);
@@ -731,7 +731,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_2_arbeidsforhold_i_samme_bedrift_der_det_ene_arbeidsforholdet_har_null_i_stillingsprosent() {
+    void skal_håndtere_2_arbeidsforhold_i_samme_bedrift_der_det_ene_arbeidsforholdet_har_null_i_stillingsprosent() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 12);
         var slutteArbeid = LocalDate.of(2019, 5, 12);
@@ -767,7 +767,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_håndtere_arbeidsforhold_som_starter_etter_jordmordsdato() {
+    void skal_håndtere_arbeidsforhold_som_starter_etter_jordmordsdato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 23);
         var delvisTilrettelegging = LocalDate.of(2019, 8, 1);
@@ -804,7 +804,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_teste_at_irrelevante_perioder_ignoreres_og_at_desimaltall_i_stillingsprosent_går_bra() {
+    void skal_teste_at_irrelevante_perioder_ignoreres_og_at_desimaltall_i_stillingsprosent_går_bra() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 11, 15);
         var ingenTilrettelegging = LocalDate.of(2019, 11, 15);
@@ -850,7 +850,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_bruke_overstyrt_utbetalingsgrad_i_delvis_tilrettelegging() {
+    void skal_bruke_overstyrt_utbetalingsgrad_i_delvis_tilrettelegging() {
         // Arrange
         var terminDato = LocalDate.of(2019, 7, 1);
         var jordmorsdato = LocalDate.of(2019, 5, 28);
@@ -891,7 +891,7 @@ public class UtbetalingsgradBeregnerTest {
      * Privat arbeidsgiver uten stillingsprosent i aareg
      */
     @Test
-    public void skal_sette_full_utbetalingsgrad_for_ingen_tilrettelegging_når_stillingsprosent_ikke_er_satt() {
+    void skal_sette_full_utbetalingsgrad_for_ingen_tilrettelegging_når_stillingsprosent_ikke_er_satt() {
         // Arrange
         var terminDato = LocalDate.of(2020, 10, 1);
         var jordmorsdato = LocalDate.of(2020, 2, 3);
@@ -926,7 +926,7 @@ public class UtbetalingsgradBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_riktig_utbetalingsgrad_for_periode_med_velferdspermisjon() {
+    void skal_beregne_riktig_utbetalingsgrad_for_periode_med_velferdspermisjon() {
         // Arrange
         var jordmorsdato = LocalDate.now().minusDays(20);
         var helTilrettelegging = LocalDate.now().minusDays(20);

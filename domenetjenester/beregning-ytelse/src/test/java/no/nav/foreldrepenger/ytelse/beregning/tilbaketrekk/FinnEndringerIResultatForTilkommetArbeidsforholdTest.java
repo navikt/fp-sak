@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
+class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusMonths(1);
     public static final String ORGNR1 = KUNSTIG_ORG + "1";
@@ -63,7 +63,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     }
 
     @Test
-    public void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_to_arbeidsforhold() {
+    void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_to_arbeidsforhold() {
         // Arrange
         var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
@@ -98,7 +98,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     }
 
     @Test
-    public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_avsluttede_og_en_tilkommet_refusjon_mindre_enn_tilbaketrekk() {
+    void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_avsluttede_og_en_tilkommet_refusjon_mindre_enn_tilbaketrekk() {
         // Arrange
         var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
@@ -139,7 +139,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     }
 
     @Test
-    public void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_tre_avsluttede_og_en_tilkommet_tilbaketrekk_mindre_enn_refusjon() {
+    void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_tre_avsluttede_og_en_tilkommet_tilbaketrekk_mindre_enn_refusjon() {
         // Arrange
         var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
@@ -196,7 +196,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     }
 
     @Test
-    public void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_tre_avsluttede_og_tre_tilkommet_men_kun_deler_av_settet_er_med_i_fordeling() {
+    void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_tre_avsluttede_og_tre_tilkommet_men_kun_deler_av_settet_er_med_i_fordeling() {
         // Arrange
         var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(16)), ARBEIDSGIVER1);

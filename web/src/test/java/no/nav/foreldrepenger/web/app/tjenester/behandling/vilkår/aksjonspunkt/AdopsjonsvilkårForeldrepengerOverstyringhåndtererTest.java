@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Aksjonspu
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.fp.OverstyringAdopsjonsvilkåretDto;
 
 @CdiDbAwareTest
-public class AdopsjonsvilkårForeldrepengerOverstyringhåndtererTest {
+class AdopsjonsvilkårForeldrepengerOverstyringhåndtererTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -35,7 +35,7 @@ public class AdopsjonsvilkårForeldrepengerOverstyringhåndtererTest {
     private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Test
-    public void skal_opprette_aksjonspunkt_for_overstyring() {
+    void skal_opprette_aksjonspunkt_for_overstyring() {
         // Arrange
         // Behandling
         var oppgittPeriode = OppgittPeriodeBuilder.ny()

@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
 @ExtendWith(MockitoExtension.class)
-public class DokumentRestTjenesteTest {
+class DokumentRestTjenesteTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
     @Mock
@@ -68,14 +68,14 @@ public class DokumentRestTjenesteTest {
     }
 
     @Test
-    public void skal_gi_tom_liste_ved_ikkeeksisterende_saksnummer() {
+    void skal_gi_tom_liste_ved_ikkeeksisterende_saksnummer() {
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.empty());
         final var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
         assertThat(response).isEmpty();
     }
 
     @Test
-    public void skal_returnere_to_dokument() {
+    void skal_returnere_to_dokument() {
         Long fagsakId = 5L;
         Long behandlingId = 150L;
         var aktørId = AktørId.dummy();

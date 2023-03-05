@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 
-public class KodeverkRestTjenesteTest {
+class KodeverkRestTjenesteTest {
 
     private HentKodeverkTjeneste hentKodeverkTjeneste;
 
@@ -31,7 +31,7 @@ public class KodeverkRestTjenesteTest {
     }
 
     @Test
-    public void skal_hente_kodeverk_og_gruppere_på_kodeverknavn() throws IOException {
+    void skal_hente_kodeverk_og_gruppere_på_kodeverknavn() throws IOException {
 
         var tjeneste = new KodeverkRestTjeneste(hentKodeverkTjeneste);
         var response = tjeneste.hentGruppertKodeliste();
@@ -63,7 +63,7 @@ public class KodeverkRestTjenesteTest {
     }
 
     @Test
-    public void serialize_kodeverdi_enums() throws Exception {
+    void serialize_kodeverdi_enums() throws Exception {
         var jsonConfig = new JacksonJsonConfig();
 
         var om = jsonConfig.getObjectMapper();
@@ -74,7 +74,7 @@ public class KodeverkRestTjenesteTest {
     }
 
     @Test
-    public void serialize_kodeverdi_uttak() throws Exception {
+    void serialize_kodeverdi_uttak() throws Exception {
 
         var jsonConfig = new JacksonJsonConfig();
 
@@ -86,7 +86,7 @@ public class KodeverkRestTjenesteTest {
     }
 
     @Test
-    public void serialize_kodeverdi_uttak_full() throws Exception {
+    void serialize_kodeverdi_uttak_full() throws Exception {
 
         var jsonConfig = new JacksonJsonConfig(true);
 

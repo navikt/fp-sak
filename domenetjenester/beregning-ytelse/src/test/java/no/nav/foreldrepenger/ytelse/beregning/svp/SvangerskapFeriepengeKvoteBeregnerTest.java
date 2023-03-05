@@ -22,7 +22,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     private final SvangerskapFeriepengeKvoteBeregner beregner = new SvangerskapFeriepengeKvoteBeregner(64);
 
     @Test
-    public void skal_beregne_maks_kvote_når_ingen_dager_brukt() {
+    void skal_beregne_maks_kvote_når_ingen_dager_brukt() {
         // Arrange
         BeregningsresultatEntitet bgr = lagBgr();
         lagTYPeriode(dagerEtter(0), dagerEtter(64), bgr, true);
@@ -36,7 +36,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_beregne_maks_kvote_når_tidligere_ty_ikke_har_feriepenger() {
+    void skal_beregne_maks_kvote_når_tidligere_ty_ikke_har_feriepenger() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse = lagBgr();
@@ -53,7 +53,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_ikke_trekke_fra_kvoter_på_ytelse_som_starter_etter_den_som_nå_beregnes() {
+    void skal_ikke_trekke_fra_kvoter_på_ytelse_som_starter_etter_den_som_nå_beregnes() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse = lagBgr();
@@ -71,7 +71,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_trekke_fra_kvote_når_en_ytelse_er_tidligere_innvilget() {
+    void skal_trekke_fra_kvote_når_en_ytelse_er_tidligere_innvilget() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse = lagBgr();
@@ -89,7 +89,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_trekke_fra_kvote_når_to_ytelser_er_tidligere_innvilget() {
+    void skal_trekke_fra_kvote_når_to_ytelser_er_tidligere_innvilget() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
@@ -110,7 +110,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_trekke_fra_kvote_når_tre_ytelser_er_tidligere_innvilget() {
+    void skal_trekke_fra_kvote_når_tre_ytelser_er_tidligere_innvilget() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
@@ -134,7 +134,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_ikke_beregne_når_det_ikke_er_grunnlag_for_feriepenger_på_ny_behandling() {
+    void skal_ikke_beregne_når_det_ikke_er_grunnlag_for_feriepenger_på_ny_behandling() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
@@ -151,7 +151,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_kun_trekke_fra_periode_før_ny_beregnet_ytelse() {
+    void skal_kun_trekke_fra_periode_før_ny_beregnet_ytelse() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
@@ -175,7 +175,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     }
 
     @Test
-    public void skal_trekke_fra_kvote_når_en_ytelse_er_tidligere_innvilget_delt_periode() {
+    void skal_trekke_fra_kvote_når_en_ytelse_er_tidligere_innvilget_delt_periode() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse = lagBgr();
@@ -198,7 +198,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
      * Beregning av en tredje ytelse bør gi feil siden kvoten allerede er oppbrukt på tidligere saker
      */
     @Test
-    public void skal_kaste_feil_om_feriekvote_overskrider_tillatt_sum_i_tidligere_behandlinger() {
+    void skal_kaste_feil_om_feriekvote_overskrider_tillatt_sum_i_tidligere_behandlinger() {
         // Arrange
         BeregningsresultatEntitet nyYtelse = lagBgr();
         BeregningsresultatEntitet tidligereYtelse1 = lagBgr();

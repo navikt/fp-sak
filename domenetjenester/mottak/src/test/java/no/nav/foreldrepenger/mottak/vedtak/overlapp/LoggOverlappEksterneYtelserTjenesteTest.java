@@ -54,7 +54,7 @@ import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
 
 @ExtendWith(MockitoExtension.class)
 @Execution(ExecutionMode.SAME_THREAD)
-public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
+class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoggOverlappEksterneYtelserTjenesteTest.class);
     private LoggOverlappEksterneYtelserTjeneste overlappendeInfotrygdYtelseTjeneste;
@@ -104,7 +104,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     // CASE 1:
     // Løpende ytelse: Ja, infotrygd ytelse opphører samme dag som FP
     @Test
-    public void overlapp_når_Fp_starter_samme_dag_som_IT_opphører() {
+    void overlapp_når_Fp_starter_samme_dag_som_IT_opphører() {
         LOG.info("1");
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
@@ -128,7 +128,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void overlapp_gradert_opphører() {
+    void overlapp_gradert_opphører() {
         LOG.info("2");
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
@@ -170,7 +170,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void flereOverlappIlisten() {
+    void flereOverlappIlisten() {
         LOG.info("3");
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
@@ -207,7 +207,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void flereGrunnlagMenEttOverlappIlisten() {
+    void flereGrunnlagMenEttOverlappIlisten() {
         LOG.info("4");
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
@@ -242,7 +242,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void ingenOverlapp() {
+    void ingenOverlapp() {
         LOG.info("5");
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
@@ -267,7 +267,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     }
 
     @Test
-    public void ingenGrunnlag() {
+    void ingenGrunnlag() {
         LOG.info("6");
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());

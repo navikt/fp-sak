@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 
-public class IAYRequestCacheTest {
+class IAYRequestCacheTest {
 
     @Test
-    public void skal_levere_ut_siste_grunnlag_ref() throws InterruptedException {
+    void skal_levere_ut_siste_grunnlag_ref() throws InterruptedException {
 
         var cache = new IAYRequestCache();
 

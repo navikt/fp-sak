@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class RelatertBehandlingTjenesteTest {
+class RelatertBehandlingTjenesteTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private EntityManager em;
@@ -49,7 +49,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void finnesIngenRelatertFagsakReturnererOptionalEmpty() {
+    void finnesIngenRelatertFagsakReturnererOptionalEmpty() {
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         var annenPartsGjeldendeVedtattBehandling = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
@@ -59,7 +59,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void finnesIngenRelatertVedtattBehandlingReturnererOptionalEmpty() {
+    void finnesIngenRelatertVedtattBehandlingReturnererOptionalEmpty() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var morsBehandling = scenario.lagre(repositoryProvider);
 
@@ -74,7 +74,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void finnesRelatertBehandlingSomErAvslått() {
+    void finnesRelatertBehandlingSomErAvslått() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
@@ -98,7 +98,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void finnerRelatertBehandling() {
+    void finnerRelatertBehandling() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
@@ -122,7 +122,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_gjeldende_behandling_fra_annenpart_ved_flere_annenpart_behandlinger_med_vedtak() {
+    void skal_finne_gjeldende_behandling_fra_annenpart_ved_flere_annenpart_behandlinger_med_vedtak() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
@@ -159,7 +159,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_behandling_for_annenpart_på_søkers_vedtakstidspunkt_ved_flere_annenpart_behandlinger() {
+    void skal_finne_behandling_for_annenpart_på_søkers_vedtakstidspunkt_ved_flere_annenpart_behandlinger() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))
@@ -200,7 +200,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_gjeldende_behandling_fra_annenpart_ved_flere_annenpart_behandlinger_med_vedtak_på_samme_dato() {
+    void skal_finne_gjeldende_behandling_fra_annenpart_ved_flere_annenpart_behandlinger_med_vedtak_på_samme_dato() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 2), LocalTime.MIDNIGHT))
@@ -237,7 +237,7 @@ public class RelatertBehandlingTjenesteTest {
     }
 
     @Test
-    public void skal_finne_gjeldende_behandling_fra_annenpart_på_søkers_vedtakstidspunkt_ved_flere_annenpart_behandlinger_med_vedtak_på_samme_dato() {
+    void skal_finne_gjeldende_behandling_fra_annenpart_på_søkers_vedtakstidspunkt_ved_flere_annenpart_behandlinger_med_vedtak_på_samme_dato() {
         var morFørstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morFørstegangScenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.of(LocalDate.of(2019, 8, 1), LocalTime.MIDNIGHT))

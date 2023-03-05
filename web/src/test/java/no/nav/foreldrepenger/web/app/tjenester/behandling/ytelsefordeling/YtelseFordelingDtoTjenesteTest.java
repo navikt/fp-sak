@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaT
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
 
-public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
+class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
@@ -61,7 +61,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void teste_lag_ytelsefordeling_dto() {
+    void teste_lag_ytelsefordeling_dto() {
         var behandling = opprettBehandling();
         var dto = new AvklarAleneomsorgVurderingDto("begrunnelse");
         dto.setAleneomsorg(true);
@@ -76,7 +76,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void teste_lag_ytelsefordeling_dto_med_annenforelder_har_rett_perioder() {
+    void teste_lag_ytelsefordeling_dto_med_annenforelder_har_rett_perioder() {
         var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
@@ -96,7 +96,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void teste_lag_register_uføretrygd_ytelsefordeling_dto() {
+    void teste_lag_register_uføretrygd_ytelsefordeling_dto() {
         var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
@@ -116,7 +116,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void teste_lag_uavklart_register_uføretrygd_ytelsefordeling_dto() {
+    void teste_lag_uavklart_register_uføretrygd_ytelsefordeling_dto() {
         var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
@@ -136,7 +136,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void teste_lag_uavklart_register_uføretrygd_ytelsefordeling_tidligere_avklart_dto() {
+    void teste_lag_uavklart_register_uføretrygd_ytelsefordeling_tidligere_avklart_dto() {
         var behandling = opprettBehandling();
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null, true);

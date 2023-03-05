@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
+class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
 
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
@@ -25,7 +25,7 @@ public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void ikke_lagre_duplikate_aktive_hvis_ingen_endring() {
+    void ikke_lagre_duplikate_aktive_hvis_ingen_endring() {
         var behandlingsresultat = lagBehandlingMedResultat();
         var uttaksperiodegrense1 = new Uttaksperiodegrense(LocalDate.now());
         var uttaksperiodegrense2 = new Uttaksperiodegrense(uttaksperiodegrense1.getMottattDato());

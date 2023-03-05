@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
-public class RegisterdataOppdatererTaskTest {
+class RegisterdataOppdatererTaskTest {
 
     private RegisterdataOppdatererTask task; // objektet vi tester
 
@@ -55,7 +55,7 @@ public class RegisterdataOppdatererTaskTest {
 
 
     @Test
-    public void skal_gjenoppta_behandling_bytteenhet() {
+    void skal_gjenoppta_behandling_bytteenhet() {
         final Long behandlingId = 10L;
 
         var enhet = new OrganisasjonsEnhet("2103", "NAV Viken");
@@ -83,7 +83,7 @@ public class RegisterdataOppdatererTaskTest {
     }
 
     @Test
-    public void skal_gjenoppta_behandling_medPayload() {
+    void skal_gjenoppta_behandling_medPayload() {
         final Long behandlingId = 10L;
 
         var enhet = new OrganisasjonsEnhet("2103", "NAV Viken");

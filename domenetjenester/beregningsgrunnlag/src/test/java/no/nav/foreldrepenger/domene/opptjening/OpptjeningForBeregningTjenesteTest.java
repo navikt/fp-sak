@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningsperioderUtenOverstyringTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class OpptjeningForBeregningTjenesteTest {
+class OpptjeningForBeregningTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_OPPTJENING = LocalDate.of(2018, 12, 12);
 
@@ -52,14 +52,14 @@ public class OpptjeningForBeregningTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_empty() {
+    void skal_returnere_empty() {
         var relevante = opptjeningForBeregningTjeneste.hentRelevanteOpptjeningsaktiviteterForBeregning(
             behandlingReferanse, null);
         assertThat(relevante).isEmpty();
     }
 
     @Test
-    public void skal_ikkje_filtrere_ut_frilanser_om_oppgitt_i_søknaden() {
+    void skal_ikkje_filtrere_ut_frilanser_om_oppgitt_i_søknaden() {
         // Arrange
         var oppgittOpptjeningBuilder = lagFrilansOppgittOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
             SKJÆRINGSTIDSPUNKT_OPPTJENING.minusDays(1));
@@ -76,7 +76,7 @@ public class OpptjeningForBeregningTjenesteTest {
     }
 
     @Test
-    public void skal_filtrere_ut_frilanser_om_ikkje_oppgitt_i_søknaden() {
+    void skal_filtrere_ut_frilanser_om_ikkje_oppgitt_i_søknaden() {
         // Arrange
         leggTilFrilansOpptjeningsperiode();
 
@@ -89,7 +89,7 @@ public class OpptjeningForBeregningTjenesteTest {
     }
 
     @Test
-    public void skal_ikkje_filtrere_ut_andre_aktiviteter_enn_frilans_om_frilans_ikkje_oppgitt_i_søknaden() {
+    void skal_ikkje_filtrere_ut_andre_aktiviteter_enn_frilans_om_frilans_ikkje_oppgitt_i_søknaden() {
         // Arrange
         leggTilFrilansOpptjeningsperiode();
         leggTilArbeidOpptjeningsperiode();
@@ -104,7 +104,7 @@ public class OpptjeningForBeregningTjenesteTest {
     }
 
     @Test
-    public void skal_filtrere_ut_utenlandskArbeid() {
+    void skal_filtrere_ut_utenlandskArbeid() {
         // Arrange
         leggTilUtenlandsArbeidOpptjeningsperiode();
 
@@ -117,7 +117,7 @@ public class OpptjeningForBeregningTjenesteTest {
     }
 
     @Test
-    public void skal_filtrere_ut_videre_etterutdanning() {
+    void skal_filtrere_ut_videre_etterutdanning() {
         // Arrange
         leggTilVidereEtterutdanningOpptjeningsperiode();
 

@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktTjeneste;
 
 @CdiDbAwareTest
-public class UtlandssakManuellOverstyringTest {
+class UtlandssakManuellOverstyringTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -33,7 +33,7 @@ public class UtlandssakManuellOverstyringTest {
     private AksjonspunktTjeneste applikasjonstjeneste;
 
     @Test
-    public void spesial_tilfelle_utland_markering() {
+    void spesial_tilfelle_utland_markering() {
         // Arrange trinn 1: Behandle søknad om fødsel hvor barn ikke er registrert i TPS
         var fødselsdato = LocalDate.now().minusDays(15); // > 14 dager for å unngå ApDef.VENT_PÅ_FØDSEL
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

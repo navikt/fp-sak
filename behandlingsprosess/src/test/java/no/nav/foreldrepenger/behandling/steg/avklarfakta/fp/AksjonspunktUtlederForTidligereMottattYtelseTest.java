@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.YtelserSammeBarnTjeneste;
 
-public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwareTest {
+class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwareTest {
 
     private static final LocalDate FØDSELSDATO = LocalDate.now();
     private static final LocalDate TERMINDATO = LocalDate.now();
@@ -42,7 +42,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_søker_ikke_har_mottatt_foreldrepenger_før() {
+    void skal_ikke_opprette_aksjonspunkt_om_søker_ikke_har_mottatt_foreldrepenger_før() {
         // Arrange
         var aktørId = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -61,7 +61,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_søker_mottatt_foreldrepenger_for_eldre_barn() {
+    void skal_ikke_opprette_aksjonspunkt_om_søker_mottatt_foreldrepenger_for_eldre_barn() {
         // Arrange
         var aktørId = AktørId.dummy();
         var scenarioEldre = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -78,7 +78,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_søker_mottatt_svangerskapspenger_samme_barn() {
+    void skal_ikke_opprette_aksjonspunkt_om_søker_mottatt_svangerskapspenger_samme_barn() {
         // Arrange
         var aktørId = AktørId.dummy();
         var scenarioSVP = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
@@ -95,7 +95,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_soker_har_es_sak_under_behandling() {
+    void skal_opprette_aksjonspunkt_om_soker_har_es_sak_under_behandling() {
         // Arrange
         var aktørId = AktørId.dummy();
 

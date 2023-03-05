@@ -8,10 +8,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 
-public class UtledVedtakResultatTypeTest {
+class UtledVedtakResultatTypeTest {
 
     @Test
-    public void vedtakResultatTypeSettesTilVEDTAK_I_KLAGEBEHANDLING() {
+    void vedtakResultatTypeSettesTilVEDTAK_I_KLAGEBEHANDLING() {
         // Act
         var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.KLAGE, BehandlingResultatType.KLAGE_MEDHOLD);
 
@@ -20,7 +20,7 @@ public class UtledVedtakResultatTypeTest {
     }
 
     @Test
-    public void vedtakResultatTypeSettesTilVEDTAK_I_ANKEBEHANDLING() {
+    void vedtakResultatTypeSettesTilVEDTAK_I_ANKEBEHANDLING() {
         // Act
         var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.ANKE, BehandlingResultatType.ANKE_MEDHOLD);
 
@@ -29,7 +29,7 @@ public class UtledVedtakResultatTypeTest {
     }
 
     @Test
-    public void vedtakResultatTypeSettesTilVEDTAK_I_INNSYNBEHANDLING() {
+    void vedtakResultatTypeSettesTilVEDTAK_I_INNSYNBEHANDLING() {
         // Act
         var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.INNSYN, BehandlingResultatType.INNSYN_INNVILGET);
 
@@ -38,7 +38,7 @@ public class UtledVedtakResultatTypeTest {
     }
 
     @Test
-    public void vedtakResultatTypeSettesTilAVSLAG() {
+    void vedtakResultatTypeSettesTilAVSLAG() {
         // Act
         var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT);
 
@@ -47,7 +47,7 @@ public class UtledVedtakResultatTypeTest {
     }
 
     @Test
-    public void vedtakResultatTypeSettesTilINNVILGETForInnvilget() {
+    void vedtakResultatTypeSettesTilINNVILGETForInnvilget() {
         // Act
         var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET);
 
@@ -56,7 +56,7 @@ public class UtledVedtakResultatTypeTest {
     }
 
     @Test
-    public void vedtakResultatTypeSettesTilINNVILGETForForeldrepengerEndret() {
+    void vedtakResultatTypeSettesTilINNVILGETForForeldrepengerEndret() {
         // Act
         var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD,
                 BehandlingResultatType.FORELDREPENGER_ENDRET);

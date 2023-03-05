@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersi
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
+class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
 
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("2");
     private static final DokumentTypeId DOKUMENTTYPE = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
@@ -75,7 +75,7 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() throws Exception {
+    void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() throws Exception {
         // Arrange
         final var xml = new FileToStringUtil().readFile(PAYLOAD_XML);
         var fagsak = opprettFagsak();
@@ -104,7 +104,7 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kalle_OpprettFraTidligereBehandling_med_argumenter_fra_ProsessTask() {
+    void skal_kalle_OpprettFraTidligereBehandling_med_argumenter_fra_ProsessTask() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandlingId = opprettBehandling(fagsak);

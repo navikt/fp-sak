@@ -13,12 +13,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 
-public class HistorikkInnslagKonverterTest {
+class HistorikkInnslagKonverterTest {
 
     private static final URI DUMMY = URI.create("http://dummy/dummy");
 
     @Test
-    public void skalSetteDokumentLinksSomUtgåttHvisTomListeAvArkivJournalPost() {
+    void skalSetteDokumentLinksSomUtgåttHvisTomListeAvArkivJournalPost() {
         var lenke = new HistorikkinnslagDokumentLink();
         var journalpostId = new JournalpostId(1L);
         lenke.setJournalpostId(journalpostId);
@@ -30,7 +30,7 @@ public class HistorikkInnslagKonverterTest {
     }
 
     @Test
-    public void skalSetteDokumentLinksSomUtgåttHvisIkkeFinnesMatchendeArkivJournalPost() {
+    void skalSetteDokumentLinksSomUtgåttHvisIkkeFinnesMatchendeArkivJournalPost() {
         var lenke = new HistorikkinnslagDokumentLink();
         var journalpostId = new JournalpostId(1L);
         lenke.setJournalpostId(journalpostId);
@@ -42,7 +42,7 @@ public class HistorikkInnslagKonverterTest {
     }
 
     @Test
-    public void skalSetteDokumentLinksSomIkkeUtgåttHvisFinnesMatchendeArkivJournalPost() {
+    void skalSetteDokumentLinksSomIkkeUtgåttHvisFinnesMatchendeArkivJournalPost() {
 
         var lenke = new HistorikkinnslagDokumentLink();
         var journalpostId = new JournalpostId(1L);

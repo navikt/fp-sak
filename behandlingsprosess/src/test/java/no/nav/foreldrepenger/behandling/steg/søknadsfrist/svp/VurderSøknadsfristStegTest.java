@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
-public class VurderSøknadsfristStegTest {
+class VurderSøknadsfristStegTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -60,7 +60,7 @@ public class VurderSøknadsfristStegTest {
     }
 
     @Test
-    public void ingen_aksjonspunkt_når_søkt_i_tide(EntityManager em) {
+    void ingen_aksjonspunkt_når_søkt_i_tide(EntityManager em) {
         var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
         var tidligstMottattDato = behovFraDato;
         var mottatdato = behovFraDato;
@@ -93,7 +93,7 @@ public class VurderSøknadsfristStegTest {
     }
 
     @Test
-    public void aksjonspunkt_når_søkt_for_sent(EntityManager em) {
+    void aksjonspunkt_når_søkt_for_sent(EntityManager em) {
         var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
         var søknadMotattt = LocalDate.of(2019, Month.NOVEMBER, 3);
         var tidligstMottatt = LocalDate.of(2019, Month.SEPTEMBER, 3);;
@@ -128,7 +128,7 @@ public class VurderSøknadsfristStegTest {
     }
 
     @Test
-    public void ingen_aksjonspunkt_revurdering_søkt_i_tide(EntityManager em) {
+    void ingen_aksjonspunkt_revurdering_søkt_i_tide(EntityManager em) {
         var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
         var mottatdato = jordsmorsdato;
         var termindato = LocalDate.of(2019, Month.DECEMBER, 1);

@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
  * aksesseres gjennom native sql), men p.t. høyst sannsynlig ikke. Bør
  * gjennomgås jevnlig for å luke manglende contract av db skjema.
  */
-public class RapporterUnmappedKolonnerIDatabaseTest {
+class RapporterUnmappedKolonnerIDatabaseTest {
     private static final Logger LOG = LoggerFactory.getLogger(RapporterUnmappedKolonnerIDatabaseTest.class);
 
     private static EntityManagerFactory entityManagerFactory;
@@ -97,7 +97,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     @Test
-    public void sjekk_unmapped() throws Exception {
+    void sjekk_unmapped() throws Exception {
         sjekk_alle_tabeller_mappet();
         sjekk_alle_kolonner_mappet();
     }

@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.VLException;
 
-public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
+class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonRepository relasjonRepository;
@@ -33,7 +33,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_kunne_kobles_med_seg_selv() {
+    void skal_ikke_kunne_kobles_med_seg_selv() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
@@ -41,7 +41,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_kunne_kobles_med_fagsak_med_identisk_aktørid() {
+    void skal_ikke_kunne_kobles_med_fagsak_med_identisk_aktørid() {
         final var bruker = NavBruker.opprettNyNB(AktørId.dummy());
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
         fagsakRepository.opprettNy(fagsak);
@@ -53,7 +53,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_kunne_kobles_med_fagsak_med_ulik_ytelse() {
+    void skal_ikke_kunne_kobles_med_fagsak_med_ulik_ytelse() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
@@ -64,7 +64,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_koble_sammen_fagsak_med_lik_ytelse_type_og_ulik_aktør() {
+    void skal_koble_sammen_fagsak_med_lik_ytelse_type_og_ulik_aktør() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
@@ -81,7 +81,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lage_relasjon_når_mangler() {
+    void skal_lage_relasjon_når_mangler() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._100);
@@ -92,7 +92,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_relasjon_når_1gang() {
+    void skal_oppdatere_relasjon_når_1gang() {
 
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
@@ -114,7 +114,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_overstyre_dekningsgrad_eier_av_relasjon(){
+    void skal_overstyre_dekningsgrad_eier_av_relasjon(){
         // Arrange
         final var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
@@ -139,7 +139,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_overstyre_dekningsgrad_ikke_eier_av_relasjon(){
+    void skal_overstyre_dekningsgrad_ikke_eier_av_relasjon(){
         // Arrange
         final var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
@@ -164,7 +164,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_relasjon_med_saksnummer(){
+    void skal_finne_relasjon_med_saksnummer(){
         // Arrange
         var saksnummer = new Saksnummer("1337");
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA, saksnummer);
@@ -180,7 +180,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_oppdatere_med_avslutningsdato(){
+    void skal_oppdatere_med_avslutningsdato(){
         // Arrange
         final var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));

@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.ReferanseType;
 
-public class MapUttakResultatFraVLTilRegelTest {
+class MapUttakResultatFraVLTilRegelTest {
 
     private static final int STILLING_70 = 70;
     private static final String ORGNR = "000000000";
@@ -56,7 +56,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     @Test
-    public void skalMappeUttakResultatPlanMedEnkeltArbeidsforholdOgEnkelPeriode() {
+    void skalMappeUttakResultatPlanMedEnkeltArbeidsforholdOgEnkelPeriode() {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
@@ -82,7 +82,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     @Test
-    public void skalMappeUttakResultatPlanMedSNOgEnkelPeriode() {
+    void skalMappeUttakResultatPlanMedSNOgEnkelPeriode() {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
@@ -106,7 +106,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     @Test
-    public void skalMappeUttakResultatPlanMedEnkeltArbeidsforholdOgFlerePerioder() {
+    void skalMappeUttakResultatPlanMedEnkeltArbeidsforholdOgFlerePerioder() {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
@@ -139,7 +139,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     @Test
-    public void skalMappeUttakResultatPlanMedFlereArbeidsforholdOgOverlappendePerioder() {
+    void skalMappeUttakResultatPlanMedFlereArbeidsforholdOgOverlappendePerioder() {
         // Arrange
 
         // Arbeidsforhold 1

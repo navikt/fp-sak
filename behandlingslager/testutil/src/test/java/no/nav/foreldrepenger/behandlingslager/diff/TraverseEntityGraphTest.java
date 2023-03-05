@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKi
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
-public class TraverseEntityGraphTest {
+class TraverseEntityGraphTest {
 
     @Test
-    public void skal_traverse_entity_graph() {
+    void skal_traverse_entity_graph() {
         var scenario = lagTestScenario();
 
         var behandling = scenario.lagMocked();
@@ -37,7 +37,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_ikke_ha_diff_for_seg_selv() {
+    void skal_ikke_ha_diff_for_seg_selv() {
 
         final var scenario = lagTestScenario();
         var target = scenario.lagMocked();
@@ -50,7 +50,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_sammenligne_Lists_med_forskjellig_rekkefølge() {
+    void skal_sammenligne_Lists_med_forskjellig_rekkefølge() {
 
         var differ = new DiffEntity(lagTraverser());
 
@@ -80,7 +80,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_sammenligne_Lists_med_forskjellig_størrelse() {
+    void skal_sammenligne_Lists_med_forskjellig_størrelse() {
         var differ = new DiffEntity(lagTraverser());
 
         var en = new DummyEntitetMedListe();
@@ -98,7 +98,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_diffe_fødselsdato() {
+    void skal_diffe_fødselsdato() {
 
         final var scenario = lagTestScenario();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().plusDays(2));
@@ -119,7 +119,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_kun_diffe_på_markerte_felt() {
+    void skal_kun_diffe_på_markerte_felt() {
         // Arrange
         var medlemskap1 = new MedlemskapPerioderBuilder()
                 .medMedlId(1L) // MedlId er ikke markert
@@ -141,7 +141,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_oppdage_diff_når_det_kommer_ny_entry() {
+    void skal_oppdage_diff_når_det_kommer_ny_entry() {
         // Arrange
         var periode1 = new MedlemskapPerioderBuilder().medErMedlem(true).build();
         var periode2 = new MedlemskapPerioderBuilder().medErMedlem(false).build();
@@ -156,7 +156,7 @@ public class TraverseEntityGraphTest {
     }
 
     @Test
-    public void skal_oppdage_diff_i_kodeverk() {
+    void skal_oppdage_diff_i_kodeverk() {
 
         // Arrange
         var periode1 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.ANNEN).build();

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 @CdiDbAwareTest
-public class KontrollerFaktaBeregningStegTest {
+class KontrollerFaktaBeregningStegTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
@@ -46,7 +46,7 @@ public class KontrollerFaktaBeregningStegTest {
     }
 
     @Test
-    public void skal_reaktivere_grunnlag_ved_hopp_bakover() {
+    void skal_reaktivere_grunnlag_ved_hopp_bakover() {
         var behandling = lagreBehandling();
         lagreBeregningsgrunnlag(false, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER, behandling);
         // Arrange

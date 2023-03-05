@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakRes
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.vedtak.konfig.Tid;
 
-public class MapUttakResultatFraVLTilRegelTest {
+class MapUttakResultatFraVLTilRegelTest {
 
     private static final String ARBEIDSFORHOLD_ORGNR = "000000000";
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
@@ -81,7 +81,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     @Test
-    public void skalMappeUttakResultatPlan() {
+    void skalMappeUttakResultatPlan() {
         // Act
         var regelPlan = overriddenMapper.mapFra(vlPlan, lagRef(behandling));
 
@@ -106,7 +106,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     @Test
-    public void skalMappeUttakAktivitet() {
+    void skalMappeUttakAktivitet() {
         // Arrange
         var prosentArbeid = BigDecimal.valueOf(10);
         var utbetalingsgrad = new Utbetalingsgrad(66); // overstyrt
@@ -200,7 +200,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     @Test
-    public void skalMappeUttakAktivitetMedFlereArbeidforholdHosSammeArbeidtaker() {
+    void skalMappeUttakAktivitetMedFlereArbeidforholdHosSammeArbeidtaker() {
         // Arrange
         var arbeidsgiver = Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR);
 

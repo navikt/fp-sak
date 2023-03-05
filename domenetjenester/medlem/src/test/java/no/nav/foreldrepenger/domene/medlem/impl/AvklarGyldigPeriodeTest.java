@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 
 @CdiDbAwareTest
-public class AvklarGyldigPeriodeTest {
+class AvklarGyldigPeriodeTest {
 
     @Inject
     private BehandlingRepositoryProvider provider;
@@ -39,7 +39,7 @@ public class AvklarGyldigPeriodeTest {
     }
 
     @Test
-    public void skal_ikke_opprette_Aksjonspunkt_ved_gyldig_periode() {
+    void skal_ikke_opprette_Aksjonspunkt_ved_gyldig_periode() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
@@ -62,7 +62,7 @@ public class AvklarGyldigPeriodeTest {
     }
 
     @Test
-    public void skalIkkeOppretteAksjonspunktVedIngenTreffMedl() {
+    void skalIkkeOppretteAksjonspunktVedIngenTreffMedl() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -77,7 +77,7 @@ public class AvklarGyldigPeriodeTest {
     }
 
     @Test
-    public void skalIkkeOppretteAksjonspunktVedIngenUavklartPeriode() {
+    void skalIkkeOppretteAksjonspunktVedIngenUavklartPeriode() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var lukketPeriodeFørFødselsdato = new MedlemskapPerioderBuilder()
@@ -100,7 +100,7 @@ public class AvklarGyldigPeriodeTest {
     }
 
     @Test
-    public void skalOppretteAksjonspunktVedUavklartPeriode() {
+    void skalOppretteAksjonspunktVedUavklartPeriode() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var medlemskapPeriodeUnderAvklaring = new MedlemskapPerioderBuilder()
@@ -123,7 +123,7 @@ public class AvklarGyldigPeriodeTest {
     }
 
     @Test
-    public void skalOppretteAksjonspunktVedÅpenPeriode() {
+    void skalOppretteAksjonspunktVedÅpenPeriode() {
         // Arrange
         var fødselsdato = LocalDate.now();
         var åpenPeriode = new MedlemskapPerioderBuilder()

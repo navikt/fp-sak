@@ -77,7 +77,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
-public class VedtakXmlTest {
+class VedtakXmlTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusDays(5);
@@ -139,7 +139,7 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml(EntityManager em) {
+    void skal_opprette_vedtaks_xml(EntityManager em) {
 
         // Arrange
         var scenario = byggBehandlingMedMorSøkerSVP();

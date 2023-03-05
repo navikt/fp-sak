@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
+class OpptjeningRepositoryTest extends EntityManagerAwareTest {
 
     private OpptjeningRepository opptjeningRepository;
 
@@ -29,7 +29,7 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_opptjeningsperiode() {
+    void skal_lagre_opptjeningsperiode() {
         // Arrange
         var today = LocalDate.now();
         var tomorrow = today.plusDays(1);
@@ -54,7 +54,7 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void kopierGrunnlagFraEksisterendeBehandling() {
+    void kopierGrunnlagFraEksisterendeBehandling() {
         // Arrange
         var today = LocalDate.now();
         var tomorrow = today.plusDays(1);
@@ -71,7 +71,7 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void deaktiverOpptjening() {
+    void deaktiverOpptjening() {
         // Arrange
         var today = LocalDate.now();
         var tomorrow = today.plusDays(1);
@@ -87,7 +87,7 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOpptjeningResultat() {
+    void lagreOpptjeningResultat() {
         // Arrange
         var today = LocalDate.now();
         var tomorrow = today.plusDays(1);
@@ -128,7 +128,7 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void getOpptjeningAktivitetTypeForKode() {
+    void getOpptjeningAktivitetTypeForKode() {
         // Act
         var næringKode = OpptjeningAktivitetType.NÆRING.getKode();
         var næring = OpptjeningAktivitetType.fraKode(næringKode);

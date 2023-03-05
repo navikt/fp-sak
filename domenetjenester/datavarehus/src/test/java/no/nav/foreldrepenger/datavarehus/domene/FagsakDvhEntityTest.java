@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class FagsakDvhEntityTest {
+class FagsakDvhEntityTest {
 
     @Test
-    public void skal_bygge_instans_av_fagsakDvh() {
+    void skal_bygge_instans_av_fagsakDvh() {
         var fagsakDvh = DatavarehusTestUtils.byggFagsakDvhForTest();
 
         assertThat(fagsakDvh.getBrukerId()).isEqualTo(DatavarehusTestUtils.BRUKER_ID);

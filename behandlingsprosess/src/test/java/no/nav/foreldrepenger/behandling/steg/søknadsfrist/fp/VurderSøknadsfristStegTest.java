@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
+class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
 
     private static final AktørId AKTØRID = AktørId.dummy();
 
@@ -74,7 +74,7 @@ public class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalOppretteAksjonspunktForÅVurdereSøknadsfristHvisSøktePerioderUtenforSøknadsfrist() {
+    void skalOppretteAksjonspunktForÅVurdereSøknadsfristHvisSøktePerioderUtenforSøknadsfrist() {
         var behandling = opprettBehandling();
         var mottattDato = LocalDate.now();
         var førsteUttaksdato = mottattDato.with(DAY_OF_MONTH, 1).minusMonths(3).minusDays(1); // En dag forbi søknadsfrist
@@ -117,7 +117,7 @@ public class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skalIkkeOppretteAksjonspunktHvisSøktePerioderInnenforSøknadsfrist() {
+    void skalIkkeOppretteAksjonspunktHvisSøktePerioderInnenforSøknadsfrist() {
         var behandling = opprettBehandling();
         var førsteUttaksdato = LocalDate.now().with(DAY_OF_MONTH, 1).minusMonths(3);
         var mottattDato = LocalDate.now();

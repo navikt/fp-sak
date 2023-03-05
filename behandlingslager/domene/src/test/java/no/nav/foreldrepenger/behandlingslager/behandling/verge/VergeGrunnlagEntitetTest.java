@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(JpaExtension.class)
-public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
+class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     private VergeRepository vergeRepository;
     private BehandlingRepository behandlingRepository;
     private EntityManager entityManager;
@@ -34,7 +34,7 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_lagre_verge_grunnlag() {
+    void skal_lagre_verge_grunnlag() {
         var behandling = opprettBehandling();
 
         var bruker = NavBruker.opprettNyNB(AktørId.dummy());

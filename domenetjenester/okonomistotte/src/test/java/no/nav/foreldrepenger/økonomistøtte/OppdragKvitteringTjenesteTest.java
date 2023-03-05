@@ -8,10 +8,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 
-public class OppdragKvitteringTjenesteTest {
+class OppdragKvitteringTjenesteTest {
 
     @Test
-    public void harPositivKvittering_ja_hvis_00() {
+    void harPositivKvittering_ja_hvis_00() {
         // Arrange
         var oppdrag110 = lagOppdrag110(Alvorlighetsgrad.OK);
 
@@ -23,7 +23,7 @@ public class OppdragKvitteringTjenesteTest {
     }
 
     @Test
-    public void harPositivKvittering_ja_hvis_04() {
+    void harPositivKvittering_ja_hvis_04() {
         // Arrange
         var oppdrag110 = lagOppdrag110(Alvorlighetsgrad.OK_MED_MERKNAD);
 
@@ -35,7 +35,7 @@ public class OppdragKvitteringTjenesteTest {
     }
 
     @Test
-    public void harPositivKvittering_nei_hvis_08() {
+    void harPositivKvittering_nei_hvis_08() {
         // Arrange
         var oppdrag110 = lagOppdrag110(Alvorlighetsgrad.FEIL);
 
@@ -47,7 +47,7 @@ public class OppdragKvitteringTjenesteTest {
     }
 
     @Test
-    public void harPositivKvittering_nei_hvis_ingen_kvittering() {
+    void harPositivKvittering_nei_hvis_ingen_kvittering() {
         // Arrange
         var oppdrag110 = lagOppdrag110(null);
 

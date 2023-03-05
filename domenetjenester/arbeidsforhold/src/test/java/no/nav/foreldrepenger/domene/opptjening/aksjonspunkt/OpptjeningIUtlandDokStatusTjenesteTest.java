@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(JpaExtension.class)
-public class OpptjeningIUtlandDokStatusTjenesteTest {
+class OpptjeningIUtlandDokStatusTjenesteTest {
 
     private OpptjeningIUtlandDokStatusTjeneste tjeneste;
     private FagsakRepository fagsakRepository;
@@ -34,7 +34,7 @@ public class OpptjeningIUtlandDokStatusTjenesteTest {
     }
 
     @Test
-    public void skalLagreOgHente() {
+    void skalLagreOgHente() {
         var behandling = opprettBehandling();
         var status = OpptjeningIUtlandDokStatus.DOKUMENTASJON_VIL_BLI_INNHENTET;
         tjeneste.lagreStatus(behandling.getId(), status);
@@ -45,7 +45,7 @@ public class OpptjeningIUtlandDokStatusTjenesteTest {
     }
 
     @Test
-    public void skalDeaktivereStatus() {
+    void skalDeaktivereStatus() {
         var behandling = opprettBehandling();
         var status = OpptjeningIUtlandDokStatus.DOKUMENTASJON_VIL_IKKE_BLI_INNHENTET;
         tjeneste.lagreStatus(behandling.getId(), status);
@@ -56,7 +56,7 @@ public class OpptjeningIUtlandDokStatusTjenesteTest {
     }
 
     @Test
-    public void skalDeaktivereStatusPåBehandlingUtenStatus() {
+    void skalDeaktivereStatusPåBehandlingUtenStatus() {
         var behandling = opprettBehandling();
         tjeneste.deaktiverStatus(behandling.getId());
 

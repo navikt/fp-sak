@@ -81,7 +81,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteI
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class DatavarehusTjenesteImplTest {
+class DatavarehusTjenesteImplTest {
 
     @Mock
     private DatavarehusRepository datavarehusRepository;
@@ -113,7 +113,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreNedFagsak() {
+    void lagreNedFagsak() {
         var scenario = opprettFørstegangssøknad();
         var behandling = scenario.lagre(repositoryProvider);
         var fagsak = behandling.getFagsak();
@@ -135,7 +135,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreNedAksjonspunkter() {
+    void lagreNedAksjonspunkter() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -162,7 +162,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreNedBehandlingStegTilstand() {
+    void lagreNedBehandlingStegTilstand() {
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
         var behandlingStegTilstand = new BehandlingStegTilstandSnapshot(behandling.getId(),
             BEHANDLING_STEG_TYPE, BEHANDLING_STEG_STATUS);
@@ -180,7 +180,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreNedBehandling() {
+    void lagreNedBehandling() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -200,7 +200,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreNedBehandlingMedMottattSøknadDokument() {
+    void lagreNedBehandlingMedMottattSøknadDokument() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -229,7 +229,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreNedBehandlingMedId() {
+    void lagreNedBehandlingMedId() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -250,7 +250,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreNedVedtak() {
+    void lagreNedVedtak() {
         var vedtak = byggBehandlingVedtak();
         var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         var captor = ArgumentCaptor.forClass(BehandlingVedtakDvh.class);
@@ -263,7 +263,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void skal_lagre_Ned_Vedtak_Xml() {
+    void skal_lagre_Ned_Vedtak_Xml() {
         var vedtak = byggBehandlingVedtak();
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var captor = ArgumentCaptor.forClass(VedtakUtbetalingDvh.class);
@@ -278,7 +278,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreKlageFormkrav() {
+    void lagreKlageFormkrav() {
         var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknad();
         var påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();
         var scenarioKlageEngangsstønad = ScenarioKlageEngangsstønad.forFormKrav(scenarioMorSøkerEngangsstønad);
@@ -315,7 +315,7 @@ public class DatavarehusTjenesteImplTest {
     }
 
     @Test
-    public void lagreKlageVurderingResultat() {
+    void lagreKlageVurderingResultat() {
 
         var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknad();
         var påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();

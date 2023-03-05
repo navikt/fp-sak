@@ -55,7 +55,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.Do
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 
 @CdiDbAwareTest
-public class BehandlingDtoTjenesteTest {
+class BehandlingDtoTjenesteTest {
 
     private static final Environment ENV = Environment.current();
 
@@ -98,7 +98,7 @@ public class BehandlingDtoTjenesteTest {
     }
 
     @Test
-    public void skal_ha_med_tilbakekrevings_link_når_det_finnes_et_resultat() {
+    void skal_ha_med_tilbakekrevings_link_når_det_finnes_et_resultat() {
         var behandling = lagBehandling();
 
         tilbakekrevingRepository.lagre(behandling,
@@ -115,7 +115,7 @@ public class BehandlingDtoTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_ha_med_tilbakekrevings_link_når_det_ikke_finnes_et_resultat() {
+    void skal_ikke_ha_med_tilbakekrevings_link_når_det_ikke_finnes_et_resultat() {
         var behandling = lagBehandling();
 
         var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
@@ -125,7 +125,7 @@ public class BehandlingDtoTjenesteTest {
     }
 
     @Test
-    public void alle_paths_skal_eksistere() {
+    void alle_paths_skal_eksistere() {
         Set<Behandling> behandlinger = new HashSet<>();
         behandlinger.add(lagBehandling());
         behandlinger.add(lagBehandling(BehandlingType.KLAGE));

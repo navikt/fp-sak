@@ -21,11 +21,11 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.AktivitetPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class OpptjeningsgrunnlagAdapterTest {
+class OpptjeningsgrunnlagAdapterTest {
 
 
     @Test
-    public void skal_filtrere_ut_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_skal_til_vurdering() {
+    void skal_filtrere_ut_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_skal_til_vurdering() {
         var iDag = LocalDate.now();
         var tiMånederSiden = iDag.minusMonths(10L);
         var orgNummer = "123";
@@ -68,7 +68,7 @@ public class OpptjeningsgrunnlagAdapterTest {
     }
 
     @Test
-    public void skal_kappe_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_skal_til_vurdering_som_overlapper() {
+    void skal_kappe_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_skal_til_vurdering_som_overlapper() {
         var iDag = LocalDate.now();
         var femMånederSiden = iDag.minusMonths(5L);
         var tiMånederSiden = iDag.minusMonths(10L);
@@ -117,7 +117,7 @@ public class OpptjeningsgrunnlagAdapterTest {
     }
 
     @Test
-    public void skal_ikke_kappe_godkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_skal_til_vurdering_som_overlapper() {
+    void skal_ikke_kappe_godkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_skal_til_vurdering_som_overlapper() {
         var iDag = LocalDate.now();
         var femMånederSiden = iDag.minusMonths(5L);
         var tiMånederSiden = iDag.minusMonths(10L);
@@ -167,7 +167,7 @@ public class OpptjeningsgrunnlagAdapterTest {
     }
 
     @Test
-    public void skal_ikke_filtrere_ut_hvis_det_bare_er_en_periode() {
+    void skal_ikke_filtrere_ut_hvis_det_bare_er_en_periode() {
         var iDag = LocalDate.now();
         var tiMånederSiden = iDag.minusMonths(10L);
         var orgNummer = "123";
@@ -200,7 +200,7 @@ public class OpptjeningsgrunnlagAdapterTest {
     }
 
     @Test
-    public void skal_ikke_filtrere_ut_hvis_det_bare_er_en_periode_godkjent() {
+    void skal_ikke_filtrere_ut_hvis_det_bare_er_en_periode_godkjent() {
         var iDag = LocalDate.now();
         var tiMånederSiden = iDag.minusMonths(10L);
         var orgNummer = "123";
@@ -233,7 +233,7 @@ public class OpptjeningsgrunnlagAdapterTest {
     }
 
     @Test
-    public void skal_ikke_filtrere_ut_hvis_det_bare_er_en_periode_ikke_godkjent() {
+    void skal_ikke_filtrere_ut_hvis_det_bare_er_en_periode_ikke_godkjent() {
         var iDag = LocalDate.now();
         var tiMånederSiden = iDag.minusMonths(10L);
         var orgNummer = "123";
@@ -266,7 +266,7 @@ public class OpptjeningsgrunnlagAdapterTest {
     }
 
     @Test
-    public void skal_filtrere_ut_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_er_godkjent() {
+    void skal_filtrere_ut_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_er_godkjent() {
         var iDag = LocalDate.now();
         var tiMånederSiden = iDag.minusMonths(10L);
         var orgNummer = "123";
@@ -309,7 +309,7 @@ public class OpptjeningsgrunnlagAdapterTest {
     }
 
     @Test
-    public void skal_ikke_filterer_ut_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_er_godkjent() {
+    void skal_ikke_filterer_ut_underkjente_aktiviteter_hvis_det_finnes_en_aktivitet_på_samme_orgnummer_som_er_godkjent() {
         var iDag = LocalDate.now();
         var tiMånederSiden = iDag.minusMonths(10L);
         var orgNummer = "123";

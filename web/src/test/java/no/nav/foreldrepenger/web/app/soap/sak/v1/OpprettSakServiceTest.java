@@ -42,7 +42,7 @@ import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettS
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
-public class OpprettSakServiceTest {
+class OpprettSakServiceTest {
 
     private static AktørId AKTØR_ID = AktørId.dummy();
     private static String ES_FOD = BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode();
@@ -73,31 +73,31 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_feilhandering_mangler_journaposId() {
+    void test_feilhandering_mangler_journaposId() {
         var request = createOpprettSakRequest(null, AKTØR_ID, "ab0050");
         assertThrows(NullPointerException.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_feilhandering_mangler_behandlingstema() {
+    void test_feilhandering_mangler_behandlingstema() {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, null);
         assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_feilhandering_ukjent_behandlingstema() {
+    void test_feilhandering_ukjent_behandlingstema() {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, "xx1234");
         assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_feilhandering_mangler_aktorId() {
+    void test_feilhandering_mangler_aktorId() {
         var request = createOpprettSakRequest(JOURNALPOST, null, ES_FOD);
         assertThrows(OpprettSakUgyldigInput.class, () -> service.opprettSak(request));
     }
 
     @Test
-    public void test_opprettSak_ok_fødsel() throws Exception {
+    void test_opprettSak_ok_fødsel() throws Exception {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1L;
@@ -113,7 +113,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_ok_fødsel_udefinert_doktypesatt() throws Exception {
+    void test_opprettSak_ok_fødsel_udefinert_doktypesatt() throws Exception {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1L;
@@ -137,7 +137,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_klagedokument() {
+    void test_opprettSak_unntak_klagedokument() {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         when(dokumentArkivTjeneste.hentJournalpostForSak(any())).thenReturn(Optional.of(ArkivJournalPost.Builder.ny()
@@ -147,7 +147,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_endring() {
+    void test_opprettSak_unntak_endring() {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         when(dokumentArkivTjeneste.hentJournalpostForSak(any())).thenReturn(Optional.of(ArkivJournalPost.Builder.ny()
@@ -157,7 +157,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_im_annen_ytelse() {
+    void test_opprettSak_unntak_im_annen_ytelse() {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_FOD);
 
         when(dokumentArkivTjeneste.hentJournalpostForSak(any())).thenReturn(Optional.of(ArkivJournalPost.Builder.ny()
@@ -168,7 +168,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_im() throws Exception {
+    void test_opprettSak_unntak_im() throws Exception {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_FOD);
 
         final Long FAGSAKID = 1L;
@@ -196,7 +196,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_ok_adopsjon() throws Exception {
+    void test_opprettSak_ok_adopsjon() throws Exception {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_ADP);
 
         final Long FAGSAKID = 1L;
@@ -212,7 +212,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_unntak_klageelleramnnke() {
+    void test_opprettSak_unntak_klageelleramnnke() {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         when(dokumentArkivTjeneste.hentJournalpostForSak(any())).thenReturn(Optional.of(ArkivJournalPost.Builder.ny()
@@ -221,7 +221,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_ok_annen_engangsstønad() throws Exception {
+    void test_opprettSak_ok_annen_engangsstønad() throws Exception {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_GEN);
 
         final Long FAGSAKID = 1L;
@@ -237,7 +237,7 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_ok_annen_engangsstønad_doktypesatt() throws Exception {
+    void test_opprettSak_ok_annen_engangsstønad_doktypesatt() throws Exception {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_GEN);
 
         final Long FAGSAKID = 1L;

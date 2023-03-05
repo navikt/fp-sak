@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class SøknadRepositoryTest extends EntityManagerAwareTest {
+class SøknadRepositoryTest extends EntityManagerAwareTest {
 
     private SøknadRepository søknadRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -37,7 +37,7 @@ public class SøknadRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_endringssøknad_for_behandling() {
+    void skal_finne_endringssøknad_for_behandling() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
@@ -69,7 +69,7 @@ public class SøknadRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_endringssøknad_for_behandling() {
+    void skal_ikke_finne_endringssøknad_for_behandling() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
@@ -92,7 +92,7 @@ public class SøknadRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_kopiere_søknadsgrunnlaget_fra_behandling1_til_behandling2() {
+    void skal_kopiere_søknadsgrunnlaget_fra_behandling1_til_behandling2() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 

@@ -13,10 +13,10 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
-public class PerioderHarFastsattResultatValideringTest {
+class PerioderHarFastsattResultatValideringTest {
 
     @Test
-    public void feilVedPeriodeMedNullResultat() {
+    void feilVedPeriodeMedNullResultat() {
         var nyePerioder = List.of(periodeMedResultat(null));
 
         var validering = new PerioderHarFastsattResultatValidering();
@@ -24,7 +24,7 @@ public class PerioderHarFastsattResultatValideringTest {
     }
 
     @Test
-    public void feilVedPeriodeMedResultatManuellRevurdering() {
+    void feilVedPeriodeMedResultatManuellRevurdering() {
         var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.MANUELL_BEHANDLING));
 
         var validering = new PerioderHarFastsattResultatValidering();
@@ -32,7 +32,7 @@ public class PerioderHarFastsattResultatValideringTest {
     }
 
     @Test
-    public void okHvisPerioderHarFastsattResultat() {
+    void okHvisPerioderHarFastsattResultat() {
         var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.INNVILGET));
 
         var validering = new PerioderHarFastsattResultatValidering();

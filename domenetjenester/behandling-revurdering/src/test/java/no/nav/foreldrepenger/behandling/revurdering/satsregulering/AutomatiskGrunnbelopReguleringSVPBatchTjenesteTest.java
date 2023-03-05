@@ -51,7 +51,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
-public class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
+class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
@@ -81,7 +81,7 @@ public class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
     }
 
     @Test
-    public void skal_finne_en_sak_å_revurdere() {
+    void skal_finne_en_sak_å_revurdere() {
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
                 .getPeriode().getFomDato();
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
@@ -100,7 +100,7 @@ public class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_saker_til_revurdering() {
+    void skal_ikke_finne_saker_til_revurdering() {
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
                 .getPeriode().getFomDato();
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
@@ -112,7 +112,7 @@ public class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
     }
 
     @Test
-    public void skal_finne_to_saker_å_revurdere_logg_ingen_task() {
+    void skal_finne_to_saker_å_revurdere_logg_ingen_task() {
         var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
                 .getVerdi();
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())

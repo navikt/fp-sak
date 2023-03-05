@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
-public class RevurderingTjenesteImplTest {
+class RevurderingTjenesteImplTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagProvider;
@@ -53,7 +53,7 @@ public class RevurderingTjenesteImplTest {
     }
 
     @Test
-    public void skal_opprette_automatisk_revurdering_basert_på_siste_innvilgede_behandling() {
+    void skal_opprette_automatisk_revurdering_basert_på_siste_innvilgede_behandling() {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
         final var revurdering = revurderingTjeneste
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
@@ -65,7 +65,7 @@ public class RevurderingTjenesteImplTest {
     }
 
     @Test
-    public void skal_opprette_manuell_behandling_med_saksbehandler_som_historikk_aktør() {
+    void skal_opprette_manuell_behandling_med_saksbehandler_som_historikk_aktør() {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
         var enhet = new OrganisasjonsEnhet("4806", "Nye Nav FP");
         final var revurdering = revurderingTjeneste

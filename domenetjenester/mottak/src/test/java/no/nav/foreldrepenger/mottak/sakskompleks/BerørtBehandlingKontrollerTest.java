@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class BerørtBehandlingKontrollerTest {
+class BerørtBehandlingKontrollerTest {
 
     private BerørtBehandlingKontroller berørtBehandlingKontroller;
 
@@ -149,7 +149,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void testHåndterEgenKø() { // Vurder innhold - vil pt ikke være kø når ukoblet
+    void testHåndterEgenKø() { // Vurder innhold - vil pt ikke være kø når ukoblet
         // Arrange
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.empty());
         when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.of(køetBehandling));
@@ -163,7 +163,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void testHåndterKøHvisFørstegangUttakKø() {
+    void testHåndterKøHvisFørstegangUttakKø() {
         // Arrange
         var køetBehandlingPåVent = mock(Behandling.class);
         var aksjonspunkt = mock(Aksjonspunkt.class);
@@ -186,7 +186,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void testBerørtBehandlingMedforelder() {
+    void testBerørtBehandlingMedforelder() {
         // Arrange
         when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingMedforelder));
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingMedforelder));
@@ -200,7 +200,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void testBerørtBehandlingMedforelderNårMedforelderHarKøetBehandlingAllerede() {
+    void testBerørtBehandlingMedforelderNårMedforelderHarKøetBehandlingAllerede() {
         // Arrange
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())).thenReturn(
             Optional.of(fBehandlingMedforelder));
@@ -280,7 +280,7 @@ public class BerørtBehandlingKontrollerTest {
 
 
     @Test
-    public void køHosBeggeParterSkalIkkeOppretteBerørt() {
+    void køHosBeggeParterSkalIkkeOppretteBerørt() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -297,7 +297,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void køHosAnnenpartSkalOppretteBerørt() {
+    void køHosAnnenpartSkalOppretteBerørt() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -313,7 +313,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void køBrukerSkalIkkeOppretteBerørt() {
+    void køBrukerSkalIkkeOppretteBerørt() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -328,7 +328,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void ingenKøSkalOppretteBerørt() {
+    void ingenKøSkalOppretteBerørt() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -341,7 +341,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void ingenKøFinnesBerørtSkalIkkeOppretteBerørt() {
+    void ingenKøFinnesBerørtSkalIkkeOppretteBerørt() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -356,7 +356,7 @@ public class BerørtBehandlingKontrollerTest {
 
 
     @Test
-    public void ingenKøSkalOppretteFerieBerørt() {
+    void ingenKøSkalOppretteFerieBerørt() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -372,7 +372,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void køBeggeParterSkalIkkeOppretteBerørtHvisIkkeRelevant() {
+    void køBeggeParterSkalIkkeOppretteBerørtHvisIkkeRelevant() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -388,7 +388,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void køAnnenpartSkalIkkeOppretteBerørtHvisIkkeRelevant() {
+    void køAnnenpartSkalIkkeOppretteBerørtHvisIkkeRelevant() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -404,7 +404,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void køBrukerSkalIkkeOppretteBerørtHvisIkkeRelevant() {
+    void køBrukerSkalIkkeOppretteBerørtHvisIkkeRelevant() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
@@ -419,7 +419,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
-    public void ingenKøSkalIkkeOppretteBerørtHvisIkkeRelevant() {
+    void ingenKøSkalIkkeOppretteBerørtHvisIkkeRelevant() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();

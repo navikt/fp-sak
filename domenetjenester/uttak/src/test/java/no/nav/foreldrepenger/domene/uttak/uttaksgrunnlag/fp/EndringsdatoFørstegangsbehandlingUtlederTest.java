@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
-public class EndringsdatoFørstegangsbehandlingUtlederTest {
+class EndringsdatoFørstegangsbehandlingUtlederTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
 
@@ -30,7 +30,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
         repositoryProvider.getYtelsesFordelingRepository());
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_det_ikke_finnes_manuell_vurdering() {
+    void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_det_ikke_finnes_manuell_vurdering() {
         // Arrange
         var perioder = opprettOppgittePerioder();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -46,7 +46,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_manuell_vurdering_er_senere() {
+    void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_manuell_vurdering_er_senere() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(opprettAvklarteUttakDatoer(FØRSTE_UTTAKSDATO_OPPGITT.plusDays(1)));
@@ -61,7 +61,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
     }
 
     @Test
-    public void skal_utlede_at_endringsdatoen_er_manuelt_vurdert_uttaksdato_når_manuell_vurdering_er_tidligere() {
+    void skal_utlede_at_endringsdatoen_er_manuelt_vurdert_uttaksdato_når_manuell_vurdering_er_tidligere() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(opprettAvklarteUttakDatoer(FØRSTE_UTTAKSDATO_OPPGITT.minusDays(1)));

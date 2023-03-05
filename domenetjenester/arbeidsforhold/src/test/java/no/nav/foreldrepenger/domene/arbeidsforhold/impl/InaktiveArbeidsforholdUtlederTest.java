@@ -53,7 +53,7 @@ class InaktiveArbeidsforholdUtlederTest {
 
 
     @Test
-    public void er_aktiv_når_iay_mangler() {
+    void er_aktiv_når_iay_mangler() {
         // Act
         var erInaktivt = utled(arbeidsgiver("999999999"), null);
 
@@ -62,7 +62,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void er_aktiv_når_det_er_nyoppstartet() {
+    void er_aktiv_når_det_er_nyoppstartet() {
         // Arrange
         lagArbeid(arbeidsgiver("999999999"), STP.minusMonths(2), Tid.TIDENES_ENDE, false, null);
 
@@ -74,7 +74,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void er_inaktiv_når_det_er_gammel_uten_inntekt() {
+    void er_inaktiv_når_det_er_gammel_uten_inntekt() {
         // Arrange
         lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
 
@@ -86,7 +86,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void er_aktiv_når_det_nylig_er_betalt_inntekt() {
+    void er_aktiv_når_det_nylig_er_betalt_inntekt() {
         // Arrange
         lagInntekt(arbeidsgiver("999999999"), STP.minusYears(2), 30);
 
@@ -98,7 +98,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void er_inaktivt_når_det_er_lenge_siden_forrige_inntekt_selv_om_det_finnes_i_aareg() {
+    void er_inaktivt_når_det_er_lenge_siden_forrige_inntekt_selv_om_det_finnes_i_aareg() {
         // Arrange
         lagInntekt(arbeidsgiver("999999999"), STP.minusYears(2), 12);
         lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
@@ -111,7 +111,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void er_aktiv_når_det_er_arbeid_uten_inntekt_men_med_ytelse() {
+    void er_aktiv_når_det_er_arbeid_uten_inntekt_men_med_ytelse() {
         // Arrange
         lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
         lagYtelse(arbeidsgiver("999999999"), STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.FORELDREPENGER);
@@ -124,7 +124,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void er_inaktiv_når_det_er_arbeid_uten_inntekt_med_ytelse_som_ikke_er_relevant_for_vurderingen() {
+    void er_inaktiv_når_det_er_arbeid_uten_inntekt_med_ytelse_som_ikke_er_relevant_for_vurderingen() {
         // Arrange
         lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
         lagYtelse(arbeidsgiver("999999999"), STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.DAGPENGER);
@@ -137,7 +137,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void bruker_ytelse_anvist_når_ingen_anviste_andeler() {
+    void bruker_ytelse_anvist_når_ingen_anviste_andeler() {
         // Arrange
         lagArbeid(arbeidsgiver("999999999"), STP.minusYears(2), Tid.TIDENES_ENDE, false, null);
         lagYtelse(null, STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.SYKEPENGER);
@@ -150,7 +150,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void er_aktivt_når_det_har_kommet_inntektsmelding_fra_arbeidsgiver() {
+    void er_aktivt_når_det_har_kommet_inntektsmelding_fra_arbeidsgiver() {
         // Arrange
         lagIM(arbeidsgiver("999999999"));
 
@@ -162,7 +162,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void alle_arbeidsforhold_er_aktive() {
+    void alle_arbeidsforhold_er_aktive() {
         // Arrange
         Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
         InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
@@ -184,7 +184,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void ett_av_to_arbeidsforhold_er_inaktivt_pga_permisjon() {
+    void ett_av_to_arbeidsforhold_er_inaktivt_pga_permisjon() {
         // Arrange
         Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
         InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
@@ -207,7 +207,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void alle_arbeidsforhold_er_inaktive_for_arbeidsgiver_pga_permisjon() {
+    void alle_arbeidsforhold_er_inaktive_for_arbeidsgiver_pga_permisjon() {
         // Arrange
         Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
         InternArbeidsforholdRef internRef1MedPermisjon = InternArbeidsforholdRef.nyRef();
@@ -229,7 +229,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
-    public void ett_arbeidsforhold_er_inaktivt_pga_ytelse() {
+    void ett_arbeidsforhold_er_inaktivt_pga_ytelse() {
         // Arrange
         Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
         Arbeidsgiver arbeidsgiverMedYtelse = arbeidsgiver("888888888");

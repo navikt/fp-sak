@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.ORGNR;
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.SKJÆRINGSTIDSPUNKT_BEREGNING;
 import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -73,15 +75,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
-public class RevurderingBehandlingsresultatutlederTest {
-
-    public static final String ORGNR = "987123987";
-    private static final LocalDate SKJÆRINGSTIDSPUNKT_BEREGNING = LocalDate.now();
-    public static final List<InternArbeidsforholdRef> ARBEIDSFORHOLDLISTE = List
-            .of(InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef(),
-                    InternArbeidsforholdRef.nyRef());
-    public static final BigDecimal TOTAL_ANDEL_NORMAL = BigDecimal.valueOf(300000);
-    public static final BigDecimal TOTAL_ANDEL_OPPJUSTERT = BigDecimal.valueOf(350000);
+class RevurderingBehandlingsresultatutlederTest {
 
     @Inject
     private BeregningRevurderingTestUtil revurderingTestUtil;
@@ -96,8 +90,6 @@ public class RevurderingBehandlingsresultatutlederTest {
     private RevurderingTjeneste revurderingTjeneste;
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
-    @Inject
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     @Inject
     private FpUttakRepository fpUttakRepository;
     @Inject
@@ -159,7 +151,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Ikke oppfylt inngangsvilkår i perioden
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_1_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
+    void tilfelle_1_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -208,7 +200,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Ikkje oppfylt inngangsvilkår i perioden
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_2_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
+    void tilfelle_2_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -260,7 +252,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Siste uttaksperiode avslått med opphørsårsak
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_3_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
+    void tilfelle_3_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -319,7 +311,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Siste uttaksperiode IKKJE avslått med opphørsårsak
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_4_med_endring_i_uttak_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak() {
+    void tilfelle_4_med_endring_i_uttak_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -382,7 +374,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_5_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_Endring_i_beregning() {
+    void tilfelle_5_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_Endring_i_beregning() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -441,7 +433,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_6_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_endring_i_beregning_og_uttak() {
+    void tilfelle_6_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_endring_i_beregning_og_uttak() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -500,7 +492,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning: Nei
     // Endring i uttaksperiode: Ja
     @Test
-    public void tilfelle_7_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_uttak() {
+    void tilfelle_7_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_uttak() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -558,7 +550,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning: kun endring i fordeling av ytelsen
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_8_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_fordeling_av_ytelsen() {
+    void tilfelle_8_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_fordeling_av_ytelsen() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -617,7 +609,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // Endring i beregning: Nei
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_9_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
+    void tilfelle_9_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -675,7 +667,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     // i fordeling)
     // Endring i uttaksperiode: Nei
     @Test
-    public void tilfelle_9_ulik_rekkefølge_av_andeler_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
+    void tilfelle_9_ulik_rekkefølge_av_andeler_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -726,7 +718,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         assertThat(uendretUtfall).isTrue();
     }
     @Test
-    public void skal_gi_ingen_vedtaksbrev_når_ingen_endring_og_varsel_om_revurdering_ikke_er_sendt() {
+    void skal_gi_ingen_vedtaksbrev_når_ingen_endring_og_varsel_om_revurdering_ikke_er_sendt() {
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
         var revurdering = opprettRevurdering(førstegangsbehandling);
@@ -777,7 +769,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_original_revurdering_også_hadde_avslått_siste_uttaksperiode() {
+    void skal_gi_ingen_endring_når_original_revurdering_også_hadde_avslått_siste_uttaksperiode() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -829,7 +821,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_opphør_når_det_er_flere_perioder_som_avslås() {
+    void skal_gi_opphør_når_det_er_flere_perioder_som_avslås() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -882,7 +874,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_endring_når_original_revurdering_ikke_har_samme_skalHindreTilbakketrekk() {
+    void skal_gi_endring_når_original_revurdering_ikke_har_samme_skalHindreTilbakketrekk() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -945,7 +937,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_endring_når_original_revurdering_mangler_skalHindreTilbakketrekk() {
+    void skal_gi_endring_når_original_revurdering_mangler_skalHindreTilbakketrekk() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -1001,7 +993,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_original_revurdering_har_samme_skalHindreTilbakketrekk() {
+    void skal_gi_ingen_endring_når_original_revurdering_har_samme_skalHindreTilbakketrekk() {
 
         // Arrange
         var førstegangsbehandling = opprettFørstegangsbehandling();
@@ -1055,7 +1047,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_det_er_avslag_på_avslag_selv_om_det_var_et_beslutningsvedtak_imellom() {
+    void skal_gi_ingen_endring_når_det_er_avslag_på_avslag_selv_om_det_var_et_beslutningsvedtak_imellom() {
         // Arrange førstegangsbehandling
         var førstegangsbehandling = opprettFørstegangsbehandling();
         var låsFgb = behandlingRepository.taSkriveLås(førstegangsbehandling);
@@ -1117,7 +1109,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     @Test
-    public void skal_gi_innvilget_dersom_forrige_revurdering_var_avslått() {
+    void skal_gi_innvilget_dersom_forrige_revurdering_var_avslått() {
         // Arrange førstegangsbehandling
         var førstegangsbehandling = opprettFørstegangsbehandling();
         var låsFgb = behandlingRepository.taSkriveLås(førstegangsbehandling);

@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 class VurderSøknadsfristTjenesteTest {
 
     @Test
-    public void skal_lagre_uttaksperiodegrense_og_ikke_få_aksjonspunkt(EntityManager entityManager) {
+    void skal_lagre_uttaksperiodegrense_og_ikke_få_aksjonspunkt(EntityManager entityManager) {
         var fødselsdato = LocalDate.of(2021, 2, 4);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -43,7 +43,7 @@ class VurderSøknadsfristTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_uttaksperiodegrense_og_få_aksjonspunkt(EntityManager entityManager) {
+    void skal_lagre_uttaksperiodegrense_og_få_aksjonspunkt(EntityManager entityManager) {
         var fødselsdato = LocalDate.of(2021, 2, 4);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -62,7 +62,7 @@ class VurderSøknadsfristTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_uttaksperiodegrense_og_ikke_få_aksjonspunkt_hvis_bare_søkt_utsettelse(EntityManager entityManager) {
+    void skal_lagre_uttaksperiodegrense_og_ikke_få_aksjonspunkt_hvis_bare_søkt_utsettelse(EntityManager entityManager) {
         var fødselsdato = LocalDate.of(2021, 2, 4);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var utsettelse = utsettelse(fødselsdato);

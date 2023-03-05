@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
+class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -87,7 +87,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_arena_ytelser_finnes_ikke() {
+    void skal_teste_arena_ytelser_finnes_ikke() {
         // Arrange
         var vedtaksDato = SKJÆRINGSTIDSPUNKT.minusDays(7);
         var startDatoFP = SKJÆRINGSTIDSPUNKT;
@@ -102,7 +102,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     // T2: Første forventede utbetalingsdato for ARENA-ytelse etter vedtaksdato for foreldrepenger
 
     @Test
-    public void skal_teste_startdatoFP_før_T1() {
+    void skal_teste_startdatoFP_før_T1() {
         // Arrange
         // Startdato før T1 , vedtaksdato etter T1
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.plusDays(2);
@@ -118,7 +118,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_startdatoFP_før_T1_FPFEIL_3526() {
+    void skal_teste_startdatoFP_før_T1_FPFEIL_3526() {
         // Arrange
         // Startdato før T1 , vedtaksdato etter T1
         var meldekortT1 = LocalDate.of(2018, 8, 12);
@@ -134,7 +134,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_startdatoFP_etter_T2() {
+    void skal_teste_startdatoFP_etter_T2() {
         // Arrange
         // Startdato før T2, vedtaksdato etter T2
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.minusDays(64);
@@ -150,7 +150,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_startdatoFP_mellom_T1_T2_vedtaksdato_mindre_enn_8_dager_etter_T1() {
+    void skal_teste_startdatoFP_mellom_T1_T2_vedtaksdato_mindre_enn_8_dager_etter_T1() {
         // Arrange
         // startdato mellom T1 og T2, vedtaksdato mellom T1 og (T1 + 8 dager)
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.minusDays(5);
@@ -166,7 +166,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_startdatoFP_mellom_T1_T2_vedtaksdato_mindre_enn_8_dager_før_T2() {
+    void skal_teste_startdatoFP_mellom_T1_T2_vedtaksdato_mindre_enn_8_dager_før_T2() {
         // Arrange
         // startdato mellom T1 og T2, vedtaksdato mellom (T2 - 8 dager) og T2
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.minusDays(8);
@@ -182,7 +182,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_Arena_ytelse_interval_før_vedtaksdato_fom_overlapper_FP() {
+    void skal_teste_Arena_ytelse_interval_før_vedtaksdato_fom_overlapper_FP() {
         // Arrange
         // Arena ytelser etter startdato men før vedtaksdato .
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.plusDays(MELDEKORTPERIODE + 7);
@@ -198,7 +198,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_startdato_er_like_T1_og_T2_er_null() {
+    void skal_teste_startdato_er_like_T1_og_T2_er_null() {
         // Arrange
         // Arena ytelser før vedtaksdato og mellom startdato FP og sluttdato FP.
         var meldekortT1 = SKJÆRINGSTIDSPUNKT;
@@ -214,7 +214,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_vedtaksdato_er_like_T2() {
+    void skal_teste_vedtaksdato_er_like_T2() {
         // Arrange
         // Arena ytelser før vedtaksdato og mellom startdato FP og sluttdato FP.
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.minusDays(MELDEKORTPERIODE);
@@ -230,7 +230,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_startdato_før_T1_og_FP_overlapper_ikke_ARENA_ytelse() {
+    void skal_teste_startdato_før_T1_og_FP_overlapper_ikke_ARENA_ytelse() {
         // Arrange
         // Arena ytelser før vedtaksdato og utenfor startdato FP og sluttdato FP.
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.plusDays(7);
@@ -246,7 +246,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void skal_teste_startdato_for_5910() {
+    void skal_teste_startdato_for_5910() {
         // Arrange
         // Arena ytelser før vedtaksdato og utenfor startdato FP og sluttdato FP.
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.minusDays(5); // 2019-02-03
@@ -262,7 +262,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void ytelse_avsluttet_før_stp_siste_meldekort_rett_etter() {
+    void ytelse_avsluttet_før_stp_siste_meldekort_rett_etter() {
         // Arrange
         // Siste meldekort vil som regel komme rett etter perioden og med prosent <200
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.plusDays(2); // 2019-02-03
@@ -278,7 +278,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void vanlig_case_vedtak_før_start() {
+    void vanlig_case_vedtak_før_start() {
         // Arrange
         // Gir arena nok tid til å avslutte løpende ytelse
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.minusDays(16); // 2019-02-03
@@ -294,7 +294,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void vanlig_case_vedtak_rett_før_start() {
+    void vanlig_case_vedtak_rett_før_start() {
         // Arrange
         // Potensielt for liten tid til å avslutte løpende ytelse
         var meldekortT1 = SKJÆRINGSTIDSPUNKT.minusDays(10); // 2019-02-03
@@ -310,7 +310,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
     }
 
     @Test
-    public void revurdering_case_midt_under_ytelse() {
+    void revurdering_case_midt_under_ytelse() {
         // Arrange
         // Potensielt for liten tid til å avslutte løpende ytelse
         var ytelseVedtakFOM = SKJÆRINGSTIDSPUNKT.plusMonths(2); // 2019-01-21

@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ExtendWith(JpaExtension.class)
-public class BekreftSvangerskapspengervilkårOppdatererTest {
+class BekreftSvangerskapspengervilkårOppdatererTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -34,7 +34,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
     }
 
     @Test
-    public void skal_sette_totrinn_ved_avslag() {
+    void skal_sette_totrinn_ved_avslag() {
         var oppdaterer = oppdaterer();
         var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
             Avslagsårsak.SØKER_IKKE_GRAVID_KVINNE.getKode());
@@ -50,7 +50,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
     }
 
     @Test
-    public void skal_avslå_vilkår() {
+    void skal_avslå_vilkår() {
         var oppdaterer = oppdaterer();
         var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
             Avslagsårsak.SØKER_ER_IKKE_I_ARBEID.getKode());
@@ -71,7 +71,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
     }
 
     @Test
-    public void skal_innvilge_vilkår() {
+    void skal_innvilge_vilkår() {
         var oppdaterer = oppdaterer();
         var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", null);
 

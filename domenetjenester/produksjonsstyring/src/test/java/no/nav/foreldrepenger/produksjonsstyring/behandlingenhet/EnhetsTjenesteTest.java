@@ -29,7 +29,7 @@ import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
 
 @ExtendWith(MockitoExtension.class)
-public class EnhetsTjenesteTest {
+class EnhetsTjenesteTest {
 
     private static AktørId MOR_AKTØR_ID = AktørId.dummy();
     private static AktørId FAR_AKTØR_ID = AktørId.dummy();
@@ -59,7 +59,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void finn_enhet_utvidet_normal_fordeling() {
+    void finn_enhet_utvidet_normal_fordeling() {
         // Oppsett
         settOppTpsStrukturer(false, false, false);
 
@@ -70,7 +70,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void finn_enhet_utvidet_bruker_kode_fordeling() {
+    void finn_enhet_utvidet_bruker_kode_fordeling() {
         // Oppsett
         settOppTpsStrukturer(true, false, false);
 
@@ -81,7 +81,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void finn_enhet_utvidet_bruker_skjermet_fordeling() {
+    void finn_enhet_utvidet_bruker_skjermet_fordeling() {
         // Oppsett
         settOppSkjermetStrukturer(true, false);
 
@@ -92,7 +92,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void finn_enhet_utvidet_barn_kode_fordeling() {
+    void finn_enhet_utvidet_barn_kode_fordeling() {
         // Oppsett
         settOppTpsStrukturer(false, true, false);
 
@@ -105,7 +105,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void finn_enhet_utvidet_ektefelle_kode_fordeling() {
+    void finn_enhet_utvidet_ektefelle_kode_fordeling() {
         // Oppsett
         settOppTpsStrukturer(false, false, true);
 
@@ -118,7 +118,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void oppdater_enhet_annenpart_kode_fordeling() {
+    void oppdater_enhet_annenpart_kode_fordeling() {
         // Oppsett
         settOppTpsStrukturer(false, false, true);
 
@@ -130,7 +130,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void finn_enhet_utvidet_annenpart_skjermet_fordeling() {
+    void finn_enhet_utvidet_annenpart_skjermet_fordeling() {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
 
@@ -145,7 +145,7 @@ public class EnhetsTjenesteTest {
 
 
     @Test
-    public void presendens_enhet() {
+    void presendens_enhet() {
         // Oppsett
         settOppTpsStrukturer(false, false, false);
 
@@ -155,7 +155,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void oppdater_enhet_mor_annenpart_kode_fordeling() {
+    void oppdater_enhet_mor_annenpart_kode_fordeling() {
         // Oppsett
         settOppTpsStrukturer(true, false, true);
 
@@ -166,7 +166,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void oppdater_etter_vent_barn_fått_kode6() {
+    void oppdater_etter_vent_barn_fått_kode6() {
         // Oppsett
         settOppTpsStrukturer(false, true, false);
 
@@ -178,7 +178,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void oppdater_etter_vent_far_fått_kode6() {
+    void oppdater_etter_vent_far_fått_kode6() {
         // Oppsett
         settOppTpsStrukturer(false, false, true);
 
@@ -190,7 +190,7 @@ public class EnhetsTjenesteTest {
     }
 
     @Test
-    public void oppdater_etter_vent_far_skjermet() {
+    void oppdater_etter_vent_far_skjermet() {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
 

@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakRes
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 
-public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
+class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
 
     private final String orgnr = "123";
     private BeregningsgrunnlagPrArbeidsforhold prArbeidsforhold;
@@ -34,7 +34,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
      */
 
     @Test
-    public void skal_gradere_deltiddstilling_eksempel_1() {
+    void skal_gradere_deltiddstilling_eksempel_1() {
         // Arrange
         var redBrukersAndelPrÅr = 0;
         var redRefusjonPrÅr = 10000;
@@ -66,7 +66,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_deltiddstilling_eksempel_2() {
+    void skal_gradere_deltiddstilling_eksempel_2() {
         // Arrange
         var redBrukersAndelPrÅr = 1000;
         var redRefusjonPrÅr = 9000;
@@ -98,7 +98,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_deltiddstilling_eksempel_3() {
+    void skal_gradere_deltiddstilling_eksempel_3() {
         // Arrange
         var redBrukersAndelPrÅr = 0;
         var redRefusjonPrÅr = 100000;
@@ -129,7 +129,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_deltiddstilling_eksempel_4() {
+    void skal_gradere_deltiddstilling_eksempel_4() {
         // Arrange
         var redBrukersAndelPrÅr = 10000;
         var redRefusjonPrÅr = 90000;
@@ -160,7 +160,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_deltiddstilling_eksempel_5() {
+    void skal_gradere_deltiddstilling_eksempel_5() {
         // Arrange
         var redBrukersAndelPrÅr = 0;
         var redRefusjonPrÅr = 100000;
@@ -191,7 +191,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_deltiddstilling_eksempel_6() {
+    void skal_gradere_deltiddstilling_eksempel_6() {
         // Arrange
         var redBrukersAndelPrÅr = 10000;
         var redRefusjonPrÅr = 90000;
@@ -222,7 +222,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_heltiddstilling_eksempel_7() {
+    void skal_gradere_heltiddstilling_eksempel_7() {
         // Arrange
         var redBrukersAndelPrÅr = 0;
         var redRefusjonPrÅr = 100000;
@@ -253,7 +253,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_heltiddstilling_eksempel_8() {
+    void skal_gradere_heltiddstilling_eksempel_8() {
         // Arrange
         var redBrukersAndelPrÅr = 10000;
         var redRefusjonPrÅr = 90000;
@@ -285,7 +285,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_deltiddstilling_eksempel_9() {
+    void skal_gradere_deltiddstilling_eksempel_9() {
         // Arrange
         var redBrukersAndelPrÅr = 100000;
         var redRefusjonPrÅr = 500000;
@@ -317,7 +317,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_ikke_gradere_fulltidsstilling_med_full_permisjon() {
+    void skal_ikke_gradere_fulltidsstilling_med_full_permisjon() {
         // Arrange
         var redBrukersAndelPrÅr = 100000;
         var redRefusjonPrÅr = 0;
@@ -344,7 +344,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_status_SN() {
+    void skal_gradere_status_SN() {
         // Arrange
         var redusertBrukersAndel = BigDecimal.valueOf(100000);
         var stillingsgrad = BigDecimal.valueOf(100);
@@ -370,7 +370,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_teste_SN_med_oppholdsperiode() {
+    void skal_teste_SN_med_oppholdsperiode() {
         // Arrange
         var redusertBrukersAndel = BigDecimal.valueOf(100000);
         var mellomregning = settOppScenarioMedOppholdsperiodeForSN(redusertBrukersAndel);
@@ -386,7 +386,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_teste_AT_med_oppholdsperiode() {
+    void skal_teste_AT_med_oppholdsperiode() {
         // Arrange
         var redBrukersAndelPrÅr = 100000;
         var redRefusjonPrÅr = 0;
@@ -406,7 +406,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_gradere_status_DP() {
+    void skal_gradere_status_DP() {
         // Arrange
         var redusertBrukersAndel = BigDecimal.valueOf(100000);
         var stillingsgrad = BigDecimal.valueOf(100);
@@ -430,7 +430,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void gradering_når_gammel_stillingsprosent_er_0() {
+    void gradering_når_gammel_stillingsprosent_er_0() {
         // Arrange
         var redBrukersAndelPrÅr = 260000;
         var redRefusjonPrÅr = 26000;
@@ -459,7 +459,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_bruke_utbetalingsgrad_når_ikke_gradering() {
+    void skal_bruke_utbetalingsgrad_når_ikke_gradering() {
         // Arrange
         var redBrukersAndelPrÅr = 260000;
         var redRefusjonPrÅr = 130000;
@@ -488,7 +488,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_ikke_regne_overkompensasjon_ved_100_prosent_stilling() {
+    void skal_ikke_regne_overkompensasjon_ved_100_prosent_stilling() {
         // Arrange
         var redBrukersAndelPrÅr = 100000;
         var redRefusjonPrÅr = 500000;
@@ -522,7 +522,7 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     }
 
     @Test
-    public void skal_regne_overkomp_med_høy_permisjonsprosent_lav_utb_grad() {
+    void skal_regne_overkomp_med_høy_permisjonsprosent_lav_utb_grad() {
         // Arrange
         var redBrukersAndelPrÅr = 0;
         var redRefusjonPrÅr = 325728;

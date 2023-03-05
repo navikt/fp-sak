@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 public class KabelHendelseTest  {
 
     @Test
-    public void kabalJsonParse() throws IOException {
+    void kabalJsonParse() throws IOException {
         var payload = """
                 {
                     "eventId": "b79cae6f-4afc-4f51-9e0b-623bb53f1805",

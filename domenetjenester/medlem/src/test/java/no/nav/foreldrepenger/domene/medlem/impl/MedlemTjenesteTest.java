@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @CdiDbAwareTest
-public class MedlemTjenesteTest {
+class MedlemTjenesteTest {
 
     @Inject
     private BehandlingRepositoryProvider provider;
@@ -42,7 +42,7 @@ public class MedlemTjenesteTest {
     private MedlemTjeneste tjeneste;
 
     @Test
-    public void skal_returnere_empty_når_vilkåret_er_overstyrt_til_godkjent() {
+    void skal_returnere_empty_når_vilkåret_er_overstyrt_til_godkjent() {
         // Arrange
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);

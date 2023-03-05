@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
-public class OmsorgRettUttakTjenesteTest {
+class OmsorgRettUttakTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
@@ -43,7 +43,7 @@ public class OmsorgRettUttakTjenesteTest {
     }
 
     @Test
-    public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_oppgitt_rett_og_annenpart_uten_norsk_id() {
+    void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_oppgitt_rett_og_annenpart_uten_norsk_id() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
@@ -60,7 +60,7 @@ public class OmsorgRettUttakTjenesteTest {
     }
 
     @Test
-    public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_ikke_oppgitt_rett_og_annenpart_uten_norsk_id() {
+    void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_ikke_oppgitt_rett_og_annenpart_uten_norsk_id() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false));
         var behandling = scenario.lagre(repositoryProvider);
@@ -76,7 +76,7 @@ public class OmsorgRettUttakTjenesteTest {
     }
 
     @Test
-    public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_i_tps() {
+    void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_i_tps() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
@@ -92,7 +92,7 @@ public class OmsorgRettUttakTjenesteTest {
     }
 
     @Test
-    public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_ikke_finnes() {
+    void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_ikke_finnes() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);

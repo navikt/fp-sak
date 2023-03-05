@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.vedtak.exception.FunksjonellException;
 
 @CdiDbAwareTest
-public class BehandlingsutredningTjenesteTest {
+class BehandlingsutredningTjenesteTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -69,7 +69,7 @@ public class BehandlingsutredningTjenesteTest {
     }
 
     @Test
-    public void skal_sette_behandling_pa_vent() {
+    void skal_sette_behandling_pa_vent() {
         // Act
         behandlingsutredningTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
 
@@ -81,7 +81,7 @@ public class BehandlingsutredningTjenesteTest {
     }
 
     @Test
-    public void skal_oppdatere_ventefrist_og_arsakskode() {
+    void skal_oppdatere_ventefrist_og_arsakskode() {
         // Arrange
         var toUkerFrem = LocalDate.now().plusWeeks(2);
 
@@ -96,7 +96,7 @@ public class BehandlingsutredningTjenesteTest {
     }
 
     @Test
-    public void skal_kaste_feil_når_oppdatering_av_ventefrist_av_behandling_som_ikke_er_på_vent() {
+    void skal_kaste_feil_når_oppdatering_av_ventefrist_av_behandling_som_ikke_er_på_vent() {
         // Arrange
         var toUkerFrem = LocalDate.now().plusWeeks(2);
 
@@ -106,7 +106,7 @@ public class BehandlingsutredningTjenesteTest {
     }
 
     @Test
-    public void skal_bytte_behandlende_enhet() {
+    void skal_bytte_behandlende_enhet() {
         // Arrange
         var enhetNavn = "OSLO";
         var enhetId = "22";

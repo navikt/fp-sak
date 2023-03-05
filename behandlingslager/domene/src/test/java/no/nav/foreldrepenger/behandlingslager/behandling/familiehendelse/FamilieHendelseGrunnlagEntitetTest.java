@@ -7,14 +7,14 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-public class FamilieHendelseGrunnlagEntitetTest {
+class FamilieHendelseGrunnlagEntitetTest {
 
     /**
      * Scenario er relatert til en feil PFP-5591 hvor ved andre registerdata
      * innhending ble FamilieHendelseType erdret fra OMSORG til ADOPSJON.
      */
     @Test
-    public void endring_av_bekreftet_omsorg_familie_hendelse_ved_registerinnhenting() {
+    void endring_av_bekreftet_omsorg_familie_hendelse_ved_registerinnhenting() {
         // Grunnlag
         final var fhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
 

@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.svangerskapspenger.domene.søknad.IngenTilrettelegging;
 
-public class RegelmodellSøknaderMapperTest {
+class RegelmodellSøknaderMapperTest {
 
     private final RegelmodellSøknaderMapper regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
@@ -26,7 +26,7 @@ public class RegelmodellSøknaderMapperTest {
     private final LocalDate skjæringstidspunkt = LocalDate.now();
 
     @Test
-    public void skal_opprette_regelmodell_søknader() {
+    void skal_opprette_regelmodell_søknader() {
         var behandling = grunnlagOppretter.lagreBehandling();
         var svpGrunnlagEntitet = grunnlagOppretter.lagTilrettelegging(behandling);
 

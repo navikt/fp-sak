@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 
-public class HistorikkinnslagTjenesteTest {
+class HistorikkinnslagTjenesteTest {
 
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("5");
     private static final String HOVEDDOKUMENT_DOKUMENT_ID = "1";
@@ -49,7 +49,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_historikkinnslag_for_elektronisk_søknad() {
+    void skal_lagre_historikkinnslag_for_elektronisk_søknad() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var behandling = scenario.lagMocked();
@@ -80,7 +80,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_historikkinnslag_for_papir_søknad() {
+    void skal_lagre_historikkinnslag_for_papir_søknad() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var behandling = scenario.lagMocked();
@@ -104,7 +104,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_historikkinnslag_for_im()  {
+    void skal_lagre_historikkinnslag_for_im()  {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var behandling = scenario.lagMocked();
@@ -128,7 +128,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_lagre_historikkinnslag_for_vedlegg() {
+    void skal_lagre_historikkinnslag_for_vedlegg() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         var behandling = scenario.lagMocked();
@@ -152,7 +152,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_lagre_historikkinnslag_når_det_allerede_finnes()  {
+    void skal_ikke_lagre_historikkinnslag_når_det_allerede_finnes()  {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();
@@ -169,7 +169,7 @@ public class HistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_støtte_at_journalpostId_er_null_og_ikke_kalle_journalTjeneste()  {
+    void skal_støtte_at_journalpostId_er_null_og_ikke_kalle_journalTjeneste()  {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagMocked();

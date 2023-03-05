@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
 @CdiDbAwareTest
-public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
+class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
 
     @Inject
     private BehandlingskontrollServiceProvider serviceProvider;
@@ -92,7 +92,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_at_alle_inngangsvilkår_oppfylt_gir_positivt_utfall() {
+    void skal_teste_at_alle_inngangsvilkår_oppfylt_gir_positivt_utfall() {
         // Arrange
         VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
@@ -115,7 +115,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_at_inngangsvilkår_ikke_oppfylt_gir_negativt_utfall() {
+    void skal_teste_at_inngangsvilkår_ikke_oppfylt_gir_negativt_utfall() {
         // Arrange
         VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
@@ -132,7 +132,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_at_inngangsvilkår_ikke_vurdert_gir_samme_som_omliggende() {
+    void skal_teste_at_inngangsvilkår_ikke_vurdert_gir_samme_som_omliggende() {
         // Arrange
         VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
@@ -149,7 +149,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_negativ_medlemsskapsvilkår_gir_negativt_resultat() {
+    void skal_teste_negativ_medlemsskapsvilkår_gir_negativt_resultat() {
         // Arrange
         VilkårResultat.builder()
                 .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
@@ -167,7 +167,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_at_behandlingsresultatet_fastsettes_korrekt() {
+    void skal_teste_at_behandlingsresultatet_fastsettes_korrekt() {
         // Act
         var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
                 revurdering, revurderingResultat);
@@ -183,7 +183,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_som_skal_behandles_i_infotrygd() {
+    void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_som_skal_behandles_i_infotrygd() {
         // Arrange
         VilkårResultat.builder()
                 .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT,
@@ -205,7 +205,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     }
 
     @Test
-    public void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_med_avslagsårsak_null() {
+    void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_med_avslagsårsak_null() {
         // Arrange
         VilkårResultat.builder()
                 .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG)

@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class TotrinnRepositoryTest extends EntityManagerAwareTest {
+class TotrinnRepositoryTest extends EntityManagerAwareTest {
 
     private TotrinnRepository totrinnRepository;
     private FagsakRepository fagsakRepository;
@@ -37,7 +37,7 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_ett_inaktivt_totrinnsgrunnlag_og_ett_aktivt_totrinnsgrunnlag() {
+    void skal_finne_ett_inaktivt_totrinnsgrunnlag_og_ett_aktivt_totrinnsgrunnlag() {
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
@@ -75,7 +75,7 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_finne_flere_inaktive_totrinnsvurderinger_og_flere_aktive_totrinnsvurdering() {
+    void skal_finne_flere_inaktive_totrinnsvurderinger_og_flere_aktive_totrinnsvurdering() {
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);

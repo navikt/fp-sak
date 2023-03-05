@@ -21,14 +21,14 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper;
 
 @ExtendWith(MockitoExtension.class)
-public class SimulerOppdragTjenesteFPTest {
+class SimulerOppdragTjenesteFPTest {
     @Mock
     private OppdragInputTjeneste oppdragInputTjeneste;
     @Mock
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
 
     @Test
-    public void simulerOppdrag_uten_behandling_vedtak_FP() {
+    void simulerOppdrag_uten_behandling_vedtak_FP() {
         // Arrange
         var saksnummer = new Saksnummer("100000001");
         var oppdragskontroll = OppdragTestDataHelper.oppdragskontrollMedOppdrag(saksnummer, 1L);

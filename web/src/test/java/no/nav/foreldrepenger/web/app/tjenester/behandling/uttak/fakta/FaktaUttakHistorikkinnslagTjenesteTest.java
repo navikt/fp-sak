@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class FaktaUttakHistorikkinnslagTjenesteTest {
+class FaktaUttakHistorikkinnslagTjenesteTest {
 
     private static LocalDate FOM = LocalDate.of(2022,12,1);
     private static LocalDate TOM = LocalDate.of(2022,12,7);
@@ -43,7 +43,7 @@ public class FaktaUttakHistorikkinnslagTjenesteTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_uten_perioder_ved_ingen_endring() {
+    void skal_generere_historikkinnslag_uten_perioder_ved_ingen_endring() {
 
         //Scenario med avklar fakta uttak
         var før = OppgittPeriodeBuilder.ny().medPeriode(FOM, TOM)

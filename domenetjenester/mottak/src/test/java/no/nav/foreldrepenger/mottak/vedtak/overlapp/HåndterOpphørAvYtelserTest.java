@@ -52,7 +52,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
-public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
+class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     private static final LocalDate FØDSELS_DATO_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(2));
     private static final LocalDate SISTE_DAG_MOR = FØDSELS_DATO_1.plusWeeks(6);
@@ -94,7 +94,7 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_revurdering_når_fagsak_ikke_har_åpen_behandling() {
+    void skal_opprette_revurdering_når_fagsak_ikke_har_åpen_behandling() {
         // Arrange
         var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
         var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
@@ -125,7 +125,7 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_revurdering_når_fagsak_allerede_har_åpen_behandling() {
+    void skal_ikke_opprette_revurdering_når_fagsak_allerede_har_åpen_behandling() {
         // Arrange
         var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
         var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);

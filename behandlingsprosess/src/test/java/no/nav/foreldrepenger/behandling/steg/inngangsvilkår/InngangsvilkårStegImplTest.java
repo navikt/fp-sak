@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class InngangsvilkårStegImplTest {
+class InngangsvilkårStegImplTest {
 
     private final VilkårType medlVilkårType = VilkårType.MEDLEMSKAPSVILKÅRET;
     private final VilkårType oppVilkårType = VilkårType.OPPTJENINGSVILKÅRET;
@@ -61,7 +61,7 @@ public class InngangsvilkårStegImplTest {
     private RegelOrkestrerer regelOrkestrerer;
 
     @Test
-    public void skal_hoppe_til_uttak_ved_avslag_for_foreldrepenger_ved_revurdering() {
+    void skal_hoppe_til_uttak_ved_avslag_for_foreldrepenger_ved_revurdering() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
@@ -91,7 +91,7 @@ public class InngangsvilkårStegImplTest {
     }
 
     @Test
-    public void skal_gi_aksjonspunkt_ved_avslag_på_opptjening_for_foreldrepenger_ved_førstegang() {
+    void skal_gi_aksjonspunkt_ved_avslag_på_opptjening_for_foreldrepenger_ved_førstegang() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -122,7 +122,7 @@ public class InngangsvilkårStegImplTest {
     }
 
     @Test
-    public void skal_gi_aksjonspunkt_ved_avslag_på_opptjening_for_foreldrepenger_ved_revurdering() {
+    void skal_gi_aksjonspunkt_ved_avslag_på_opptjening_for_foreldrepenger_ved_revurdering() {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -167,7 +167,7 @@ public class InngangsvilkårStegImplTest {
     }
 
     @Test
-    public void skal_hoppe_til_uttak_når_forrige_behandling_ikke_er_avslått_og_opptjeningsvilkåret_er_oppfylt_for_foreldrepenger_ved_revurdering() {
+    void skal_hoppe_til_uttak_når_forrige_behandling_ikke_er_avslått_og_opptjeningsvilkåret_er_oppfylt_for_foreldrepenger_ved_revurdering() {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -202,7 +202,7 @@ public class InngangsvilkårStegImplTest {
     }
 
     @Test
-    public void skal_ikke_hoppe_til_uttak_når_forrige_behandling_er_avslått_for_foreldrepenger_ved_revurdering() {
+    void skal_ikke_hoppe_til_uttak_når_forrige_behandling_er_avslått_for_foreldrepenger_ved_revurdering() {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -239,7 +239,7 @@ public class InngangsvilkårStegImplTest {
     }
 
     @Test
-    public void skal_ikke_hoppe_til_uttak_når_en_tidligere_behandling_er_avslått_selv_om_det_finnes_et_beslutningsvedtak_imellom() {
+    void skal_ikke_hoppe_til_uttak_når_en_tidligere_behandling_er_avslått_selv_om_det_finnes_et_beslutningsvedtak_imellom() {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -285,7 +285,7 @@ public class InngangsvilkårStegImplTest {
     }
 
     @Test
-    public void skal_ved_tilbakehopp_rydde_vilkårresultat_og_vilkår_og_behandlingsresultattype() {
+    void skal_ved_tilbakehopp_rydde_vilkårresultat_og_vilkår_og_behandlingsresultattype() {
         // Arrange
         var scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()

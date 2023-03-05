@@ -61,7 +61,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 @ExtendWith(JpaExtension.class)
-public class OpptjeningsperioderTjenesteTest {
+class OpptjeningsperioderTjenesteTest {
 
     private static final String ORG_NUMMER = KUNSTIG_ORG;
 
@@ -92,7 +92,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_utlede_opptjening_aktivitet_periode_uten_overstyrt() {
+    void skal_utlede_opptjening_aktivitet_periode_uten_overstyrt() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -126,7 +126,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void ytelse_skal_lage_sammehengende_liste() {
+    void ytelse_skal_lage_sammehengende_liste() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -170,7 +170,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void ytelse_skal_ikke_ta_med_ytelser_etter_stp() {
+    void ytelse_skal_ikke_ta_med_ytelser_etter_stp() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -212,7 +212,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode() {
+    void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -255,7 +255,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_sammenstille_grunnlag_og_utlede_opptjening_aktivitet_periode() {
+    void skal_sammenstille_grunnlag_og_utlede_opptjening_aktivitet_periode() {
         // Arrange
         var behandling = opprettBehandling();
 
@@ -292,7 +292,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_utlede_om_en_periode_er_blitt_endret() {
+    void skal_utlede_om_en_periode_er_blitt_endret() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -319,7 +319,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_oat_frilans_ved_bekreftet_frilans() {
+    void skal_returnere_oat_frilans_ved_bekreftet_frilans() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -365,7 +365,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_sette_manuelt_behandlet_ved_underkjent_frilans() {
+    void skal_sette_manuelt_behandlet_ved_underkjent_frilans() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -418,7 +418,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_oat_frilans_ved_bekreftet_frilans_for_vilkår() {
+    void skal_returnere_oat_frilans_ved_bekreftet_frilans_for_vilkår() {
         // Arrange
         final var behandling = opprettBehandling();
 
@@ -461,7 +461,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_returnere_en_periode_med_fiktivt_bekreftet_arbeidsforhold() {
+    void skal_returnere_en_periode_med_fiktivt_bekreftet_arbeidsforhold() {
         // Arrange
         final var behandling = opprettBehandling();
         var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
@@ -481,7 +481,7 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    public void skal_kunne_bygge_opptjeninsperiode_basert_på_arbeidsforhold_lagt_til_avsaksbehandler() {
+    void skal_kunne_bygge_opptjeninsperiode_basert_på_arbeidsforhold_lagt_til_avsaksbehandler() {
         final var behandling = opprettBehandling();
         var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var start = LocalDate.now().minusMonths(5);

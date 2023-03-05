@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class VergeTjenesteTest extends EntityManagerAwareTest {
+class VergeTjenesteTest extends EntityManagerAwareTest {
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -83,7 +83,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_utlede_behandlingsmeny_skjul_når_erUnder18år_erIForelsåVedtak_ogHarRegistrertVerge() {
+    void skal_utlede_behandlingsmeny_skjul_når_erUnder18år_erIForelsåVedtak_ogHarRegistrertVerge() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -108,7 +108,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_utlede_behandlingsmeny_opprett_når_erUnder18år() {
+    void skal_utlede_behandlingsmeny_opprett_når_erUnder18år() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -129,7 +129,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_utlede_behandlingsmeny_opprett_når_behandlingen_ikke_har_registrert_verge_og_ikke_har_verge_aksjonspunkt() {
+    void skal_utlede_behandlingsmeny_opprett_når_behandlingen_ikke_har_registrert_verge_og_ikke_har_verge_aksjonspunkt() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -144,7 +144,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_utlede_behandlingsmeny_fjern_når_behandlingen_har_verge_aksjonspunkt() {
+    void skal_utlede_behandlingsmeny_fjern_når_behandlingen_har_verge_aksjonspunkt() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -160,7 +160,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_utlede_behandlingsmeny_fjern_når_behandlingen_har_registrert_verge() {
+    void skal_utlede_behandlingsmeny_fjern_når_behandlingen_har_registrert_verge() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -178,7 +178,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_verge_aksjonspunkt() {
+    void skal_opprette_verge_aksjonspunkt() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
@@ -197,7 +197,7 @@ public class VergeTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_fjerne_verge_grunnlag_og_aksjonspunkt() {
+    void skal_fjerne_verge_grunnlag_og_aksjonspunkt() {
         // Arrange
         var fagsak = opprettFagsak();
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();

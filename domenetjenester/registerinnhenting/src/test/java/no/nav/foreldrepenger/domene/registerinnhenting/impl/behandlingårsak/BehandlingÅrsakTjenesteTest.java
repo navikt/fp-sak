@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @CdiDbAwareTest
-public class BehandlingÅrsakTjenesteTest {
+class BehandlingÅrsakTjenesteTest {
 
     private final AktørId AKTØRID = AktørId.dummy();
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
@@ -82,7 +82,7 @@ public class BehandlingÅrsakTjenesteTest {
     }
 
     @Test
-    public void test_skal_ikke_returnere_behandlingsårsaker_hvis_ikke_endringer() {
+    void test_skal_ikke_returnere_behandlingsårsaker_hvis_ikke_endringer() {
         var behandling = opprettBehandling();
 
         var endringsresultat = EndringsresultatDiff.opprett();
@@ -105,7 +105,7 @@ public class BehandlingÅrsakTjenesteTest {
     }
 
     @Test
-    public void test_behandlingsårsaker_når_endring_i_familiehendelse() {
+    void test_behandlingsårsaker_når_endring_i_familiehendelse() {
         var behandling = opprettBehandling();
         var endringsresultat = EndringsresultatDiff.opprett();
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
@@ -120,7 +120,7 @@ public class BehandlingÅrsakTjenesteTest {
     }
 
     @Test
-    public void test_behandlingsårsaker_når_endring_dødsdato_søker() {
+    void test_behandlingsårsaker_når_endring_dødsdato_søker() {
         var behandling = opprettBehandling();
         final var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(behandling, null);

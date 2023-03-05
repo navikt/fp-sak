@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
 
 @ExtendWith(MockitoExtension.class)
-public class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
+class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
 
     private static final AktørId BARN_AKTØR_ID = AktørId.dummy();
     private static final AktørId EKTE_AKTØR_ID = AktørId.dummy();
@@ -50,7 +50,7 @@ public class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_returnere_startpunkt_udefinert_dersom_kun_fødselsregistrering_deretter_beregning_ved_død() {
+    void skal_returnere_startpunkt_udefinert_dersom_kun_fødselsregistrering_deretter_beregning_ved_død() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
         var nyBekreftetfødselsdato = origSkjæringsdato.minusDays(1); // fødselsdato før skjæringstidspunkt
@@ -106,7 +106,7 @@ public class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_returnere_startpunkt_srb_ved_ekteskap_med_annen_enn_annenpart() {
+    void skal_returnere_startpunkt_srb_ved_ekteskap_med_annen_enn_annenpart() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
         var nyBekreftetfødselsdato = origSkjæringsdato.minusDays(1); // fødselsdato før skjæringstidspunkt
@@ -143,7 +143,7 @@ public class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_returnere_startpunkt_uttak_ved_endring_har_samme_bosted() {
+    void skal_returnere_startpunkt_uttak_ved_endring_har_samme_bosted() {
         // Arrange
         var fødselsdato = LocalDate.now().minusDays(10);
 

@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class KompletthetskontrollerTest {
+class KompletthetskontrollerTest {
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -81,7 +81,7 @@ public class KompletthetskontrollerTest {
     }
 
     @Test
-    public void skal_sette_behandling_på_vent_dersom_kompletthet_ikke_er_oppfylt() {
+    void skal_sette_behandling_på_vent_dersom_kompletthet_ikke_er_oppfylt() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
@@ -97,7 +97,7 @@ public class KompletthetskontrollerTest {
     }
 
     @Test
-    public void skal_beholde_behandling_på_vent_dersom_kompletthet_ikke_er_oppfylt_deretter_slippe_videre() {
+    void skal_beholde_behandling_på_vent_dersom_kompletthet_ikke_er_oppfylt_deretter_slippe_videre() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING, BehandlingStegType.INREG_AVSL);
@@ -126,7 +126,7 @@ public class KompletthetskontrollerTest {
     }
 
     @Test
-    public void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_kompletthet_ikke_passert() {
+    void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_kompletthet_ikke_passert() {
         // Arrange
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
@@ -137,7 +137,7 @@ public class KompletthetskontrollerTest {
     }
 
     @Test
-    public void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
+    void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
         // Arrange
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
@@ -160,7 +160,7 @@ public class KompletthetskontrollerTest {
     }
 
     @Test
-    public void skal_spole_til_startpunkt_dersom_komplett_og_vurder_kompletthet_er_passert() {
+    void skal_spole_til_startpunkt_dersom_komplett_og_vurder_kompletthet_er_passert() {
         // Arrange
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
@@ -179,7 +179,7 @@ public class KompletthetskontrollerTest {
     }
 
     @Test
-    public void skal_opprette_historikkinnslag_for_tidlig_mottatt_søknad() {
+    void skal_opprette_historikkinnslag_for_tidlig_mottatt_søknad() {
         // Arrange
         var frist = LocalDateTime.now().minusSeconds(30);
         when(kompletthetsjekker.vurderSøknadMottattForTidlig(any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
@@ -194,7 +194,7 @@ public class KompletthetskontrollerTest {
     }
 
     @Test
-    public void skal_opprette_historikkinnslag_ikke_komplett() {
+    void skal_opprette_historikkinnslag_ikke_komplett() {
         // Arrange
         var frist = LocalDateTime.now();
         when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());

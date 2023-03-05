@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskap;
 import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskapsunntak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class HentMedlemskapFraRegisterTest {
+class HentMedlemskapFraRegisterTest {
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
@@ -36,7 +36,7 @@ public class HentMedlemskapFraRegisterTest {
     }
 
     @Test
-    public void skal_hente_medlemsperioder_og_logge_dem_til_saksopplysningslageret() throws Exception {
+    void skal_hente_medlemsperioder_og_logge_dem_til_saksopplysningslageret() throws Exception {
         // Arrange
         var unntak = mock(Medlemskapsunntak.class);
         when(unntak.unntakId()).thenReturn(MEDL_ID_1);

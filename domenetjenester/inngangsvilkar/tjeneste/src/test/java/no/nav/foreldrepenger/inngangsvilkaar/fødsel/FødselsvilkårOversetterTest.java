@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
-public class FødselsvilkårOversetterTest {
+class FødselsvilkårOversetterTest {
 
     private FødselsvilkårOversetter fødselsoversetter;
 
@@ -52,7 +52,7 @@ public class FødselsvilkårOversetterTest {
     }
 
     @Test
-    public void skal_mappe_fra_domenefødsel_til_regelfødsel() {
+    void skal_mappe_fra_domenefødsel_til_regelfødsel() {
         var now = LocalDate.now();
         var søknadsdato = now;
         var fødselFødselsdato = now.plusDays(7);
@@ -71,7 +71,7 @@ public class FødselsvilkårOversetterTest {
     }
 
     @Test
-    public void skal_mappe_fra_domenefødsel_til_regelfødsel_dersom_søker_er_medmor() {
+    void skal_mappe_fra_domenefødsel_til_regelfødsel_dersom_søker_er_medmor() {
         var now = LocalDate.now();
         var søknadsdato = now;
         var fødselFødselsdato = now.plusDays(7);

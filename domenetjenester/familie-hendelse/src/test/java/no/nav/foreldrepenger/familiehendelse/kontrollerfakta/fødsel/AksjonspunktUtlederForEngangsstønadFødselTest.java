@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
-public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAwareTest {
+class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAwareTest {
 
     private static final LocalDate FØDSELSDATO_NÅ = LocalDate.now();
     private static final LocalDate TERMINDATO_NÅ = LocalDate.now();
@@ -48,7 +48,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void avklar_terminbekreftelse_dersom_termindato_nå() {
+    void avklar_terminbekreftelse_dersom_termindato_nå() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO_NÅ, FØRSTEGANGSSØKNAD);
         //Act
@@ -59,7 +59,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_termindato_mer_enn_17_dager_siden() {
+    void sjekk_manglende_fødsel_dersom_termindato_mer_enn_17_dager_siden() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO_27_SIDEN, FØRSTEGANGSSØKNAD);
         //Act
@@ -74,7 +74,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
+    void sjekk_manglende_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_NÅ.minusDays(7));
         //Act
@@ -87,7 +87,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void autopunkt_vent_på_fødsel_dersom_fødsel_og_mer_enn_7_dager_siden_fødsel() {
+    void autopunkt_vent_på_fødsel_dersom_fødsel_og_mer_enn_7_dager_siden_fødsel() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_16_SIDEN);
         //Act
@@ -99,7 +99,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
+    void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
         //Arrange
         var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ,1, 1);
         //Act
@@ -110,7 +110,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void ingen_akjsonspunkter_dersom_fødsel_overstyrt() {
+    void ingen_akjsonspunkter_dersom_fødsel_overstyrt() {
         //Arrange
         var behandling = opprettBehandlingForFødselOverstyrt(FØDSELSDATO_NÅ,1, 1);
         //Act
@@ -121,7 +121,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
+    void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
         //Arrange
         var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ, 2, 1);
         //Act

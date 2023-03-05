@@ -39,14 +39,14 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.KodeMapper;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
-public class VedtaksperioderHelperTest {
+class VedtaksperioderHelperTest {
 
     private static final KodeMapper<StønadskontoType, UttakPeriodeType> stønadskontoTypeMapper = initStønadskontoTypeMapper();
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 1, 1);
 
     @Test
-    public void skal_lage_en_klippet_vedtaksperiode_av_tidligere_uttak_fra_endringsdato() {
+    void skal_lage_en_klippet_vedtaksperiode_av_tidligere_uttak_fra_endringsdato() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
             nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
@@ -71,7 +71,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skal_lage_vedtaksperioder_av_tidligere_uttak() {
+    void skal_lage_vedtaksperioder_av_tidligere_uttak() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
             nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
@@ -104,7 +104,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skal_lage_vedtaksperioder_av_tidligere_uttak_inkludert_samtidig_uttak() {
+    void skal_lage_vedtaksperioder_av_tidligere_uttak_inkludert_samtidig_uttak() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
             nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
@@ -138,7 +138,7 @@ public class VedtaksperioderHelperTest {
 
 
     @Test
-    public void skal_lage_vedtaksperioder_av_tidligere_uttak_og_flett_inn_endringsøknad() {
+    void skal_lage_vedtaksperioder_av_tidligere_uttak_og_flett_inn_endringsøknad() {
         // Sett opp uttaksplan for forrige behandling
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
@@ -201,7 +201,7 @@ public class VedtaksperioderHelperTest {
 
 
     @Test
-    public void skal_ikke_lage_vedtaksperioder_av_tidligere_uttak_og_endringsdato_lik_første_søknadsdato() {
+    void skal_ikke_lage_vedtaksperioder_av_tidligere_uttak_og_endringsdato_lik_første_søknadsdato() {
         // Sett opp uttaksplan for forrige behandling
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
@@ -237,7 +237,7 @@ public class VedtaksperioderHelperTest {
 
 
     @Test
-    public void skal_lage_vedtaksperioder_av_deler_av_tidligere_uttak_og_flett_inn_endringsøknad() {
+    void skal_lage_vedtaksperioder_av_deler_av_tidligere_uttak_og_flett_inn_endringsøknad() {
         // Sett opp uttaksplan for forrige behandling
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
@@ -280,7 +280,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void søknadsperiode_start_overlapp_med_sluttdato_på_uttak() {
+    void søknadsperiode_start_overlapp_med_sluttdato_på_uttak() {
         // Sett opp uttaksplan for forrige behandling
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
@@ -319,7 +319,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void uttakperioder_avslått_pga_overlapp_med_annenpart_og_med_null_trekk_ikke_kopieres_med_i_neste_behandling() {
+    void uttakperioder_avslått_pga_overlapp_med_annenpart_og_med_null_trekk_ikke_kopieres_med_i_neste_behandling() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
             nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
@@ -367,7 +367,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void uttakperioder_avslått_pga_overlapp_med_utsettelse_hos_annenpart_og_med_null_trekk_ikke_kopieres_med_i_neste_behandling() {
+    void uttakperioder_avslått_pga_overlapp_med_utsettelse_hos_annenpart_og_med_null_trekk_ikke_kopieres_med_i_neste_behandling() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
             nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
@@ -415,7 +415,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void konvertererIkkeGodkjentUtsettelse() {
+    void konvertererIkkeGodkjentUtsettelse() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
         var periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom).medUtsettelseType(
@@ -439,7 +439,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void konvertererGodkjentUtsettelse() {
+    void konvertererGodkjentUtsettelse() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
         var periodeEntitet = new UttakResultatPeriodeEntitet.Builder(fom, tom).medUtsettelseType(
@@ -464,7 +464,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void konvertererUttakMedGraderingSomArbeidstaker() {
+    void konvertererUttakMedGraderingSomArbeidstaker() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
@@ -504,7 +504,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void konvertererAvslåttGraderingSomArbeidstaker() {
+    void konvertererAvslåttGraderingSomArbeidstaker() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
@@ -544,7 +544,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void konvertererUttakMedGraderingSomArbeidstaker_Null_arbeidsprosent_i_uttak() {
+    void konvertererUttakMedGraderingSomArbeidstaker_Null_arbeidsprosent_i_uttak() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
@@ -584,7 +584,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void konverterer_uttak_inkludert_samtidig_uttak_og_flerbarnsdager() {
+    void konverterer_uttak_inkludert_samtidig_uttak_og_flerbarnsdager() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
@@ -618,7 +618,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void konvertererUttakMedGraderingSomSelvstendigNæringsdrivende() {
+    void konvertererUttakMedGraderingSomSelvstendigNæringsdrivende() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
@@ -657,7 +657,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skal_ikke_ta_med_uttak_periode_som_ikke_er_knyttet_til_søknadsperiode() {
+    void skal_ikke_ta_med_uttak_periode_som_ikke_er_knyttet_til_søknadsperiode() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
             nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
@@ -680,7 +680,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skal_lage_en_vedtaksperiode_av_uttaksresultatperiode_på_en_dag() {
+    void skal_lage_en_vedtaksperiode_av_uttaksresultatperiode_på_en_dag() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         var uttakResultatPeriode = nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato, fødselsdato,
             StønadskontoType.MØDREKVOTE);
@@ -697,7 +697,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skal_håndtere_at_endringsdato_er_null_dersom_det_ikke_finnes_uttaksperioder() {
+    void skal_håndtere_at_endringsdato_er_null_dersom_det_ikke_finnes_uttaksperioder() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         var uttakResultatEntitet = new UttakResultatEntitet.Builder(
             mock(Behandlingsresultat.class)).medOpprinneligPerioder(uttakResultatPerioderEntitet).build();
@@ -718,7 +718,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skalKonvertereSamtidigUttak() {
+    void skalKonvertereSamtidigUttak() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
@@ -744,7 +744,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skalHåndtereSamtidigUttaksprosentNull() {
+    void skalHåndtereSamtidigUttaksprosentNull() {
         var fom = LocalDate.of(2018, Month.JULY, 3);
         var tom = fom.plusWeeks(1).minusDays(1);
 
@@ -766,7 +766,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skalKonvertereOverføringÅrsak() {
+    void skalKonvertereOverføringÅrsak() {
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
             LocalDate.of(2018, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET,
             PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
@@ -787,7 +787,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skalKonvertereMottattDato() {
+    void skalKonvertereMottattDato() {
         var mottattDato = LocalDate.of(2017, 1, 1);
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
             LocalDate.of(2018, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET,
@@ -810,7 +810,7 @@ public class VedtaksperioderHelperTest {
     }
 
     @Test
-    public void skalIkkeKopiereMedDokumentasjonsVurderingHvisInnvilgetRedusertUttakPgaMorDelvisArbeid() {
+    void skalIkkeKopiereMedDokumentasjonsVurderingHvisInnvilgetRedusertUttakPgaMorDelvisArbeid() {
         var uttaksperiode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, Month.JULY, 3),
             LocalDate.of(2018, Month.JULY, 10)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.FORELDREPENGER_FELLESPERIODE_TIL_FAR)
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()

@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
+class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider provider;
 
@@ -28,7 +28,7 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_søker_har_oppholdt_seg_i_Norge_de_siste_12_måneder() {
+    void skal_ikke_opprette_aksjonspunkt_om_søker_har_oppholdt_seg_i_Norge_de_siste_12_måneder() {
         //Arrange
         var fødselsdato = LocalDate.now().minusDays(5L);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -44,7 +44,7 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_det_ikke_er_søkt_på_bakgrunn_av_fødsel() {
+    void skal_ikke_opprette_aksjonspunkt_om_det_ikke_er_søkt_på_bakgrunn_av_fødsel() {
         //Arrange
         var termindato = LocalDate.now().minusDays(5L); // Oppgir termindato, dvs. søknad ikke basert på fødsel
         var scenario = ScenarioMorSøkerEngangsstønad
@@ -71,7 +71,7 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_opprette_aksjonspunkt_om_søkers_barn_er_født_i_Norge() {
+    void skal_ikke_opprette_aksjonspunkt_om_søkers_barn_er_født_i_Norge() {
         //Arrange
         var fødselsdato = LocalDate.now().minusDays(2L);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -94,7 +94,7 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_søkers_barn_fra_søknad_er_født_i_utlandet() {
+    void skal_opprette_aksjonspunkt_om_søkers_barn_fra_søknad_er_født_i_utlandet() {
         //Arrange
         var fødselsdato = LocalDate.now().minusDays(5L);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -117,7 +117,7 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_om_søkers_barn_fra_tps_er_født_i_utlandet() {
+    void skal_opprette_aksjonspunkt_om_søkers_barn_fra_tps_er_født_i_utlandet() {
         //Arrange
         var fødselsdato = LocalDate.now().minusDays(5L);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

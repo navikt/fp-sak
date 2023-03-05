@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
  * implementasjoner.
  */
 @CdiDbAwareTest
-public class BehandlingModellTest {
+class BehandlingModellTest {
 
     @ParameterizedTest
     @MethodSource("parameters")

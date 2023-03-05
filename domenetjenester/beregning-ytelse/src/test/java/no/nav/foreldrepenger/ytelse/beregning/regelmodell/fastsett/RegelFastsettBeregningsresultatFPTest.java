@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakRes
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class RegelFastsettBeregningsresultatFPTest {
+class RegelFastsettBeregningsresultatFPTest {
     private static final LocalDate TRE_UKER_FØR_FØDSEL_DT = LocalDate.now().minusWeeks(3);
     private static final LocalDate FØDSELSDATO = LocalDate.now();
     private static final LocalDate DAGEN_ETTER_FØDSEL = LocalDate.now().plusDays(1);
@@ -45,7 +45,7 @@ public class RegelFastsettBeregningsresultatFPTest {
     private static final Arbeidsforhold ARBEIDSFORHOLD_3 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("333",UUID.randomUUID().toString());
 
     @Test
-    public void skalLageAndelForBrukerOgArbeidsgiverForEnPeriode() {
+    void skalLageAndelForBrukerOgArbeidsgiverForEnPeriode() {
         // Arrange
         var modell = opprettRegelmodellEnPeriode();
 
@@ -74,7 +74,7 @@ public class RegelFastsettBeregningsresultatFPTest {
     }
 
     @Test
-    public void skalPeriodisereFlereUttaksPerioder() {
+    void skalPeriodisereFlereUttaksPerioder() {
         // Arrange
         var intervalList = List.of(
                 FELLESPERIODE_FØR_FØDSEL,
@@ -97,7 +97,7 @@ public class RegelFastsettBeregningsresultatFPTest {
     }
 
     @Test
-    public void skalLageAndelerForFlereArbeidsforhold() {
+    void skalLageAndelerForFlereArbeidsforhold() {
         // Arrange
         var arb1 = lagPrArbeidsforhold(2000.0, 0.0, ARBEIDSFORHOLD_1);
         var arb2 = lagPrArbeidsforhold(0.0, 1500.0, ARBEIDSFORHOLD_2);
@@ -139,7 +139,7 @@ public class RegelFastsettBeregningsresultatFPTest {
     }
 
     @Test
-    public void skalLageAndelerForAnonymtArbeidsforhold() {
+    void skalLageAndelerForAnonymtArbeidsforhold() {
         // Arrange
         var arb1 = lagPrArbeidsforhold(2000.0, 0.0, ANONYMT_ARBEIDSFORHOLD);
         var arb2 = lagPrArbeidsforhold(0.0, 1500.0, ARBEIDSFORHOLD_2);
@@ -176,7 +176,7 @@ public class RegelFastsettBeregningsresultatFPTest {
     }
 
     @Test
-    public void skalPeriodisereFlereUttaksPerioderOgBeregningsgrunnlagPerioder() {
+    void skalPeriodisereFlereUttaksPerioderOgBeregningsgrunnlagPerioder() {
         // Arrange
         var modell = opprettRegelmodellMedFlereBGOgUttakPerioder();
 
@@ -222,7 +222,7 @@ public class RegelFastsettBeregningsresultatFPTest {
     }
 
     @Test
-    public void skalRundeAvAndelerRiktig() {
+    void skalRundeAvAndelerRiktig() {
         // Arrange
         var arb1 = lagPrArbeidsforhold(2165.49, 0.00, ARBEIDSFORHOLD_1);
         var arb2 = lagPrArbeidsforhold(0.455, 1550.50, ARBEIDSFORHOLD_2);
