@@ -581,8 +581,12 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     private List<UttakResultatPeriode> lagUttakResultatPeriode(LocalDate fom, LocalDate tom, BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent,
             BigDecimal utbetalingsgrad, AktivitetStatus aktivitetStatus, boolean erGradering) {
 
-        var uttakAktiviter = List.of(new UttakAktivitet(stillingsgrad, arbeidstidsprosent, utbetalingsgrad, arbeidsforhold, aktivitetStatus, erGradering, stillingsgrad));
-        var periode = new UttakResultatPeriode(fom, tom, uttakAktiviter, false);
+        var uttakAktivitet = UttakAktivitet.ny(aktivitetStatus)
+            .medArbeidsforhold(arbeidsforhold)
+            .medUtbetalingsgrad(utbetalingsgrad)
+            .medStillingsgrad(stillingsgrad, stillingsgrad)
+            .medGradering(erGradering, arbeidstidsprosent);
+        var periode = new UttakResultatPeriode(fom, tom, List.of(uttakAktivitet), false);
         return List.of(periode);
     }
 
@@ -620,8 +624,9 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
                                                                                 int nyArbeidstidProsent, BigDecimal utbGrad,
                                                                                 boolean erGradering) {
         arbeidsforhold = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr);
-        prArbeidsforhold = new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold, BigDecimal.valueOf(redRefusjonPrÅr),
-            BigDecimal.valueOf(redBrukersAndelPrÅr), null);
+        prArbeidsforhold = BeregningsgrunnlagPrArbeidsforhold.opprett(arbeidsforhold, null)
+            .medRedusertRefusjonPrÅr(BigDecimal.valueOf(redRefusjonPrÅr))
+            .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(redBrukersAndelPrÅr));
         return lagMellomregning(AktivitetStatus.ATFL, stillingsgrad, new BigDecimal(nyArbeidstidProsent), utbGrad,
             BigDecimal.valueOf(redBrukersAndelPrÅr), erGradering);
     }
@@ -647,8 +652,9 @@ public class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
 
     private BeregningsresultatRegelmodellMellomregning settOppScenarioMedOppholdsperiodeForAT(int redBrukersAndelPrÅr, int redRefusjonPrÅr) {
         arbeidsforhold = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr);
-        prArbeidsforhold = new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold,
-            BigDecimal.valueOf(redRefusjonPrÅr), BigDecimal.valueOf(redBrukersAndelPrÅr), null);
+        prArbeidsforhold = BeregningsgrunnlagPrArbeidsforhold.opprett(arbeidsforhold, null)
+            .medRedusertRefusjonPrÅr(BigDecimal.valueOf(redRefusjonPrÅr))
+            .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(redBrukersAndelPrÅr));
         return lagMellomregningForOppholdsPeriode(AktivitetStatus.ATFL, BigDecimal.valueOf(redBrukersAndelPrÅr));
     }
 

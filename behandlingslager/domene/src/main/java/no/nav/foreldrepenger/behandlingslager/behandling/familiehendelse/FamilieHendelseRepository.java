@@ -91,26 +91,18 @@ public class FamilieHendelseRepository {
         nyttGrunnlag.setBehandling(behandlingId);
         lagreHendelse(nyttGrunnlag.getSøknadVersjon());
 
-        if (nyttGrunnlag.getBekreftetVersjon().isPresent()) {
-            lagreHendelse(nyttGrunnlag.getBekreftetVersjon().get());
-        }
+        nyttGrunnlag.getBekreftetVersjon().ifPresent(this::lagreHendelse);
 
-        if (nyttGrunnlag.getOverstyrtVersjon().isPresent()) {
-            final var entity = nyttGrunnlag.getOverstyrtVersjon().get();
-            lagreHendelse(entity);
-        }
+
+        nyttGrunnlag.getOverstyrtVersjon().ifPresent(this::lagreHendelse);
 
         entityManager.persist(nyttGrunnlag);
     }
 
     private void lagreHendelse(FamilieHendelseEntitet entity) {
         entityManager.persist(entity);
-        if (entity.getTerminbekreftelse().isPresent()) {
-            entityManager.persist(entity.getTerminbekreftelse().get());
-        }
-        if (entity.getAdopsjon().isPresent()) {
-            entityManager.persist(entity.getAdopsjon().get());
-        }
+        entity.getTerminbekreftelse().ifPresent(entityManager::persist);
+        entity.getAdopsjon().ifPresent(entityManager::persist);
         for (var uidentifisertBarn : entity.getBarna()) {
             entityManager.persist(uidentifisertBarn);
         }
@@ -219,8 +211,8 @@ public class FamilieHendelseRepository {
      *
      * Fjerner bekreftede og overstyrte data som var for
      *
-     * @param gammelBehandling behandlingen det opprettes revurdering på
-     * @param nyBehandling revurderings behandlingen
+     * @param gammelBehandlingId behandlingen det opprettes revurdering på
+     * @param nyBehandlingId revurderings behandlingen
      */
     public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long gammelBehandlingId, Long nyBehandlingId) {
         final var familieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(gammelBehandlingId);
@@ -288,7 +280,7 @@ public class FamilieHendelseRepository {
             final var hendelseAggregat = aggregat.get();
             final var hendelseAggregat1 = getFamilieHendelseBuilderForType(hendelseAggregat, type);
             if (hendelseAggregat1 != null) {
-                hendelseAggregat1.setType(type);
+                hendelseAggregat1.setOvergripendeType(type);
                 return hendelseAggregat1;
             }
             throw FamilieHendelseFeil.ukjentVersjonstype();

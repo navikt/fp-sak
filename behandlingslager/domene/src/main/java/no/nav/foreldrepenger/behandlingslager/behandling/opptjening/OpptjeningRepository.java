@@ -159,7 +159,7 @@ public class OpptjeningRepository {
         }
         opptjening = oppdateringsfunksjon.apply(tidligereOpptjening);
 
-        opptjening.setVilkårResultat(getBehandlingsresultat(behandlingId).getVilkårResultat());
+        opptjening.setVilkårResultat(Optional.ofNullable(getBehandlingsresultat(behandlingId)).orElseThrow().getVilkårResultat());
 
         em.persist(opptjening);
         em.flush();
@@ -192,7 +192,8 @@ public class OpptjeningRepository {
     public void kopierGrunnlagFraEksisterendeBehandling(Behandling origBehandling, Behandling nyBehandling) {
         // Opptjening er ikke koblet til Behandling gjennom aggregatreferanse. Må derfor kopieres som deep copy
         var orgBehandlingId = origBehandling.getId();
-        var origOpptjening = hentTidligereOpptjening(getBehandlingsresultat(orgBehandlingId).getVilkårResultat().getId(), true)
+        var origVilkårResultatId = Optional.ofNullable(getBehandlingsresultat(orgBehandlingId)).orElseThrow().getVilkårResultat().getId();
+        var origOpptjening = hentTidligereOpptjening(origVilkårResultatId, true)
             .orElseThrow(() -> new IllegalStateException("Original behandling har ikke opptjening."));
 
         lagreOpptjeningsperiode(nyBehandling, origOpptjening.getFom(), origOpptjening.getTom(), false);

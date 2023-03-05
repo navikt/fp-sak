@@ -289,8 +289,9 @@ public class RegelFastsettBeregningsresultatFPTest {
     }
 
     private BeregningsgrunnlagPrArbeidsforhold lagPrArbeidsforhold(double dagsatsBruker, double dagsatsArbeidsgiver, Arbeidsforhold arbeidsforhold) {
-        return new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold, BigDecimal.valueOf(260 * dagsatsArbeidsgiver),
-            BigDecimal.valueOf(260 * dagsatsBruker), null);
+        return BeregningsgrunnlagPrArbeidsforhold.opprett(arbeidsforhold, null)
+            .medRedusertRefusjonPrÅr(BigDecimal.valueOf(260 * dagsatsArbeidsgiver))
+            .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(260 * dagsatsBruker));
     }
 
     private Beregningsgrunnlag opprettBeregningsgrunnlag(BeregningsgrunnlagPrArbeidsforhold... ekstraArbeidsforhold) {

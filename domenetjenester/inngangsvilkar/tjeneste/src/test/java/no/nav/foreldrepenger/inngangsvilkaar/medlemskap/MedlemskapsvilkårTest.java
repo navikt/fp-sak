@@ -91,7 +91,7 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_manuell_avklart_ikke_medlem_som_vilkår_ikke_oppfylt() {
         // Arrange
-        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_a, Landkoder.NOR, PersonstatusType.BOSA);
+        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_A, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.UNNTAK);
         var behandling = lagre(scenario);
 
@@ -134,7 +134,7 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_avklart_pliktig_medlem_som_vilkår_oppfylt() {
         // Arrange
-        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_a, Landkoder.NOR, PersonstatusType.BOSA);
+        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_A, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM);
         leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.SWE);
         var behandling = lagre(scenario);
@@ -426,7 +426,7 @@ public class MedlemskapsvilkårTest {
     public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_utva_og_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
 
-        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UTVA);
+        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_C, Landkoder.NOR, PersonstatusType.UTVA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         leggTilSøker(scenario, PersonstatusType.UREG, Landkoder.SWE);
 
@@ -449,7 +449,7 @@ public class MedlemskapsvilkårTest {
     public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_ureg_og_relevant_arbeid_og_inntekt_finnes() {
         // Arrange
 
-        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UREG);
+        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_C, Landkoder.NOR, PersonstatusType.UREG);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
 
         leggTilSøker(scenario, PersonstatusType.UREG, Landkoder.SWE);

@@ -73,7 +73,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
         var nyeKontoer = beregnStønadskontoerTjeneste.beregn(input, fagsakRelasjon);
 
         if (beregnStønadskontoerTjeneste.inneholderEndringer(eksiterendeKontoer, nyeKontoer)) {
-            LOG.info("Behandling ville ha endret stønadskontoer " + nyeKontoer);
+            LOG.info("Behandling ville ha endret stønadskontoer {} ", nyeKontoer);
         }
     }
 
@@ -90,12 +90,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
             return true;
         }
 
-        if (foreldrepengerGrunnlag.getAnnenpart().isPresent()) {
-            var annenpartGjeldendeVedtakBehandlingId = foreldrepengerGrunnlag.getAnnenpart().get()
-                .gjeldendeVedtakBehandlingId();
-            return erLøpendeInnvilgetFP(annenpartGjeldendeVedtakBehandlingId);
-        }
-        return false;
+        return foreldrepengerGrunnlag.getAnnenpart().filter(ap -> erLøpendeInnvilgetFP(ap.gjeldendeVedtakBehandlingId())).isPresent();
     }
 
     private boolean erLøpendeInnvilgetFP(Long behandlingId) {

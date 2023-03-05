@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
@@ -73,8 +72,9 @@ public class RegelFastsettBeregningsresultatSVPTest {
     }
 
     private BeregningsgrunnlagPrArbeidsforhold lagPrArbeidsforhold(double dagsatsBruker, double dagsatsArbeidsgiver, Arbeidsforhold arbeidsforhold) {
-        return new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold, BigDecimal.valueOf(260 * dagsatsArbeidsgiver),
-                BigDecimal.valueOf(260 * dagsatsBruker), null);
+        return BeregningsgrunnlagPrArbeidsforhold.opprett(arbeidsforhold, null)
+            .medRedusertRefusjonPrÅr(BigDecimal.valueOf(260 * dagsatsArbeidsgiver))
+            .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(260 * dagsatsBruker));
     }
 
     private Beregningsgrunnlag opprettBeregningsgrunnlag(List<BeregningsgrunnlagPrArbeidsforhold> ekstraArbeidsforhold) {

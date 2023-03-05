@@ -385,98 +385,98 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !
     @Deprecated
-    _5070("5070", AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder"),
+    UTGÅTT_5070("5070", AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder"),
     @Deprecated
-    _5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
+    UTGÅTT_5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
     @Deprecated
-    _6013("6013", AksjonspunktType.OVERSTYRING, "Overstyr søknadsperioder"),
+    UTGÅTT_6013("6013", AksjonspunktType.OVERSTYRING, "Overstyr søknadsperioder"),
     @Deprecated
-    _6070("6070", AksjonspunktType.OVERSTYRING, "Saksbehandler endret søknadsperioder uten aksjonspunkt"),
+    UTGÅTT_6070("6070", AksjonspunktType.OVERSTYRING, "Saksbehandler endret søknadsperioder uten aksjonspunkt"),
     @Deprecated
-    _5081("5081", AksjonspunktType.MANUELL, "Avklar første uttaksdato"),
+    UTGÅTT_5081("5081", AksjonspunktType.MANUELL, "Avklar første uttaksdato"),
     @Deprecated
-    _5097("5097", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på ukjent aktivitet"),
+    UTGÅTT_5097("5097", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på ukjent aktivitet"),
     @Deprecated
-    _5098("5098", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag"),
+    UTGÅTT_5098("5098", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag"),
 
     @Deprecated
-    _5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
+    UTGÅTT_5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
     @Deprecated
-    _5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
+    UTGÅTT_5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
     @Deprecated
-    _5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
+    UTGÅTT_5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
     @Deprecated
-    _5036("5036", AksjonspunktType.MANUELL, "Manuell vurdering av klage (NK)"),
+    UTGÅTT_5036("5036", AksjonspunktType.MANUELL, "Manuell vurdering av klage (NK)"),
     @Deprecated // Håndteres nå sammen med 5039
-    _5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
+    UTGÅTT_5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
     @Deprecated
-    _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden"),
+    UTGÅTT_5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden"),
     @Deprecated // Erstattet av aksjonspunkt 5062
-    _5048("5048", AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen."),
+    UTGÅTT_5048("5048", AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen."),
     @Deprecated
-    _5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
+    UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
-    _5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
+    UTGÅTT_5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated
-    _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
+    UTGÅTT_5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
     @Deprecated // Erstattet av 5085
-    _5080("5080", AksjonspunktType.MANUELL, "Avklar arbeidsforhold"),
+    UTGÅTT_5080("5080", AksjonspunktType.MANUELL, "Avklar arbeidsforhold"),
     @Deprecated
-    _5083("5083", AksjonspunktType.MANUELL, "Vurder formkrav (NK)."),
+    UTGÅTT_5083("5083", AksjonspunktType.MANUELL, "Vurder formkrav (NK)."),
     @Deprecated
-    _5087("5087", AksjonspunktType.MANUELL, "Vurder Dekningsgrad"),
+    UTGÅTT_5087("5087", AksjonspunktType.MANUELL, "Vurder Dekningsgrad"),
     @Deprecated
-    _5088("5088", AksjonspunktType.MANUELL, "Oppgitt at annen forelder ikke rett, men har løpende utbetaling"),
+    UTGÅTT_5088("5088", AksjonspunktType.MANUELL, "Oppgitt at annen forelder ikke rett, men har løpende utbetaling"),
     @Deprecated
-    _5090("5090", AksjonspunktType.MANUELL, "Vurder tilbaketrekk"),
+    UTGÅTT_5090("5090", AksjonspunktType.MANUELL, "Vurder tilbaketrekk"),
     @Deprecated
-    _5093("5093", AksjonspunktType.MANUELL, "Manuell vurdering av anke"),
+    UTGÅTT_5093("5093", AksjonspunktType.MANUELL, "Manuell vurdering av anke"),
     @Deprecated
-    _5094("5094", AksjonspunktType.MANUELL, "Manuell vurdering av anke merknader"),
+    UTGÅTT_5094("5094", AksjonspunktType.MANUELL, "Manuell vurdering av anke merknader"),
     @Deprecated
-    _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
+    UTGÅTT_7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated
-    _7009("7009", AksjonspunktType.AUTOPUNKT, "Vent på oppdatering som passerer kompletthetssjekk"),
+    UTGÅTT_7009("7009", AksjonspunktType.AUTOPUNKT, "Vent på oppdatering som passerer kompletthetssjekk"),
     @Deprecated
-    _7015("7015", AksjonspunktType.AUTOPUNKT, "Venter på regler for 80% dekningsgrad (UTGÅTT)"),
+    UTGÅTT_7015("7015", AksjonspunktType.AUTOPUNKT, "Venter på regler for 80% dekningsgrad (UTGÅTT)"),
     @Deprecated
-    _7016("7016", AksjonspunktType.AUTOPUNKT, "Opprettes når opptjeningsvilkåret blir automatisk avslått. NB! Autopunkt som er innført til prodfeil på opptjenig er fikset (UTGÅTT)"),
+    UTGÅTT_7016("7016", AksjonspunktType.AUTOPUNKT, "Opprettes når opptjeningsvilkåret blir automatisk avslått. NB! Autopunkt som er innført til prodfeil på opptjenig er fikset (UTGÅTT)"),
     @Deprecated
-    _7017("7017", AksjonspunktType.AUTOPUNKT, "Sett på vent - ventelønn/vartpenger og militær med flere aktiviteter (UTGÅTT)"),
+    UTGÅTT_7017("7017", AksjonspunktType.AUTOPUNKT, "Sett på vent - ventelønn/vartpenger og militær med flere aktiviteter (UTGÅTT)"),
     @Deprecated
-    _7018("7018", AksjonspunktType.AUTOPUNKT, "Autopunkt dødfødsel 80% dekningsgrad."),
+    UTGÅTT_7018("7018", AksjonspunktType.AUTOPUNKT, "Autopunkt dødfødsel 80% dekningsgrad."),
     @Deprecated
-    _7019("7019", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering uten beregningsgrunnlag."),
+    UTGÅTT_7019("7019", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering uten beregningsgrunnlag."),
     @Deprecated
-    _7021("7021", AksjonspunktType.AUTOPUNKT, "Endring i fordeling av ytelse bakover i tid (UTGÅTT)"),
+    UTGÅTT_7021("7021", AksjonspunktType.AUTOPUNKT, "Endring i fordeling av ytelse bakover i tid (UTGÅTT)"),
     @Deprecated
-    _7022("7022", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ny inntektsmelding med gyldig arbeidsforholdId."),
+    UTGÅTT_7022("7022", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ny inntektsmelding med gyldig arbeidsforholdId."),
     @Deprecated
-    _7023("7023", AksjonspunktType.AUTOPUNKT, "Autopunkt militær i opptjeningsperioden og beregninggrunnlag under 3G."),
+    UTGÅTT_7023("7023", AksjonspunktType.AUTOPUNKT, "Autopunkt militær i opptjeningsperioden og beregninggrunnlag under 3G."),
     @Deprecated
-    _7024("7024", AksjonspunktType.AUTOPUNKT, "Sett på vent - Arbeidsgiver krever refusjon 3 måneder tilbake i tid (UTGÅTT)"),
+    UTGÅTT_7024("7024", AksjonspunktType.AUTOPUNKT, "Sett på vent - Arbeidsgiver krever refusjon 3 måneder tilbake i tid (UTGÅTT)"),
     @Deprecated
-    _7025("7025", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering flere arbeidsforhold."),
+    UTGÅTT_7025("7025", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering flere arbeidsforhold."),
     @Deprecated
-    _7026("7026", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ulike startdatoer i SVP."),
+    UTGÅTT_7026("7026", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ulike startdatoer i SVP."),
     @Deprecated
-    _7027("7027", AksjonspunktType.AUTOPUNKT, "Autopunkt vent delvis tilrettelegging og refusjon SVP."),
+    UTGÅTT_7027("7027", AksjonspunktType.AUTOPUNKT, "Autopunkt vent delvis tilrettelegging og refusjon SVP."),
     @Deprecated
-    _7028("7028", AksjonspunktType.AUTOPUNKT, "Sett på vent - Søker har søkt SVP og hatt AAP eller DP siste 10 mnd (UTGÅTT)"),
+    UTGÅTT_7028("7028", AksjonspunktType.AUTOPUNKT, "Sett på vent - Søker har søkt SVP og hatt AAP eller DP siste 10 mnd (UTGÅTT)"),
     @Deprecated
-    _7029("7029", AksjonspunktType.AUTOPUNKT, "Sett på vent - Støtter ikke FL/SN i svangerskapspenger (UTGÅTT)"),
+    UTGÅTT_7029("7029", AksjonspunktType.AUTOPUNKT, "Sett på vent - Støtter ikke FL/SN i svangerskapspenger (UTGÅTT)"),
     @Deprecated
-    _7032("7032", AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker (UTGÅTT)"),
+    UTGÅTT_7032("7032", AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker (UTGÅTT)"),
     @Deprecated
-    _7034("7034", AksjonspunktType.AUTOPUNKT, "Autopunkt flere arbeidsforhold i samme virksomhet SVP"),
+    UTGÅTT_7034("7034", AksjonspunktType.AUTOPUNKT, "Autopunkt flere arbeidsforhold i samme virksomhet SVP"),
     @Deprecated
-    _7035("7035", AksjonspunktType.AUTOPUNKT, "Autopunkt potensielt feil i endringssøknad, kontakt bruker"),
+    UTGÅTT_7035("7035", AksjonspunktType.AUTOPUNKT, "Autopunkt potensielt feil i endringssøknad, kontakt bruker"),
     @Deprecated
-    _7036("7036", AksjonspunktType.AUTOPUNKT, "Autopunkt vent manglende arbeidsforhold ifm kommunereform 2020."),
+    UTGÅTT_7036("7036", AksjonspunktType.AUTOPUNKT, "Autopunkt vent manglende arbeidsforhold ifm kommunereform 2020."),
     @Deprecated
-    _7038("7038", AksjonspunktType.AUTOPUNKT, "Vent på korrigering / feilretting av besteberegningen."),
+    UTGÅTT_7038("7038", AksjonspunktType.AUTOPUNKT, "Vent på korrigering / feilretting av besteberegningen."),
     @Deprecated
-    _7041("7041", AksjonspunktType.AUTOPUNKT, "Vent på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans"),
+    UTGÅTT_7041("7041", AksjonspunktType.AUTOPUNKT, "Vent på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans"),
     ;
     static final String KODEVERK = "AKSJONSPUNKT_DEF";
 
@@ -550,7 +550,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     // Bruk for ordinære aksjonspunkt og overstyring
-    AksjonspunktDefinisjon(String kode,
+    AksjonspunktDefinisjon(String kode,                        // NOSONAR
                            AksjonspunktType aksjonspunktType,
                            String navn,
                            BehandlingStegType behandlingStegType,
@@ -573,7 +573,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     // Bruk for autopunkt i 7nnn serien
-    AksjonspunktDefinisjon(String kode,
+    AksjonspunktDefinisjon(String kode,                        // NOSONAR
                            AksjonspunktType aksjonspunktType,
                            String navn,
                            BehandlingStegType behandlingStegType,

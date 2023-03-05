@@ -76,7 +76,7 @@ public class EtterkontrollRepositoryTest {
 
         final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
-        assertThat(behandlings.stream().map(b -> b.getId())).isNotEqualTo(klage.getId());
+        assertThat(behandlings.stream().map(Behandling::getId).filter(bid -> klage.getId().equals(bid))).isEmpty();
     }
 
     @Test

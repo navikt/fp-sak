@@ -82,11 +82,10 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
     private static BeregningsgrunnlagPrStatus mapVLBGPStatusForATFL(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {
         var arbeidsforhold = vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .filter(a -> AktivitetStatus.ATFL.equals(AktivitetStatusMapper.fraVLTilRegel(a.getAktivitetStatus())))
-            .map(a -> new BeregningsgrunnlagPrArbeidsforhold(
-                ArbeidsforholdMapper.mapArbeidsforholdFraBeregningsgrunnlag(a),
-                a.getRedusertRefusjonPrÅr(),
-                a.getRedusertBrukersAndelPrÅr(),
-                InntektskategoriMapper.fraVLTilRegel(a.getGjeldendeInntektskategori())))
+            .map(a -> BeregningsgrunnlagPrArbeidsforhold.opprett(ArbeidsforholdMapper.mapArbeidsforholdFraBeregningsgrunnlag(a),
+                    InntektskategoriMapper.fraVLTilRegel(a.getGjeldendeInntektskategori()))
+                    .medRedusertRefusjonPrÅr(a.getRedusertRefusjonPrÅr())
+                    .medRedusertBrukersAndelPrÅr(a.getRedusertBrukersAndelPrÅr()))
             .toList();
 
         return new BeregningsgrunnlagPrStatus(AktivitetStatus.ATFL, arbeidsforhold);

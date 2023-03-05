@@ -41,7 +41,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
  */
 
 /*
- * @ Transaction HACK (u139158): Transaksjonsgrensen er for denne webservice'en
+ * @ Transaction HACK (uuh): Transaksjonsgrensen er for denne webservice'en
  * flyttet til javatjenesten OpprettGSakTjeneste Dette er ikke i henhold til
  * standard og kan ikke gjøres uten godkjenning fra sjefsarkitekt. Grunnen for
  * at det er gjort her er for å sikre at de tre kallene går i separate

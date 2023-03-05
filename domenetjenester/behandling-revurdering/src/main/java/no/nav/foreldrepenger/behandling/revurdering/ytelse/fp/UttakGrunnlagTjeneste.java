@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.Period;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -159,8 +158,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     private FamilieHendelser familieHendelser(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
         var gjelderFødsel = FamilieHendelseType.gjelderFødsel(familieHendelseAggregat.getGjeldendeVersjon().getType());
         var søknadFamilieHendelse = map(familieHendelseAggregat.getSøknadVersjon(), gjelderFødsel);
-        var bekreftetFamilieHendelse = familieHendelseAggregat.getBekreftetVersjon().isPresent() ? map(
-            familieHendelseAggregat.getBekreftetVersjon().get(), gjelderFødsel) : null;
+        var bekreftetFamilieHendelse = familieHendelseAggregat.getBekreftetVersjon().map(bfh -> map(bfh, gjelderFødsel)).orElse(null);
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(søknadFamilieHendelse)
             .medBekreftetHendelse(bekreftetFamilieHendelse);
         var overstyrtVersjon = familieHendelseAggregat.getOverstyrtVersjon();
@@ -185,7 +183,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var barna = familieHendelseEntitet.getBarna()
             .stream()
             .map(b -> new Barn(b.getDødsdato().orElse(null)))
-            .collect(Collectors.toList());
+            .toList();
         var antallBarn = familieHendelseEntitet.getAntallBarn();
         if (gjelderFødsel) {
             var termindato = familieHendelseEntitet.getTerminbekreftelse()
@@ -193,16 +191,14 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
                 .orElse(null);
             var fødselsdato = familieHendelseEntitet.getFødselsdato().orElse(null);
             return FamilieHendelse.forFødsel(termindato, fødselsdato, barna, antallBarn);
+        } else {
+            var adopsjon = familieHendelseEntitet.getAdopsjon()
+                .orElseThrow(() -> new IllegalStateException("Forventer adopsjon familiehendelse ved adopsjon/omsorgsovertakelse"));
+            var omsorgsovertakelse = adopsjon.getOmsorgsovertakelseDato();
+            var ankomstNorge = adopsjon.getAnkomstNorgeDato();
+            var erStebarnsadopsjon = adopsjon.isStebarnsadopsjon();
+            return FamilieHendelse.forAdopsjonOmsorgsovertakelse(omsorgsovertakelse, barna, antallBarn, ankomstNorge, erStebarnsadopsjon);
         }
-        if (familieHendelseEntitet.getAdopsjon().isEmpty()) {
-            throw new IllegalStateException("Forventer adopsjon familiehendelse ved adopsjon/omsorgsovertakelse");
-        }
-        var adopsjon = familieHendelseEntitet.getAdopsjon().get();
-        var omsorgsovertakelse = adopsjon.getOmsorgsovertakelseDato();
-        var ankomstNorge = adopsjon.getAnkomstNorgeDato();
-        var erStebarnsadopsjon = adopsjon.isStebarnsadopsjon();
-        return FamilieHendelse.forAdopsjonOmsorgsovertakelse(omsorgsovertakelse, barna, antallBarn, ankomstNorge,
-            erStebarnsadopsjon);
     }
 
     private boolean annenpartHarInnvilgetES(FamilieHendelser familieHendelser, AktørId annenpartAktørId) {

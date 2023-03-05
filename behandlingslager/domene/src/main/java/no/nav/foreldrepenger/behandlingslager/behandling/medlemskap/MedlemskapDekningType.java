@@ -18,13 +18,13 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum MedlemskapDekningType implements Kodeverdi {
 
     FTL_2_6("FTL_2_6", "Folketrygdloven § 2-6"),
-    FTL_2_7_a("FTL_2_7_a", "Folketrygdloven § 2-7, 3.ledd bokstav a"),
-    FTL_2_7_b("FTL_2_7_b", "Folketrygdloven § 2-7, 3. ledd bokstav b"),
-    FTL_2_9_1_a("FTL_2_9_1_a", "Folketrygdloven § 2-9, 1.ledd bokstav a"),
-    FTL_2_9_1_b("FTL_2_9_1_b", "Folketrygdloven § 2-9, 1.ledd bokstav b"),
-    FTL_2_9_1_c("FTL_2_9_1_c", "Folketrygdloven § 2-9, 1.ledd bokstav c"),
-    FTL_2_9_2_a("FTL_2_9_2_a", "Folketrygdloven § 2-9, annet ledd, jfr. 1.ledd bokstav a"),
-    FTL_2_9_2_c("FTL_2_9_2_c", "Folketrygdloven § 2-9, annet ledd, jf. 1. ledd bokstav c"),
+    FTL_2_7_A("FTL_2_7_a", "Folketrygdloven § 2-7, 3.ledd bokstav a"),
+    FTL_2_7_B("FTL_2_7_b", "Folketrygdloven § 2-7, 3. ledd bokstav b"),
+    FTL_2_9_1_A("FTL_2_9_1_a", "Folketrygdloven § 2-9, 1.ledd bokstav a"),
+    FTL_2_9_1_B("FTL_2_9_1_b", "Folketrygdloven § 2-9, 1.ledd bokstav b"),
+    FTL_2_9_1_C("FTL_2_9_1_c", "Folketrygdloven § 2-9, 1.ledd bokstav c"),
+    FTL_2_9_2_A("FTL_2_9_2_a", "Folketrygdloven § 2-9, annet ledd, jfr. 1.ledd bokstav a"),
+    FTL_2_9_2_C("FTL_2_9_2_c", "Folketrygdloven § 2-9, annet ledd, jf. 1. ledd bokstav c"),
     FULL("FULL", "Full"),
     IHT_AVTALE("IHT_AVTALE", "I henhold til avtale"),
     OPPHOR("OPPHOR", "Opphør"),
@@ -35,29 +35,17 @@ public enum MedlemskapDekningType implements Kodeverdi {
 
 
     public static final List<MedlemskapDekningType> DEKNINGSTYPER = unmodifiableList(asList(
-        FTL_2_6,
-        FTL_2_7_a,
-        FTL_2_7_b,
-        FTL_2_9_1_a,
-        FTL_2_9_1_b,
-        FTL_2_9_1_c,
-        FTL_2_9_2_a,
-        FTL_2_9_2_c,
+        FTL_2_6, FTL_2_7_A, FTL_2_7_B, FTL_2_9_1_A, FTL_2_9_1_B, FTL_2_9_1_C, FTL_2_9_2_A, FTL_2_9_2_C,
         FULL,
         UNNTATT));
 
-    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_FRIVILLIG_MEDLEM = List.of(
-        FTL_2_7_a,
-        FTL_2_7_b,
-        FTL_2_9_1_a,
-        FTL_2_9_1_c,
-        FTL_2_9_2_a,
-        FTL_2_9_2_c,
+    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_FRIVILLIG_MEDLEM = List.of(FTL_2_7_A, FTL_2_7_B, FTL_2_9_1_A, FTL_2_9_1_C,
+        FTL_2_9_2_A, FTL_2_9_2_C,
         FULL);
 
     public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_MEDLEM_UNNTATT = List.of(UNNTATT);
 
-    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_IKKE_MEDLEM = List.of(FTL_2_6, FTL_2_9_1_b);
+    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_IKKE_MEDLEM = List.of(FTL_2_6, FTL_2_9_1_B);
 
     public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_UAVKLART = List.of(IHT_AVTALE, OPPHOR);
 

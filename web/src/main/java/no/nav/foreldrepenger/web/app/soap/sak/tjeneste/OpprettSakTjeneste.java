@@ -17,7 +17,7 @@ import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 @Transactional
-/* HACK (u139158): Transaksjonsgrensen her er flyttet hit fra webservice'en OpprettSakService
+/* HACK (uuh): Transaksjonsgrensen her er flyttet hit fra webservice'en OpprettSakService
  * Dette er ikke i henhold til standard og kan ikke gjøres uten godkjenning fra sjefsarkitekt.
  * Grunnen for at det er gjort her er for å sikre at de tre kallene går i separate transaksjoner.
  * Se https://jira.adeo.no/browse/PKHUMLE-359 for detaljer.

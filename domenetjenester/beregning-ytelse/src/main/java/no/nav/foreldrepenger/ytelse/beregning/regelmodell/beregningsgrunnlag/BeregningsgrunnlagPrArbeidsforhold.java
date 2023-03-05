@@ -24,4 +24,16 @@ public record BeregningsgrunnlagPrArbeidsforhold(Arbeidsforhold arbeidsforhold,
         return verdi.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();
     }
 
+    public static BeregningsgrunnlagPrArbeidsforhold opprett(Arbeidsforhold arbeidsforhold, Inntektskategori inntektskategori) {
+        return new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold, null, null, inntektskategori);
+    }
+
+    public BeregningsgrunnlagPrArbeidsforhold medRedusertRefusjonPrÅr(BigDecimal redusertRefusjonPrÅr) {
+        return new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold(), redusertRefusjonPrÅr, redusertBrukersAndelPrÅr(), inntektskategori());
+    }
+
+    public BeregningsgrunnlagPrArbeidsforhold medRedusertBrukersAndelPrÅr(BigDecimal redusertBrukersAndelPrÅr) {
+        return new BeregningsgrunnlagPrArbeidsforhold(arbeidsforhold(), redusertRefusjonPrÅr(), redusertBrukersAndelPrÅr, inntektskategori());
+    }
+
 }
