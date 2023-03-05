@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.domene.iay.modell;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -35,8 +37,8 @@ public class ArbeidsforholdInformasjonEntitetTest {
                 .medBeskrivelse("asdf");
         entitet.leggTilOverstyring(overstyringBuilderFor.build());
 
-        assertThat(entitet.finnForEkstern(arbeidsgiver1, ref1)).isNotEqualTo(ref1);
-        assertThat(entitet.finnForEkstern(arbeidsgiver1, ref2)).isNotEqualTo(ref2);
+        assertThat(entitet.finnForEkstern(arbeidsgiver1, ref1)).isNotEqualTo(Optional.of(ref_1_1));
+        assertThat(entitet.finnForEkstern(arbeidsgiver1, ref2)).isEqualTo(Optional.of(ref_1_2));
         assertThat(entitet.finnForEkstern(arbeidsgiver1, ref1)).isEqualTo(entitet.finnForEkstern(arbeidsgiver1, ref2));
         assertThat(entitet.finnForEksternBeholdHistoriskReferanse(arbeidsgiver1, ref1)).isNotEqualTo(entitet.finnForEkstern(arbeidsgiver1, ref2));
         assertThat(entitet.finnEllerOpprett(arbeidsgiver1, ref1)).isEqualTo(entitet.finnEllerOpprett(arbeidsgiver1, ref2));

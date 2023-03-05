@@ -66,7 +66,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
 
         var gyldigPeriode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
+            .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
@@ -95,7 +95,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     public void skal_ikke_opprette_aksjonspunkt_ved_dekningsgrad_lik_ikke_medlem() {
         // Arrange
         var gyldigPeriode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FTL_2_9_1_b)
+            .medDekningType(MedlemskapDekningType.FTL_2_9_1_B)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)

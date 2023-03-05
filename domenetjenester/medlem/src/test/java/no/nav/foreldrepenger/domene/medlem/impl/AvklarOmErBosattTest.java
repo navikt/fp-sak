@@ -127,7 +127,7 @@ public class AvklarOmErBosattTest {
         leggTilSøker(scenario, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, Landkoder.USA, PersonstatusType.BOSA);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO);
         var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_9_2_a) // hjemlet i bokstav a
+                .medDekningType(MedlemskapDekningType.FTL_2_9_2_A) // hjemlet i bokstav a
                 .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
                 .medPeriode(SKJÆRINGSDATO, SKJÆRINGSDATO)
                 .build();

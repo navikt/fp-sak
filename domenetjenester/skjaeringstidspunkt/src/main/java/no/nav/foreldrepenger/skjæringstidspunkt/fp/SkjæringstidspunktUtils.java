@@ -111,15 +111,11 @@ public class SkjæringstidspunktUtils {
             .or(() -> gjeldendeTermindato)
             .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandling.getId()));
 
-        var grunnlag = new OpptjeningsperiodeGrunnlag(
-            fagsakÅrsak,
-            søkerRolle,
-            førsteUttaksDato,
-            hendelsedato,
-            gjeldendeTermindato.orElse(null),
-            morsMaksDato.orElse(null),
-            utenMinsterett ? LovVersjoner.KLASSISK : LovVersjoner.PROP15L2122
-        );
+        var grunnlag = OpptjeningsperiodeGrunnlag.grunnlag(fagsakÅrsak, søkerRolle, utenMinsterett ? LovVersjoner.KLASSISK : LovVersjoner.PROP15L2122)
+            .medFørsteUttaksDato(førsteUttaksDato)
+            .medHendelsesDato(hendelsedato)
+            .medTerminDato(gjeldendeTermindato.orElse(null))
+            .medMorsMaksdato(morsMaksDato.orElse(null));
 
         final var fastsettPeriode = new RegelFastsettOpptjeningsperiode();
         final var periode = new OpptjeningsPeriode();

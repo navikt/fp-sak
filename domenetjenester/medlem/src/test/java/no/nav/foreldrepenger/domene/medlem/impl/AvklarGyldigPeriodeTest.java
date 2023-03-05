@@ -43,7 +43,7 @@ public class AvklarGyldigPeriodeTest {
         // Arrange
         var fødselsdato = LocalDate.now();
         var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
+                .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
                 .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
                 .medPeriode(fødselsdato, fødselsdato)
                 .build();
@@ -81,7 +81,7 @@ public class AvklarGyldigPeriodeTest {
         // Arrange
         var fødselsdato = LocalDate.now();
         var lukketPeriodeFørFødselsdato = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_b) // ikke hjemlet i bokstav a eller c
+                .medDekningType(MedlemskapDekningType.FTL_2_7_B) // ikke hjemlet i bokstav a eller c
                 .medMedlemskapType(MedlemskapType.ENDELIG)
                 .medPeriode(fødselsdato, fødselsdato)
                 .build();
@@ -104,7 +104,7 @@ public class AvklarGyldigPeriodeTest {
         // Arrange
         var fødselsdato = LocalDate.now();
         var medlemskapPeriodeUnderAvklaring = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
+                .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
                 .medMedlemskapType(MedlemskapType.UNDER_AVKLARING)
                 .medPeriode(fødselsdato, fødselsdato)
                 .build();
@@ -127,7 +127,7 @@ public class AvklarGyldigPeriodeTest {
         // Arrange
         var fødselsdato = LocalDate.now();
         var åpenPeriode = new MedlemskapPerioderBuilder()
-                .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
+                .medDekningType(MedlemskapDekningType.FTL_2_7_A) // hjemlet i bokstav a
                 .medMedlemskapType(MedlemskapType.FORELOPIG)
                 .medPeriode(fødselsdato, null) // åpen periode
                 .build();

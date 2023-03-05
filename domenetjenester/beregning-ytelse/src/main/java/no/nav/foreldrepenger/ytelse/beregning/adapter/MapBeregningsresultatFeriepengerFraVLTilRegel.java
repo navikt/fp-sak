@@ -34,12 +34,11 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
                                                                Dekningsgrad dekningsgrad, boolean arbeidstakerVedSTP,
                                                                int antallDagerFeriepenger) {
 
-        var annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP.map(a -> a.getBeregningsresultatPerioder().stream()
-            .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder)
-            .collect(Collectors.toList()))
+        var annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP
+            .map(a -> a.getBeregningsresultatPerioder().stream().map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder).toList())
             .orElse(Collections.emptyList());
         var beregningsresultatPerioder = beregningsresultat.getBeregningsresultatPerioder().stream()
-            .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder).collect(Collectors.toList());
+            .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder).toList();
         var inntektskategorier = mapInntektskategorier(beregningsresultat);
         var annenPartsInntektskategorier = annenPartsBeregningsresultatFP.map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategorier).orElse(Collections.emptySet());
         var erForelder1 = RelasjonsRolleType.erMor(ref.relasjonRolle());
@@ -98,10 +97,7 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
         if (andel.getAktivitetStatus().erFrilanser()) {
             return Arbeidsforhold.frilansArbeidsforhold();
         }
-        if (!andel.getArbeidsgiver().isPresent()) {
-            return null;
-        }
-        return lagArbeidsforholdHosArbeidsgiver(andel.getArbeidsgiver().get(), andel.getArbeidsforholdRef());
+        return andel.getArbeidsgiver().map(ag -> lagArbeidsforholdHosArbeidsgiver(ag, andel.getArbeidsforholdRef())).orElse(null);
     }
 
     private static Arbeidsforhold lagArbeidsforholdHosArbeidsgiver(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {

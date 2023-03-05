@@ -85,15 +85,11 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
             throw new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandlingId);
         }
 
-        var grunnlag = new OpptjeningsperiodeGrunnlag(
-            fagsakÅrsak,
-            søkerRolle,
-            førsteUttaksdato,
-            hendelsedato,
-            termindato.orElse(null),
-            morsMaksdato.orElse(null),
-            lovversjon
-        );
+        var grunnlag = OpptjeningsperiodeGrunnlag.grunnlag(fagsakÅrsak, søkerRolle, lovversjon)
+            .medFørsteUttaksDato(førsteUttaksdato)
+            .medHendelsesDato(hendelsedato)
+            .medTerminDato(termindato.orElse(null))
+            .medMorsMaksdato(morsMaksdato.orElse(null));
         return grunnlag;
     }
 

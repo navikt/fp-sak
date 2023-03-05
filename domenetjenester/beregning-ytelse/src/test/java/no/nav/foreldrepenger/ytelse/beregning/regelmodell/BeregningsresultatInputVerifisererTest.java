@@ -90,7 +90,10 @@ public class BeregningsresultatInputVerifisererTest {
     private UttakAktivitet lagUttakAktivitet(String orgnr, String referanse, boolean erFrilans) {
         var arbeidsforhold = erFrilans ? Arbeidsforhold.frilansArbeidsforhold()
                 : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr, referanse);
-        return new UttakAktivitet(BigDecimal.valueOf(100), BigDecimal.valueOf(100), BigDecimal.valueOf(100), arbeidsforhold, AktivitetStatus.ATFL,
-                false, BigDecimal.valueOf(100));
+        return UttakAktivitet.ny(AktivitetStatus.ATFL)
+            .medArbeidsforhold(arbeidsforhold)
+            .medUtbetalingsgrad( BigDecimal.valueOf(100))
+            .medStillingsgrad( BigDecimal.valueOf(100),  BigDecimal.valueOf(100))
+            .medGradering(false, BigDecimal.ZERO);
     }
 }

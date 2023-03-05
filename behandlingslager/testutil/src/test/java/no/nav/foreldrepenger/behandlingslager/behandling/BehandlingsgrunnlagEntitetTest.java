@@ -764,7 +764,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var medlemskapPerioder1 = new MedlemskapPerioderBuilder()
             .medPeriode(fom, tom)
             .medMedlemskapType(MedlemskapType.FORELOPIG)
-            .medDekningType(MedlemskapDekningType.FTL_2_7_a)
+            .medDekningType(MedlemskapDekningType.FTL_2_7_A)
             .medKildeType(MedlemskapKildeType.FS22)
             .medBeslutningsdato(beslutningsdato)
             .build();
@@ -772,7 +772,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var medlemskapPerioder2 = new MedlemskapPerioderBuilder()
             .medPeriode(fom, tom)
             .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medDekningType(MedlemskapDekningType.FTL_2_7_b)
+            .medDekningType(MedlemskapDekningType.FTL_2_7_B)
             .medKildeType(MedlemskapKildeType.AVGSYS)
             .medBeslutningsdato(beslutningsdato)
             .build();

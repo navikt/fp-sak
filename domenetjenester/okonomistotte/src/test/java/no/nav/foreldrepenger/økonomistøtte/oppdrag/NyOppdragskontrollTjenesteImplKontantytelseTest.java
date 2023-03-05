@@ -235,7 +235,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.ES_FØDSEL);
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(VEDTAKSDATO);
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(VEDTAKSDATO);
-            assertThat(oppdragslinje150.getSats().getVerdi()).isEqualTo(SATS_ES);
+            assertThat(Long.valueOf(oppdragslinje150.getSats().getVerdi())).isEqualTo(SATS_ES);
             assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TypeSats.ENG);
             assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(BRUKER_FNR);
             assertThat(oppdragslinje150.getOppdrag110()).isEqualTo(oppdrag110);

@@ -62,7 +62,7 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
                 .collect(Collectors.toSet());
         if (kladd.getOverstyring().getOverstyringsdato().isPresent()) {
             var overstyring = kladd.getOverstyring();
-            overstyrtLøpendeMedlemskap = new OverstyrtLøpendeMedlemskap(overstyring.getOverstyringsdato().get(),
+            overstyrtLøpendeMedlemskap = new OverstyrtLøpendeMedlemskap(overstyring.getOverstyringsdato().orElseThrow(),
                 overstyring.getVilkårUtfall(), overstyring.getAvslagsårsak());
         }
     }

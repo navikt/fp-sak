@@ -57,13 +57,12 @@ public class MapUttakResultatFraVLTilRegel {
         var aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakResultatPeriodeAktivitet.getUttakArbeidType());
 
         var skalGraderes = periodeGraderingInvilget && uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode();
-        return new UttakAktivitet(stillingsprosent,
-            arbeidstidsprosent,
-            utbetalingsgrad.decimalValue(),
-            arbeidsforhold,
-            aktivitetStatus,
-            skalGraderes,
-            totalStillingsprosent);
+
+        return UttakAktivitet.ny(aktivitetStatus)
+            .medArbeidsforhold(arbeidsforhold)
+            .medUtbetalingsgrad(utbetalingsgrad.decimalValue())
+            .medStillingsgrad(stillingsprosent, totalStillingsprosent)
+            .medGradering(skalGraderes, arbeidstidsprosent);
     }
 
     private BigDecimal finnTotalStillingsprosentHosAG(UttakInput input, ForeldrepengerUttakPeriodeAktivitet uttakAktivitet, LocalDate periodeFom) {

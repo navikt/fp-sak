@@ -12,4 +12,25 @@ public record UttakAktivitet(BigDecimal stillingsgrad,
                              AktivitetStatus aktivitetStatus,
                              boolean erGradering,
                              BigDecimal totalStillingsgradHosAG) {
+
+    public static UttakAktivitet ny(AktivitetStatus aktivitetStatus) {
+        return new UttakAktivitet(null, null, null, null, aktivitetStatus, false, null);
+    }
+
+    public UttakAktivitet medArbeidsforhold(Arbeidsforhold arbeidsforhold) {
+        return new UttakAktivitet(stillingsgrad(), arbeidstidsprosent(), utbetalingsgrad(), arbeidsforhold, aktivitetStatus(), erGradering(), totalStillingsgradHosAG());
+    }
+
+    public UttakAktivitet medStillingsgrad(BigDecimal stillingsgrad, BigDecimal totalStillingsgradHosAG) {
+        return new UttakAktivitet(stillingsgrad, arbeidstidsprosent(), utbetalingsgrad(), arbeidsforhold(), aktivitetStatus(), erGradering(), totalStillingsgradHosAG);
+    }
+
+    public UttakAktivitet medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+        return new UttakAktivitet(stillingsgrad(), arbeidstidsprosent(), utbetalingsgrad, arbeidsforhold(), aktivitetStatus(), erGradering(), totalStillingsgradHosAG());
+    }
+
+    public UttakAktivitet medGradering(boolean erGradering, BigDecimal arbeidstidsprosent) {
+        return new UttakAktivitet(stillingsgrad(), arbeidstidsprosent, utbetalingsgrad(), arbeidsforhold(), aktivitetStatus(), erGradering, totalStillingsgradHosAG());
+    }
+
 }

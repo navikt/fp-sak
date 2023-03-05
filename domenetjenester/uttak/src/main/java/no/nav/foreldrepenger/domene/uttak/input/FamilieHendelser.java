@@ -57,22 +57,13 @@ public class FamilieHendelser {
     }
 
     public FamilieHendelse getGjeldendeFamilieHendelse() {
-        if (getOverstyrtFamilieHendelse().isPresent()) {
-            return getOverstyrtFamilieHendelse().get();
-        }
-        if (getBekreftetFamilieHendelse().isPresent()) {
-            return getBekreftetFamilieHendelse().get();
-        }
-        return søknadFamilieHendelse;
+        return getOverstyrtFamilieHendelse()
+            .or(this::getBekreftetFamilieHendelse)
+            .orElseGet(() -> søknadFamilieHendelse);
     }
 
     public Optional<FamilieHendelse> getOverstyrtEllerBekreftet() {
-        if (getOverstyrtFamilieHendelse().isPresent()) {
-            return getOverstyrtFamilieHendelse();
-        }
-        if (getBekreftetFamilieHendelse().isPresent()) {
-            return getBekreftetFamilieHendelse();
-        }
-        return Optional.empty();
+        return getOverstyrtFamilieHendelse()
+            .or(this::getBekreftetFamilieHendelse);
     }
 }

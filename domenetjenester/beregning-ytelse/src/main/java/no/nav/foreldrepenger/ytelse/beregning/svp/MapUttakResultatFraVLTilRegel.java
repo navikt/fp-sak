@@ -101,7 +101,10 @@ public class MapUttakResultatFraVLTilRegel {
         var arbeidsforhold = mapArbeidsforhold(uttakArbeidsforhold);
         var aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakArbeidsforhold.getUttakArbeidType());
 
-        return new UttakAktivitet(stillingsprosent, null, utbetalingsgrad, arbeidsforhold, aktivitetStatus, false, totalStillingsprosent);
+        return UttakAktivitet.ny(aktivitetStatus)
+            .medArbeidsforhold(arbeidsforhold)
+            .medUtbetalingsgrad(utbetalingsgrad)
+            .medStillingsgrad(stillingsprosent, totalStillingsprosent);
     }
 
     protected BigDecimal finnTotalStillingsprosentHosAG(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
