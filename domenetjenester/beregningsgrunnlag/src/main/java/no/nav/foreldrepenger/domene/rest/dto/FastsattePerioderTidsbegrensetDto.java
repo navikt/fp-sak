@@ -13,7 +13,7 @@ public class FastsattePerioderTidsbegrensetDto {
 
     private List<FastsatteAndelerTidsbegrensetDto> fastsatteTidsbegrensedeAndeler;
 
-    FastsattePerioderTidsbegrensetDto() { // NOSONAR
+    FastsattePerioderTidsbegrensetDto() {
         // Jackson
     }
 

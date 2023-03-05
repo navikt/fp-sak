@@ -25,12 +25,12 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     @Size(min = 1, max = 9)
     private List<UidentifisertBarnDto> uidentifiserteBarn;
 
-    SjekkManglendeFodselDto() { // NOSONAR
+    SjekkManglendeFodselDto() {
         //For Jackson
     }
 
     public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, boolean brukAntallBarnITps,
-        List<UidentifisertBarnDto> uidentifiserteBarn) { // NOSONAR
+        List<UidentifisertBarnDto> uidentifiserteBarn) {
         super(begrunnelse);
         this.dokumentasjonForeligger = dokumentasjonForeligger;
         this.brukAntallBarnITps = brukAntallBarnITps;

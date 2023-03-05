@@ -59,7 +59,7 @@ public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends Komple
 
         if (!manglendeVedlegg.isEmpty()) {
             LOG.info("Behandling {} er ikke komplett - mangler følgende vedlegg til søknad: {}", ref.behandlingId(),
-                lagDokumentTypeString(manglendeVedlegg)); // NOSONAR //$NON-NLS-1$
+                lagDokumentTypeString(manglendeVedlegg));
         }
 
         return manglendeVedlegg;

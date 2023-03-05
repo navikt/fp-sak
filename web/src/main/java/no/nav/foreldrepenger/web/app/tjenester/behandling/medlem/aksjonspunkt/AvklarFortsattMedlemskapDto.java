@@ -10,11 +10,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class AvklarFortsattMedlemskapDto extends BekreftedePerioderMalDto {
 
 
-    AvklarFortsattMedlemskapDto() { // NOSONAR
+    AvklarFortsattMedlemskapDto() {
         // For Jackson
     }
 
-    public AvklarFortsattMedlemskapDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) { // NOSONAR
+    public AvklarFortsattMedlemskapDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) {
         super(begrunnelse, bekreftedePerioder);
     }
 

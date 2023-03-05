@@ -33,7 +33,7 @@ public class AvklarVergeDto extends BekreftetAksjonspunktDto {
     @Pattern(regexp = "[\\d]{9}")
     private String organisasjonsnummer;
 
-    public AvklarVergeDto() { //NOSONAR
+    public AvklarVergeDto() {
     }
 
     public void setNavn(String navn) {

@@ -148,7 +148,7 @@ public class VedtakXMLTilHTMLTransformator {
     private static void håndterPersonopplysninger(Object o, Set<String> kilder, Vedtak vedtak) {
         var po = ((JAXBElement<?>) o).getValue();
 
-        if (po instanceof PersonopplysningerEngangsstoenad) { // NOSONAR
+        if (po instanceof PersonopplysningerEngangsstoenad) {
             var poes = (PersonopplysningerEngangsstoenad) ((JAXBElement<?>) o).getValue();
             var poesm = poes.getMedlemskapsperioder();
             if (poesm != null && !poesm.getMedlemskapsperiode().isEmpty()) {
@@ -157,7 +157,7 @@ public class VedtakXMLTilHTMLTransformator {
             if (!((PersonopplysningerEngangsstoenad) po).getInntekter().getInntekt().isEmpty()) {
                 kilder.add(INNTEKTSKOMPONENTEN);
             }
-        } else if (po instanceof PersonopplysningerForeldrepenger) { // NOSONAR
+        } else if (po instanceof PersonopplysningerForeldrepenger) {
             var poes = (PersonopplysningerForeldrepenger) ((JAXBElement<?>) o).getValue();
             var medlemsskap = poes.getMedlemskap();
             if (medlemsskap != null && !medlemsskap.getMedlemskapsperiode().isEmpty()) {

@@ -44,7 +44,7 @@ class SøknadGrunnlagEntitet extends BaseEntitet {
 
     SøknadGrunnlagEntitet(Behandling behandling, SøknadEntitet søknad) {
         this.behandling = behandling;
-        this.søknad = søknad; // NOSONAR
+        this.søknad = søknad;
     }
 
     void setAktiv(boolean aktiv) {

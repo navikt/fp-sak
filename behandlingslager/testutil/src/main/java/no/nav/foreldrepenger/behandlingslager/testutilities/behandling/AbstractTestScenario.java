@@ -653,7 +653,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lenient().when(fagsakRepository.hentSakGittSaksnummer(Mockito.any(Saksnummer.class))).thenAnswer(a -> Optional.of(fagsak));
         lenient().when(fagsakRepository.hentForBruker(Mockito.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
         lenient().when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {
-            Fagsak fagsak = invocation.getArgument(0); // NOSONAR
+            Fagsak fagsak = invocation.getArgument(0);
             var id = fagsak.getId();
             if (id == null) {
                 id = fagsakId;
@@ -986,7 +986,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
         fagsak = fagsakBuilder.build();
         fagsak.setEndretTidspunkt(LocalDateTime.now());
-        var fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
+        var fagsakId = fagsakRepo.opprettNy(fagsak);
         fagsak.setId(fagsakId);
     }
 

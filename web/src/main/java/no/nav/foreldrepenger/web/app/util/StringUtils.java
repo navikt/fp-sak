@@ -15,7 +15,7 @@ public class StringUtils {
     }
 
     public static String formaterMedStoreOgSmåBokstaver(String tekst) {
-        if (tekst == null || (tekst = tekst.trim()).isEmpty()) { // NOSONAR
+        if (tekst == null || (tekst = tekst.trim()).isEmpty()) {
             return null;
         }
         var skilletegnPattern = "(\\s|[()\\-_.,/])";

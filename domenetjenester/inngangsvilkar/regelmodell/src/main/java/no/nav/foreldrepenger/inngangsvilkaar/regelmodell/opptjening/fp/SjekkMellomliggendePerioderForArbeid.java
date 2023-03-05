@@ -78,7 +78,7 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
             }
         }
 
-        private boolean toPeriod(@SuppressWarnings("unused") NavigableSet<LocalDateSegment<Boolean>> segmenterFør, // NOSONAR
+        private boolean toPeriod(@SuppressWarnings("unused") NavigableSet<LocalDateSegment<Boolean>> segmenterFør,
                 LocalDateSegment<Boolean> segmentUnderVurdering,
                 NavigableSet<LocalDateSegment<Boolean>> foregåendeSegmenter,
                 NavigableSet<LocalDateSegment<Boolean>> påfølgendeSegmenter) {

@@ -71,7 +71,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     public BehandlingProsesseringTjenesteImpl() {
-        // NOSONAR
+
     }
 
     @Override

@@ -75,8 +75,8 @@ public class FagsakProsessTaskRepository {
         LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.getTaskType(), gruppeSekvensNr);
         var em = getEntityManager();
         var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and fagsak_id=:fagsakId");
-        query.setParameter("prosessTaskId", prosessTaskId); // NOSONAR
-        query.setParameter("fagsakId", fagsakId); // NOSONAR
+        query.setParameter("prosessTaskId", prosessTaskId);
+        query.setParameter("fagsakId", fagsakId);
         query.executeUpdate();
         em.flush();
     }
@@ -84,7 +84,7 @@ public class FagsakProsessTaskRepository {
     public void fjernForAvsluttedeBehandlinger() {
         var em = getEntityManager();
         var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK fp where fp.id in ( select fpt.id from FAGSAK_PROSESS_TASK fpt join BEHANDLING b on fpt.behandling_id=b.id where behandling_status = :avsluttet )");
-        query.setParameter("avsluttet", BehandlingStatus.AVSLUTTET.getKode()); // NOSONAR
+        query.setParameter("avsluttet", BehandlingStatus.AVSLUTTET.getKode());
         query.executeUpdate();
         em.flush();
     }
@@ -114,8 +114,8 @@ public class FagsakProsessTaskRepository {
             .setParameter("gruppe", gruppeId, StringType.INSTANCE)
             .setParameter("nesteKjoeringFraOgMed", nesteKjoeringFraOgMed) // max oppløsning på neste_kjoering_etter er sekunder
             .setParameter("nesteKjoeringTilOgMed", nesteKjoeringTilOgMed)
-            .setParameter("fagsakId", fagsakId) // NOSONAR
-            .setParameter("behandlingId", behandlingId, LongType.INSTANCE) // NOSONAR
+            .setParameter("fagsakId", fagsakId)
+            .setParameter("behandlingId", behandlingId, LongType.INSTANCE)
             .setHint(QueryHints.HINT_READONLY, "true");
 
         var resultList = query.getResultList();
@@ -156,7 +156,7 @@ public class FagsakProsessTaskRepository {
 
 
     public List<ProsessTaskData> sjekkStatusProsessTasks(Long fagsakId, Long behandlingId, String gruppe) {
-        Objects.requireNonNull(fagsakId, "fagsakId"); // NOSONAR
+        Objects.requireNonNull(fagsakId, "fagsakId");
 
         var now = LocalDateTime.now().withNano(0).withSecond(0);
 
@@ -201,7 +201,7 @@ public class FagsakProsessTaskRepository {
                     "where fpt.fagsakId=:fagsakId and gruppeSekvensNr is not null " +
                     "order by gruppeSekvensNr ",
                 FagsakProsessTask.class);
-            query.setParameter("fagsakId", fagsakId); // NOSONAR
+            query.setParameter("fagsakId", fagsakId);
 
             var førsteFagsakProsessTask = query.getResultList().stream()
                 .findFirst()

@@ -13,10 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Immutable;
-
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 
 @Entity(name = "OppdragKvittering")
@@ -149,13 +146,13 @@ public class OppdragKvittering extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "alvorlighetsgrad=" + alvorlighetsgrad + ", " //$NON-NLS-1$
-            + "beskrMelding=" + beskrMelding + ", " //$NON-NLS-1$
-            + "meldingKode=" + meldingKode + ", " //$NON-NLS-1$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "alvorlighetsgrad=" + alvorlighetsgrad + ", "
+            + "beskrMelding=" + beskrMelding + ", "
+            + "meldingKode=" + meldingKode + ", "
+            + "opprettetTs=" + getOpprettetTidspunkt()
+            + ">";
     }
 
 }

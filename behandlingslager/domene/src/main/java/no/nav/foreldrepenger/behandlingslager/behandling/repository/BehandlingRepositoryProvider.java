@@ -63,7 +63,7 @@ public class BehandlingRepositoryProvider {
 
     @Inject
     public BehandlingRepositoryProvider(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
 
         // behandling repositories

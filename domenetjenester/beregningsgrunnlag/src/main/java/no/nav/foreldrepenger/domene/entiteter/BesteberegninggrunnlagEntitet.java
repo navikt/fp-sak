@@ -56,7 +56,7 @@ public class BesteberegninggrunnlagEntitet extends BaseEntitet {
     }
 
     public BesteberegninggrunnlagEntitet() {
-        // NOSONAR
+
     }
 
     public Long getId() {

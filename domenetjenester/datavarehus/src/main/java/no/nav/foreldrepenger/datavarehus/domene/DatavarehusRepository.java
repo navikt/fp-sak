@@ -22,7 +22,7 @@ public class DatavarehusRepository {
 
     @Inject
     public DatavarehusRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -77,15 +77,15 @@ public class DatavarehusRepository {
     public List<Long> hentVedtakBehandlinger(LocalDateTime fom, LocalDateTime tom) {
         var query = entityManager.createQuery("from VedtakUtbetalingDvh where funksjonellTid >= :fom " +
             "AND funksjonellTid <= :tom", VedtakUtbetalingDvh.class);
-        query.setParameter("fom", fom); // NOSONAR $NON-NLS-1$
-        query.setParameter("tom", tom); // NOSONAR $NON-NLS-1$
+        query.setParameter("fom", fom);
+        query.setParameter("tom", tom);
 
         return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).collect(Collectors.toList());
     }
 
     public List<Long> hentVedtakBehandlinger(Long behandlingid) {
         var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :bid ", VedtakUtbetalingDvh.class);
-        query.setParameter("bid", behandlingid); // NOSONAR $NON-NLS-1$
+        query.setParameter("bid", behandlingid);
         return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).collect(Collectors.toList());
     }
 
@@ -99,8 +99,8 @@ public class DatavarehusRepository {
     public Optional<VedtakUtbetalingDvh> finn(Long behandlingId, Long vedtakId) {
         var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :behandlingId " +
             "AND vedtakId = :vedtakId order by id", VedtakUtbetalingDvh.class);
-        query.setParameter("behandlingId", behandlingId); // NOSONAR $NON-NLS-1$
-        query.setParameter("vedtakId", vedtakId); // NOSONAR $NON-NLS-1$
+        query.setParameter("behandlingId", behandlingId);
+        query.setParameter("vedtakId", vedtakId);
         return optionalFirst(query.getResultList());
     }
 

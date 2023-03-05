@@ -57,7 +57,7 @@ public class VurderBehovForÅHindreTilbaketrekk {
     private static boolean kanAndelerPåNøkkelOmfordeles(List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel, BRNøkkelMedAndeler originalAndel) {
         if (originalAndel.erArbeidstaker()) {
             var andelerIRevurderingGrunnlagMedSammeNøkkel = finnSammenligningsandelMedSammeNøkkel(originalAndel.getNøkkel(), revurderingAndelerSortertPåNøkkel);
-            if (andelerIRevurderingGrunnlagMedSammeNøkkel.isPresent()) { // NOSONAR
+            if (andelerIRevurderingGrunnlagMedSammeNøkkel.isPresent()) {
                 // Nøkkelen eksisterer fremdeles, må matche hver andel som tilhører nøkelen i gammelt og nytt grunnlag
                 return nøkkelInneholderAndelerSomMåVurderes(originalAndel, andelerIRevurderingGrunnlagMedSammeNøkkel.get());
             }
@@ -112,7 +112,7 @@ public class VurderBehovForÅHindreTilbaketrekk {
 
         // Hvis vi har en andel på gammelt grunnlag for denne nøkkelen uten referanse kan vi sjekke mot den.
         // Om vi ikke har denne må vi opprette aksjonspunkt så saksbehandler kan avgjøre hva som skal gjøres
-        if (!brukersAndelPåGammeltResultatUtenReferanse.isEmpty()) { // NOSONAR
+        if (!brukersAndelPåGammeltResultatUtenReferanse.isEmpty()) {
             return måVurdereTilkomneAndeler(andelerINyttResultatSomIkkeSvarerTilNoenIGammelt, brukersAndelPåGammeltResultatUtenReferanse);
         }
         return true;

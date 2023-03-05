@@ -64,16 +64,16 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         var oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(input);
 
         if (oppdragskontrollOpt.isPresent()) {
-            LOG.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Klargjør økonomioppdrag for behandling: {}", behandlingId);
             var oppdragskontroll = oppdragskontrollOpt.get();
             oppdragskontrollTjeneste.lagre(oppdragskontroll);
             oppdaterProsessTask(prosessTaskData);
 
             sendØkonomioppdragTask(prosessTaskData, behandlingId);
 
-            LOG.info("Økonomioppdrag er klargjort for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Økonomioppdrag er klargjort for behandling: {}", behandlingId);
         } else {
-            LOG.info("Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Ikke aktuelt for behandling: {}", behandlingId);
         }
     }
 
@@ -95,7 +95,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private void behandleHendelse(String prosessTaskHendelse, Long behandlingId) {
         if (BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING.equals(prosessTaskHendelse)) {
-            LOG.info("Økonomioppdrag-kvittering mottatt for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Økonomioppdrag-kvittering mottatt for behandling: {}", behandlingId);
         } else {
             throw new IllegalStateException("Uventet hendelse " + prosessTaskHendelse);
         }

@@ -184,7 +184,7 @@ public class MedlemskapRepository {
     }
 
     private MedlemskapOppgittTilknytningEntitet kopierHvisEndretOgLagre(
-                                                                        Optional<MedlemskapBehandlingsgrunnlagEntitet> gr, // NOSONAR
+                                                                        Optional<MedlemskapBehandlingsgrunnlagEntitet> gr,
                                                                         MedlemskapOppgittTilknytningEntitet oppgittTilknytning) {
 
         var ny = new MedlemskapOppgittTilknytningEntitet(oppgittTilknytning);
@@ -267,9 +267,9 @@ public class MedlemskapRepository {
 
     protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
-            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id AND mbg.aktiv = 'J'", //$NON-NLS-1$
+            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id AND mbg.aktiv = 'J'",
             MedlemskapBehandlingsgrunnlagEntitet.class)
-                .setParameter("behandling_id", behandlingId); //$NON-NLS-1$
+                .setParameter("behandling_id", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }
@@ -277,10 +277,10 @@ public class MedlemskapRepository {
     protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getInitiellVersjonAvBehandlingsgrunnlag(Long behandlingId) {
         // må også sortere på id da opprettetTidspunkt kun er til nærmeste millisekund og ikke satt fra db.
         var query = entityManager.createQuery(
-            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id ORDER BY mbg.opprettetTidspunkt, mbg.id", //$NON-NLS-1$
+            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id ORDER BY mbg.opprettetTidspunkt, mbg.id",
             MedlemskapBehandlingsgrunnlagEntitet.class)
                 .setParameter("behandling_id", behandlingId)
-                .setMaxResults(1); // $NON-NLS-1$
+                .setMaxResults(1);
 
         return query.getResultStream().findFirst();
     }
@@ -313,7 +313,7 @@ public class MedlemskapRepository {
 
     public Optional<MedlemskapBehandlingsgrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
         var query = entityManager.createQuery(
-            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.id = :grunnlagId", //$NON-NLS-1$
+            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.id = :grunnlagId",
             MedlemskapBehandlingsgrunnlagEntitet.class)
                 .setParameter("grunnlagId", grunnlagId);
         return query.getResultStream().findFirst();

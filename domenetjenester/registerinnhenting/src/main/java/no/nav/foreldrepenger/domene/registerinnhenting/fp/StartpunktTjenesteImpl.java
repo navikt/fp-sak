@@ -53,7 +53,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
         var snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
         var diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.behandlingId(), snapshotOriginalBehandling);
-        LOG.info("Endringsresultat ved revurdering={} er: {}", revurdering.behandlingId(), diff);// NOSONAR //$NON-NLS-1$
+        LOG.info("Endringsresultat ved revurdering={} er: {}", revurdering.behandlingId(), diff);
         return getStartpunktType(revurdering, diff, false);
     }
 

@@ -179,12 +179,12 @@ public class Ytelse extends BaseEntitet implements IndexKey {
 
     @Override
     public String toString() {
-        return "YtelseEntitet{" + //$NON-NLS-1$
-                "relatertYtelseType=" + relatertYtelseType + //$NON-NLS-1$
-                ", typeUnderkategori=" + temaUnderkategori + //$NON-NLS-1$
-                ", periode=" + periode + //$NON-NLS-1$
-                ", relatertYtelseStatus=" + status + //$NON-NLS-1$
-                ", saksNummer='" + saksnummer + '\'' + //$NON-NLS-1$
+        return "YtelseEntitet{" +
+                "relatertYtelseType=" + relatertYtelseType +
+                ", typeUnderkategori=" + temaUnderkategori +
+                ", periode=" + periode +
+                ", relatertYtelseStatus=" + status +
+                ", saksNummer='" + saksnummer + '\'' +
                 '}';
     }
 

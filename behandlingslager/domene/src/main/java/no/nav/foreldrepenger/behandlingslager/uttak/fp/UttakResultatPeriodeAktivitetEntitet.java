@@ -135,7 +135,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
     }
 
     public Arbeidsgiver getArbeidsgiver() {
-        return uttakAktivitet.getArbeidsgiver().isPresent() ? uttakAktivitet.getArbeidsgiver().get() : null;
+        return uttakAktivitet.getArbeidsgiver().orElse(null);
     }
 
     public UttakArbeidType getUttakArbeidType() {

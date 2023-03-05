@@ -67,7 +67,7 @@ public class UttakResultatPeriodeLagreDto {
 
     private LocalDate mottattDato;
 
-    UttakResultatPeriodeLagreDto() { //NOSONAR
+    UttakResultatPeriodeLagreDto() {
         //for jackson
     }
 

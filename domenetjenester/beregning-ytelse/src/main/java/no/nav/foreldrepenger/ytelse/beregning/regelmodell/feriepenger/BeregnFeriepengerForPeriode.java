@@ -20,7 +20,7 @@ class BeregnFeriepengerForPeriode {
         beregningsresultatPerioder.stream()
             .filter(periode -> periode.getPeriode().overlaps(feriepengerPeriode))
             .forEach(periode -> {
-                var overlapp = periode.getPeriode().overlap(feriepengerPeriode).get();//NOSONAR
+                var overlapp = periode.getPeriode().overlap(feriepengerPeriode).get();
                 var antallFeriepengerDager = beregnAntallUkedagerMellom(overlapp.getFomDato(), overlapp.getTomDato());
                 var opptjeningÅr = overlapp.getFomDato().withMonth(12).withDayOfMonth(31);
 

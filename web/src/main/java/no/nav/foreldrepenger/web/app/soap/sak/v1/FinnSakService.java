@@ -53,7 +53,7 @@ public class FinnSakService implements ForeldrepengesakV1 {
     private FamilieHendelseRepository familieGrunnlagRepository;
 
     public FinnSakService() {
-        // NOSONAR: for CDI
+        // CDI
     }
 
     @Inject

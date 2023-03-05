@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +20,8 @@ public class AksjonspunktKontrollRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktKontrollRepository.class);
 
-    @Inject
     public AksjonspunktKontrollRepository() {
+        // CDI
     }
 
     public Aksjonspunkt settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,

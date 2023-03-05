@@ -11,7 +11,7 @@ public class VurderEtterlønnSluttpakkeDto {
         // For Jackson
     }
 
-    public VurderEtterlønnSluttpakkeDto(Boolean erEtterlønnSluttpakke) { // NOSONAR
+    public VurderEtterlønnSluttpakkeDto(Boolean erEtterlønnSluttpakke) {
         this.erEtterlønnSluttpakke = erEtterlønnSluttpakke;
     }
 

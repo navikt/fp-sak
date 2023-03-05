@@ -24,7 +24,7 @@ public class FeedRepository {
 
     @Inject
     public FeedRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -60,7 +60,7 @@ public class FeedRepository {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public <V extends UtgåendeHendelse> List<V> hentUtgåendeHendelser(Class<V> cls, HendelseCriteria hendelseCriteria) {
         var discVal = cls.getDeclaredAnnotation(DiscriminatorValue.class);
-        Objects.requireNonNull(discVal, "Mangler @DiscriminatorValue i klasse:" + cls); //$NON-NLS-1$
+        Objects.requireNonNull(discVal, "Mangler @DiscriminatorValue i klasse:" + cls);
         var outputFeedKode  = discVal.value();
 
         var results = createScrollableResult(outputFeedKode, hendelseCriteria);
@@ -69,7 +69,7 @@ public class FeedRepository {
             final var resultObjects = (Object[]) object;
 
             if (resultObjects.length > 0) {
-                var hendelse = hentUtgåendeHendelse(((BigDecimal) resultObjects[0]).longValue()); // NOSONAR
+                var hendelse = hentUtgåendeHendelse(((BigDecimal) resultObjects[0]).longValue());
                 hendelse.ifPresent(h -> hendelser .add((V) h));
             }
         }
@@ -121,7 +121,7 @@ public class FeedRepository {
 
     public <V extends UtgåendeHendelse> long hentNesteSekvensnummer(Class<V> cls) {
         var sekVal = cls.getDeclaredAnnotation(SekvensnummerNavn.class);
-        Objects.requireNonNull(sekVal, "Mangler @SekvensnummerGeneratorNavn i klasse:" + cls); //$NON-NLS-1$
+        Objects.requireNonNull(sekVal, "Mangler @SekvensnummerGeneratorNavn i klasse:" + cls);
         var sql  = "select " + sekVal.value() + ".nextval as num from dual";
 
         var query = entityManager.createNativeQuery(sql); //NOSONAR Her har vi full kontroll på sql

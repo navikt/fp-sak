@@ -18,7 +18,7 @@ public class VurderSøknadsfristDto extends BekreftetAksjonspunktDto {
         // for json deserialisering
     }
 
-    public VurderSøknadsfristDto(String begrunnelse, Boolean harGyldigGrunn) { // NOSONAR
+    public VurderSøknadsfristDto(String begrunnelse, Boolean harGyldigGrunn) {
         super(begrunnelse);
         this.harGyldigGrunn = harGyldigGrunn;
     }

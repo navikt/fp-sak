@@ -80,7 +80,7 @@ public class InnhentDokumentTjeneste {
     }
 
     public void opprettFraTidligereBehandling(Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#SXX og #IXX
-        Objects.requireNonNull(behandlingId, "behandlingId"); //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         var fagsak = fagsakRepository.finnEksaktFagsak(mottattDokument.getFagsakId());
         Dokumentmottaker dokumentmottaker;
         if (mottattDokument.erSøknadsDokument()) {

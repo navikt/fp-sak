@@ -78,16 +78,16 @@ public class BGAndelArbeidsforhold {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" //$NON-NLS-1$
-                + "orgnr=" + getArbeidsforholdOrgnr() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "arbeidsgiver=" + arbeidsgiver + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "arbeidsforholdRef=" + arbeidsforholdRef + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "naturalytelseBortfaltPrÅr=" + naturalytelseBortfaltPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "naturalytelseTilkommetPrÅr=" + naturalytelseTilkommetPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "refusjonskravPrÅr=" + refusjonskravPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "arbeidsperiodeFom=" + arbeidsperiodeFom //$NON-NLS-1$
-                + "arbeidsperiodeTom=" + arbeidsperiodeTom //$NON-NLS-1$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<"
+                + "orgnr=" + getArbeidsforholdOrgnr() + ", "
+                + "arbeidsgiver=" + arbeidsgiver + ", "
+                + "arbeidsforholdRef=" + arbeidsforholdRef + ", "
+                + "naturalytelseBortfaltPrÅr=" + naturalytelseBortfaltPrÅr + ", "
+                + "naturalytelseTilkommetPrÅr=" + naturalytelseTilkommetPrÅr + ", "
+                + "refusjonskravPrÅr=" + refusjonskravPrÅr + ", "
+                + "arbeidsperiodeFom=" + arbeidsperiodeFom
+                + "arbeidsperiodeTom=" + arbeidsperiodeTom
+                + ">";
     }
 
     public static Builder builder() {

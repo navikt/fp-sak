@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
@@ -43,10 +44,10 @@ public class IAYGrunnlagDiff {
         if (eksisterende.isEmpty()) {
             return false;
         }
-        if (eksisterende.get().getAlleInntektsmeldinger().size() != nye.get().getAlleInntektsmeldinger().size()) {
+        if (eksisterende.get().getAlleInntektsmeldinger().size() != nye.map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(List.of()).size()) {
             return true;
         }
-        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.get());
+        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.orElse(null));
         return !diff.isEmpty();
     }
 
@@ -69,7 +70,7 @@ public class IAYGrunnlagDiff {
         }
 
         // deep check
-        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterendeAktørArbeid.get(), nyAktørArbeid.get());
+        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterendeAktørArbeid.get(), nyAktørArbeid.orElse(null));
         return !diff.isEmpty();
     }
 
@@ -92,7 +93,7 @@ public class IAYGrunnlagDiff {
             return true;
         }
         // deep check
-        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.get());
+        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.orElse(null));
         return !diff.isEmpty();
     }
 

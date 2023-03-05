@@ -18,13 +18,13 @@ public class OverstyringSokersOpplysingspliktDto extends OverstyringAksjonspunkt
     @JsonProperty("erVilkarOk")
     private boolean erVilkarOk;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyringSokersOpplysingspliktDto() {
         super();
         // For Jackson
     }
 
-    public OverstyringSokersOpplysingspliktDto(boolean erVilkarOk, String begrunnelse) { // NOSONAR
+    public OverstyringSokersOpplysingspliktDto(boolean erVilkarOk, String begrunnelse) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
     }

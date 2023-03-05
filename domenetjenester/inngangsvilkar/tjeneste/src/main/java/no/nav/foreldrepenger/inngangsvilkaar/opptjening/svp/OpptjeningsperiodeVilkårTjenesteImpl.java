@@ -22,6 +22,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
 
     @Inject
     public OpptjeningsperiodeVilkårTjenesteImpl() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Override

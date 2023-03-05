@@ -25,13 +25,13 @@ public class OverstyringFødselsvilkåretDto extends OverstyringAksjonspunktDto 
     @JsonProperty("erVilkarOk")
     private boolean erVilkarOk;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyringFødselsvilkåretDto() {
         super();
         // For Jackson
     }
 
-    public OverstyringFødselsvilkåretDto(boolean erVilkarOk, String begrunnelse, String avslagskode) { // NOSONAR
+    public OverstyringFødselsvilkåretDto(boolean erVilkarOk, String begrunnelse, String avslagskode) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
         this.avslagskode = avslagskode;

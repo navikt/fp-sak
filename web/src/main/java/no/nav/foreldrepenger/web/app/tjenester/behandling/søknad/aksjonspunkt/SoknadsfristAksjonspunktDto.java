@@ -21,11 +21,11 @@ public class SoknadsfristAksjonspunktDto extends BekreftetAksjonspunktDto implem
     @NotNull
     private Boolean erVilkarOk;
 
-    SoknadsfristAksjonspunktDto() { // NOSONAR
+    SoknadsfristAksjonspunktDto() {
         //For Jackson
     }
 
-    public SoknadsfristAksjonspunktDto(String begrunnelse, Boolean erVilkarOk) { // NOSONAR
+    public SoknadsfristAksjonspunktDto(String begrunnelse, Boolean erVilkarOk) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
     }

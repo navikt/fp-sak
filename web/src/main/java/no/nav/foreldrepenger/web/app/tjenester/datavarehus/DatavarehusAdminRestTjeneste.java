@@ -135,7 +135,7 @@ public class DatavarehusAdminRestTjeneste {
             prosessTaskData.setCallIdFraEksisterende();
             taskTjeneste.lagre(prosessTaskData);
         } else {
-            LOG.warn("Oppgitt behandling {} er ukjent", uuidDto); // NOSONAR
+            LOG.warn("Oppgitt behandling {} er ukjent", uuidDto);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 

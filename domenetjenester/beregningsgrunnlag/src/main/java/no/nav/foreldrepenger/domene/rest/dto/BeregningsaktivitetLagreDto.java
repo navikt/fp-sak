@@ -32,7 +32,7 @@ public class BeregningsaktivitetLagreDto {
 
     private boolean skalBrukes;
 
-    BeregningsaktivitetLagreDto() { //NOSONAR
+    BeregningsaktivitetLagreDto() {
         //for jackson
     }
 

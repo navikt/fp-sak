@@ -12,7 +12,7 @@ public class SokefeltDto {
     private String searchString;
 
     @SuppressWarnings("unused")
-    private SokefeltDto() { // NOSONAR
+    private SokefeltDto() {
     }
 
     public SokefeltDto(String searchString) {

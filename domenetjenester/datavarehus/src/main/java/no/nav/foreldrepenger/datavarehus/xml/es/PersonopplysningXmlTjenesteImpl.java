@@ -234,7 +234,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         List<Inntekt> inntektList = new ArrayList<>();
         filter.forFilter((inntekt, inntektsposter) -> {
             inntektsposter.forEach(ip -> {
-                var inntektXML = personopplysningObjectFactory.createInntekt(); // NOSONAR
+                var inntektXML = personopplysningObjectFactory.createInntekt();
                 if (inntekt.getArbeidsgiver() != null) {
                     inntektXML.setArbeidsgiver(VedtakXmlUtil.lagStringOpplysning(inntekt.getArbeidsgiver().getIdentifikator()));
                 }

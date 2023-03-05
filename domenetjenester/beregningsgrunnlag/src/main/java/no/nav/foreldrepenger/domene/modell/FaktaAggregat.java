@@ -104,7 +104,7 @@ public class FaktaAggregat {
             kladd = new FaktaAggregat(faktaAggregatDto);
         }
 
-        static Builder oppdater(FaktaAggregat faktaAggregatDto) { // NOSONAR
+        static Builder oppdater(FaktaAggregat faktaAggregatDto) {
             return new FaktaAggregat.Builder(faktaAggregatDto);
         }
 
@@ -120,17 +120,17 @@ public class FaktaAggregat {
                 .orElse(new FaktaArbeidsforhold.Builder(arbeidsgiver, arbeidsforholdRef));
         }
 
-        public Builder erstattEksisterendeEllerLeggTil(FaktaArbeidsforhold faktaArbeidsforhold) { // NOSONAR
+        public Builder erstattEksisterendeEllerLeggTil(FaktaArbeidsforhold faktaArbeidsforhold) {
             kladd.leggTilFaktaArbeidsforholdOgErstattEksisterende(faktaArbeidsforhold);
             return this;
         }
 
-        public Builder kopierTilEksisterenderEllerLeggTil(FaktaArbeidsforhold faktaArbeidsforhold) { // NOSONAR
+        public Builder kopierTilEksisterenderEllerLeggTil(FaktaArbeidsforhold faktaArbeidsforhold) {
             kladd.leggTilFaktaArbeidsforholdOgKopierEksisterende(faktaArbeidsforhold);
             return this;
         }
 
-        public Builder medFaktaAktør(FaktaAktør faktaAktør) { // NOSONAR
+        public Builder medFaktaAktør(FaktaAktør faktaAktør) {
             kladd.setFaktaAktør(faktaAktør);
             return this;
         }

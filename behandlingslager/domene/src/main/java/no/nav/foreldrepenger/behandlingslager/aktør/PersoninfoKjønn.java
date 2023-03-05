@@ -42,7 +42,7 @@ public class PersoninfoKjønn {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<aktørId=" + aktørId + ">"; //$NON-NLS-1$ //$NON-NLS-2$
+        return getClass().getSimpleName() + "<aktørId=" + aktørId + ">";
     }
 
     public static class Builder {
@@ -63,8 +63,8 @@ public class PersoninfoKjønn {
         }
 
         public PersoninfoKjønn build() {
-            requireNonNull(personinfoMal.aktørId, "Navbruker må ha aktørId"); //$NON-NLS-1$
-            requireNonNull(personinfoMal.kjønn, "Navbruker må ha kjønn"); //$NON-NLS-1$
+            requireNonNull(personinfoMal.aktørId, "Navbruker må ha aktørId");
+            requireNonNull(personinfoMal.kjønn, "Navbruker må ha kjønn");
             return personinfoMal;
         }
 

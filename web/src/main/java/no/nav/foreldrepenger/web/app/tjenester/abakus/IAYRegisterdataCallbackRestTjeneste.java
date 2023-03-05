@@ -41,6 +41,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
     private BehandlingLåsRepository låsRepository;
 
     public IAYRegisterdataCallbackRestTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject

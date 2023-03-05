@@ -44,15 +44,15 @@ public class PersonRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
     private static final String VERGE_PART_PATH = "/person/verge";
-    public static final String VERGE_PATH = BASE_PATH + VERGE_PART_PATH; // NOSONAR TFP-2234
+    public static final String VERGE_PATH = BASE_PATH + VERGE_PART_PATH;
     private static final String VERGE_BACKEND_PART_PATH = "/person/verge-backend";
-    public static final String VERGE_BACKEND_PATH = BASE_PATH + VERGE_BACKEND_PART_PATH; // NOSONAR TFP-2234
+    public static final String VERGE_BACKEND_PATH = BASE_PATH + VERGE_BACKEND_PART_PATH;
     private static final String MEDLEMSKAP_V2_PART_PATH = "/person/medlemskap-v2";
-    public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH; // NOSONAR TFP-2234
+    public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH;
     private static final String PERSONOVERSIKT_PART_PATH = "/person/personoversikt";
-    public static final String PERSONOVERSIKT_PATH = BASE_PATH + PERSONOVERSIKT_PART_PATH; // NOSONAR TFP-2234
+    public static final String PERSONOVERSIKT_PATH = BASE_PATH + PERSONOVERSIKT_PART_PATH;
     private static final String PERSONOPPLYSNINGER_TILBAKE_PART_PATH = "/person/personopplysninger-tilbake";
-    public static final String PERSONOPPLYSNINGER_TILBAKE_PATH = BASE_PATH + PERSONOPPLYSNINGER_TILBAKE_PART_PATH; // NOSONAR TFP-2234
+    public static final String PERSONOPPLYSNINGER_TILBAKE_PATH = BASE_PATH + PERSONOPPLYSNINGER_TILBAKE_PART_PATH;
 
     private VergeRepository vergeRepository;
     private VergeDtoTjeneste vergeDtoTjenesteImpl;

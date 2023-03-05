@@ -50,6 +50,7 @@ public class VergeRestTjeneste {
     private VergeTjeneste vergeTjeneste;
 
     public VergeRestTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject

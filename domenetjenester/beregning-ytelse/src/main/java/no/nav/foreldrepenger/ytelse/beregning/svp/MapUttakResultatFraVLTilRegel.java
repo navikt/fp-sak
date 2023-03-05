@@ -34,6 +34,7 @@ public class MapUttakResultatFraVLTilRegel {
 
     @Inject
     public MapUttakResultatFraVLTilRegel() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     public UttakResultat mapFra(SvangerskapspengerUttakResultatEntitet uttakResultat, UttakInput input) {

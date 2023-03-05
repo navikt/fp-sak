@@ -13,7 +13,7 @@ public class VurdereAnnenYteleseFørVedtakDto extends BekreftetAksjonspunktDto {
         // For Jackson
     }
 
-    public VurdereAnnenYteleseFørVedtakDto(String begrunnelse) { // NOSONAR
+    public VurdereAnnenYteleseFørVedtakDto(String begrunnelse) {
         super(begrunnelse);
     }
 }

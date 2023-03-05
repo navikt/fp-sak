@@ -78,7 +78,7 @@ public class UttakResultatEntitet extends BaseEntitet {
 
         public Builder(Behandlingsresultat behandlingsresultat) {
             Objects.requireNonNull(behandlingsresultat,
-                "Må ha behandlingsresultat for å opprette UttakResultatEntitet"); // $NON-NLS-1$
+                "Må ha behandlingsresultat for å opprette UttakResultatEntitet");
             kladd = new UttakResultatEntitet();
             kladd.behandlingsresultat = behandlingsresultat;
         }

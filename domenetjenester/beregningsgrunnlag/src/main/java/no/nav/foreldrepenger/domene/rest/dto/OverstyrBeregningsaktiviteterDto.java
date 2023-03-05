@@ -19,13 +19,13 @@ public class OverstyrBeregningsaktiviteterDto extends OverstyringAksjonspunktDto
     @Size(max = 1000)
     private List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyrBeregningsaktiviteterDto() {
         super();
         // For Jackson
     }
 
-    public OverstyrBeregningsaktiviteterDto(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList, String begrunnelse) { // NOSONAR
+    public OverstyrBeregningsaktiviteterDto(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList, String begrunnelse) {
         super(begrunnelse);
         this.beregningsaktivitetLagreDtoList = beregningsaktivitetLagreDtoList;
     }

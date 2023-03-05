@@ -11,7 +11,7 @@ public class FastsettEtterlønnSluttpakkeDto {
         // For Jackson
     }
 
-    public FastsettEtterlønnSluttpakkeDto(Integer fastsattPrMnd) { // NOSONAR
+    public FastsettEtterlønnSluttpakkeDto(Integer fastsattPrMnd) {
         this.fastsattPrMnd = fastsattPrMnd;
     }
 

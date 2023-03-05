@@ -71,8 +71,8 @@ public class Aksjonspunkt extends BaseEntitet {
     }
 
     protected Aksjonspunkt(AksjonspunktDefinisjon aksjonspunktDef, BehandlingStegType behandlingStegFunnet) {
-        Objects.requireNonNull(behandlingStegFunnet, "behandlingStegFunnet"); //$NON-NLS-1$
-        Objects.requireNonNull(aksjonspunktDef, "aksjonspunktDef"); //$NON-NLS-1$
+        Objects.requireNonNull(behandlingStegFunnet, "behandlingStegFunnet");
+        Objects.requireNonNull(aksjonspunktDef, "aksjonspunktDef");
         this.behandlingSteg = behandlingStegFunnet;
         this.aksjonspunktDefinisjon = aksjonspunktDef;
         this.toTrinnsBehandling = aksjonspunktDef.getDefaultTotrinnBehandling();
@@ -80,7 +80,7 @@ public class Aksjonspunkt extends BaseEntitet {
     }
 
     protected Aksjonspunkt(AksjonspunktDefinisjon aksjonspunktDef) {
-        Objects.requireNonNull(aksjonspunktDef, "aksjonspunktDef"); //$NON-NLS-1$
+        Objects.requireNonNull(aksjonspunktDef, "aksjonspunktDef");
         this.aksjonspunktDefinisjon = aksjonspunktDef;
         this.toTrinnsBehandling = aksjonspunktDef.getDefaultTotrinnBehandling();
         this.status = AksjonspunktStatus.OPPRETTET;
@@ -207,13 +207,13 @@ public class Aksjonspunkt extends BaseEntitet {
         if (erUtført() || erAvbrutt()) {
             // TODO (FC): håndteres av låsing allerede? Kaster exception nå for å se om GUI
             // kan være ute av synk.
-            throw new IllegalStateException("Forsøkte å bekrefte et allerede lukket aksjonspunkt:" + this); //$NON-NLS-1$
+            throw new IllegalStateException("Forsøkte å bekrefte et allerede lukket aksjonspunkt:" + this);
         }
     }
 
     private void validerIkkeAvbruttAllerede() {
         if (erAvbrutt()) {
-            throw new IllegalStateException("Forsøkte å bekrefte et allerede lukket aksjonspunkt:" + this); //$NON-NLS-1$
+            throw new IllegalStateException("Forsøkte å bekrefte et allerede lukket aksjonspunkt:" + this);
         }
     }
 

@@ -24,7 +24,7 @@ public class LdapInnlogging {
         String authMode = ENV.getProperty("ldap.auth", "simple");
         String url = getRequiredProperty("ldap.url");
 
-        Hashtable<String, Object> environment = new Hashtable<>(); // NOSONAR //metodeparameter krever Hashtable
+        Hashtable<String, Object> environment = new Hashtable<>();  //metodeparameter krever Hashtable
         environment.put(Context.INITIAL_CONTEXT_FACTORY, ENV.getProperty("ldap.ctxfactory", "com.sun.jndi.ldap.LdapCtxFactory"));
         environment.put(Context.PROVIDER_URL, url);
         environment.put(Context.SECURITY_AUTHENTICATION, authMode);

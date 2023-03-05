@@ -79,7 +79,7 @@ class MorsJustering implements ForelderFødselJustering {
     }
 
     private static List<OppgittPeriodeEntitet> fjernHullPerioder(List<OppgittPeriodeEntitet> oppgittPerioder) {
-        return oppgittPerioder.stream().filter(p -> !(p instanceof JusterPeriodeHull)).collect(Collectors.toList()); //NOSONAR
+        return oppgittPerioder.stream().filter(p -> !(p instanceof JusterPeriodeHull)).collect(Collectors.toList());
     }
 
     private List<OppgittPeriodeEntitet> fyllHull(List<OppgittPeriodeEntitet> oppgittePerioder) {

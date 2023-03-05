@@ -142,10 +142,10 @@ public class Endringskontroller {
         if (tilbakeført && !førSteg.equals(etterSteg)) {
             historikkinnslagTjeneste.opprettHistorikkinnslagForTilbakespoling(behandling, førSteg, etterSteg);
             LOG.info("Behandling {} har mottatt en endring som medførte spoling tilbake. Før-steg {}, etter-steg {}", behandling.getId(),
-                førSteg.getNavn(), etterSteg.getNavn());// NOSONAR //$NON-NLS-1$
+                førSteg.getNavn(), etterSteg.getNavn());
         } else {
             LOG.info("Behandling {} har mottatt en endring som ikke medførte spoling tilbake. Før-steg {}, etter-steg {}", behandling.getId(),
-                førSteg.getNavn(), etterSteg.getNavn());// NOSONAR //$NON-NLS-1$
+                førSteg.getNavn(), etterSteg.getNavn());
         }
     }
 

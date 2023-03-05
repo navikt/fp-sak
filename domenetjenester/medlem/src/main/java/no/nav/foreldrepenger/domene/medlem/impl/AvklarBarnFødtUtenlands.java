@@ -29,7 +29,7 @@ public class AvklarBarnFødtUtenlands {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
-    //NOSONAR
+
     public Optional<MedlemResultat> utled(Long behandlingId, @SuppressWarnings("unused") LocalDate vurderingsdato) {
         var bekreftetFH = familieHendelseRepository.hentAggregat(behandlingId).getBekreftetVersjon().orElse(null);
 

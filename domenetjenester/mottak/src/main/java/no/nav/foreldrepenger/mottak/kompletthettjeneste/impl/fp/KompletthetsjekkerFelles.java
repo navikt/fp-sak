@@ -84,9 +84,9 @@ public class KompletthetsjekkerFelles {
     }
 
     public Optional<LocalDateTime> finnVentefristForManglendeVedlegg(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId må være satt"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId må være satt");
         var søknad = søknadRepository.hentSøknad(behandlingId);
-        Objects.requireNonNull(søknad, "søknad kan ikke være null"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(søknad, "søknad kan ikke være null");
 
         final var ønsketFrist = søknad.getMottattDato().plusWeeks(VENTEFRIST_ETTERSENDELSE_FRA_MOTATT_DATO_UKER);
         return finnVentefrist(ønsketFrist);
@@ -195,7 +195,7 @@ public class KompletthetsjekkerFelles {
 
     private void loggManglendeInntektsmeldinger(Long behandlingId, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         var arbgivere = manglendeInntektsmeldinger.stream().map(v -> OrgNummer.tilMaskertNummer(v.getArbeidsgiver())).toList().toString();
-        LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere); // NOSONAR //$NON-NLS-1$
+        LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere);
     }
 
     private void sendEtterlysInntektsmeldingBrev(Long behandlingId, UUID behandlingUuid) {

@@ -210,7 +210,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             var fødselsdato = fpGrunnlag.getFamilieHendelser()
                 .getOverstyrtEllerBekreftet()
                 .orElseThrow()
-                .getFamilieHendelseDato(); // NOSONAR
+                .getFamilieHendelseDato();
             var førsteUttaksdato = finnFørsteUttaksdato(finnForrigeBehandling(revurdering));
             if (førsteUttaksdato.isEmpty() || fødselsdato.isBefore(førsteUttaksdato.get())) {
                 return Optional.of(EndringsdatoType.FØDSELSDATO);
@@ -339,7 +339,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
 
         var tidligst = datoer.stream().min(Comparator.naturalOrder());
         return tidligst.orElseThrow(
-            () -> new IllegalStateException("Finner ikke endringsdato. " + endringsdatoer)); // NOSONAR
+            () -> new IllegalStateException("Finner ikke endringsdato. " + endringsdatoer));
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoSøknadForrigeBehandling(BehandlingReferanse revurdering) {

@@ -20,7 +20,7 @@ public class VurderATogFLiSammeOrganisasjonAndelDto {
         // For Jackson
     }
 
-    public VurderATogFLiSammeOrganisasjonAndelDto(Long andelsnr, Integer arbeidsinntekt) { // NOSONAR
+    public VurderATogFLiSammeOrganisasjonAndelDto(Long andelsnr, Integer arbeidsinntekt) {
         this.andelsnr = andelsnr;
         this.arbeidsinntekt = arbeidsinntekt;
     }

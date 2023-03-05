@@ -39,6 +39,6 @@ public class Pair {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + elem1 + ", " + elem2 + ">"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return getClass().getSimpleName() + "<" + elem1 + ", " + elem2 + ">";
     }
 }

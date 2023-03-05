@@ -181,10 +181,10 @@ public class Fagsak extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" //$NON-NLS-1$
-                + (id == null ? "" : "id=" + id + ",") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                + " bruker=" + navBruker //$NON-NLS-1$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<"
+                + (id == null ? "" : "id=" + id + ",")
+                + " bruker=" + navBruker
+                + ">";
     }
 
     @Override

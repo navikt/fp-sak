@@ -56,7 +56,7 @@ public class EtterkontrollEventObserver {
     }
 
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
-        LOG.debug("Mottatt familehendelseEvent for behandling {} ", event.getBehandlingId());// NOSONAR
+        LOG.debug("Mottatt familehendelseEvent for behandling {} ", event.getBehandlingId());
         if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType())) {
             etterkontrollRepository.avflaggDersomEksisterer(event.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
         }

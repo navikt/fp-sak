@@ -61,6 +61,6 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
         //vurder opphør av ytelse i Infotrygd pga overlapp på far - vet ikke saksnummer
         String oppgaveId = oppgaveTjeneste.opprettVurderKonsekvensBasertPåFagsakId(fagsakId, enhet, beskrivelse, høyPrioritet);
 
-        LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", enhet, oppgaveId, prioritet); // NOSONAR
+        LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", enhet, oppgaveId, prioritet);
     }
 }

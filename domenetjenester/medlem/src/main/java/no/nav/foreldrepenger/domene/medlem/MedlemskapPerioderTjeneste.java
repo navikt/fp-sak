@@ -25,6 +25,7 @@ import no.nav.vedtak.konfig.Tid;
 public class MedlemskapPerioderTjeneste {
 
     public MedlemskapPerioderTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     // FP VK 2.13 Maskinell avklaring

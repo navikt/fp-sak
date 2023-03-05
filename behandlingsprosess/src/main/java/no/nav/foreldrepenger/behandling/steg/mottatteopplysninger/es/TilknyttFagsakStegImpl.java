@@ -20,6 +20,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegImpl() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Override

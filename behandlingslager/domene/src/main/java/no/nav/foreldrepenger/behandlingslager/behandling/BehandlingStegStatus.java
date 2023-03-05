@@ -42,7 +42,7 @@ public enum BehandlingStegStatus implements Kodeverdi {
 
     private static final Map<String, BehandlingStegStatus> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "BEHANDLING_STEG_STATUS"; //$NON-NLS-1$
+    public static final String KODEVERK = "BEHANDLING_STEG_STATUS";
 
     private String navn;
     @JsonValue

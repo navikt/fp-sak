@@ -36,10 +36,10 @@ public class MapYtelseperioderTjeneste {
     private static final OpptjeningAktivitetType UDEFINERT = OpptjeningAktivitetType.UDEFINERT;
     private static final String UTEN_ORGNR = "UTENORGNR";
 
-    public MapYtelseperioderTjeneste() {
+    private MapYtelseperioderTjeneste() {
     }
 
-    public List<OpptjeningsperiodeForSaksbehandling> mapYtelsePerioder(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
+    public static List<OpptjeningsperiodeForSaksbehandling> mapYtelsePerioder(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
             OpptjeningAktivitetVurdering vurderOpptjening, LocalDate skjæringstidspunkt) {
         var aktørId = behandlingReferanse.aktørId();
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt);
@@ -56,7 +56,7 @@ public class MapYtelseperioderTjeneste {
         return slåSammenYtelseTimelines(ytelsePerioder);
     }
 
-    private List<OpptjeningsperiodeForSaksbehandling> mapYtelseAnvist(Ytelse ytelse, BehandlingReferanse behandlingReferanse,
+    private static List<OpptjeningsperiodeForSaksbehandling> mapYtelseAnvist(Ytelse ytelse, BehandlingReferanse behandlingReferanse,
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             OpptjeningAktivitetVurdering vurderForSaksbehandling) {
         var type = mapYtelseType(ytelse);
@@ -67,15 +67,9 @@ public class MapYtelseperioderTjeneste {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
+        // Aksepter Utbetprosent null, men ikke tallet 0
         ytelse.getYtelseAnvist().stream()
-                .filter(ya -> ya.getUtbetalingsgradProsent().map(Stillingsprosent::getVerdi).map(p -> p.compareTo(BigDecimal.ZERO) > 0).orElse(true)) // Aksepter
-                                                                                                                                                      // Utbetprosent
-                                                                                                                                                      // null
-                                                                                                                                                      // ,
-                                                                                                                                                      // men
-                                                                                                                                                      // ikke
-                                                                                                                                                      // tallet
-                                                                                                                                                      // 0
+                .filter(ya -> ya.getUtbetalingsgradProsent().map(Stillingsprosent::getVerdi).map(p -> p.compareTo(BigDecimal.ZERO) > 0).orElse(true))
                 .forEach(ytelseAnvist -> {
                     if (orgnumre.isEmpty()) {
                         var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
@@ -117,7 +111,7 @@ public class MapYtelseperioderTjeneste {
         return DatoIntervallEntitet.fraOgMed(fom);
     }
 
-    private OpptjeningAktivitetType mapYtelseType(Ytelse ytelse) {
+    private static OpptjeningAktivitetType mapYtelseType(Ytelse ytelse) {
         if (RelatertYtelseType.PÅRØRENDESYKDOM.equals(ytelse.getRelatertYtelseType())) {
             return OpptjeningAktivitetType.hentFraTemaUnderkategori()
                     .getOrDefault(ytelse.getBehandlingsTema(), Collections.singleton(UDEFINERT)).stream().findFirst().orElse(UDEFINERT);
@@ -126,24 +120,24 @@ public class MapYtelseperioderTjeneste {
                 .getOrDefault(ytelse.getRelatertYtelseType(), Collections.singleton(UDEFINERT)).stream().findFirst().orElse(UDEFINERT);
     }
 
-    private List<OpptjeningsperiodeForSaksbehandling> slåSammenYtelseTimelines(List<OpptjeningsperiodeForSaksbehandling> ytelser) {
+    private static List<OpptjeningsperiodeForSaksbehandling> slåSammenYtelseTimelines(List<OpptjeningsperiodeForSaksbehandling> ytelser) {
         List<OpptjeningsperiodeForSaksbehandling> resultat = new ArrayList<>();
         var gruppering = ytelser.stream()
-                .collect(Collectors.groupingBy(this::finnYtelseDiskriminator));
+                .collect(Collectors.groupingBy(MapYtelseperioderTjeneste::finnYtelseDiskriminator));
         gruppering.forEach((k, v) -> resultat.addAll(slåSammenYtelseListe(v)));
         return resultat;
     }
 
-    private List<OpptjeningsperiodeForSaksbehandling> slåSammenYtelseListe(List<OpptjeningsperiodeForSaksbehandling> ytelser) {
+    private static List<OpptjeningsperiodeForSaksbehandling> slåSammenYtelseListe(List<OpptjeningsperiodeForSaksbehandling> ytelser) {
         var tidslinje = new LocalDateTimeline<>(ytelser.stream()
                 .map(s -> new LocalDateSegment<>(new LocalDateInterval(s.getPeriode().getFomDato(), s.getPeriode().getTomDato()), s))
-                .collect(Collectors.toList()), this::slåSammenToSegment);
-        return tidslinje.compress((v1, v2) -> true, this::slåSammenToSegment).toSegments().stream()
+                .collect(Collectors.toList()), MapYtelseperioderTjeneste::slåSammenToSegment);
+        return tidslinje.compress((v1, v2) -> true, MapYtelseperioderTjeneste::slåSammenToSegment).toSegments().stream()
                 .map(LocalDateSegment::getValue)
                 .collect(Collectors.toList());
     }
 
-    private LocalDateSegment<OpptjeningsperiodeForSaksbehandling> slåSammenToSegment(LocalDateInterval i,
+    private static LocalDateSegment<OpptjeningsperiodeForSaksbehandling> slåSammenToSegment(LocalDateInterval i,
             LocalDateSegment<OpptjeningsperiodeForSaksbehandling> lhs,
             LocalDateSegment<OpptjeningsperiodeForSaksbehandling> rhs) {
         return new LocalDateSegment<>(i, OpptjeningsperiodeForSaksbehandling.Builder.ny()
@@ -157,7 +151,7 @@ public class MapYtelseperioderTjeneste {
 
     private record YtelseGruppering(OpptjeningAktivitetType type, String orgNummer) {}
 
-    private YtelseGruppering finnYtelseDiskriminator(OpptjeningsperiodeForSaksbehandling ytelse) {
+    private static YtelseGruppering finnYtelseDiskriminator(OpptjeningsperiodeForSaksbehandling ytelse) {
         var retOrgnr = Optional.ofNullable(ytelse.getArbeidsgiver()).map(Arbeidsgiver::getOrgnr).orElse(UTEN_ORGNR);
         return new YtelseGruppering(ytelse.getOpptjeningAktivitetType(), retOrgnr);
     }

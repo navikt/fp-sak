@@ -131,7 +131,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         return arbeidsdager().isEmpty();
     }
 
-    private static List<LocalDate> listArbeidsdager(LocalDate fomDato, LocalDate tomDato) { // NOSONAR
+    private static List<LocalDate> listArbeidsdager(LocalDate fomDato, LocalDate tomDato) {
         List<LocalDate> arbeidsdager = new ArrayList<>();
         var dato = fomDato;
         while (!dato.isAfter(tomDato)) {
@@ -144,7 +144,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     protected static boolean erArbeidsdag(LocalDate dato) {
-        return !dato.getDayOfWeek().equals(SATURDAY) && !dato.getDayOfWeek().equals(SUNDAY); // NOSONAR
+        return !dato.getDayOfWeek().equals(SATURDAY) && !dato.getDayOfWeek().equals(SUNDAY);
     }
 
     @Override

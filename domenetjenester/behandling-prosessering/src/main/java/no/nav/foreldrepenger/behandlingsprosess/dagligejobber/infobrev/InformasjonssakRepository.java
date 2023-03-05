@@ -111,16 +111,16 @@ public class InformasjonssakRepository {
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_VANLIG);
-        query.setParameter("fomdato", fom); //$NON-NLS-1$
-        query.setParameter("tomdato", tom); //$NON-NLS-1$ 7
-        query.setParameter("uttakinnvilget", PeriodeResultatType.INNVILGET.getKode()); //$NON-NLS-1$
-        query.setParameter("kontotype", StønadskontoType.MØDREKVOTE.getKode()); //$NON-NLS-1$
-        query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode()); //$NON-NLS-1$
-        query.setParameter("relrolle", RelasjonsRolleType.MORA.getKode()); //$NON-NLS-1$
-        query.setParameter("infobrev", INFOBREV_TYPER); //$NON-NLS-1$
-        query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
-        query.setParameter("seneretyper", SENERE_TYPER); //$NON-NLS-1$
-        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
+        query.setParameter("fomdato", fom);
+        query.setParameter("tomdato", tom);
+        query.setParameter("uttakinnvilget", PeriodeResultatType.INNVILGET.getKode());
+        query.setParameter("kontotype", StønadskontoType.MØDREKVOTE.getKode());
+        query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode());
+        query.setParameter("relrolle", RelasjonsRolleType.MORA.getKode());
+        query.setParameter("infobrev", INFOBREV_TYPER);
+        query.setParameter("restyper", INNVILGET_TYPER);
+        query.setParameter("seneretyper", SENERE_TYPER);
+        query.setParameter("avsluttet", avsluttendeStatus);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return toInformasjonssakData(resultatList);
@@ -130,12 +130,12 @@ public class InformasjonssakRepository {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
-                    .ny(((BigDecimal) resultat[POS_FAGSAKID]).longValue()) // NOSONAR
-                    .medAktørIdAnnenPart((String) resultat[POS_AKTORID]) // NOSONAR
-                    .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate()) // NOSONAR
-                    .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate()) // NOSONAR
-                    .medEnhet((String) resultat[POS_ENHETID]) // NOSONAR
-                    .medEnhetNavn((String) resultat[POS_ENHETNAVN]); // NOSONAR
+                    .ny(((BigDecimal) resultat[POS_FAGSAKID]).longValue())
+                    .medAktørIdAnnenPart((String) resultat[POS_AKTORID])
+                    .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate())
+                    .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate())
+                    .medEnhet((String) resultat[POS_ENHETID])
+                    .medEnhetNavn((String) resultat[POS_ENHETNAVN]);
             returnList.add(builder.build());
         });
         return returnList;
@@ -191,12 +191,12 @@ public class InformasjonssakRepository {
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
             .collect(Collectors.toList());
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_PÅMINNELSE);
-        query.setParameter("fomdato", fom); //$NON-NLS-1$
-        query.setParameter("tomdato", tom); //$NON-NLS-1$
-        query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode()); //$NON-NLS-1$
-        query.setParameter("restyper", INNVILGET_TYPER); //$NON-NLS-1$
-        query.setParameter("seneretyper", SENERE_TYPER); //$NON-NLS-1$
-        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
+        query.setParameter("fomdato", fom);
+        query.setParameter("tomdato", tom);
+        query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode());
+        query.setParameter("restyper", INNVILGET_TYPER);
+        query.setParameter("seneretyper", SENERE_TYPER);
+        query.setParameter("avsluttet", avsluttendeStatus);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return toPåminnelseData(resultatList);
@@ -206,10 +206,10 @@ public class InformasjonssakRepository {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
-                .ny(((BigDecimal) resultat[0]).longValue()) // NOSONAR
-                .medAktørIdAnnenPart((String) resultat[1]) // NOSONAR
-                .medEnhet((String) resultat[2]) // NOSONAR
-                .medEnhetNavn((String) resultat[3]); // NOSONAR
+                .ny(((BigDecimal) resultat[0]).longValue())
+                .medAktørIdAnnenPart((String) resultat[1])
+                .medEnhet((String) resultat[2])
+                .medEnhetNavn((String) resultat[3]);
             returnList.add(builder.build());
         });
         return returnList;
@@ -219,12 +219,12 @@ public class InformasjonssakRepository {
         List<OverlappData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
             var builder = OverlappData.OverlappDataBuilder.ny()
-                    .medSaksnummer((String) resultat[0]) // NOSONAR
-                    .medYtelseType((String) resultat[1]) // NOSONAR
-                    .medAktørId((String) resultat[2]) // NOSONAR
-                    .medRolle((String) resultat[3]) // NOSONAR
-                    .medBehandlingId(((BigDecimal) resultat[4]).longValue()) // NOSONAR
-                    .medTidligsteDato(((Timestamp) resultat[5]).toLocalDateTime().toLocalDate()); // NOSONAR
+                    .medSaksnummer((String) resultat[0])
+                    .medYtelseType((String) resultat[1])
+                    .medAktørId((String) resultat[2])
+                    .medRolle((String) resultat[3])
+                    .medBehandlingId(((BigDecimal) resultat[4]).longValue())
+                    .medTidligsteDato(((Timestamp) resultat[5]).toLocalDateTime().toLocalDate());
             returnList.add(builder.build());
         });
         return returnList;
@@ -276,21 +276,21 @@ public class InformasjonssakRepository {
                 .collect(Collectors.toList());
         Query query;
         if (saksnummer == null) {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "); //$NON-NLS-1$
-            query.setParameter("fomdato", fom); //$NON-NLS-1$
-            query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
-            //query.setParameter("datototo", LocalDate.of(2021,12,24)); //$NON-NLS-1$
+            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato ");
+            query.setParameter("fomdato", fom);
+            query.setParameter("tomdato", tom.plusDays(1));
+            //query.setParameter("datototo", LocalDate.of(2021,12,24));
         } else {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and saksnummer = :saksnr "); //$NON-NLS-1$
-            //query.setParameter("datototo", LocalDate.of(2021,12,24)); //$NON-NLS-1$
-            query.setParameter("saksnr", saksnummer); //$NON-NLS-1$
+            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and saksnummer = :saksnr ");
+            //query.setParameter("datototo", LocalDate.of(2021,12,24));
+            query.setParameter("saksnr", saksnummer);
         }
-        query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode())); //$NON-NLS-1$
+        query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode()));
         query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
             BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.FORELDREPENGER_SENERE,
             BehandlingResultatType.AVSLÅTT.getKode(),  BehandlingResultatType.OPPHØR.getKode()));
-        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
+        query.setParameter("avsluttet", avsluttendeStatus);
+        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode()));
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return toOverlappData(resultatList);

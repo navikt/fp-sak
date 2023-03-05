@@ -23,7 +23,7 @@ public class OverstyringUttakDto extends OverstyringAksjonspunktDto {
     @Size(min = 1, max = 1500)
     private List<UttakResultatPeriodeLagreDto> perioder;
 
-    OverstyringUttakDto() { //NOSONAR
+    OverstyringUttakDto() {
         // jackson
     }
 

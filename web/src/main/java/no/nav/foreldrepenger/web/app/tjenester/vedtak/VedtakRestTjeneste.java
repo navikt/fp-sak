@@ -42,11 +42,11 @@ public class VedtakRestTjeneste {
 
     static final String BASE_PATH = "/vedtak";
     private static final String HENT_VEDTAKSDOKUMENT_PART_PATH = "/hent-vedtaksdokument";
-    public static final String HENT_VEDTAKSDOKUMENT_PATH = BASE_PATH + HENT_VEDTAKSDOKUMENT_PART_PATH; // NOSONAR TFP-2234
+    public static final String HENT_VEDTAKSDOKUMENT_PATH = BASE_PATH + HENT_VEDTAKSDOKUMENT_PART_PATH;
     private static final String REGENERER_PART_PATH = "/regenerer";
-    public static final String REGENERER_PATH = BASE_PATH + REGENERER_PART_PATH; // NOSONAR TFP-2234
+    public static final String REGENERER_PATH = BASE_PATH + REGENERER_PART_PATH;
     private static final String VALIDATE_PART_PATH = "/validate";
-    public static final String VALIDATE_PATH = BASE_PATH + VALIDATE_PART_PATH; // NOSONAR TFP-2234
+    public static final String VALIDATE_PATH = BASE_PATH + VALIDATE_PART_PATH;
 
     private VedtakInnsynTjeneste vedtakInnsynTjeneste;
     private VedtakTjeneste vedtakTjeneste;

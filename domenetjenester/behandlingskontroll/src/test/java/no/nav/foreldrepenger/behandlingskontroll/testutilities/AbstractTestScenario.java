@@ -115,7 +115,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
         }
         fagsak = fagsakBuilder.build();
-        var fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR
+        var fagsakId = fagsakRepo.opprettNy(fagsak);
         fagsak.setId(fagsakId);
     }
 

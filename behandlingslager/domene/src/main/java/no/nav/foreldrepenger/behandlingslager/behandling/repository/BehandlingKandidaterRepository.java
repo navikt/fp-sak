@@ -61,12 +61,12 @@ public class BehandlingKandidaterRepository {
         var query = entityManager.createQuery(
             "FROM Behandling behandling " +
                 "WHERE behandling.status NOT IN (:avsluttetOgIverksetterStatus) " +
-                "  AND behandling.behandlendeEnhet = :enhet ", //$NON-NLS-1$
+                "  AND behandling.behandlendeEnhet = :enhet ",
             Behandling.class);
 
-        query.setParameter("enhet", enhetId); //$NON-NLS-1$
+        query.setParameter("enhet", enhetId);
         query.setParameter(AVSLUTTENDE_KEY, AVSLUTTENDE_STATUS);
-        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        query.setHint(QueryHints.HINT_READONLY, "true");
         return query.getResultList();
     }
 
@@ -75,12 +75,12 @@ public class BehandlingKandidaterRepository {
         var query = entityManager.createQuery(
             "SELECT bh FROM Behandling bh " +
                 "WHERE bh.status NOT IN (:avsluttetOgIverksetterStatus) " +
-                "  AND NOT EXISTS (SELECT ap FROM Aksjonspunkt ap WHERE ap.behandling=bh AND ap.status = :status) ", //$NON-NLS-1$
+                "  AND NOT EXISTS (SELECT ap FROM Aksjonspunkt ap WHERE ap.behandling=bh AND ap.status = :status) ",
             Behandling.class);
 
-        query.setParameter(AVSLUTTENDE_KEY, AVSLUTTENDE_STATUS); //$NON-NLS-1$
-        query.setParameter("status", AksjonspunktStatus.OPPRETTET); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        query.setParameter(AVSLUTTENDE_KEY, AVSLUTTENDE_STATUS);
+        query.setParameter("status", AksjonspunktStatus.OPPRETTET);
+        query.setHint(QueryHints.HINT_READONLY, "true");
         return query.getResultList();
     }
 }

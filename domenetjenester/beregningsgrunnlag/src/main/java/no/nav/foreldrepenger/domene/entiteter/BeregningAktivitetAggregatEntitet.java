@@ -42,7 +42,7 @@ public class BeregningAktivitetAggregatEntitet extends BaseEntitet {
     }
 
     public BeregningAktivitetAggregatEntitet() {
-        // NOSONAR
+
     }
 
     public Long getId() {
@@ -85,7 +85,7 @@ public class BeregningAktivitetAggregatEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder leggTilAktivitet(BeregningAktivitetEntitet beregningAktivitet) { // NOSONAR
+        public Builder leggTilAktivitet(BeregningAktivitetEntitet beregningAktivitet) {
             kladd.leggTilAktivitet(beregningAktivitet);
             return this;
         }

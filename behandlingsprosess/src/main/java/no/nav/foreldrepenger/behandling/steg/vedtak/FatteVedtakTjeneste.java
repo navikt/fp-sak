@@ -114,7 +114,7 @@ public class FatteVedtakTjeneste {
                 .anyMatch(a -> !TRUE.equals(a.isGodkjent()));
     }
 
-    private void verifiserBehandlingsresultat(Behandling behandling) { // NOSONAR dette er bare enkel verifisering og har ikke høy complexity
+    private void verifiserBehandlingsresultat(Behandling behandling) {
         var behandlingsresultat = behandlingVedtakTjeneste.getBehandlingsresultat(behandling.getId());
         if ((behandlingsresultat == null) || !LOVLIGE_RESULTAT.get(behandling.getType()).contains(behandlingsresultat.getBehandlingResultatType())) {
             var exString = UTVIKLER_FEIL_VEDTAK + (behandlingsresultat == null ? "null" : behandlingsresultat.getBehandlingResultatType().getNavn());

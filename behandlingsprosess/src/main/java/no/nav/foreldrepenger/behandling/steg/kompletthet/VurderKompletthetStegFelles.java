@@ -23,6 +23,7 @@ public class VurderKompletthetStegFelles {
 
     @Inject
     public VurderKompletthetStegFelles() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     public AksjonspunktResultat byggAutopunkt(KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {

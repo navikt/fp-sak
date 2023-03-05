@@ -22,13 +22,13 @@ public class BekreftSokersOpplysningspliktManuDto extends BekreftetAksjonspunktD
 
     @JsonProperty("erVilkarOk")
     private Boolean erVilkarOk;
-    
+
     @JsonProperty("inntektsmeldingerSomIkkeKommer")
     @Valid
     @Size(max = 50)
     private List<InntektsmeldingSomIkkeKommerDto> inntektsmeldingerSomIkkeKommer;
 
-    BekreftSokersOpplysningspliktManuDto() { // NOSONAR
+    BekreftSokersOpplysningspliktManuDto() {
         // For Jackson
     }
 

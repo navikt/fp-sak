@@ -27,6 +27,7 @@ public class PipRepository {
     private EntityManager entityManager;
 
     public PipRepository() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject
@@ -35,7 +36,7 @@ public class PipRepository {
     }
 
     public Optional<PipBehandlingsData> hentDataForBehandling(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR
+        Objects.requireNonNull(behandlingId, "behandlingId");
 
         var sql = """
             SELECT b.behandling_status behandligStatus,
@@ -60,7 +61,7 @@ public class PipRepository {
     }
 
     public Optional<PipBehandlingsData> hentDataForBehandlingUuid(UUID behandlingUuid) {
-        Objects.requireNonNull(behandlingUuid, "behandlingUuid"); // NOSONAR
+        Objects.requireNonNull(behandlingUuid, "behandlingUuid");
 
         var sql = """
             SELECT b.behandling_status behandligStatus,
@@ -108,7 +109,7 @@ public class PipRepository {
             WHERE fag.id in (:fagsakIder) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
             """;
 
-        var query = entityManager.createNativeQuery(sql); // NOSONAR
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter("fagsakIder", fagsakIder);
 
         @SuppressWarnings("unchecked")
@@ -138,7 +139,7 @@ public class PipRepository {
             WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
             """;
 
-        var query = entityManager.createNativeQuery(sql); // NOSONAR
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter(SAKSNUMMER, saksnummer);
 
         @SuppressWarnings("unchecked")

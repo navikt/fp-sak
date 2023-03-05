@@ -100,13 +100,13 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
                 select saksnummer, id from fagsak where fagsak_status in (:fstatus)
                 and id in (select fagsak_id from behandling where behandling_status not in (:bstatus))
-                """); //$NON-NLS-1$
+                """);
         query.setParameter("fstatus", List.of(FagsakStatus.AVSLUTTET.getKode(), FagsakStatus.LØPENDE.getKode()));
         query.setParameter("bstatus", List.of(BehandlingStatus.IVERKSETTER_VEDTAK.getKode(), BehandlingStatus.AVSLUTTET.getKode()));
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         var saker = resultatList.stream()
-            .map(row -> new FagsakTreff((String) row[0], ((BigDecimal) row[1]).longValue())).toList(); // NOSONAR
+            .map(row -> new FagsakTreff((String) row[0], ((BigDecimal) row[1]).longValue())).toList();
         saker.forEach(f -> fagsakRepository.oppdaterFagsakStatus(f.fagsakId(), FagsakStatus.UNDER_BEHANDLING));
         return Response.ok().build();
     }
@@ -130,7 +130,7 @@ public class ForvaltningUttrekkRestTjeneste {
                 from fagsak fs
                 join behandling bh on bh.fagsak_id = fs.id
                 join aksjonspunkt ap on ap.behandling_id = bh.id
-                where ap.aksjonspunkt_def = :apdef and ap.aksjonspunkt_status = :status"""); //$NON-NLS-1$
+                where ap.aksjonspunkt_def = :apdef and ap.aksjonspunkt_status = :status""");
         query.setParameter("apdef", apDef.getKode());
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")
@@ -155,7 +155,7 @@ public class ForvaltningUttrekkRestTjeneste {
             join aksjonspunkt ap on ap.behandling_id = bh.id
             where aksjonspunkt_def in (:apdef)
             and aksjonspunkt_status = :status
-             """); //$NON-NLS-1$
+             """);
         query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG.getKode()));
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")

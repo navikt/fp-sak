@@ -14,11 +14,11 @@ public class BekreftMannAdoptererAksjonspunktDto extends BekreftetAksjonspunktDt
     @NotNull
     private Boolean mannAdoptererAlene;
 
-    BekreftMannAdoptererAksjonspunktDto() { // NOSONAR
+    BekreftMannAdoptererAksjonspunktDto() {
         //For Jackson
     }
 
-    public BekreftMannAdoptererAksjonspunktDto(String begrunnelse, Boolean mannAdoptererAlene) { // NOSONAR
+    public BekreftMannAdoptererAksjonspunktDto(String begrunnelse, Boolean mannAdoptererAlene) {
         super(begrunnelse);
         this.mannAdoptererAlene = mannAdoptererAlene;
     }

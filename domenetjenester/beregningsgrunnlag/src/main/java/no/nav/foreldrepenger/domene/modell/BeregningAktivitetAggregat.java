@@ -45,7 +45,7 @@ public class BeregningAktivitetAggregat {
             return this;
         }
 
-        public Builder leggTilAktivitet(BeregningAktivitet beregningAktivitet) { // NOSONAR
+        public Builder leggTilAktivitet(BeregningAktivitet beregningAktivitet) {
             kladd.leggTilAktivitet(beregningAktivitet);
             return this;
         }

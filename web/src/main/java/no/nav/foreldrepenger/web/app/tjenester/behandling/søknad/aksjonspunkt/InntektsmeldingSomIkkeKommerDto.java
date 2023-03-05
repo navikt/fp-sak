@@ -16,7 +16,7 @@ public class InntektsmeldingSomIkkeKommerDto {
 
     private boolean brukerHarSagtAtIkkeKommer;
 
-    public InntektsmeldingSomIkkeKommerDto() { // NOSONAR
+    public InntektsmeldingSomIkkeKommerDto() {
         // Jackson
     }
 

@@ -41,7 +41,7 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
     private UUID påKlagdBehandlingUuid;
 
 
-    KlageFormkravAksjonspunktDto() { // NOSONAR
+    KlageFormkravAksjonspunktDto() {
         // For Jackson
     }
 

@@ -11,8 +11,8 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class KodeverdiValidator implements ConstraintValidator<ValidKodeverk, Kodeverdi> {
 
-    static final String invKode = "kodeverks kode feilet validering"; // NOSONAR
-    static final String invNavn = "kodeverks navn feilet validering"; // NOSONAR
+    static final String invKode = "kodeverks kode feilet validering";
+    static final String invNavn = "kodeverks navn feilet validering";
 
     Pattern kodeverkPattern = Pattern.compile(InputValideringRegex.KODEVERK);
 

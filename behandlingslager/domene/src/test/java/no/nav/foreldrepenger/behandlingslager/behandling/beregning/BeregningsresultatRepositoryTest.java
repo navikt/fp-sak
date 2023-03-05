@@ -157,7 +157,7 @@ class BeregningsresultatRepositoryTest {
             .getBeregningsresultatAndelList()
             .get(0)
             .getArbeidsgiver()
-            .get();//NOSONAR
+            .get();
         assertThat(arbeidsgiver.getAktørId()).isEqualTo(ARBEIDSGIVER_AKTØR_ID);
         assertThat(arbeidsgiver.getIdentifikator()).isEqualTo(ARBEIDSGIVER_AKTØR_ID.getId());
     }
@@ -290,7 +290,7 @@ class BeregningsresultatRepositoryTest {
         assertThat(beregningsresultatFP1).isPresent();
         assertThat(beregningsresultatFP2).isPresent();
         assertThat(beregningsresultatFP1).hasValueSatisfying(
-            b -> assertThat(b).isSameAs(beregningsresultatFP2.get())); //NOSONAR
+            b -> assertThat(b).isSameAs(beregningsresultatFP2.get()));
     }
 
     @Test

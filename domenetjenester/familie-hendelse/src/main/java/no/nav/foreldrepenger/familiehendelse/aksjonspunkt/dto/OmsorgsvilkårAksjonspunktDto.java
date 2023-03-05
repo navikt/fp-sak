@@ -22,11 +22,11 @@ public class OmsorgsvilkårAksjonspunktDto extends BekreftetAksjonspunktDto impl
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    OmsorgsvilkårAksjonspunktDto() { // NOSONAR
+    OmsorgsvilkårAksjonspunktDto() {
         //For Jackson
     }
 
-    public OmsorgsvilkårAksjonspunktDto(String begrunnelse, Boolean erVilkarOk, String avslagskode) { // NOSONAR
+    public OmsorgsvilkårAksjonspunktDto(String begrunnelse, Boolean erVilkarOk, String avslagskode) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
         this.avslagskode = avslagskode;

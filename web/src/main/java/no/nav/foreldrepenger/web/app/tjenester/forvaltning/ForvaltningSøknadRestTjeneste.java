@@ -148,7 +148,7 @@ public class ForvaltningSøknadRestTjeneste {
                 .setParameter("ident", dto.getIdentAnnenPart())
                 .setParameter("apid", oap.getId())
                 .setParameter("begr", dto.getBegrunnelse())
-                .executeUpdate(); // $NON-NLS-1$
+                .executeUpdate();
         entityManager.flush();
 
         return Response.ok(antall).build();
@@ -174,7 +174,7 @@ public class ForvaltningSøknadRestTjeneste {
                 .setParameter("ident", dto.getIdentAnnenPart())
                 .setParameter("apid", oap.getId())
                 .setParameter("begr", dto.getBegrunnelse())
-                .executeUpdate(); // $NON-NLS-1$
+                .executeUpdate();
         entityManager.flush();
 
         return Response.ok(antall).build();

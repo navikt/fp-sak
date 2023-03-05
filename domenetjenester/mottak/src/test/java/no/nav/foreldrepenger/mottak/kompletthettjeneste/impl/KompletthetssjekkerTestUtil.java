@@ -92,7 +92,7 @@ public class KompletthetssjekkerTestUtil {
 
     public void byggOgLagreSøknadMedEksisterendeOppgittFordeling(Behandling behandling, boolean erEndringssøknad, LocalDate søknadsDato) {
         var oppgittFordeling = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getOppgittFordeling();
-        Objects.requireNonNull(oppgittFordeling, "OppgittFordeling må være lagret på forhånd"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(oppgittFordeling, "OppgittFordeling må være lagret på forhånd");
 
         byggFamilieHendelse(behandling);
         var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true)

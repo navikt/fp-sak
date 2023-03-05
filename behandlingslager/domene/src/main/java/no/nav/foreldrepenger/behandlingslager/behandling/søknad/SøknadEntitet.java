@@ -223,7 +223,7 @@ public class SøknadEntitet extends BaseEntitet {
     @Override
     public String toString() {
         return getClass().getSimpleName() +
-                "<termindato=" + søknadsdato //$NON-NLS-1$
+                "<termindato=" + søknadsdato
                 + ", farSøkerType=" + getFarSøkerType()
                 + ", elektroniskRegistrert=" + elektroniskRegistrert
                 + ", mottattDato=" + mottattDato
@@ -232,7 +232,7 @@ public class SøknadEntitet extends BaseEntitet {
                 + ", språkkode=" + språkkode
                 + ", begrunnelseForSenInnsending=" + begrunnelseForSenInnsending
                 + ", relasjonsRolleType=" + brukerRolle
-                + ">"; //$NON-NLS-1$
+                + ">";
     }
 
     public static class Builder {

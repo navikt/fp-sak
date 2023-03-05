@@ -27,6 +27,7 @@ public class NavBrukerTjeneste {
     private PersoninfoAdapter personinfoAdapter;
 
     public NavBrukerTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject

@@ -39,14 +39,13 @@ public class VurderProsessTaskStatusForPollingApi {
             }
 
             if (optTask.isPresent()) {
-                return sjekkStatus(maksTidFørNesteKjøring, optTask);
+                return sjekkStatus(maksTidFørNesteKjøring, optTask.get());
             }
         }
         return Optional.empty();
     }
 
-    private Optional<AsyncPollingStatus> sjekkStatus(LocalDateTime maksTidFørNesteKjøring, Optional<ProsessTaskData> optTask) {
-        var task = optTask.get();
+    private Optional<AsyncPollingStatus> sjekkStatus(LocalDateTime maksTidFørNesteKjøring, ProsessTaskData task) {
         var gruppe = task.getGruppe();
         var callId = task.getPropertyValue("callId");
         var taskStatus = task.getStatus();

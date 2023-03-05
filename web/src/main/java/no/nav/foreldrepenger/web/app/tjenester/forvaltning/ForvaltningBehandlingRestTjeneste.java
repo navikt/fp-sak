@@ -98,7 +98,7 @@ public class ForvaltningBehandlingRestTjeneste {
         }
         var behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
         if (!behandlinger.isEmpty()) {
-            LOG.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi());
             behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET));
         }
         return Response.ok().build();
@@ -129,17 +129,17 @@ public class ForvaltningBehandlingRestTjeneste {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus()) ||
                 FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            LOG.info("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var behandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD);
         if (behandling.isPresent() && !behandling.get().erAvsluttet()) {
-            LOG.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi());
             behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
             return Response.ok().build();
         }
-        LOG.info("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
+        LOG.info("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi());
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
@@ -158,7 +158,7 @@ public class ForvaltningBehandlingRestTjeneste {
         var saksnummer = new Saksnummer(dto.getSaksnummer());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            LOG.info("Oppgitt fagsak {} er ukjent, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Oppgitt fagsak {} er ukjent, eller engangsstønad", saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var fagsakId = fagsak.getId();
@@ -196,7 +196,7 @@ public class ForvaltningBehandlingRestTjeneste {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
-            LOG.info("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         berørtBehandlingTjeneste.opprettNyBerørtBehandling(fagsak);

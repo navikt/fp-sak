@@ -14,11 +14,11 @@ public class BekreftFaktaForOmsorgVurderingDto extends BekreftetAksjonspunktDto 
     @NotNull
     private Boolean omsorg;
 
-    BekreftFaktaForOmsorgVurderingDto() { // NOSONAR
+    BekreftFaktaForOmsorgVurderingDto() {
         //For Jackson
     }
 
-    public BekreftFaktaForOmsorgVurderingDto(String begrunnelse) { // NOSONAR
+    public BekreftFaktaForOmsorgVurderingDto(String begrunnelse) {
         super(begrunnelse);
     }
 

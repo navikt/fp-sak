@@ -89,10 +89,10 @@ public class BeregningsgrunnlagFrilansAndel extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-                "id=" + id + ", " //$NON-NLS-2$
-                + "mottarYtelse=" + mottarYtelse + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+                "id=" + id + ", "
+                + "mottarYtelse=" + mottarYtelse + ", "
+                + ">";
     }
 
 

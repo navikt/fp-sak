@@ -86,7 +86,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
         } else {
             var behandling = opprettFørstegangsbehandlingTilInfobrev(fagsak, brukEnhet);
             behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-            LOG.info("Opprettet informasjonsbehandling {} på fagsak {}", behandling.getId(), fagsak.getSaksnummer().getVerdi()); // NOSONAR
+            LOG.info("Opprettet informasjonsbehandling {} på fagsak {}", behandling.getId(), fagsak.getSaksnummer().getVerdi());
         }
     }
 

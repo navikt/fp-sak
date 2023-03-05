@@ -31,7 +31,7 @@ public class IAYRepositoryProvider {
 
     @Inject
     public IAYRepositoryProvider(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
 
         // behandling repositories
         this.behandlingRepository = new BehandlingRepository(entityManager);

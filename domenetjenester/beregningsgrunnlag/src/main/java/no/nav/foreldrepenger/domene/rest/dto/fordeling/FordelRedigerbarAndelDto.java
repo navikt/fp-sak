@@ -32,7 +32,7 @@ public class FordelRedigerbarAndelDto {
     private LocalDate beregningsperiodeTom;
 
 
-    protected FordelRedigerbarAndelDto() { // NOSONAR
+    protected FordelRedigerbarAndelDto() {
         // Jackson
     }
 

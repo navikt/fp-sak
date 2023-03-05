@@ -107,7 +107,7 @@ public class EndringsresultatDiff {
         if (Objects.equals(id1, id2)) {
             // Sporede felt kan ikke være endret dersom id-er er like
             erSporetFeltEndret = false;
-        } else if ((id1 == null && id2 != null) || (id1 != null && id2 == null)) { // NOSONAR - false positive
+        } else if ((id1 == null && id2 != null) || (id1 != null && id2 == null)) {  // NOSONAR - false positive
             // Grunnlaget har gått fra å ikke eksistere til å eksistere -> antas alltid å være en sporbar endring
             erSporetFeltEndret = true;
         } else {

@@ -44,10 +44,10 @@ public class BeregningsgrunnlagAktivitetStatus {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" //$NON-NLS-1$
-            + "aktivitetStatus=" + aktivitetStatus + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "hjemmel=" + hjemmel + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<"
+            + "aktivitetStatus=" + aktivitetStatus + ", "
+            + "hjemmel=" + hjemmel + ", "
+            + ">";
     }
 
     public static class Builder {

@@ -22,13 +22,13 @@ public class OverstyringBeregningDto extends OverstyringAksjonspunktDto {
     @Max(500000L)
     private long beregnetTilkjentYtelse;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyringBeregningDto() {
         super();
         // For Jackson
     }
 
-    public OverstyringBeregningDto(long beregnetTilkjentYtelse, String begrunnelse) { // NOSONAR
+    public OverstyringBeregningDto(long beregnetTilkjentYtelse, String begrunnelse) {
         super(begrunnelse);
         this.beregnetTilkjentYtelse = beregnetTilkjentYtelse;
     }

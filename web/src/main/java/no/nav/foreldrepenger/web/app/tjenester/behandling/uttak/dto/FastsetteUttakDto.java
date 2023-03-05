@@ -18,7 +18,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @Size(min = 1, max = 1500)
     private List<UttakResultatPeriodeLagreDto> perioder;
 
-    FastsetteUttakDto() { //NOSONAR
+    FastsetteUttakDto() {
         // jackson
     }
 
@@ -33,7 +33,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.FASTSETT_UTTAKPERIODER_KODE)
     public static class FastsetteUttakPerioderDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakPerioderDto() {
             // For Jackson
         }
@@ -47,7 +47,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_UTTAK_STORTINGSREPRESENTANT_KODE)
     public static class FastsetteUttakStortingsrepresentantDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakStortingsrepresentantDto() {
             // For Jackson
         }
@@ -61,7 +61,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_UTTAK_ETTER_NESTE_SAK_KODE)
     public static class FastsetteUttakEtterNesteSakDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakEtterNesteSakDto() {
             // For Jackson
         }
@@ -75,7 +75,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE)
     public static class FastsetteUttakKontrollerAnnenpartEØSDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakKontrollerAnnenpartEØSDto() {
             // For Jackson
         }
@@ -90,7 +90,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE)
     public static class FastsetteUttakKontrollerRealitetsBehandlingEllerKlageDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakKontrollerRealitetsBehandlingEllerKlageDto() {
             // For Jackson
         }
@@ -104,7 +104,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE)
     public static class FastsetteUttakKontrollerOpplysningerOmFordelingAvStønadsperiodenDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakKontrollerOpplysningerOmFordelingAvStønadsperiodenDto() {
             // For Jackson
         }
@@ -118,7 +118,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD_KODE)
     public static class FastsetteUttakKontrollerOpplysningerOmDødDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakKontrollerOpplysningerOmDødDto() {
             // For Jackson
         }
@@ -132,7 +132,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST_KODE)
     public static class FastsetteUttakKontrollerOpplysningerOmSøknadsfristDto extends FastsetteUttakDto {
 
-        @SuppressWarnings("unused") // NOSONAR
+        @SuppressWarnings("unused")
         private FastsetteUttakKontrollerOpplysningerOmSøknadsfristDto() {
             // For Jackson
         }

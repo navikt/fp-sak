@@ -41,8 +41,8 @@ public class FagsakRelasjonLåsRepository {
 
     private Long låsFagsakRelasjon(final Long fagsakId, LockModeType lockModeType) {
         var resultFs = (Object[]) entityManager
-            .createQuery("select fr.id, fr.versjon from FagsakRelasjon fr where (fr.fagsakNrEn.id=:id or fr.fagsakNrTo.id=:id) and fr.aktiv = true") //$NON-NLS-1$
-            .setParameter("id", fagsakId) //$NON-NLS-1$
+            .createQuery("select fr.id, fr.versjon from FagsakRelasjon fr where (fr.fagsakNrEn.id=:id or fr.fagsakNrTo.id=:id) and fr.aktiv = true")
+            .setParameter("id", fagsakId)
             .setLockMode(lockModeType)
             .getSingleResult();
         return (Long) resultFs[0];

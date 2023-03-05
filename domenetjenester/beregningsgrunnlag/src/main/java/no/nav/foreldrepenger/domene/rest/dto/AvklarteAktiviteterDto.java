@@ -23,7 +23,7 @@ public class AvklarteAktiviteterDto extends BekreftetAksjonspunktDto {
         super();
     }
 
-    public AvklarteAktiviteterDto(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList, String begrunnelse) { // NOSONAR
+    public AvklarteAktiviteterDto(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList, String begrunnelse) {
         super(begrunnelse);
         this.beregningsaktivitetLagreDtoList = beregningsaktivitetLagreDtoList;
     }

@@ -10,11 +10,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class BekreftBosattVurderingDto extends BekreftedePerioderMalDto {
 
 
-    BekreftBosattVurderingDto() { // NOSONAR
+    BekreftBosattVurderingDto() {
         // For Jackson
     }
 
-    public BekreftBosattVurderingDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) { // NOSONAR
+    public BekreftBosattVurderingDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) {
         super(begrunnelse, bekreftedePerioder);
     }
 

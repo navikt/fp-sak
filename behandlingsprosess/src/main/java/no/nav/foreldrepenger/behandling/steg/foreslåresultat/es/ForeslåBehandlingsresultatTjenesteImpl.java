@@ -61,7 +61,7 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     }
 
     private BehandlingResultatType utledBehandlingsresultatType(Behandlingsresultat behandlingsresultat) {
-        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat"); // NOSONAR
+        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat");
         return behandlingsresultat.isVilkårAvslått() ? BehandlingResultatType.AVSLÅTT : BehandlingResultatType.INNVILGET;
     }
 

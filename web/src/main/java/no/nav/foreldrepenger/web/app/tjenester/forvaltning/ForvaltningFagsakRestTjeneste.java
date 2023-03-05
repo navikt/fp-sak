@@ -104,7 +104,7 @@ public class ForvaltningFagsakRestTjeneste {
             LOG.warn("Fagsak allerede avsluttet {}", saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+        LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi());
         oppdaterFagsakStatusTjeneste.avsluttFagsakUtenAktiveBehandlinger(fagsak);
         return Response.ok().build();
     }
@@ -127,7 +127,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (!fagsak.erStengt()) {
-            LOG.info("Stenger fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Stenger fagsak med saksnummer: {} ", saksnummer.getVerdi());
             fagsakRepository.fagsakSkalStengesForBruk(fagsak.getId());
         }
         return Response.ok().build();
@@ -151,7 +151,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (fagsak.erStengt()) {
-            LOG.info("Gjenåpner fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Gjenåpner fagsak med saksnummer: {} ", saksnummer.getVerdi());
             fagsakRepository.fagsakSkalGjenåpnesForBruk(fagsak.getId());
         }
         return Response.ok().build();
@@ -174,11 +174,11 @@ public class ForvaltningFagsakRestTjeneste {
         var fagsak2 = fagsakRepository.hentSakGittSaksnummer(saksnummer2).orElse(null);
         var fagsakRelasjon1 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak1).orElse(null);
         var fagsakRelasjon2 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak2).orElse(null);
-        if (fagsak1 == null || fagsak2 == null || erFagsakRelasjonKoblet(fagsakRelasjon1) || erFagsakRelasjonKoblet(fagsakRelasjon2) // NOSONAR
+        if (fagsak1 == null || fagsak2 == null || erFagsakRelasjonKoblet(fagsakRelasjon1) || erFagsakRelasjonKoblet(fagsakRelasjon2)
                 || FagsakStatus.AVSLUTTET.equals(fagsak1.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak2.getStatus())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        LOG.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
+        LOG.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi());
         var behandlingEn = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak1.getId())
                 .orElse(null);
         fagsakRelasjonTjeneste.kobleFagsaker(fagsak1, fagsak2, behandlingEn);
@@ -206,7 +206,7 @@ public class ForvaltningFagsakRestTjeneste {
                 !fagsakRelasjon.getFagsakNrTo().get().getId().equals(fagsak2.getId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        LOG.info("Kobler fra hverandre fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
+        LOG.info("Kobler fra hverandre fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi());
         fagsakRelasjonTjeneste.fraKobleFagsaker(fagsak1, fagsak2);
         return Response.ok().build();
     }

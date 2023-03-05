@@ -37,7 +37,7 @@ public class ForretningshendelseHåndtererFelles {
     private KøKontroller køKontroller;
 
     @SuppressWarnings("unused")
-    private ForretningshendelseHåndtererFelles() { // NOSONAR
+    private ForretningshendelseHåndtererFelles() {
         // For CDI
     }
 

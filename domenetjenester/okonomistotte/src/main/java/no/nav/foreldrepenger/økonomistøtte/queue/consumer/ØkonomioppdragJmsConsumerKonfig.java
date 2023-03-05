@@ -2,16 +2,17 @@ package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.jms.JMSException;
 
+import jakarta.jms.JMSException;
+import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.FellesJmsKonfig;
-import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 
 @ApplicationScoped
 public class ØkonomioppdragJmsConsumerKonfig extends FellesJmsKonfig {
 
     ØkonomioppdragJmsConsumerKonfig() {
+        // CDI
     }
 
     @Inject

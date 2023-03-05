@@ -43,7 +43,7 @@ public class OppdaterBehandlendeEnhetTask extends BehandlingProsessTask {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var nyEnhet = behandlendeEnhetTjeneste.sjekkOppdatertEnhetEtterReallokering(behandling);
         if (nyEnhet.isPresent()) {
-            LOG.info("Endrer behandlende enhet for behandling: {}", prosessTaskData.getBehandlingId()); //NOSONAR
+            LOG.info("Endrer behandlende enhet for behandling: {}", prosessTaskData.getBehandlingId());
             behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, nyEnhet.get(), HistorikkAktør.VEDTAKSLØSNINGEN, BEGRUNNELSE);
         }
     }

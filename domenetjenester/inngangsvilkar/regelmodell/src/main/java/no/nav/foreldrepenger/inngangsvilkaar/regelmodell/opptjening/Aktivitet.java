@@ -83,10 +83,10 @@ public class Aktivitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<type=" + aktivitetType //$NON-NLS-1$
-                + (aktivitetReferanse == null ? "" : ", referanse=" + aktivitetReferanse.replaceAll("^\\d{5}", "*****")) //$NON-NLS-1$ //$NON-NLS-2$
-                + (referanseType == null ? "" : ", referanseType=" + referanseType) //$NON-NLS-1$ //$NON-NLS-2$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<type=" + aktivitetType
+                + (aktivitetReferanse == null ? "" : ", referanse=" + aktivitetReferanse.replaceAll("^\\d{5}", "*****"))
+                + (referanseType == null ? "" : ", referanseType=" + referanseType)
+                + ">";
 
     }
 }

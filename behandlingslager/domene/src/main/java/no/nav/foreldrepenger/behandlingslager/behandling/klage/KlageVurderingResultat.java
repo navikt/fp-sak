@@ -217,15 +217,15 @@ public class KlageVurderingResultat extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + "klageVurdertAv=" + getKlageVurdertAv() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "klageVurdering=" + getKlageVurdering() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "klageVurderingOmgjør" + getKlageVurderingOmgjør() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "klageMedholdÅrsak=" + getKlageMedholdÅrsak() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "klageHjemmel=" + getKlageHjemmel() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "begrunnelse=" + begrunnelse + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "fritekstTilBrev=" + fritekstTilBrev + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "klageVurdertAv=" + getKlageVurdertAv() + ", "
+            + "klageVurdering=" + getKlageVurdering() + ", "
+            + "klageVurderingOmgjør" + getKlageVurderingOmgjør() + ", "
+            + "klageMedholdÅrsak=" + getKlageMedholdÅrsak() + ", "
+            + "klageHjemmel=" + getKlageHjemmel() + ", "
+            + "begrunnelse=" + begrunnelse + ", "
+            + "fritekstTilBrev=" + fritekstTilBrev + ", "
+            + ">";
     }
 }

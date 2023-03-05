@@ -56,7 +56,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
     void opprettOppgave(Behandling behandling) {
         var refusjoner = vurder(behandling);
         if (!refusjoner.isEmpty()) {
-            LOG.info("VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver: oppretter oppgave for behandling: {}", behandling.getId()); //$NON-NLS-1$
+            LOG.info("VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver: oppretter oppgave for behandling: {}", behandling.getId());
             // send en oppdrag til NØS hver privat arbeidsgiver, det kan være flere
             var beregningsperioder = hentBeregningsperioder(behandling.getId());
             for (var arbeidsgiverAktørId : refusjoner) {

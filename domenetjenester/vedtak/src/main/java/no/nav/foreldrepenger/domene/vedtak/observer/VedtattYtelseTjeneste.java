@@ -42,6 +42,7 @@ public class VedtattYtelseTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
 
     public VedtattYtelseTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject

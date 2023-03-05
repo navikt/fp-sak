@@ -160,12 +160,12 @@ public class Opptjening extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-                "id=" + id + ", " //$NON-NLS-2$ //$NON-NLS-3$
-            + "opptjeningsperiodeFom=" + opptjeningPeriode.getFomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "opptjeningsperiodeTom=" + opptjeningPeriode.getTomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + (opptjentPeriode == null ? "" : ", opptjentPeriode=" + opptjentPeriode) //$NON-NLS-1$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+                "id=" + id + ", "
+            + "opptjeningsperiodeFom=" + opptjeningPeriode.getFomDato() + ", "
+            + "opptjeningsperiodeTom=" + opptjeningPeriode.getTomDato() + ", "
+                + (opptjentPeriode == null ? "" : ", opptjentPeriode=" + opptjentPeriode)
+                + ">";
     }
 
     void setOpptjeningAktivitet(Collection<OpptjeningAktivitet> opptjeningAktivitet) {

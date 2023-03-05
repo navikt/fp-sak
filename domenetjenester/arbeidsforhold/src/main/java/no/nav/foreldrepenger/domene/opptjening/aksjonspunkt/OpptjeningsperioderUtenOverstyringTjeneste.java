@@ -40,12 +40,10 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 public class OpptjeningsperioderUtenOverstyringTjeneste {
 
     private OpptjeningRepository opptjeningRepository;
-    private MapYtelseperioderTjeneste mapYtelseperioderTjeneste;
 
     @Inject
     public OpptjeningsperioderUtenOverstyringTjeneste(OpptjeningRepository opptjeningRepository) {
         this.opptjeningRepository = opptjeningRepository;
-        this.mapYtelseperioderTjeneste = new MapYtelseperioderTjeneste();
     }
 
     public List<OpptjeningsperiodeForSaksbehandling> mapPerioderForSaksbehandling(BehandlingReferanse behandlingReferanse,
@@ -66,7 +64,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
 
         var oppgittOpptjening = grunnlag.getOppgittOpptjening();
         perioder.addAll(mapOppgittOpptjening(mapArbeidOpptjening, oppgittOpptjening));
-        perioder.addAll(mapYtelseperioderTjeneste.mapYtelsePerioder(behandlingReferanse, grunnlag, vurderOpptjening, skjæringstidspunkt));
+        perioder.addAll(MapYtelseperioderTjeneste.mapYtelsePerioder(behandlingReferanse, grunnlag, vurderOpptjening, skjæringstidspunkt));
         lagOpptjeningsperiodeForFrilansAktivitet(behandlingReferanse, oppgittOpptjening.orElse(null), grunnlag, perioder, skjæringstidspunkt,
                 mapArbeidOpptjening).ifPresent(perioder::add);
 

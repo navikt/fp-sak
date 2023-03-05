@@ -71,7 +71,7 @@ public class BehandlingRevurderingRepository {
      * Hent første henlagte endringssøknad etter siste innvilgede behandlinger for en fagsak
      */
     public List<Behandling> finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(Long fagsakId) {
-        Objects.requireNonNull(fagsakId, "fagsakId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(fagsakId, "fagsakId");
 
         var sisteInnvilgede = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
 
@@ -109,7 +109,7 @@ public class BehandlingRevurderingRepository {
                 AND r.behandlingResultatType IN :henlagtKoder)
              ORDER BY b.opprettetTidspunkt ASC
             """, Long.class);
-        query.setParameter("fagsakId", fagsakId); //$NON-NLS-1$
+        query.setParameter("fagsakId", fagsakId);
         query.setParameter("type", BehandlingType.REVURDERING);
         query.setParameter("henlagtKoder", BehandlingResultatType.getAlleHenleggelseskoder());
         query.setParameter("etterTidspunkt", sisteInnvilgede.getOpprettetDato());
@@ -120,7 +120,7 @@ public class BehandlingRevurderingRepository {
         var åpenBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
             .filter(beh -> !beh.erKøet())
             .collect(Collectors.toList());
-        check(åpenBehandling.size() <= 1, "Kan maks ha én åpen ytelsesbehandling"); //$NON-NLS-1$
+        check(åpenBehandling.size() <= 1, "Kan maks ha én åpen ytelsesbehandling");
         return optionalFirst(åpenBehandling);
     }
 
@@ -128,12 +128,12 @@ public class BehandlingRevurderingRepository {
         var køetBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
             .filter(Behandling::erKøet)
             .collect(Collectors.toList());
-        check(køetBehandling.size() <= 1, "Kan maks ha én køet ytelsesbehandling"); //$NON-NLS-1$
+        check(køetBehandling.size() <= 1, "Kan maks ha én køet ytelsesbehandling");
         return optionalFirst(køetBehandling);
     }
 
     private List<Behandling> finnÅpenogKøetYtelsebehandling(Long fagsakId) {
-        Objects.requireNonNull(fagsakId, "fagsakId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(fagsakId, "fagsakId");
 
         var query = getEntityManager().createQuery(
             "SELECT b.id " +
@@ -141,11 +141,11 @@ public class BehandlingRevurderingRepository {
                 "where fagsak.id=:fagsakId " +
                 "and status not in (:avsluttet) " +
                 "and behandlingType in (:behandlingType) " +
-                "order by opprettetTidspunkt desc", //$NON-NLS-1$
+                "order by opprettetTidspunkt desc",
             Long.class);
-        query.setParameter("fagsakId", fagsakId); //$NON-NLS-1$
-        query.setParameter(AVSLUTTET_KEY, BehandlingStatus.getFerdigbehandletStatuser()); // $NON-NLS-1$
-        query.setParameter("behandlingType", BehandlingType.getYtelseBehandlingTyper()); //$NON-NLS-1$
+        query.setParameter("fagsakId", fagsakId);
+        query.setParameter(AVSLUTTET_KEY, BehandlingStatus.getFerdigbehandletStatuser());
+        query.setParameter("behandlingType", BehandlingType.getYtelseBehandlingTyper());
 
         var behandlingIder = query.getResultList();
         for (var behandlingId : behandlingIder) {
@@ -154,9 +154,9 @@ public class BehandlingRevurderingRepository {
         final var behandlinger = behandlingIder.stream()
             .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId))
             .collect(Collectors.toList());
-        check(behandlinger.size() <= 2, "Kan maks ha én åpen og én køet ytelsesbehandling"); //$NON-NLS-1$
-        check(behandlinger.stream().filter(Behandling::erKøet).count() <= 1, "Kan maks ha én køet ytelsesbehandling"); //$NON-NLS-1$
-        check(behandlinger.stream().filter(it -> !it.erKøet()).count() <= 1, "Kan maks ha én åpen ytelsesbehandling"); //$NON-NLS-1$
+        check(behandlinger.size() <= 2, "Kan maks ha én åpen og én køet ytelsesbehandling");
+        check(behandlinger.stream().filter(Behandling::erKøet).count() <= 1, "Kan maks ha én køet ytelsesbehandling");
+        check(behandlinger.stream().filter(it -> !it.erKøet()).count() <= 1, "Kan maks ha én åpen ytelsesbehandling");
 
         return behandlinger;
     }
@@ -261,7 +261,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
@@ -286,7 +286,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
@@ -305,7 +305,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger Arena-regulering og det ikke finnes åpen behandling */
@@ -326,7 +326,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
     }
 
     private void setStandardParametersFP(Query query, LocalDate gjeldendeFom) {
@@ -393,11 +393,11 @@ public class BehandlingRevurderingRepository {
                     """ +
                 REGULERING_WHERE_STD_SVP +
                 "  and bgmax.brutto >= (bglag.grunnbeloep * :avkorting ) ")
-            .setParameter("avkorting", forrigeAvkortingMultiplikator); //$NON-NLS-1$
+            .setParameter("avkorting", forrigeAvkortingMultiplikator);
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
@@ -418,11 +418,11 @@ public class BehandlingRevurderingRepository {
                 REGULERING_WHERE_STD_SVP +
                 "  and bgmin.brutto <= (bglag.grunnbeloep * :avkorting ) " )
             .setParameter("avkorting", 3)
-            .setParameter("milsiv", List.of(AktivitetStatus.MILITÆR_ELLER_SIVIL.getKode())); //$NON-NLS-1$
+            .setParameter("milsiv", List.of(AktivitetStatus.MILITÆR_ELLER_SIVIL.getKode()));
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
@@ -437,11 +437,11 @@ public class BehandlingRevurderingRepository {
                 "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:snring) ) " +
                 REGULERING_WHERE_STD_SVP )
             .setParameter("snring", List.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.getKode(), AktivitetStatus.KOMBINERT_AT_SN.getKode(),
-                AktivitetStatus.KOMBINERT_FL_SN.getKode(), AktivitetStatus.KOMBINERT_AT_FL_SN.getKode())); //$NON-NLS-1$
+                AktivitetStatus.KOMBINERT_FL_SN.getKode(), AktivitetStatus.KOMBINERT_AT_FL_SN.getKode()));
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
     }
 
     public record FagsakIdAktørId(Long fagsakId, AktørId aktørId) { }

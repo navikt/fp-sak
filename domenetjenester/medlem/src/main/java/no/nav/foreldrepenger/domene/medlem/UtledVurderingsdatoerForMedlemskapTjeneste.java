@@ -229,7 +229,7 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private LocalDateSegment<MedlemskapPerioderEntitet> sjekkForEndringIMedl(@SuppressWarnings("unused") LocalDateInterval di,  // NOSONAR
+    private LocalDateSegment<MedlemskapPerioderEntitet> sjekkForEndringIMedl(@SuppressWarnings("unused") LocalDateInterval di,
                                                                              LocalDateSegment<MedlemskapPerioderEntitet> førsteVersjon,
                                                                              LocalDateSegment<MedlemskapPerioderEntitet> sisteVersjon, MedlemEndringssjekker endringssjekker) {
 

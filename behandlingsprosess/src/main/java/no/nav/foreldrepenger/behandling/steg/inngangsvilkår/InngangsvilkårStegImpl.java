@@ -60,7 +60,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
         if (!(vilkårHåndtertAvSteg.isEmpty() || !vilkårTyper.isEmpty())) {
             throw new IllegalArgumentException(
-                    String.format("Utviklerfeil: Steg[%s] håndterer ikke angitte vilkår %s", this.getClass(), vilkårTyper)); //$NON-NLS-1$
+                    String.format("Utviklerfeil: Steg[%s] håndterer ikke angitte vilkår %s", this.getClass(), vilkårTyper));
         }
 
         if (skipSteget(kontekst)) {

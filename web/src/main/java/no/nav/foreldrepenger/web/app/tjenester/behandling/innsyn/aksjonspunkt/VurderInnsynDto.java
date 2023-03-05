@@ -43,7 +43,7 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
     @JsonProperty("fristDato")
     private LocalDate fristDato;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private VurderInnsynDto() {
         super();
         // For Jackson

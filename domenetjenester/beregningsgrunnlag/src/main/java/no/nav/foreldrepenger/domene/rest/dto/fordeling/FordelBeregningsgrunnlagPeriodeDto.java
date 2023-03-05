@@ -18,11 +18,11 @@ public class FordelBeregningsgrunnlagPeriodeDto {
 
 
 
-    FordelBeregningsgrunnlagPeriodeDto() { // NOSONAR
+    FordelBeregningsgrunnlagPeriodeDto() {
         // Jackson
     }
 
-    public FordelBeregningsgrunnlagPeriodeDto(List<FordelBeregningsgrunnlagAndelDto> andeler, LocalDate fom, LocalDate tom) { // NOSONAR
+    public FordelBeregningsgrunnlagPeriodeDto(List<FordelBeregningsgrunnlagAndelDto> andeler, LocalDate fom, LocalDate tom) {
         this.andeler = andeler;
         this.fom = fom;
         this.tom = tom;

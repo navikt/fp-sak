@@ -22,6 +22,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
     private PersoninfoAdapter personinfoAdapter;
 
     public PersonopplysningDtoPersonIdentTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject

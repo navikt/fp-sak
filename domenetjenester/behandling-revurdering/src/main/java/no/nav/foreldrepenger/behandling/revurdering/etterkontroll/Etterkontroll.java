@@ -30,7 +30,7 @@ public class Etterkontroll extends BaseEntitet {
 
     @DiffIgnore
     @Column(name = "kontroll_tid", nullable = false)
-    private LocalDateTime kontrollTidspunkt; // NOSONAR
+    private LocalDateTime kontrollTidspunkt;
 
     @Convert(converter = KontrollType.KodeverdiConverter.class)
     @Column(name = "kontroll_type", nullable = false)

@@ -58,7 +58,6 @@ public class OpptjeningsperioderTjeneste {
     private OpptjeningRepository opptjeningRepository;
     private OpptjeningAktivitetVurdering vurderForSaksbehandling;
     private OpptjeningAktivitetVurdering vurderForVilkår;
-    private MapYtelseperioderTjeneste mapYtelseperioderTjeneste;
 
     OpptjeningsperioderTjeneste() {
         // CDI
@@ -73,7 +72,6 @@ public class OpptjeningsperioderTjeneste {
         this.opptjeningRepository = opptjeningRepository;
         this.vurderForSaksbehandling = new OpptjeningAktivitetVurderingAksjonspunkt(vurderOppgittOpptjening, vurderBekreftetOpptjening);
         this.vurderForVilkår = new OpptjeningAktivitetVurderingVilkår(vurderOppgittOpptjening, vurderBekreftetOpptjening);
-        this.mapYtelseperioderTjeneste = new MapYtelseperioderTjeneste();
     }
 
     /**
@@ -134,7 +132,7 @@ public class OpptjeningsperioderTjeneste {
                 perioder.add(periode);
             });
         }
-        perioder.addAll(mapYtelseperioderTjeneste.mapYtelsePerioder(behandlingReferanse, grunnlag, vurderOpptjening, skjæringstidspunkt));
+        perioder.addAll(MapYtelseperioderTjeneste.mapYtelsePerioder(behandlingReferanse, grunnlag, vurderOpptjening, skjæringstidspunkt));
 
         var filterSaksbehandlet = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getBekreftetAnnenOpptjening(aktørId));
 

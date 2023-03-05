@@ -27,14 +27,14 @@ public class ØkonomioppdragRepository {
 
     @Inject
     public ØkonomioppdragRepository(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
     public Oppdragskontroll hentOppdragskontroll(long oppdragskontrollId) {
         var query = entityManager.createQuery(
-            "from Oppdragskontroll where id=:oppdragskontrollId", Oppdragskontroll.class); //$NON-NLS-1$
-        query.setParameter("oppdragskontrollId", oppdragskontrollId); //$NON-NLS-1$
+            "from Oppdragskontroll where id=:oppdragskontrollId", Oppdragskontroll.class);
+        query.setParameter("oppdragskontrollId", oppdragskontrollId);
         return hentEksaktResultat(query);
     }
 
@@ -54,11 +54,11 @@ public class ØkonomioppdragRepository {
                     and o110.kodeFagomrade = :fagomrade
                 order by o110.opprettetTidspunkt, o110.nøkkelAvstemming
                     """,
-                Oppdrag110.class) //$NON-NLS-1$
-            .setParameter("fomTidspunkt", fomDato.atStartOfDay()) //$NON-NLS-1$
-            .setParameter("tilTidspunkt", tomDato.plusDays(1).atStartOfDay()) //$NON-NLS-1$
+                Oppdrag110.class)
+            .setParameter("fomTidspunkt", fomDato.atStartOfDay())
+            .setParameter("tilTidspunkt", tomDato.plusDays(1).atStartOfDay())
             .setParameter("fagomrade", fagområde)
-            .getResultList(); //$NON-NLS-1$
+            .getResultList();
 
         return resultList;
     }
@@ -72,7 +72,7 @@ public class ØkonomioppdragRepository {
                     where o110.oppdragskontroll.behandlingId = :behandlingId
                         and o110.fagsystemId = :fagsystemId
                         and o110.oppdragKvittering is empty
-                    """, Oppdrag110.class) //$NON-NLS-1$
+                    """, Oppdrag110.class)
             .setParameter("fagsystemId", fagsystemId)
             .setParameter("behandlingId", behandlingId)
             ;
@@ -81,7 +81,7 @@ public class ØkonomioppdragRepository {
 
     public Optional<Oppdragskontroll> finnOppdragForBehandling(long behandlingId) {
         var resultList = entityManager.createQuery(
-            "from Oppdragskontroll where behandlingId = :behandlingId", Oppdragskontroll.class)//$NON-NLS-1$
+            "from Oppdragskontroll where behandlingId = :behandlingId", Oppdragskontroll.class)
             .setParameter("behandlingId", behandlingId)
             .getResultList();
 
@@ -94,7 +94,7 @@ public class ØkonomioppdragRepository {
 
     public List<Oppdragskontroll> finnAlleOppdragForSak(Saksnummer saksnr) {
         return entityManager.createQuery(
-            "from Oppdragskontroll where saksnummer = :saksnr", Oppdragskontroll.class)//$NON-NLS-1$
+            "from Oppdragskontroll where saksnummer = :saksnr", Oppdragskontroll.class)
             .setParameter(SAKSNR, saksnr)
             .getResultList();
     }

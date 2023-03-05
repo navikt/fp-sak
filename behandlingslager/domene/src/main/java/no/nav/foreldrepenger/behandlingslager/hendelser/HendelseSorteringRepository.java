@@ -29,7 +29,7 @@ public class HendelseSorteringRepository {
 
     @Inject
     public HendelseSorteringRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -59,7 +59,7 @@ public class HendelseSorteringRepository {
                 "where b.aktørId in (:aktørIder) " +
                 "and ((f.fagsakStatus != :fagsakStatus " +
                 "and f.ytelseType != :ytelseType) " +
-                "or f.ytelseType = :ytelseType) ", //$NON-NLS-1$
+                "or f.ytelseType = :ytelseType) ",
             AktørId.class);
         query.setParameter("aktørIder", aktørIdListe);
         query.setParameter("fagsakStatus", FagsakStatus.AVSLUTTET);
@@ -78,7 +78,7 @@ public class HendelseSorteringRepository {
                 "and por.tilAktørId in (:aktørIder) " +
                 "and gr.aktiv = :aktiv " +
                 "and f.fagsakStatus != :fagsakStatus " +
-                "and f.ytelseType = :ytelseType ", //$NON-NLS-1$
+                "and f.ytelseType = :ytelseType ",
             AktørId.class);
         query.setParameter("relasjonsRolle", RelasjonsRolleType.BARN);
         query.setParameter("aktørIder", aktørIdListe);

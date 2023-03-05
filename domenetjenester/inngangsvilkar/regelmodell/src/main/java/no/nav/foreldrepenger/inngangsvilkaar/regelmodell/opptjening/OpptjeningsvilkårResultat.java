@@ -28,6 +28,7 @@ public class OpptjeningsvilkårResultat {
     private Map<Aktivitet, LocalDateTimeline<Boolean>> underkjentePerioder;
 
     public OpptjeningsvilkårResultat() {
+        // Kompleks mellomregning
     }
 
     public Map<Aktivitet, LocalDateTimeline<Boolean>> getAkseptertMellomliggendePerioder() {

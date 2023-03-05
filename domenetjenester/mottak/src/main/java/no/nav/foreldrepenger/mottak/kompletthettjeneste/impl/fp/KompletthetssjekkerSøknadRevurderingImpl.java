@@ -103,7 +103,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
 
         if (!manglendeVedlegg.isEmpty()) {
             LOG.info("Revurdering {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId,
-                lagDokumentTypeString(manglendeVedlegg)); // NOSONAR //$NON-NLS-1$
+                lagDokumentTypeString(manglendeVedlegg));
         }
         return manglendeVedlegg;
     }

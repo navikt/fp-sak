@@ -13,7 +13,7 @@ public class InntektsmeldingSomIkkeKommer {
 
     public InntektsmeldingSomIkkeKommer(Arbeidsgiver arbeidsgiver,
             InternArbeidsforholdRef internRef,
-            @SuppressWarnings("unused") EksternArbeidsforholdRef eksternRef // NOSONAR
+            @SuppressWarnings("unused") EksternArbeidsforholdRef eksternRef
     ) {
         this.arbeidsgiver = arbeidsgiver;
         this.internRef = internRef;

@@ -59,7 +59,7 @@ public class UttaksperiodegrenseRepository {
             .createQuery("select u from Uttaksperiodegrense u " +
                 "where u.behandlingsresultat.behandling.id = :behandlingId " +
                 "and u.aktiv = true", Uttaksperiodegrense.class)
-            .setParameter("behandlingId", behandlingId); // NOSONAR
+            .setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
@@ -70,7 +70,7 @@ public class UttaksperiodegrenseRepository {
     }
 
     private Optional<Uttaksperiodegrense> getAktivtUttaksperiodegrense(Behandlingsresultat behandlingsresultat) {
-        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat"); // NOSONAR $NON-NLS-1$
+        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat");
         final var query = entityManager.createQuery("FROM Uttaksperiodegrense Upg " +
             "WHERE Upg.behandlingsresultat.id = :behandlingresultatId " +
             "AND Upg.aktiv = :aktivt", Uttaksperiodegrense.class);

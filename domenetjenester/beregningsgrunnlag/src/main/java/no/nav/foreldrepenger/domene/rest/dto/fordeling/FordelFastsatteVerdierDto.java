@@ -24,7 +24,7 @@ public class FordelFastsatteVerdierDto {
     private Inntektskategori inntektskategori;
 
 
-    FordelFastsatteVerdierDto() { // NOSONAR
+    FordelFastsatteVerdierDto() {
         // Jackson
     }
 

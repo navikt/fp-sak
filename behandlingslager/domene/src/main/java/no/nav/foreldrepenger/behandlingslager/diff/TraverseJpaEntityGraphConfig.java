@@ -59,7 +59,7 @@ public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {
             || targetClass.isAnnotationPresent(Embeddable.class);
         if (!ok) {
             throw new IllegalArgumentException(
-                "target [" + targetClass + "] er ikke en Entity eller Embeddable (mangler annotation):" + currentPath); //$NON-NLS-1$ //$NON-NLS-2$
+                "target [" + targetClass + "] er ikke en Entity eller Embeddable (mangler annotation):" + currentPath);
         }
 
     }

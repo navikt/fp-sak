@@ -58,7 +58,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
     private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     public OpprettSakService() {
-        // NOSONAR: cdi
+        // cdi
     }
 
     @Inject

@@ -31,14 +31,14 @@ public class VergeRepository {
     }
 
     public void lagreOgFlush(Long behandlingId, VergeBuilder vergeBuilder) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); //NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId);
         var verge = vergeBuilder.build();
         var grunnlag = new VergeGrunnlagEntitet(behandlingId, verge);
         lagreOgFlush(behandlingId, grunnlag);
     }
 
     public void fjernVergeFraEksisterendeGrunnlag(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); //NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId);
         var vergeAggregat = hentAggregat(behandlingId);
         if (vergeAggregat.isPresent()) {
             var lås = behandlingLåsRepository.taLås(behandlingId);
@@ -61,7 +61,7 @@ public class VergeRepository {
     }
 
     private void lagreOgFlush(Long behandlingId, VergeGrunnlagEntitet nyttGrunnlag) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); //NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         if (nyttGrunnlag == null) {
             return;
         }
@@ -86,9 +86,7 @@ public class VergeRepository {
     }
 
     private void lagreVerge(VergeEntitet verge) {
-        if (verge.getVergeOrganisasjon().isPresent()) {
-            entityManager.persist(verge.getVergeOrganisasjon().get());
-        }
+        verge.getVergeOrganisasjon().ifPresent(entityManager::persist);
         entityManager.persist(verge);
     }
 
@@ -112,10 +110,10 @@ public class VergeRepository {
 
     private Optional<VergeGrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
-            "SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = 'J'", //$NON-NLS-1$
+            "SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = 'J'",
             VergeGrunnlagEntitet.class);
 
-        query.setParameter("behandling_id", behandlingId); //$NON-NLS-1$
+        query.setParameter("behandling_id", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 }

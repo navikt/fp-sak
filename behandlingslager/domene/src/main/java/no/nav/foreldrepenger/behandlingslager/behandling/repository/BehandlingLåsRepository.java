@@ -50,8 +50,8 @@ public class BehandlingLåsRepository {
     private void låsBehandling(final Long behandlingId) {
         // bruk native query så vi ikke går i beina på hibernate session cache og transiente data
         entityManager
-            .createNativeQuery("select 1 from BEHANDLING beh where beh.id=:id FOR UPDATE") //$NON-NLS-1$
-            .setParameter("id", behandlingId) //$NON-NLS-1$
+            .createNativeQuery("select 1 from BEHANDLING beh where beh.id=:id FOR UPDATE")
+            .setParameter("id", behandlingId)
             .setFlushMode(FlushModeType.COMMIT)
             .getSingleResult();
     }
@@ -59,8 +59,8 @@ public class BehandlingLåsRepository {
     private Long låsBehandling(final UUID eksternBehandlingRef) {
         // bruk native query så vi ikke går i beina på hibernate session cache og transiente data
         var result = entityManager
-            .createNativeQuery("select beh.id from BEHANDLING beh where beh.uuid=:uuid FOR UPDATE") //$NON-NLS-1$
-            .setParameter("uuid", eksternBehandlingRef) //$NON-NLS-1$
+            .createNativeQuery("select beh.id from BEHANDLING beh where beh.uuid=:uuid FOR UPDATE")
+            .setParameter("uuid", eksternBehandlingRef)
             .getSingleResult();
         return Long.valueOf(((Number) result).longValue()); // JPA tar ikke scalar output mapping direkte
     }

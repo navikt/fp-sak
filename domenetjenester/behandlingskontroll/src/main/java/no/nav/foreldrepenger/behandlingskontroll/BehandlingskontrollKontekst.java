@@ -19,7 +19,7 @@ public class BehandlingskontrollKontekst {
      * stedet for å opprette her direkte.
      */
     public BehandlingskontrollKontekst(Long fagsakId, AktørId aktørId, BehandlingLås behandlingLås) {
-        Objects.requireNonNull(behandlingLås, "behandlingLås"); //$NON-NLS-1$
+        Objects.requireNonNull(behandlingLås, "behandlingLås");
         this.fagsakId = fagsakId;
         this.aktørId = aktørId;
         this.behandlingLås = behandlingLås;
@@ -62,6 +62,6 @@ public class BehandlingskontrollKontekst {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<fagsakId=" + fagsakId + ", aktørId=" + aktørId + ", behandlingId=" + getBehandlingId() + ">"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return getClass().getSimpleName() + "<fagsakId=" + fagsakId + ", aktørId=" + aktørId + ", behandlingId=" + getBehandlingId() + ">";
     }
 }

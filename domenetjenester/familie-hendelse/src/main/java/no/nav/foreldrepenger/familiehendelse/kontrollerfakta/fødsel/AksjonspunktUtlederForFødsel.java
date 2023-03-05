@@ -47,7 +47,7 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     @Override
-    public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) { // NOSONAR Metode rendrer flytdia.
+    public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {  // Metode rendrer flytdia.
         final var familieHendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
 
         // Sjekk om registrert eller allerede overstyrt fødsel. Deretter om frist utløpt

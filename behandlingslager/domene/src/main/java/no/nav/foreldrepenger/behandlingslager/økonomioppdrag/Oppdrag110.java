@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -189,16 +188,16 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeEndring=" + kodeEndring + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeFagomrade=" + kodeFagomrade + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "fagsystemId=" + fagsystemId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "oppdragGjelderId=" + oppdragGjelderId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "saksbehId=" + saksbehId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "avstemming=" + nøkkelAvstemming + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "kodeEndring=" + kodeEndring + ", "
+            + "kodeFagomrade=" + kodeFagomrade + ","
+            + "fagsystemId=" + fagsystemId + ","
+            + "oppdragGjelderId=" + oppdragGjelderId + ","
+            + "saksbehId=" + saksbehId + ","
+            + "avstemming=" + nøkkelAvstemming + ","
+            + "opprettetTs=" + getOpprettetTidspunkt()
+            + ">";
     }
 
     public static class Builder {

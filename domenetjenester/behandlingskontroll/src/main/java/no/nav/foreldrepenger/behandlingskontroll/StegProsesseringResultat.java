@@ -36,7 +36,7 @@ public class StegProsesseringResultat {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<nyStegStatus=" + nyStegStatus + ", transisjon=" + transisjon + ">"; // NOSONAR //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return getClass().getSimpleName() + "<nyStegStatus=" + nyStegStatus + ", transisjon=" + transisjon + ">";
     }
 
 }

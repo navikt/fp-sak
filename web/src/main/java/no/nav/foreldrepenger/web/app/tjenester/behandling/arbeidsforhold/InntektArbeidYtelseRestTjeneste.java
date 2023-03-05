@@ -80,13 +80,13 @@ public class InntektArbeidYtelseRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
     private static final String INNTEKT_ARBEID_YTELSE_PART_PATH = "/inntekt-arbeid-ytelse";
-    public static final String INNTEKT_ARBEID_YTELSE_PATH = BASE_PATH + INNTEKT_ARBEID_YTELSE_PART_PATH; // NOSONAR TFP-2234
+    public static final String INNTEKT_ARBEID_YTELSE_PATH = BASE_PATH + INNTEKT_ARBEID_YTELSE_PART_PATH;
 
     private static final String ALLE_INNTEKTSMELDINGER_PART_PATH = "/inntektsmeldinger-alle";
-    public static final String ALLE_INNTEKTSMELDINGER_PATH = BASE_PATH + ALLE_INNTEKTSMELDINGER_PART_PATH; // NOSONAR TFP-2234
+    public static final String ALLE_INNTEKTSMELDINGER_PATH = BASE_PATH + ALLE_INNTEKTSMELDINGER_PART_PATH;
 
     private static final String ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH = "/arbeidsgivere-opplysninger";
-    public static final String ARBEIDSGIVERE_OPPLYSNINGER_PATH = BASE_PATH + ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH; // NOSONAR TFP-2234
+    public static final String ARBEIDSGIVERE_OPPLYSNINGER_PATH = BASE_PATH + ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private IayYtelseDtoMapper ytelseMapper;

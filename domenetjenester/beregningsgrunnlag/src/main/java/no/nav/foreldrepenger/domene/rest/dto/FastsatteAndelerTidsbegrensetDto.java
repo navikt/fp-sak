@@ -15,7 +15,7 @@ public class FastsatteAndelerTidsbegrensetDto {
     @Max(Long.MAX_VALUE)
     private Integer bruttoFastsattInntekt;
 
-    FastsatteAndelerTidsbegrensetDto() { // NOSONAR
+    FastsatteAndelerTidsbegrensetDto() {
         // Jackson
     }
 

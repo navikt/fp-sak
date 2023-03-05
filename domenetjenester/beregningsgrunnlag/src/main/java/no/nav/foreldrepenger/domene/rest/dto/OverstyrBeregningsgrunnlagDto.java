@@ -26,13 +26,13 @@ public class OverstyrBeregningsgrunnlagDto extends OverstyringAksjonspunktDto {
 
     private Set<Lønnsendring> endringer;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyrBeregningsgrunnlagDto() {
         super();
         // For Jackson
     }
 
-    public OverstyrBeregningsgrunnlagDto(List<FastsettBeregningsgrunnlagAndelDto> overstyrteAndeler, String begrunnelse) { // NOSONAR
+    public OverstyrBeregningsgrunnlagDto(List<FastsettBeregningsgrunnlagAndelDto> overstyrteAndeler, String begrunnelse) {
         super(begrunnelse);
         this.overstyrteAndeler = overstyrteAndeler;
     }

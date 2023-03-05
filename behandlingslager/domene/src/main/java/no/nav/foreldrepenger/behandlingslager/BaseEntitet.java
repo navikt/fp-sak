@@ -23,7 +23,7 @@ public abstract class BaseEntitet extends BaseCreateableEntitet implements Seria
 
     @DiffIgnore
     @Column(name = "endret_tid")
-    private LocalDateTime endretTidspunkt; // NOSONAR
+    private LocalDateTime endretTidspunkt;
 
     @PreUpdate
     protected void onUpdate() {

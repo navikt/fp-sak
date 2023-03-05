@@ -21,7 +21,7 @@ public class BatchSupportTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
     private Map<String, BatchTjeneste> batchTjenester;
 
-    public BatchSupportTjeneste() { //NOSONAR
+    public BatchSupportTjeneste() {
         // for CDI proxy
         this.batchTjenester = new HashMap<>();
     }

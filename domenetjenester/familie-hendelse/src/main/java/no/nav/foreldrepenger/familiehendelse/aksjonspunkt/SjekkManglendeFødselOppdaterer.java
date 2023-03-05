@@ -144,7 +144,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             }
             return !overstyrt.getBarna().isEmpty();
         }
-        return null; // $NON-NLS-1$ //NOSONAR
+        return null;
     }
 
     private Integer getAntallBarnVedSøknadFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {

@@ -14,7 +14,7 @@ public class VurderteArbeidsforholdDto  {
     private boolean tidsbegrensetArbeidsforhold;
     private Boolean opprinneligVerdi;
 
-    public VurderteArbeidsforholdDto() { // NOSONAR
+    public VurderteArbeidsforholdDto() {
         // Jackson
     }
 

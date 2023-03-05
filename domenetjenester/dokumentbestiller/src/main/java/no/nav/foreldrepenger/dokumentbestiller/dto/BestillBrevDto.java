@@ -34,10 +34,10 @@ public class BestillBrevDto {
     @ValidKodeverk
     private RevurderingVarslingÅrsak arsakskode;
 
-    public BestillBrevDto() { // NOSONAR
+    public BestillBrevDto() {
     }
 
-    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak arsakskode) { // NOSONAR
+    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak arsakskode) {
         this.behandlingId = behandlingId;
         this.behandlingUuid = behandlingUuid;
         this.brevmalkode = dokumentMalType;

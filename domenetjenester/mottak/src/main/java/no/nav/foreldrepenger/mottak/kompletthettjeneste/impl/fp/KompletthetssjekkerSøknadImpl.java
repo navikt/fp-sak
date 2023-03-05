@@ -77,7 +77,7 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
         DokumentTypeId dokumentTypeId;
         try {
             dokumentTypeId = DokumentTypeId.finnForKodeverkEiersKode(dokumentTypeIdKode);
-        } catch (NoResultException e) { // NOSONAR
+        } catch (NoResultException e) {
             // skal tåle dette
             dokumentTypeId = DokumentTypeId.UDEFINERT;
         }

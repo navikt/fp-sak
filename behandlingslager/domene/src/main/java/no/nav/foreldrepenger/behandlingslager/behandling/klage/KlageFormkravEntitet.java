@@ -259,17 +259,17 @@ public class KlageFormkravEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + "klageResultat=" + hentKlageResultat() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "klageVurdertAv=" + getKlageVurdertAv() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "gjelderVedtak=" + hentGjelderVedtak() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "erKlagerPart=" + erKlagerPart() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "erFristOverholdt=" + erFristOverholdt() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "erKonkret=" + erKonkret() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "erSignert=" + erSignert() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "begrunnelse=" + hentBegrunnelse() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "klageResultat=" + hentKlageResultat() + ", "
+            + "klageVurdertAv=" + getKlageVurdertAv() + ", "
+            + "gjelderVedtak=" + hentGjelderVedtak() + ", "
+            + "erKlagerPart=" + erKlagerPart() + ", "
+            + "erFristOverholdt=" + erFristOverholdt() + ", "
+            + "erKonkret=" + erKonkret() + ", "
+            + "erSignert=" + erSignert() + ", "
+            + "begrunnelse=" + hentBegrunnelse() + ", "
+            + ">";
     }
 
 }

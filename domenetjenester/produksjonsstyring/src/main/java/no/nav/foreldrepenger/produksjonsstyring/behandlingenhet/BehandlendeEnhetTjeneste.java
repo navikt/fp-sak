@@ -152,7 +152,7 @@ public class BehandlendeEnhetTjeneste {
         if (relasjon == null || relasjon.getFagsakNrTo().isEmpty()) {
             return enhet;
         }
-        var relatertSak = relasjon.getRelatertFagsak(sak).get(); // NOSONAR sjekket over
+        var relatertSak = relasjon.getRelatertFagsak(sak).get();  // NOSONAR sjekket over
         var relatertEnhet = finnEnhetFor(relatertSak);
         if (sak.getOpprettetTidspunkt().isBefore(relatertSak.getOpprettetTidspunkt())) {
             return enhetsTjeneste.enhetsPresedens(enhet, relatertEnhet);

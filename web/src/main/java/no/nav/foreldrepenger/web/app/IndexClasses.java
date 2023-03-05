@@ -132,7 +132,7 @@ public class IndexClasses {
                 try {
                     jsonTypes.add(Class.forName(className));
                 } catch (ClassNotFoundException e) {
-                    LOG.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);// NOSONAR
+                    LOG.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);
                 }
             }
         }
@@ -159,7 +159,7 @@ public class IndexClasses {
                     }
                 }
             } catch (ClassNotFoundException e) {
-                LOG.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);// NOSONAR
+                LOG.error("Kan ikke finne klasse i Classpath, som funnet i Jandex index", e);
             }
         }
         return cls;

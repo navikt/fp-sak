@@ -22,11 +22,11 @@ public class VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto extends Bekrefte
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    public VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto() { // NOSONAR
+    public VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto() {
         // for jackson
     }
 
-    public VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto(String begrunnelse, Boolean erVilkarOk) {  // NOSONAR
+    public VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto(String begrunnelse, Boolean erVilkarOk) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
     }

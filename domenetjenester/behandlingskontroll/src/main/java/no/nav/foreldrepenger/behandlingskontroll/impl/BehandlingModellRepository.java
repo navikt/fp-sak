@@ -19,6 +19,7 @@ public class BehandlingModellRepository implements AutoCloseable {
 
     @Inject
     public BehandlingModellRepository() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     /**

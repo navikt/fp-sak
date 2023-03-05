@@ -22,7 +22,7 @@ public class FastsatteVerdierForBesteberegningDto {
     @ValidKodeverk
     private Inntektskategori inntektskategori;
 
-    FastsatteVerdierForBesteberegningDto() { // NOSONAR
+    FastsatteVerdierForBesteberegningDto() {
         // Jackson
     }
 

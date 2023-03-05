@@ -49,7 +49,7 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
     private Boolean skalHindreTilbaketrekk;
 
     BehandlingBeregningsresultatEntitet() {
-        // NOSONAR
+
     }
 
     public BehandlingBeregningsresultatEntitet(BehandlingBeregningsresultatEntitet kladd) {

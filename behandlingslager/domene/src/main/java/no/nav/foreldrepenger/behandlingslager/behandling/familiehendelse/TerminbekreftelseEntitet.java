@@ -126,9 +126,9 @@ public class TerminbekreftelseEntitet extends BaseEntitet {
     @Override
     public String toString() {
         return getClass().getSimpleName() +
-                "<termindato=" + termindato //$NON-NLS-1$
-                + ", utstedtdato=" + utstedtdato //$NON-NLS-1$
-                + ", navn=" + navn + ">"; //$NON-NLS-1$ //$NON-NLS-2$
+                "<termindato=" + termindato
+                + ", utstedtdato=" + utstedtdato
+                + ", navn=" + navn + ">";
     }
 
 }

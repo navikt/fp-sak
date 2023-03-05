@@ -104,7 +104,7 @@ public class RegisterdataEndringshåndterer {
         var gåttOverTerminDatoOgIngenFødselsdato = isGåttOverTerminDatoOgIngenFødselsdato(behandling.getId());
         if (gåttOverTerminDatoOgIngenFødselsdato || endringsresultat.erSporedeFeltEndret()) {
             LOG.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}",
-                behandling.getId(), gåttOverTerminDatoOgIngenFødselsdato, endringsresultat); // NOSONAR //$NON-NLS-1$
+                behandling.getId(), gåttOverTerminDatoOgIngenFødselsdato, endringsresultat);
             if (utledÅrsaker) {
                 behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);
             }

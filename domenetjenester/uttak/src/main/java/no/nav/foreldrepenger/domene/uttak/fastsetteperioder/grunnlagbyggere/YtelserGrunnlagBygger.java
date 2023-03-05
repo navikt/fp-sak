@@ -79,11 +79,11 @@ public class YtelserGrunnlagBygger {
     }
 
     private boolean erInnlagt(YtelseAnvist ya, ForeldrepengerGrunnlag fpGrunnlag) {
-        if (fpGrunnlag.getPleiepengerGrunnlag().isEmpty()) {
+        var ppGrunnlag = fpGrunnlag.getPleiepengerGrunnlag();
+        if (ppGrunnlag.isEmpty()) {
             return false;
         }
-        var perioderMedInnleggelse = fpGrunnlag.getPleiepengerGrunnlag().get()
-            .getPerioderMedInnleggelse();
+        var perioderMedInnleggelse = ppGrunnlag.get().getPerioderMedInnleggelse();
         if (perioderMedInnleggelse.isEmpty()) {
             return false;
         }

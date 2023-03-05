@@ -24,7 +24,7 @@ public class KlageRepository {
 
     @Inject
     public KlageRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -33,33 +33,33 @@ public class KlageRepository {
     }
 
     public Optional<KlageResultatEntitet> hentKlageResultatHvisEksisterer(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
 
         final var query = entityManager.createQuery(
-            " FROM KlageResultat WHERE klageBehandlingId = :behandlingId", //$NON-NLS-1$
-            KlageResultatEntitet.class);// NOSONAR
+            " FROM KlageResultat WHERE klageBehandlingId = :behandlingId",
+            KlageResultatEntitet.class);
 
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
     }
 
     private List<KlageVurderingResultat> hentVurderingsResultaterForKlageBehandling(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
 
         final var query = entityManager.createQuery(
-            " FROM KlageVurderingResultat WHERE klageResultat.klageBehandlingId = :behandlingId", //$NON-NLS-1$
-            KlageVurderingResultat.class);// NOSONAR
+            " FROM KlageVurderingResultat WHERE klageResultat.klageBehandlingId = :behandlingId",
+            KlageVurderingResultat.class);
 
         query.setParameter("behandlingId", behandlingId);
         return query.getResultList();
     }
 
     private List<KlageFormkravEntitet> hentKlageFormkravForKlageBehandling(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
 
         final var query = entityManager.createQuery(
-            " FROM KlageFormkrav WHERE klageResultat.klageBehandlingId = :behandlingId", //$NON-NLS-1$
-            KlageFormkravEntitet.class);// NOSONAR
+            " FROM KlageFormkrav WHERE klageResultat.klageBehandlingId = :behandlingId",
+            KlageFormkravEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return query.getResultList();
     }

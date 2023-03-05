@@ -37,7 +37,7 @@ public class UttakRepositoryProvider {
 
     @Inject
     public UttakRepositoryProvider( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
 
         // fp spesifikke behandling aggregater
         this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);

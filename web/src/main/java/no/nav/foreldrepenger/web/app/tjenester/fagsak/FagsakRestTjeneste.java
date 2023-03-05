@@ -65,7 +65,7 @@ public class FagsakRestTjeneste {
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
     private static final String SOK_PART_PATH = "/sok";
-    public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH; // NOSONAR TFP-2234
+    public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH;
 
     private FagsakTjeneste fagsakTjeneste;
     private FagsakFullTjeneste fagsakFullTjeneste;

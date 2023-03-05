@@ -73,9 +73,9 @@ public class VergeGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<id=" + this.id //$NON-NLS-1$
-            + ", verge=" + this.verge //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<id=" + this.id
+            + ", verge=" + this.verge
+            + ">";
     }
 
     VergeAggregat tilAggregat() {

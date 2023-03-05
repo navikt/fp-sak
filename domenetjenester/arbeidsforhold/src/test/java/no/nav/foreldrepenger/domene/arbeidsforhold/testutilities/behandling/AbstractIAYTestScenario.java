@@ -327,7 +327,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         var fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
         when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {
-            Fagsak fagsak = invocation.getArgument(0); // NOSONAR
+            Fagsak fagsak = invocation.getArgument(0);
             var id = fagsak.getId();
             if (id == null) {
                 id = fagsakId;
@@ -360,7 +360,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         mockBehandlingRepository = mockBehandlingRepository();
 
-        lagre(repositoryProvider); // NOSONAR
+        lagre(repositoryProvider);
         return mockBehandlingRepository;
     }
 

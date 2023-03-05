@@ -39,11 +39,11 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
     private void utførGrensesnittavstemming(LocalDate fomDato, LocalDate tomDato, String fagområde) {
         var oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.valueOf(fagområde));
         if (oppdragsliste.isEmpty()) {
-            LOG.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde); //NOSONAR
+            LOG.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde);
             return;
         }
         var mapper = new GrensesnittavstemmingMapper(oppdragsliste, fagområde);
-        LOG.info("Starter grensesnittavstemming med id: {} for periode: {} - {} for fagområde {}. {} oppdrag funnet. ", mapper.getAvstemmingId(), fomDato, tomDato, fagområde, oppdragsliste.size()); //NOSONAR
+        LOG.info("Starter grensesnittavstemming med id: {} for periode: {} - {} for fagområde {}. {} oppdrag funnet. ", mapper.getAvstemmingId(), fomDato, tomDato, fagområde, oppdragsliste.size());
         var startmelding = mapper.lagStartmelding();
         logMelding("startmelding", startmelding);
         var datameldinger = mapper.lagDatameldinger();
@@ -57,11 +57,11 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
             grensesnittavstemmingJmsProducer.sendGrensesnittavstemming(datamelding);
         }
         grensesnittavstemmingJmsProducer.sendGrensesnittavstemming(sluttmelding);
-        LOG.info("Fullført grensesnittavstemming med id: {}", mapper.getAvstemmingId()); //NOSONAR
+        LOG.info("Fullført grensesnittavstemming med id: {}", mapper.getAvstemmingId());
     }
 
     private void logMelding(String meldingtype, String melding) {
-        LOG.info("Opprettet {} med lengde {} tegn", meldingtype, melding.length()); //NOSONAR
+        LOG.info("Opprettet {} med lengde {} tegn", meldingtype, melding.length());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        var batchArguments = (GrensesnittavstemmingBatchArguments) arguments; // NOSONAR
+        var batchArguments = (GrensesnittavstemmingBatchArguments) arguments;
         utførGrensesnittavstemming(batchArguments.getFom(), batchArguments.getTom(), batchArguments.getFagområde());
         return BATCHNAVN + "-" + UUID.randomUUID();
     }

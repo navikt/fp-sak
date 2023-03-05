@@ -34,7 +34,7 @@ public class FagsakRelasjonLås {
      */
     protected FagsakRelasjonLås(Long fagsakRelasjonId) {
         if (fagsakRelasjonId == null) {
-            throw new IllegalArgumentException("Minst en av fagsakId og behandlingId må være forskjellig fra null."); //$NON-NLS-1$
+            throw new IllegalArgumentException("Minst en av fagsakId og behandlingId må være forskjellig fra null.");
         }
         this.fagsakRelasjonId = fagsakRelasjonId;
     }
@@ -67,7 +67,7 @@ public class FagsakRelasjonLås {
     @Override
     public String toString() {
         return getClass().getSimpleName() +
-            "<fagsak=" + getFagsakRelasjonId() + //$NON-NLS-1$
-            ">"; //$NON-NLS-1$
+            "<fagsak=" + getFagsakRelasjonId() +
+            ">";
     }
 }

@@ -21,7 +21,7 @@ public class TilgangerTjeneste {
     private boolean skalViseDetaljerteFeilmeldinger;
 
     public TilgangerTjeneste() {
-        //NOSONAR
+        // CDI
     }
 
     @Inject

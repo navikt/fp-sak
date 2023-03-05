@@ -37,7 +37,7 @@ public class HendelseHåndteringRepository {
                 "and por.tilAktørId = (:aktørId) " +
                 "and gr.aktiv = :aktiv " +
                 "and f.fagsakStatus != :fagsakStatus " +
-                "and f.ytelseType = :ytelseType ", //$NON-NLS-1$
+                "and f.ytelseType = :ytelseType ",
             Fagsak.class);
         query.setParameter("relasjonsRolle", RelasjonsRolleType.BARN);
         query.setParameter("aktørId", aktørId);

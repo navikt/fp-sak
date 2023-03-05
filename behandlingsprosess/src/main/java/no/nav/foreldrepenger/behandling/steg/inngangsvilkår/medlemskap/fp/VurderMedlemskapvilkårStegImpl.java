@@ -62,9 +62,9 @@ public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
             .getVilkårene()
             .stream()
             .filter(v -> VilkårType.MEDLEMSKAPSVILKÅRET.equals(v.getVilkårType()))
-            .findFirst();
+            .findFirst().orElseThrow(() -> new IllegalStateException("Finner ikke medlemskapsvikåret."));
 
-        var utfall = medlemskapsvilkåret.orElseThrow(() -> new IllegalStateException("Finner ikke medlemskapsvikåret."))
+        var utfall = medlemskapsvilkåret
             .getGjeldendeVilkårUtfall();
 
         var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
@@ -72,7 +72,7 @@ public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
         var periode = builder.getBuilderForVurderingsdato(skjæringstidspunkt);
         periode.medVilkårUtfall(utfall);
         if (VilkårUtfallType.IKKE_OPPFYLT.equals(utfall)) {
-            periode.medVilkårUtfallMerknad(medlemskapsvilkåret.get().getVilkårUtfallMerknad());
+            periode.medVilkårUtfallMerknad(medlemskapsvilkåret.getVilkårUtfallMerknad());
         }
         builder.leggTil(periode);
         grBuilder.medMedlemskapsvilkårPeriode(builder);

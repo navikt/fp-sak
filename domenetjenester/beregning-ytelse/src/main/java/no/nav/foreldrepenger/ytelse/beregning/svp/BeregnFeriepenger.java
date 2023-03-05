@@ -18,7 +18,7 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     private SvangerskapspengerFeriekvoteTjeneste svangerskapspengerFeriekvoteTjeneste;
 
     BeregnFeriepenger() {
-        //NOSONAR
+        // CDI
     }
 
     /**

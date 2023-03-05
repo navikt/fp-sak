@@ -7,8 +7,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum SøknadType {
-    FØDSEL("ST-001"), //$NON-NLS-1$
-    ADOPSJON("ST-002"), //$NON-NLS-1$
+    FØDSEL("ST-001"),
+    ADOPSJON("ST-002"),
     ;
     @JsonValue
     private final String kode;
@@ -31,7 +31,7 @@ public enum SøknadType {
         if (type.getGjelderAdopsjon()) {
             return SøknadType.ADOPSJON;
         }
-        throw new IllegalArgumentException("Kan ikke mappe fra familieHendelse" + type + " til SøknadType"); //$NON-NLS-1$ //$NON-NLS-2$
+        throw new IllegalArgumentException("Kan ikke mappe fra familieHendelse" + type + " til SøknadType");
     }
 
 }

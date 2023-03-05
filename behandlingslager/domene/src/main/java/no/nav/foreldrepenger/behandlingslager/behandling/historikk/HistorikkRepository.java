@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,7 +21,7 @@ public class HistorikkRepository {
 
     @Inject
     public HistorikkRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -30,8 +29,8 @@ public class HistorikkRepository {
 
         if (HistorikkAktør.SØKER.equals(historikkinnslag.getAktør()) && NavBrukerKjønn.UDEFINERT.equals(historikkinnslag.getKjoenn())) {
             var kjoenn = entityManager
-                    .createQuery("select f.brukerRolle from Fagsak f where f.id = :fagsakId", RelasjonsRolleType.class) //$NON-NLS-1$
-                    .setParameter("fagsakId", historikkinnslag.getFagsakId()) // NOSONAR //$NON-NLS-1$
+                    .createQuery("select f.brukerRolle from Fagsak f where f.id = :fagsakId", RelasjonsRolleType.class)
+                    .setParameter("fagsakId", historikkinnslag.getFagsakId())
                     .getSingleResult();
             if(RelasjonsRolleType.erRegistrertForeldre(kjoenn)) {
                 if(kjoenn.equals(RelasjonsRolleType.MORA) || kjoenn.equals(RelasjonsRolleType.MEDMOR)) {
@@ -63,16 +62,16 @@ public class HistorikkRepository {
         var fagsakId = getFagsakId(behandlingId);
 
         return entityManager.createQuery(
-            "select h from Historikkinnslag h where (h.behandlingId = :behandlingId OR h.behandlingId = NULL) AND h.fagsakId = :fagsakId ", //$NON-NLS-1$
+            "select h from Historikkinnslag h where (h.behandlingId = :behandlingId OR h.behandlingId = NULL) AND h.fagsakId = :fagsakId ",
             Historikkinnslag.class)
-            .setParameter("fagsakId", fagsakId)// NOSONAR //$NON-NLS-1$
-            .setParameter("behandlingId", behandlingId) //$NON-NLS-1$
+            .setParameter("fagsakId", fagsakId)
+            .setParameter("behandlingId", behandlingId)
             .getResultList();
     }
 
     private Long getFagsakId(long behandlingId) {
-        return entityManager.createQuery("select b.fagsak.id from Behandling b where b.id = :behandlingId", Long.class) //$NON-NLS-1$
-                .setParameter("behandlingId", behandlingId) // NOSONAR
+        return entityManager.createQuery("select b.fagsak.id from Behandling b where b.id = :behandlingId", Long.class)
+                .setParameter("behandlingId", behandlingId)
                 .getSingleResult();
     }
 

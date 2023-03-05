@@ -23,7 +23,7 @@ public class SvangerskapspengerUttakResultatRepository {
 
     @Inject
     public SvangerskapspengerUttakResultatRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
     }

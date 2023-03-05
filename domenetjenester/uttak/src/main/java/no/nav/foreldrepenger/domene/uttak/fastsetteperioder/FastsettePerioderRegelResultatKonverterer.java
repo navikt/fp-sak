@@ -207,7 +207,7 @@ public class FastsettePerioderRegelResultatKonverterer {
                 harRedusert, periode.getFom(), samtidig, gradering,
                 antallAktiviteter, utbetalingsgrad, annenpartSamtidig, annenpartAntallAktiviteter, annenpartUtbetalingsgrad);
         } catch (Exception e) {
-            // NOSONAR
+
         }
 
 

@@ -23,11 +23,11 @@ public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, Ov
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
-    protected OverstyringAksjonspunktDto() { // NOSONAR
+    protected OverstyringAksjonspunktDto() {
         // For Jackson
     }
 
-    protected OverstyringAksjonspunktDto(String begrunnelse) { // NOSONAR
+    protected OverstyringAksjonspunktDto(String begrunnelse) {
         this.begrunnelse = begrunnelse;
     }
 

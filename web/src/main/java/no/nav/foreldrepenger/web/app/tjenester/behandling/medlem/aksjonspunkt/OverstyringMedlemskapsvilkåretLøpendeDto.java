@@ -31,13 +31,13 @@ public class OverstyringMedlemskapsvilkåretLøpendeDto extends OverstyringAksjo
     private boolean erVilkarOk;
 
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyringMedlemskapsvilkåretLøpendeDto() {
         super();
         // For Jackson
     }
 
-    public OverstyringMedlemskapsvilkåretLøpendeDto(boolean erVilkarOk, String begrunnelse, String avslagskode) { // NOSONAR
+    public OverstyringMedlemskapsvilkåretLøpendeDto(boolean erVilkarOk, String begrunnelse, String avslagskode) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
         this.avslagskode = avslagskode;

@@ -254,13 +254,13 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
     public LocalDate finnGjeldendeFødselsdato() {
         final var bekreftetVersjon = getGjeldendeBekreftetVersjon();
         if (!bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList()).isEmpty()) {
-            return bekreftetVersjon.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get();  // NOSONAR
+            return bekreftetVersjon.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get();
         }
         if (!søknadHendelse.getBarna().isEmpty()) {
-            return søknadHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get();  // NOSONAR
+            return søknadHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get();
         }
         return getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)
-            .orElse(søknadHendelse.getTerminbekreftelse().get().getTermindato()); // NOSONAR
+            .orElse(søknadHendelse.getTerminbekreftelse().get().getTermindato());
     }
 
     public boolean getErAktivt() {

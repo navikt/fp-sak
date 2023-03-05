@@ -23,7 +23,7 @@ public class NavBrukerRepository {
 
     @Inject
     public NavBrukerRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -41,9 +41,9 @@ public class NavBrukerRepository {
     public Optional<NavBruker> oppdaterSpråk(AktørId aktørId, Språkkode språk) {
         // For å unngå å måtte låse en stabel med saker og inkrmentere versjonsnummer.
         if (språk != null && !Språkkode.UDEFINERT.equals(språk)) {
-            var query = entityManager.createNativeQuery("UPDATE BRUKER SET sprak_kode = :sprak WHERE AKTOER_ID=:aktoer"); //$NON-NLS-1$
-            query.setParameter("aktoer", aktørId.getId()); //$NON-NLS-1$
-            query.setParameter("sprak", språk.getKode()); //$NON-NLS-1$
+            var query = entityManager.createNativeQuery("UPDATE BRUKER SET sprak_kode = :sprak WHERE AKTOER_ID=:aktoer");
+            query.setParameter("aktoer", aktørId.getId());
+            query.setParameter("sprak", språk.getKode());
             query.executeUpdate();
             entityManager.flush();
             hent(aktørId).ifPresent(b -> entityManager.refresh(b));

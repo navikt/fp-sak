@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -106,19 +105,19 @@ public class FagsakTjeneste {
 
     private void validerNyFagsak(Fagsak fagsak) {
         if ((fagsak.getId() != null) || !Objects.equals(fagsak.getStatus(), FagsakStatus.OPPRETTET)) {
-            throw new IllegalArgumentException("Kan ikke kalle opprett fagsak med eksisterende: " + fagsak); //$NON-NLS-1$
+            throw new IllegalArgumentException("Kan ikke kalle opprett fagsak med eksisterende: " + fagsak);
         }
     }
 
     private void validerHarSaksnummer(Fagsak fagsak) {
         if (fagsak.getSaksnummer() == null) {
-            throw new IllegalArgumentException("Kan ikke kalle opprett fagsak uten saksnummer"); //$NON-NLS-1$
+            throw new IllegalArgumentException("Kan ikke kalle opprett fagsak uten saksnummer");
         }
     }
 
     private void validerEksisterendeFagsak(Fagsak fagsak) {
         if ((fagsak.getId() == null) || Objects.equals(fagsak.getStatus(), FagsakStatus.OPPRETTET)) {
-            throw new IllegalArgumentException("Kan ikke kalle oppdater med ny fagsak: " + fagsak); //$NON-NLS-1$
+            throw new IllegalArgumentException("Kan ikke kalle oppdater med ny fagsak: " + fagsak);
         }
     }
 

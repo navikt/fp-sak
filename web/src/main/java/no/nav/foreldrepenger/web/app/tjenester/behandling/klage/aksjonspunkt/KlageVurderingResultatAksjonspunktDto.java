@@ -59,11 +59,11 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
     @JsonProperty("erGodkjentAvMedunderskriver")
     private boolean erGodkjentAvMedunderskriver;
 
-    KlageVurderingResultatAksjonspunktDto() { // NOSONAR
+    KlageVurderingResultatAksjonspunktDto() {
         // For Jackson
     }
 
-    public KlageVurderingResultatAksjonspunktDto( // NOSONAR
+    public KlageVurderingResultatAksjonspunktDto(
             String begrunnelse,
             KlageVurdering klageVurdering,
             KlageMedholdÅrsak klageMedholdArsak,

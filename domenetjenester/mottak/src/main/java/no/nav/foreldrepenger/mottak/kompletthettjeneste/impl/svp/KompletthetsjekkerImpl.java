@@ -49,7 +49,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     public KompletthetResultat vurderSøknadMottatt(BehandlingReferanse ref) {
         if (!kompletthetssjekkerSøknad.erSøknadMottatt(ref)) {
             // Litt implisitt forutsetning her, men denne sjekken skal bare ha bli kalt dersom søknad eller IM er mottatt
-            LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.behandlingId()); // NOSONAR //$NON-NLS-1$
+            LOG.info("Behandling {} er ikke komplett - søknad er ikke mottatt", ref.behandlingId());
             return KompletthetResultat.ikkeOppfylt(finnVentefristTilManglendeSøknad(), Venteårsak.AVV_DOK);
         }
         return KompletthetResultat.oppfylt();

@@ -95,7 +95,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     ;
 
-    public static final String KODEVERK = "BEHANDLING_AARSAK"; //$NON-NLS-1$
+    public static final String KODEVERK = "BEHANDLING_AARSAK";
 
     private static final Set<BehandlingÅrsakType> SPESIELLE_BEHANDLINGER = Set.of(BehandlingÅrsakType.BERØRT_BEHANDLING,
         BehandlingÅrsakType.REBEREGN_FERIEPENGER, BehandlingÅrsakType.RE_UTSATT_START);

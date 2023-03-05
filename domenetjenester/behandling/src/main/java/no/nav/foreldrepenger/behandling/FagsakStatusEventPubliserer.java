@@ -41,7 +41,7 @@ public class FagsakStatusEventPubliserer {
             if (behandlingId != null) {
                 LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatus, nyStatus, fagsak.getId(), behandlingId);
             } else {
-                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}]", gammelStatus, nyStatus, fagsak.getId()); //$NON-NLS-1$
+                LOG.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}]", gammelStatus, nyStatus, fagsak.getId());
             }
         }
 

@@ -18,7 +18,7 @@ public class FastsettBgKunYtelseDto {
         // For Jackson
     }
 
-    public FastsettBgKunYtelseDto(List<FastsattBrukersAndel> andeler, Boolean skalBrukeBesteberegning) { // NOSONAR
+    public FastsettBgKunYtelseDto(List<FastsattBrukersAndel> andeler, Boolean skalBrukeBesteberegning) {
         this.andeler = new ArrayList<>(andeler);
         this.skalBrukeBesteberegning = skalBrukeBesteberegning;
     }

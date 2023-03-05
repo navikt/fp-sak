@@ -40,6 +40,7 @@ public class RegenererVedtaksXmlTjeneste {
     }
 
     public RegenererVedtaksXmlTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject
@@ -87,7 +88,7 @@ public class RegenererVedtaksXmlTjeneste {
         String namespace;
         try {
             namespace = retrieveNameSpaceOfXML(lagretVedtak.getXmlClob());
-        } catch (XMLStreamException e) { // NOSONAR
+        } catch (XMLStreamException e) {
             LOG.info("Kunne ikke utlede namespace for vedtak {}, med behandlingid {}.", lagretVedtak.getId(), behandling.getId(),e);
             return false;
         }

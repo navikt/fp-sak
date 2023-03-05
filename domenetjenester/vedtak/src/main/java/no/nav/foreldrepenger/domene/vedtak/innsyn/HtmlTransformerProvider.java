@@ -19,12 +19,12 @@ import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
 
 public class HtmlTransformerProvider {
 
-    private static Map<String, String> namespaces = Collections.unmodifiableMap(Stream.of( // NOSONAR
+    private static Map<String, String> namespaces = Collections.unmodifiableMap(Stream.of(
             new AbstractMap.SimpleEntry<>(ForeldrepengerVedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v1.xsl"),
             new AbstractMap.SimpleEntry<>(VedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v2.xsl"))
             .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
 
-    private static Map<String, Templates> templates = new ConcurrentHashMap<>(); // NOSONAR
+    private static Map<String, Templates> templates = new ConcurrentHashMap<>();
 
     private HtmlTransformerProvider() {
     }

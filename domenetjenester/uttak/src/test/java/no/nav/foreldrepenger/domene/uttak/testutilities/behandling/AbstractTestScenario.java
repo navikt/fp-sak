@@ -188,7 +188,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private void lagFagsak(FagsakRepository fagsakRepo) {
-        var fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
+        var fagsakId = fagsakRepo.opprettNy(fagsak);
         fagsak.setId(fagsakId);
     }
 

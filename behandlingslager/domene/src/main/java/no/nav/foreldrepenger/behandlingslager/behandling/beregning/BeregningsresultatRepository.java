@@ -30,7 +30,7 @@ public class BeregningsresultatRepository {
 
     @Inject
     public BeregningsresultatRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
     }
@@ -48,8 +48,8 @@ public class BeregningsresultatRepository {
     public Optional<BehandlingBeregningsresultatEntitet> hentBeregningsresultatAggregat(Long behandlingId) {
         var query = entityManager.createQuery(
             "from BeregningsresultatFPAggregatEntitet aggregat " +
-                "where aggregat.behandlingId=:behandlingId and aggregat.aktiv = 'J'", BehandlingBeregningsresultatEntitet.class); //$NON-NLS-1$
-        query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
+                "where aggregat.behandlingId=:behandlingId and aggregat.aktiv = 'J'", BehandlingBeregningsresultatEntitet.class);
+        query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
     }
 
@@ -139,21 +139,21 @@ public class BeregningsresultatRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
-                " and periode.fomDato<=:dato" + //$NON-NLS-1$
-                " and periode.tomDato>=:dato", BeregningSats.class); //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
+                " and periode.fomDato<=:dato" +
+                " and periode.tomDato>=:dato", BeregningSats.class);
 
-        query.setParameter("satsType", satsType); //$NON-NLS-1$
-        query.setParameter("dato", dato); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true");//$NON-NLS-1$
+        query.setParameter("satsType", satsType);
+        query.setParameter("dato", dato);
+        query.setHint(QueryHints.HINT_READONLY, "true");
         query.getResultList();
         return hentEksaktResultat(query);
     }
 
     public BeregningSats finnGjeldendeSats(BeregningSatsType satsType) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType", BeregningSats.class); //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType", BeregningSats.class);
 
-        query.setParameter("satsType", satsType); //$NON-NLS-1$
+        query.setParameter("satsType", satsType);
         return query.getResultList().stream()
             .max(Comparator.comparing(s -> s.getPeriode().getFomDato())).orElseThrow(() -> new IllegalStateException("Fant ikke nyeste sats"));
     }

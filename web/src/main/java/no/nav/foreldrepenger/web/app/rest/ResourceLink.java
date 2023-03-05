@@ -79,7 +79,7 @@ public class ResourceLink {
     }
 
     @SuppressWarnings("unused")
-    private ResourceLink() { // NOSONAR
+    private ResourceLink() {
         this((URI) null, null, null); // for Jackson
     }
 

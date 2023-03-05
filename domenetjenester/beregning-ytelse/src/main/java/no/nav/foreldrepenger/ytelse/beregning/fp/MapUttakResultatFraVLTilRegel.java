@@ -29,6 +29,7 @@ public class MapUttakResultatFraVLTilRegel {
 
     @Inject
     public MapUttakResultatFraVLTilRegel() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     public UttakResultat mapFra(List<ForeldrepengerUttakPeriode> perioder, UttakInput input) {

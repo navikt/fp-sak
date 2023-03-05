@@ -195,9 +195,9 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
                     // TODO (FC): fiks/fjern eksternRef herfra
                     EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(),
                                                                 // ov.getArbeidsforholdRef()); //
-                                                                // NOSONAR
+
                     return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
-                }) // NOSONAR
+                })
                 .collect(Collectors.toList());
     }
 

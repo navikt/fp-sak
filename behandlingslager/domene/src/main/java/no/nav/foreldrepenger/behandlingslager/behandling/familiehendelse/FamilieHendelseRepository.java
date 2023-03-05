@@ -28,7 +28,7 @@ public class FamilieHendelseRepository {
 
     @Inject
     public FamilieHendelseRepository( EntityManager entityManager, BehandlingLåsRepository behandlingLåsRepository) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$ // NOSONAR
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingLåsRepository = behandlingLåsRepository;
     }
@@ -54,17 +54,17 @@ public class FamilieHendelseRepository {
     }
 
     private Optional<FamilieHendelseGrunnlagEntitet> getAktivtFamilieHendelseGrunnlag(Long behandlingId) {
-        final var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + // NOSONAR //$NON-NLS-1$
-            "WHERE gr.behandlingId = :behandlingId " + //$NON-NLS-1$
+        final var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " +
+            "WHERE gr.behandlingId = :behandlingId " +
             "AND gr.aktiv = :aktivt", FamilieHendelseGrunnlagEntitet.class)
-            .setFlushMode(FlushModeType.COMMIT); //$NON-NLS-1$
-        query.setParameter("behandlingId", behandlingId); // NOSONAR //$NON-NLS-1$
-        query.setParameter("aktivt", true); // NOSONAR //$NON-NLS-1$
+            .setFlushMode(FlushModeType.COMMIT);
+        query.setParameter("behandlingId", behandlingId);
+        query.setParameter("aktivt", true);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     private void lagreOgFlush(Long behandlingId, FamilieHendelseGrunnlagEntitet nyttGrunnlag) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         if (nyttGrunnlag == null) {
             return;
         }
@@ -109,13 +109,13 @@ public class FamilieHendelseRepository {
     }
 
     public void lagre(Behandling behandling, FamilieHendelseBuilder hendelseBuilder) {
-        Objects.requireNonNull(behandling, "behandling"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandling, "behandling");
         lagre(behandling.getId(), hendelseBuilder);
     }
 
     public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-        Objects.requireNonNull(hendelseBuilder, "hendelseBuilder"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(hendelseBuilder, "hendelseBuilder");
 
         var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         var type = hendelseBuilder.getType();
@@ -129,8 +129,8 @@ public class FamilieHendelseRepository {
     }
 
     public void lagreRegisterHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
-        Objects.requireNonNull(behandling, "behandling"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
-        Objects.requireNonNull(hendelse, "hendelse"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
+        Objects.requireNonNull(behandling, "behandling");
+        Objects.requireNonNull(hendelse, "hendelse");
 
         final var aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
         // Fjern overstyr manglende fødsel i tilfelle første innhenting. Bevarer senere justering av dato
@@ -173,8 +173,8 @@ public class FamilieHendelseRepository {
     }
 
     public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
-        Objects.requireNonNull(behandling, "behandling"); // NOSONAR //$NON-NLS-1$
-        Objects.requireNonNull(hendelse, "hendelse"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandling, "behandling");
+        Objects.requireNonNull(hendelse, "hendelse");
 
         final var aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
         aggregatBuilder.medOverstyrtVersjon(hendelse);
@@ -182,7 +182,7 @@ public class FamilieHendelseRepository {
     }
 
     private void fjernBekreftetData(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         final var grunnlag = hentAggregatHvisEksisterer(behandlingId);
         if (!grunnlag.isPresent()) {
             return;
@@ -252,14 +252,14 @@ public class FamilieHendelseRepository {
     public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
         var familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
         final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
-        Objects.requireNonNull(oppdatere, "oppdatere"); //$NON-NLS-1$
+        Objects.requireNonNull(oppdatere, "oppdatere");
         return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), false);
     }
 
     public FamilieHendelseBuilder opprettBuilderForregister(Behandling behandling) {
         var familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
         final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
-        Objects.requireNonNull(oppdatere, "oppdatere"); //$NON-NLS-1$
+        Objects.requireNonNull(oppdatere, "oppdatere");
         return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), true);
     }
 
@@ -274,7 +274,7 @@ public class FamilieHendelseRepository {
      * @return Builder
      */
     private FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat, boolean register) {
-        Objects.requireNonNull(aggregat, "aggregat"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(aggregat, "aggregat");
         if (aggregat.isPresent()) {
             var type = register ? HendelseVersjonType.BEKREFTET : utledTypeFor(aggregat);
             final var hendelseAggregat = aggregat.get();
@@ -318,7 +318,7 @@ public class FamilieHendelseRepository {
             if (aggregat.get().getSøknadVersjon() == null) {
                 return HendelseVersjonType.SØKNAD;
             }
-            throw new IllegalStateException("Utvikler feil."); //$NON-NLS-1$
+            throw new IllegalStateException("Utvikler feil.");
         }
         return HendelseVersjonType.SØKNAD;
     }
@@ -329,11 +329,11 @@ public class FamilieHendelseRepository {
     }
 
     public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
-        Objects.requireNonNull(grunnlagId, "grunnlagId"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
-        var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(grunnlagId, "grunnlagId");
+        var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " +
             "WHERE gr.id = :grunnlagId ", FamilieHendelseGrunnlagEntitet.class)
-           .setFlushMode(FlushModeType.COMMIT); //$NON-NLS-1$
-        query.setParameter("grunnlagId", grunnlagId); // NOSONAR //$NON-NLS-1$
+           .setFlushMode(FlushModeType.COMMIT);
+        query.setParameter("grunnlagId", grunnlagId);
         return query.getResultStream().findFirst().orElse(null);
     }
 
@@ -361,7 +361,7 @@ public class FamilieHendelseRepository {
             .setParameter("utstedt", utstedtdato)
             .setParameter("fhid", fhIds)
             .setParameter("begr", begrunnelse)
-            .executeUpdate(); //$NON-NLS-1$
+            .executeUpdate();
         entityManager.flush();
         return antall;
     }

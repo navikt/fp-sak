@@ -19,7 +19,7 @@ public enum FagsakYtelseType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
     ;
 
-    public static final String KODEVERK = "FAGSAK_YTELSE"; //$NON-NLS-1$
+    public static final String KODEVERK = "FAGSAK_YTELSE";
 
     private static final Map<String, FagsakYtelseType> KODER = new LinkedHashMap<>();
 

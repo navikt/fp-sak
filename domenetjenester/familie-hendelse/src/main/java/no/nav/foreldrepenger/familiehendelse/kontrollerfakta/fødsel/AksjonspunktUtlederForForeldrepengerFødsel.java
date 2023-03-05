@@ -53,7 +53,7 @@ public class AksjonspunktUtlederForForeldrepengerFødsel extends AksjonspunktUtl
     /**
      * Utleder aksjonspunkter for mor som hovedsøker
      */
-    private List<AksjonspunktResultat> utledAksjonspunkterForMor(AksjonspunktUtlederInput param) { // NOSONAR - Tanken her er at funksjonell APU flyt i dok (PK-46654) skal samsvare med koden
+    private List<AksjonspunktResultat> utledAksjonspunkterForMor(AksjonspunktUtlederInput param) {  // Tanken her er at funksjonell APU flyt i dok (PK-46654) skal samsvare med koden
         if (erSøkerRegistrertArbeidstakerMedLøpendeArbeidsforholdIAARegisteret(param) == JA) {
             return INGEN_AKSJONSPUNKTER;
         }

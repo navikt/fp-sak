@@ -19,7 +19,7 @@ import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
  */
 public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
 
-    private static final MdcExtendedLogContext LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess"); //$NON-NLS-1$
+    private static final MdcExtendedLogContext LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess");
 
     private final BehandlingskontrollKontekst kontekst;
 
@@ -33,9 +33,9 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
 
     @Override
     public StegProsesseringResultat prosesser(BehandlingStegModell steg) {
-        LOG_CONTEXT.add("fagsak", kontekst.getFagsakId()); // NOSONAR //$NON-NLS-1$
-        LOG_CONTEXT.add("behandling", kontekst.getBehandlingId()); // NOSONAR //$NON-NLS-1$
-        LOG_CONTEXT.add("steg", steg.getBehandlingStegType().getKode()); // NOSONAR //$NON-NLS-1$
+        LOG_CONTEXT.add("fagsak", kontekst.getFagsakId());
+        LOG_CONTEXT.add("behandling", kontekst.getBehandlingId());
+        LOG_CONTEXT.add("steg", steg.getBehandlingStegType().getKode());
 
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         var forrigeTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getSisteBehandlingStegTilstand());
@@ -56,7 +56,7 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
          * behandling og fagsak kan være satt utenfor, så nullstiller ikke de i log
          * context her
          */
-        LOG_CONTEXT.remove("steg"); // NOSONAR //$NON-NLS-1$
+        LOG_CONTEXT.remove("steg");
 
         return resultat;
     }

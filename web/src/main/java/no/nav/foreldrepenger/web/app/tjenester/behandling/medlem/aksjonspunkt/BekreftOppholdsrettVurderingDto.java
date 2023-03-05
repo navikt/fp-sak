@@ -10,12 +10,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class BekreftOppholdsrettVurderingDto extends BekreftedePerioderMalDto {
 
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private BekreftOppholdsrettVurderingDto() {
         // For Jackson
     }
 
-    public BekreftOppholdsrettVurderingDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) { // NOSONAR
+    public BekreftOppholdsrettVurderingDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) {
         super(begrunnelse, bekreftedePerioder);
     }
 

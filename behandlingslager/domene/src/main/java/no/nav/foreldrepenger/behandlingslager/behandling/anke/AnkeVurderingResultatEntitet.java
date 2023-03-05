@@ -273,14 +273,14 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + "ankeVurdering=" + getAnkeVurdering() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "ankeVurderingOmgjør" + getAnkeVurderingOmgjør() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "ankeOmgjørÅrsak=" + getAnkeOmgjørÅrsak() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "begrunnelse=" + begrunnelse + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "fritekstTilBrev=" + fritekstTilBrev + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "ankeVurdering=" + getAnkeVurdering() + ", "
+            + "ankeVurderingOmgjør" + getAnkeVurderingOmgjør() + ", "
+            + "ankeOmgjørÅrsak=" + getAnkeOmgjørÅrsak() + ", "
+            + "begrunnelse=" + begrunnelse + ", "
+            + "fritekstTilBrev=" + fritekstTilBrev + ", "
+            + ">";
     }
 
     public static class Builder {

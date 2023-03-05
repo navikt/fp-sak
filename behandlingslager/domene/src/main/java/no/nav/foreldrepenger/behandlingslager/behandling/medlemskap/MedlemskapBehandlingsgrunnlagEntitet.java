@@ -98,11 +98,11 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<id=" + getId() //$NON-NLS-1$
-        + ", vurdertMedlemskap=" + this.vurderingMedlemskapSkjæringstidspunktet //$NON-NLS-1$
-        + ", oppgittTilknytning=" + this.oppgittTilknytning //$NON-NLS-1$
-        + ", registerMedlemskap=" + this.registerMedlemskap //$NON-NLS-1$
-        + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<id=" + getId()
+        + ", vurdertMedlemskap=" + this.vurderingMedlemskapSkjæringstidspunktet
+        + ", oppgittTilknytning=" + this.oppgittTilknytning
+        + ", registerMedlemskap=" + this.registerMedlemskap
+        + ">";
     }
 
     /* eksponeres ikke public for andre. */

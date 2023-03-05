@@ -29,6 +29,7 @@ public class FatterVedtakAksjonspunkt {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     public FatterVedtakAksjonspunkt() {
+        // CDI
     }
 
     @Inject

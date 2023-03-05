@@ -127,7 +127,7 @@ public class AksjonspunktRestTjeneste {
     public Response bekreft(@Context HttpServletRequest request,
                             @TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
             @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
-        throws URISyntaxException { // NOSONAR
+        throws URISyntaxException {
 
         var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 

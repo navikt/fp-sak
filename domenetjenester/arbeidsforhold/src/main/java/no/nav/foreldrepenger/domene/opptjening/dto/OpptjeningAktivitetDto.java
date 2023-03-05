@@ -22,7 +22,7 @@ public class OpptjeningAktivitetDto {
     private String begrunnelse;
     private Boolean erPeriodeEndret;
 
-    public OpptjeningAktivitetDto() {// NOSONAR
+    public OpptjeningAktivitetDto() {
         // trengs for deserialisering av JSON
     }
 

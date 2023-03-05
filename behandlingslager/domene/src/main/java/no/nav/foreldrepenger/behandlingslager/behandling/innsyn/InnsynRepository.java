@@ -22,7 +22,7 @@ public class InnsynRepository {
 
     @Inject
     public InnsynRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 

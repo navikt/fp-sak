@@ -11,7 +11,7 @@ public class VurderLønnsendringDto {
         // For Jackson
     }
 
-    public VurderLønnsendringDto(Boolean erLønnsendringIBeregningsperioden) { // NOSONAR
+    public VurderLønnsendringDto(Boolean erLønnsendringIBeregningsperioden) {
         this.erLønnsendringIBeregningsperioden = erLønnsendringIBeregningsperioden;
     }
 

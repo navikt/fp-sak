@@ -18,13 +18,13 @@ public abstract class MedlemEndringssjekker {
 
     public boolean erEndring(Optional<MedlemskapAggregat> nyttMedlemskap, Optional<MedlemskapAggregat> eksisterendeMedlemskap) {
 
-        if (!eksisterendeMedlemskap.isPresent() && !nyttMedlemskap.isPresent()) {
+        if (eksisterendeMedlemskap.isEmpty() && nyttMedlemskap.isEmpty()) {
             return false;
         }
-        if (eksisterendeMedlemskap.isPresent() && !nyttMedlemskap.isPresent()) {
+        if (eksisterendeMedlemskap.isPresent() && nyttMedlemskap.isEmpty()) {
             return true;
         }
-        if (!eksisterendeMedlemskap.isPresent() && nyttMedlemskap.isPresent()) { // NOSONAR - "redundant" her er false pos.
+        if (eksisterendeMedlemskap.isEmpty() && nyttMedlemskap.isPresent()) {  // NOSONAR - "redundant" her er false pos.
             return true;
         }
 

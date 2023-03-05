@@ -53,7 +53,7 @@ public class SendVedtaksbrev {
     void sendVedtaksbrev(Long behandlingId) {
         var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         if (behandlingVedtakOpt.isEmpty()) {
-            LOG.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId); //$NON-NLS-1$
+            LOG.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId);
             return;
         }
         var behandlingVedtak = behandlingVedtakOpt.get();
@@ -71,29 +71,29 @@ public class SendVedtaksbrev {
         }
 
         if (BehandlingType.KLAGE.equals(behandling.getType()) && (!skalSendeVedtaksbrevIKlagebehandling(behandling) || harKlageBlittBehandletAvKabal(behandling))) {
-            LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId);
             return;
         }
 
         if (erBehandlingEtterKlage(behandling) && !skalSendeVedtaksbrevEtterKlage(behandling)) {
-            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder medhold fra klageinstans", behandlingId); //$NON-NLS-1$
+            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder medhold fra klageinstans", behandlingId);
             return;
         }
 
         if (SpesialBehandling.erJusterFeriepenger(behandling)) {
-            LOG.info("Sender ikke vedtaksbrev for reberegning av feriepenger: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Sender ikke vedtaksbrev for reberegning av feriepenger: {}", behandlingId);
             return;
         }
 
         if (behandlingVedtak.isBeslutningsvedtak()) {
             if (harSendtVarselOmRevurdering(behandlingId)) {
-                LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId); //$NON-NLS-1$
+                LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId);
             } else {
-                LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering. Sender ikke brev for behandling: {}", behandlingId); //$NON-NLS-1$
+                LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering. Sender ikke brev for behandling: {}", behandlingId);
                 return;
             }
         } else if (gjelderEngangsstønad(behandling)) {
-            LOG.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1$
+            LOG.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId);
         } else {
             LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
         }

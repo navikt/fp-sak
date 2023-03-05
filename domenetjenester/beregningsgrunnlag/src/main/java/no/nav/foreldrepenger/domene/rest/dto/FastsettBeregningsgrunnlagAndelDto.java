@@ -17,7 +17,7 @@ public class FastsettBeregningsgrunnlagAndelDto extends RedigerbarAndelDto {
     private Integer forrigeRefusjonPrÅr;
     private Integer forrigeArbeidsinntektPrÅr;
 
-    FastsettBeregningsgrunnlagAndelDto() { // NOSONAR
+    FastsettBeregningsgrunnlagAndelDto() {
         // Jackson
     }
 

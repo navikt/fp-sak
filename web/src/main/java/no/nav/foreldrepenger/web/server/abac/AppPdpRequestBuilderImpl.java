@@ -28,7 +28,7 @@ import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 @Dependent
 public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
-    private static final MdcExtendedLogContext MDC_EXTENDED_LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess"); //$NON-NLS-1$
+    private static final MdcExtendedLogContext MDC_EXTENDED_LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess");
     private PipRepository pipRepository;
 
     public AppPdpRequestBuilderImpl() {

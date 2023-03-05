@@ -27,16 +27,16 @@ public class LdapUtil {
     private static String filterDNtoCNvalue(String value) {
         if(value.toLowerCase(Locale.ROOT).contains("cn=")) {
             try {
-                var ldapname = new LdapName(value); //NOSONAR, only used locally
+                var ldapname = new LdapName(value);
                 for (var rdn : ldapname.getRdns()) {
                     if ("CN".equalsIgnoreCase(rdn.getType())) {
                         var cn = rdn.getValue().toString();
-                        LOG.debug("uid on DN form. Filtered from {} to {}", value, cn); //NOSONAR trusted source, validated SAML-token or LDAP memberOf
+                        LOG.debug("uid on DN form. Filtered from {} to {}", value, cn);
                         return cn;
                     }
                 }
-            } catch (InvalidNameException e) { //NOSONAR
-                LOG.debug("value not on DN form. Skipping filter. {}", e.getExplanation()); //NOSONAR trusted source
+            } catch (InvalidNameException e) {
+                LOG.debug("value not on DN form. Skipping filter. {}", e.getExplanation());
             }
         }
         return value;

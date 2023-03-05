@@ -31,7 +31,7 @@ public class AvklarOpptjeningAktivitetDto {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
-    public AvklarOpptjeningAktivitetDto() {// NOSONAR
+    public AvklarOpptjeningAktivitetDto() {
         // trengs for deserialisering av JSON
     }
 

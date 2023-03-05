@@ -22,11 +22,11 @@ public class FastsettMånedsinntektUtenInntektsmeldingAndelDto {
     @ValidKodeverk
     private Inntektskategori inntektskategori;
 
-    FastsettMånedsinntektUtenInntektsmeldingAndelDto() { //NOSONAR
+    FastsettMånedsinntektUtenInntektsmeldingAndelDto() {
         // For Jackson
     }
 
-    public FastsettMånedsinntektUtenInntektsmeldingAndelDto(Long andelsnr, FastsatteVerdierDto fastsatteVerdier) { // NOSONAR
+    public FastsettMånedsinntektUtenInntektsmeldingAndelDto(Long andelsnr, FastsatteVerdierDto fastsatteVerdier) {
         this.andelsnr = andelsnr;
         this.fastsattBeløp = fastsatteVerdier.getFastsattBeløp();
         this.inntektskategori = fastsatteVerdier.getInntektskategori();

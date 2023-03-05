@@ -32,7 +32,7 @@ public final class BehandlingDtoUtil {
     private static Optional<String> getFristDatoBehandlingPåVent(Behandling behandling) {
         var frist = behandling.getFristDatoBehandlingPåVent();
         if (frist != null) {
-            return Optional.of(frist.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))); //$NON-NLS-1$
+            return Optional.of(frist.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         }
         return Optional.empty();
     }

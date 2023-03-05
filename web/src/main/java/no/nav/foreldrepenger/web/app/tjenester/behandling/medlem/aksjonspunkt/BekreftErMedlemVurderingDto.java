@@ -9,11 +9,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE_KODE)
 public class BekreftErMedlemVurderingDto extends BekreftedePerioderMalDto {
 
-    BekreftErMedlemVurderingDto() { // NOSONAR
+    BekreftErMedlemVurderingDto() {
         // For Jackson
     }
 
-    public BekreftErMedlemVurderingDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) { // NOSONAR
+    public BekreftErMedlemVurderingDto(String begrunnelse, List<BekreftedePerioderDto> bekreftedePerioder) {
         super(begrunnelse, bekreftedePerioder);
 
     }

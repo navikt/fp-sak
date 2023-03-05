@@ -98,7 +98,7 @@ public class RegelOrkestrerer {
             .collect(toMap(Vilkår::getVilkårType, Vilkår::getGjeldendeVilkårUtfall));
 
         var matchendeVilkår = vilkårTyper.get(vdRegelmotor.vilkårType());
-        Objects.requireNonNull(matchendeVilkår, "skal finnes match"); //$NON-NLS-1$
+        Objects.requireNonNull(matchendeVilkår, "skal finnes match");
         // Utfall fra automatisk regelvurdering skal legges til settet av utfall, dersom vilkår ikke er manuelt vurdert
         if (!(matchendeVilkår.erManueltVurdert() || matchendeVilkår.erOverstyrt())) {
             vilkårUtfall.put(vdRegelmotor.vilkårType(), vdRegelmotor.utfallType());

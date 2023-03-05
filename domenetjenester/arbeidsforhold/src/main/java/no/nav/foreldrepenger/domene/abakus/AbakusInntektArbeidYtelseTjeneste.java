@@ -245,7 +245,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public void lagreArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
-        Objects.requireNonNull(informasjonBuilder, "informasjonBuilder"); // NOSONAR
+        Objects.requireNonNull(informasjonBuilder, "informasjonBuilder");
 
         var iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
 
@@ -258,7 +258,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
-        Objects.requireNonNull(informasjonBuilder, "informasjonBuilder"); // NOSONAR
+        Objects.requireNonNull(informasjonBuilder, "informasjonBuilder");
 
         var iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
 
@@ -458,7 +458,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     private InntektArbeidYtelseGrunnlagBuilder getGrunnlagBuilder(Long behandlingId, InntektArbeidYtelseAggregatBuilder iayAggregetBuilder) {
-        Objects.requireNonNull(iayAggregetBuilder, "iayAggregetBuilder"); // NOSONAR
+        Objects.requireNonNull(iayAggregetBuilder, "iayAggregetBuilder");
         var opptjeningAggregatBuilder = opprettGrunnlagBuilderFor(behandlingId);
         opptjeningAggregatBuilder.medData(iayAggregetBuilder);
         return opptjeningAggregatBuilder;

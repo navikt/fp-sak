@@ -64,7 +64,7 @@ public class Behandlingsoppretter {
                                     BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                     MottattDokumentPersisterer mottattDokumentPersisterer,
                                     MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                                    BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) { // NOSONAR
+                                    BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.mottattDokumentPersisterer = mottattDokumentPersisterer;

@@ -26,7 +26,7 @@ public class PoststedKodeverkRepository {
 
     @Inject
     public PoststedKodeverkRepository(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -53,6 +53,6 @@ public class PoststedKodeverkRepository {
             .setParameter("fom", gyldigFom)
             .setParameter("tom", gyldigTom)
             .setParameter("sted", poststed)
-            .executeUpdate(); //$NON-NLS-1$
+            .executeUpdate();
     }
 }

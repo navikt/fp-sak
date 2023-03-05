@@ -23,12 +23,12 @@ public class BekreftDokumentertDatoAksjonspunktDto extends BekreftetAksjonspunkt
     @Size(max = 9)
     private Map<Integer, LocalDate> fodselsdatoer;
 
-    BekreftDokumentertDatoAksjonspunktDto() { // NOSONAR
+    BekreftDokumentertDatoAksjonspunktDto() {
         // For Jackson
     }
 
     public BekreftDokumentertDatoAksjonspunktDto(String begrunnelse, LocalDate omsorgsovertakelseDato,
-                                                 Map<Integer, LocalDate> fodselsdatoer) { // NOSONAR
+                                                 Map<Integer, LocalDate> fodselsdatoer) {
 
         super(begrunnelse);
         this.omsorgsovertakelseDato = omsorgsovertakelseDato;

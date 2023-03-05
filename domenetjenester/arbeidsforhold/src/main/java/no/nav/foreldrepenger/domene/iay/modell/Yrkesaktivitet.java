@@ -47,7 +47,7 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     }
 
     public Yrkesaktivitet(Yrkesaktivitet yrkesaktivitet) {
-        var kopierFra = yrkesaktivitet; // NOSONAR
+        var kopierFra = yrkesaktivitet;
         this.arbeidType = kopierFra.getArbeidType();
         this.arbeidsgiver = kopierFra.getArbeidsgiver();
         this.arbeidsforholdRef = kopierFra.arbeidsforholdRef;

@@ -40,7 +40,7 @@ public class VergeBuilder {
 
     public VergeEntitet build() {
         //verifiser oppbyggingen til objektet
-        Objects.requireNonNull(kladd.vergeType, "vergeType"); //$NON-NLS-1$
+        Objects.requireNonNull(kladd.vergeType, "vergeType");
         return kladd;
     }
 }

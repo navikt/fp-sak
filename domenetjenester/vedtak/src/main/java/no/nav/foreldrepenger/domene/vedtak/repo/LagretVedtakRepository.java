@@ -3,12 +3,9 @@ package no.nav.foreldrepenger.domene.vedtak.repo;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -32,7 +29,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
 
     @Inject
     public LagretVedtakRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -40,7 +37,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
     public long lagre(LagretVedtak lagretVedtak) {
         if (entityManager.contains(lagretVedtak)) {
             // Eksisterende og persistent - ikke gjør noe
-            @SuppressWarnings("unused") var brkpt = 1; // NOSONAR
+            @SuppressWarnings("unused") var brkpt = 1;
         } else if (lagretVedtak.getId() != null) {
             // Eksisterende men detached - oppdater
             entityManager.merge(lagretVedtak);
@@ -59,36 +56,36 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
 
 
     public LagretVedtak hentLagretVedtak(long lagretVedtakId) {
-        var query = entityManager.createQuery("from LagretVedtak where id=:lagretVedtakId", LagretVedtak.class); //$NON-NLS-1$
-        query.setParameter("lagretVedtakId", lagretVedtakId); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        var query = entityManager.createQuery("from LagretVedtak where id=:lagretVedtakId", LagretVedtak.class);
+        query.setParameter("lagretVedtakId", lagretVedtakId);
+        query.setHint(QueryHints.HINT_READONLY, "true");
         return hentEksaktResultat(query);
     }
 
     public LagretVedtak hentLagretVedtakForBehandling(long behandlingId) {
-        var query = entityManager.createQuery("from LagretVedtak where BEHANDLING_ID=:behandlingId", LagretVedtak.class); //$NON-NLS-1$
-        query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        var query = entityManager.createQuery("from LagretVedtak where BEHANDLING_ID=:behandlingId", LagretVedtak.class);
+        query.setParameter("behandlingId", behandlingId);
+        query.setHint(QueryHints.HINT_READONLY, "true");
         return hentEksaktResultat(query);
     }
 
     public LagretVedtak hentLagretVedtakForBehandlingForOppdatering(long behandlingId) {
-        var query = entityManager.createQuery("from LagretVedtak where BEHANDLING_ID=:behandlingId", LagretVedtak.class); //$NON-NLS-1$
-        query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
+        var query = entityManager.createQuery("from LagretVedtak where BEHANDLING_ID=:behandlingId", LagretVedtak.class);
+        query.setParameter("behandlingId", behandlingId);
         return hentEksaktResultat(query);
     }
 
     public List<LagretVedtak> hentLagreteVedtakPåFagsak(long fagsakId) {
-        var query = entityManager.createQuery("from LagretVedtak where FAGSAK_ID=:fagsakId", LagretVedtak.class); //$NON-NLS-1$
-        query.setParameter("fagsakId", fagsakId); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        var query = entityManager.createQuery("from LagretVedtak where FAGSAK_ID=:fagsakId", LagretVedtak.class);
+        query.setParameter("fagsakId", fagsakId);
+        query.setHint(QueryHints.HINT_READONLY, "true");
         return query.getResultList();
     }
 
     public List<Long> hentLagreteVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom){
 
-        Objects.requireNonNull(fom, "fom"); //NOSONAR
-        Objects.requireNonNull(tom, "tom"); //NOSONAR
+        Objects.requireNonNull(fom, "fom");
+        Objects.requireNonNull(tom, "tom");
 
         var sql = "SELECT " +
             "BEHANDLING_ID " +
@@ -108,16 +105,16 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
     }
 
     public List<Long> hentLagretVedtakBehandlingId(LocalDateTime fom, LocalDateTime tom, FagsakYtelseType fagsakYtelseType) {
-        Objects.requireNonNull(fom, "fom"); //NOSONAR
-        Objects.requireNonNull(tom, "tom"); //NOSONAR
+        Objects.requireNonNull(fom, "fom");
+        Objects.requireNonNull(tom, "tom");
         Objects.requireNonNull(fagsakYtelseType, "fagsakYtelseType");
 
         var sql = "select lv.behandling_id from LAGRET_VEDTAK lv, FAGSAK fs where lv.OPPRETTET_TID >= :fom and lv.OPPRETTET_TID <= :tom and lv.FAGSAK_ID = fs.ID and fs.YTELSE_TYPE = :fagsakYtelseType";
 
         var query = entityManager.createNativeQuery(sql);
-        query.setParameter("fom", fom); // NOSONAR $NON-NLS-1$
-        query.setParameter("tom", tom); // NOSONAR $NON-NLS-1$
-        query.setParameter("fagsakYtelseType", fagsakYtelseType.getKode()); // NOSONAR $NON-NLS-1$
+        query.setParameter("fom", fom);
+        query.setParameter("tom", tom);
+        query.setParameter("fagsakYtelseType", fagsakYtelseType.getKode());
 
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultater = query.getResultList();

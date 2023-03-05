@@ -20,11 +20,11 @@ public class AvklarAleneomsorgVurderingDto extends BekreftetAksjonspunktDto {
 
     private Boolean annenforelderMottarUføretrygd;
 
-    AvklarAleneomsorgVurderingDto() { // NOSONAR
+    AvklarAleneomsorgVurderingDto() {
         //For Jackson
     }
 
-    public AvklarAleneomsorgVurderingDto(String begrunnelse) { // NOSONAR
+    public AvklarAleneomsorgVurderingDto(String begrunnelse) {
         super(begrunnelse);
     }
 

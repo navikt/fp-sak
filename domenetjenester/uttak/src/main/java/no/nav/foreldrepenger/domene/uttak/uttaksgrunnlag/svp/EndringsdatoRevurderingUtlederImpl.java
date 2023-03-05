@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrun
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
@@ -37,8 +38,9 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     public LocalDate utledEndringsdato(UttakInput input) {
         var behandlingId = input.getBehandlingReferanse().behandlingId();
         var uttakResultat = uttakResultatRepository.hentHvisEksisterer(behandlingId);
-        if (uttakResultat.isPresent() && uttakResultat.get().finnFørsteUttaksdato().isPresent()) {
-            return uttakResultat.get().finnFørsteUttaksdato().get();
+        var førsteUttak = uttakResultat.flatMap(SvangerskapspengerUttakResultatEntitet::finnFørsteUttaksdato);
+        if (førsteUttak.isPresent()) {
+            return førsteUttak.get();
         }
 
         //Finn første tilretteleggingsbehovsdato dersom det ikke finnes uttaksperioder.

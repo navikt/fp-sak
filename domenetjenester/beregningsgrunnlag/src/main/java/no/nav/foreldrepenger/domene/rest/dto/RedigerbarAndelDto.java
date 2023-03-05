@@ -31,7 +31,7 @@ public class RedigerbarAndelDto {
     private LocalDate beregningsperiodeTom;
 
 
-    protected RedigerbarAndelDto() { // NOSONAR
+    protected RedigerbarAndelDto() {
         // Jackson
     }
 

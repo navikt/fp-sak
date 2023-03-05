@@ -26,7 +26,7 @@ public class FpUttakRepository {
 
     @Inject
     public FpUttakRepository(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
@@ -98,9 +98,7 @@ public class FpUttakRepository {
     }
 
     private void persisterPeriode(UttakResultatPeriodeEntitet periode) {
-        if (periode.getPeriodeSøknad().isPresent()) {
-            persistPeriodeSøknad(periode.getPeriodeSøknad().get());
-        }
+        periode.getPeriodeSøknad().ifPresent(this::persistPeriodeSøknad);
         entityManager.persist(periode);
         if (periode.getDokRegel() != null) {
             entityManager.persist(periode.getDokRegel());
@@ -136,8 +134,8 @@ public class FpUttakRepository {
             "select uttakResultat from UttakResultatEntitet uttakResultat "
                 + "join uttakResultat.behandlingsresultat resultat"
                 + " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv='J'",
-            UttakResultatEntitet.class); //$NON-NLS-1$
-        query.setParameter("behandlingId", behandlingId); // NOSONAR //$NON-NLS-1$
+            UttakResultatEntitet.class);
+        query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
     }
 
@@ -148,7 +146,7 @@ public class FpUttakRepository {
     }
 
     public Optional<UttakResultatEntitet> hentUttakResultatPåId(Long id) {
-        Objects.requireNonNull(id, "aggregatId"); // NOSONAR $NON-NLS-1$
+        Objects.requireNonNull(id, "aggregatId");
         final var query = entityManager.createQuery(
             "FROM UttakResultatEntitet ur " + "WHERE ur.id = :id ", UttakResultatEntitet.class);
         query.setParameter("id", id);

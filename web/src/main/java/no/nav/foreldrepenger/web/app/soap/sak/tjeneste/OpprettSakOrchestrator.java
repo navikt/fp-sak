@@ -24,7 +24,8 @@ public class OpprettSakOrchestrator {
         this.fagsakRepository = fagsakRepository;
     }
 
-    public OpprettSakOrchestrator() { // NOSONAR: cdi
+    public OpprettSakOrchestrator() {
+        // CDI
     }
 
     @Deprecated(forRemoval = true, since = "TFP-4124")

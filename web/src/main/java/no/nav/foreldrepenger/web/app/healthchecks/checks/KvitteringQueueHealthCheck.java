@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.web.app.healthchecks.checks;
 
-import jakarta.jms.JMSException;
-import jakarta.jms.JMSRuntimeException;
-import no.nav.foreldrepenger.økonomistøtte.queue.consumer.ØkonomiOppdragKvitteringAsyncJmsConsumer;
-import no.nav.foreldrepenger.felles.jms.QueueSelftest;
-import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.jms.JMSException;
+import jakarta.jms.JMSRuntimeException;
+import no.nav.foreldrepenger.felles.jms.QueueSelftest;
+import no.nav.foreldrepenger.økonomistøtte.queue.consumer.ØkonomiOppdragKvitteringAsyncJmsConsumer;
+import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
 
 @ApplicationScoped
 public class KvitteringQueueHealthCheck implements LiveAndReadinessAware {
@@ -29,7 +29,7 @@ public class KvitteringQueueHealthCheck implements LiveAndReadinessAware {
     private boolean isOK() {
         try {
             client.testConnection();
-        } catch (JMSRuntimeException | JMSException e) { //NOSONAR
+        } catch (JMSRuntimeException | JMSException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Feil ved Kvittering meldingskø helsesjekk: {}", client.getConnectionEndpoint());
                 return false;

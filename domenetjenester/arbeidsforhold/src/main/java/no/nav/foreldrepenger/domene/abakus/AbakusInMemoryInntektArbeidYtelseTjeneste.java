@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.abakus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -20,7 +19,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Alternative;
 
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYDiffsjekker;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -71,6 +69,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
      * CDI ctor for proxies.
      */
     public AbakusInMemoryInntektArbeidYtelseTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     private static String getCallerMethod() {
@@ -164,8 +163,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
         var grunnlagBuilder = InMemoryInntektArbeidYtelseGrunnlagBuilder.oppdatere(grunnlag);
         Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder");
-        var aggregat = Optional.ofNullable(grunnlagBuilder.getKladd()); // NOSONAR $NON-NLS-1$
-        Objects.requireNonNull(aggregat, "aggregat"); // NOSONAR $NON-NLS-1$
+        var aggregat = Optional.ofNullable(grunnlagBuilder.getKladd());
+        Objects.requireNonNull(aggregat, "aggregat");
         if (aggregat.isPresent()) {
             final var aggregat1 = aggregat.get();
             return InntektArbeidYtelseAggregatBuilder.builderFor(hentRiktigVersjon(versjonType, aggregat1), angittReferanse, opprettetTidspunkt,
@@ -197,7 +196,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public void lagreArbeidsforhold(Long behandlingId, AktørId søkerAktørId, ArbeidsforholdInformasjonBuilder informasjon) {
-        Objects.requireNonNull(informasjon, "informasjon"); // NOSONAR
+        Objects.requireNonNull(informasjon, "informasjon");
         var builder = opprettGrunnlagBuilderFor(behandlingId);
 
         builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getReverserteErstattArbeidsforhold());
@@ -239,7 +238,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId søkerAktørId, ArbeidsforholdInformasjonBuilder informasjon) {
-        Objects.requireNonNull(informasjon, "informasjon"); // NOSONAR
+        Objects.requireNonNull(informasjon, "informasjon");
         var builder = opprettGrunnlagBuilderFor(behandlingId);
 
         builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getReverserteErstattArbeidsforhold());
@@ -251,7 +250,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders) {
-        Objects.requireNonNull(builders, "builders"); // NOSONAR
+        Objects.requireNonNull(builders, "builders");
         var builder = opprettGrunnlagBuilderFor(behandlingId);
         final var inntektsmeldinger = builder.getInntektsmeldinger();
 
@@ -354,7 +353,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     private InMemoryInntektArbeidYtelseGrunnlagBuilder getGrunnlagBuilder(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
-        Objects.requireNonNull(builder, "inntektArbeidYtelserBuilder"); // NOSONAR
+        Objects.requireNonNull(builder, "inntektArbeidYtelserBuilder");
         var opptjeningAggregatBuilder = opprettGrunnlagBuilderFor(behandlingId);
         opptjeningAggregatBuilder.medData(builder);
         return opptjeningAggregatBuilder;

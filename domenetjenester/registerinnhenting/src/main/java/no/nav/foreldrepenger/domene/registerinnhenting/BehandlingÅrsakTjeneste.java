@@ -31,6 +31,7 @@ public class BehandlingÅrsakTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public BehandlingÅrsakTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject

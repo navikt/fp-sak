@@ -24,6 +24,7 @@ public class StartdatoUtsattDtoTjeneste {
     }
 
     public StartdatoUtsattDtoTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     public StartdatoUtsattDto getInformasjonOmUtsettelseFraStart(Behandling behandling) {

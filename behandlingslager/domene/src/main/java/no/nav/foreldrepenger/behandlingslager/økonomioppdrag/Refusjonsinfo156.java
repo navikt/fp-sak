@@ -37,7 +37,7 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
     @Column(name = "dato_fom", nullable = false)
     private LocalDate datoFom;
 
-    public Refusjonsinfo156() {
+    Refusjonsinfo156() {
     }
 
     public Long getId() {
@@ -151,13 +151,13 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "maksDato=" + maksDato + ", " //$NON-NLS-1$
-            + "refunderesId=" + refunderesId + ", " //$NON-NLS-1$
-            + "datoFom=" + datoFom + ", " //$NON-NLS-1$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "maksDato=" + maksDato + ", "
+            + "refunderesId=" + refunderesId + ", "
+            + "datoFom=" + datoFom + ", "
+            + "opprettetTs=" + getOpprettetTidspunkt()
+            + ">";
     }
 
 }

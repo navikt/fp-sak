@@ -26,8 +26,8 @@ public class FamilierelasjonVL {
     public String toString() {
         // tar ikke med personIdent i toString så det ikke lekkeri logger etc.
         return getClass().getSimpleName()
-                + "<relasjon=" + relasjonsrolle  //$NON-NLS-1$
-                + ">"; //$NON-NLS-1$
+                + "<relasjon=" + relasjonsrolle
+                + ">";
     }
 
     @Override

@@ -14,6 +14,8 @@ import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.TextMessage;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
+import no.nav.foreldrepenger.felles.jms.QueueConsumer;
+import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Mmel;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
@@ -22,8 +24,6 @@ import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.DatabasePreconditionChecker;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.foreldrepenger.felles.jms.QueueConsumer;
-import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
 import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
@@ -75,10 +75,10 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer imp
             } else {
                 loggKvitteringUtenLinjer(kvitteringsmelding);
             }
-        } catch (SAXException | JAXBException e) { // NOSONAR
+        } catch (SAXException | JAXBException e) {
             throw new TekniskException("FP-595437", "Uventet feil med JAXB ved parsing av melding "
                 + "oppdragskjema.oppdrag: " + message, e);
-        } catch (XMLStreamException e) { // NOSONAR
+        } catch (XMLStreamException e) {
             throw new TekniskException("FP-744861", "Feil i parsing av oppdragskjema.oppdrag", e);
         }
     }
@@ -108,7 +108,7 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer imp
         try {
             kvitteringsmelding = JaxbHelper.unmarshalAndValidateXMLWithStAX(OppdragSkjemaConstants.JAXB_CLASS, message,
                 OppdragSkjemaConstants.XSD_LOCATION);
-        } catch (UnmarshalException e) { // NOSONAR
+        } catch (UnmarshalException e) {
             var editedMessage = message.replace("<oppdrag ", "<xml_1:oppdrag ")
                 .replace("xmlns=", "xmlns:xml_1=")
                 .replace("</oppdrag>", "</xml_1:oppdrag>")

@@ -31,8 +31,8 @@ public interface BehandlingSteg {
         switch (transisjonType) {
             case HOPP_OVER_BAKOVER -> vedHoppOverBakover(kontekst, modell, førsteSteg, sisteSteg);
             case HOPP_OVER_FRAMOVER -> vedHoppOverFramover(kontekst, modell, førsteSteg, sisteSteg);
-            default -> throw new IllegalArgumentException("Uhåndtert transisjonType: " + transisjonType //$NON-NLS-1$
-                + " i steg: " + modell.getBehandlingStegType()); //$NON-NLS-1$
+            default -> throw new IllegalArgumentException("Uhåndtert transisjonType: " + transisjonType
+                + " i steg: " + modell.getBehandlingStegType());
         }
     }
 

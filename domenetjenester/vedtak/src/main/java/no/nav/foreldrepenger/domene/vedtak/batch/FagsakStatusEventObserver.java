@@ -38,13 +38,13 @@ public class FagsakStatusEventObserver {
     }
 
     public void observerBehandlingOpprettetEvent(@Observes BehandlingStatusEvent.BehandlingOpprettetEvent event) {
-        LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
+        LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());
         var fagsak = fagsakRepository.finnEksaktFagsak(event.getFagsakId());
         oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, event.getBehandlingId(), event.getNyStatus());
     }
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
-        LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
+        LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());
         var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
         oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(behandling, event.getNyStatus());
     }

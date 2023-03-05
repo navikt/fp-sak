@@ -28,6 +28,7 @@ public class VedtakFattetTjeneste {
     private FeedRepository feedRepository;
 
     public VedtakFattetTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject

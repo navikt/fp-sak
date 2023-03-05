@@ -106,8 +106,8 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
 
         if (autopunkt.isPresent()) {
             throw new IllegalStateException(
-                    "Utvikler-feil: Tilbakehopp ikke tillatt for autopunkt '" + //$NON-NLS-1$
-                            autopunkt.get().getAksjonspunktDefinisjon().getNavn() + "'"); //$NON-NLS-1$
+                    "Utvikler-feil: Tilbakehopp ikke tillatt for autopunkt '" +
+                            autopunkt.get().getAksjonspunktDefinisjon().getNavn() + "'");
         }
     }
 

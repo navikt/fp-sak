@@ -14,6 +14,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,9 +28,6 @@ import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("/batch")
 @ApplicationScoped
@@ -77,7 +77,7 @@ public class BatchRestTjeneste {
         if (batchTjeneste != null) {
             final var arguments = batchTjeneste.createArguments(args.getArguments());
             if (arguments.isValid()) {
-                LOG.info("Starter batch {}", LoggerUtils.removeLineBreaks(name)); // NOSONAR
+                LOG.info("Starter batch {}", LoggerUtils.removeLineBreaks(name));
                 return Response.ok(batchTjeneste.launch(arguments)).build();
             }
             throw BatchFeil.ugyldigeJobParametere(arguments);

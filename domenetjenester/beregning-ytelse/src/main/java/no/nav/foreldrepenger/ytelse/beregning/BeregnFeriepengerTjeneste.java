@@ -26,7 +26,7 @@ public abstract class BeregnFeriepengerTjeneste {
     protected int antallDagerFeriepenger;
 
     protected BeregnFeriepengerTjeneste() {
-        //NOSONAR
+        // CDI
     }
 
     protected BeregnFeriepengerTjeneste(BehandlingRepositoryProvider repositoryProvider,

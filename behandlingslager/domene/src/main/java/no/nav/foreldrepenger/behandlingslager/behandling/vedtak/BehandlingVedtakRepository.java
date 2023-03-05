@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -37,9 +38,9 @@ public class BehandlingVedtakRepository {
     }
 
     public Optional<BehandlingVedtak> hentForBehandlingHvisEksisterer(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         var query = getEntityManager().createQuery("from BehandlingVedtak where behandlingsresultat.behandling.id=:behandlingId", BehandlingVedtak.class);
-        query.setParameter("behandlingId", behandlingId); // $NON-NLS-1$
+        query.setParameter("behandlingId", behandlingId);
         return optionalFirstVedtak(query.getResultList());
     }
 
@@ -117,7 +118,7 @@ public class BehandlingVedtakRepository {
                 sistEndretVedtak = vedtak;
             }
         }
-        return sistEndretVedtak.getBehandlingsresultat().getBehandlingId();
+        return Optional.ofNullable(sistEndretVedtak).map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).orElse(null);
     }
 
     // sjekk lås og oppgrader til skriv

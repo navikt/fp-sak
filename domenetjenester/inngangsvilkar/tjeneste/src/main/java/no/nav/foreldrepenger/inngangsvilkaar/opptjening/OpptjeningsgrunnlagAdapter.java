@@ -148,7 +148,7 @@ public class OpptjeningsgrunnlagAdapter {
     private AktivitetGruppering getIdentifikator(OpptjeningAktivitetPeriode opp) {
         var identifikator = Optional.ofNullable(opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.ORG_NUMMER))
             .orElseGet(() -> opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.AKTØR_ID));
-        return new AktivitetGruppering(opp.getOpptjeningAktivitetType(), identifikator); // NOSONAR
+        return new AktivitetGruppering(opp.getOpptjeningAktivitetType(), identifikator);
     }
 
     private AktivitetPeriode.VurderingsStatus mapStatus(OpptjeningAktivitetPeriode periode) {

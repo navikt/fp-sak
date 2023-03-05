@@ -96,7 +96,7 @@ public class FordelRestTjeneste {
                               OpprettSakTjeneste opprettSakTjeneste,
                               BehandlingRepositoryProvider repositoryProvider,
                               VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
-                              SakInfoDtoTjeneste sakInfoDtoTjeneste  ) { // NOSONAR
+                              SakInfoDtoTjeneste sakInfoDtoTjeneste  ) {
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakOrchestrator = opprettSakOrchestrator;
@@ -334,7 +334,7 @@ public class FordelRestTjeneste {
     private BehandlendeFagsystemDto map(BehandlendeFagsystem behandlendeFagsystem) {
         BehandlendeFagsystemDto dto;
         if (behandlendeFagsystem.getSaksnummer().isPresent()) {
-            dto = new BehandlendeFagsystemDto(behandlendeFagsystem.getSaksnummer().get().getVerdi()); // NOSONAR
+            dto = new BehandlendeFagsystemDto(behandlendeFagsystem.getSaksnummer().get().getVerdi());
         } else {
             dto = new BehandlendeFagsystemDto();
         }

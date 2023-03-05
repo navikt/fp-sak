@@ -211,7 +211,7 @@ public class GrensesnittavstemmingMapper {
             var alvorlighetsgrad = (oppdrag.erKvitteringMottatt()) ? oppdrag.getOppdragKvittering().getAlvorlighetsgrad() : null;
             if (null == alvorlighetsgrad) {
                 opprettDetalj(avstemmingsdata, oppdrag, DetaljType.MANG, alvorlighetsgrad);
-            } else if (Alvorlighetsgrad.OK.equals(alvorlighetsgrad)) { //$NON-NLS-1$
+            } else if (Alvorlighetsgrad.OK.equals(alvorlighetsgrad)) {
                 // ingen detaljer trenges.
             } else if (Alvorlighetsgrad.OK_MED_MERKNAD.equals(alvorlighetsgrad)) {
                 opprettDetalj(avstemmingsdata, oppdrag, DetaljType.VARS, alvorlighetsgrad);

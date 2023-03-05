@@ -22,11 +22,11 @@ public class Foreldreansvarsvilkår1AksjonspunktDto extends BekreftetAksjonspunk
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    Foreldreansvarsvilkår1AksjonspunktDto() { // NOSONAR
+    Foreldreansvarsvilkår1AksjonspunktDto() {
         //For Jackson
     }
 
-    public Foreldreansvarsvilkår1AksjonspunktDto(String begrunnelse, Boolean erVilkarOk, String avslagskode) { // NOSONAR
+    public Foreldreansvarsvilkår1AksjonspunktDto(String begrunnelse, Boolean erVilkarOk, String avslagskode) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
         this.avslagskode = avslagskode;

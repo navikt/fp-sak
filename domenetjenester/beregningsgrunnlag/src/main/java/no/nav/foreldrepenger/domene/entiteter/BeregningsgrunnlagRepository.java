@@ -40,7 +40,7 @@ public class BeregningsgrunnlagRepository {
 
     @Inject
     public BeregningsgrunnlagRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -81,8 +81,8 @@ public class BeregningsgrunnlagRepository {
     public Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlagForId(Long beregningsgrunnlagId) {
         var query = entityManager.createQuery(
             "from Beregningsgrunnlag grunnlag " +
-                "where grunnlag.id = :beregningsgrunnlagId", BeregningsgrunnlagEntitet.class); //$NON-NLS-1$
-        query.setParameter("beregningsgrunnlagId", beregningsgrunnlagId); //$NON-NLS-1$
+                "where grunnlag.id = :beregningsgrunnlagId", BeregningsgrunnlagEntitet.class);
+        query.setParameter("beregningsgrunnlagId", beregningsgrunnlagId);
         return hentUniktResultat(query);
     }
 
@@ -95,9 +95,9 @@ public class BeregningsgrunnlagRepository {
         var query = entityManager.createQuery(
             "from BeregningsgrunnlagGrunnlagEntitet grunnlag " +
                 "where grunnlag.behandlingId=:behandlingId " +
-                "and grunnlag.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
-        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
-        query.setParameter("aktivt", true); //$NON-NLS-1$
+                "and grunnlag.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class);
+        query.setParameter(BEHANDLING_ID, behandlingId);
+        query.setParameter("aktivt", true);
         return hentUniktResultat(query);
     }
 
@@ -112,9 +112,9 @@ public class BeregningsgrunnlagRepository {
             "from BeregningsgrunnlagGrunnlagEntitet " +
                 "where behandlingId=:behandlingId " +
                 "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
-        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
-        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
+                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class);
+        query.setParameter(BEHANDLING_ID, behandlingId);
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand);
         query.setMaxResults(1);
         return query.getResultStream().findFirst();
     }
@@ -133,10 +133,10 @@ public class BeregningsgrunnlagRepository {
                 "where behandlingId=:behandlingId " +
                 "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
                 "and opprettetTidspunkt > :opprettetTidspunktMin " +
-                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
-        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
-        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
-        query.setParameter("opprettetTidspunktMin", opprettetEtter); //$NON-NLS-1$
+                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class);
+        query.setParameter(BEHANDLING_ID, behandlingId);
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand);
+        query.setParameter("opprettetTidspunktMin", opprettetEtter);
         query.setMaxResults(1);
         return query.getResultStream().findFirst();
     }
@@ -154,28 +154,28 @@ public class BeregningsgrunnlagRepository {
                 "and gr.opprettetTidspunkt < :opprettetTom " +
                 "and gr.beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
                 "and (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " +
-                "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
+                "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class);
 
         var beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
         var opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
         var opprettetTom = LocalDateTime.of(LocalDate.of(2020, 3, 10), LocalTime.NOON);
-        query.setParameter("opprettetFom", opprettetFom); //$NON-NLS-1$
-        query.setParameter("opprettetTom", opprettetTom); //$NON-NLS-1$
-        query.setParameter("aktivt", true); //$NON-NLS-1$
-        query.setParameter("status1", AktivitetStatus.ARBEIDSAVKLARINGSPENGER); //$NON-NLS-1$
-        query.setParameter("status2", AktivitetStatus.DAGPENGER); //$NON-NLS-1$
-        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
+        query.setParameter("opprettetFom", opprettetFom);
+        query.setParameter("opprettetTom", opprettetTom);
+        query.setParameter("aktivt", true);
+        query.setParameter("status1", AktivitetStatus.ARBEIDSAVKLARINGSPENGER);
+        query.setParameter("status2", AktivitetStatus.DAGPENGER);
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand);
         return query.getResultList();
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
-                " and periode.fomDato<=:dato" + //$NON-NLS-1$
-                " and periode.tomDato>=:dato", BeregningSats.class); //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
+                " and periode.fomDato<=:dato" +
+                " and periode.tomDato>=:dato", BeregningSats.class);
 
-        query.setParameter("satsType", satsType); //$NON-NLS-1$
-        query.setParameter("dato", dato); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true");//$NON-NLS-1$
+        query.setParameter("satsType", satsType);
+        query.setParameter("dato", dato);
+        query.setHint(QueryHints.HINT_READONLY, "true");
         query.getResultList();
         return hentEksaktResultat(query);
     }

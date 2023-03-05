@@ -18,11 +18,11 @@ public class FastsettBeregningsgrunnlagPeriodeDto {
 
 
 
-    FastsettBeregningsgrunnlagPeriodeDto() { // NOSONAR
+    FastsettBeregningsgrunnlagPeriodeDto() {
         // Jackson
     }
 
-    public FastsettBeregningsgrunnlagPeriodeDto(List<FastsettBeregningsgrunnlagAndelDto> andeler, LocalDate fom, LocalDate tom) { // NOSONAR
+    public FastsettBeregningsgrunnlagPeriodeDto(List<FastsettBeregningsgrunnlagAndelDto> andeler, LocalDate fom, LocalDate tom) {
         this.andeler = andeler;
         this.fom = fom;
         this.tom = tom;

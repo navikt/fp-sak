@@ -27,15 +27,15 @@ public class OverlappVedtakRepository {
         var query = entityManager
             .createQuery("from OverlappVedtak where saksnummer=:saksnummer",
                 OverlappVedtak.class);
-        query.setParameter("saksnummer", saksnummer); // NOSONAR
+        query.setParameter("saksnummer", saksnummer);
         return query.getResultList();
     }
 
     public void slettAvstemtEnkeltsak(Saksnummer saksnummer) {
         var query = entityManager.createNativeQuery(
             "DELETE FROM OVERLAPP_VEDTAK WHERE saksnummer=:saksnummer and hendelse=:hendelse");
-        query.setParameter("saksnummer", saksnummer); // NOSONAR
-        query.setParameter("hendelse", OverlappVedtak.HENDELSE_AVSTEM_SAK + "-" + saksnummer.getVerdi()); // NOSONAR
+        query.setParameter("saksnummer", saksnummer);
+        query.setParameter("hendelse", OverlappVedtak.HENDELSE_AVSTEM_SAK + "-" + saksnummer.getVerdi());
         query.executeUpdate();
     }
 
@@ -43,7 +43,7 @@ public class OverlappVedtakRepository {
         entityManager.createNativeQuery(
             "DELETE FROM OVERLAPP_VEDTAK WHERE opprettet_tid < :foer")
             .setParameter("foer", før.atStartOfDay())
-            .executeUpdate(); // NOSONAR
+            .executeUpdate();
     }
 
     public void slettAvstemtPeriode(LocalDate før, String hendelse) {
@@ -51,7 +51,7 @@ public class OverlappVedtakRepository {
             "DELETE FROM OVERLAPP_VEDTAK WHERE opprettet_tid < :foer and hendelse=:hendelse")
             .setParameter("foer", før.atStartOfDay())
             .setParameter("hendelse", hendelse)
-            .executeUpdate(); ; // NOSONAR
+            .executeUpdate(); ;
     }
 
     public void lagre(OverlappVedtak.Builder overlappBuilder) {

@@ -109,7 +109,7 @@ public class BehandlingRestTjeneste {
     }
 
     @Inject
-    public BehandlingRestTjeneste(BehandlingsutredningTjeneste behandlingsutredningTjeneste, // NOSONAR
+    public BehandlingRestTjeneste(BehandlingsutredningTjeneste behandlingsutredningTjeneste,
                                   BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                                   BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                   BehandlingsprosessTjeneste behandlingsprosessTjeneste,

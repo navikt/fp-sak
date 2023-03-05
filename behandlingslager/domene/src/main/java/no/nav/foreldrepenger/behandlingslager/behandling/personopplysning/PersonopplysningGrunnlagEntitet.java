@@ -62,15 +62,9 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
     }
 
     PersonopplysningGrunnlagEntitet(PersonopplysningGrunnlagEntitet behandlingsgrunnlag) {
-        if(behandlingsgrunnlag.getOppgittAnnenPart().isPresent()) {
-            this.søknadAnnenPart = behandlingsgrunnlag.getOppgittAnnenPart().get();
-        }
-        if (behandlingsgrunnlag.getOverstyrtVersjon().isPresent()) {
-            this.overstyrtePersonopplysninger = behandlingsgrunnlag.getOverstyrtVersjon().get();
-        }
-        if (behandlingsgrunnlag.getRegisterVersjon().isPresent()) {
-            this.registrertePersonopplysninger = behandlingsgrunnlag.getRegisterVersjon().get();
-        }
+        behandlingsgrunnlag.getOppgittAnnenPart().ifPresent(oap -> this.søknadAnnenPart = oap);
+        behandlingsgrunnlag.getOverstyrtVersjon().ifPresent(ov -> this.overstyrtePersonopplysninger = ov);
+        behandlingsgrunnlag.getRegisterVersjon().ifPresent(rv -> this.registrertePersonopplysninger = rv);
     }
 
     /**

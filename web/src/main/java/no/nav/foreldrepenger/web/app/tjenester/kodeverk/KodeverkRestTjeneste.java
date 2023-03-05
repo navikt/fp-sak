@@ -35,7 +35,7 @@ public class KodeverkRestTjeneste {
 
     public static final String KODERVERK_PATH = "/kodeverk";
 
-    private HentKodeverkTjeneste hentKodeverkTjeneste; // NOSONAR
+    private HentKodeverkTjeneste hentKodeverkTjeneste;
 
     private final JacksonJsonConfig jsonMapper = new JacksonJsonConfig(true); // generere fulle kodeverdi-objekt
 

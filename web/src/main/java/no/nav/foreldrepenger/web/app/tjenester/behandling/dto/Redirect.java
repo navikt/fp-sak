@@ -81,8 +81,8 @@ public final class Redirect {
 
             if (mismatchedScheme(xForwardedProto, request)) {
                 var path = location.toString();
-                if (path.startsWith("/")) { // NOSONAR
-                    path = path.substring(1); // NOSONAR
+                if (path.startsWith("/")) {
+                    path = path.substring(1);
                 }
                 var baseUri = new URI(request.getRequestURI());
                 try {

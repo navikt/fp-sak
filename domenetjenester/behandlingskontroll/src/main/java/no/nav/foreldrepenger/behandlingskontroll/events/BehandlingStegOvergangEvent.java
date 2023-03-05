@@ -74,10 +74,10 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + kontekst + //$NON-NLS-1$
-                ", fraTilstand=" + fraTilstand + //$NON-NLS-1$
-                ", tilTilstand=" + tilTilstand + //$NON-NLS-1$
-                ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" + kontekst +
+                ", fraTilstand=" + fraTilstand +
+                ", tilTilstand=" + tilTilstand +
+                ">";
     }
 
     public BehandlingStegType getTilStegType() {

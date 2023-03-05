@@ -16,11 +16,11 @@ public class VurderRefusjonBeregningsgrunnlagDto extends BekreftetAksjonspunktDt
     @Size(max = 100)
     private List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler;
 
-    VurderRefusjonBeregningsgrunnlagDto() { // NOSONAR
+    VurderRefusjonBeregningsgrunnlagDto() {
         // Jackson
     }
 
-    public VurderRefusjonBeregningsgrunnlagDto(List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler, String begrunnelse) { // NOSONAR
+    public VurderRefusjonBeregningsgrunnlagDto(List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler, String begrunnelse) {
         super(begrunnelse);
         this.fastsatteAndeler = fastsatteAndeler;
     }

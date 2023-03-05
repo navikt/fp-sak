@@ -35,7 +35,7 @@ public class BeregningAktivitetOverstyringerEntitet extends BaseEntitet {
     }
 
     public BeregningAktivitetOverstyringerEntitet() {
-        // NOSONAR
+
     }
 
     public Long getId() {

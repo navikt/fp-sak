@@ -75,19 +75,19 @@ public class TotrinnRepository {
 
     private Optional<Totrinnresultatgrunnlag> getAktivtTotrinnresultatgrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
-            "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = 'J'", //$NON-NLS-1$
+            "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = 'J'",
             Totrinnresultatgrunnlag.class);
 
-        query.setParameter("behandling_id", behandlingId); //$NON-NLS-1$
+        query.setParameter("behandling_id", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     private Collection<Totrinnsvurdering> getAktiveTotrinnaksjonspunktvurderinger(Long behandlingId) {
         var query = entityManager.createQuery(
-            "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = 'J'", //$NON-NLS-1$
+            "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = 'J'",
             Totrinnsvurdering.class);
 
-        query.setParameter("behandling_id", behandlingId); //$NON-NLS-1$
+        query.setParameter("behandling_id", behandlingId);
         return query.getResultList();
     }
 }

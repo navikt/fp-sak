@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold;
 
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
 public class ArbeidsforholdValgRepository {
@@ -60,7 +61,7 @@ public class ArbeidsforholdValgRepository {
     }
 
     private List<ArbeidsforholdValg> hentAlleValgForArbeidsgiver(Long behandlingId, String arbeidsgiverIdent) {
-        final var query = entityManager.createQuery("FROM ArbeidsforholdValg arb " + // NOSONAR //$NON-NLS-1$
+        final var query = entityManager.createQuery("FROM ArbeidsforholdValg arb " +
             "WHERE arb.behandlingId = :behandlingId " +
             "AND arb.aktiv = :aktiv " +
             "AND arb.arbeidsgiverIdent = :arbeidsgiverIdent", ArbeidsforholdValg.class);

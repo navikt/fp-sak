@@ -54,7 +54,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
                                                 OpptjeningGrunnlagBygger opptjeningGrunnlagBygger,
                                                 AdopsjonGrunnlagBygger adopsjonGrunnlagBygger,
                                                 KontoerGrunnlagBygger kontoerGrunnlagBygger,
-                                                YtelserGrunnlagBygger ytelserGrunnlagBygger) { // NOSONAR
+                                                YtelserGrunnlagBygger ytelserGrunnlagBygger) {
         this.annenPartGrunnlagBygger = annenPartGrunnlagBygger;
         this.arbeidGrunnlagBygger = arbeidGrunnlagBygger;
         this.behandlingGrunnlagBygger = behandlingGrunnlagBygger;

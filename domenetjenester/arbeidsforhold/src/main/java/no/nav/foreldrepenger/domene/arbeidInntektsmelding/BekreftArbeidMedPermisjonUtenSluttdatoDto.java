@@ -19,7 +19,7 @@ public class BekreftArbeidMedPermisjonUtenSluttdatoDto extends BekreftetAksjonsp
     @Size(min = 1, max = 10)
     private List<AvklarPermisjonUtenSluttdatoDto> arbeidsforhold;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private BekreftArbeidMedPermisjonUtenSluttdatoDto() {
         super();
         // For Jackson

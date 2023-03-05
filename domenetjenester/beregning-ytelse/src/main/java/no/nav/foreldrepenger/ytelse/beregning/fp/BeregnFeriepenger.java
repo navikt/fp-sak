@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunn
 public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
 
     BeregnFeriepenger() {
-        //NOSONAR
+        //CDI
     }
 
     /**

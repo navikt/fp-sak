@@ -56,13 +56,13 @@ public class Beregningsgrunnlag {
 
     public void leggTilBeregningsgrunnlagAktivitetStatus(BeregningsgrunnlagAktivitetStatus bgAktivitetStatus) {
         Objects.requireNonNull(bgAktivitetStatus, "beregningsgrunnlagAktivitetStatus");
-        aktivitetStatuser.remove(bgAktivitetStatus); // NOSONAR
+        aktivitetStatuser.remove(bgAktivitetStatus);
         aktivitetStatuser.add(bgAktivitetStatus);
     }
 
     public void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode bgPeriode) {
         Objects.requireNonNull(bgPeriode, "beregningsgrunnlagPeriode");
-        if (!beregningsgrunnlagPerioder.contains(bgPeriode)) { // NOSONAR
+        if (!beregningsgrunnlagPerioder.contains(bgPeriode)) {
             beregningsgrunnlagPerioder.add(bgPeriode);
         }
     }
@@ -216,7 +216,7 @@ public class Beregningsgrunnlag {
             return this;
         }
 
-        public Builder leggTilSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusBuilder) { // NOSONAR
+        public Builder leggTilSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusBuilder) {
             kladd.sammenligningsgrunnlagPrStatusListe.add(sammenligningsgrunnlagPrStatusBuilder.medBeregningsgrunnlag(kladd).build());
             return this;
         }

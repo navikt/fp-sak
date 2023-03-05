@@ -101,7 +101,7 @@ public class Personhistorikkinfo {
         }
 
         public Personhistorikkinfo build() {
-            requireNonNull(kladd.aktørId, "Personhistorikkinfo må ha aktørId"); //$NON-NLS-1$
+            requireNonNull(kladd.aktørId, "Personhistorikkinfo må ha aktørId");
             // TODO PK-49366 andre non-null?
             return kladd;
         }

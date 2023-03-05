@@ -162,7 +162,7 @@ public class FamiliehendelseDataDtoTjeneste {
 
     private static boolean harValgtSammeSomBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {
         final var bekreftet = grunnlag.getBekreftetVersjon();
-        final var overstyrt = grunnlag.getOverstyrtVersjon().get(); // NOSONAR
+        final var overstyrt = grunnlag.getOverstyrtVersjon().get();
 
         var antallBarnLike = false;
         var fødselsdatoLike = false;

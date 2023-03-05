@@ -30,7 +30,7 @@ public class OppdragRestTjeneste {
 
     static final String BASE_PATH = "/behandling/oppdrag";
     private static final String OPPDRAGINFO_PART_PATH = "/oppdraginfo";
-    public static final String OPPDRAGINFO_PATH = BASE_PATH + OPPDRAGINFO_PART_PATH; // NOSONAR TFP-2234
+    public static final String OPPDRAGINFO_PATH = BASE_PATH + OPPDRAGINFO_PART_PATH;
 
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;

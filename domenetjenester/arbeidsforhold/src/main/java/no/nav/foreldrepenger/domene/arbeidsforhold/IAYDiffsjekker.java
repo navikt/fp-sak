@@ -58,13 +58,13 @@ public class IAYDiffsjekker {
     }
 
     public static Optional<Boolean> eksistenssjekkResultat(Optional<?> eksisterende, Optional<?> nytt) {
-        if (!eksisterende.isPresent() && !nytt.isPresent()) {
+        if (eksisterende.isEmpty() && nytt.isEmpty()) {
             return Optional.of(Boolean.FALSE);
         }
-        if (eksisterende.isPresent() && !nytt.isPresent()) {
+        if (eksisterende.isPresent() && nytt.isEmpty()) {
             return Optional.of(Boolean.TRUE);
         }
-        if (!eksisterende.isPresent() && nytt.isPresent()) { // NOSONAR - "redundant" her er false pos.
+        if (eksisterende.isEmpty() && nytt.isPresent()) { // NOSONAR  - "redundant" her er false pos.
             return Optional.of(Boolean.TRUE);
         }
         return Optional.empty();

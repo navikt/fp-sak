@@ -92,7 +92,7 @@ public class Virksomhet {
          * @param virksomhet virksomheten som skal oppdaters
          */
         public Builder(Virksomhet virksomhet) {
-            this.mal = virksomhet; // NOSONAR
+            this.mal = virksomhet;
         }
 
         public Builder medOrgnr(String orgnr) {

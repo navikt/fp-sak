@@ -13,7 +13,7 @@ public class VergeDto {
     private VergeType vergeType;
     private String organisasjonsnummer;
 
-    public VergeDto() { //NOSONAR
+    public VergeDto() {
     }
 
     public void setNavn(String navn) {

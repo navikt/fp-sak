@@ -35,7 +35,7 @@ public class EnhetsTjeneste {
     private static final String TEMAGRUPPE = Temagrupper.FAMILIEYTELSER.getOffisiellKode(); // Kodeverk Temagrupper - dekker FOR + OMS
     private static final String TEMA = Tema.FOR.getOffisiellKode(); // Kodeverk Tema
     private static final String OPPGAVETYPE = "BEH_SAK"; // Kodeverk Oppgavetype - NFP , uten spesialenheter
-    private static final String ENHET_TYPE_NFP = "FPY"; // NOSONAR Kodeverk EnhetstyperNORG - NFP , uten spesialenheter (alt dropp behtype og filter på denne)
+    private static final String ENHET_TYPE_NFP = "FPY";  // Kodeverk EnhetstyperNORG - NFP , uten spesialenheter (alt dropp behtype og filter på denne)
     private static final String BEHANDLINGTYPE = BehandlingType.FØRSTEGANGSSØKNAD.getOffisiellKode(); // Kodeverk Behandlingstype, bruker søknad
     private static final String NK_ENHET_ID = "4292"; // Klageinstans
     private static final String EA_ENHET_ID = "4883"; // Egne ansatte mfl

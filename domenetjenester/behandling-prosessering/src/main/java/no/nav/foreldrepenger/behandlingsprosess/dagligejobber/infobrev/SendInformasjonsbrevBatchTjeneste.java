@@ -38,7 +38,7 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        var batchArguments = (SendInformasjonsbrevBatchArguments) arguments; // NOSONAR
+        var batchArguments = (SendInformasjonsbrevBatchArguments) arguments;
         var saker = informasjonssakRepository.finnSakerMedInnvilgetMaksdatoInnenIntervall(batchArguments.getFom(),
                 batchArguments.getTom());
         var baseline = LocalTime.now();

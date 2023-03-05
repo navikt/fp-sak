@@ -17,13 +17,13 @@ public class OverstyringSøknadsfristvilkåretDto extends OverstyringAksjonspunk
     @JsonProperty("erVilkarOk")
     private boolean erVilkarOk;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyringSøknadsfristvilkåretDto() {
         super();
         // For Jackson
     }
 
-    public OverstyringSøknadsfristvilkåretDto(boolean erVilkarOk, String begrunnelse) { // NOSONAR
+    public OverstyringSøknadsfristvilkåretDto(boolean erVilkarOk, String begrunnelse) {
         super(begrunnelse);
         this.erVilkarOk = erVilkarOk;
     }

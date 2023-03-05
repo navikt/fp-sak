@@ -42,7 +42,7 @@ public class AvklaringFaktaMedlemskap {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
-    public Optional<MedlemResultat> utled(BehandlingReferanse ref, Behandling behandling, LocalDate vurderingsdato) { // NOSONAR
+    public Optional<MedlemResultat> utled(BehandlingReferanse ref, Behandling behandling, LocalDate vurderingsdato) {
         var behandlingId = behandling.getId();
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
 
@@ -85,7 +85,7 @@ public class AvklaringFaktaMedlemskap {
                 case NORDISK -> Optional.empty();
             };
         }
-        throw new IllegalStateException("Udefinert utledning av aksjonspunkt for medlemskapsfakta"); //$NON-NLS-1$
+        throw new IllegalStateException("Udefinert utledning av aksjonspunkt for medlemskapsfakta");
     }
 
     Statsborgerskapsregioner statsborgerskap(PersonopplysningerAggregat søker, LocalDate vurderingsdato) {

@@ -38,7 +38,7 @@ public class BehandlingskontrollServiceProvider {
     @Inject
     public BehandlingskontrollServiceProvider(EntityManager entityManager, BehandlingModellRepository behandlingModellRepository,
             BehandlingskontrollEventPubliserer eventPubliserer) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
 
         this.behandlingModellRepository = behandlingModellRepository;

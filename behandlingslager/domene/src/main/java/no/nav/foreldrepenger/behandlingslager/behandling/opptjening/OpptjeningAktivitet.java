@@ -65,10 +65,10 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
 
     public OpptjeningAktivitet(LocalDate fom, LocalDate tom, OpptjeningAktivitetType aktivitetType,
                                OpptjeningAktivitetKlassifisering klassifisering, String aktivitetReferanse, ReferanseType aktivitetReferanseType) {
-        Objects.requireNonNull(fom, "fom"); //$NON-NLS-1$
-        Objects.requireNonNull(tom, "tom"); //$NON-NLS-1$
-        Objects.requireNonNull(aktivitetType, "aktivitetType"); //$NON-NLS-1$
-        Objects.requireNonNull(klassifisering, "klassifisering"); //$NON-NLS-1$
+        Objects.requireNonNull(fom, "fom");
+        Objects.requireNonNull(tom, "tom");
+        Objects.requireNonNull(aktivitetType, "aktivitetType");
+        Objects.requireNonNull(klassifisering, "klassifisering");
         this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
 
         this.aktivitetType = aktivitetType;
@@ -148,11 +148,11 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return getClass().getSimpleName()
-            + "<aktivitetType=" + aktivitetType //$NON-NLS-1$
-            + (aktivitetReferanse == null ? "" : ", aktivitetReferanse[" + aktivitetReferanseType + "]=" + aktivitetReferanse) //$NON-NLS-1$ //$NON-NLS-2$
+            + "<aktivitetType=" + aktivitetType
+            + (aktivitetReferanse == null ? "" : ", aktivitetReferanse[" + aktivitetReferanseType + "]=" + aktivitetReferanse)
             + ", klassifisering=" + klassifisering
-            + " [" + periode.getFomDato() + ", " + periode.getTomDato() + "]" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + ">"; //$NON-NLS-1$
+            + " [" + periode.getFomDato() + ", " + periode.getTomDato() + "]"
+            + ">";
     }
 
 }

@@ -11,7 +11,7 @@ public class VurderNyoppstartetFLDto {
         // For Jackson
     }
 
-    public VurderNyoppstartetFLDto(Boolean erNyoppstartetFL) { // NOSONAR
+    public VurderNyoppstartetFLDto(Boolean erNyoppstartetFL) {
         this.erNyoppstartetFL = erNyoppstartetFL;
     }
 

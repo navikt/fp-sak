@@ -22,7 +22,7 @@ public class HistorikkRequestPath {
         stringBuilder.append(request.getScheme())
             .append("://")
             .append(request.getLocalName())
-            .append(":") // NOSONAR
+            .append(":")
             .append(request.getLocalPort());
 
         stringBuilder.append(request.getContextPath())

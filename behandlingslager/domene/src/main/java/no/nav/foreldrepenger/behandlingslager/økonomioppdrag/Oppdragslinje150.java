@@ -212,23 +212,23 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeEndringLinje=" + kodeEndringLinje + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeStatusLinje=" + kodeStatusLinje + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "datoStatusFom=" + datoStatusFom + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "vedtakId=" + vedtakId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "delytelseId=" + delytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeKlassifik=" + kodeKlassifik + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "vedtakPeriode=" + vedtakPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "sats=" + sats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "typeSats=" + typeSats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "utbetalesTilId=" + utbetalesTilId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "refFagsystemId=" + refFagsystemId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "refDelytelseId=" + refDelytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "grad=" + utbetalingsgrad + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "kodeEndringLinje=" + kodeEndringLinje + ", "
+            + "kodeStatusLinje=" + kodeStatusLinje + ", "
+            + "datoStatusFom=" + datoStatusFom + ", "
+            + "vedtakId=" + vedtakId + ", "
+            + "delytelseId=" + delytelseId + ", "
+            + "kodeKlassifik=" + kodeKlassifik + ", "
+            + "vedtakPeriode=" + vedtakPeriode + ", "
+            + "sats=" + sats + ", "
+            + "typeSats=" + typeSats + ", "
+            + "utbetalesTilId=" + utbetalesTilId + ", "
+            + "refFagsystemId=" + refFagsystemId + ", "
+            + "refDelytelseId=" + refDelytelseId + ", "
+            + "grad=" + utbetalingsgrad + ", "
+            + "opprettetTs=" + getOpprettetTidspunkt()
+            + ">";
     }
 
     public static class Builder {

@@ -52,7 +52,7 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
     private AksjonspunktResultat opprettForMedlemResultat(BehandlingReferanse ref, MedlemResultat mr) {
         var aksjonspunktDefinisjon = mapMedlemResulatTilAkDef.get(mr);
         if (aksjonspunktDefinisjon == null) {
-            throw new IllegalStateException("Utvikler-feil: Mangler mapping til aksjonspunktDefinisjon for  " + mr.name()); //$NON-NLS-1$
+            throw new IllegalStateException("Utvikler-feil: Mangler mapping til aksjonspunktDefinisjon for  " + mr.name());
         }
         if (AksjonspunktDefinisjon.VENT_PÅ_FØDSEL.equals(aksjonspunktDefinisjon)) {
             return AksjonspunktResultat.opprettForAksjonspunktMedFrist(aksjonspunktDefinisjon, Venteårsak.AVV_FODSEL,

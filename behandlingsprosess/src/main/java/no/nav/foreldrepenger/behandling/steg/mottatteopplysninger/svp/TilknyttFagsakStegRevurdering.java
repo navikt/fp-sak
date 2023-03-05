@@ -21,6 +21,7 @@ public class TilknyttFagsakStegRevurdering implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegRevurdering() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Override

@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 public abstract class BekreftedePerioderMalDto extends BekreftetAksjonspunktDto {
     private List<BekreftedePerioderDto> bekreftedePerioder;
 
-    public BekreftedePerioderMalDto() { // NOSONAR
+    public BekreftedePerioderMalDto() {
         // For Jackson
     }
 

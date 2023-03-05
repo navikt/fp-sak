@@ -49,7 +49,6 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
 
     @Inject
     StartpunktUtlederInntektArbeidYtelse(InntektArbeidYtelseTjeneste iayTjeneste,
-                                         // NOSONAR - ingen enkel måte å unngå mange parametere her
                                          BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                          BehandlingRepositoryProvider repositoryProvider,
                                          StartpunktUtlederInntektsmelding startpunktUtlederInntektsmelding,

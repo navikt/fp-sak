@@ -34,7 +34,7 @@ public class FastsatteVerdierDto {
 
     private Boolean skalHaBesteberegning;
 
-    FastsatteVerdierDto() { // NOSONAR
+    FastsatteVerdierDto() {
         // Jackson
     }
 

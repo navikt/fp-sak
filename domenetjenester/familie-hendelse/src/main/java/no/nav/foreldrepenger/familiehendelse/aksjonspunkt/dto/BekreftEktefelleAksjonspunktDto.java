@@ -14,11 +14,11 @@ public class BekreftEktefelleAksjonspunktDto extends BekreftetAksjonspunktDto {
     @NotNull
     private Boolean ektefellesBarn;
 
-    BekreftEktefelleAksjonspunktDto() { // NOSONAR
+    BekreftEktefelleAksjonspunktDto() {
         //For Jackson
     }
 
-    public BekreftEktefelleAksjonspunktDto(String begrunnelse, Boolean ektefellesBarn) { // NOSONAR
+    public BekreftEktefelleAksjonspunktDto(String begrunnelse, Boolean ektefellesBarn) {
         super(begrunnelse);
         this.ektefellesBarn = ektefellesBarn;
     }

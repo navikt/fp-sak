@@ -41,6 +41,6 @@ public class VurderOppgaveArenaTask extends GenerellProsessTask {
         var aktørId = new AktørId(prosessTaskData.getAktørId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
         vurdereOmArenaYtelseSkalOpphøre.opprettOppgaveHvisArenaytelseSkalOpphøre(behandlingId, aktørId, skjæringstidspunkt);
-        LOG.info("VurderOppgaveArenaTask: Vurderer for behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("VurderOppgaveArenaTask: Vurderer for behandling: {}", behandlingId);
     }
 }

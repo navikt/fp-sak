@@ -65,10 +65,10 @@ public class BehandlingStegStatusEvent implements BehandlingEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + kontekst + //$NON-NLS-1$
-                ", steg=" + stegType + //$NON-NLS-1$
-                ", forrigeStatus=" + forrigeStatus + //$NON-NLS-1$
-                ", nyStatus=" + nyStatus + //$NON-NLS-1$
-                ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" + kontekst +
+                ", steg=" + stegType +
+                ", forrigeStatus=" + forrigeStatus +
+                ", nyStatus=" + nyStatus +
+                ">";
     }
 }

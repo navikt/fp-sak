@@ -23,7 +23,7 @@ public class AnkeRepository {
 
     @Inject
     public AnkeRepository( EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
@@ -32,18 +32,18 @@ public class AnkeRepository {
     }
 
     public Optional<AnkeResultatEntitet> hentAnkeResultat(Long ankeBehandlingId) {
-        Objects.requireNonNull(ankeBehandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(ankeBehandlingId, "behandlingId");
 
         final var query = entityManager.createQuery(
-            " FROM AnkeResultat WHERE ankeBehandlingId = :behandlingId", AnkeResultatEntitet.class);// NOSONAR //$NON-NLS-1$
+            " FROM AnkeResultat WHERE ankeBehandlingId = :behandlingId", AnkeResultatEntitet.class);
         query.setParameter("behandlingId", ankeBehandlingId);
         return hentUniktResultat(query);
     }
 
     private Optional<AnkeVurderingResultatEntitet> hentVurderingsResultaterForAnkeBehandling(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         final var query = entityManager.createQuery(
-            " FROM AnkeVurderingResultat WHERE ankeResultat.ankeBehandlingId = :behandlingId", AnkeVurderingResultatEntitet.class);// NOSONAR //$NON-NLS-1$
+            " FROM AnkeVurderingResultat WHERE ankeResultat.ankeBehandlingId = :behandlingId", AnkeVurderingResultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }

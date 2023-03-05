@@ -18,7 +18,7 @@ public class UføretrygdRepository {
 
     @Inject
     public UføretrygdRepository(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 

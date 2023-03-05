@@ -34,7 +34,7 @@ public class GrensesnittavstemmingBatchArguments extends BatchArguments {
     GrensesnittavstemmingBatchArguments(Map<String, String> arguments) {
         super(arguments);
 
-        if (antallDager != null && tom == null && fom == null) { // NOSONAR
+        if (antallDager != null && tom == null && fom == null) {
             beregneFomOgTomDato();
             harGenerertDatoer = true;
 

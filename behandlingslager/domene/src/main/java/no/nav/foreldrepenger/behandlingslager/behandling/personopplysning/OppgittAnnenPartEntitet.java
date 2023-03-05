@@ -65,7 +65,7 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     }
 
     public OppgittAnnenPartEntitet(OppgittAnnenPartEntitet oppgittAnnenPartMal) {
-        deepCopyFra(oppgittAnnenPartMal); // NOSONAR - kommer ikke utenom "call to non-final method" her
+        deepCopyFra(oppgittAnnenPartMal);  // NOSONAR - kommer ikke utenom "call to non-final method" her
     }
 
     void deepCopyFra(OppgittAnnenPartEntitet mal) {

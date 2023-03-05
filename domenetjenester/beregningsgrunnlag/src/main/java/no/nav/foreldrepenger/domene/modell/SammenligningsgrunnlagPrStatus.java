@@ -63,13 +63,13 @@ public class SammenligningsgrunnlagPrStatus {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" //$NON-NLS-1$
-                + "sammenligningsgrunnlagType=" + sammenligningsgrunnlagType + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "rapportertPrÅr=" + rapportertPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "avvikPromille=" + avvikPromille + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<"
+                + "sammenligningsgrunnlagType=" + sammenligningsgrunnlagType + ", "
+                + "sammenligningsperiodeFom=" + sammenligningsperiode.getFomDato() + ", "
+                + "sammenligningsperiodeTom=" + sammenligningsperiode.getTomDato() + ", "
+                + "rapportertPrÅr=" + rapportertPrÅr + ", "
+                + "avvikPromille=" + avvikPromille + ", "
+                + ">";
     }
 
     public static Builder builder() {

@@ -51,7 +51,7 @@ public class BehandlingOpprettingTjeneste {
     }
 
     public BehandlingOpprettingTjeneste() {
-        // NOSONAR
+        // CDI
     }
 
     public Behandling opprettBehandling(Fagsak fagsak, BehandlingType behandlingType) {

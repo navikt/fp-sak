@@ -29,7 +29,7 @@ public class AksjonspunktGodkjenningDto {
     @Size(max = 10)
     private Set<@ValidKodeverk VurderÅrsak> arsaker;
 
-    public AksjonspunktGodkjenningDto() { // NOSONAR
+    public AksjonspunktGodkjenningDto() {
         // For Jackson
     }
 

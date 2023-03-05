@@ -25,7 +25,7 @@ public enum VedtakResultatType implements Kodeverdi {
 
     private static final Map<String, VedtakResultatType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "VEDTAK_RESULTAT_TYPE"; //$NON-NLS-1$
+    public static final String KODEVERK = "VEDTAK_RESULTAT_TYPE";
 
     private String navn;
 

@@ -35,7 +35,7 @@ public class LegacyESBeregningRepository {
 
     @Inject
     public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.behandlingRepository = behandlingRepository;
         this.entityManager = entityManager;
     }
@@ -58,13 +58,13 @@ public class LegacyESBeregningRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
-                " and periode.fomDato<=:dato" + //$NON-NLS-1$
-                " and periode.tomDato>=:dato", BeregningSats.class); //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" +
+                " and periode.fomDato<=:dato" +
+                " and periode.tomDato>=:dato", BeregningSats.class);
 
-        query.setParameter("satsType", satsType); //$NON-NLS-1$
-        query.setParameter("dato", dato); //$NON-NLS-1$
-        query.setHint(QueryHints.HINT_READONLY, "true");//$NON-NLS-1$
+        query.setParameter("satsType", satsType);
+        query.setParameter("dato", dato);
+        query.setHint(QueryHints.HINT_READONLY, "true");
         query.getResultList();
         return hentEksaktResultat(query);
     }

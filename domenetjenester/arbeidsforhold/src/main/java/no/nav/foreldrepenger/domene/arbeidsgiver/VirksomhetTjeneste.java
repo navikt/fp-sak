@@ -75,7 +75,7 @@ public class VirksomhetTjeneste {
     }
 
     private Virksomhet hentOrganisasjonRest(String orgNummer) {
-        Objects.requireNonNull(orgNummer, "orgNummer"); // NOSONAR
+        Objects.requireNonNull(orgNummer, "orgNummer");
         var org = eregRestKlient.hentOrganisasjon(orgNummer);
         var builder = Virksomhet.getBuilder()
                 .medNavn(org.getNavn())

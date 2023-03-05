@@ -49,7 +49,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     }
 
     @Inject
-    public AutomatiskEtterkontrollTask(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
+    public AutomatiskEtterkontrollTask(BehandlingRepositoryProvider repositoryProvider,
             EtterkontrollRepository etterkontrollRepository,
             HistorikkRepository historikkRepository,
             FamilieHendelseTjeneste familieHendelseTjeneste,

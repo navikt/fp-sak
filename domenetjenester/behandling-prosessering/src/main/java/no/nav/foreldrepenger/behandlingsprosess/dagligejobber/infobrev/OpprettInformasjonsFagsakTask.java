@@ -109,7 +109,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         kobleNyFagsakTilMors(fagsakMor, fagsak);
         var behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, brukEnhet, behandlingÅrsakType);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-        LOG.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); // NOSONAR
+        LOG.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId());
     }
 
     private Fagsak opprettNyFagsak(AktørId aktørId) {

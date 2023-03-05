@@ -42,9 +42,9 @@ public class FagsakStatusEvent implements FagsakEvent {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + fagsakId + //$NON-NLS-1$
-                ", forrigeStatus=" + forrigeStatus + //$NON-NLS-1$
-                ", nyStatus=" + nyStatus + //$NON-NLS-1$
-                ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" + fagsakId +
+                ", forrigeStatus=" + forrigeStatus +
+                ", nyStatus=" + nyStatus +
+                ">";
     }
 }

@@ -23,7 +23,7 @@ public class VurderRefusjonAndelBeregningsgrunnlagDto {
     @Valid
     private Integer delvisRefusjonPrMndFørStart;
 
-    VurderRefusjonAndelBeregningsgrunnlagDto() { // NOSONAR
+    VurderRefusjonAndelBeregningsgrunnlagDto() {
         // Jackson
     }
 

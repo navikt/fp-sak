@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -42,7 +41,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
     @Override
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        
+
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
         if (harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
@@ -59,7 +58,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
 
     private boolean harOppgittÅHaAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
         var harAleneomsorgForBarnet = ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet();
-        Objects.requireNonNull(harAleneomsorgForBarnet, "harAleneomsorgForBarnet må være sett"); //$NON-NLS-1$
+        Objects.requireNonNull(harAleneomsorgForBarnet, "harAleneomsorgForBarnet må være sett");
         return harAleneomsorgForBarnet;
     }
 }

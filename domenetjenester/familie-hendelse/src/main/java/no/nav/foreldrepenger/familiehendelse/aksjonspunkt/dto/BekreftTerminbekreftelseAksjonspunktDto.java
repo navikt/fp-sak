@@ -26,11 +26,11 @@ public class BekreftTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspun
     @Max(9)
     private int antallBarn;
 
-    BekreftTerminbekreftelseAksjonspunktDto() {  // NOSONAR
+    BekreftTerminbekreftelseAksjonspunktDto() {
         // For Jackson
     }
 
-    public BekreftTerminbekreftelseAksjonspunktDto( // NOSONAR
+    public BekreftTerminbekreftelseAksjonspunktDto(
                                                     String begrunnelse,
                                                     LocalDate termindato,
                                                     LocalDate utstedtdato,

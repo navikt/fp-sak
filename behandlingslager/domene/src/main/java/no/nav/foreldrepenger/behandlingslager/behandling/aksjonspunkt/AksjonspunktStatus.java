@@ -67,7 +67,7 @@ public enum AksjonspunktStatus implements Kodeverdi {
     }
 
     public boolean erÅpentAksjonspunkt() {
-        return ÅPNE_AKSJONSPUNKT_KODER.contains(this);  // NOSONAR
+        return ÅPNE_AKSJONSPUNKT_KODER.contains(this);
     }
 
     public static List<AksjonspunktStatus> getÅpneAksjonspunktStatuser() {

@@ -14,7 +14,7 @@ public class VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerDto exten
     @NotNull
     private Boolean erMorForSykVedFodsel;
 
-    public VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerDto() { //NOSONAR
+    public VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerDto() {
         // Jackson
     }
 

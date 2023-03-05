@@ -55,7 +55,7 @@ public class LdapBrukeroppslag {
         controls.setCountLimit(1);
         String søkestreng = String.format("(cn=%s)", ident);
         try {
-            var result = context.search(searchBase, søkestreng, controls); // NOSONAR
+            var result = context.search(searchBase, søkestreng, controls);
             if (result.hasMoreElements()) {
                 return result.nextElement();
             }
@@ -150,7 +150,7 @@ public class LdapBrukeroppslag {
     private static LdapName lagLdapSearchBase() {
         String userBaseDn = LdapInnlogging.getRequiredProperty("ldap.user.basedn");
         try {
-            return new LdapName(userBaseDn); // NOSONAR
+            return new LdapName(userBaseDn);
         } catch (InvalidNameException e) {
             throw new IntegrasjonException("F-703197", String.format("Kunne ikke definere base-søk mot LDAP %s", userBaseDn), e);
         }

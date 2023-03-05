@@ -46,7 +46,7 @@ class BatchSchedulerTaskTest {
     private static class BatchSupportTjenesteTest extends BatchSupportTjeneste {
         private List<Properties> taskDataList;
 
-        BatchSupportTjenesteTest() { // NOSONAR
+        BatchSupportTjenesteTest() {
             super();
             taskDataList = new ArrayList<>();
         }

@@ -41,7 +41,7 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     private EntityManager getEntityManager() {
-        Objects.requireNonNull(this.entityManager, "entityManager ikke satt"); //$NON-NLS-1$
+        Objects.requireNonNull(this.entityManager, "entityManager ikke satt");
         return this.entityManager;
     }
 

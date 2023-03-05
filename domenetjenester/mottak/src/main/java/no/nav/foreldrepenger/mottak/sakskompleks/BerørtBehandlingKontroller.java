@@ -74,7 +74,7 @@ public class BerørtBehandlingKontroller {
     }
 
     BerørtBehandlingKontroller() {
-        // NOSONAR
+
     }
 
     public void vurderNesteOppgaveIBehandlingskø(Long vedtattBehandlingId) {

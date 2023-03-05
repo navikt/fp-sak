@@ -28,7 +28,7 @@ public abstract class BaseCreateableEntitet implements Serializable {
 
     @DiffIgnore
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
-    private LocalDateTime opprettetTidspunkt; // NOSONAR
+    private LocalDateTime opprettetTidspunkt;
 
     @PrePersist
     protected void onCreate() {

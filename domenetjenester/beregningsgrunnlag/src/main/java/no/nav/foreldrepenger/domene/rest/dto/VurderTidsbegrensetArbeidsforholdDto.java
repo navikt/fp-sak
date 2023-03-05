@@ -18,7 +18,7 @@ public class VurderTidsbegrensetArbeidsforholdDto {
         // For Jackson
     }
 
-    public VurderTidsbegrensetArbeidsforholdDto(List<VurderteArbeidsforholdDto> fastsatteArbeidsforhold) { // NOSONAR
+    public VurderTidsbegrensetArbeidsforholdDto(List<VurderteArbeidsforholdDto> fastsatteArbeidsforhold) {
         this.fastsatteArbeidsforhold = new ArrayList<>(fastsatteArbeidsforhold);
     }
 

@@ -44,9 +44,9 @@ public class MapTilOpptjeningAktiviteter {
                 return ReferanseType.AKTØR_ID;
             }
             throw new IllegalArgumentException(
-                    "Utvikler-feil: Mangler aktivitetReferanseType for aktivitetReferanse[" //$NON-NLS-1$
+                    "Utvikler-feil: Mangler aktivitetReferanseType for aktivitetReferanse["
                             + key.getReferanseType()
-                            + "]: " //$NON-NLS-1$
+                            + "]: "
                             + aktivitetReferanse);
 
         }

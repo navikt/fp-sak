@@ -18,11 +18,11 @@ public class FordelBeregningsgrunnlagDto extends BekreftetAksjonspunktDto {
     @Size(max = 100)
     private List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder;
 
-    FordelBeregningsgrunnlagDto() { // NOSONAR
+    FordelBeregningsgrunnlagDto() {
         // Jackson
     }
 
-    public FordelBeregningsgrunnlagDto(List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder, String begrunnelse) { // NOSONAR
+    public FordelBeregningsgrunnlagDto(List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder, String begrunnelse) {
         super(begrunnelse);
         this.endretBeregningsgrunnlagPerioder = endretBeregningsgrunnlagPerioder;
     }

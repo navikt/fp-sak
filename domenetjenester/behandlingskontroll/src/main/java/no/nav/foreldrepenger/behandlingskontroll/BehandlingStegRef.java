@@ -85,7 +85,7 @@ public @interface BehandlingStegRef {
         }
 
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseType, BehandlingType behandlingType,
-                BehandlingStegType behandlingStegRef) { // NOSONAR
+                BehandlingStegType behandlingStegRef) {
             Objects.requireNonNull(instances, "instances");
 
             for (var fagsakLiteral : coalesce(ytelseType, FagsakYtelseType.UDEFINERT)) {

@@ -69,7 +69,7 @@ public enum SkjermlenkeType implements Kodeverdi {
 
     private static final Map<String, SkjermlenkeType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "SKJERMLENKE_TYPE"; //$NON-NLS-1$
+    public static final String KODEVERK = "SKJERMLENKE_TYPE";
 
 
 

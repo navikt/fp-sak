@@ -49,7 +49,7 @@ public class DokumentmottakerFelles {
     private BehandlingRevurderingRepository revurderingRepository;
 
     @SuppressWarnings("unused")
-    private DokumentmottakerFelles() { // NOSONAR
+    private DokumentmottakerFelles() {
         // For CDI
     }
 

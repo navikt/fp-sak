@@ -181,10 +181,8 @@ public class InaktiveArbeidsforholdUtleder {
     }
 
     private static Boolean matcherArbeidsgiver(Arbeidsgiver arbeidsgiver, YtelseAnvistAndel andel) {
-        if (andel.getArbeidsgiver().isEmpty()) {
-            return false;
-        }
-        var ytelseAG = andel.getArbeidsgiver().get();
-        return ytelseAG.equals(arbeidsgiver) || Nødnummer.erNødnummer(ytelseAG.getIdentifikator());
+        return andel.getArbeidsgiver()
+            .filter(ytelseAG -> ytelseAG.equals(arbeidsgiver) || Nødnummer.erNødnummer(ytelseAG.getIdentifikator()))
+            .isPresent();
     }
 }

@@ -81,7 +81,7 @@ public class BeregningsresultatEntitet extends BaseEntitet {
 
     public void addBeregningsresultatPeriode(BeregningsresultatPeriode brPeriode){
         Objects.requireNonNull(brPeriode, "beregningsresultatPeriode");
-        if (!beregningsresultatPerioder.contains(brPeriode)) { // NOSONAR Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+        if (!beregningsresultatPerioder.contains(brPeriode)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             beregningsresultatPerioder.add(brPeriode);
         }
     }

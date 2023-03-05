@@ -37,7 +37,7 @@ public class SendInformasjonsbrevPåminnelseBatchTjeneste implements BatchTjenes
 
     @Override
     public String launch(BatchArguments arguments) {
-        var batchArguments = (SendInformasjonsbrevBatchArguments) arguments; // NOSONAR
+        var batchArguments = (SendInformasjonsbrevBatchArguments) arguments;
         LOG.info("Ser etter aktuelle saker med barn født mellom {} og {}", batchArguments.getFom(), batchArguments.getTom());
         var saker = informasjonssakRepository.finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(
             batchArguments.getFom(), batchArguments.getTom());

@@ -26,10 +26,10 @@ public class AksjonspunktDefDvh implements Serializable {
     private String aksjonspunktNavn;
 
     @Column(name = "opprettet_tid", nullable = false, updatable=false)
-    private LocalDateTime opprettetTidspunkt; // NOSONAR
+    private LocalDateTime opprettetTidspunkt;
 
     @Column(name = "endret_tid")
-    private LocalDateTime endretTidspunkt; // NOSONAR
+    private LocalDateTime endretTidspunkt;
 
     @PrePersist
     protected void onCreate() {

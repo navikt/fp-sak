@@ -60,7 +60,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref) {
-        throw new UnsupportedOperationException("Metode brukes ikke i ES"); //$NON-NLS-1$
+        throw new UnsupportedOperationException("Metode brukes ikke i ES");
     }
 
     @Override
@@ -144,7 +144,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         DokumentTypeId dokumentTypeId;
         try {
             dokumentTypeId = DokumentTypeId.finnForKodeverkEiersKode(dokumentTypeIdKode);
-        } catch (NoResultException e) { //NOSONAR
+        } catch (NoResultException e) {
             // skal tåle dette
             dokumentTypeId = DokumentTypeId.UDEFINERT;
         }

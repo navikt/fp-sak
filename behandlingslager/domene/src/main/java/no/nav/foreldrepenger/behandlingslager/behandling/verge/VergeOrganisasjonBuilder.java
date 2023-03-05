@@ -25,7 +25,7 @@ public class VergeOrganisasjonBuilder {
     }
 
     public VergeOrganisasjonEntitet build() {
-        Objects.requireNonNull(kladd.organisasjonsnummer, "organisasjonsnummer"); //$NON-NLS-1$
+        Objects.requireNonNull(kladd.organisasjonsnummer, "organisasjonsnummer");
         return kladd;
     }
 

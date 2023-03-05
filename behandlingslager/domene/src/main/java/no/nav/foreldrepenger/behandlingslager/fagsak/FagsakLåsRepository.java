@@ -53,8 +53,8 @@ public class FagsakLåsRepository {
 
     private Long låsFagsak(final Long fagsakId, LockModeType lockModeType) {
         var resultFs = (Object[]) entityManager
-            .createQuery("select fs.id, fs.versjon from Fagsak fs where fs.id=:id") //$NON-NLS-1$
-            .setParameter("id", fagsakId) //$NON-NLS-1$
+            .createQuery("select fs.id, fs.versjon from Fagsak fs where fs.id=:id")
+            .setParameter("id", fagsakId)
             .setLockMode(lockModeType)
             .getSingleResult();
         return (Long) resultFs[0];

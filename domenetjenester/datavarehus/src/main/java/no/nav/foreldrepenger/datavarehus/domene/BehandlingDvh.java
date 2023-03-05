@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "BehandlingDvh")
 @Table(name = "BEHANDLING_DVH")
-public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
+public class BehandlingDvh extends DvhBaseEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING_DVH")
@@ -236,7 +236,7 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
         return new Builder();
     }
 
-    public static class Builder {   // NOSONAR
+    public static class Builder {
         private Long behandlingId;
         private Long fagsakId;
         private Long vedtakId;

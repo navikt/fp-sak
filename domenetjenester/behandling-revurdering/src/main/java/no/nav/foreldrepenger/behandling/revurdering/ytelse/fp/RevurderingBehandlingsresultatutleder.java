@@ -27,7 +27,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
-    public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
+    public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,
                                                  BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
             BeregningTjeneste beregningTjeneste,
             OpphørUttakTjeneste opphørUttakTjeneste,

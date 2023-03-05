@@ -20,7 +20,7 @@ public enum IverksettingStatus implements Kodeverdi {
 
     ;
 
-    public static final String KODEVERK = "IVERKSETTING_STATUS"; //$NON-NLS-1$
+    public static final String KODEVERK = "IVERKSETTING_STATUS";
     private static final Map<String, IverksettingStatus> KODER = new LinkedHashMap<>();
 
     private String navn;

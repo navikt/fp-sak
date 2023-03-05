@@ -58,6 +58,7 @@ public class FormidlingRestTjeneste {
     }
 
     public FormidlingRestTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @GET

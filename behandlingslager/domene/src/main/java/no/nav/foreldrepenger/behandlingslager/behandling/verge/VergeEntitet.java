@@ -57,9 +57,7 @@ public class VergeEntitet extends BaseCreateableEntitet {
         this.vergeType = verge.getVergeType();
         this.bruker = verge.getBruker();
         this.gyldigPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(verge.getGyldigFom(), verge.getGyldigTom());
-        if (verge.getVergeOrganisasjon().isPresent()) {
-            this.vergeOrganisasjon = new VergeOrganisasjonEntitet(verge.getVergeOrganisasjon().get(), this);
-        }
+        verge.getVergeOrganisasjon().ifPresent(vo -> this.vergeOrganisasjon = new VergeOrganisasjonEntitet(vo, this));
     }
 
     @Override

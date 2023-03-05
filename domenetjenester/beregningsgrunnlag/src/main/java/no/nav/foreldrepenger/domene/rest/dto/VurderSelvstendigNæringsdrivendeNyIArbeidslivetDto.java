@@ -11,7 +11,7 @@ public class VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto {
         // For Jackson
     }
 
-    public VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto(Boolean erNyIArbeidslivet) { // NOSONAR
+    public VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto(Boolean erNyIArbeidslivet) {
         this.erNyIArbeidslivet = erNyIArbeidslivet;
     }
 

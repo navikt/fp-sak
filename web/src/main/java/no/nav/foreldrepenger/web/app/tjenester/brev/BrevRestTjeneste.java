@@ -73,7 +73,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BestillBrevAbacDataSupplier.class)
-                                    @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) { // NOSONAR
+                                    @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
         var behandlingId = bestillBrevDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid()).getId()
             : bestillBrevDto.getBehandlingId();
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), behandlingId);
@@ -103,7 +103,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void kvittering(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto kvittering) {
-        dokumentBehandlingTjeneste.kvitterBrevSent(kvittering); // NOSONAR
+        dokumentBehandlingTjeneste.kvitterBrevSent(kvittering);
     }
 
     @GET
@@ -114,7 +114,7 @@ public class BrevRestTjeneste {
     public Boolean harSendtVarselOmRevurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING); // NOSONAR
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }
 
     public static class BestillBrevAbacDataSupplier implements Function<Object, AbacDataAttributter> {

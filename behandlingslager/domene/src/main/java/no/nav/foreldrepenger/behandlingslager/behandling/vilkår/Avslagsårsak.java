@@ -73,7 +73,7 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         }
     }
 
-    public static final String KODEVERK = "AVSLAGSARSAK"; //$NON-NLS-1$
+    public static final String KODEVERK = "AVSLAGSARSAK";
 
     private static final Set<Avslagsårsak> ALLEREDE_UTBETALT_ENGANGSSTØNAD_ÅRSAKER = Set.of(ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR,
         ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR, ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR);

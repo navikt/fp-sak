@@ -25,7 +25,7 @@ public class DatabasePreconditionChecker implements PreconditionChecker {
             // Connection pool validerer connections for oss, så trenger ikke gjøre noen spørring her (ønsker
             // bare å se om db er tilgjengelig)
             return PreconditionCheckerResult.fullfilled();
-        } catch (SQLException e) { // NOSONAR
+        } catch (SQLException e) {
             return PreconditionCheckerResult.notFullfilled(e.getMessage());
         }
     }

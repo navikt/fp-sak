@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -53,7 +54,7 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
 
     @Override
     public String getIndexKey() {
-        return skalertVerdi().toString();
+        return Optional.ofNullable(skalertVerdi()).map(BigDecimal::toString).orElse("ingenVerdi");
     }
 
     public BigDecimal getVerdi() {

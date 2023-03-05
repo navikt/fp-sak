@@ -335,7 +335,7 @@ public class PersoninfoTjeneste {
                     LOG.info("UKJENT ADRESSE kommune: {}", kommune);
             }
         } catch (Exception e) {
-            // NOSONAR
+
         }
         adressePerioderPeriodisert.stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))

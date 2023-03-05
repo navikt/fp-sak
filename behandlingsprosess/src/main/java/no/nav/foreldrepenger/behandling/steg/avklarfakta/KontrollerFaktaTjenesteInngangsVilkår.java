@@ -74,7 +74,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
                 ref.fagsakYtelseType(), ref.behandlingType(), steg, apDef);
         if (!skalBeholde) {
             LOG.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",
-                    apDef.getKode(), steg.getKode()); // NOSONAR
+                    apDef.getKode(), steg.getKode());
         }
         return skalBeholde;
     }

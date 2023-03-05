@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.modell;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -301,29 +300,29 @@ public class BeregningsgrunnlagPrStatusOgAndel {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" //$NON-NLS-1$
-                + "aktivitetStatus=" + aktivitetStatus + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "beregningsperiode=" + beregningsperiode + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "arbeidsforholdType=" + arbeidsforholdType + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "maksimalRefusjonPrÅr=" + maksimalRefusjonPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "avkortetRefusjonPrÅr=" + avkortetRefusjonPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "redusertRefusjonPrÅr=" + redusertRefusjonPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "avkortetBrukersAndelPrÅr=" + avkortetBrukersAndelPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "redusertBrukersAndelPrÅr=" + redusertBrukersAndelPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "beregnetPrÅr=" + beregnetPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "fordeltPrÅr=" + fordeltPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "overstyrtPrÅr=" + overstyrtPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "bruttoPrÅr=" + bruttoPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "avkortetPrÅr=" + avkortetPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "redusertPrÅr=" + redusertPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "dagsatsBruker=" + dagsatsBruker + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "dagsatsArbeidsgiver=" + dagsatsArbeidsgiver + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "pgiSnitt=" + pgiSnitt + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "pgi1=" + pgi1 + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "pgi2=" + pgi2 + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "pgi3=" + pgi3 + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "årsbeløpFraTilstøtendeYtelse=" + årsbeløpFraTilstøtendeYtelse //$NON-NLS-1$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<"
+                + "aktivitetStatus=" + aktivitetStatus + ", "
+                + "beregningsperiode=" + beregningsperiode + ", "
+                + "arbeidsforholdType=" + arbeidsforholdType + ", "
+                + "maksimalRefusjonPrÅr=" + maksimalRefusjonPrÅr + ", "
+                + "avkortetRefusjonPrÅr=" + avkortetRefusjonPrÅr + ", "
+                + "redusertRefusjonPrÅr=" + redusertRefusjonPrÅr + ", "
+                + "avkortetBrukersAndelPrÅr=" + avkortetBrukersAndelPrÅr + ", "
+                + "redusertBrukersAndelPrÅr=" + redusertBrukersAndelPrÅr + ", "
+                + "beregnetPrÅr=" + beregnetPrÅr + ", "
+                + "fordeltPrÅr=" + fordeltPrÅr + ", "
+                + "overstyrtPrÅr=" + overstyrtPrÅr + ", "
+                + "bruttoPrÅr=" + bruttoPrÅr + ", "
+                + "avkortetPrÅr=" + avkortetPrÅr + ", "
+                + "redusertPrÅr=" + redusertPrÅr + ", "
+                + "dagsatsBruker=" + dagsatsBruker + ", "
+                + "dagsatsArbeidsgiver=" + dagsatsArbeidsgiver + ", "
+                + "pgiSnitt=" + pgiSnitt + ", "
+                + "pgi1=" + pgi1 + ", "
+                + "pgi2=" + pgi2 + ", "
+                + "pgi3=" + pgi3 + ", "
+                + "årsbeløpFraTilstøtendeYtelse=" + årsbeløpFraTilstøtendeYtelse
+                + ">";
     }
 
     public static Builder builder() {

@@ -38,7 +38,7 @@ public class AktoerRestTjeneste {
 
     static final String BASE_PATH = "/aktoer-info";
     private static final String AKTOER_INFO_PART_PATH = "";
-    public static final String AKTOER_INFO_PATH = BASE_PATH + AKTOER_INFO_PART_PATH; // NOSONAR TFP-2234
+    public static final String AKTOER_INFO_PATH = BASE_PATH + AKTOER_INFO_PART_PATH;
 
     private FagsakTjeneste fagsakTjeneste;
 

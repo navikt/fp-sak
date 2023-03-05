@@ -50,9 +50,9 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     }
 
     @Inject
-    public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider, // NOSONAR
+    public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider,
             KobleSakerTjeneste kobleSakTjeneste,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste, InntektArbeidYtelseTjeneste iayTjeneste) {// NOSONAR
+            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste, InntektArbeidYtelseTjeneste iayTjeneste) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();

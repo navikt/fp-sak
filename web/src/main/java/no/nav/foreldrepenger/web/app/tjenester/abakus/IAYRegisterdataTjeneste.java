@@ -31,6 +31,7 @@ public class IAYRegisterdataTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
 
     public IAYRegisterdataTjeneste() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     /**
@@ -72,6 +73,6 @@ public class IAYRegisterdataTjeneste {
         var props = new Properties();
         props.setProperty(InnhentIAYIAbakusTask.OPPDATERT_GRUNNLAG_KEY, oppdatertGrunnlagRef.toString());
         taskTjeneste.mottaHendelse(task, InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, props);
-        LOG.info("Behandler hendelse {} i task {}, behandling id {}", InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, task.getId(), task.getBehandlingId()); //$NON-NLS-1$
+        LOG.info("Behandler hendelse {} i task {}, behandling id {}", InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, task.getId(), task.getBehandlingId());
     }
 }

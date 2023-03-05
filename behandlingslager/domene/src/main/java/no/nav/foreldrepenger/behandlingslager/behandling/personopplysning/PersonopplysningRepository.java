@@ -79,22 +79,22 @@ public class PersonopplysningRepository {
     }
 
     public Optional<PersonopplysningGrunnlagEntitet> hentPersonopplysningerHvisEksisterer(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         return getAktivtGrunnlag(behandlingId);
     }
 
     public Optional<OppgittAnnenPartEntitet> hentOppgittAnnenPartHvisEksisterer(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
         var pbg = getAktivtGrunnlag(behandlingId);
         return pbg.flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
     }
 
     private Optional<PersonopplysningGrunnlagEntitet> getAktivtGrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
-            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id AND pbg.aktiv = true", // NOSONAR //$NON-NLS-1$
+            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id AND pbg.aktiv = true",
             PersonopplysningGrunnlagEntitet.class)
                 .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
-                .setParameter("behandling_id", behandlingId); // NOSONAR //$NON-NLS-1$
+                .setParameter("behandling_id", behandlingId);
 
         var resultat = HibernateVerktøy.hentUniktResultat(query);
 
@@ -108,33 +108,33 @@ public class PersonopplysningRepository {
                     + " inner join fagsak f on f.bruker_id=br.id"
                     + " inner join behandling be on be.fagsak_id = f.id"
                     + " where be.id = :behandling_id")
-                    .setParameter("behandling_id", r.getBehandlingId()); // NOSONAR
+                    .setParameter("behandling_id", r.getBehandlingId());
             r.setAktørId(new AktørId((String) aktørQuery.getSingleResult()));
         });
     }
 
     public void oppdaterAktørIdFor(AktørId gammel, AktørId gjeldende) {
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_ADRESSE SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONOPPLYSNING SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONSTATUS SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_OPPHOLD SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_STATSBORGERSKAP SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET FRA_AKTOER_ID = :gjeldende WHERE FRA_AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
-        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET TIL_AKTOER_ID = :gjeldende WHERE TIL_AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
-        utførUpdate(entityManager.createNativeQuery("UPDATE SO_ANNEN_PART SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_ADRESSE SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONOPPLYSNING SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONSTATUS SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_OPPHOLD SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_STATSBORGERSKAP SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET FRA_AKTOER_ID = :gjeldende WHERE FRA_AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET TIL_AKTOER_ID = :gjeldende WHERE TIL_AKTOER_ID = :gammel"), gammel, gjeldende);
+        utførUpdate(entityManager.createNativeQuery("UPDATE SO_ANNEN_PART SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);
         entityManager.flush();
     }
 
     private void utførUpdate(Query query, AktørId gammel, AktørId gjeldende) {
-        query.setParameter("gjeldende", gjeldende.getId()); //$NON-NLS-1$
-        query.setParameter("gammel", gammel.getId()); //$NON-NLS-1$
+        query.setParameter("gjeldende", gjeldende.getId());
+        query.setParameter("gammel", gammel.getId());
         query.executeUpdate();
         entityManager.flush();
     }
 
     private void lagreOgFlush(Long behandlingId, PersonopplysningGrunnlagBuilder grunnlagBuilder) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-        Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder");
 
         final var aktivtGrunnlag = getAktivtGrunnlag(behandlingId);
 
@@ -185,8 +185,8 @@ public class PersonopplysningRepository {
 
 
     public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
-        Objects.requireNonNull(behandlingId, "behandling"); // NOSONAR //$NON-NLS-1$
-        Objects.requireNonNull(builder, "søknadAnnenPartBuilder"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandling");
+        Objects.requireNonNull(builder, "søknadAnnenPartBuilder");
 
         final var nyttGrunnlag = getGrunnlagBuilderFor(behandlingId);
 
@@ -207,8 +207,8 @@ public class PersonopplysningRepository {
 
 
     public void lagre(Long behandlingId, OppgittAnnenPartEntitet oppgittAnnenPart) {
-        Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-        Objects.requireNonNull(oppgittAnnenPart, "oppgittAnnenPart"); // NOSONAR //$NON-NLS-1$
+        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(oppgittAnnenPart, "oppgittAnnenPart");
 
         final var nyttGrunnlag = getGrunnlagBuilderFor(behandlingId);
 
@@ -229,9 +229,9 @@ public class PersonopplysningRepository {
                                                                                                               Long behandlingId) {
         // må også sortere på id da opprettetTidspunkt kun er til nærmeste millisekund og ikke satt fra db.
         var query = entityManager.createQuery(
-            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id order by pbg.opprettetTidspunkt, pbg.id", //$NON-NLS-1$
+            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id order by pbg.opprettetTidspunkt, pbg.id",
             PersonopplysningGrunnlagEntitet.class)
-                .setParameter("behandling_id", behandlingId) // NOSONAR
+                .setParameter("behandling_id", behandlingId)
                 .setMaxResults(1);
 
         var resultat = query.getResultStream().findFirst();
@@ -246,7 +246,7 @@ public class PersonopplysningRepository {
                 + " join PersonopplysningGrunnlagEntitet gr on gr.behandlingId=b.id "
                 + " join SøknadAnnenPart ap on gr.søknadAnnenPart=ap "
                 + " where ap.aktørId = :aktoerId and gr.aktiv='J'", Fagsak.class)
-            .setParameter("aktoerId", annenPart); // NOSONAR
+            .setParameter("aktoerId", annenPart);
         return aktørQuery.getResultList();
     }
 
@@ -258,9 +258,9 @@ public class PersonopplysningRepository {
 
     public PersonopplysningGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
         var query = entityManager.createQuery(
-            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.id = :grunnlagId", //$NON-NLS-1$
+            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.id = :grunnlagId",
             PersonopplysningGrunnlagEntitet.class)
-                .setParameter("grunnlagId", grunnlagId); // NOSONAR //$NON-NLS-1$
+                .setParameter("grunnlagId", grunnlagId);
 
         var resultat = query.getResultStream().findFirst();
 

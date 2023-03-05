@@ -21,7 +21,7 @@ public class AvklarOpptjeningsvilkåretDto extends BekreftetAksjonspunktDto {
     @JsonProperty("erVilkarOk")
     private boolean erVilkarOk;
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private AvklarOpptjeningsvilkåretDto() {
         super();
         // For Jackson

@@ -50,12 +50,12 @@ public class FaktaBeregningLagreDto {
         this.faktaOmBeregningTilfeller = faktaOmBeregningTilfeller;
     }
 
-    public FaktaBeregningLagreDto(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FastsettBgKunYtelseDto kunYtelseFordeling) { // NOSONAR
+    public FaktaBeregningLagreDto(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FastsettBgKunYtelseDto kunYtelseFordeling) {
         this.faktaOmBeregningTilfeller = faktaOmBeregningTilfeller;
         this.kunYtelseFordeling = kunYtelseFordeling;
     }
 
-    public FaktaBeregningLagreDto(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, VurderTidsbegrensetArbeidsforholdDto vurderTidsbegrensetArbeidsforhold) { // NOSONAR
+    public FaktaBeregningLagreDto(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, VurderTidsbegrensetArbeidsforholdDto vurderTidsbegrensetArbeidsforhold) {
         this.faktaOmBeregningTilfeller = faktaOmBeregningTilfeller;
         this.vurderTidsbegrensetArbeidsforhold = vurderTidsbegrensetArbeidsforhold;
     }

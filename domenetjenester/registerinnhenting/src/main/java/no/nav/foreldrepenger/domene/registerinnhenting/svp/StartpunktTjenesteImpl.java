@@ -17,6 +17,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     @Inject
     public StartpunktTjenesteImpl() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Override

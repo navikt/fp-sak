@@ -35,7 +35,7 @@ public class EtterkontrollRepository {
     public List<Etterkontroll> finnEtterkontrollForFagsak(long fagsakId, KontrollType kontrollType) {
         return entityManager.createQuery(
                 "from Etterkontroll " +
-                        "where fagsakId = :fagsakId and kontrollType = :kontrollType", //$NON-NLS-1$
+                        "where fagsakId = :fagsakId and kontrollType = :kontrollType",
                 Etterkontroll.class)
                 .setParameter("fagsakId", fagsakId)
                 .setParameter("kontrollType", kontrollType)

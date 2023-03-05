@@ -44,13 +44,13 @@ public class FagsakRepository {
 
     @Inject
     public FagsakRepository(EntityManager entityManager) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
     }
 
     public Fagsak finnEksaktFagsak(long fagsakId) {
         var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class);
-        query.setParameter("fagsakId", fagsakId); // NOSONAR
+        query.setParameter("fagsakId", fagsakId);
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
         return fagsak;
@@ -59,7 +59,7 @@ public class FagsakRepository {
     public Fagsak finnEksaktFagsakReadOnly(long fagsakId) {
         var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class)
             .setParameter("fagsakId", fagsakId)
-            .setHint(QueryHints.HINT_READONLY, "true"); // NOSONAR
+            .setHint(QueryHints.HINT_READONLY, "true");
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
         return fagsak;
@@ -67,7 +67,7 @@ public class FagsakRepository {
 
     public Optional<Fagsak> finnUnikFagsak(long fagsakId) {
         var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class);
-        query.setParameter("fagsakId", fagsakId); // NOSONAR
+        query.setParameter("fagsakId", fagsakId);
         var opt = HibernateVerktøy.hentUniktResultat(query);
         if (opt.isPresent()) {
             entityManager.refresh(opt.get());
@@ -78,30 +78,30 @@ public class FagsakRepository {
     public List<Fagsak> hentForBruker(AktørId aktørId) {
         var query = entityManager.createQuery("from Fagsak where navBruker.aktørId=:aktørId and stengt=:ikkestengt",
                 Fagsak.class);
-        query.setParameter("aktørId", aktørId); // NOSONAR
-        query.setParameter("ikkestengt", false); // NOSONAR
+        query.setParameter("aktørId", aktørId);
+        query.setParameter("ikkestengt", false);
         return query.getResultList();
     }
 
     public List<Fagsak> hentForBrukerMulti(Set<AktørId> aktørId) {
         var query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and stengt=:ikkestengt",
                 Fagsak.class);
-        query.setParameter("aktørId", aktørId); // NOSONAR
-        query.setParameter("ikkestengt", false); // NOSONAR
+        query.setParameter("aktørId", aktørId);
+        query.setParameter("ikkestengt", false);
         return query.getResultList();
     }
 
     public Optional<Journalpost> hentJournalpost(JournalpostId journalpostId) {
         var query = entityManager.createQuery("from Journalpost where journalpostId=:journalpost",
                 Journalpost.class);
-        query.setParameter("journalpost", journalpostId); // NOSONAR
+        query.setParameter("journalpost", journalpostId);
         var journalposter = query.getResultList();
         return journalposter.isEmpty() ? Optional.empty() : Optional.ofNullable(journalposter.get(0));
     }
 
     public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer) {
         var query = entityManager.createQuery("from Fagsak where saksnummer=:saksnummer", Fagsak.class);
-        query.setParameter("saksnummer", saksnummer); // NOSONAR
+        query.setParameter("saksnummer", saksnummer);
 
         var fagsaker = query.getResultList();
         if (fagsaker.size() > 1) {
@@ -141,16 +141,16 @@ public class FagsakRepository {
 
     public void oppdaterBrukerMedAktørId(Long fagsakId, AktørId aktørId) {
         var fagsak = finnEksaktFagsak(fagsakId);
-        var query = entityManager.createNativeQuery("UPDATE BRUKER SET AKTOER_ID = :aktoer WHERE ID=:id"); //$NON-NLS-1$
-        query.setParameter("aktoer", aktørId.getId()); //$NON-NLS-1$
-        query.setParameter("id", fagsak.getNavBruker().getId()); //$NON-NLS-1$
+        var query = entityManager.createNativeQuery("UPDATE BRUKER SET AKTOER_ID = :aktoer WHERE ID=:id");
+        query.setParameter("aktoer", aktørId.getId());
+        query.setParameter("id", fagsak.getNavBruker().getId());
         query.executeUpdate();
         entityManager.flush();
     }
 
     public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer, boolean taSkriveLås) {
         var query = entityManager.createQuery("from Fagsak where saksnummer=:saksnummer", Fagsak.class);
-        query.setParameter("saksnummer", saksnummer); // NOSONAR
+        query.setParameter("saksnummer", saksnummer);
         if (taSkriveLås) {
             query.setLockMode(LockModeType.PESSIMISTIC_WRITE);
         }
@@ -184,7 +184,7 @@ public class FagsakRepository {
     public List<Fagsak> hentForStatus(FagsakStatus fagsakStatus) {
         var query = entityManager.createQuery("select fagsak from Fagsak fagsak where fagsak.fagsakStatus=:fagsakStatus",
                 Fagsak.class);
-        query.setParameter("fagsakStatus", fagsakStatus); // NOSONAR
+        query.setParameter("fagsakStatus", fagsakStatus);
 
         return query.getResultList();
     }

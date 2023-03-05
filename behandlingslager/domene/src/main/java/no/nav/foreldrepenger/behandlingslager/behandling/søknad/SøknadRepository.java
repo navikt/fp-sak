@@ -25,7 +25,7 @@ public class SøknadRepository {
 
     @Inject
     public SøknadRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
-        Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
         this.behandlingRepository = behandlingRepository;
     }
@@ -85,7 +85,7 @@ public class SøknadRepository {
     }
 
     public void lagreOgFlush(Behandling behandling, SøknadEntitet søknad) {
-        Objects.requireNonNull(behandling, "behandling"); // NOSONAR $NON-NLS-1$
+        Objects.requireNonNull(behandling, "behandling");
         final var søknadGrunnlagEntitet = hentEksisterendeGrunnlag(behandling.getId());
         if (søknadGrunnlagEntitet.isPresent()) {
             // deaktiver eksisterende grunnlag

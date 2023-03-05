@@ -160,20 +160,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
-        var startpunkt = DEFAULT_STARTPUNKT; // Gjennomgå hele prosessen - for manuelle, etterkontroller og tidl.avslag
-        if (!revurdering.erManueltOpprettet() && !erEtterkontrollRevurdering(revurdering)) {
-            // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er revurdering av avslåtte behandlinger
-            var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());
-            if ((orgBehandlingsresultat != null) && !orgBehandlingsresultat.isVilkårAvslått()) {
-                // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate re-evalueres
-                startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
-                if (startpunkt.equals(StartpunktType.UDEFINERT)) {
-                    startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref)
-                            ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP
-                            : StartpunktType.UTTAKSVILKÅR;
-                }
-            }
-        }
+        var startpunkt = initieltStartPunkt(ref, revurdering);
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
@@ -185,7 +172,25 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         if (behandlingskontrollTjeneste.erStegPassert(revurdering, startpunkt.getBehandlingSteg())) {
             startpunkt = DEFAULT_STARTPUNKT;
         }
-        LOG.info("KOFAKREV Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
+        LOG.info("KOFAKREV Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());
+        return startpunkt;
+    }
+
+    private StartpunktType initieltStartPunkt(BehandlingReferanse ref, Behandling revurdering) {
+        var startpunkt = DEFAULT_STARTPUNKT; // Gjennomgå hele prosessen - for manuelle, etterkontroller og tidl.avslag
+        if (!revurdering.erManueltOpprettet() && !erEtterkontrollRevurdering(revurdering)) {
+            // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er revurdering av avslåtte behandlinger
+            var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().orElseThrow());
+            if ((orgBehandlingsresultat != null) && !orgBehandlingsresultat.isVilkårAvslått()) {
+                // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate re-evalueres
+                startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
+                if (startpunkt.equals(StartpunktType.UDEFINERT)) {
+                    startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref)
+                            ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP
+                            : StartpunktType.UTTAKSVILKÅR;
+                }
+            }
+        }
         return startpunkt;
     }
 

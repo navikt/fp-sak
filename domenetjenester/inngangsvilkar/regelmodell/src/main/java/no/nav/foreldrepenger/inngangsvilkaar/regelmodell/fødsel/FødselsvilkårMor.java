@@ -40,7 +40,7 @@ public class FødselsvilkårMor implements RuleService<FødselsvilkårGrunnlag> 
 
 
         Specification<FødselsvilkårGrunnlag> bekreftelseIkkeUtstedtMerEnn10UkerOg3DagerFørTerminNode =
-            rs.hvisRegel("FP_VK_1", "Hvis utstedtdato for terminbekreftelse er innenfor ...") //NOSONAR
+            rs.hvisRegel("FP_VK_1", "Hvis utstedtdato for terminbekreftelse er innenfor ...")
                 .hvis(new SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker(), new Oppfylt())
                 .ellers(new IkkeOppfylt(SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker.IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO));
 

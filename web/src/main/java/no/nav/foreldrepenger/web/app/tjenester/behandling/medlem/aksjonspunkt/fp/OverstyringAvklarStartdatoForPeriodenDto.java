@@ -28,7 +28,7 @@ public class OverstyringAvklarStartdatoForPeriodenDto extends OverstyringAksjons
         this.opprinneligDato = opprinneligDato;
     }
 
-    @SuppressWarnings("unused") // NOSONAR
+    @SuppressWarnings("unused")
     private OverstyringAvklarStartdatoForPeriodenDto() {
         super();
         // For Jackson

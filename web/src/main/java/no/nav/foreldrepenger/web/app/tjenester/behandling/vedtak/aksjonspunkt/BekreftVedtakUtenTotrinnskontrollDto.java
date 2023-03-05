@@ -13,7 +13,7 @@ public class BekreftVedtakUtenTotrinnskontrollDto extends VedtaksbrevOverstyring
     }
 
     public BekreftVedtakUtenTotrinnskontrollDto(String begrunnelse, String overskrift, String fritekstBrev,
-                                                boolean skalBrukeOverstyrendeFritekstBrev) { // NOSONAR
+                                                boolean skalBrukeOverstyrendeFritekstBrev) {
         super(begrunnelse, overskrift, fritekstBrev, skalBrukeOverstyrendeFritekstBrev);
     }
 

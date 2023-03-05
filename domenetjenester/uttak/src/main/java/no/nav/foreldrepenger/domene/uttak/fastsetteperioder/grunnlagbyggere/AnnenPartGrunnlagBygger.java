@@ -35,10 +35,11 @@ public class AnnenPartGrunnlagBygger {
     }
 
     public Optional<AnnenPart.Builder> byggGrunnlag(ForeldrepengerGrunnlag fpGrunnlag) {
-        if (fpGrunnlag.getAnnenpart().isEmpty()) {
+        var apOpt = fpGrunnlag.getAnnenpart();
+        if (apOpt.isEmpty()) {
             return Optional.empty();
         }
-        var annenpart = fpGrunnlag.getAnnenpart().get();
+        var annenpart = apOpt.get();
 
         var annenpartUttak =
             fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.gjeldendeVedtakBehandlingId());
@@ -46,7 +47,7 @@ public class AnnenPartGrunnlagBygger {
             return Optional.empty();
         }
         return Optional.of(new AnnenPart.Builder()
-            .sisteSøknadMottattTidspunkt(fpGrunnlag.getAnnenpart().get().søknadOpprettetTidspunkt())
+            .sisteSøknadMottattTidspunkt(annenpart.søknadOpprettetTidspunkt())
             .uttaksperioder(uttaksperioder(annenpartUttak.get())));
     }
 

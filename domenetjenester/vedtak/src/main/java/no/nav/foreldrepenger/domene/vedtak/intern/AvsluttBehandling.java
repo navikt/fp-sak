@@ -47,7 +47,7 @@ public class AvsluttBehandling {
     }
 
     void avsluttBehandling(Long behandlingId) {
-        LOG.info("Avslutter behandling inngang {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling inngang {}", behandlingId);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
@@ -55,23 +55,23 @@ public class AvsluttBehandling {
         vedtak.setIverksettingStatus(IverksettingStatus.IVERKSATT);
 
         behandlingVedtakRepository.lagre(vedtak, kontekst.getSkriveLås());
-        LOG.info("Avslutter behandling iverksatt vedtak: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling iverksatt vedtak: {}", behandlingId);
 
         behandlingVedtakEventPubliserer.fireEvent(vedtak, behandling);
 
-        LOG.info("Avslutter behandling gjenopptar: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling gjenopptar: {}", behandlingId);
 
         behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, BehandlingStegType.IVERKSETT_VEDTAK);
 
-        LOG.info("Avslutter behandling har avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling har avsluttet behandling: {}", behandlingId);
 
         // TODO (Fluoritt): Kunne vi flyttet dette ut i en Event observer (ref BehandlingStatusEvent) Hilsen FC.
         var ventendeBehandlingOpt = vurderBehandlingerUnderIverksettelse.finnBehandlingSomVenterIverksetting(behandling);
         ventendeBehandlingOpt.ifPresent(ventendeBehandling -> {
-            LOG.info("Avslutter behandling fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
+            LOG.info("Avslutter behandling fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId());
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ventendeBehandling);
         });
 
-        LOG.info("Avslutter behandling utgang: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling utgang: {}", behandlingId);
     }
 }

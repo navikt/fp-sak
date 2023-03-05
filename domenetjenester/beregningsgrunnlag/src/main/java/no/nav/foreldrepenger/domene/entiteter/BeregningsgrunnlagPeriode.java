@@ -175,7 +175,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     void addBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndel) {
         Objects.requireNonNull(bgPrStatusOgAndel, "beregningsgrunnlagPrStatusOgAndel");
-        if (!beregningsgrunnlagPrStatusOgAndelList.contains(bgPrStatusOgAndel)) { // NOSONAR Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+        if (!beregningsgrunnlagPrStatusOgAndelList.contains(bgPrStatusOgAndel)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             bgPrStatusOgAndel.setBeregningsgrunnlagPeriode(this);
             beregningsgrunnlagPrStatusOgAndelList.add(bgPrStatusOgAndel);
         }
@@ -183,7 +183,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     void addBeregningsgrunnlagPeriodeÅrsak(BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsak) {
         Objects.requireNonNull(bgPeriodeÅrsak, "beregningsgrunnlagPeriodeÅrsak");
-        if (!beregningsgrunnlagPeriodeÅrsaker.contains(bgPeriodeÅrsak)) { // NOSONAR Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+        if (!beregningsgrunnlagPeriodeÅrsaker.contains(bgPeriodeÅrsak)) {  // Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
             bgPeriodeÅrsak.setBeregningsgrunnlagPeriode(this);
             beregningsgrunnlagPeriodeÅrsaker.add(bgPeriodeÅrsak);
         }
@@ -223,14 +223,14 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-                "id=" + id + ", " //$NON-NLS-2$
-                + "periode=" + periode + ", " // $NON-NLS-1$ //$NON-NLS-2$
-                + "bruttoPrÅr=" + bruttoPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "avkortetPrÅr=" + avkortetPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "redusertPrÅr=" + redusertPrÅr + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "dagsats=" + dagsats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+                "id=" + id + ", "
+                + "periode=" + periode + ", "
+                + "bruttoPrÅr=" + bruttoPrÅr + ", "
+                + "avkortetPrÅr=" + avkortetPrÅr + ", "
+                + "redusertPrÅr=" + redusertPrÅr + ", "
+                + "dagsats=" + dagsats + ", "
+                + ">";
     }
 
     public static Builder ny() {

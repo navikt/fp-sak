@@ -81,7 +81,7 @@ public @interface BehandlingTypeRef {
             return find(cls, (CDI<I>) CDI.current(), ytelseType, behandlingType);
         }
 
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseType, BehandlingType behandlingType) { // NOSONAR
+        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseType, BehandlingType behandlingType) {
             Objects.requireNonNull(instances, "instances");
 
             for (var fagsakLiteral : coalesce(ytelseType, FagsakYtelseType.UDEFINERT)) {

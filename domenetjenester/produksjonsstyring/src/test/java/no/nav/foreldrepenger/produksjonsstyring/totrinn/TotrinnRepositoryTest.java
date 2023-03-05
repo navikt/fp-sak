@@ -60,9 +60,9 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
         // Hent ut inaktive totrinnsgrunnlag
         var query = entityManager.createQuery(
             "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = 'N'",
-            //$NON-NLS-1$
+
             Totrinnresultatgrunnlag.class);
-        query.setParameter("behandling_id", behandling.getId()); //$NON-NLS-1$
+        query.setParameter("behandling_id", behandling.getId());
         var inaktive = query.getResultList();
 
         assertThat(inaktive).hasSize(1);
@@ -117,9 +117,9 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
         // Hent inaktive vurderinger etter flush
         var query = entityManager.createQuery(
             "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = 'N'",
-            //$NON-NLS-1$
+
             Totrinnsvurdering.class);
-        query.setParameter("behandling_id", behandling.getId()); //$NON-NLS-1$
+        query.setParameter("behandling_id", behandling.getId());
         var repoInaktiveTotrinnsvurderinger = query.getResultList();
 
         // Sjekk lagrede aktive vurderinger

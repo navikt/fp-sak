@@ -94,10 +94,10 @@ public class AnkeResultatEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + "ankeBehandlingId=" + getAnkeBehandlingId() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "ankeBehandlingId=" + getAnkeBehandlingId() + ", "
+            + ">";
     }
 
     public static class Builder {

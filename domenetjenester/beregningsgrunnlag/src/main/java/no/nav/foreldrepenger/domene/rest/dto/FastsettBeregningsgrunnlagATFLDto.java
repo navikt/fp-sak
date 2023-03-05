@@ -35,13 +35,13 @@ public class FastsettBeregningsgrunnlagATFLDto extends BekreftetAksjonspunktDto 
     }
 
 
-    public FastsettBeregningsgrunnlagATFLDto(String begrunnelse, List<InntektPrAndelDto> inntektPrAndelList, Integer inntektFrilanser) { // NOSONAR
+    public FastsettBeregningsgrunnlagATFLDto(String begrunnelse, List<InntektPrAndelDto> inntektPrAndelList, Integer inntektFrilanser) {
         super(begrunnelse);
         this.inntektPrAndelList = new ArrayList<>(inntektPrAndelList);
         this.inntektFrilanser = inntektFrilanser;
     }
 
-    public FastsettBeregningsgrunnlagATFLDto(String begrunnelse, Integer inntektFrilanser) { // NOSONAR
+    public FastsettBeregningsgrunnlagATFLDto(String begrunnelse, Integer inntektFrilanser) {
         super(begrunnelse);
         this.inntektFrilanser = inntektFrilanser;
     }

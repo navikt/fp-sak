@@ -42,7 +42,7 @@ public class FlyttEnhetBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        var flyttEnhetBatchArguments = (FlyttEnhetBatchArguments)arguments;  // NOSONAR
+        var flyttEnhetBatchArguments = (FlyttEnhetBatchArguments)arguments;
         var kandidater = behandlingKandidaterRepository.finnBehandlingerIkkeAvsluttetPåAngittEnhet(flyttEnhetBatchArguments.getEnhetId());
         kandidater.forEach(beh -> {
             var taskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);

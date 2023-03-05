@@ -151,7 +151,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
     public void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode bgPeriode) {
         Objects.requireNonNull(bgPeriode, "beregningsgrunnlagPeriode");
-        if (!beregningsgrunnlagPerioder.contains(bgPeriode)) { // NOSONAR
+        if (!beregningsgrunnlagPerioder.contains(bgPeriode)) {
             bgPeriode.setBeregningsgrunnlag(this);
             beregningsgrunnlagPerioder.add(bgPeriode);
         }
@@ -276,11 +276,11 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            "id=" + id + ", " //$NON-NLS-2$
-            + "skjæringstidspunkt=" + skjæringstidspunkt + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "grunnbeløp=" + grunnbeløp + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            "id=" + id + ", "
+            + "skjæringstidspunkt=" + skjæringstidspunkt + ", "
+            + "grunnbeløp=" + grunnbeløp + ", "
+            + ">";
     }
 
     public static Builder ny() {

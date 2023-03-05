@@ -69,7 +69,7 @@ public class BeregningAktivitetOverstyringEntitet extends BaseEntitet {
     }
 
     protected BeregningAktivitetOverstyringEntitet() {
-        // NOSONAR
+
     }
 
     public BeregningAktivitetHandlingType getHandling() {

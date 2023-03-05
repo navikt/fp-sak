@@ -37,7 +37,7 @@ public class OpptjeningRepository {
 
     @Inject
     public OpptjeningRepository( EntityManager em, BehandlingRepository behandlingRepository) {
-        Objects.requireNonNull(em, "em"); //$NON-NLS-1$
+        Objects.requireNonNull(em, "em");
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.em = em;
         this.behandlingRepository = behandlingRepository;
@@ -45,21 +45,21 @@ public class OpptjeningRepository {
     }
 
     private VilkårResultat validerRiktigBehandling(Behandling behandling) {
-        Objects.requireNonNull(behandling, "behandling"); //$NON-NLS-1$
+        Objects.requireNonNull(behandling, "behandling");
         var behandlingresultat = getBehandlingsresultat(behandling.getId());
         if (behandlingresultat == null) {
             throw new IllegalArgumentException(
-                "Utvikler-feil: kan ikke sette opptjening før Behandlingresultat er lagd for Behandling:" + behandling.getId()); //$NON-NLS-1$
+                "Utvikler-feil: kan ikke sette opptjening før Behandlingresultat er lagd for Behandling:" + behandling.getId());
         }
         var vilkårResultat = behandlingresultat.getVilkårResultat();
         if (vilkårResultat == null) {
             throw new IllegalArgumentException(
-                "Utvikler-feil: kan ikke sette opptjening før VilkårResultat er lagd for Behandling:" + behandling.getId()); //$NON-NLS-1$
+                "Utvikler-feil: kan ikke sette opptjening før VilkårResultat er lagd for Behandling:" + behandling.getId());
         }
         if (!behandling.getId().equals(vilkårResultat.getOriginalBehandlingId())) {
             throw new IllegalArgumentException(
-                "Utvikler-feil: kan ikke sette opptjening på vilkårResultat fra tidligere behandling. behanlding= " + behandling.getId() //$NON-NLS-1$
-                    + ", original=" + vilkårResultat); //$NON-NLS-1$
+                "Utvikler-feil: kan ikke sette opptjening på vilkårResultat fra tidligere behandling. behanlding= " + behandling.getId()
+                    + ", original=" + vilkårResultat);
         }
         return vilkårResultat;
     }
@@ -93,12 +93,12 @@ public class OpptjeningRepository {
 
     private Optional<Opptjening> hentTidligereOpptjening(Long vilkårResultatId, boolean readOnly) {
         // slår opp med HQL istedf. å traverse grafen
-        var query = em.createQuery("from Opptjening o where o.vilkårResultat.id=:id and o.aktiv = 'J'", Opptjening.class); //$NON-NLS-1$
-        query.setParameter("id", vilkårResultatId); //$NON-NLS-1$
+        var query = em.createQuery("from Opptjening o where o.vilkårResultat.id=:id and o.aktiv = 'J'", Opptjening.class);
+        query.setParameter("id", vilkårResultatId);
 
         if (readOnly) {
             // returneres read-only, kan kun legge til nye ved skriving uten å oppdatere
-            query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+            query.setHint(QueryHints.HINT_READONLY, "true");
         }
         return HibernateVerktøy.hentUniktResultat(query);
     }
@@ -106,8 +106,8 @@ public class OpptjeningRepository {
     private Optional<Opptjening> deaktivereTidligereOpptjening(Long vilkårResultatId, boolean readOnly) {
         var opptjening = hentTidligereOpptjening(vilkårResultatId, readOnly);
         if (opptjening.isPresent()) {
-            var query = em.createNativeQuery("UPDATE OPPTJENING SET AKTIV = 'N' WHERE ID=:id"); //$NON-NLS-1$
-            query.setParameter("id", opptjening.get().getId()); //$NON-NLS-1$
+            var query = em.createNativeQuery("UPDATE OPPTJENING SET AKTIV = 'N' WHERE ID=:id");
+            query.setParameter("id", opptjening.get().getId());
             query.executeUpdate();
             em.flush();
             return opptjening;
@@ -214,7 +214,7 @@ public class OpptjeningRepository {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
             throw new IllegalArgumentException(
-                "Utvikler-feil: har duplikate opptjeningsaktiviteter: [" + duplikater + "] i input: " + opptjeningAktiviteter); //$NON-NLS-1$ //$NON-NLS-2$
+                "Utvikler-feil: har duplikate opptjeningsaktiviteter: [" + duplikater + "] i input: " + opptjeningAktiviteter);
         }
         return kopiListe;
     }

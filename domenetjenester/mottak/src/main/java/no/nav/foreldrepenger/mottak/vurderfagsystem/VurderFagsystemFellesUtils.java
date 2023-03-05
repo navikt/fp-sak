@@ -346,7 +346,7 @@ public class VurderFagsystemFellesUtils {
             return behandlingRefDato.isAfter(innkommendeReferanseDato.minus(PERIODE_FOR_MULIGE_SAKER_IM));
         }
         if (vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().isPresent()) {
-            var oppgittFørsteDag = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get(); // NOSONAR
+            var oppgittFørsteDag = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get();
             return alleInntektsmeldinger.values().stream().flatMap(Collection::stream).map(Inntektsmelding::getStartDatoPermisjon).flatMap(Optional::stream)
                 .anyMatch(d -> oppgittFørsteDag.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(d) && oppgittFørsteDag.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(d));
         } else {

@@ -34,7 +34,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         try {
             return handleException(feil);
         } finally {
-            MDC.remove("prosess"); //$NON-NLS-1$
+            MDC.remove("prosess");
         }
     }
 

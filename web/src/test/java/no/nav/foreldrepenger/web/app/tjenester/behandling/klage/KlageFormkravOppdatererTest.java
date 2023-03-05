@@ -286,7 +286,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     private void fellesKlageAssert() {
         var klageFormkravEntitet = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NFP);
         assertThat(klageFormkravEntitet).isPresent();
-        var formkravEntitet = klageFormkravEntitet.get(); // NOSONAR
+        var formkravEntitet = klageFormkravEntitet.get();
         assertThat(formkravEntitet.erFristOverholdt()).isTrue();
         assertThat(formkravEntitet.erKlagerPart()).isTrue();
         assertThat(formkravEntitet.erKonkret()).isTrue();

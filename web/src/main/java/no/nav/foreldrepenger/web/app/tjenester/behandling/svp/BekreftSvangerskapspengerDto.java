@@ -23,11 +23,11 @@ public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {
     @Size(min = 1, max = 1000)
     private List<SvpArbeidsforholdDto> bekreftetSvpArbeidsforholdList;
 
-    public BekreftSvangerskapspengerDto() { // NOSONAR
+    public BekreftSvangerskapspengerDto() {
         //For Jackson
     }
 
-    public BekreftSvangerskapspengerDto(String begrunnelse) { // NOSONAR
+    public BekreftSvangerskapspengerDto(String begrunnelse) {
         super(begrunnelse);
 
     }

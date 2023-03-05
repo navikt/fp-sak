@@ -32,7 +32,7 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
     SendInformasjonsbrevBatchArguments(Map<String, String> arguments, Integer antallUkerFremover) {
         super(arguments);
         this.antallUkerFremover = antallUkerFremover;
-        if ((antallDager != null) && (tom == null) && (fom == null)) { // NOSONAR
+        if ((antallDager != null) && (tom == null) && (fom == null)) {
             beregneFomOgTomDato();
             harGenerertDatoer = true;
 

@@ -177,13 +177,13 @@ public class Oppdragskontroll extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "behandlingId=" + behandlingId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "saksnummer=" + saksnummer + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "venterKvittering=" + venterKvittering + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "prosessTaskId=" + prosessTaskId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+        return getClass().getSimpleName() + "<" +
+            (id != null ? "id=" + id + ", " : "")
+            + "behandlingId=" + behandlingId + ", "
+            + "saksnummer=" + saksnummer + ", "
+            + "venterKvittering=" + venterKvittering + ", "
+            + "prosessTaskId=" + prosessTaskId + ", "
+            + "opprettetTs=" + getOpprettetTidspunkt()
+            + ">";
     }
 }
