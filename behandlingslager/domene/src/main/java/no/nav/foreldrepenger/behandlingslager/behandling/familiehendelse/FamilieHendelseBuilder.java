@@ -7,7 +7,7 @@ public class FamilieHendelseBuilder {
     private final FamilieHendelseEntitet hendelse;
     private final HendelseVersjonType type;
     private final boolean oppdaterer;
-    private HendelseVersjonType overgripendeType;
+    private HendelseVersjonType hendelseType;
     private AdopsjonBuilder adopsjonBuilder;
     private TerminbekreftelseBuilder terminbekreftelseBuilder;
 
@@ -186,8 +186,8 @@ public class FamilieHendelseBuilder {
     }
 
     HendelseVersjonType getType() {
-        if (overgripendeType != null && !overgripendeType.equals(type)) {
-            return overgripendeType;
+        if (hendelseType != null && !hendelseType.equals(type)) {
+            return hendelseType;
         }
         return type;
     }
@@ -196,8 +196,8 @@ public class FamilieHendelseBuilder {
         return this.hendelse.getAntallBarn() != null ? this.hendelse.getAntallBarn() : this.hendelse.getBarna().size();
     }
 
-    void setOvergripendeType(HendelseVersjonType overgripendeType) {
-        this.overgripendeType = overgripendeType;
+    void setHendelseType(HendelseVersjonType hendelseType) {
+        this.hendelseType = hendelseType;
     }
 
     HendelseVersjonType getOpprinneligType() {

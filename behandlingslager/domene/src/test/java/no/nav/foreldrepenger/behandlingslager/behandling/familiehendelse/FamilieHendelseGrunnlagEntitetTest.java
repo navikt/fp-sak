@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class FamilieHendelseGrunnlagEntitetTest {
 
@@ -18,7 +18,7 @@ class FamilieHendelseGrunnlagEntitetTest {
         // Grunnlag
         final var fhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
 
-        final var builderSøknad = opprettNyOmsorgovertagelseFamilieHendelse(HendelseVersjonType.SØKNAD, true);
+        final var builderSøknad = opprettNyOmsorgovertagelseFamilieHendelse();
 
         fhGrunnlagBuilder.medSøknadVersjon(builderSøknad);
         fhGrunnlagBuilder.medBekreftetVersjon(builderSøknad);
@@ -27,31 +27,26 @@ class FamilieHendelseGrunnlagEntitetTest {
 
         // Oppdatering
         var oppdateringFhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.of(familieHendelseGrunnlag));
-        var oppdateringFhBuilder = FamilieHendelseBuilder.oppdatere(familieHendelseGrunnlag.getBekreftetVersjon(),
-                HendelseVersjonType.BEKREFTET);
+        var oppdateringFhBuilder = FamilieHendelseBuilder.oppdatere(familieHendelseGrunnlag.getBekreftetVersjon(), HendelseVersjonType.BEKREFTET);
 
         oppdateringFhGrunnlagBuilder.medBekreftetVersjon(oppdateringFhBuilder);
         var build = oppdateringFhGrunnlagBuilder.build();
 
         assertThat(build.getSøknadVersjon()).isNotNull();
-        assertThat(build.getBekreftetVersjon()).isNotNull();
-        assertThat(build.getOverstyrtVersjon()).isEqualTo(Optional.empty());
+        assertThat(build.getBekreftetVersjon()).isNotEmpty();
+        assertThat(build.getOverstyrtVersjon()).isEmpty();
         assertThat(build.getSøknadVersjon().getType()).isEqualTo(FamilieHendelseType.OMSORG);
         assertThat(build.getBekreftetVersjon().get().getType()).isEqualTo(FamilieHendelseType.OMSORG);
     }
 
-    private FamilieHendelseBuilder opprettNyOmsorgovertagelseFamilieHendelse(HendelseVersjonType type, boolean erOmsorgovertakelse) {
-        final var familieHendelseBuilder = FamilieHendelseBuilder.ny(type);
+    private FamilieHendelseBuilder opprettNyOmsorgovertagelseFamilieHendelse() {
+        final var familieHendelseBuilder = FamilieHendelseBuilder.ny(HendelseVersjonType.SØKNAD);
         final var antallBarn = 1;
         var ommsorgsovertakelseDato = LocalDate.of(2015, 7, 12);
 
-        final var adopsjonBuilder = familieHendelseBuilder.getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(ommsorgsovertakelseDato);
+        final var adopsjonBuilder = familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(ommsorgsovertakelseDato);
 
-        if (erOmsorgovertakelse) {
-            familieHendelseBuilder.erOmsorgovertagelse();
-        }
-
+        familieHendelseBuilder.erOmsorgovertagelse();
         familieHendelseBuilder.medAdopsjon(adopsjonBuilder);
         familieHendelseBuilder.medAntallBarn(antallBarn);
         familieHendelseBuilder.leggTilBarn(ommsorgsovertakelseDato);

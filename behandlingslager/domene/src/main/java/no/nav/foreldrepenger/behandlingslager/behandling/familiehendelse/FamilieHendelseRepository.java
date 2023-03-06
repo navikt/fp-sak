@@ -19,6 +19,7 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 @ApplicationScoped
 public class FamilieHendelseRepository {
 
+    private static final String BEHANDLING_ID = "behandlingId";
     private EntityManager entityManager;
     private BehandlingLåsRepository behandlingLåsRepository;
 
@@ -58,13 +59,13 @@ public class FamilieHendelseRepository {
             "WHERE gr.behandlingId = :behandlingId " +
             "AND gr.aktiv = :aktivt", FamilieHendelseGrunnlagEntitet.class)
             .setFlushMode(FlushModeType.COMMIT);
-        query.setParameter("behandlingId", behandlingId);
+        query.setParameter(BEHANDLING_ID, behandlingId);
         query.setParameter("aktivt", true);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     private void lagreOgFlush(Long behandlingId, FamilieHendelseGrunnlagEntitet nyttGrunnlag) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         if (nyttGrunnlag == null) {
             return;
         }
@@ -114,7 +115,7 @@ public class FamilieHendelseRepository {
     }
 
     public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(hendelseBuilder, "hendelseBuilder");
 
         var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
@@ -182,7 +183,7 @@ public class FamilieHendelseRepository {
     }
 
     private void fjernBekreftetData(Long behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         final var grunnlag = hentAggregatHvisEksisterer(behandlingId);
         if (!grunnlag.isPresent()) {
             return;
@@ -280,7 +281,7 @@ public class FamilieHendelseRepository {
             final var hendelseAggregat = aggregat.get();
             final var hendelseAggregat1 = getFamilieHendelseBuilderForType(hendelseAggregat, type);
             if (hendelseAggregat1 != null) {
-                hendelseAggregat1.setOvergripendeType(type);
+                hendelseAggregat1.setHendelseType(type);
                 return hendelseAggregat1;
             }
             throw FamilieHendelseFeil.ukjentVersjonstype();

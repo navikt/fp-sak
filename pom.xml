@@ -29,9 +29,7 @@
     </modules>
 
     <properties>
-        <revision>4.0.0-SNAPSHOT</revision>
-
-        <java.version>17</java.version>
+        <revision>1.0-SNAPSHOT</revision>
 
         <fp-uttak.version>14.3.10</fp-uttak.version>
         <fp-stonadskonto.version>1.0.0</fp-stonadskonto.version>
@@ -47,6 +45,7 @@
         <fp-konfig.version>1.1.7</fp-konfig.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.projectName>fp-sak</sonar.projectName>
         <sonar.projectKey>navikt_fp-sak</sonar.projectKey>
     </properties>
 
