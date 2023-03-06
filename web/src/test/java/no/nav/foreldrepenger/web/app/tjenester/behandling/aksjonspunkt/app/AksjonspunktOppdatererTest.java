@@ -21,11 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -38,7 +36,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.FatterVedtakAksjonspunkt;
-import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
@@ -108,7 +105,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
                 vedtakTjeneste,
-                behandlingDokumentRepository, new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class))) {
+                behandlingDokumentRepository) {
             @Override
             protected String getCurrentUserId() {
                 // return test verdi
@@ -132,12 +129,11 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
-        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class));
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
                 vedtakTjeneste,
-                behandlingDokumentRepository, klageAnkeVedtakTjeneste);
+                behandlingDokumentRepository);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
@@ -165,12 +161,11 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);
 
         var dto = new ForeslaVedtakAksjonspunktDto(null, null, null, false);
-        var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(mock(KlageRepository.class), mock(AnkeRepository.class));
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
                 vedtakTjeneste,
-                behandlingDokumentRepository, klageAnkeVedtakTjeneste);
+                behandlingDokumentRepository);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));

@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
@@ -28,7 +27,6 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
 
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
-    private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
 
     ForeslåVedtakAksjonspunktOppdaterer() {
         // for CDI proxy
@@ -36,22 +34,20 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
 
     @Inject
     public ForeslåVedtakAksjonspunktOppdaterer(BehandlingRepository behandlingRepository,
-            BehandlingsresultatRepository behandlingsresultatRepository,
-            HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-            OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
-            VedtakTjeneste vedtakTjeneste,
-            BehandlingDokumentRepository behandlingDokumentRepository,
-            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
+                                               BehandlingsresultatRepository behandlingsresultatRepository,
+                                               HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+                                               OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag,
+                                               VedtakTjeneste vedtakTjeneste,
+                                               BehandlingDokumentRepository behandlingDokumentRepository) {
         super(behandlingRepository, behandlingsresultatRepository, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository);
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
-        this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(ForeslaVedtakAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var begrunnelse = dto.getBegrunnelse();
-        var behandling = param.getBehandling();
+        var behandling = getBehandling(param.getBehandlingId());
 
         oppdaterBegrunnelse(behandling, begrunnelse);
         var builder = OppdateringResultat.utenTransisjon();
@@ -63,7 +59,7 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
         opprettAksjonspunktForFatterVedtak(behandling, builder);
         opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
         opprettHistorikkinnslag(behandling);
-        return builder.build();
+        return builder.medTotrinnHvis(dto.isSkalBrukeOverstyrendeFritekstBrev()).build();
     }
 
     private void oppdaterBegrunnelse(Behandling behandling, String begrunnelse) {
