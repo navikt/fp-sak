@@ -80,6 +80,7 @@ public class LosBehandlingDtoTjeneste {
             mapBehandlingsårsaker(behandling).stream().toList(),
             harInnhentetRegisterData && mapFaresignaler(behandling),
             harRefusjonskrav(behandling),
+            null,
             mapForeldrepengerUttak(behandling),
             null);
     }
