@@ -56,7 +56,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
         if (!personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
-            return UttakOmsorgUtil.oppgittAnnenForelderRettEØS(ytelseFordelingAggregat) ? aksjonspunkt() : List.of();
+            return UttakOmsorgUtil.oppgittAnnenForelderTilknytningEØS(ytelseFordelingAggregat) ? aksjonspunkt() : List.of();
         }
 
         var annenpartsGjeldendeUttaksplan = hentAnnenpartsUttak(input.getYtelsespesifiktGrunnlag());
@@ -69,8 +69,8 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements OmsorgRettAksjon
             var måAvklareMorUfør = ytelseFordelingAggregat.getMorUføretrygdAvklaring() == null && fpGrunnlag.getUføretrygdGrunnlag()
                 .filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd)
                 .isPresent();
-            var måAvklareAnnenForelderRettEØS =  ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null &&
-                UttakOmsorgUtil.oppgittAnnenForelderRettEØS(ytelseFordelingAggregat);
+            var måAvklareAnnenForelderRettEØS =  ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() == null && UttakOmsorgUtil.oppgittAnnenForelderTilknytningEØS(
+                ytelseFordelingAggregat);
             return !harAnnenForelderInnvilgetES || måAvklareMorUfør || måAvklareAnnenForelderRettEØS ? aksjonspunkt() : List.of();
         }
 

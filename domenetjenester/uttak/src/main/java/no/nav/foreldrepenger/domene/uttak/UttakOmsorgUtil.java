@@ -41,8 +41,10 @@ public final class UttakOmsorgUtil {
         return TRUE.equals(ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring());
     }
 
-    public static boolean oppgittAnnenForelderRettEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        return ytelseFordelingAggregat.getOppgittRettighet().getAnnenForelderRettEØS();
+    public static boolean oppgittAnnenForelderTilknytningEØS(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        //Tidligere søknaden hadde ikke spørsmål om opphold, bare rett
+        return Objects.equals(ytelseFordelingAggregat.getOppgittRettighet().getAnnenForelderOppholdEØS(), TRUE)
+            || ytelseFordelingAggregat.getOppgittRettighet().getAnnenForelderRettEØS();
     }
 
     public static boolean annenForelderHarUttakMedUtbetaling(Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan) {

@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
 import no.nav.vedtak.hendelser.behandling.Aksjonspunktstatus;
@@ -165,7 +166,7 @@ public class LosBehandlingDtoTjeneste {
         }
         var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling).orElse(null);
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()).orElseThrow();
-        var skalAvklareAnnenForelderRettEØS = aggregat.getOppgittRettighet().getAnnenForelderRettEØS();
+        var skalAvklareAnnenForelderRettEØS = UttakOmsorgUtil.oppgittAnnenForelderTilknytningEØS(aggregat);
         var vurderSykdom = aggregat.getGjeldendeFordeling().getPerioder().stream()
             .anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
         var gradering = aggregat.getGjeldendeFordeling().getPerioder().stream().anyMatch(OppgittPeriodeEntitet::isGradert);

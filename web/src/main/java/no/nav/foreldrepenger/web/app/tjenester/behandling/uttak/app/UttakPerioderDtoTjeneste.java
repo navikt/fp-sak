@@ -86,8 +86,8 @@ public class UttakPerioderDtoTjeneste {
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
         var annenForelderHarRett = ytelseFordeling.map(yf -> UttakOmsorgUtil.harAnnenForelderRett(yf, annenpartUttak)).orElse(false);
         var aleneomsorg = ytelseFordeling.map(UttakOmsorgUtil::harAleneomsorg).orElse(false);
-        var annenForelderRettEØS = ytelseFordeling.map(yf -> UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yf)).orElse(false);
-        var oppgittAnnenForelderRettEØS = ytelseFordeling.map(yf -> UttakOmsorgUtil.oppgittAnnenForelderRettEØS(yf)).orElse(false);
+        var annenForelderRettEØS = ytelseFordeling.map(UttakOmsorgUtil::avklartAnnenForelderHarRettEØS).orElse(false);
+        var oppgittAnnenForelderRettEØS = ytelseFordeling.map(UttakOmsorgUtil::oppgittAnnenForelderTilknytningEØS).orElse(false);
         return new UttakResultatPerioderDto(perioderSøker,
             annenpartUttaksperioder, annenForelderHarRett, aleneomsorg,
             annenForelderRettEØS, oppgittAnnenForelderRettEØS, filter);

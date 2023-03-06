@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ApplicationScoped
@@ -59,7 +60,7 @@ public class YtelseFordelingDtoTjeneste {
     private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
         var uføregrunnlag = uføretrygdRepository.hentGrunnlag(behandling.getId());
         var avklareUføretrygd = yfa.getMorUføretrygdAvklaring() == null && uføregrunnlag.filter(UføretrygdGrunnlagEntitet::uavklartAnnenForelderMottarUføretrygd).isPresent();
-        var avklareRettEØS = yfa.getAnnenForelderRettEØSAvklaring() == null && yfa.getOppgittRettighet().getAnnenForelderRettEØS();
+        var avklareRettEØS = yfa.getAnnenForelderRettEØSAvklaring() == null && UttakOmsorgUtil.oppgittAnnenForelderTilknytningEØS(yfa);
         return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(),
             yfa.getAnnenForelderRettEØSAvklaring(), avklareRettEØS,
             yfa.getMorUføretrygdAvklaring(), avklareUføretrygd);
