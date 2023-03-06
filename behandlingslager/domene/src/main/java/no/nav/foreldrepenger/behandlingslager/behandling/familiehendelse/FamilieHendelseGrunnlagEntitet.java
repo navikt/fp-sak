@@ -254,16 +254,14 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
     public LocalDate finnGjeldendeFødselsdato() {
         final var bekreftetVersjon = getGjeldendeBekreftetVersjon();
 
-        if (bekreftetVersjon.isPresent()) {
-            var barna = bekreftetVersjon.get().getBarna();
-            if (!barna.isEmpty()) {
-                return barna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
-            }
+        var bekreftetBarna = bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(List.of());
+        if (!bekreftetBarna.isEmpty()) {
+            return bekreftetBarna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
         }
 
-        var barna = søknadHendelse.getBarna();
-        if (!barna.isEmpty()) {
-            return barna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
+        var søknadBarna = søknadHendelse.getBarna();
+        if (!søknadBarna.isEmpty()) {
+            return søknadBarna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
         }
         return getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)
             .orElse(søknadHendelse.getTerminbekreftelse().orElseThrow().getTermindato());
