@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.mottak.sakskompleks.KobleSakerTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
@@ -91,9 +92,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private boolean harOppgittAnnenForelderTilknytningEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(YtelseFordelingAggregat::getOppgittRettighet)
-            //Tidligere søknaden hadde ikke spørsmål om opphold, bare rett
-            .filter(rettighet -> rettighet.getAnnenForelderOppholdEØS() == null ? rettighet.getAnnenForelderRettEØS() : rettighet.getAnnenForelderOppholdEØS())
+            .filter(UttakOmsorgUtil::oppgittAnnenForelderTilknytningEØS)
             .isPresent();
     }
 
