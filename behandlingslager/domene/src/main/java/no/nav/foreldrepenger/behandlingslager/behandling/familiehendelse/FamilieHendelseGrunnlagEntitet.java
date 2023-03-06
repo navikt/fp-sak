@@ -72,8 +72,8 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
 
     FamilieHendelseGrunnlagEntitet(FamilieHendelseGrunnlagEntitet grunnlag) {
         this.søknadHendelse = grunnlag.getSøknadVersjon();
-        grunnlag.getBekreftetVersjon().ifPresent(nyBekreftetVersjon -> this.setBekreftetHendelse(nyBekreftetVersjon));
-        grunnlag.getOverstyrtVersjon().ifPresent(nyOverstyrtVersjon -> this.setOverstyrtHendelse(nyOverstyrtVersjon));
+        grunnlag.getBekreftetVersjon().ifPresent(this::setBekreftetHendelse);
+        grunnlag.getOverstyrtVersjon().ifPresent(this::setOverstyrtHendelse);
     }
 
 
@@ -253,14 +253,20 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
      */
     public LocalDate finnGjeldendeFødselsdato() {
         final var bekreftetVersjon = getGjeldendeBekreftetVersjon();
-        if (!bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList()).isEmpty()) {
-            return bekreftetVersjon.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get();
+
+        if (bekreftetVersjon.isPresent()) {
+            var barna = bekreftetVersjon.get().getBarna();
+            if (!barna.isEmpty()) {
+                return barna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
+            }
         }
-        if (!søknadHendelse.getBarna().isEmpty()) {
-            return søknadHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get();
+
+        var barna = søknadHendelse.getBarna();
+        if (!barna.isEmpty()) {
+            return barna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
         }
         return getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)
-            .orElse(søknadHendelse.getTerminbekreftelse().get().getTermindato());
+            .orElse(søknadHendelse.getTerminbekreftelse().orElseThrow().getTermindato());
     }
 
     public boolean getErAktivt() {

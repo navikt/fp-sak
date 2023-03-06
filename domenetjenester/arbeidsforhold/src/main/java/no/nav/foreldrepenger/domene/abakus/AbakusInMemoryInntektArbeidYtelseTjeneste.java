@@ -62,8 +62,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 @Alternative
 public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTjeneste {
 
-    private Map<Long, Deque<UUID>> indeksBehandlingTilGrunnlag = new LinkedHashMap<>();
-    private List<InntektArbeidYtelseGrunnlag> grunnlag = new ArrayList<>();
+    private final Map<Long, Deque<UUID>> indeksBehandlingTilGrunnlag = new LinkedHashMap<>();
+    private final List<InntektArbeidYtelseGrunnlag> grunnlag = new ArrayList<>();
 
     /**
      * CDI ctor for proxies.

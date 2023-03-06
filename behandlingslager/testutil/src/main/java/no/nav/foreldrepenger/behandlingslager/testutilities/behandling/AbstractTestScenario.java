@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
 import static java.util.Collections.singletonList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -10,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -126,6 +129,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     public static final String FØDSEL = "fødsel";
     public static final String TERMINBEKREFTELSE = "terminbekreftelse";
     private static final AtomicLong FAKE_ID = new AtomicLong(100999L);
+    private static final String IKKE_IMPLEMENTERT = "Ikke implementert";
     private final FagsakBuilder fagsakBuilder;
     private final Map<Long, PersonopplysningGrunnlagEntitet> personopplysningMap = new IdentityHashMap<>();
     private final Map<Long, FamilieHendelseGrunnlagEntitet> familieHendelseAggregatMap = new IdentityHashMap<>();
@@ -146,9 +150,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private MedlemskapOppgittTilknytningEntitet.Builder oppgittTilknytningBuilder;
     private BehandlingStegType startSteg;
 
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new HashMap<>();
+    private Map<AksjonspunktDefinisjon, BehandlingStegType> aksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
     private VilkårResultatType vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
-    private Map<VilkårType, VilkårUtfallType> vilkårTyper = new HashMap<>();
+    private Map<VilkårType, VilkårUtfallType> vilkårTyper = new EnumMap<>(VilkårType.class);
     private List<MedlemskapPerioderEntitet> medlemskapPerioder = new ArrayList<>();
     private Long fagsakId = nyId();
     private LocalDate behandlingstidFrist;
@@ -271,6 +275,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void oppdaterLåsVersjon(BehandlingLås behandlingLås) {
+                // Brukes ikke i test
             }
 
             @Override
@@ -298,7 +303,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void oppdaterLåsVersjon(FagsakLås fagsakLås) {
-
+                // Brukes ikke i test
             }
         };
     }
@@ -309,8 +314,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private BehandlingVedtakRepository mockBehandlingVedtakRepository() {
         var behandlingVedtakRepository = mock(BehandlingVedtakRepository.class);
-        var behandlingVedtak = mockBehandlingVedtak();
-        lenient().when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(Mockito.any())).thenReturn(Optional.of(behandlingVedtak));
+        var behVedtak = mockBehandlingVedtak();
+        lenient().when(behandlingVedtakRepository.hentForBehandlingHvisEksisterer(any())).thenReturn(Optional.of(behVedtak));
 
         return behandlingVedtakRepository;
     }
@@ -375,7 +380,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
-                return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(e -> e.getValue())
+                return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(Map.Entry::getValue)
                         .findFirst();
             }
 
@@ -402,7 +407,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 aggregatBuilder.medBekreftetVersjon(hendelse);
                 try {
                     var m = FamilieHendelseGrunnlagBuilder.class.getDeclaredMethod("getKladd");
-                    m.setAccessible(true);
                     final var invoke = (FamilieHendelseGrunnlagEntitet) m.invoke(aggregatBuilder);
                     if (harOverstyrtTerminOgOvergangTilFødsel(invoke)) {
                         aggregatBuilder.medOverstyrtVersjon(null);
@@ -433,17 +437,17 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void slettAvklarteData(Long behandlingId, BehandlingLås lås) {
-                throw new UnsupportedOperationException("Ikke implementert");
+                throw new UnsupportedOperationException(IKKE_IMPLEMENTERT);
             }
 
             @Override
             public Optional<Long> hentIdPåAktivFamiliehendelse(Long behandlingId) {
-                throw new UnsupportedOperationException("Ikke implementert");
+                throw new UnsupportedOperationException(IKKE_IMPLEMENTERT);
             }
 
             @Override
             public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long aggregatId) {
-                throw new UnsupportedOperationException("Ikke implementert");
+                throw new UnsupportedOperationException(IKKE_IMPLEMENTERT);
             }
 
             @Override
@@ -525,34 +529,32 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         var behandlingRepository = lagBasicMockBehandlingRepository(repositoryProvider);
 
-        lenient().when(behandlingRepository.hentBehandling(Mockito.any(Long.class))).thenAnswer(a -> {
+        lenient().when(behandlingRepository.hentBehandling(any(Long.class))).thenAnswer(a -> {
             Long id = a.getArgument(0);
             return behandlingMap.getOrDefault(id, null);
         });
-        lenient().when(behandlingRepository.hentBehandling(Mockito.any(UUID.class))).thenAnswer(a -> behandlingMap.entrySet().stream().filter(e -> {
+        lenient().when(behandlingRepository.hentBehandling(any(UUID.class))).thenAnswer(a -> behandlingMap.entrySet().stream().filter(e -> {
             UUID uuid = a.getArgument(0);
             return Objects.equals(e.getValue().getUuid(), uuid);
-        }).findFirst().map(e -> e.getValue()).orElseThrow());
-        lenient().when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(Mockito.any())).thenAnswer(a -> {
-            return List.copyOf(behandlingMap.values());
-        });
-        lenient().when(behandlingRepository.finnUnikBehandlingForBehandlingId(Mockito.any())).thenAnswer(a -> {
+        }).findFirst().map(Map.Entry::getValue).orElseThrow());
+        lenient().when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(any())).thenAnswer(a -> List.copyOf(behandlingMap.values()));
+        lenient().when(behandlingRepository.finnUnikBehandlingForBehandlingId(any())).thenAnswer(a -> {
             Long id = a.getArgument(0);
             return Optional.ofNullable(behandlingMap.getOrDefault(id, null));
         });
-        lenient().when(behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(Mockito.any(), Mockito.any(BehandlingType.class)))
+        lenient().when(behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(any(), any(BehandlingType.class)))
                 .thenAnswer(a -> {
                     Long id = a.getArgument(0);
                     BehandlingType type = a.getArgument(1);
                     return behandlingMap.values().stream().filter(b -> type.equals(b.getType()) && b.getFagsakId().equals(id)).sorted().findFirst();
                 });
-        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(Mockito.any()))
+        lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any()))
                 .thenAnswer(a -> {
                     Long id = a.getArgument(0);
                     return behandlingMap.values().stream().filter(b -> BehandlingType.getYtelseBehandlingTyper().contains(b.getType()))
                             .filter(b -> b.getFagsakId().equals(id)).sorted().findFirst();
                 });
-        lenient().when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(Mockito.any()))
+        lenient().when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any()))
                 .thenAnswer(a -> {
                     Long id = a.getArgument(0);
                     return behandlingMap.values().stream()
@@ -568,10 +570,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             };
         });
 
-        lenient().when(behandlingRepository.hentSistOppdatertTidspunkt(Mockito.any()))
+        lenient().when(behandlingRepository.hentSistOppdatertTidspunkt(any()))
                 .thenAnswer(a -> Optional.ofNullable(opplysningerOppdatertTidspunkt));
 
-        lenient().when(behandlingRepository.lagre(behandlingCaptor.capture(), Mockito.any()))
+        lenient().when(behandlingRepository.lagre(behandlingCaptor.capture(), any()))
                 .thenAnswer((Answer<Long>) invocation -> {
                     Behandling beh = invocation.getArgument(0);
                     var id = beh.getId();
@@ -648,17 +650,16 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public FagsakRepository mockFagsakRepository() {
         var fagsakRepository = mock(FagsakRepository.class);
-        lenient().when(fagsakRepository.finnEksaktFagsak(Mockito.anyLong())).thenAnswer(a -> fagsak);
-        lenient().when(fagsakRepository.finnUnikFagsak(Mockito.anyLong())).thenAnswer(a -> Optional.of(fagsak));
-        lenient().when(fagsakRepository.hentSakGittSaksnummer(Mockito.any(Saksnummer.class))).thenAnswer(a -> Optional.of(fagsak));
-        lenient().when(fagsakRepository.hentForBruker(Mockito.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
+        lenient().when(fagsakRepository.finnEksaktFagsak(anyLong())).thenAnswer(a -> fagsak);
+        lenient().when(fagsakRepository.finnUnikFagsak(anyLong())).thenAnswer(a -> Optional.of(fagsak));
+        lenient().when(fagsakRepository.hentSakGittSaksnummer(any(Saksnummer.class))).thenAnswer(a -> Optional.of(fagsak));
+        lenient().when(fagsakRepository.hentForBruker(any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
         lenient().when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {
-            Fagsak fagsak = invocation.getArgument(0);
-            var id = fagsak.getId();
+            Fagsak fsak = invocation.getArgument(0);
+            var id = fsak.getId();
             if (id == null) {
                 id = fagsakId;
-                fagsak.setId(id);
-                // Whitebox.setInternalState(fagsak, "id", id);
+                fsak.setId(id);
             }
             return id;
         });
@@ -667,10 +668,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         Mockito.lenient().doAnswer(invocation -> {
             FagsakStatus status = invocation.getArgument(1);
             fagsak.setStatus(status);
-            // Whitebox.setInternalState(fagsak, "fagsakStatus", status);
             return null;
         }).when(fagsakRepository)
-                .oppdaterFagsakStatus(eq(fagsakId), Mockito.any(FagsakStatus.class));
+                .oppdaterFagsakStatus(eq(fagsakId), any(FagsakStatus.class));
 
         return fagsakRepository;
     }
@@ -712,7 +712,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         lagrePersonopplysning(repositoryProvider, behandling);
         behandling.setStatus(BehandlingStatus.AVSLUTTET);
-        // Whitebox.setInternalState(behandling, "status", BehandlingStatus.AVSLUTTET);
 
         var builder = Behandlingsresultat.builder();
 
@@ -764,10 +763,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private void lagrePersoninfo(Behandling behandling, PersonInformasjon personInformasjon, PersonopplysningRepository repository) {
-        Objects.nonNull(behandling);
-        Objects.nonNull(personInformasjon);
+        Objects.requireNonNull(behandling);
+        Objects.requireNonNull(personInformasjon);
 
-        if (personInformasjon.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
+        if (PersonopplysningVersjonType.REGISTRERT.equals(personInformasjon.getType())) {
             lagreRegisterPersoninfo(behandling, personInformasjon, repository);
         } else {
             throw new IllegalArgumentException("Overstyrt personopplysning er legacy");
@@ -986,8 +985,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
         fagsak = fagsakBuilder.build();
         fagsak.setEndretTidspunkt(LocalDateTime.now());
-        var fagsakId = fagsakRepo.opprettNy(fagsak);
-        fagsak.setId(fagsakId);
+        var fsakId = fagsakRepo.opprettNy(fagsak);
+        fagsak.setId(fsakId);
     }
 
     private NavBrukerKjønn getKjønnFraFagsak() {
@@ -1006,9 +1005,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
                 .medVilkårResultatType(vilkårResultatType);
 
-        vilkårTyper.forEach((vilkårType, vilkårUtfallType) -> {
-            inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? VilkårUtfallMerknad.VM_1019 : VilkårUtfallMerknad.UDEFINERT);
-        });
+        vilkårTyper.forEach((vilkårType, vilkårUtfallType) -> inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? VilkårUtfallMerknad.VM_1019 : VilkårUtfallMerknad.UDEFINERT));
 
         var vilkårResultat = inngangsvilkårBuilder.buildFor(behandling);
 
@@ -1465,12 +1462,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         @Override
         public PersonopplysningGrunnlagEntitet hentFørsteVersjonAvPersonopplysninger(Long behandlingId) {
-            throw new java.lang.UnsupportedOperationException("Ikke implementert");
+            throw new java.lang.UnsupportedOperationException(IKKE_IMPLEMENTERT);
         }
 
         @Override
         public PersonopplysningGrunnlagEntitet hentGrunnlagPåId(Long aggregatId) {
-            throw new java.lang.UnsupportedOperationException("Ikke implementert");
+            throw new java.lang.UnsupportedOperationException(IKKE_IMPLEMENTERT);
         }
     }
 

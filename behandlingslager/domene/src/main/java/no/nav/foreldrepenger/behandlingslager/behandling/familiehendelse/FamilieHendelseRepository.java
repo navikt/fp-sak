@@ -280,7 +280,7 @@ public class FamilieHendelseRepository {
             final var hendelseAggregat = aggregat.get();
             final var hendelseAggregat1 = getFamilieHendelseBuilderForType(hendelseAggregat, type);
             if (hendelseAggregat1 != null) {
-                hendelseAggregat1.setOvergripendeType(type);
+                hendelseAggregat1.setOvergrippendeType(type);
                 return hendelseAggregat1;
             }
             throw FamilieHendelseFeil.ukjentVersjonstype();
