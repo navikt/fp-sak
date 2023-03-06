@@ -33,7 +33,7 @@
 
         <java.version>17</java.version>
 
-        <fp-uttak.version>14.3.9</fp-uttak.version>
+        <fp-uttak.version>14.3.10</fp-uttak.version>
         <fp-stonadskonto.version>1.0.0</fp-stonadskonto.version>
         <svp-uttak.version>2.3.7</svp-uttak.version>
         <felles.version>4.2.30</felles.version>
