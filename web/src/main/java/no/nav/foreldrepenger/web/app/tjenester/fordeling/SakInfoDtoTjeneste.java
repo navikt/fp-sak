@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
+import java.time.LocalDate;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -9,26 +14,21 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import java.time.LocalDate;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class SakInfoDtoTjeneste {
     private BehandlingRepository behandlingRepository;
-    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
     public SakInfoDtoTjeneste(BehandlingRepository behandlingRepository,
-                              FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
-                              FamilieHendelseRepository familieHendelseRepository) {
+                              FamilieHendelseRepository familieHendelseRepository,
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
         this.familieHendelseRepository = familieHendelseRepository;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
     public SakInfoDtoTjeneste() {
         //CDI
@@ -37,14 +37,18 @@ public class SakInfoDtoTjeneste {
     public SakInfoDto mapSakInfoDto(Fagsak fagsak) {
         var sisteYtelsesBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).orElse(null);
         if (sisteYtelsesBehandling != null) {
-            var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(sisteYtelsesBehandling).orElse(null);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(sisteYtelsesBehandling.getId());
+        LocalDate førsteUttaksdato;
+        try {
+            førsteUttaksdato = stp.getFørsteUttaksdato();
+        } catch (Exception e) {
+            førsteUttaksdato = stp.getSkjæringstidspunktHvisUtledet().orElse(null);
+        }
+        var familiehendelseInfoDto = familieHendelseRepository.hentAggregatHvisEksisterer(sisteYtelsesBehandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(this::mapFamiliehendelseInfoDto);
 
-            var familiehendelseInfoDto = familieHendelseRepository.hentAggregatHvisEksisterer(sisteYtelsesBehandling.getId())
-                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(this::mapFamiliehendelseInfoDto)
-                .orElse(null);
-
-            return mapTilSakInfoDto(fagsak, familiehendelseInfoDto, førsteUttaksdato);
+            return mapTilSakInfoDto(fagsak, familiehendelseInfoDto.orElse(null), førsteUttaksdato);
         } else {
             return mapTilSakInfoDto(fagsak, null, null);
         }
