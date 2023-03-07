@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.datavarehus.xml.svp;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -57,11 +56,11 @@ public class UttakXmlTjenesteImpl {
 
         svangerskapspengerUttakOptional.ifPresent(uttaksperiodegrense ->
             uttaksperiodegrense.finnFørsteUttaksdato().ifPresent(førsteUttaksdato ->
-                VedtakXmlUtil.lagDateOpplysning(førsteUttaksdato).ifPresent(dateOpplysning -> uttakSvangerskapspenger.setFoersteUttaksdato(dateOpplysning))));
+                VedtakXmlUtil.lagDateOpplysning(førsteUttaksdato).ifPresent(uttakSvangerskapspenger::setFoersteUttaksdato)));
 
         svangerskapspengerUttakOptional.ifPresent(uttaksperiodegrense ->
             uttaksperiodegrense.finnSisteUttaksdato().ifPresent(sisteUttaksdato ->
-                VedtakXmlUtil.lagDateOpplysning(sisteUttaksdato).ifPresent(dateOpplysning -> uttakSvangerskapspenger.setSisteUttaksdato(dateOpplysning))));
+                VedtakXmlUtil.lagDateOpplysning(sisteUttaksdato).ifPresent(uttakSvangerskapspenger::setSisteUttaksdato)));
 
         svangerskapspengerUttakOptional.ifPresent(svangerskapspengerUttak ->
             setUttakUttaksResultatArbeidsforhold(uttakSvangerskapspenger, svangerskapspengerUttak.getUttaksResultatArbeidsforhold()));
@@ -110,17 +109,14 @@ public class UttakXmlTjenesteImpl {
 
         kontrakt.setArbeidtype(VedtakXmlUtil.lagKodeverksOpplysning(svpTilrettelegging.getArbeidType()));
 
-        if (svpTilrettelegging.getOpplysningerOmRisikofaktorer().isPresent()) {
-            kontrakt.setOpplysningerOmRisikofaktorer(VedtakXmlUtil.lagStringOpplysning(svpTilrettelegging.getOpplysningerOmRisikofaktorer().get()));
-        }
+        svpTilrettelegging.getOpplysningerOmRisikofaktorer()
+            .ifPresent(o -> kontrakt.setOpplysningerOmRisikofaktorer(VedtakXmlUtil.lagStringOpplysning(o)));
 
-        if (svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().isPresent()) {
-            kontrakt.setOpplysningerOmTilretteleggingstiltak((VedtakXmlUtil.lagStringOpplysning(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().get())));
-        }
+        svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak()
+            .ifPresent(o -> kontrakt.setOpplysningerOmTilretteleggingstiltak((VedtakXmlUtil.lagStringOpplysning(o))));
 
-        if (svpTilrettelegging.getBegrunnelse().isPresent()) {
-            kontrakt.setBegrunnelse((VedtakXmlUtil.lagStringOpplysning(svpTilrettelegging.getBegrunnelse().get())));
-        }
+        svpTilrettelegging.getBegrunnelse().ifPresent(b -> kontrakt.setBegrunnelse(VedtakXmlUtil.lagStringOpplysning(b)));
+
 
         kontrakt.setKopiertFraTidligereBehandling(VedtakXmlUtil.lagBooleanOpplysning(svpTilrettelegging.getKopiertFraTidligereBehandling()));
 
@@ -144,7 +140,7 @@ public class UttakXmlTjenesteImpl {
     private void setUttakUttaksResultatArbeidsforhold(UttakSvangerskapspenger uttakSvangerskapspenger, List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> arbeidsforholdDomene) {
         var kontrakt = arbeidsforholdDomene
             .stream()
-            .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         uttakSvangerskapspenger.getUttaksResultatArbeidsforhold().addAll(kontrakt);
     }
 
@@ -160,7 +156,7 @@ public class UttakXmlTjenesteImpl {
     private void setPerioder(UttaksResultatArbeidsforhold kontraktArbeidsforhold, List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder) {
         var kontrakt = perioder
             .stream()
-            .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         kontraktArbeidsforhold.getUttaksresultatPerioder().addAll(kontrakt);
     }
 

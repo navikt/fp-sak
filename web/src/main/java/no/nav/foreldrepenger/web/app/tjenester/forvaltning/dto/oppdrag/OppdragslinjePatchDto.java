@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class OppdragslinjePatchDto {
 
     @NotNull
-    @Pattern(regexp = "^NY|ENDR$")
+    @Pattern(regexp = "^(NY|ENDR)$")
     @JsonProperty("kodeEndring")
     private String kodeEndring;
 
@@ -29,7 +29,7 @@ public class OppdragslinjePatchDto {
     private LocalDate opphørFom;
 
     @NotNull
-    @Pattern(regexp = "^(FP(AD|SV)?(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPATFER|FPENFOD-OP|FPENAD-OP$")
+    @Pattern(regexp = "^((FP(AD|SV)?(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPATFER|FPENFOD-OP|FPENAD-OP)$")
     @JsonProperty("kodeKlassifik")
     private String kodeKlassifik;
 
@@ -48,7 +48,7 @@ public class OppdragslinjePatchDto {
     private Long sats;
 
     @NotNull
-    @Pattern(regexp = "^ENG|DAG$")
+    @Pattern(regexp = "^(ENG|DAG)$")
     @JsonProperty("satsType")
     private String satsType;
 

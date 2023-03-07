@@ -48,16 +48,16 @@ class ArbeidsforholdOverstyringTest {
 
         assertThat(nyPerioder).hasSameSizeAs(gamlePerioder);
         assertThat(nyPerioder).anySatisfy(p -> {
-            p.getOverstyrtePeriode().getFomDato().isEqual(DAGENS_DATO.plusDays(1));
-            p.getOverstyrtePeriode().getTomDato().isEqual(DAGENS_DATO.plusDays(2));
+            assertThat(p.getOverstyrtePeriode().getFomDato()).isEqualTo(DAGENS_DATO.plusDays(1));
+            assertThat(p.getOverstyrtePeriode().getTomDato()).isEqualTo(DAGENS_DATO.plusDays(2));
         });
         assertThat(nyPerioder).anySatisfy(p -> {
-            p.getOverstyrtePeriode().getFomDato().isEqual(DAGENS_DATO.plusDays(3));
-            p.getOverstyrtePeriode().getTomDato().isEqual(DAGENS_DATO.plusDays(4));
+            assertThat(p.getOverstyrtePeriode().getFomDato()).isEqualTo(DAGENS_DATO.plusDays(3));
+            assertThat(p.getOverstyrtePeriode().getTomDato()).isEqualTo(DAGENS_DATO.plusDays(4));
         });
         assertThat(nyPerioder).anySatisfy(p -> {
-            p.getOverstyrtePeriode().getFomDato().isEqual(DAGENS_DATO.plusDays(5));
-            p.getOverstyrtePeriode().getTomDato().isEqual(DAGENS_DATO.plusDays(6));
+            assertThat(p.getOverstyrtePeriode().getFomDato()).isEqualTo(DAGENS_DATO.plusDays(5));
+            assertThat(p.getOverstyrtePeriode().getTomDato()).isEqualTo(DAGENS_DATO.plusDays(6));
         });
 
     }

@@ -48,7 +48,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     public void fastsettUttaksgrunnlag(UttakInput input) {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(input.getBehandlingReferanse().behandlingId());
         var eksisterendeJustertFordeling = ytelseFordelingAggregat.getJustertFordeling().orElse(null);
-        var eksisterendeEndringsdato = ytelseFordelingAggregat.getAvklarteDatoer().map(a -> a.getOpprinneligEndringsdato()).orElse(LocalDate.MIN);
+        var eksisterendeEndringsdato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getOpprinneligEndringsdato).orElse(LocalDate.MIN);
 
         var endringsdatoRevurdering = utledEndringsdatoVedRevurdering(input);
         var justertFordeling = justerFordeling(input, endringsdatoRevurdering);
@@ -62,7 +62,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                     justertFordeling.getPerioder());
         }
 
-        if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling) || !endringsdato.isEqual(eksisterendeEndringsdato)) {
+        if (!SammenlignFordeling.erLikeFordelinger(eksisterendeJustertFordeling, justertFordeling) || endringsdato == null || !eksisterendeEndringsdato.isEqual(endringsdato)) {
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
             var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
             yfBuilder.medJustertFordeling(justertFordeling)
@@ -170,9 +170,9 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private FHSøknadGjeldende finnFamiliehendelser(ForeldrepengerGrunnlag fpGrunnlag) {
         var gjeldendeFødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
-        if (fpGrunnlag.getOriginalBehandling().isPresent()) {
-            var fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling()
-                    .get()
+        var originalbehandling = fpGrunnlag.getOriginalBehandling();
+        if (originalbehandling.isPresent()) {
+            var fødselsdatoForrigeBehandling = originalbehandling.get()
                     .getFamilieHendelser()
                     .getGjeldendeFamilieHendelse()
                     .getFamilieHendelseDato();

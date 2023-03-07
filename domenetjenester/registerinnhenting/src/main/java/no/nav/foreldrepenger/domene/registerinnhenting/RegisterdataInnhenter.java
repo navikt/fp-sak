@@ -56,6 +56,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 
 @ApplicationScoped
 public class RegisterdataInnhenter {
@@ -222,6 +223,7 @@ public class RegisterdataInnhenter {
     private void doInnhentIAYIAbakus(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
         final var innhentRegisterdataRequest = lagInnhentIAYRequest(behandling, behandlingType, fagsakYtelseType);
         innhentRegisterdataRequest.setCallbackUrl(abakusTjeneste.getCallbackUrl());
+        innhentRegisterdataRequest.setCallbackScope(FpApplication.scopesFor(FpApplication.FPSAK));
 
         abakusTjeneste.innhentRegisterdata(innhentRegisterdataRequest);
     }

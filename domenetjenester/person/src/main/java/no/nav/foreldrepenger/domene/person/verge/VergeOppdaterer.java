@@ -107,8 +107,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, pib.getNavn(), dto.getNavn());
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FNR, pib.getPersonIdent().getIdent(), dto.getFnr());
         });
-        if (vergeAggregat.getVerge().isPresent()) {
-            var vergeEntitet = vergeAggregat.getVerge().get();
+        vergeAggregat.getVerge().ifPresent(vergeEntitet -> {
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_FOM, vergeEntitet.getGyldigFom(), dto.getGyldigFom());
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM, vergeEntitet.getGyldigTom(), dto.getGyldigTom());
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.TYPE_VERGE, vergeEntitet.getVergeType(), dto.getVergeType());
@@ -117,7 +116,8 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, vergeOrg.getNavn(), dto.getNavn());
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.ORGANISASJONSNUMMER, vergeOrg.getOrganisasjonsnummer(), dto.getOrganisasjonsnummer());
             }
-        }
+        });
+
         tekstBuilder
             .medBegrunnelse(dto.getBegrunnelse(), parameter.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_VERGE);
