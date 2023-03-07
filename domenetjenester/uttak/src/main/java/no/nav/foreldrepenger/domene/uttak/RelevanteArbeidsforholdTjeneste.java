@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -106,7 +107,7 @@ public class RelevanteArbeidsforholdTjeneste {
             return false;
         }
         var arbeidsforholdRef = status.getArbeidsforholdRef();
-        return Objects.equals(a.getArbeidsgiver().get().getIdentifikator(), arbeidsgiver.get().getIdentifikator())
+        return Objects.equals(a.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null), arbeidsgiver.get().getIdentifikator())
             && Objects.equals(a.getArbeidsforholdRef(), arbeidsforholdRef.orElse(InternArbeidsforholdRef.nullRef()));
     }
 
@@ -131,10 +132,11 @@ public class RelevanteArbeidsforholdTjeneste {
     private boolean startdatoEtterDato(UttakResultatPeriodeAktivitetEntitet aktivitet,
                                        LocalDate dato,
                                        UttakYrkesaktiviteter yrkesaktiviteter) {
-        if (aktivitet.getUttakAktivitet().getArbeidsgiver().isEmpty()) {
+        var arbeidsgiver = aktivitet.getUttakAktivitet().getArbeidsgiver();
+        if (arbeidsgiver.isEmpty()) {
             return false;
         }
-        var startdato = yrkesaktiviteter.finnStartdato(aktivitet.getUttakAktivitet().getArbeidsgiver().get(),
+        var startdato = yrkesaktiviteter.finnStartdato(arbeidsgiver.get(),
             aktivitet.getUttakAktivitet().getArbeidsforholdRef()).orElse(LocalDate.MIN);
         return startdato.isAfter(dato);
     }

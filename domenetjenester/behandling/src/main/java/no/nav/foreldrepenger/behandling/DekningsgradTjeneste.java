@@ -37,7 +37,8 @@ public class DekningsgradTjeneste {
 
     private boolean dekningsgradEndretVerdi(BehandlingReferanse ref) {
         var relasjon = relasjon(ref);
-        return relasjon.getOverstyrtDekningsgrad().isPresent() && !relasjon.getOverstyrtDekningsgrad().get().equals(relasjon.getDekningsgrad());
+        var overstyrtDekningsgrad = relasjon.getOverstyrtDekningsgrad();
+        return overstyrtDekningsgrad.isPresent() && !overstyrtDekningsgrad.get().equals(relasjon.getDekningsgrad());
     }
 
     private FagsakRelasjon relasjon(BehandlingReferanse ref) {

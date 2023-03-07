@@ -133,7 +133,7 @@ public class KøKontroller {
         if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
         if (ts1.isPresent() && ts2.isPresent()) {
             if (ts1.get().equals(ts2.get())) {
-                return behandling1.get().getOpprettetTidspunkt().isBefore(behandling2.get().getOpprettetTidspunkt()) ? behandling1 : behandling2;
+                return behandling1.orElseThrow().getOpprettetTidspunkt().isBefore(behandling2.orElseThrow().getOpprettetTidspunkt()) ? behandling1 : behandling2;
             }
             return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
         }

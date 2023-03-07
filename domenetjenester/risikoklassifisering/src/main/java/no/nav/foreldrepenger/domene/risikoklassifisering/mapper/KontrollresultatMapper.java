@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Faresignal
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
-import no.nav.vedtak.exception.TekniskException;
 
 public class KontrollresultatMapper {
 
@@ -41,10 +40,6 @@ public class KontrollresultatMapper {
     }
 
     public static FaresignalWrapper fraFaresignalRespons(RisikovurderingResultatDto resultatKontrakt) {
-        if (resultatKontrakt.risikoklasse() == null) {
-            // Her ønsker vi ikke akseptere at risikoklasse er null
-            throw manglerKontrollresultatkode();
-        }
         return new FaresignalWrapper(mapKontrollresultatTilDomene(resultatKontrakt.risikoklasse()),
             resultatKontrakt.faresignalvurdering() == null ? null : mapFaresignalvurderingTilDomene(resultatKontrakt.faresignalvurdering()),
             mapFaresignalgruppe(resultatKontrakt.medlemskapFaresignalerNonNull()).orElse(null),
@@ -56,10 +51,6 @@ public class KontrollresultatMapper {
             return Optional.empty();
         }
         return Optional.of(new FaresignalGruppeWrapper(faresignaler));
-    }
-
-    private static TekniskException manglerKontrollresultatkode() {
-        return new TekniskException("FP-42517", "Mangler kontrollresultatkode på kontrollresultat");
     }
 
     private static Kontrollresultat mapKontrollresultatTilDomene(RisikoklasseType kontrakt) {

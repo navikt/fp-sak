@@ -109,7 +109,7 @@ public class KompletthetModell {
     }
 
     private boolean erAutopunktTilknyttetKompletthetssjekk(Optional<AksjonspunktDefinisjon> åpentAutopunkt) {
-        return KOMPLETTHETSFUNKSJONER.containsKey(åpentAutopunkt.get());
+        return åpentAutopunkt.filter(KOMPLETTHETSFUNKSJONER::containsKey).isPresent();
     }
 
     private AksjonspunktDefinisjon finnSisteAutopunktKnyttetTilKompletthetssjekk(BehandlingReferanse ref) {

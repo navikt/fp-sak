@@ -125,13 +125,15 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     }
 
     private void mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
-        if (wrapper.getArbeidsgiver().isPresent()) {
-            var orgNummer = wrapper.getArbeidsgiver().get().getVirksomhetsnummer();
+        var arbeidsgiver = wrapper.getArbeidsgiver();
+        var arbeidsgiverPrivat = wrapper.getArbeidsgiverPrivat();
+        if (arbeidsgiver.isPresent()) {
+            var orgNummer = arbeidsgiver.get().getVirksomhetsnummer();
             @SuppressWarnings("unused") var virksomhet = virksomhetTjeneste.hentOrganisasjon(orgNummer);
             builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
-        } else if (wrapper.getArbeidsgiverPrivat().isPresent()) {
+        } else if (arbeidsgiverPrivat.isPresent()) {
             var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(
-                new PersonIdent(wrapper.getArbeidsgiverPrivat().get().getArbeidsgiverFnr()))
+                new PersonIdent(arbeidsgiverPrivat.get().getArbeidsgiverFnr()))
                 .orElseThrow(() -> new TekniskException("FP-159641",
                     "Fant ikke personident for arbeidsgiver som er privatperson i TPS"));
             builder.medArbeidsgiver(Arbeidsgiver.person(aktørIdArbeidsgiver));
@@ -143,8 +145,9 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     private void mapInnsendingstidspunkt(InntektsmeldingWrapper wrapper,
                                          MottattDokument mottattDokument,
                                          InntektsmeldingBuilder builder) {
-        if (wrapper.getInnsendingstidspunkt().isPresent()) { // LPS
-            builder.medInnsendingstidspunkt(wrapper.getInnsendingstidspunkt().get());
+        var innsendingstidspunkt = wrapper.getInnsendingstidspunkt();
+        if (innsendingstidspunkt.isPresent()) { // LPS
+            builder.medInnsendingstidspunkt(innsendingstidspunkt.get());
         } else if (mottattDokument.getMottattTidspunkt() != null) { // Altinn
             builder.medInnsendingstidspunkt(mottattDokument.getMottattTidspunkt());
         } else {

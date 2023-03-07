@@ -79,7 +79,7 @@ public class ManuellRegistreringFellesValidator {
         if (feil.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new FeltFeilDto(feltnavn, feil.stream().collect(Collectors.joining(", "))));
+        return Optional.of(new FeltFeilDto(feltnavn, String.join(", ", feil)));
     }
 
     static Optional<FeltFeilDto> validerFremtidigUtenlandsopphold(ManuellRegistreringDto registreringDto) {
@@ -232,7 +232,7 @@ public class ManuellRegistreringFellesValidator {
         }
         return fødselsdatoer.stream()
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     static Optional<FeltFeilDto> validerKanIkkeOppgiAnnenForelder(ManuellRegistreringDto registreringDto) {
@@ -283,10 +283,8 @@ public class ManuellRegistreringFellesValidator {
     static Optional<FeltFeilDto> validerMottattDato(ManuellRegistreringDto manuellRegistreringDto) {
         var feltnavn = "mottattDato";
         var mottattDato = manuellRegistreringDto.getMottattDato();
-        if (nonNull(mottattDato)) {
-            if (mottattDato.isAfter(LocalDate.now())) {
-                return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
-            }
+        if (nonNull(mottattDato) && mottattDato.isAfter(LocalDate.now())) {
+            return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
         }
         if (isNull(mottattDato)) {
             return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));

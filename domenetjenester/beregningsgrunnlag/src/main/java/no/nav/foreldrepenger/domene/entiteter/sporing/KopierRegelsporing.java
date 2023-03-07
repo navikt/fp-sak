@@ -33,16 +33,17 @@ public class KopierRegelsporing {
     public static void kopierRegelsporingerTilGrunnlag(BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag,
                                                        Optional<BeregningsgrunnlagGrunnlagEntitet> tidligereAggregat) {
         var grunnlagBuilder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(nyttGrunnlag);
-        if (nyttGrunnlag.getBeregningsgrunnlag().isPresent() && tidligereAggregat.flatMap(
+        var nyttBG = nyttGrunnlag.getBeregningsgrunnlag();
+        if (nyttBG.isPresent() && tidligereAggregat.flatMap(
             BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).isPresent()) {
             var bgBuilder = grunnlagBuilder.getBeregningsgrunnlagBuilder();
-            var sporingerSomKopieres = finnRegelsporingerSomSkalKopieres(nyttGrunnlag.getBeregningsgrunnlag().get(),
-                tidligereAggregat.get().getBeregningsgrunnlag().orElseThrow());
+            var sporingerSomKopieres = finnRegelsporingerSomSkalKopieres(nyttBG.get(),
+                tidligereAggregat.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).orElseThrow());
             sporingerSomKopieres.forEach(
                 rs -> bgBuilder.medRegelSporing(rs.getRegelInput(), rs.getRegelEvaluering(), rs.getRegelType()));
             var sporingerPeriodeSomKopieres = finnRegelsporingerSomSkalKopieresFraPeriode(
-                nyttGrunnlag.getBeregningsgrunnlag().get(),
-                tidligereAggregat.get().getBeregningsgrunnlag().orElseThrow());
+                nyttBG.get(),
+                tidligereAggregat.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag).orElseThrow());
             sporingerPeriodeSomKopieres.forEach((periode, regelsporing) -> {
                 var periodeBuilders = bgBuilder.getPeriodeBuilders(periode);
                 periodeBuilders.forEach(b -> regelsporing.forEach(
