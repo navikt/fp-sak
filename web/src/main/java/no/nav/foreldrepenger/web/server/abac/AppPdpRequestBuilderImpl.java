@@ -42,7 +42,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private static void validerSamsvarBehandlingOgFagsak(Long behandlingId, Long fagsakId, Set<Long> fagsakIder) {
         var fagsakerSomIkkeErForventet = fagsakIder.stream()
                 .filter(f -> !fagsakId.equals(f))
-                .collect(Collectors.toList());
+                .toList();
         if (!fagsakerSomIkkeErForventet.isEmpty()) {
             throw new ManglerTilgangException("FP-280301", String.format("Ugyldig input. Ikke samsvar mellom behandlingId %s og fagsakId %s", behandlingId, fagsakerSomIkkeErForventet));
         }
@@ -72,8 +72,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         var aktørIder = utledAktørIder(dataAttributter, fagsakIder);
         var aksjonspunktTypeOverstyring = PipRepository.harAksjonspunktTypeOverstyring(dataAttributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
 
-        Set<String> aktører = aktørIder == null ? Collections.emptySet()
-            : aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
+        Set<String> aktører = aktørIder.stream().map(AktørId::getId).collect(Collectors.toCollection(TreeSet::new));
         Set<String> fnrs = dataAttributter.getVerdier(AppAbacAttributtType.FNR);
 
         var builder = AppRessursData.builder()
@@ -94,7 +93,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private Optional<Long> utledBehandlingIder(AbacDataAttributter attributter) {
         Set<UUID> uuids = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_UUID);
         Set<Long> behandlingIdVerdier = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_ID);
-        var behandlingId0 = behandlingIdVerdier.stream().mapToLong(Long::valueOf).boxed().collect(Collectors.toSet());
+        var behandlingId0 = behandlingIdVerdier.stream().mapToLong(Long::valueOf).boxed().toList();
 
         Set<Long> behandlingsIder = new LinkedHashSet<>(behandlingId0);
         behandlingsIder.addAll(pipRepository.behandlingsIdForUuid(uuids));

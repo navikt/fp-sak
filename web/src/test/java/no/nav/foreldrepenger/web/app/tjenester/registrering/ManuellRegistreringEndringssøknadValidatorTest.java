@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -23,116 +22,111 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.TidsromPermisjonD
 
 class ManuellRegistreringEndringssøknadValidatorTest {
 
-    ManuellRegistreringEndringsøknadDto registreringDto;
-
-    @BeforeEach
-    public void setup() {
-        registreringDto = new ManuellRegistreringEndringsøknadDto();
-    }
-
     @Test
     void skal_validere_gyldig_fellesperiode() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         var feltFeilDtos = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeilDtos).isEmpty();
+    }
+
+    private static ManuellRegistreringEndringsøknadDto dto(TidsromPermisjonDto permisjon) {
+        var registreringDto = new ManuellRegistreringEndringsøknadDto();
+        registreringDto.setTidsromPermisjon(permisjon);
+        return registreringDto;
     }
 
     @Test
     void skal_validere_fellesperiode_start_for_sluttdato() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setPermisjonsPerioder(lagGyldigFellesPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Sett start før slutt
         permisjon.getPermisjonsPerioder().get(1).setPeriodeTom(LocalDate.now());
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
-        assertThat(feltFeil).isNotEmpty();
-        assertThat(feltFeil).first()
-                .satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil).hasSize(1);
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
     }
 
     @Test
     void skal_validere_gradering_dato_satt_til_null() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Setter en av datoene i perioden til null
         permisjon.getGraderingPeriode().get(0).setPeriodeFom(null);
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-
-        assertThat(feltFeil).first().satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
     void skal_validere_gradering_overlappende_perioder() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Gjør perioder overlappende
         permisjon.getGraderingPeriode().get(1).setPeriodeFom(LocalDate.now());
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first()
-                .satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
     }
 
     @Test
     void skal_validere_gradering_start_for_sluttdato() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Sett start før slutt
         permisjon.getGraderingPeriode().get(1).setPeriodeTom(LocalDate.now());
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first()
-                .satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
     }
 
     @Test
     void skal_validere_gradering_prosentandel_må_være_satt() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Sett start årsak til null
         permisjon.getGraderingPeriode().get(1).setProsentandelArbeid(null);
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
     void skal_validere_gradering_periode_må_være_satt() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Sett gradering periode til null
         permisjon.getGraderingPeriode().get(1).setPeriodeForGradering(null);
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> assertThat(ff.getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
     void skal_validere_gradering() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setGraderingPeriode(lagGyldigGraderingPerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).isEmpty();
@@ -142,28 +136,28 @@ class ManuellRegistreringEndringssøknadValidatorTest {
     void skal_validere_gyldig_utsettelse() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setUtsettelsePeriode(lagGyldigUtsettelsePerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Sett start årsak til null
         permisjon.getUtsettelsePeriode().get(1).setArsakForUtsettelse(null);
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
     void skal_validere_utsettelse_årsak_må_være_satt() {
         var permisjon = new TidsromPermisjonDto();
         permisjon.setUtsettelsePeriode(lagGyldigUtsettelsePerioder());
-        registreringDto.setTidsromPermisjon(permisjon);
+        var registreringDto = dto(permisjon);
 
         // Sett start årsak til null
         permisjon.getUtsettelsePeriode().get(1).setArsakForUtsettelse(null);
 
         var feltFeil = ManuellRegistreringEndringssøknadValidator.validerOpplysninger(registreringDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     private List<PermisjonPeriodeDto> lagGyldigFellesPerioder() {

@@ -23,13 +23,10 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
     @Test
     void skal_validere_dekningsgrad() {
-        DekningsgradDto dekningsgrad = null;
-        var feltFeil = ManuellRegistreringSøknadValidator.validerDekningsgrad(dekningsgrad);
-        assertThat(feltFeil).as("Dekningsgrad skal ikke kunne være null").isNotEmpty();
+        assertThat(ManuellRegistreringSøknadValidator.validerDekningsgrad(null)).as("Dekningsgrad skal ikke kunne være null").isNotEmpty();
 
-        dekningsgrad = DekningsgradDto.HUNDRE;
-        feltFeil = ManuellRegistreringSøknadValidator.validerDekningsgrad(dekningsgrad);
-        assertThat(feltFeil).as("Deksningsgrad skal være gyldig når dekningsgrad er satt").isEmpty();
+        var dekningsgrad = DekningsgradDto.HUNDRE;
+        assertThat(ManuellRegistreringSøknadValidator.validerDekningsgrad(dekningsgrad)).as("Deksningsgrad skal være gyldig når dekningsgrad er satt").isEmpty();
     }
 
     @Test
@@ -42,7 +39,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
-        assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
         var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
         assertThat(feltFeilAktKrav).isEmpty();
     }
@@ -57,7 +54,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
-        assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
         var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
         assertThat(feltFeilAktKrav).isEmpty();
     }
@@ -83,7 +80,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
-        assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
         var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
         assertThat(feltFeilAktKrav).isEmpty();
     }
@@ -98,7 +95,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
-        assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
         var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
         assertThat(feltFeilAktKrav).isEmpty();
     }
@@ -113,7 +110,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
-        assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
         var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
         assertThat(feltFeilAktKrav).isEmpty();
     }
@@ -128,7 +125,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerPermisjonsperiode(permisjon);
         assertThat(feltFeil).isPresent();
-        assertThat(feltFeil).hasValueSatisfying(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
         var feltFeilAktKrav = ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(permisjon);
         assertThat(feltFeilAktKrav).isEmpty();
     }
@@ -171,7 +168,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerUtsettelse(utsettelsePerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
@@ -183,7 +180,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerUtsettelse(utsettelsePerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
     }
 
     @Test
@@ -195,7 +192,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerUtsettelse(utsettelsePerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
     }
 
     @Test
@@ -207,7 +204,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerUtsettelse(utsettelsePerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
@@ -227,7 +224,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerGradering(graderingPerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
@@ -239,7 +236,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerGradering(graderingPerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
     }
 
     @Test
@@ -251,7 +248,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerGradering(graderingPerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
     }
 
     @Test
@@ -263,7 +260,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerGradering(graderingPerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
@@ -276,7 +273,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerGradering(graderingPerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
@@ -288,7 +285,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
 
         var feltFeil = ManuellRegistreringSøknadValidator.validerGradering(graderingPerioder);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.PAAKREVD_FELT);
     }
 
     @Test
@@ -343,7 +340,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
         frilansDto.setPerioder(new ArrayList<>());
         var feltFeil = ManuellRegistreringSøknadValidator.validerFrilans(frilansDto);
         assertThat(feltFeil).hasSize(1);
-        assertThat(feltFeil).first().satisfies(ff -> ff.getMelding().equals(ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
+        assertThat(feltFeil.get(0).getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE);
     }
 
     private List<PermisjonPeriodeDto> lagGyldigFellesPerioder() {
