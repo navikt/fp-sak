@@ -21,7 +21,7 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         var mappetRegAkt = mappetGrunnlag.getRegisterAktiviteter();
         assertThat(mappetRegAkt).isNotNull();
         assertThat(mappetRegAkt.getSkjæringstidspunktOpptjening()).isEqualTo(faktiskRegAkt.getSkjæringstidspunktOpptjening());
-        assertThat(mappetRegAkt.getBeregningAktiviteter().size()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().size());
+        assertThat(mappetRegAkt.getBeregningAktiviteter()).hasSameSizeAs(faktiskRegAkt.getBeregningAktiviteter());
 
         assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getPeriode()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(0).getPeriode());
         assertThat(mappetRegAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef()).isEqualTo(faktiskRegAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef());
@@ -38,7 +38,7 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         var mappetOsAkt = mappetGrunnlag.getOverstyrteEllerRegisterAktiviteter();
         assertThat(mappetOsAkt).isNotNull();
         assertThat(mappetOsAkt.getSkjæringstidspunktOpptjening()).isEqualTo(faktiskOsAkt.getSkjæringstidspunktOpptjening());
-        assertThat(mappetOsAkt.getBeregningAktiviteter().size()).isEqualTo(faktiskOsAkt.getBeregningAktiviteter().size());
+        assertThat(mappetOsAkt.getBeregningAktiviteter()).hasSameSizeAs(faktiskOsAkt.getBeregningAktiviteter());
 
         assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getPeriode()).isEqualTo(faktiskOsAkt.getBeregningAktiviteter().get(0).getPeriode());
         assertThat(mappetOsAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef()).isEqualTo(faktiskOsAkt.getBeregningAktiviteter().get(0).getArbeidsforholdRef());
@@ -52,7 +52,7 @@ class FraEntitetTilBehandlingsmodellMapperTest {
         assertThat(mappetBG.getSkjæringstidspunkt()).isEqualTo(faktiskBG.getSkjæringstidspunkt());
         assertThat(mappetBG.getGrunnbeløp()).isEqualTo(faktiskBG.getGrunnbeløp());
         assertThat(mappetBG.getHjemmel()).isEqualTo(faktiskBG.getHjemmel());
-        assertThat(mappetBG.getAktivitetStatuser().size()).isEqualTo(faktiskBG.getAktivitetStatuser().size());
+        assertThat(mappetBG.getAktivitetStatuser()).hasSameSizeAs(faktiskBG.getAktivitetStatuser());
 
         // Aktivitetstatus
         assertThat(mappetBG.getAktivitetStatuser().get(0).getAktivitetStatus()).isEqualTo(faktiskBG.getAktivitetStatuser().get(0).getAktivitetStatus());

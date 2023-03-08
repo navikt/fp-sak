@@ -8,11 +8,11 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.Beregningsgru
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPeriodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPrStatusOgAndelDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Utfall;
@@ -26,11 +26,15 @@ import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
 
 public class BGMapperTilKalkulus {
 
+    private BGMapperTilKalkulus() {
+    }
+
     public static List<SammenligningsgrunnlagPrStatusDto> mapGammeltTilNyttSammenligningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
-        if (beregningsgrunnlagEntitet.getSammenligningsgrunnlag().isEmpty()) {
+        var sammenligningsgrunnlag = beregningsgrunnlagEntitet.getSammenligningsgrunnlag();
+        if (sammenligningsgrunnlag.isEmpty()) {
             return Collections.emptyList();
         }
-        var gammeltSG = beregningsgrunnlagEntitet.getSammenligningsgrunnlag().get();
+        var gammeltSG = sammenligningsgrunnlag.get();
         var sammenligningsgrunnlagType = finnSGType(beregningsgrunnlagEntitet);
         return Collections.singletonList(SammenligningsgrunnlagPrStatusDto.builder()
             .medSammenligningsgrunnlagType(sammenligningsgrunnlagType)
