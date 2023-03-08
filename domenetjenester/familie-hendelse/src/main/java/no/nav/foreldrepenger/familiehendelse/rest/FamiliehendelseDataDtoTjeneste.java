@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Uidenti
  */
 public class FamiliehendelseDataDtoTjeneste {
 
-    // TODO (OJR) Bør denne hardkodast her? FC: NOPE
     private static final Integer ANTALL_UKER_I_SVANGERSKAP = 40;
 
     FamiliehendelseDataDtoTjeneste() {
@@ -107,8 +106,7 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static void mapFødsler(FamilieHendelseEntitet hendelse, AvklartDataFodselDto dto) {
-        var barn = hendelse.getBarna().stream().map(barna ->
-            new AvklartBarnDto(barna.getFødselsdato(), barna.getDødsdato().orElse(null))).collect(Collectors.toList());
+        var barn = hendelse.getBarna().stream().map(barna -> new AvklartBarnDto(barna.getFødselsdato(), barna.getDødsdato().orElse(null))).toList();
         dto.setAvklartBarn(barn);
     }
 
@@ -162,7 +160,7 @@ public class FamiliehendelseDataDtoTjeneste {
 
     private static boolean harValgtSammeSomBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {
         final var bekreftet = grunnlag.getBekreftetVersjon();
-        final var overstyrt = grunnlag.getOverstyrtVersjon().get();
+        final var overstyrt = grunnlag.getOverstyrtVersjon().orElseThrow();
 
         var antallBarnLike = false;
         var fødselsdatoLike = false;
@@ -170,7 +168,7 @@ public class FamiliehendelseDataDtoTjeneste {
             antallBarnLike = Objects.equals(bekreftet.get().getAntallBarn(), overstyrt.getAntallBarn());
             fødselsdatoLike = Objects.equals(bekreftet.get().getFødselsdato(), overstyrt.getFødselsdato());
         }
-        return (antallBarnLike && fødselsdatoLike) || (!bekreftet.isPresent() && overstyrt.getBarna().isEmpty());
+        return (antallBarnLike && fødselsdatoLike) || (bekreftet.isEmpty() && overstyrt.getBarna().isEmpty());
     }
 
     private static Optional<FamiliehendelseDto> lagAdopsjonDto(FamilieHendelseGrunnlagEntitet grunnlag) {
