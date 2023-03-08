@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -464,6 +466,15 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now());
         scenario.lagre(repositoryProvider);
+
+        var behandlingId = scenario.getBehandling().getId();
+        var beh = behandlingRepository.hentBehandling(behandlingId);
+        beh.setAnsvarligBeslutter("Test");
+        var lås = behandlingRepository.taSkriveLås(beh.getId());
+        behandlingRepository.lagre(beh, lås);
+
+        assertThat(beh.getId()).isEqualTo(behandlingId);
+        assertThat(beh.getAnsvarligBeslutter()).isEqualTo("Test");
     }
 
     @Test
