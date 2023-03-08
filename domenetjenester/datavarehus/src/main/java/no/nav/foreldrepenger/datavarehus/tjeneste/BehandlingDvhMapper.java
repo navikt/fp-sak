@@ -21,6 +21,9 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 
 public class BehandlingDvhMapper {
 
+    private BehandlingDvhMapper() {
+    }
+
     private static final ArrayList<BehandlingResultatType> AVBRUTT_BEHANDLINGSRESULTAT = new ArrayList<>();
 
     static {
@@ -47,7 +50,7 @@ public class BehandlingDvhMapper {
             .behandlendeEnhet(behandling.getBehandlendeEnhet())
             .behandlingId(behandling.getId())
             .behandlingUuid(behandling.getUuid())
-            .behandlingResultatType(behandlingsresultat == null ? null :behandlingsresultat.getBehandlingResultatType().getKode())
+            .behandlingResultatType(behandlingsresultat == null ? null : behandlingsresultat.getBehandlingResultatType().getKode())
             .behandlingStatus(behandling.getStatus().getKode())
             .behandlingType(behandling.getType().getKode())
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandling))
@@ -84,25 +87,16 @@ public class BehandlingDvhMapper {
         return behandling.getOriginalBehandlingId().orElse(null);
     }
 
-    private static String mapSoeknadFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
-       if( fh.isPresent() ){
-           return fh.get().getSøknadVersjon().getType().getKode();
-       }
-        return null;
+    private static String mapSoeknadFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
+        return fh.map(f -> f.getSøknadVersjon().getType().getKode()).orElse(null);
     }
 
-    private static String mapbekreftetFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
-        if( fh.isPresent() && fh.get().getBekreftetVersjon().isPresent() ){
-            return  fh.get().getBekreftetVersjon().get().getType().getKode();
-        }
-        return null;
+    private static String mapbekreftetFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
+        return fh.flatMap(f -> f.getBekreftetVersjon().map(bv -> bv.getType().getKode())).orElse(null);
     }
 
-    private static String mapoverstyrtFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh){
-        if( fh.isPresent() && fh.get().getOverstyrtVersjon().isPresent() ){
-            return  fh.get().getOverstyrtVersjon().get().getType().getKode();
-        }
-        return null;
+    private static String mapoverstyrtFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
+        return fh.flatMap(f -> f.getOverstyrtVersjon().map(bv -> bv.getType().getKode())).orElse(null);
     }
 
     private static boolean mapAvbrutt(Behandlingsresultat behandlingsresultat, FagsakStatus fagsakStatus) {
@@ -131,15 +125,15 @@ public class BehandlingDvhMapper {
 
         var utenlandstilsnitt = "NASJONAL";
 
-        var utlandsakAksjonpunkt =   behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
+        var utlandsakAksjonpunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
 
-        if(utlandsakAksjonpunkt.isPresent()){
+        if (utlandsakAksjonpunkt.isPresent()) {
             if (HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {
-                utenlandstilsnitt=  HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE.getKode();
+                utenlandstilsnitt = HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE.getKode();
             } else if (HistorikkEndretFeltVerdiType.BOSATT_UTLAND.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {
-                utenlandstilsnitt=  HistorikkEndretFeltVerdiType.BOSATT_UTLAND.getKode();
+                utenlandstilsnitt = HistorikkEndretFeltVerdiType.BOSATT_UTLAND.getKode();
             } else if (HistorikkEndretFeltVerdiType.NASJONAL.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {
-                utenlandstilsnitt=  HistorikkEndretFeltVerdiType.NASJONAL.getKode();
+                utenlandstilsnitt = HistorikkEndretFeltVerdiType.NASJONAL.getKode();
             }
         }
         return utenlandstilsnitt;

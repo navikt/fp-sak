@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.datavarehus.xml.fp;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -76,7 +75,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
                                                List<BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder) {
         var periodeListe = beregningsgrunnlagPerioder
             .stream()
-            .map(this::konverterFraDomene).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         beregningsgrunnlag.getBeregningsgrunnlagPeriode().addAll(periodeListe);
     }
 
@@ -84,7 +83,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
                                                         List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
         var aktivitetStatusListe = aktivitetStatuser
             .stream()
-            .map(this::konverterFraDomene).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         beregningsgrunnlag.getAktivitetstatuser().addAll(aktivitetStatusListe);
     }
 
@@ -125,7 +124,8 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
                                                       List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
         var beregningsgrunnlagPrStatusOgAndelKontrakt = beregningsgrunnlagPrStatusOgAndelList
             .stream()
-            .map(this::konverterFraDomene).collect(Collectors.toList());
+            .map(this::konverterFraDomene)
+            .toList();
         kontrakt.getBeregningsgrunnlagPrStatusOgAndel().addAll(beregningsgrunnlagPrStatusOgAndelKontrakt);
     }
 

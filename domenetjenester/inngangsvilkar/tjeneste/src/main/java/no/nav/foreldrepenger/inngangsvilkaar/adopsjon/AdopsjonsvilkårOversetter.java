@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.adopsjon;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,15 +64,12 @@ public class AdopsjonsvilkårOversetter {
 
     private boolean erStønadperiodeBruktOpp(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         var versjon = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
-        var familieHendelse = versjon.orElseGet(familieHendelseGrunnlag::getSøknadVersjon);
+        var adopsjon = versjon.orElseGet(familieHendelseGrunnlag::getSøknadVersjon).getAdopsjon();
 
-        if (familieHendelse.getAdopsjon().isPresent()) {
-            var omsorgsovertakelseDato = familieHendelse.getAdopsjon().get().getOmsorgsovertakelseDato();
+        if (adopsjon.isPresent()) {
+            var omsorgsovertakelseDato = adopsjon.get().getOmsorgsovertakelseDato();
             var maksdatoForeldrepenger = ytelseMaksdatoTjeneste.beregnMaksdatoForeldrepenger(ref);
-
-            if (maksdatoForeldrepenger.isEmpty() || omsorgsovertakelseDato.isBefore(maksdatoForeldrepenger.get())) {
-                return false; // stønadsperioden er ikke brukt opp av annen forelder
-            }
+            return maksdatoForeldrepenger.isPresent() && !omsorgsovertakelseDato.isBefore(maksdatoForeldrepenger.get()); // stønadsperioden er ikke brukt opp av annen forelder
         }
         return true;
     }
@@ -87,11 +82,10 @@ public class AdopsjonsvilkårOversetter {
 
         var bekreftetAdopsjonBarn = bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(List.of()).stream()
             .map(barn -> new BekreftetAdopsjonBarn(barn.getFødselsdato()))
-            .collect(toList());
-        var bekreftetAdopsjon = new BekreftetAdopsjon(adopsjon.getOmsorgsovertakelseDato(), bekreftetAdopsjonBarn,
+            .toList();
+        return new BekreftetAdopsjon(adopsjon.getOmsorgsovertakelseDato(), bekreftetAdopsjonBarn,
             getBooleanOrDefaultFalse(adopsjon.getErEktefellesBarn()),
             getBooleanOrDefaultFalse(adopsjon.getAdoptererAlene()));
-        return bekreftetAdopsjon;
     }
 
     private static boolean getBooleanOrDefaultFalse(Boolean bool) {
