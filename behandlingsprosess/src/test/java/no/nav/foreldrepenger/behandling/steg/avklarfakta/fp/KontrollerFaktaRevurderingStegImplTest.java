@@ -70,7 +70,7 @@ class KontrollerFaktaRevurderingStegImplTest {
         var aksjonspunkter = steg.utførSteg(kontekst).getAksjonspunktListe();
 
         // Assert
-        assertThat(aksjonspunkter).doesNotContain(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD);
+        assertThat(aksjonspunkter).isEmpty();
     }
 
     @Test
