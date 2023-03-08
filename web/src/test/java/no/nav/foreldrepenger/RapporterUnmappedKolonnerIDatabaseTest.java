@@ -97,7 +97,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     @Test
-    void sjekk_unmapped() throws Exception {
+    void sjekk_unmapped() {
         sjekk_alle_tabeller_mappet();
         sjekk_alle_kolonner_mappet();
     }

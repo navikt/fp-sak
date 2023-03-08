@@ -21,6 +21,8 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakRes
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 class BeregningsresultatInputVerifisererTest {
     private List<BeregningsgrunnlagPeriode> bgPerioder = new ArrayList<>();
     private List<UttakResultatPeriode> uttakPerioder = new ArrayList<>();
@@ -41,7 +43,7 @@ class BeregningsresultatInputVerifisererTest {
 
         var uttakResultat = new UttakResultat(uttakPerioder);
         var input = new BeregningsresultatGrunnlag(new Beregningsgrunnlag(bgPerioder), uttakResultat);
-        BeregningsresultatInputVerifiserer.verifiserAndelerIUttakLiggerIBeregning(input);
+        assertDoesNotThrow(() -> BeregningsresultatInputVerifiserer.verifiserAndelerIUttakLiggerIBeregning(input));
     }
 
     @Test
@@ -55,7 +57,7 @@ class BeregningsresultatInputVerifisererTest {
 
         var uttakResultat = new UttakResultat(uttakPerioder);
         var input = new BeregningsresultatGrunnlag(new Beregningsgrunnlag(bgPerioder), uttakResultat);
-        BeregningsresultatInputVerifiserer.verifiserAlleAndelerIBeregningErIUttak(input);
+        assertDoesNotThrow(() -> BeregningsresultatInputVerifiserer.verifiserAlleAndelerIBeregningErIUttak(input));
     }
 
     @Test
@@ -67,7 +69,7 @@ class BeregningsresultatInputVerifisererTest {
 
         var uttakResultat = new UttakResultat(uttakPerioder);
         var input = new BeregningsresultatGrunnlag(new Beregningsgrunnlag(bgPerioder), uttakResultat);
-        BeregningsresultatInputVerifiserer.verifiserAlleAndelerIBeregningErIUttak(input);
+        assertDoesNotThrow(() -> BeregningsresultatInputVerifiserer.verifiserAlleAndelerIBeregningErIUttak(input));
     }
 
 
