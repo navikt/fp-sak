@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -62,8 +63,8 @@ public class IAYGrunnlagDiff {
         if (eksisterendeAktørArbeid.isEmpty()) {
             return false;
         }
-        var eksisterendeFilter = new YrkesaktivitetFilter(null, eksisterendeAktørArbeid).før(skjæringstidspunkt);
-        var nyFilter = new YrkesaktivitetFilter(null, nyAktørArbeid).før(skjæringstidspunkt);
+        var eksisterendeFilter = new YrkesaktivitetFilter(Optional.empty(), eksisterendeAktørArbeid).før(skjæringstidspunkt);
+        var nyFilter = new YrkesaktivitetFilter(Optional.empty(), nyAktørArbeid).før(skjæringstidspunkt);
         if ((eksisterendeFilter.getYrkesaktiviteter().size() != nyFilter.getYrkesaktiviteter().size())
                 || (eksisterendeFilter.getAnsettelsesPerioder().size() != nyFilter.getAnsettelsesPerioder().size())) {
             return true;

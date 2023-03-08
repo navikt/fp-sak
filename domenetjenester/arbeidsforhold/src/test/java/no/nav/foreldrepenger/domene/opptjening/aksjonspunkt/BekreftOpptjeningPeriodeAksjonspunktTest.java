@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -114,8 +113,8 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        final var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
-                .collect(Collectors.toList());
+        var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
+                .toList();
         assertThat(perioder).contains(periode1);
     }
 
@@ -167,8 +166,8 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        final var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
-                .collect(Collectors.toList());
+        var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
+                .toList();
         assertThat(perioder).contains(periode1, periode2);
     }
 

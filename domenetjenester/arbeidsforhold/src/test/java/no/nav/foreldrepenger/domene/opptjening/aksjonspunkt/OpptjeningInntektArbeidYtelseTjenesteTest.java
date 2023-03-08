@@ -79,7 +79,7 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
     @Test
     void skal_utlede_en_periode_for_egen_næring() {
         // Arrange
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt.minusMonths(2));
 
@@ -115,7 +115,7 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
     @Test
     void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode_for_vilkår_godkjent() {
         // Arrange
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt.minusMonths(2));
 
@@ -143,11 +143,11 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
     void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode_for_vilkår_underkjent() {
         // Arrange
         var iDag = LocalDate.now();
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
 
-        final var virksomhet = Arbeidsgiver.virksomhet(NAV_ORG_NUMMER);
+        var virksomhet = Arbeidsgiver.virksomhet(NAV_ORG_NUMMER);
         var bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,
                 ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.ZERO, virksomhet, VersjonType.REGISTER);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
@@ -172,13 +172,13 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
     }
 
     private Behandling opprettBehandling() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
         fagsakRepository.opprettNy(fagsak);
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         Behandlingsresultat.opprettFor(behandling);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        final var nyttResultat = VilkårResultat.builder().buildFor(behandling);
+        var nyttResultat = VilkårResultat.builder().buildFor(behandling);
         behandlingRepository.lagre(nyttResultat, behandlingRepository.taSkriveLås(behandling));
 
         opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusMonths(10), skjæringstidspunkt, false);
