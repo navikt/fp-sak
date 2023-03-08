@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
 import static java.lang.Boolean.TRUE;
-import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.FØR_ELLER_LIK_DAGENS_DATO;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -36,8 +34,7 @@ public class ManuellRegistreringFellesValidator {
     }
 
     public static List<FeltFeilDto> validerOpplysninger(ManuellRegistreringDto registreringDto) {
-        var funnetFeil =
-            Stream.of(validerTidligereUtenlandsopphold(registreringDto),
+        return Stream.of(validerTidligereUtenlandsopphold(registreringDto),
                 validerFremtidigUtenlandsopphold(registreringDto),
                 validerTerminEllerFødselsdato(registreringDto),
                 validerTermindato(registreringDto),
@@ -52,9 +49,7 @@ public class ManuellRegistreringFellesValidator {
                 validerMottattDato(registreringDto))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
-
-        return funnetFeil;
+                .toList();
     }
 
     static Optional<FeltFeilDto> validerTidligereUtenlandsopphold(ManuellRegistreringDto registreringDto) {
@@ -70,7 +65,7 @@ public class ManuellRegistreringFellesValidator {
 
     private static Optional<FeltFeilDto> validerTidligereUtenlandsoppholdDatoer(List<UtenlandsoppholdDto> tidligereOppholdUtenlands, String feltnavn) {
         var feil = new ArrayList<String>();
-        var perioder = tidligereOppholdUtenlands.stream().map(tou -> new Periode(tou.getPeriodeFom(), tou.getPeriodeTom())).collect(Collectors.toList());
+        var perioder = tidligereOppholdUtenlands.stream().map(tou -> new Periode(tou.getPeriodeFom(), tou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.periodeFørDagensDato(perioder));
@@ -95,7 +90,7 @@ public class ManuellRegistreringFellesValidator {
 
     private static Optional<FeltFeilDto> validerFremtidigOppholdUtenlandsDatoer(List<UtenlandsoppholdDto> fremtidigOppholdUtenlands, LocalDate mottattDato, String feltnavn) {
         var feil = new ArrayList<String>();
-        var perioder = fremtidigOppholdUtenlands.stream().map(fou -> new Periode(fou.getPeriodeFom(), fou.getPeriodeTom())).collect(Collectors.toList());
+        var perioder = fremtidigOppholdUtenlands.stream().map(fou -> new Periode(fou.getPeriodeFom(), fou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørMottatDato(perioder, mottattDato));
@@ -103,7 +98,7 @@ public class ManuellRegistreringFellesValidator {
         if (feil.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new FeltFeilDto(feltnavn, feil.stream().collect(Collectors.joining(", "))));
+        return Optional.of(new FeltFeilDto(feltnavn, String.join(", ", feil)));
     }
 
     static Optional<FeltFeilDto> validerTerminEllerFødselsdato(ManuellRegistreringDto manuellRegistreringDto) {
@@ -200,9 +195,8 @@ public class ManuellRegistreringFellesValidator {
         var feltnavn = "foedselsDato";
         Predicate<LocalDate> pred = d -> d.isAfter(LocalDate.now());
         var fødselsdatoer = hentFødselsdatoer(registreringDto);
-        var harFødselsdato = !erTomListe(fødselsdatoer);
         if (erAdopsjonEllerOmsorg(registreringDto)) {
-            if (!harFødselsdato) {
+            if (fødselsdatoer.isEmpty()) {
                 return Optional.of(new FeltFeilDto(feltnavn, LIKT_ANTALL_BARN_OG_FØDSELSDATOER));
             }
             var antallBarn = registreringDto.getOmsorg().getAntallBarn();
@@ -213,7 +207,7 @@ public class ManuellRegistreringFellesValidator {
                 return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
             }
         } else if(erFødsel(registreringDto) && (TRUE.equals(registreringDto.getErBarnetFodt()))) {
-            if (!harFødselsdato) {
+            if (fødselsdatoer.isEmpty()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }
             if (fødselsdatoer.stream().anyMatch(pred)) {
@@ -226,7 +220,7 @@ public class ManuellRegistreringFellesValidator {
     private static List<LocalDate> hentFødselsdatoer(ManuellRegistreringDto registreringDto) {
         List<LocalDate> fødselsdatoer;
         if (erAdopsjonEllerOmsorg(registreringDto)) {
-            fødselsdatoer = Optional.ofNullable(registreringDto.getOmsorg().getFoedselsDato()).orElse(emptyList());
+            fødselsdatoer = Optional.ofNullable(registreringDto.getOmsorg().getFoedselsDato()).orElse(List.of());
         } else {
             fødselsdatoer = Optional.ofNullable(registreringDto.getFoedselsDato()).map(List::of).orElse(List.of());
         }
