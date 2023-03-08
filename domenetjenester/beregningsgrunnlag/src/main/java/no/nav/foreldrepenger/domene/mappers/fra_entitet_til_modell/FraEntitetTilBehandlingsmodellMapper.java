@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
@@ -36,6 +35,9 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class FraEntitetTilBehandlingsmodellMapper {
+
+    private FraEntitetTilBehandlingsmodellMapper() {
+    }
 
     public static BeregningsgrunnlagGrunnlag mapBeregningsgrunnlagGrunnlag(BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet) {
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
@@ -135,7 +137,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
     }
 
     private static List<BeregningsgrunnlagPeriode> mapPerioder(List<no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder) {
-        return beregningsgrunnlagPerioder.stream().map(FraEntitetTilBehandlingsmodellMapper::mapPeriode).collect(Collectors.toList());
+        return beregningsgrunnlagPerioder.stream().map(FraEntitetTilBehandlingsmodellMapper::mapPeriode).toList();
     }
 
     private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode mapPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode beregningsgrunnlagPeriodeDto) {
@@ -151,7 +153,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
     }
 
     private static List<no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
-        return beregningsgrunnlagPrStatusOgAndelList.stream().map(FraEntitetTilBehandlingsmodellMapper::mapAndel).collect(Collectors.toList());
+        return beregningsgrunnlagPrStatusOgAndelList.stream().map(FraEntitetTilBehandlingsmodellMapper::mapAndel).toList();
     }
 
     private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel mapAndel(BeregningsgrunnlagPrStatusOgAndel andelEntitet) {
@@ -187,10 +189,8 @@ public class FraEntitetTilBehandlingsmodellMapper {
                 ? null
                 : andelEntitet.getÅrsbeløpFraTilstøtendeYtelse().getVerdi());
 
-        if (andelEntitet.getBgAndelArbeidsforhold().isPresent()) {
-            builder.medBGAndelArbeidsforhold(
-                FraEntitetTilBehandlingsmodellMapper.mapBgAndelArbeidsforhold(andelEntitet.getBgAndelArbeidsforhold().get()));
-        }
+        andelEntitet.getBgAndelArbeidsforhold().ifPresent(bga -> builder.medBGAndelArbeidsforhold(
+            FraEntitetTilBehandlingsmodellMapper.mapBgAndelArbeidsforhold(andelEntitet.getBgAndelArbeidsforhold().get())));
 
         if (andelEntitet.getPgiSnitt() != null) {
             builder.medPgi(andelEntitet.getPgiSnitt(),
@@ -245,7 +245,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
                 .map(BGAndelArbeidsforhold::erLønnsendringIBeregningsperioden)
                 .ifPresent(fakta -> builder.medHarLønnsendringIBeregningsperioden(new FaktaVurdering(fakta, FaktaVurderingKilde.SAKSBEHANDLER)));
             return builder.manglerFakta() ? null : builder.build();
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).toList();
     }
 
     private static Optional<FaktaAktør> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andeler,
