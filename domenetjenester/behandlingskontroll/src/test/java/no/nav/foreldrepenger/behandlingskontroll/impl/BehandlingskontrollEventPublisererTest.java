@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunkt;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -72,6 +73,7 @@ class BehandlingskontrollEventPublisererTest {
         kontrollTjeneste.aksjonspunkterEndretStatus(kontekst, stegType, List.of(aksjonspunkt));
 
         var ads = new AksjonspunktDefinisjon[]{AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT};
+        assertThat(ads).isNotNull();
         TestEventObserver.containsExactly(ads);
     }
 
@@ -91,6 +93,8 @@ class BehandlingskontrollEventPublisererTest {
 
         BehandlingskontrollEvent startEvent = new BehandlingskontrollEvent.StartetEvent(null, null, STEG_1, null);
         BehandlingskontrollEvent stoppEvent = new BehandlingskontrollEvent.StoppetEvent(null, null, STEG_4, BehandlingStegStatus.INNGANG);
+        assertThat(startEvent).isNotNull();
+        assertThat(stoppEvent).isNotNull();
         TestEventObserver.containsExactly(startEvent, stoppEvent);
 
     }
@@ -123,6 +127,13 @@ class BehandlingskontrollEventPublisererTest {
                 BehandlingStegStatus.UTFØRT);
         var steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, null,
                 BehandlingStegStatus.INNGANG);
+        assertThat(steg1StatusEvent0).isNotNull();
+        assertThat(steg1StatusEvent1).isNotNull();
+        assertThat(steg2StatusEvent0).isNotNull();
+        assertThat(steg2StatusEvent).isNotNull();
+        assertThat(steg3StatusEvent0).isNotNull();
+        assertThat(steg3StatusEvent).isNotNull();
+        assertThat(steg4StatusEvent).isNotNull();
         TestEventObserver.containsExactly(steg1StatusEvent0, steg1StatusEvent1 //
                 , steg2StatusEvent0, steg2StatusEvent//
                 , steg3StatusEvent0, steg3StatusEvent//
@@ -148,6 +159,7 @@ class BehandlingskontrollEventPublisererTest {
         // retning, her gjøres det fremover.
         // Den trenger et åpent aksjonspunkt som ligger før startsteget
         var tilbakeføring3_4 = nyOvergangEvent(kontekst, STEG_3, BehandlingStegStatus.UTFØRT, STEG_4, null);
+        assertThat(tilbakeføring3_4).isNotNull();
         TestEventObserver.containsExactly(tilbakeføring3_4);
     }
 
@@ -168,6 +180,9 @@ class BehandlingskontrollEventPublisererTest {
         var overgang1_2 = nyOvergangEvent(kontekst, STEG_1, BehandlingStegStatus.UTFØRT, STEG_2, null);
         var overgang2_3 = nyOvergangEvent(kontekst, STEG_2, BehandlingStegStatus.UTFØRT, STEG_3, null);
         var overgang3_4 = nyOvergangEvent(kontekst, STEG_3, BehandlingStegStatus.UTFØRT, STEG_4, null);
+        assertThat(overgang1_2).isNotNull();
+        assertThat(overgang2_3).isNotNull();
+        assertThat(overgang3_4).isNotNull();
         TestEventObserver.containsExactly(overgang1_2, overgang2_3, overgang3_4);
     }
 

@@ -282,7 +282,7 @@ public class OpptjeningsperioderTjeneste {
             OpptjeningAktivitetVurdering vurderForSaksbehandling,
             Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening) {
         var aktørId = behandlingReferanse.aktørId();
-        var filter = new YrkesaktivitetFilter(null, grunnlag.getBekreftetAnnenOpptjening(aktørId));
+        var filter = new YrkesaktivitetFilter(Optional.empty(), grunnlag.getBekreftetAnnenOpptjening(aktørId));
 
         var overstyrtAktivitet = finnTilsvarende(filter, registerAktivitet).orElse(null);
         var opptjeningsperioderForSaksbehandling = MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.mapYrkesaktivitet(behandlingReferanse,

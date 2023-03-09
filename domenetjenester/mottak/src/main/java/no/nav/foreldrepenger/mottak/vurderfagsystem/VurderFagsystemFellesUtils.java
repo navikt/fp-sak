@@ -345,8 +345,9 @@ public class VurderFagsystemFellesUtils {
             var behandlingRefDato = Optional.ofNullable(sisteBehandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
             return behandlingRefDato.isAfter(innkommendeReferanseDato.minus(PERIODE_FOR_MULIGE_SAKER_IM));
         }
-        if (vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().isPresent()) {
-            var oppgittFørsteDag = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get();
+        var startdato = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding();
+        if (startdato.isPresent()) {
+            var oppgittFørsteDag = startdato.get();
             return alleInntektsmeldinger.values().stream().flatMap(Collection::stream).map(Inntektsmelding::getStartDatoPermisjon).flatMap(Optional::stream)
                 .anyMatch(d -> oppgittFørsteDag.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(d) && oppgittFørsteDag.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(d));
         } else {
@@ -357,8 +358,9 @@ public class VurderFagsystemFellesUtils {
     }
 
     private LocalDate getReferanseDatoFraInnkommendeForVurdering(VurderFagsystem vurderFagsystem) {
-        if (vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().isPresent()) {
-            return vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get();
+        var startdato = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding();
+        if (startdato.isPresent()) {
+            return startdato.get();
         }
         var idag = LocalDate.now();
         var referansedato = vurderFagsystem.getBarnFodselsdato()

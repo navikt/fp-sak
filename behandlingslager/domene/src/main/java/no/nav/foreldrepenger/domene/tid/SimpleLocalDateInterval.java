@@ -9,6 +9,8 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
     private final LocalDate tomDato;
 
     public SimpleLocalDateInterval(LocalDate fomDato, LocalDate tomDato) {
+        Objects.requireNonNull(fomDato, "fomDato");
+        Objects.requireNonNull(tomDato, "tomDato");
         this.fomDato = fomDato;
         this.tomDato = tomDato;
     }
@@ -16,11 +18,6 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
     public static SimpleLocalDateInterval fraOgMedTomNotNull(LocalDate fomDato, LocalDate tomDato) {
         return tomDato != null ? new SimpleLocalDateInterval(fomDato, tomDato) : new SimpleLocalDateInterval(fomDato, TIDENES_ENDE);
     }
-
-    public static SimpleLocalDateInterval fraOgMed(LocalDate fomDato) {
-        return new SimpleLocalDateInterval(fomDato, TIDENES_ENDE);
-    }
-
 
     @Override
     public LocalDate getFomDato() {
@@ -34,10 +31,18 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
         var that = (SimpleLocalDateInterval) o;
-        return Objects.equals(fomDato, that.fomDato) && Objects.equals(tomDato, that.tomDato);
+        return fomDato.equals(that.fomDato) && tomDato.equals(that.tomDato);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), fomDato, tomDato);
     }
 }

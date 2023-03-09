@@ -65,6 +65,10 @@ class AnkeRepositoryTest extends EntityManagerAwareTest {
         var scenario2 = ScenarioFarSøkerEngangsstønad.forFødsel();
         var påAnketKlageBehandling = scenario2.lagre(repositoryProvider);
         ankeRepository.settPåAnketKlageBehandling(ankeBehandling.getId(), påAnketKlageBehandling.getId());
+
+        var påanketBehandlingId = ankeRepository.hentAnkeResultat(ankeBehandling.getId()).flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
+        assertThat(påanketBehandlingId).isPresent();
+        assertThat(påanketBehandlingId).contains(påAnketKlageBehandling.getId());
     }
 
     private AnkeVurderingResultatEntitet.Builder opprettVurderingResultat(AnkeResultatEntitet ankeResultat) {

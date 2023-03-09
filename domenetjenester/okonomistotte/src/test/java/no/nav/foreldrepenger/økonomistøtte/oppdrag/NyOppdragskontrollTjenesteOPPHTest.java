@@ -154,7 +154,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
     @Test
     @DisplayName("Opphør skal ikke sendes hvis endringstidspunkt er etter alle tidligere oppdrag.")
-    public void opphørSkalIkkeSendesHvisEndringstidspunktErEtterAlleTidligereOppdrag() {
+    void opphørSkalIkkeSendesHvisEndringstidspunktErEtterAlleTidligereOppdrag() {
         // Arrange
         var fom = LocalDate.of(I_ÅR, 8, 1);
         var tom = LocalDate.of(I_ÅR, 8, 7);
@@ -214,6 +214,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         //verifiserOppdrag110OgOppdragslinje150(oppdragRevurdering, originaltOppdrag110Liste, false); //TODO må redigeres
     }
@@ -244,6 +245,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         // TODO rediger verifiserOppdrag110OgOppdragslinje150(oppdragRevurdering, originaltOppdrag110Liste, true);
     }
@@ -296,6 +298,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.verifiserOpphørsdatoen(originaltOppdrag, oppdragRevurdering);
     }
 
@@ -427,6 +430,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         // TODO: sjekk denne metoden og test verifiserOppdrag110OgOppdragslinje150(oppdragRevurdering, originaltOppdrag110Liste, false);
     }

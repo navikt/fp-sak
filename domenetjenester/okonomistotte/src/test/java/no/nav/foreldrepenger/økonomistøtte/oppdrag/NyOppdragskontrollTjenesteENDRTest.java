@@ -64,6 +64,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, true, false, 80);
@@ -90,6 +91,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
+        assertThat(oppdragRevurdering).isNotNull();
         var oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         assertThat(oppdrag110.getOmpostering116()).isPresent();
@@ -142,7 +144,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
     @Test
     @DisplayName("Tester tilfeller hvor ompostering116 ble ikke sendt fordi bruker har fått opphør på feriepenger men ikke selve ytelsen.")
-    public void test_manglende_inntrekk_tfp_5130() {
+    void test_manglende_inntrekk_tfp_5130() {
         // Arrange
         // Arrange : Førstegangsbehandling
         var beregningsresultatFP_1 = buildEmptyBeregningsresultatFP();
@@ -846,6 +848,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, false);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, false, false, 80);
@@ -951,6 +954,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, true, true, 80);
@@ -1234,6 +1238,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         var opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
@@ -1262,6 +1267,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
     }
 
@@ -1289,6 +1295,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         var opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
@@ -1318,6 +1325,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
+        assertThat(oppdragRevurdering).isNotNull();
         var opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
@@ -2494,7 +2502,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
      */
     @Test
     @Disabled // må vurdere hvordan man skal løse problemet - send oppgave tit NØS uansett?
-    public void skalSendeEndringsOppdragNårPrivatArbgvrHarRefusjonIForrigeBehandlingOgBrukerBlirMottakerIRevurdering() {
+    void skalSendeEndringsOppdragNårPrivatArbgvrHarRefusjonIForrigeBehandlingOgBrukerBlirMottakerIRevurdering() {
 
         // Arrange : Førstegangsbehandling
         var beregningsresultat = buildEmptyBeregningsresultatFP();

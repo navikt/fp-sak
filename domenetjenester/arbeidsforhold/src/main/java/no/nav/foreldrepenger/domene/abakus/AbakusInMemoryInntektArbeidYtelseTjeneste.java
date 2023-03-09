@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilde
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
@@ -73,7 +72,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     private static String getCallerMethod() {
-        var frames = StackWalker.getInstance().walk(s -> s.limit(2).collect(Collectors.toList()));
+        var frames = StackWalker.getInstance().walk(s -> s.limit(2).toList());
         return frames.get(1).getMethodName();
     }
 
@@ -110,11 +109,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long fraBehandlingId, Long tilBehandlingId) {
-        var origAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(fraBehandlingId);
-        origAggregat.ifPresent(orig -> {
-            var entitet = new InntektArbeidYtelseGrunnlag(orig);
-            lagreOgFlush(tilBehandlingId, entitet);
-        });
+        kopierGrunnlagFraEksisterendeBehandling(fraBehandlingId, tilBehandlingId);
     }
 
     @Override
@@ -238,14 +233,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId søkerAktørId, ArbeidsforholdInformasjonBuilder informasjon) {
-        Objects.requireNonNull(informasjon, "informasjon");
-        var builder = opprettGrunnlagBuilderFor(behandlingId);
-
-        builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getReverserteErstattArbeidsforhold());
-        builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getErstattArbeidsforhold());
-        builder.medInformasjon(informasjon.build());
-
-        lagreOgFlush(behandlingId, builder.build());
+        lagreArbeidsforhold(behandlingId, søkerAktørId, informasjon);
     }
 
     @Override
@@ -294,11 +282,12 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     private static void konverterEksternArbeidsforholdRefTilInterne(InntektsmeldingBuilder inntektsmeldingBuilder,
             final ArbeidsforholdInformasjon informasjon) {
-        if (inntektsmeldingBuilder.getEksternArbeidsforholdRef().isPresent()) {
-            var ekstern = inntektsmeldingBuilder.getEksternArbeidsforholdRef().get();
+        var eksternRef = inntektsmeldingBuilder.getEksternArbeidsforholdRef();
+        if (eksternRef.isPresent()) {
+            var ekstern = eksternRef.get();
             var intern = inntektsmeldingBuilder.getInternArbeidsforholdRef();
             if (ekstern.gjelderForSpesifiktArbeidsforhold()) {
-                if (!intern.get().gjelderForSpesifiktArbeidsforhold()) {
+                if (intern.isEmpty() || !intern.get().gjelderForSpesifiktArbeidsforhold()) {
                     // lag ny intern id siden vi i
                     var internId = informasjon.finnEllerOpprett(inntektsmeldingBuilder.getArbeidsgiver(), ekstern);
                     inntektsmeldingBuilder.medArbeidsforholdId(internId);
@@ -329,7 +318,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     private Set<Long> alleBehandlingMedGrunnlag(UUID grunnlagId) {
         return indeksBehandlingTilGrunnlag.entrySet().stream()
                 .filter(e -> e.getValue().contains(grunnlagId))
-                .map(e -> e.getKey())
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
@@ -434,27 +423,6 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
         public static InMemoryInntektArbeidYtelseGrunnlagBuilder oppdatere(Optional<InntektArbeidYtelseGrunnlag> kladd) {
             return kladd.map(InMemoryInntektArbeidYtelseGrunnlagBuilder::oppdatere).orElseGet(InMemoryInntektArbeidYtelseGrunnlagBuilder::nytt);
-        }
-
-        @Override
-        public void fjernSaksbehandlet() {
-            super.fjernSaksbehandlet();
-        }
-
-        @Override
-        public void ryddOppErstattedeArbeidsforhold(AktørId søker,
-                List<ArbeidsforholdInformasjonBuilder.ArbeidsgiverForholdRefs> erstattArbeidsforhold) {
-            super.ryddOppErstattedeArbeidsforhold(søker, erstattArbeidsforhold);
-        }
-
-        @Override
-        public InntektArbeidYtelseGrunnlag getKladd() {
-            return super.getKladd();
-        }
-
-        @Override
-        public InntektsmeldingAggregat getInntektsmeldinger() {
-            return super.getInntektsmeldinger();
         }
 
     }

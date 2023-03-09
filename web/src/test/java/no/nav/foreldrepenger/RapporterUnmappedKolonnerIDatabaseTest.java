@@ -2,7 +2,6 @@ package no.nav.foreldrepenger;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
@@ -22,7 +21,6 @@ import org.hibernate.boot.model.relational.Namespace;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
-import org.hibernate.mapping.Column;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -97,7 +95,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     @Test
-    void sjekk_unmapped() throws Exception {
+    void sjekk_unmapped() { //NOSONAR greit å ikke ha asserts, skal bare logge
         sjekk_alle_tabeller_mappet();
         sjekk_alle_kolonner_mappet();
     }
@@ -110,14 +108,13 @@ class RapporterUnmappedKolonnerIDatabaseTest {
             var namespaceName = getSchemaName(namespace);
             var dbColumns = getColumns(namespaceName);
             for (var table : namespace.getTables()) {
-                var columns = (List<Column>) StreamSupport.stream(
+                var columns = StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(
                                 table.getColumnIterator(),
                                 Spliterator.ORDERED),
-                        false)
-                        .collect(Collectors.toList());
+                        false);
 
-                var columnNames = columns.stream().map(c -> c.getName().toUpperCase()).collect(Collectors.toCollection(TreeSet::new));
+                var columnNames = columns.map(c -> c.getName().toUpperCase()).collect(Collectors.toCollection(TreeSet::new));
                 var tableName = table.getName().toUpperCase();
                 if (dbColumns.containsKey(tableName)) {
                     var unmapped = new TreeSet<>(dbColumns.get(tableName));

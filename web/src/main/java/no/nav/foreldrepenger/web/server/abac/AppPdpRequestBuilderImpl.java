@@ -93,7 +93,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     private Optional<Long> utledBehandlingIder(AbacDataAttributter attributter) {
         Set<UUID> uuids = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_UUID);
         Set<Long> behandlingIdVerdier = attributter.getVerdier(AppAbacAttributtType.BEHANDLING_ID);
-        var behandlingId0 = behandlingIdVerdier.stream().mapToLong(Long::valueOf).boxed().collect(Collectors.toSet());
+        var behandlingId0 = behandlingIdVerdier.stream().mapToLong(Long::valueOf).boxed().toList();
 
         Set<Long> behandlingsIder = new LinkedHashSet<>(behandlingId0);
         behandlingsIder.addAll(pipRepository.behandlingsIdForUuid(uuids));

@@ -23,10 +23,6 @@ public interface Betalingsmottaker {
 
     boolean erArbeidsgiver();
 
-    default Betalingsmottaker bruker() {
-        return BRUKER;
-    }
-
     static Betalingsmottaker forArbeidsgiver(String orgNr) {
         return new ArbeidsgiverOrgnr(orgNr);
     }

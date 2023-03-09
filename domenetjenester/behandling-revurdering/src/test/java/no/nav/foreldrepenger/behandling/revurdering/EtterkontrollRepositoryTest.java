@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -57,7 +58,7 @@ class EtterkontrollRepositoryTest {
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(behandlings.stream().map(b -> b.getId())).contains(behandling.getId());
     }
@@ -74,7 +75,7 @@ class EtterkontrollRepositoryTest {
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(behandlings.stream().map(Behandling::getId).filter(bid -> klage.getId().equals(bid))).isEmpty();
     }
@@ -91,9 +92,7 @@ class EtterkontrollRepositoryTest {
 
         etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
 
-        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
-
-        assertThat(behandlings).doesNotContain(behandling);
+        assertThat(finnKandidatLik(behandling)).isEmpty();
     }
 
     @Test
@@ -120,7 +119,7 @@ class EtterkontrollRepositoryTest {
         henlagtBehandling.avsluttBehandling();
         behandlingRepository.lagre(henlagtBehandling, behandlingRepository.taSkriveLås(henlagtBehandling));
 
-        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(behandlings.stream().map(b -> b.getId())).contains(behandling.getId());
     }
@@ -143,10 +142,14 @@ class EtterkontrollRepositoryTest {
 
         etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
 
-        var fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        assertThat(finnKandidatLik(behandling)).isEmpty();
+        assertThat(finnKandidatLik(revurderingsBehandling)).isEmpty();
+    }
 
-        assertThat(fagsakList).doesNotContain(behandling);
-        assertThat(fagsakList).doesNotContain(revurderingsBehandling);
+    private Optional<Behandling> finnKandidatLik(Behandling behandling) {
+        return etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll()
+            .stream().filter(b -> b.equals(behandling))
+            .findFirst();
     }
 
     @Test
@@ -186,10 +189,8 @@ class EtterkontrollRepositoryTest {
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        var fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
-
-        assertThat(fagsakList).contains(revurderingsBehandling);
-        assertThat(fagsakList).doesNotContain(behandling);
+        assertThat(finnKandidatLik(revurderingsBehandling)).isPresent();
+        assertThat(finnKandidatLik(behandling)).isEmpty();
     }
 
     @Test
@@ -202,9 +203,7 @@ class EtterkontrollRepositoryTest {
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        var fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
-
-        assertThat(fagsakList).doesNotContain(behandling);
+        assertThat(finnKandidatLik(behandling)).isEmpty();
     }
 
     private Behandling opprettRevurderingsKandidat(int dagerTilbake) {

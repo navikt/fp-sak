@@ -101,8 +101,9 @@ class EndringIBeregningsresultat {
         if (!resultatAndel.getAktivitetStatus().equals(aktivitetStatus) || resultatAndel.erBrukerMottaker() != brukerErMottaker) {
             return false;
         }
-        if(resultatAndel.getArbeidsgiver().isPresent()){
-            return resultatAndel.getArbeidsgiver().get().equals(arbeidsgiver) && Objects.equals(arbeidsforholdRef.getReferanse(), resultatAndel.getArbeidsforholdRef().getReferanse());
+        var andelArbeidsgiver = resultatAndel.getArbeidsgiver();
+        if (andelArbeidsgiver.isPresent()){
+            return andelArbeidsgiver.get().equals(arbeidsgiver) && Objects.equals(arbeidsforholdRef.getReferanse(), resultatAndel.getArbeidsforholdRef().getReferanse());
         }
         return true;
     }

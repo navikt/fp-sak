@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.fp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
 
 import javax.inject.Inject;
@@ -24,8 +26,6 @@ class VurderOpptjeningsvilkårStegTest {
     @Inject
     public InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste;
 
-    private final LocalDate idag = LocalDate.now();
-
     private Behandling lagre(AbstractTestScenario<?> scenario) {
         return scenario.lagre(repositoryProvider);
     }
@@ -42,7 +42,7 @@ class VurderOpptjeningsvilkårStegTest {
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_VURDERT);
 
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-                .medFørsteUttaksdato(idag)
+                .medFørsteUttaksdato(LocalDate.now())
                 .build();
 
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
@@ -60,5 +60,9 @@ class VurderOpptjeningsvilkårStegTest {
         // vurder vilkåret
         new VurderOpptjeningsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .utførSteg(kontekst);
+
+        var vilkårResultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat();
+        assertThat(vilkårResultat.hentAlleGjeldendeVilkårsutfall()).containsOnlyOnce(VilkårUtfallType.OPPFYLT);
+
     }
 }

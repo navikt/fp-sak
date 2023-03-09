@@ -5,10 +5,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
@@ -17,6 +15,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 
 class BeregningsgrunnlagDiffSjekker {
 
@@ -107,7 +106,7 @@ class BeregningsgrunnlagDiffSjekker {
             var forrigeSgPrStatus = forrige.stream()
                 .filter(s -> aktivSgPrStatus.getSammenligningsgrunnlagType().equals(s.getSammenligningsgrunnlagType()))
                 .findFirst()
-                .get();
+                .orElseThrow();
             if (!erLike(aktivSgPrStatus.getAvvikPromille(), forrigeSgPrStatus.getAvvikPromille())) {
                 return true;
             }
@@ -135,33 +134,36 @@ class BeregningsgrunnlagDiffSjekker {
         for (var i = 0; i < aktivePerioder.size(); i++) {
             var aktivPeriode = aktivePerioder.get(i);
             var forrigePeriode = forrigePerioder.get(i);
-            if (!aktivPeriode.getBeregningsgrunnlagPeriodeFom()
-                .equals(forrigePeriode.getBeregningsgrunnlagPeriodeFom())) {
+            if (harDiff(aktivPeriode, forrigePeriode))
                 return true;
-            }
-            if (!erLike(aktivPeriode.getBruttoPrÅr(), forrigePeriode.getBruttoPrÅr())) {
-                return true;
-            }
-            if (aktivPeriode.getRegelInputVilkårvurdering() != null && !aktivPeriode.getRegelInputVilkårvurdering()
-                .equals(forrigePeriode.getRegelInputVilkårvurdering())) {
-                return true;
-            }
-            if (aktivPeriode.getRegelInputForeslå() != null && !aktivPeriode.getRegelInputForeslå()
-                .equals(forrigePeriode.getRegelInputForeslå())) {
-                return true;
-            }
-            var aktiveAndeler = aktivPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
-            var forrigeAndeler = forrigePeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
-                .filter(a -> !a.erLagtTilAvSaksbehandler())
-                .collect(Collectors.toList());
-            if (aktiveAndeler.size() != forrigeAndeler.size()) {
-                return true;
-            }
-            if (sjekkAndeler(aktiveAndeler, forrigeAndeler)) {
-                return true;
-            }
         }
         return false;
+    }
+
+    private static boolean harDiff(BeregningsgrunnlagPeriode periode1, BeregningsgrunnlagPeriode periode2) {
+        if (!periode1.getBeregningsgrunnlagPeriodeFom()
+            .equals(periode2.getBeregningsgrunnlagPeriodeFom())) {
+            return true;
+        }
+        if (!erLike(periode1.getBruttoPrÅr(), periode2.getBruttoPrÅr())) {
+            return true;
+        }
+        if (periode1.getRegelInputVilkårvurdering() != null && !periode1.getRegelInputVilkårvurdering()
+            .equals(periode2.getRegelInputVilkårvurdering())) {
+            return true;
+        }
+        if (periode1.getRegelInputForeslå() != null && !periode1.getRegelInputForeslå()
+            .equals(periode2.getRegelInputForeslå())) {
+            return true;
+        }
+        var aktiveAndeler = periode1.getBeregningsgrunnlagPrStatusOgAndelList();
+        var forrigeAndeler = periode2.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+            .filter(a -> !a.erLagtTilAvSaksbehandler())
+            .toList();
+        if (aktiveAndeler.size() != forrigeAndeler.size()) {
+            return true;
+        }
+        return sjekkAndeler(aktiveAndeler, forrigeAndeler);
     }
 
     private static boolean sjekkAndeler(List<BeregningsgrunnlagPrStatusOgAndel> aktiveAndeler,
@@ -271,7 +273,7 @@ class BeregningsgrunnlagDiffSjekker {
         return aktivt.getAktivitetStatuser()
             .stream()
             .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static boolean erLike(BigDecimal verdi1, BigDecimal verdi2) {

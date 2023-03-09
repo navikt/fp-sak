@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -65,10 +64,10 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         var relevanteFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForSøknadFamilieHendelse(vurderFagsystem, s, true))
-            .collect(Collectors.toList());
+            .toList();
 
         if (relevanteFagsaker.size() > 1) {
-            var saksnumre = relevanteFagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var saksnumre = relevanteFagsaker.stream().map(Fagsak::getSaksnummer).toList();
             LOG.info("VurderFagsystem SV strukturert søknad flere relevante saker {}", saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -87,7 +86,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         var åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
-            var saksnumre = åpneFagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var saksnumre = åpneFagsaker.stream().map(Fagsak::getSaksnummer).toList();
             LOG.info("VurderFagsystem SV inntektsmelding flere åpne saker {}", saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -97,9 +96,9 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         var aktuelleSakerForMatch = sakerGittYtelseType.stream()
             .filter(f -> fellesUtils.finnGjeldendeFamilieHendelseSVP(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
-            .collect(Collectors.toList());
+            .toList();
         if (aktuelleSakerForMatch.size() > 1) {
-            var saksnumre = aktuelleSakerForMatch.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var saksnumre = aktuelleSakerForMatch.stream().map(Fagsak::getSaksnummer).toList();
             LOG.info("VurderFagsystem SV inntektsmelding flere aktuelle saker {}", saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -125,7 +124,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         var åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
-            var saksnumre = åpneFagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var saksnumre = åpneFagsaker.stream().map(Fagsak::getSaksnummer).toList();
             LOG.info("VurderFagsystem SV strukturert søknad gammel flere åpne saker {}", saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -136,7 +135,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         var aktuelleSakerForMatch = sakerGittYtelseType.stream()
             .filter(f -> fellesUtils.finnGjeldendeFamilieHendelseSVP(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
             .map(Fagsak::getSaksnummer)
-            .collect(Collectors.toList());
+            .toList();
         if (!aktuelleSakerForMatch.isEmpty()) {
             LOG.info("VurderFagsystem SV strukturert søknad gammel flere aktuelle saker {}", aktuelleSakerForMatch);
         }
@@ -158,13 +157,14 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     }
 
     private Boolean hendelseDatoIPeriode(FamilieHendelseEntitet familieHendelse) {
-        if (familieHendelse.getFødselsdato().isPresent()) {
-            if (familieHendelse.getFødselsdato().get().isAfter(LocalDate.now().minus(seksMåneder))) {
-                return true;
-            }
+        var fødsel = familieHendelse.getFødselsdato();
+        if (fødsel.isPresent() && fødsel.get().isAfter(LocalDate.now().minus(seksMåneder))) {
+            return true;
+
         }
-        if (familieHendelse.getTerminbekreftelse().isPresent()) {
-            var termindato = familieHendelse.getTerminbekreftelse().get().getTermindato();
+        var termin = familieHendelse.getTerminbekreftelse();
+        if (termin.isPresent()) {
+            var termindato = termin.get().getTermindato();
             return termindato.isAfter(LocalDate.now().minus(seksMåneder));
         }
         return false;

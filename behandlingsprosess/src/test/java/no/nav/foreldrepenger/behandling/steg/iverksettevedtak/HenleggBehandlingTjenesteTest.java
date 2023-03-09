@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -168,6 +170,7 @@ class HenleggBehandlingTjenesteTest {
 
         // Act
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        assertThat(behandling.getStatus()).isEqualTo(BehandlingStatus.AVSLUTTET);
     }
 
     @Test
@@ -178,6 +181,7 @@ class HenleggBehandlingTjenesteTest {
 
         // Act
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
+        assertThat(behandling.getStatus()).isEqualTo(BehandlingStatus.AVSLUTTET);
     }
 
     @Test

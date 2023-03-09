@@ -43,15 +43,17 @@ public class VurderFagsystemFellesTjeneste {
     }
 
     public BehandlendeFagsystem vurderFagsystem(VurderFagsystem vurderFagsystem) {
-        if (vurderFagsystem.getJournalpostId().isPresent()) {
-            var journalpost = fagsakTjeneste.hentJournalpost(vurderFagsystem.getJournalpostId().get());
+        var journalpostId = vurderFagsystem.getJournalpostId();
+        if (journalpostId.isPresent()) {
+            var journalpost = fagsakTjeneste.hentJournalpost(journalpostId.get());
             if (journalpost.isPresent()) {
                 return new BehandlendeFagsystem(VEDTAKSLØSNING, journalpost.get().getFagsak().getSaksnummer());
             }
         }
         // Endringssøknader og evt ettersendte vedlegg
-        if (vurderFagsystem.getSaksnummer().isPresent()) {
-            return vurderSøknadMedSaksnummer(vurderFagsystem.getSaksnummer().get());
+        var saksnummer = vurderFagsystem.getSaksnummer();
+        if (saksnummer.isPresent()) {
+            return vurderSøknadMedSaksnummer(saksnummer.get());
         }
         var behandlingTema = vurderFagsystem.getBehandlingTema();
         var ytelseType = behandlingTema.getFagsakYtelseType();
@@ -94,15 +96,17 @@ public class VurderFagsystemFellesTjeneste {
     }
 
     public BehandlendeFagsystem vurderFagsystemForKlageinstans(VurderFagsystem vurderFagsystem) {
-        if (vurderFagsystem.getJournalpostId().isPresent()) {
-            var journalpost = fagsakTjeneste.hentJournalpost(vurderFagsystem.getJournalpostId().get());
+        var journalpostId = vurderFagsystem.getJournalpostId();
+        if (journalpostId.isPresent()) {
+            var journalpost = fagsakTjeneste.hentJournalpost(journalpostId.get());
             if (journalpost.isPresent()) {
                 return new BehandlendeFagsystem(VEDTAKSLØSNING, journalpost.get().getFagsak().getSaksnummer());
             }
         }
         // Endringssøknader og evt ettersendte vedlegg
-        if (vurderFagsystem.getSaksnummer().isPresent()) {
-            return vurderSøknadMedSaksnummer(vurderFagsystem.getSaksnummer().get());
+        var saksnummer = vurderFagsystem.getSaksnummer();
+        if (saksnummer.isPresent()) {
+            return vurderSøknadMedSaksnummer(saksnummer.get());
         }
         var alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
 

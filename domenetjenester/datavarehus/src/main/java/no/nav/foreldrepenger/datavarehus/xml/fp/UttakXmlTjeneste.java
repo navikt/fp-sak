@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.datavarehus.xml.fp;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -89,7 +88,8 @@ public class UttakXmlTjeneste {
     private void setUttakFordelingPerioder(UttakForeldrepenger uttakForeldrepenger, List<OppgittPeriodeEntitet> perioderDomene) {
         var kontrakt = perioderDomene
             .stream()
-            .map(fordelingPeriode -> konverterFraDomene(fordelingPeriode)).collect(Collectors.toList());
+            .map(this::konverterFraDomene)
+            .toList();
         var fordelingPerioder = new UttakForeldrepenger.FordelingPerioder();
         fordelingPerioder.getFordelingPeriode().addAll(kontrakt);
         uttakForeldrepenger.setFordelingPerioder(fordelingPerioder);
@@ -106,7 +106,8 @@ public class UttakXmlTjeneste {
     private void setUttakResultatPerioder(UttakForeldrepenger uttakForeldrepenger, List<ForeldrepengerUttakPeriode> perioderDomene) {
         var kontrakt = perioderDomene
             .stream()
-            .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
+            .map(this::konverterFraDomene)
+            .toList();
         uttakForeldrepenger.getUttaksresultatPerioder().addAll(kontrakt);
     }
 
@@ -132,7 +133,8 @@ public class UttakXmlTjeneste {
         var antVirkedager = Virkedager.beregnAntallVirkedager(tidsperiode.getFom(), tidsperiode.getTom());
         var resultat = aktiviteterDomene
             .stream()
-            .map(periode -> konverterFraDomene(periode, antVirkedager)).collect(Collectors.toList());
+            .map(periode -> konverterFraDomene(periode, antVirkedager))
+            .toList();
         uttaksresultatPeriodeKontrakt.getUttaksresultatPeriodeAktiviteter().addAll(resultat);
     }
 
@@ -140,10 +142,10 @@ public class UttakXmlTjeneste {
         var kontrakt = new UttaksresultatPeriodeAktivitet();
         kontrakt.setTrekkkonto(VedtakXmlUtil.lagKodeverksOpplysning(periodeAktivitet.getTrekkonto()));
         kontrakt.setTrekkdager(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getTrekkdager().decimalValue()));
-        if (periodeAktivitet.getArbeidsgiver().isPresent()) {
-            kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsgiver().get().getIdentifikator()));
+        periodeAktivitet.getArbeidsgiver().ifPresent(ag -> {
+            kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(ag.getIdentifikator()));
             kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(periodeAktivitet.getArbeidsforholdRef().getReferanse()));
-        }
+        });
         kontrakt.setArbeidstidsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getArbeidsprosent()));
         if(periodeAktivitet.getUtbetalingsgrad() != null) {
             kontrakt.setUtbetalingsprosent(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getUtbetalingsgrad().decimalValue()));
@@ -170,7 +172,8 @@ public class UttakXmlTjeneste {
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Set<Stønadskonto> stønadskontoerDomene) {
         var stønadskontoer = stønadskontoerDomene
             .stream()
-            .map(konto -> konverterFraDomene(konto)).collect(Collectors.toList());
+            .map(this::konverterFraDomene)
+            .toList();
         uttakForeldrepenger.getStoenadskontoer().addAll(stønadskontoer);
     }
 

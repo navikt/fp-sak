@@ -389,7 +389,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 var behandlingId = behandling.getId();
                 var kladd = hentAggregatHvisEksisterer(behandlingId);
                 var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
-                var type = utledTypeFor(kladd);
+                var type = utledTypeForMock(kladd);
                 switch (type) {
                     case SØKNAD -> builder.medSøknadVersjon(hendelseBuilder);
                     case BEKREFTET -> builder.medBekreftetVersjon(hendelseBuilder);
@@ -408,7 +408,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 try {
                     var m = FamilieHendelseGrunnlagBuilder.class.getDeclaredMethod("getKladd");
                     final var invoke = (FamilieHendelseGrunnlagEntitet) m.invoke(aggregatBuilder);
-                    if (harOverstyrtTerminOgOvergangTilFødsel(invoke)) {
+                    if (harOverstyrtTerminOgOvergangTilFødselMock(invoke)) {
                         aggregatBuilder.medOverstyrtVersjon(null);
                     }
                     var id = behandling.getId();
@@ -419,7 +419,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 }
             }
 
-            private boolean harOverstyrtTerminOgOvergangTilFødsel(FamilieHendelseGrunnlagEntitet kladd) {
+            private boolean harOverstyrtTerminOgOvergangTilFødselMock(FamilieHendelseGrunnlagEntitet kladd) {
                 return kladd.getHarOverstyrteData() && kladd.getOverstyrtVersjon()
                         .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT).equals(FamilieHendelseType.TERMIN)
                         && kladd.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT)
@@ -480,7 +480,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
-                var type = utledTypeFor(aggregat);
+                var type = utledTypeForMock(aggregat);
 
                 if (type.equals(HendelseVersjonType.SØKNAD)) {
                     return FamilieHendelseBuilder.oppdatere(aggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon), type);
@@ -491,7 +491,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 return FamilieHendelseBuilder.oppdatere(aggregat.flatMap(FamilieHendelseGrunnlagEntitet::getOverstyrtVersjon), type);
             }
 
-            private HendelseVersjonType utledTypeFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
+            private HendelseVersjonType utledTypeForMock(Optional<FamilieHendelseGrunnlagEntitet> aggregat) {
                 if (aggregat.isPresent()) {
                     if (aggregat.get().getHarOverstyrteData()) {
                         return HendelseVersjonType.OVERSTYRT;
@@ -601,7 +601,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             @Override
             public void lagreOgFlush(Long behandlingId, Optional<MedlemskapBehandlingsgrunnlagEntitet> eksisterendeGrunnlag,
                     MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
-                assert behandlingId != null : "behandlingId er null!";
+                Objects.requireNonNull(behandlingId, "behandlingId er null!");
                 medlemskapgrunnlag.put(behandlingId, nyttGrunnlag);
             }
 
@@ -1354,8 +1354,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     @SuppressWarnings("unchecked")
     public S medRegisterOpplysninger(PersonInformasjon personinfo) {
-        Objects.nonNull(personinfo);
-        if (!personinfo.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
+        Objects.requireNonNull(personinfo);
+        if (!PersonopplysningVersjonType.REGISTRERT.equals(personinfo.getType())) {
             throw new IllegalStateException("Feil versjontype, må være PersonopplysningVersjonType.REGISTRERT");
         }
         if (this.personer == null) {

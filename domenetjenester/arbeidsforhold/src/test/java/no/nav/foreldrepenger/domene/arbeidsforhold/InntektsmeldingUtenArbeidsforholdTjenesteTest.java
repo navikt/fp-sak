@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
@@ -174,7 +175,7 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
 
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utled(InntektArbeidYtelseGrunnlag iay) {
-        return InntektsmeldingUtenArbeidsforholdTjeneste.utledManglendeArbeidsforhold(iay, AKTØR_ID, STP);
+        return InntektsmeldingUtenArbeidsforholdTjeneste.utledManglendeArbeidsforhold(iay.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList()), iay, AKTØR_ID, STP);
     }
 
     private OppgittOpptjeningBuilder lagFiske() {

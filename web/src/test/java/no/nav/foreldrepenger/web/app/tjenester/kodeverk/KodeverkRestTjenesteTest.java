@@ -41,8 +41,8 @@ class KodeverkRestTjenesteTest {
 
         Map<String, Object> gruppertKodeliste = new JacksonJsonConfig().getObjectMapper().readValue(rawJson, Map.class);
 
-        assertThat(gruppertKodeliste.keySet())
-                .contains(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(), Landkoder.class.getSimpleName());
+        assertThat(gruppertKodeliste)
+                .containsKeys(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(), Landkoder.class.getSimpleName());
 
         assertThat(gruppertKodeliste.keySet())
                 .containsAll(new HashSet<>(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet()));
@@ -70,7 +70,7 @@ class KodeverkRestTjenesteTest {
 
         var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
 
-        System.out.println(json);
+        assertThat(json).isEqualTo("\"7001\"");
     }
 
     @Test
@@ -94,8 +94,8 @@ class KodeverkRestTjenesteTest {
 
         var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN));
 
-        assertThat(json).contains("\"kode\" : \"4104\"");
-        assertThat(json).contains("\"utfallType\" : \"AVSLÅTT\"");
+        assertThat(json).contains("\"kode\" : \"4104\"")
+            .contains("\"utfallType\" : \"AVSLÅTT\"");
     }
 
     private record X(PeriodeResultatÅrsak periodeResultatÅrsak) {}
