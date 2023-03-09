@@ -15,10 +15,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
@@ -34,6 +41,7 @@ import no.nav.vedtak.hendelser.behandling.Behandlingsårsak;
 import no.nav.vedtak.hendelser.behandling.Kildesystem;
 import no.nav.vedtak.hendelser.behandling.Ytelse;
 import no.nav.vedtak.hendelser.behandling.los.LosBehandlingDto;
+import no.nav.vedtak.hendelser.behandling.los.LosFagsakEgenskaperDto;
 
 /**
  * Returnerer behandlingsinformasjon tilpasset behov i FP-LOS
@@ -47,16 +55,23 @@ public class LosBehandlingDtoTjeneste {
     private RisikovurderingTjeneste risikovurderingTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
+    private OpptjeningIUtlandDokStatusRepository utlandDokStatusRepository;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
+
 
     @Inject
     public LosBehandlingDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                     RisikovurderingTjeneste risikovurderingTjeneste,
                                     InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                    FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste) {
+                                    FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
+                                    OpptjeningIUtlandDokStatusRepository utlandDokStatusRepository,
+                                    FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
+        this.utlandDokStatusRepository = utlandDokStatusRepository;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     LosBehandlingDtoTjeneste() {
@@ -80,7 +95,7 @@ public class LosBehandlingDtoTjeneste {
             mapBehandlingsårsaker(behandling).stream().toList(),
             harInnhentetRegisterData && mapFaresignaler(behandling),
             harRefusjonskrav(behandling),
-            null,
+            mapFagsakEgenskaper(behandling),
             mapForeldrepengerUttak(behandling),
             null);
     }
@@ -189,6 +204,35 @@ public class LosBehandlingDtoTjeneste {
             .map(Inntektsmelding::getRefusjonBeløpPerMnd)
             .filter(Objects::nonNull)
             .anyMatch(beløp -> beløp.compareTo(Beløp.ZERO) > 0);
+    }
+
+    private LosFagsakEgenskaperDto mapFagsakEgenskaper(Behandling behandling) {
+        var skalInnhente = behandling.harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK) ?
+            OpptjeningIUtlandDokStatus.DOKUMENTASJON_VIL_BLI_INNHENTET.equals(utlandDokStatusRepository.hent(behandling.getId())
+                .map(OpptjeningIUtlandDokStatusEntitet::getDokStatus).orElse(null)) : null;
+        var markering = fagsakEgenskapRepository.finnEgenskapVerdi(UtlandMarkering.class, behandling.getFagsakId(), UtlandMarkering.NØKKEL)
+            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE).map(Aksjonspunkt::getBegrunnelse).map(UtlandMarkering::valueOf))
+            .orElse(null);
+        var mapped = markering == null ? null : switch (markering) {
+            case NASJONAL -> LosFagsakEgenskaperDto.UtlandMarkering.NASJONAL;
+            case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.UtlandMarkering.EØS_BOSATT_NORGE;
+            case BOSATT_UTLAND -> LosFagsakEgenskaperDto.UtlandMarkering.BOSATT_UTLAND;
+        };
+        return new LosFagsakEgenskaperDto(skalInnhente, mapped);
+    }
+
+    public LosFagsakEgenskaperDto lagFagsakEgenskaper(Fagsak fagsak) {
+        var skalInnhente = fagsakEgenskapRepository.finnEgenskapVerdi(UtlandDokumentasjonStatus.class, fagsak.getId(), UtlandDokumentasjonStatus.NØKKEL)
+            .map(status -> UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET.equals(status) ? Boolean.TRUE : Boolean.FALSE)
+            .orElse(null);
+        var markering = fagsakEgenskapRepository.finnEgenskapVerdi(UtlandMarkering.class, fagsak.getId(), UtlandMarkering.NØKKEL)
+            .orElse(null);
+        var mapped = markering == null ? null : switch (markering) {
+            case NASJONAL -> LosFagsakEgenskaperDto.UtlandMarkering.NASJONAL;
+            case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.UtlandMarkering.EØS_BOSATT_NORGE;
+            case BOSATT_UTLAND -> LosFagsakEgenskaperDto.UtlandMarkering.BOSATT_UTLAND;
+        };
+        return new LosFagsakEgenskaperDto(skalInnhente, mapped);
     }
 
 }

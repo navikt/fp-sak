@@ -68,6 +68,9 @@ public class OverlappVedtak extends BaseEntitet {
     @Column(name = "UTBETALINGSPROSENT", nullable = false)
     private long utbetalingsprosent;
 
+    @Column(name = "UTBETALINGSGRAD_FOR")
+    private long utbetalingsgradFOR;
+
 
     protected OverlappVedtak() {
     }
@@ -106,6 +109,10 @@ public class OverlappVedtak extends BaseEntitet {
 
     public long getUtbetalingsprosent() {
         return utbetalingsprosent;
+    }
+
+    public long getUtbetalingsgradFOR() {
+        return utbetalingsgradFOR;
     }
 
     @Override
@@ -180,6 +187,11 @@ public class OverlappVedtak extends BaseEntitet {
             return this;
         }
 
+        public Builder medUtbetalingsgradFOR(Long utbetalingsprosent) {
+            this.kladd.utbetalingsgradFOR = utbetalingsprosent;
+            return this;
+        }
+
         public OverlappVedtak build() {
             verifyStateForBuild();
             return kladd;
@@ -192,7 +204,6 @@ public class OverlappVedtak extends BaseEntitet {
             Objects.requireNonNull(kladd.hendelse);
             Objects.requireNonNull(kladd.fagsystem);
             Objects.requireNonNull(kladd.ytelse);
-            Objects.requireNonNull(kladd.utbetalingsprosent);
         }
     }
 }
