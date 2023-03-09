@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.konfig;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedParameterizedType;
@@ -140,8 +141,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         for (var method : finnAlleRestMetoder()) {
             parametre.addAll(List.of(method.getParameterTypes()));
             for (var type : method.getGenericParameterTypes()) {
-                if (type instanceof ParameterizedType) {
-                    var genericTypes = (ParameterizedType) type;
+                if (type instanceof ParameterizedType genericTypes) {
                     for (var gen : genericTypes.getActualTypeArguments()) {
                         parametre.add((Class<?>) gen);
                     }
@@ -177,10 +177,12 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         }
 
         besøkteKlasser.add(klasse);
-        if (klasse.getAnnotation(Entity.class) != null || klasse.getAnnotation(MappedSuperclass.class) != null) {
-            throw new AssertionError(
-                "Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse);
-        }
+        assertThat(klasse.getAnnotation(Entity.class))
+            .withFailMessage("Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse)
+            .isNull();
+        assertThat(klasse.getAnnotation(MappedSuperclass.class))
+            .withFailMessage("Klassen " + klasse + " er en entitet, kan ikke brukes som DTO. Brukes i " + forrigeKlasse)
+            .isNull();
 
         var klasseLocation = codeSource.getLocation();
         for (var subklasse : IndexClasses.getIndexFor(klasseLocation.toURI())

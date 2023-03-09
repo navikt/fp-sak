@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
@@ -15,15 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 
 @ExtendWith(MockitoExtension.class)
 class SøknadMapperTest {
-
-    public static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -40,7 +38,7 @@ class SøknadMapperTest {
     void test_mapEngangstønad() {
         var registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         oppdaterDtoForFødsel(registreringEngangsstonadDto, true, LocalDate.now().minusWeeks(3), 1);
-        ytelseSøknadMapper.mapSøknad(registreringEngangsstonadDto, opprettBruker());
+        assertThatCode(() -> ytelseSøknadMapper.mapSøknad(registreringEngangsstonadDto, opprettBruker())).doesNotThrowAnyException();
     }
 
     @Test
@@ -81,12 +79,10 @@ class SøknadMapperTest {
         // Assert tidligere opphold i norge(siden vi ikke har tidligere
         // utenlandsopphold.)
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
-        assertThat(oppholdNorgeListe).isNotNull();
-        assertThat(oppholdNorgeListe).hasSize(1);
+        assertThat(oppholdNorgeListe).isNotNull().hasSize(1);
 
         var alleOppholdUtlandet = medlemskap.getOppholdUtlandet();
-        assertThat(alleOppholdUtlandet).isNotNull();
-        assertThat(alleOppholdUtlandet).hasSize(1);
+        assertThat(alleOppholdUtlandet).isNotNull().hasSize(1);
 
         var oppholdUtlandet = alleOppholdUtlandet.get(0);
         assertThat(oppholdUtlandet.getLand()).isNotNull();
@@ -99,13 +95,13 @@ class SøknadMapperTest {
     @Test
     void testMapperMedlemskapES_med_TidligereUtenlandsopphold() {
 
-        final var land = "FRA";
+        var land = "FRA";
         LocalDate periodeFom = LocalDate.now().minusMonths(6), periodeTom = LocalDate.now().minusMonths(3);
 
         var registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         registreringEngangsstonadDto.setMottattDato(LocalDate.now());
         registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(false); // Ikke fremtidige utenlandsopphold, så da får vi fremtidg opphold i
-                                                                              // norge
+        // norge
         registreringEngangsstonadDto.setHarTidligereOppholdUtenlands(true);
         registreringEngangsstonadDto.setOppholdINorge(true);
         var utenlandsoppholdDto = new UtenlandsoppholdDto();
@@ -119,12 +115,10 @@ class SøknadMapperTest {
 
         // Assert fremtidg opphold i norge(siden vi ikke har fremtidig utenlandsopphold.
         var oppholdNorgeListe = medlemskap.getOppholdNorge();
-        assertThat(oppholdNorgeListe).isNotNull();
-        assertThat(oppholdNorgeListe).hasSize(1);
+        assertThat(oppholdNorgeListe).isNotNull().hasSize(1);
 
         var oppholdUtenlandsListe = medlemskap.getOppholdUtlandet();
-        assertThat(oppholdUtenlandsListe).isNotNull();
-        assertThat(oppholdUtenlandsListe).hasSize(1);
+        assertThat(oppholdUtenlandsListe).isNotNull().hasSize(1);
         var utenlandsopphold = oppholdUtenlandsListe.get(0);
         assertThat(utenlandsopphold.getLand()).isNotNull();
         assertThat(utenlandsopphold.getLand().getKode()).isEqualTo(land);

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 
 import java.lang.annotation.Annotation;
@@ -7,7 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,9 +29,9 @@ class RestApiAbacTest {
     @Test
     void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() {
         for (var restMethod : RestApiTester.finnAlleRestMetoder()) {
-            if (restMethod.getAnnotation(BeskyttetRessurs.class) == null) {
-                throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + restMethod);
-            }
+            assertThat(restMethod.getAnnotation(BeskyttetRessurs.class))
+                .withFailMessage("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + restMethod)
+                .isNotNull();
         }
     }
 
@@ -76,15 +77,15 @@ class RestApiAbacTest {
                 i++;
             }
         }
-        if (feilmeldinger.length() > 0) {
-            throw new AssertionError("Følgende inputparametre til REST-tjenester mangler AbacDto-impl\n" + feilmeldinger);
-        }
+        assertThat(feilmeldinger.length())
+            .withFailMessage("Følgende inputparametre til REST-tjenester mangler AbacDto-impl\n" + feilmeldinger)
+            .isNotPositive();
     }
 
     private boolean harAbacKonfigurasjon(Annotation[] parameterAnnotations, Class<?> parameterType) {
         var ret = AbacDto.class.isAssignableFrom(parameterType) || IgnorerteInputTyper.ignore(parameterType);
         if (!ret) {
-            ret = List.of(parameterAnnotations).stream().anyMatch(a -> TilpassetAbacAttributt.class.equals(a.annotationType()));
+            ret = Stream.of(parameterAnnotations).anyMatch(a -> TilpassetAbacAttributt.class.equals(a.annotationType()));
         }
         return ret;
     }
@@ -113,7 +114,7 @@ class RestApiAbacTest {
         BOOLEAN(Boolean.class.getName()),
         SERVLET(HttpServletRequest.class.getName());
 
-        private String className;
+        private final String className;
 
         IgnorerteInputTyper(String className) {
             this.className = className;

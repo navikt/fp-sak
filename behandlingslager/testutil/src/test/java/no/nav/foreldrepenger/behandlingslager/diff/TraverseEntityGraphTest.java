@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.diff;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,16 +31,13 @@ class TraverseEntityGraphTest {
 
         var traverser = lagTraverser();
 
-        @SuppressWarnings("unused") var result = traverser.traverse(behandling);
-        // Map<Node, Object> values = new TreeMap<>(result.getValues());
-
-        // values.forEach((e, v) -> System.out.println(e + "= " + v));
+        assertThatCode(() -> traverser.traverse(behandling)).doesNotThrowAnyException();
     }
 
     @Test
     void skal_ikke_ha_diff_for_seg_selv() {
 
-        final var scenario = lagTestScenario();
+        var scenario = lagTestScenario();
         var target = scenario.lagMocked();
 
         var differ = new DiffEntity(lagTraverser());
@@ -100,19 +98,19 @@ class TraverseEntityGraphTest {
     @Test
     void skal_diffe_fødselsdato() {
 
-        final var scenario = lagTestScenario();
+        var scenario = lagTestScenario();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().plusDays(2));
         var target1 = scenario.lagMocked();
-        final var scenario1 = lagTestScenario();
+        var scenario1 = lagTestScenario();
         scenario1.medSøknadHendelse().medFødselsDato(LocalDate.now().plusDays(3));
-        final var target2 = scenario.lagMocked();
+        var target2 = scenario.lagMocked();
 
         var differ = new DiffEntity(lagTraverser());
 
         var diffResult = differ.diff(target1, target2);
 
         var leafDifferences = diffResult.getLeafDifferences();
-        assertThat(leafDifferences.size()).isGreaterThanOrEqualTo(0);
+        assertThat(leafDifferences.size()).isNotNegative();
         assertThat(containsKey(leafDifferences, "Behandlingsgrunnlag.søknad.familieHendelse.barna.[0].fødselsdato")).isFalse();
 
         // System.out.println(diffResult.getLeafDifferences());
