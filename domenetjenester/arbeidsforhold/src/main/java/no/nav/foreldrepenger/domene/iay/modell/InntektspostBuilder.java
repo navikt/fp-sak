@@ -50,12 +50,4 @@ public class InntektspostBuilder {
         }
         throw new IllegalStateException();
     }
-
-    public InntektspostBuilder medInntektspostType(String kode) {
-        return medInntektspostType(InntektspostType.fraKode(kode));
-    }
-
-    public InntektspostBuilder medSkatteOgAvgiftsregelType(String kode) {
-        return medSkatteOgAvgiftsregelType(SkatteOgAvgiftsregelType.fraKode(kode));
-    }
 }

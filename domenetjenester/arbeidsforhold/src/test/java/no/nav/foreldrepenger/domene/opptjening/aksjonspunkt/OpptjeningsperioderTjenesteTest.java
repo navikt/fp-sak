@@ -471,7 +471,7 @@ class OpptjeningsperioderTjenesteTest {
         var saksbehandlet = lagFiktivtArbeidsforholdSaksbehandlet(periode);
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
         var informasjon = lagFiktivtArbeidsforholdOverstyring(fraOgMed, tilOgMed);
-        iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, informasjon);
+        iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), informasjon);
 
         // Act
         var perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
@@ -496,7 +496,7 @@ class OpptjeningsperioderTjenesteTest {
         arbeidsforholdOverstyringBuilder.medAngittStillingsprosent(Stillingsprosent.ZERO);
         arbeidsforholdInformasjonBuilder.leggTil(arbeidsforholdOverstyringBuilder);
 
-        iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, arbeidsforholdInformasjonBuilder);
+        iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), arbeidsforholdInformasjonBuilder);
 
         forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 

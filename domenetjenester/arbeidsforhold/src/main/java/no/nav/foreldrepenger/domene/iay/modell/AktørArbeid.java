@@ -83,10 +83,6 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
         return oppdatere;
     }
 
-    void tilbakestillYrkesaktiviteter() {
-        yrkesaktiviter.clear();
-    }
-
     void fjernYrkesaktivitetForBuilder(YrkesaktivitetBuilder builder) {
         var yrkesaktivitetKladd = builder.getKladd();
         var arbeidType = yrkesaktivitetKladd.getArbeidType();

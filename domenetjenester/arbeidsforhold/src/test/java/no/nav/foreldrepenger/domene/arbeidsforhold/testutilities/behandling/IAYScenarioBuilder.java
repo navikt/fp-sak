@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling;
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -20,14 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
  */
 public class IAYScenarioBuilder extends AbstractIAYTestScenario<IAYScenarioBuilder> {
 
-    private IAYScenarioBuilder() {
-        this(FagsakYtelseType.ENGANGSTØNAD, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
-    }
-
-    private IAYScenarioBuilder(FagsakYtelseType ytelseType, RelasjonsRolleType rolle, NavBruker navBruker) {
-        super(ytelseType, rolle, navBruker);
-    }
-
     private IAYScenarioBuilder(FagsakYtelseType ytelseType, RelasjonsRolleType rolle, NavBrukerKjønn kjønn) {
         super(ytelseType, rolle, kjønn);
         medSøknad()
@@ -38,9 +29,4 @@ public class IAYScenarioBuilder extends AbstractIAYTestScenario<IAYScenarioBuild
     public static IAYScenarioBuilder morSøker(FagsakYtelseType ytelseType) {
         return new IAYScenarioBuilder(ytelseType, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
     }
-
-    public static IAYScenarioBuilder farSøker(FagsakYtelseType ytelseType) {
-        return new IAYScenarioBuilder(ytelseType, RelasjonsRolleType.FARA, NavBrukerKjønn.MANN);
-    }
-
 }

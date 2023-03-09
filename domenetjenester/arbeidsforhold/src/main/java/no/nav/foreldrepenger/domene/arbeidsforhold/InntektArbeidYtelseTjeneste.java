@@ -1,21 +1,17 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public interface InntektArbeidYtelseTjeneste {
@@ -69,14 +65,6 @@ public interface InntektArbeidYtelseTjeneste {
     InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(Long behandlingId);
 
     /**
-     *
-     * @param behandlingUuid
-     * @return Register inntekt og arbeid (Opprett for å endre eller legge til
-     *         registeropplysning)
-     */
-    InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(UUID behandlingUuid, UUID angittReferanse, LocalDateTime angittOpprettetTidspunkt);
-
-    /**
      * @param behandlingId
      * @return Saksbehanldet inntekt og arbeid (Opprett for å endre eller legge til
      *         saksbehanldet)
@@ -110,16 +98,6 @@ public interface InntektArbeidYtelseTjeneste {
     void lagreOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder oppgittOpptjeningBuilder);
 
     /**
-     * Lagre nytt grunnlag for ArbeidsforholdInformasjon. Builder bør ikke
-     * gjenbrukes etter kall her.
-     *
-     * @param behandlingId - Behandling Id
-     * @param aktørId      - Aktør Id
-     * @param builder      - {@link ArbeidsforholdInformasjonBuilder}
-     */
-    void lagreArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder);
-
-    /**
      * Kopier IAY grunnlag fra en behandling til en annen.
      *
      * @param fraBehandlingId - Kilde behandling
@@ -132,23 +110,14 @@ public interface InntektArbeidYtelseTjeneste {
 
     List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer);
 
-    /**
-     * Hent alle inntektsmeldinger registrert på saksnummer, indeksert på
-     * behandling, grunnlag.
-     *
-     * @param saksnummer - Saksnummer
-     */
-    SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer);
-
 
     /**
      * Lagrer arbeidsforholdene på IAY aggregatet
      *
      * @param behandlingId - Behandling Id
-     * @param aktørId      - Aktør Id
      * @param builder      - {@link ArbeidsforholdInformasjonBuilder}
      */
-    void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder);
+    void lagreOverstyrtArbeidsforhold(Long behandlingId, ArbeidsforholdInformasjonBuilder builder);
 
     /**
      * Lagre en eller flere inntektsmeldinger på en behandling for en sak.

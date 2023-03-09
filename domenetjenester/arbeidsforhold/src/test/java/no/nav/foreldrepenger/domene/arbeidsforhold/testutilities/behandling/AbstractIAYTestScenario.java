@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -35,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
@@ -53,8 +51,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -70,23 +66,16 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
-    public static final String ADOPSJON = "adopsjon";
-    public static final String FØDSEL = "fødsel";
-    public static final String TERMINBEKREFTELSE = "terminbekreftelse";
     private static final AtomicLong FAKE_ID = new AtomicLong(100999L);
     private final FagsakBuilder fagsakBuilder;
     private final Map<Long, PersonopplysningGrunnlagEntitet> personopplysningMap = new IdentityHashMap<>();
     private final Map<Long, FamilieHendelseGrunnlagEntitet> familieHendelseAggregatMap = new IdentityHashMap<>();
     private final Map<Long, Behandling> behandlingMap = new HashMap<>();
-    private InntektArbeidYtelseScenario iayScenario;
     private Behandling behandling;
-
-    private Behandlingsresultat.Builder behandlingresultatBuilder;
 
     private Fagsak fagsak;
     private SøknadEntitet.Builder søknadBuilder;
 
-    private OppgittAnnenPartBuilder oppgittAnnenPartBuilder;
     private BehandlingStegType startSteg;
 
     private final Long fagsakId = nyId();
@@ -95,7 +84,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private BehandlingRepository mockBehandlingRepository;
 
     private IAYRepositoryProvider repositoryProvider;
-    private PersonInformasjon.Builder personInformasjonBuilder;
 
     protected AbstractIAYTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
             NavBrukerKjønn kjønn) {
@@ -314,13 +302,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         return new MockPersonopplysningRepository();
     }
 
-    private InntektArbeidYtelseScenario getIayScenario() {
-        if (iayScenario == null) {
-            iayScenario = new InntektArbeidYtelseScenario();
-        }
-        return iayScenario;
-    }
-
     public FagsakRepository mockFagsakRepository() {
         var fagsakRepository = mock(FagsakRepository.class);
         when(fagsakRepository.hentForBruker(ArgumentMatchers.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
@@ -369,26 +350,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         return behandling;
     }
 
-    private void lagrePersonopplysning(IAYRepositoryProvider repositoryProvider, Behandling behandling) {
-        var personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        var behandlingId = behandling.getId();
-        if (oppgittAnnenPartBuilder != null) {
-            personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
-        }
-
-    }
-
     private void validerTilstandVedMocking() {
         if (startSteg != null) {
             throw new IllegalArgumentException(
                     "Kan ikke sette startSteg ved mocking siden dette krever Kodeverk.  Bruk ManipulerInternBehandling til å justere etterpå.");
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medSøknadDato(LocalDate søknadsdato) {
-        medSøknad().medSøknadsdato(søknadsdato);
-        return (S) this;
     }
 
     private void build(BehandlingRepository behandlingRepo, IAYRepositoryProvider repositoryProvider) {
@@ -405,13 +371,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         var lås = behandlingRepo.taSkriveLås(behandling);
         behandlingRepo.lagre(behandling, lås);
-
-        lagrePersonopplysning(repositoryProvider, behandling);
-        if (iayScenario != null) {
-            iayScenario.lagreVirksomhet();
-            iayScenario.lagreOppgittOpptjening(repositoryProvider, behandling);
-            iayScenario.lagreOpptjening(repositoryProvider, behandling);
-        }
         // opprett og lagre resulater på behandling
         lagreBehandlingsresultatOgVilkårResultat(repositoryProvider, lås);
 
@@ -448,35 +407,8 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
     private void lagreBehandlingsresultatOgVilkårResultat(IAYRepositoryProvider repoProvider, BehandlingLås lås) {
         // opprett og lagre behandlingsresultat med VilkårResultat og BehandlingVedtak
-        var behandlingsresultat = (behandlingresultatBuilder == null ? Behandlingsresultat.builderForInngangsvilkår()
-                : behandlingresultatBuilder).buildFor(behandling);
-
+        var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().buildFor(behandling);
         repoProvider.getBehandlingRepository().lagre(behandlingsresultat.getVilkårResultat(), lås);
-
-    }
-
-    public AktørId getDefaultBrukerAktørId() {
-        return fagsakBuilder.getBrukerBuilder().getAktørId();
-    }
-
-    public Behandling getBehandling() {
-        if (behandling == null) {
-            throw new IllegalStateException("Kan ikke hente Behandling før denne er bygd");
-        }
-        return behandling;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medSaksnummer(Saksnummer saksnummer) {
-        fagsakBuilder.medSaksnummer(saksnummer);
-        return (S) this;
-    }
-
-    public OppgittAnnenPartBuilder medSøknadAnnenPart() {
-        if (oppgittAnnenPartBuilder == null) {
-            oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder();
-        }
-        return oppgittAnnenPartBuilder;
     }
 
     public SøknadEntitet.Builder medSøknad() {
@@ -498,23 +430,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medBehandlingStegStart(BehandlingStegType startSteg) {
         this.startSteg = startSteg;
-        return (S) this;
-    }
-
-    public PersonInformasjon.Builder opprettBuilderForRegisteropplysninger() {
-        if (personInformasjonBuilder == null) {
-            personInformasjonBuilder = PersonInformasjon.builder(PersonopplysningVersjonType.REGISTRERT);
-        }
-        return personInformasjonBuilder;
-    }
-
-    public InntektArbeidYtelseScenario.InntektArbeidYtelseScenarioTestBuilder getInntektArbeidYtelseScenarioTestBuilder() {
-        return getIayScenario().getInntektArbeidYtelseScenarioTestBuilder();
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medOppgittOpptjening(OppgittOpptjeningBuilder oppgittOpptjeningBuilder) {
-        getIayScenario().medOppgittOpptjening(oppgittOpptjeningBuilder);
         return (S) this;
     }
 

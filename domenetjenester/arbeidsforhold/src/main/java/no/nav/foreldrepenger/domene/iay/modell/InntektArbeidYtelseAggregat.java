@@ -7,7 +7,6 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -39,32 +38,13 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
      * instansen brukes til lagring.
      */
     InntektArbeidYtelseAggregat(UUID eksternReferanse, LocalDateTime opprettetTidspunkt, InntektArbeidYtelseAggregat kopierFra) {
-        this.setAktørInntekt(kopierFra.getAktørInntekt().stream().map(ai -> {
-            var aktørInntekt = new AktørInntekt(ai);
-            return aktørInntekt;
-        }).collect(Collectors.toList()));
-
-        this.setAktørArbeid(kopierFra.getAktørArbeid().stream().map(aktørArbied -> {
-            var aktørArbeid = new AktørArbeid(aktørArbied);
-            return aktørArbeid;
-        }).collect(Collectors.toList()));
-
-        this.setAktørYtelse(kopierFra.getAktørYtelse().stream().map(ay -> {
-            var aktørYtelse = new AktørYtelse(ay);
-            return aktørYtelse;
-        }).collect(Collectors.toList()));
+        this.setAktørInntekt(kopierFra.getAktørInntekt().stream().map(AktørInntekt::new).toList());
+        this.setAktørArbeid(kopierFra.getAktørArbeid().stream().map(AktørArbeid::new).toList());
+        this.setAktørYtelse(kopierFra.getAktørYtelse().stream().map(AktørYtelse::new).toList());
 
         setOpprettetTidspunkt(opprettetTidspunkt);
         this.uuid = eksternReferanse;
 
-    }
-
-    /**
-     * Copy constructor - inklusiv angitt referanse og opprettet tid. Brukes for
-     * immutable copy internt i minne. Hvis lagres vil gi unik constraint exception.
-     */
-    InntektArbeidYtelseAggregat(InntektArbeidYtelseAggregat kopierFra) {
-        this(kopierFra.getEksternReferanse(), kopierFra.getOpprettetTidspunkt(), kopierFra);
     }
 
     /**

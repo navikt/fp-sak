@@ -80,7 +80,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
 
-        iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
+        iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
                 .leggTil(ArbeidsforholdOverstyringBuilder
                         .oppdatere(Optional.empty())
                         .leggTilOverstyrtPeriode(periode1.getFomDato(), periode1.getTomDato())

@@ -71,10 +71,6 @@ public class ArbeidPermHistorikkInnslagTjeneste {
         return Arbeidsgiver.fra(new AktørId(arbeidsgiverIdent));
     }
 
-    private boolean harBegrunnelse(List<HistorikkinnslagDel> historikkDeler) {
-        return historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
-    }
-
     private boolean harSkjermlenke(List<HistorikkinnslagDel> historikkDeler) {
         return historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
     }

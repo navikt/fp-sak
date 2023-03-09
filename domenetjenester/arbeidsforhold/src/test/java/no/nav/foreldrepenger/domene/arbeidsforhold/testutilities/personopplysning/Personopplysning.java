@@ -2,25 +2,19 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysni
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public final class Personopplysning {
 
-    private AktørId aktørId;
-    private NavBrukerKjønn brukerKjønn = NavBrukerKjønn.UDEFINERT;
-    private SivilstandType sivilstand = SivilstandType.UOPPGITT;
-    private String navn;
-    private LocalDate dødsdato;
-    private LocalDate fødselsdato;
+    private final AktørId aktørId;
+    private final SivilstandType sivilstand;
+    private final String navn;
+    private final LocalDate dødsdato;
+    private final LocalDate fødselsdato;
 
     public AktørId getAktørId() {
         return aktørId;
-    }
-
-    public NavBrukerKjønn getBrukerKjønn() {
-        return brukerKjønn;
     }
 
     public SivilstandType getSivilstand() {
@@ -41,7 +35,6 @@ public final class Personopplysning {
 
     private Personopplysning(Builder builder) {
         this.aktørId = builder.aktørId;
-        this.brukerKjønn = builder.brukerKjønn;
         this.sivilstand = builder.sivilstand;
         this.navn = builder.navn;
         this.dødsdato = builder.dødsdato;
@@ -52,21 +45,8 @@ public final class Personopplysning {
         return new Builder();
     }
 
-    /**
-     * Bare overstyr enkelt verdier hvis du trenger det
-     */
-    public static Builder builderMedDefaultVerdier(AktørId aktørId) {
-        return Personopplysning.builder()
-                .brukerKjønn(NavBrukerKjønn.KVINNE)
-                .fødselsdato(LocalDate.now().minusYears(25))
-                .navn("Foreldre")
-                .aktørId(aktørId)
-                .sivilstand(SivilstandType.UOPPGITT);
-    }
-
     public static final class Builder {
         private AktørId aktørId;
-        private NavBrukerKjønn brukerKjønn;
         private SivilstandType sivilstand;
         private String navn;
         private LocalDate dødsdato;
@@ -81,11 +61,6 @@ public final class Personopplysning {
 
         public Builder aktørId(AktørId aktørId) {
             this.aktørId = aktørId;
-            return this;
-        }
-
-        public Builder brukerKjønn(NavBrukerKjønn brukerKjønn) {
-            this.brukerKjønn = brukerKjønn;
             return this;
         }
 

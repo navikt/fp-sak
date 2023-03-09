@@ -4,21 +4,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
 
 /**
  * Filter for å hente inntekter og inntektsposter fra grunnlag. Tilbyr
@@ -26,7 +21,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
  * ikke trenger å implementere selv navigering av modellen.
  */
 public class InntektFilter {
-    public static final InntektFilter EMPTY = new InntektFilter(Collections.emptyList());
 
     private final Collection<Inntekt> inntekter;
     private final LocalDate skjæringstidspunkt;
@@ -60,19 +54,6 @@ public class InntektFilter {
         return inntekter.isEmpty();
     }
 
-    public InntektFilter filter(Arbeidsgiver arbeidsgiver) {
-        var innt = inntekter.stream().filter(i -> Objects.equals(arbeidsgiver, i.getArbeidsgiver())).collect(Collectors.toList());
-        return copyWith(innt, skjæringstidspunkt, venstreSideASkjæringstidspunkt);
-    }
-
-    public InntektFilter filter(InntektsKilde kilde) {
-        return copyWith(getAlleInntekter(kilde), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
-    }
-
-    public InntektFilter filter(InntektspostType inntektspostType) {
-        return filter(Set.of(inntektspostType));
-    }
-
     public InntektFilter filter(InntektspostType... inntektspostTyper) {
         return filter(Set.of(inntektspostTyper));
     }
@@ -81,33 +62,12 @@ public class InntektFilter {
         return filter((inntekt, inntektspost) -> typer.contains(inntektspost.getInntektspostType()));
     }
 
-    public InntektFilter filter(YtelseType ytelseType) {
-        return filter((inntekt, inntektspost) -> ytelseType.equals(inntektspost.getYtelseType()));
-    }
-
     public InntektFilter filterBeregnetSkatt() {
         return copyWith(getAlleInntektBeregnetSkatt(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
     }
 
-    public InntektFilter filterBeregningsgrunnlag() {
-        return copyWith(getAlleInntektBeregningsgrunnlag(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
-    }
-
     public InntektFilter filterPensjonsgivende() {
         return copyWith(getAlleInntektPensjonsgivende(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
-    }
-
-    public InntektFilter filterSammenligningsgrunnlag() {
-        return copyWith(getAlleInntektSammenligningsgrunnlag(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
-    }
-
-    public Collection<Inntektspost> filtrer(Inntekt inntekt, Collection<Inntektspost> inntektsposter) {
-        if (inntektsposter == null) {
-            return Collections.emptySet();
-        }
-        return inntektsposter.stream()
-                .filter(ip -> filtrerInntektspost(inntekt, ip))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public InntektFilter før(LocalDate skjæringstidspunkt) {
@@ -125,7 +85,7 @@ public class InntektFilter {
     public List<Inntekt> getAlleInntekter(InntektsKilde kilde) {
         return inntekter.stream()
                 .filter(it -> (kilde == null) || kilde.equals(it.getInntektsKilde()))
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     public List<Inntekt> getAlleInntekter() {
@@ -134,19 +94,6 @@ public class InntektFilter {
 
     public List<Inntekt> getAlleInntektPensjonsgivende() {
         return getAlleInntekter(InntektsKilde.INNTEKT_OPPTJENING);
-    }
-
-    public List<Inntekt> getAlleInntektSammenligningsgrunnlag() {
-        return getAlleInntekter(InntektsKilde.INNTEKT_SAMMENLIGNING);
-    }
-
-    /**
-     * Get alle inntektsposter - fullstendig ufiltrert og uten hensyn til
-     * konfigurert skjæringstidspunkt.
-     */
-    public Collection<Inntektspost> getAlleInntektsposter() {
-        return Collections.unmodifiableCollection(inntekter.stream().flatMap(i -> i.getAlleInntektsposter().stream())
-                .collect(Collectors.toList()));
     }
 
     /**
@@ -161,22 +108,13 @@ public class InntektFilter {
      * hvis satt på filter.
      */
     public Collection<Inntektspost> getInntektsposter(InntektsKilde kilde) {
-        Collection<Inntektspost> inntektsposter = getAlleInntekter(null).stream().filter(i -> (kilde == null) || kilde.equals(i.getInntektsKilde()))
+        return getAlleInntekter(null).stream().filter(i -> (kilde == null) || kilde.equals(i.getInntektsKilde()))
                 .flatMap(i -> i.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(i, ip)))
-                .collect(Collectors.toList());
-        return Collections.unmodifiableCollection(inntektsposter);
-    }
-
-    public Collection<Inntektspost> getInntektsposterBeregningsgrunnlag() {
-        return getInntektsposter(getAlleInntektBeregningsgrunnlag());
+                .toList();
     }
 
     public Collection<Inntektspost> getInntektsposterPensjonsgivende() {
         return getInntektsposter(getAlleInntektPensjonsgivende());
-    }
-
-    public Collection<Inntektspost> getInntektsposterSammenligningsgrunnlag() {
-        return getInntektsposter(getAlleInntektSammenligningsgrunnlag());
     }
 
     @Override
@@ -198,16 +136,14 @@ public class InntektFilter {
      * definert
      */
     private Collection<Inntektspost> getInntektsposter(Collection<Inntekt> inntekter) {
-        Collection<Inntektspost> inntektsposter = inntekter.stream()
+        return inntekter.stream()
                 .flatMap(i -> i.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(i, ip)))
-                .collect(Collectors.toList());
-        return Collections.unmodifiableCollection(inntektsposter);
+                .toList();
     }
 
     private Collection<Inntektspost> getFiltrertInntektsposter(Inntekt inntekt) {
-        Collection<Inntektspost> inntektsposter = inntekt.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(inntekt, ip))
-                .collect(Collectors.toList());
-        return Collections.unmodifiableCollection(inntektsposter);
+        return inntekt.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(inntekt, ip))
+                .toList();
     }
 
     private boolean skalMedEtterSkjæringstidspunktVurdering(Inntektspost inntektspost) {
@@ -231,20 +167,20 @@ public class InntektFilter {
      */
     public void forFilter(BiConsumer<Inntekt, Collection<Inntektspost>> consumer) {
         getAlleInntekter().forEach(i -> {
-            var inntektsposterFiltrert = getFiltrertInntektsposter(i).stream().filter(ip -> filtrerInntektspost(i, ip)).collect(Collectors.toList());
+            var inntektsposterFiltrert = getFiltrertInntektsposter(i).stream().filter(ip -> filtrerInntektspost(i, ip)).toList();
             consumer.accept(i, inntektsposterFiltrert);
         });
     }
 
     public InntektFilter filter(Predicate<Inntekt> filterFunc) {
-        return copyWith(getAlleInntekter().stream().filter(filterFunc).collect(Collectors.toList()), skjæringstidspunkt,
+        return copyWith(getAlleInntekter().stream().filter(filterFunc).toList(), skjæringstidspunkt,
                 venstreSideASkjæringstidspunkt);
     }
 
     public InntektFilter filter(BiPredicate<Inntekt, Inntektspost> filterFunc) {
         var copy = copyWith(getAlleInntekter().stream()
                 .filter(i -> i.getAlleInntektsposter().stream().anyMatch(ip -> filterFunc.test(i, ip)))
-                .collect(Collectors.toList()), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
+                .toList(), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
 
         if (copy.inntektspostFilter == null) {
             copy.inntektspostFilter = filterFunc;

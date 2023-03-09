@@ -142,7 +142,7 @@ public class ForvaltningStegRestTjeneste {
         var behandling = getBehandling(dto);
         if (KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING.equals(tilSteg)) {
             arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkAlleValgPåBehandling(BehandlingReferanse.fra(behandling));
-            arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
+            arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
             resetStartpunkt(behandling);
         }
         if (KONTROLLER_FAKTA.equals(tilSteg)) {

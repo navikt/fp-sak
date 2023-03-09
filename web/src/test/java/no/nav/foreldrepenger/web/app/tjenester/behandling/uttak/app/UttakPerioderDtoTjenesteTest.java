@@ -95,7 +95,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
         arbeidsforholdInformasjonBuilder.leggTil(arbeidsgiver, internArbeidsforholdId, eksternArbeidsforholdId);
-        inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandling.getId(), behandling.getAktørId(), arbeidsforholdInformasjonBuilder);
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), arbeidsforholdInformasjonBuilder);
 
         var tjeneste = tjeneste();
 
@@ -265,8 +265,8 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
         var builder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         builder.leggTil(arbeidsgiver, internArbeidsforholdIdSøker, EksternArbeidsforholdRef.ref("ID1"));
-        inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandlingSøker.getId(), behandlingSøker.getAktørId(), builder);
-        inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandlingAnnenpart.getId(), behandlingAnnenpart.getAktørId(), lagFiktivtArbeidsforholdOverstyring(internArbeidsforholdIdAnnenPart));
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingSøker.getId(), builder);
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingAnnenpart.getId(), lagFiktivtArbeidsforholdOverstyring(internArbeidsforholdIdAnnenPart));
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak(), behandlingSøker);
 

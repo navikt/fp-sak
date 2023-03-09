@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
@@ -137,21 +136,9 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     @Override
-    public InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(UUID behandlingUuid, UUID angittReferanse,
-            LocalDateTime angittOpprettetTidspunkt) {
-        var iayGrunnlag = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingUuid);
-        return opprettBuilderFor(VersjonType.REGISTER, angittReferanse, angittOpprettetTidspunkt, iayGrunnlag);
-    }
-
-    @Override
     public InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(Long behandlingId) {
         var iayGrunnlag = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
         return opprettBuilderFor(VersjonType.SAKSBEHANDLET, UUID.randomUUID(), LocalDateTime.now(), iayGrunnlag);
-    }
-
-    private static Optional<InntektArbeidYtelseGrunnlag> hentInntektArbeidYtelseGrunnlagForBehandling(UUID behandlingUUid) {
-        var iayGrunnlag = getAktivtInntektArbeidGrunnlag(behandlingUUid);
-        return iayGrunnlag.isPresent() ? Optional.of(iayGrunnlag.get()) : Optional.empty();
     }
 
     private InntektArbeidYtelseAggregatBuilder opprettBuilderFor(VersjonType versjonType, UUID angittReferanse, LocalDateTime opprettetTidspunkt,
@@ -189,13 +176,10 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         }
     }
 
-    @Override
-    public void lagreArbeidsforhold(Long behandlingId, AktørId søkerAktørId, ArbeidsforholdInformasjonBuilder informasjon) {
+    private void lagreArbeidsforhold(Long behandlingId, ArbeidsforholdInformasjonBuilder informasjon) {
         Objects.requireNonNull(informasjon, "informasjon");
         var builder = opprettGrunnlagBuilderFor(behandlingId);
 
-        builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getReverserteErstattArbeidsforhold());
-        builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getErstattArbeidsforhold());
         builder.medInformasjon(informasjon.build());
 
         lagreOgFlush(behandlingId, builder.build());
@@ -214,11 +198,9 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         lagreOgFlush(behandlingId, iayGrunnlag.build());
     }
 
-    @Override
-    public SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer) {
-        var alleGrunnlag = grunnlag;
+    private SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer) {
         var resultat = new SakInntektsmeldinger(saksnummer);
-        for (var iayg : alleGrunnlag) {
+        for (var iayg : grunnlag) {
             var ims = iayg.getInntektsmeldinger();
             if (ims.isPresent()) {
                 for (var behId : alleBehandlingMedGrunnlag(iayg.getEksternReferanse())) {
@@ -232,8 +214,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     @Override
-    public void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId søkerAktørId, ArbeidsforholdInformasjonBuilder informasjon) {
-        lagreArbeidsforhold(behandlingId, søkerAktørId, informasjon);
+    public void lagreOverstyrtArbeidsforhold(Long behandlingId, ArbeidsforholdInformasjonBuilder informasjon) {
+        lagreArbeidsforhold(behandlingId, informasjon);
     }
 
     @Override

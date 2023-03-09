@@ -89,7 +89,7 @@ public class AvklarArbeidPermisjonUtenSluttdatoOppdaterer implements Aksjonspunk
             }
         }
         arbeidPermHistorikkInnslagTjeneste.opprettHistorikkinnslag(bekreftetArbforholdDto.getArbeidsforhold(), bekreftetArbforholdDto.getBegrunnelse());
-        arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(behandlingId, param.getAktørId(), arbeidsforholdInformasjonBuilder );
+        arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(behandlingId, arbeidsforholdInformasjonBuilder );
         return OppdateringResultat.utenTransisjon().build();
     }
 

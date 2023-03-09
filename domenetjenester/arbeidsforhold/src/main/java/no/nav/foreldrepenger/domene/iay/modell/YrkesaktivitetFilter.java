@@ -41,18 +41,9 @@ public class YrkesaktivitetFilter {
         this.yrkesaktiviteter = yrkesaktiviteter;
     }
 
-    public YrkesaktivitetFilter(ArbeidsforholdInformasjon arbeidsforholdInformasjon, AktørArbeid arbeid) {
-        this(arbeidsforholdInformasjon, arbeid.hentAlleYrkesaktiviteter());
-    }
-
     public YrkesaktivitetFilter(Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon, Optional<AktørArbeid> aktørArbeid) {
         this(arbeidsforholdInformasjon.isEmpty() ? null : arbeidsforholdInformasjon.orElse(null),
                 aktørArbeid.map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()));
-    }
-
-    public YrkesaktivitetFilter(Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon, AktørArbeid aktørArbeid) {
-        this(arbeidsforholdInformasjon.isEmpty() ? null : arbeidsforholdInformasjon.orElse(null),
-                aktørArbeid == null ? Collections.emptyList() : aktørArbeid.hentAlleYrkesaktiviteter());
     }
 
     public YrkesaktivitetFilter(ArbeidsforholdInformasjon arbeidsforholdInformasjon, Yrkesaktivitet yrkesaktivitet) {
@@ -272,7 +263,7 @@ public class YrkesaktivitetFilter {
                     .forEach(avtale -> avtaler.add(new AktivitetsAvtale(avtale, overstyrtPeriode.getOverstyrtePeriode()))));
 
             // legg til resten, bruk av set hindrer oss i å legge dobbelt.
-            yaAvtaler.stream().forEach(avtale -> avtaler.add(new AktivitetsAvtale(avtale)));
+            yaAvtaler.forEach(avtale -> avtaler.add(new AktivitetsAvtale(avtale)));
             return avtaler;
         }
         // ingen overstyring, returner samme
@@ -325,22 +316,6 @@ public class YrkesaktivitetFilter {
             return List.copyOf(filterAktivitetsAvtaleOverstyring(ya, ansettelsesAvtaler));
         }
         return Collections.emptyList();
-    }
-
-    /**
-     * @see #getAktivitetsAvtalerForArbeid(Yrkesaktivitet)
-     */
-    public Collection<AktivitetsAvtale> getAktivitetsAvtalerForArbeid(Collection<Yrkesaktivitet> yrkesaktiviteter) {
-        return yrkesaktiviteter.stream().flatMap(ya -> getAktivitetsAvtalerForArbeid(ya).stream()).toList();
-    }
-
-    /**
-     * Gir ansettelsesperioder for angitte arbeidsforhold.
-     *
-     * @see #getAnsettelsesPerioder(Yrkesaktivitet)
-     */
-    public Collection<AktivitetsAvtale> getAnsettelsesPerioder(Collection<Yrkesaktivitet> yrkesaktiviteter) {
-        return yrkesaktiviteter.stream().flatMap(ya -> getAnsettelsesPerioder(ya).stream()).toList();
     }
 
     /**

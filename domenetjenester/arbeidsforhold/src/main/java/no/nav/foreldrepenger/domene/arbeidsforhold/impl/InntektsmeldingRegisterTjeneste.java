@@ -103,7 +103,7 @@ public class InntektsmeldingRegisterTjeneste {
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, new FinnEksternReferanse());
 
-        return filtrerInntektsmeldingerForYtelse(referanse, Optional.empty(), påkrevdeInntektsmeldinger);
+        return filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
     }
 
     private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
@@ -137,16 +137,16 @@ public class InntektsmeldingRegisterTjeneste {
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
 
-        var filtrert = filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag,
-                påkrevdeInntektsmeldinger);
+        var filtrert = filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
         return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, filtrert);
     }
 
     // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
 
-    private <V> void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
-            boolean erEndringssøknad,
-            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
+    private <V> void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse,
+                                                        Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
+                                                        boolean erEndringssøknad,
+                                                        BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
         // modder påkrevdeInntektsmeldinger for hvert kall
         if (!påkrevdeInntektsmeldinger.isEmpty()) {
             inntektsmeldingerSomHarKommet(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, tilnternArbeidsforhold);
@@ -273,11 +273,11 @@ public class InntektsmeldingRegisterTjeneste {
      * av endringer i arkivet.
      */
     private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse,
-            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+                                                                            Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
         var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
                 .orElseThrow(
                         () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
-        return filter.filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        return filter.filtrerInntektsmeldingerForYtelse(referanse, påkrevdeInntektsmeldinger);
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,

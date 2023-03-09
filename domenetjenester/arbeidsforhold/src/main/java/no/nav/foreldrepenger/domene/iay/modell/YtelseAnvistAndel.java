@@ -38,15 +38,6 @@ public class YtelseAnvistAndel extends BaseEntitet implements IndexKey {
         // hibernate
     }
 
-    public YtelseAnvistAndel(YtelseAnvistAndel ytelseAnvistAndel) {
-        ytelseAnvistAndel.getArbeidsgiver().ifPresent(this::setArbeidsgiver);
-        this.dagsats = ytelseAnvistAndel.getDagsats();
-        this.inntektskategori = ytelseAnvistAndel.getInntektskategori();
-        this.arbeidsforholdRef = ytelseAnvistAndel.getArbeidsforholdRef();
-        this.utbetalingsgradProsent = ytelseAnvistAndel.getUtbetalingsgradProsent();
-        this.refusjonsgradProsent = ytelseAnvistAndel.getRefusjonsgradProsent();
-    }
-
     public Optional<Arbeidsgiver> getArbeidsgiver() {
         return Optional.ofNullable(arbeidsgiver);
     }

@@ -15,9 +15,7 @@ public interface InntektsmeldingFilterYtelse {
      * Returnerer påkrevde inntektsmeldinger etter ytelsesspesifikke vurdering og
      * filtrering
      */
-    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse,
-            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-            Map<Arbeidsgiver, Set<V>> påkrevde);
+    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevde);
 
     Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
                                                                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,

@@ -6,7 +6,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -27,7 +26,6 @@ public class IAYRepositoryProvider {
     private final OpptjeningRepository opptjeningRepository;
     private final MottatteDokumentRepository mottatteDokumentRepository;
     private final BehandlingRepository behandlingRepository;
-    private final BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
     public IAYRepositoryProvider(EntityManager entityManager) {
@@ -42,9 +40,6 @@ public class IAYRepositoryProvider {
         this.opptjeningRepository = new OpptjeningRepository(entityManager, this.behandlingRepository);
         this.personopplysningRepository = new PersonopplysningRepository(entityManager);
         this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
-
-        // behandling resultat aggregater
-        this.beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
 
         // behandling støtte repositories
         this.mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
@@ -70,10 +65,6 @@ public class IAYRepositoryProvider {
 
     public SøknadRepository getSøknadRepository() {
         return søknadRepository;
-    }
-
-    public BeregningsresultatRepository getBeregningsresultatRepository() {
-        return beregningsresultatRepository;
     }
 
     public FamilieHendelseRepository getFamilieHendelseRepository() {

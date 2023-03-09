@@ -88,7 +88,7 @@ class InntektsmeldingTjenesteTest {
         fagsakRepository = new FagsakRepository(entityManager);
 
         var virksomhet1 = lagVirksomhet();
-        var virksomhet2 = lagAndreVirksomhet();
+        lagAndreVirksomhet();
 
         this.arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 

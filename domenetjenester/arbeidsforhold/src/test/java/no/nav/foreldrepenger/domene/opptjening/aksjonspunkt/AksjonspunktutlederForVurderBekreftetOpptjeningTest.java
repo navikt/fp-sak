@@ -59,7 +59,7 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
         // Arrange
         var behandling = opprettBehandling();
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
-        iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
+        iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
                 .leggTil(ArbeidsforholdOverstyringBuilder
                         .oppdatere(Optional.empty())
                         .leggTilOverstyrtPeriode(periode.getFomDato(), periode.getTomDato())
@@ -77,13 +77,13 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
     }
 
     private Behandling opprettBehandling() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
         fagsakRepository.opprettNy(fagsak);
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         Behandlingsresultat.opprettFor(behandling);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        final var nyttResultat = VilkårResultat.builder().buildFor(behandling);
+        var nyttResultat = VilkårResultat.builder().buildFor(behandling);
         behandlingRepository.lagre(nyttResultat, behandlingRepository.taSkriveLås(behandling));
 
         opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusMonths(10), skjæringstidspunkt, false);

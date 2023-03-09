@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysni
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -17,7 +16,7 @@ public class Personas {
         this.builder = builder;
     }
 
-    public Personas voksenPerson(AktørId aktørId, SivilstandType st, NavBrukerKjønn kjønn) {
+    public Personas voksenPerson(AktørId aktørId, SivilstandType st) {
         if (this.aktørId == null) {
             this.aktørId = aktørId;
             this.persInfoBuilder = Personopplysning.builder();
@@ -27,14 +26,13 @@ public class Personas {
         }
         builder.leggTilPersonopplysninger(persInfoBuilder
                 .aktørId(aktørId)
-                .brukerKjønn(kjønn)
                 .fødselsdato(fødselsdato)
                 .sivilstand(st));
         return this;
     }
 
     public Personas kvinne(AktørId aktørId) {
-        voksenPerson(aktørId, SivilstandType.SAMBOER, NavBrukerKjønn.KVINNE);
+        voksenPerson(aktørId, SivilstandType.SAMBOER);
         return this;
     }
 
