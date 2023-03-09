@@ -21,6 +21,7 @@ import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettTidsromPermisjonDto;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettUtsettelseDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -103,13 +104,12 @@ class SøknadMapperTest {
     public void before(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
-        oppgittPeriodeMottattDato = new SøknadDataFraTidligereVedtakTjeneste(new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
-            new FpUttakRepository(entityManager), repositoryProvider.getBehandlingRepository(),
+        oppgittPeriodeMottattDato = new SøknadDataFraTidligereVedtakTjeneste(
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(entityManager),
+            repositoryProvider.getBehandlingRepository(),
             new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider));
 
-        kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID)
-            .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
-            .build();
+        kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID).medNavBrukerKjønn(NavBrukerKjønn.KVINNE).build();
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
     }
 
@@ -118,7 +118,7 @@ class SøknadMapperTest {
         var dto = new ManuellRegistreringForeldrepengerDto();
         dto.setAnnenForelderInformert(false);
         oppdaterDtoForFødsel(dto, true, LocalDate.now().minusWeeks(3), 1);
-        ytelseSøknadMapper.mapSøknad(dto, opprettBruker());
+        assertThatCode(() -> ytelseSøknadMapper.mapSøknad(dto, opprettBruker())).doesNotThrowAnyException();
     }
 
     @Test
@@ -176,8 +176,7 @@ class SøknadMapperTest {
     void test_mapMødrekvotePeriodeDto() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
-        var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(
-            opprettPermisjonPeriodeDto(fraDato, tomDato, MØDREKVOTE, null));
+        var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(opprettPermisjonPeriodeDto(fraDato, tomDato, MØDREKVOTE, null));
         assertThat(uttaksperiode).isNotNull();
         assertThat(uttaksperiode.getFom()).isEqualTo(fraDato);
         assertThat(uttaksperiode.getTom()).isEqualTo(tomDato);
@@ -188,8 +187,7 @@ class SøknadMapperTest {
     void test_mapForeldrepengerFørFødselPeriode() {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
-        var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(
-            opprettPermisjonPeriodeDto(fraDato, tomDato, FORELDREPENGER_FØR_FØDSEL, null));
+        var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(opprettPermisjonPeriodeDto(fraDato, tomDato, FORELDREPENGER_FØR_FØDSEL, null));
         assertThat(uttaksperiode).isNotNull();
         assertThat(uttaksperiode.getFom()).isEqualTo(fraDato);
         assertThat(uttaksperiode.getTom()).isEqualTo(tomDato);
@@ -235,8 +233,7 @@ class SøknadMapperTest {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
 
-        var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(
-            opprettPermisjonPeriodeDto(fraDato, tomDato, FELLESPERIODE, ARBEID));
+        var uttaksperiode = YtelseSøknadMapper.mapPermisjonPeriodeDto(opprettPermisjonPeriodeDto(fraDato, tomDato, FELLESPERIODE, ARBEID));
         assertThat(uttaksperiode).isNotNull();
         assertThat(uttaksperiode.getFom()).isEqualTo(fraDato);
         assertThat(uttaksperiode.getTom()).isEqualTo(tomDato);
@@ -251,36 +248,32 @@ class SøknadMapperTest {
         var prosentAndel = BigDecimal.valueOf(15);
         var uttaksperiodes = YtelseSøknadMapper.mapGraderingsperioder(
             List.of(opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, true, false, false, null)));
-        assertThat(uttaksperiodes).isNotNull();
-        assertThat(uttaksperiodes).hasSize(1);
+        assertThat(uttaksperiodes).isNotNull().hasSize(1);
     }
 
     @Test
     void test_mapUttaksperioder_gradering_med_samtidig_uttak() {
-        var graderingDto = opprettGraderingDto(LocalDate.now(), LocalDate.now().plusDays(3), BigDecimal.valueOf(15),
-            FEDREKVOTE, true, false, false, null);
+        var graderingDto = opprettGraderingDto(LocalDate.now(), LocalDate.now().plusDays(3), BigDecimal.valueOf(15), FEDREKVOTE, true, false, false,
+            null);
         graderingDto.setHarSamtidigUttak(true);
         graderingDto.setSamtidigUttaksprosent(BigDecimal.TEN);
 
         var uttakperioder = YtelseSøknadMapper.mapGraderingsperioder(List.of(graderingDto));
         assertThat(uttakperioder).hasSize(1);
         assertThat(uttakperioder.get(0).isOenskerSamtidigUttak()).isEqualTo(graderingDto.getHarSamtidigUttak());
-        assertThat(uttakperioder.get(0).getSamtidigUttakProsent()).isEqualTo(
-            graderingDto.getSamtidigUttaksprosent().doubleValue());
+        assertThat(uttakperioder.get(0).getSamtidigUttakProsent()).isEqualTo(graderingDto.getSamtidigUttaksprosent().doubleValue());
     }
 
     @Test
     void test_mapUttaksperioder_samtidig_uttak() {
-        var periode = opprettPermisjonPeriodeDto(LocalDate.of(2018, 1, 1), LocalDate.of(2018, 1, 1), FELLESPERIODE,
-            ARBEID_OG_UTDANNING);
+        var periode = opprettPermisjonPeriodeDto(LocalDate.of(2018, 1, 1), LocalDate.of(2018, 1, 1), FELLESPERIODE, ARBEID_OG_UTDANNING);
         periode.setHarSamtidigUttak(true);
         periode.setSamtidigUttaksprosent(BigDecimal.TEN);
 
         var uttaksperioder = YtelseSøknadMapper.mapUttaksperioder(List.of(periode));
         assertThat(uttaksperioder).hasSize(1);
         assertThat(uttaksperioder.get(0).isOenskerSamtidigUttak()).isEqualTo(periode.getHarSamtidigUttak());
-        assertThat(uttaksperioder.get(0).getSamtidigUttakProsent()).isEqualTo(
-            periode.getSamtidigUttaksprosent().doubleValue());
+        assertThat(uttaksperioder.get(0).getSamtidigUttakProsent()).isEqualTo(periode.getSamtidigUttaksprosent().doubleValue());
     }
 
     @Test
@@ -306,20 +299,14 @@ class SøknadMapperTest {
         var fødselsdato = LocalDate.now();
         var mødrekvoteSlutt = fødselsdato.plusDays(1).plusWeeks(3);
 
-        var permisjonPeriodeFørFødselDto = opprettPermisjonPeriodeDto(perminsjonstartFørFødsel, fødselsdato,
-            FORELDREPENGER_FØR_FØDSEL, null);
-        var permisjonPeriodeMødrekvote = opprettPermisjonPeriodeDto(LocalDate.now().plusDays(1), mødrekvoteSlutt,
-            MØDREKVOTE, null);
+        var permisjonPeriodeFørFødselDto = opprettPermisjonPeriodeDto(perminsjonstartFørFødsel, fødselsdato, FORELDREPENGER_FØR_FØDSEL, null);
+        var permisjonPeriodeMødrekvote = opprettPermisjonPeriodeDto(LocalDate.now().plusDays(1), mødrekvoteSlutt, MØDREKVOTE, null);
 
-        var uttaksperioder = YtelseSøknadMapper.mapUttaksperioder(
-            List.of(permisjonPeriodeFørFødselDto, permisjonPeriodeMødrekvote));
-        assertThat(uttaksperioder).isNotNull();
-        assertThat(uttaksperioder).hasSize(2);
-
-        assertThat(uttaksperioder).anyMatch(
-            uttaksperiode -> FORELDREPENGER_FØR_FØDSEL.getKode().equals(uttaksperiode.getType().getKode()));
-        assertThat(uttaksperioder).anyMatch(
-            uttaksperiode -> MØDREKVOTE.getKode().equals(uttaksperiode.getType().getKode()));
+        var uttaksperioder = YtelseSøknadMapper.mapUttaksperioder(List.of(permisjonPeriodeFørFødselDto, permisjonPeriodeMødrekvote));
+        assertThat(uttaksperioder).isNotNull()
+            .hasSize(2)
+            .anyMatch(uttaksperiode -> FORELDREPENGER_FØR_FØDSEL.getKode().equals(uttaksperiode.getType().getKode()))
+            .anyMatch(uttaksperiode -> MØDREKVOTE.getKode().equals(uttaksperiode.getType().getKode()));
     }
 
     @Test
@@ -327,16 +314,13 @@ class SøknadMapperTest {
         var mødrekvoteSlutt = LocalDate.now().plusWeeks(3);
         var fellesperiodeSlutt = mødrekvoteSlutt.plusWeeks(4);
 
-        var fellesPeriodeDto = opprettPermisjonPeriodeDto(mødrekvoteSlutt, fellesperiodeSlutt, FELLESPERIODE,
-            ARBEID_OG_UTDANNING);
+        var fellesPeriodeDto = opprettPermisjonPeriodeDto(mødrekvoteSlutt, fellesperiodeSlutt, FELLESPERIODE, ARBEID_OG_UTDANNING);
 
         var uttaksperioder = YtelseSøknadMapper.mapUttaksperioder(List.of(fellesPeriodeDto));
-        assertThat(uttaksperioder).isNotNull();
-        assertThat(uttaksperioder).hasSize(1);
-        assertThat(uttaksperioder).first()
-            .matches(uttaksperiode -> ARBEID_OG_UTDANNING.getKode()
-                .equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()));
-        assertThat(uttaksperioder).first()
+        assertThat(uttaksperioder).isNotNull()
+            .hasSize(1)
+            .first()
+            .matches(uttaksperiode -> ARBEID_OG_UTDANNING.getKode().equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()))
             .matches(uttaksperiode -> FELLESPERIODE.getKode().equals(uttaksperiode.getType().getKode()));
     }
 
@@ -347,11 +331,10 @@ class SøknadMapperTest {
 
         var uttaksperioder = YtelseSøknadMapper.mapUttaksperioder(
             List.of(opprettPermisjonPeriodeDto(mødrekvoteSlutt, fellesperiodeSlutt, FELLESPERIODE, UFØRE)));
-        assertThat(uttaksperioder).isNotNull();
-        assertThat(uttaksperioder).hasSize(1);
-        assertThat(uttaksperioder).first()
-            .matches(uttaksperiode -> UFØRE.getKode().equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()));
-        assertThat(uttaksperioder).first()
+        assertThat(uttaksperioder).isNotNull()
+            .hasSize(1)
+            .first()
+            .matches(uttaksperiode -> UFØRE.getKode().equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()))
             .matches(uttaksperiode -> FELLESPERIODE.getKode().equals(uttaksperiode.getType().getKode()));
     }
 
@@ -362,19 +345,17 @@ class SøknadMapperTest {
 
         var uttaksperioder = YtelseSøknadMapper.mapUttaksperioder(
             List.of(opprettPermisjonPeriodeDto(mødrekvoteSlutt, fellesperiodeSlutt, FORELDREPENGER, IKKE_OPPGITT)));
-        assertThat(uttaksperioder).isNotNull();
-        assertThat(uttaksperioder).hasSize(1);
-        assertThat(uttaksperioder).first()
-            .matches(uttaksperiode -> IKKE_OPPGITT.getKode().equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()));
-        assertThat(uttaksperioder).first()
+        assertThat(uttaksperioder).isNotNull()
+            .hasSize(1)
+            .first()
+            .matches(uttaksperiode -> IKKE_OPPGITT.getKode().equals(uttaksperiode.getMorsAktivitetIPerioden().getKode()))
             .matches(uttaksperiode -> FORELDREPENGER.getKode().equals(uttaksperiode.getType().getKode()));
     }
 
     @Test
     void test_mapFordeling_morSøkerMenfarRettPåFedrekvote() {
         var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
-        var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(),
-            FORELDREPENGER_FØR_FØDSEL, null);
+        var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(), FORELDREPENGER_FØR_FØDSEL, null);
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(List.of(permisjonPeriodeDto)));
         manuellRegistreringForeldrepengerDto.setAnnenForelderInformert(true);
@@ -393,8 +374,7 @@ class SøknadMapperTest {
             null);
         var permisjonPeriodeDto2 = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(2), LocalDate.now().minusWeeks(1).minusDays(1),
             FELLESPERIODE, ARBEID);
-        var permisjonPeriodeDto3 = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(1), LocalDate.now(),
-            FORELDREPENGER, INNLAGT);
+        var permisjonPeriodeDto3 = opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(1), LocalDate.now(), FORELDREPENGER, INNLAGT);
         var permisjonPerioder = List.of(permisjonPeriodeDto, permisjonPeriodeDto2, permisjonPeriodeDto3);
 
         dto.setTidsromPermisjon(opprettTidsromPermisjonDto(permisjonPerioder));
@@ -409,8 +389,8 @@ class SøknadMapperTest {
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(Optional.of(kvinne));
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
-        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
+            datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
@@ -418,15 +398,13 @@ class SøknadMapperTest {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        oversetter.trekkUtDataOgPersister(
-            (SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad),
+        oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad),
             new MottattDokument.Builder().medMottattDato(LocalDate.now())
                 .medFagsakId(behandling.getFagsakId())
                 .medElektroniskRegistrert(true)
                 .build(), behandling, Optional.empty());
 
-        var ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
-            .hentAggregat(behandling.getId());
+        var ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
         assertThat(ytelseFordelingAggregat.getOppgittRettighet()).isNotNull();
         assertThat(ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett()).isTrue();
@@ -443,8 +421,7 @@ class SøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, fødselsdato, 1);
         // Perioder: permisjon før fødsel og mødrekvote
         List<PermisjonPeriodeDto> permisjonsperioder = new ArrayList<>();
-        permisjonsperioder.add(
-            opprettPermisjonPeriodeDto(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1), FORELDREPENGER_FØR_FØDSEL, null));
+        permisjonsperioder.add(opprettPermisjonPeriodeDto(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1), FORELDREPENGER_FØR_FØDSEL, null));
         permisjonsperioder.add(opprettPermisjonPeriodeDto(fødselsdato, mødrekvoteSlutt.minusDays(1), MØDREKVOTE, null));
         var tidsromPermisjonDto = opprettTidsromPermisjonDto(permisjonsperioder);
 
@@ -464,16 +441,15 @@ class SøknadMapperTest {
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
 
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
-        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
+            datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(Optional.of(kvinne));
-        oversetter.trekkUtDataOgPersister(
-            (SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad),
+        oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad),
             new MottattDokument.Builder().medMottattDato(LocalDate.now())
                 .medFagsakId(behandling.getFagsakId())
                 .medElektroniskRegistrert(true)
@@ -493,15 +469,18 @@ class SøknadMapperTest {
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL));
         assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).anySatisfy(
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(MØDREKVOTE));
-        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder().stream().map(OppgittPeriodeEntitet::getÅrsak).filter(u -> u instanceof UtsettelseÅrsak).toList()).anySatisfy(
-            årsak -> assertThat((UtsettelseÅrsak)årsak).isEqualTo(UtsettelseÅrsak.FERIE));
+        assertThat(ytelseFordeling.getOppgittFordeling()
+            .getPerioder()
+            .stream()
+            .map(OppgittPeriodeEntitet::getÅrsak)
+            .filter(u -> u instanceof UtsettelseÅrsak)
+            .toList()).anySatisfy(årsak -> assertThat((UtsettelseÅrsak) årsak).isEqualTo(UtsettelseÅrsak.FERIE));
     }
 
     @Test
     void test_mapFordeling_morAleneomsorg() {
         var manuellRegistreringForeldrepengerDto = new ManuellRegistreringForeldrepengerDto();
-        var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now(), LocalDate.now().plusWeeks(3), MØDREKVOTE,
-            null);
+        var permisjonPeriodeDto = opprettPermisjonPeriodeDto(LocalDate.now(), LocalDate.now().plusWeeks(3), MØDREKVOTE, null);
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(List.of(permisjonPeriodeDto)));
         manuellRegistreringForeldrepengerDto.setAnnenForelderInformert(true);
@@ -589,8 +568,7 @@ class SøknadMapperTest {
 
         var dto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
-        var permisjonPerioder = List.of(
-            opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(), MØDREKVOTE, null));
+        var permisjonPerioder = List.of(opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(), MØDREKVOTE, null));
         dto.setTidsromPermisjon(opprettTidsromPermisjonDto(permisjonPerioder));
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
         dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
@@ -600,12 +578,11 @@ class SøknadMapperTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
-        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
+            datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
 
-        oversetter.trekkUtDataOgPersister(
-            (SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(),
-            behandling, Optional.empty());
+        oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
+            Optional.empty());
 
         verify(iayTjeneste, times(0)).lagreOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
     }
@@ -632,8 +609,7 @@ class SøknadMapperTest {
 
         var dto = new ManuellRegistreringForeldrepengerDto();
         oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
-        var permisjonPerioder = List.of(
-            opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(), MØDREKVOTE, null));
+        var permisjonPerioder = List.of(opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(), MØDREKVOTE, null));
         dto.setTidsromPermisjon(opprettTidsromPermisjonDto(permisjonPerioder));
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
         dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
@@ -643,12 +619,11 @@ class SøknadMapperTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
-        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
+            datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
 
-        oversetter.trekkUtDataOgPersister(
-            (SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(),
-            behandling, Optional.empty());
+        oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
+            Optional.empty());
         verify(iayTjeneste).lagreOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
     }
 }

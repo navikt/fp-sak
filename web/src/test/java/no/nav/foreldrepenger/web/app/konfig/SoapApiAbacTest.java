@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 
@@ -27,9 +29,9 @@ class SoapApiAbacTest {
     @Test
     void test_at_alle_soapmetoder_er_annotert_med_BeskyttetRessurs() {
         for (var soapMethod : SoapApiTester.finnAlleSoapMetoder()) {
-            if (soapMethod.getAnnotation(BeskyttetRessurs.class) == null) {
-                throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + soapMethod);
-            }
+            assertThat(soapMethod.getAnnotation(BeskyttetRessurs.class))
+                .withFailMessage("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + soapMethod)
+                .isNull();
         }
     }
 
@@ -52,11 +54,9 @@ class SoapApiAbacTest {
                 }
             }
         }
-
-        if (feilmeldinger.length() > 0) {
-            throw new AssertionError("Følgende inputparametre til SOAP-tjenester passerte ikke validering\n" + feilmeldinger);
-        }
-
+        assertThat(feilmeldinger.length())
+            .withFailMessage("Følgende inputparametre til SOAP-tjenester passerte ikke validering\n" + feilmeldinger)
+            .isNotPositive();
     }
 
 }

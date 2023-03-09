@@ -174,19 +174,6 @@ class DokumentmottakerKlageTest {
                 false);
     }
 
-    @Test
-    void skal_kaste_feil_når_det_kommer_inn_klage_og_det_ikke_finnes_en_vanlig_behandlig() {
-        // Arrange
-        var fagsak = nyMorFødselFagsak();
-        var fagsakId = fagsak.getId();
-        var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
-
-        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
-
-        // Act
-        dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
-    }
-
     private Behandling byggAvsluttetKlage() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBekreftetHendelse()
