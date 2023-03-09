@@ -1,16 +1,8 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 
-public class OpptjeningIUtlandDokStatusDto {
+public record OpptjeningIUtlandDokStatusDto(OpptjeningIUtlandDokStatus dokStatus, UtlandMarkering utlandMarkering) {
 
-    private final OpptjeningIUtlandDokStatus dokStatus;
-
-    public OpptjeningIUtlandDokStatusDto(OpptjeningIUtlandDokStatus dokStatus) {
-        this.dokStatus = dokStatus;
-    }
-
-    public OpptjeningIUtlandDokStatus getDokStatus() {
-        return dokStatus;
-    }
 }

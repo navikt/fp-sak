@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -11,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.Op
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
@@ -30,13 +39,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
 
@@ -54,7 +56,7 @@ class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
             stputil, mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class));
         var beregningtjeneste = mock(BeregningTjeneste.class);
         var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(
-            new OpptjeningIUtlandDokStatusRepository(entityManager));
+            new OpptjeningIUtlandDokStatusRepository(entityManager), new FagsakEgenskapRepository(entityManager));
         var tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
         var behandlingDokumentRepository = new BehandlingDokumentRepository(entityManager);
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());

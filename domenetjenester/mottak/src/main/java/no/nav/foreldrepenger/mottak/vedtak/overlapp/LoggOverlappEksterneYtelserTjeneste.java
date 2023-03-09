@@ -347,12 +347,14 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                              LocalDateTimeline<BigDecimal> tlGrunnlag) {
         var filter = perioderFP.intersection(tlGrunnlag, StandardCombinators::sum)
             .filterValue(v -> v.compareTo(HUNDRE) > 0);
+        var ytelseFOR = perioderFP.intersection(filter, StandardCombinators::leftOnly);
 
         return filter.getLocalDateIntervals()
             .stream()
             .map(filter::getSegment)
             .map(s -> opprettOverlappBuilder(s.getLocalDateInterval(), s.getValue()).medFagsystem(fagsystem)
                 .medYtelse(ytelseType)
+                .medUtbetalingsgradFOR(ytelseFOR.getSegment(s.getLocalDateInterval()).getValue().longValue())
                 .medReferanse(referanse))
             .collect(Collectors.toList());
     }
