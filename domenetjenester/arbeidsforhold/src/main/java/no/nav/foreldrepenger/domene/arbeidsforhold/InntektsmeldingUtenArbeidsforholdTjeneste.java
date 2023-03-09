@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -40,18 +41,15 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
         // Skjuler default konstrukør
     }
 
-    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeArbeidsforhold(InntektArbeidYtelseGrunnlag grunnlag,
+    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeArbeidsforhold(List<Inntektsmelding> inntektsmeldinger,
+                                                                                               InntektArbeidYtelseGrunnlag grunnlag,
                                                                                                AktørId aktørId, LocalDate utledetStp) {
-        final var inntektsmeldinger = grunnlag.getInntektsmeldinger();
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> resultat = new HashMap<>();
-        if (inntektsmeldinger.isPresent()) {
-            final var aggregat = inntektsmeldinger.get();
-            for (var inntektsmelding : aggregat.getInntektsmeldingerSomSkalBrukes()) {
-                if (måVurderes(grunnlag, inntektsmelding, aktørId, utledetStp)) {
-                    final var arbeidsgiver = inntektsmelding.getArbeidsgiver();
-                    final var arbeidsforholdRefs = trekkUtRef(inntektsmelding);
-                    resultat.put(arbeidsgiver, arbeidsforholdRefs);
-                }
+        for (var inntektsmelding : inntektsmeldinger) {
+            if (måVurderes(grunnlag, inntektsmelding, aktørId, utledetStp)) {
+                final var arbeidsgiver = inntektsmelding.getArbeidsgiver();
+                final var arbeidsforholdRefs = trekkUtRef(inntektsmelding);
+                resultat.put(arbeidsgiver, arbeidsforholdRefs);
             }
         }
         return resultat;
