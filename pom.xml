@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.4.3</version>
+        <version>0.4.5</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -34,7 +34,8 @@
         <fp-uttak.version>14.3.11</fp-uttak.version>
         <fp-stonadskonto.version>1.0.0</fp-stonadskonto.version>
         <svp-uttak.version>2.3.7</svp-uttak.version>
-        <felles.version>4.2.33</felles.version>
+        
+        <felles.version>4.2.35</felles.version>
         <prosesstask.version>3.1.24</prosesstask.version>
 
         <fp-kontrakter.version>6.2.13</fp-kontrakter.version>
@@ -58,7 +59,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>0.4.3</version>
+                <version>0.4.5</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
