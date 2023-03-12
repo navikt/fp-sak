@@ -12,7 +12,7 @@ create table FAGSAK_EGENSKAP
         constraint PK_FAGSAK_EGENSKAP
             primary key,
     FAGSAK_ID NUMBER(19) not null
-        constraint FK_FAGSAK_EGENSKAP
+        constraint FK_FAGSAK_EGENSKAP_1
             references FAGSAK,
     OPPRETTET_AV VARCHAR2(20 char) default 'VL' not null,
     OPPRETTET_TID TIMESTAMP(3) default systimestamp not null,
@@ -30,7 +30,4 @@ comment on column FAGSAK_EGENSKAP.FAGSAK_ID is 'FK:FAGSAK Fremmednøkkel for kob
 comment on column FAGSAK_EGENSKAP.EGENSKAP_KEY is 'Nøkkel som er en kodelist';
 comment on column FAGSAK_EGENSKAP.EGENSKAP_VALUE is 'Verdi som er en kodeverdi';
 
-create index IDX_FAGSAK_EGENSKAP_1
-    on FAGSAK_EGENSKAP (FAGSAK_ID);
-
-
+create index IDX_FAGSAK_EGENSKAP_2 on FAGSAK_EGENSKAP (FAGSAK_ID);
