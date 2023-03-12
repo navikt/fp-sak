@@ -12,7 +12,7 @@ create table FAGSAK_EGENSKAP
         constraint PK_FAGSAK_EGENSKAP
             primary key,
     FAGSAK_ID NUMBER(19) not null
-        constraint FK_FAGSAK_EGENSKAP_1
+        constraint FK_FAGSAK_EGENSKAP
             references FAGSAK,
     OPPRETTET_AV VARCHAR2(20 char) default 'VL' not null,
     OPPRETTET_TID TIMESTAMP(3) default systimestamp not null,
