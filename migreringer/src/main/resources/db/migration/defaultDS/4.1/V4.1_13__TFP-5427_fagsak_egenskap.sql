@@ -1,9 +1,6 @@
 drop table OPPGAVE_BEHANDLING_KOBLING;
 drop sequence SEQ_OPPGAVE_BEHANDLING_KOBLING;
 
-alter table OVERLAPP_VEDTAK add UTBETALINGSGRAD_FOR NUMBER(19);
-COMMENT ON COLUMN OVERLAPP_VEDTAK.UTBETALINGSGRAD_FOR IS 'Utbetalingsgrad egen ytelse';
-
 create sequence SEQ_FAGSAK_EGENSKAP
     minvalue 1000000
     increment by 50
@@ -15,7 +12,7 @@ create table FAGSAK_EGENSKAP
         constraint PK_FAGSAK_EGENSKAP
             primary key,
     FAGSAK_ID NUMBER(19) not null
-        constraint FK_FAGSAK_EGENSKAP
+        constraint FK_FAGSAK_EGENSKAP_1
             references FAGSAK,
     OPPRETTET_AV VARCHAR2(20 char) default 'VL' not null,
     OPPRETTET_TID TIMESTAMP(3) default systimestamp not null,

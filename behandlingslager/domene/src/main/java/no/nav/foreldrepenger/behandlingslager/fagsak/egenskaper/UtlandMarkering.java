@@ -9,11 +9,14 @@ public enum UtlandMarkering implements EgenskapVerdi {
     EØS_BOSATT_NORGE,
     BOSATT_UTLAND;
 
-    public static final EgenskapNøkkel NØKKEL =  EgenskapNøkkel.UTLAND_MARKERING;
+    @Override
+    public String getVerdi() {
+        return name();
+    }
 
     @Override
     public EgenskapNøkkel getNøkkel() {
-        return NØKKEL;
+        return EgenskapNøkkel.UTLAND_MARKERING;
     }
 
 }

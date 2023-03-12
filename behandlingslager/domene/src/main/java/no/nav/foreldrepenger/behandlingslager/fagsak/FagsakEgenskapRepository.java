@@ -10,6 +10,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+
 @ApplicationScoped
 public class FagsakEgenskapRepository {
 
@@ -27,17 +30,25 @@ public class FagsakEgenskapRepository {
         this.entityManager = entityManager;
     }
 
+    public <E extends Enum<E>> Optional<E> finnEgenskapVerdi(long fagsakId, EgenskapNøkkel nøkkel, Class<E> enumCls) {
+        return finnEgenskap(fagsakId, nøkkel).flatMap(fe -> fe.getEgenskapVerdiHvisFinnes(enumCls));
+    }
+
+    public Optional<UtlandDokumentasjonStatus> finnUtlandDokumentasjonStatus(long fagsakId) {
+        return finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_DOKUMENTASJON).map(FagsakEgenskap::getEgenskapVerdi).map(UtlandDokumentasjonStatus::valueOf);
+    }
+
+    public Optional<UtlandMarkering> finnUtlandMarkering(long fagsakId) {
+        return finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_MARKERING).map(FagsakEgenskap::getEgenskapVerdi).map(UtlandMarkering::valueOf);
+    }
+
     public Optional<FagsakEgenskap> finnEgenskapMedVerdi(long fagsakId, EgenskapNøkkel nøkkel) {
         var query = entityManager.createQuery(
-            "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND egenskapVerdi is not null AND aktiv = true",
-            FagsakEgenskap.class)
+                "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND egenskapVerdi is not null AND aktiv = true",
+                FagsakEgenskap.class)
             .setParameter(FAGSAK_QP, fagsakId)
             .setParameter("nøkkel", nøkkel);
         return hentUniktResultat(query);
-    }
-
-    public <E extends Enum<E>> Optional<E> finnEgenskapVerdi(Class<E> enumCls, long fagsakId, EgenskapNøkkel nøkkel) {
-        return finnEgenskap(fagsakId, nøkkel).map(fe -> fe.getEgenskapVerdi(enumCls));
     }
 
     public Optional<FagsakEgenskap> finnEgenskap(long fagsakId, EgenskapNøkkel nøkkel) {
@@ -58,26 +69,21 @@ public class FagsakEgenskapRepository {
     }
 
 
-    public void fjernEgenskap(long fagsakId, EgenskapNøkkel nøkkel) {
+    public void fjernEgenskapBeholdHistorikk(long fagsakId, EgenskapNøkkel nøkkel) {
         finnEgenskapMedVerdi(fagsakId, nøkkel).ifPresent(egenskap -> {
-            egenskap.fjernEgenskapVerdi();
+            egenskap.setAktiv(false);
             entityManager.persist(egenskap);
             entityManager.flush();
         });
     }
 
-    public void lagreEgenskap(long fagsakId, EgenskapVerdi verdi) {
+    public void lagreEgenskapBeholdHistorikk(long fagsakId, EgenskapVerdi verdi) {
         Objects.requireNonNull(verdi);
-        lagreEgenskap(fagsakId, verdi.getNøkkel(), verdi.name());
-    }
-
-    public void lagreEgenskap(long fagsakId, EgenskapNøkkel nøkkel, String verdi) {
-        Objects.requireNonNull(verdi);
-        var eksisterende = finnEgenskap(fagsakId, nøkkel);
-        if (eksisterende.filter(e -> Objects.equals(e.getEgenskapVerdi(), verdi)).isPresent()) {
+        var eksisterende = finnEgenskap(fagsakId, verdi.getNøkkel());
+        if (eksisterende.filter(e -> e.harSammeVerdi(verdi)).isPresent()) {
             return;
         }
-        var lagres = eksisterende.map(FagsakEgenskap::new).orElseGet(() -> new FagsakEgenskap(fagsakId, nøkkel, verdi));
+        var lagres = eksisterende.map(FagsakEgenskap::new).orElseGet(() -> new FagsakEgenskap(fagsakId, verdi));
         lagres.setEgenskapVerdi(verdi);
         eksisterende.ifPresent(e -> {
             e.setAktiv(false);
@@ -87,20 +93,24 @@ public class FagsakEgenskapRepository {
         entityManager.flush();
     }
 
-    // Primært ifm migrering
-    public void lagreEllerOppdaterEgenskap(long fagsakId, EgenskapVerdi verdi) {
-        Objects.requireNonNull(verdi);
-        lagreEllerOppdaterEgenskap(fagsakId, verdi.getNøkkel(), verdi.name());
+    public void fjernEgenskapUtenHistorikk(long fagsakId, EgenskapNøkkel nøkkel) {
+        finnEgenskapMedVerdi(fagsakId, nøkkel).ifPresent(egenskap -> {
+            egenskap.fjernEgenskapVerdi();
+            entityManager.persist(egenskap);
+            entityManager.flush();
+        });
     }
 
-    public void lagreEllerOppdaterEgenskap(long fagsakId, EgenskapNøkkel nøkkel, String verdi) {
+    // Primært ifm migrering
+    public void lagreEgenskapUtenHistorikk(long fagsakId, EgenskapVerdi verdi) {
         Objects.requireNonNull(verdi);
-        var eksisterende = finnEgenskap(fagsakId, nøkkel);
-        if (eksisterende.filter(e -> Objects.equals(e.getEgenskapVerdi(), verdi)).isPresent()) {
+        var eksisterende = finnEgenskap(fagsakId, verdi.getNøkkel());
+        if (eksisterende.filter(e -> e.harSammeVerdi(verdi)).isPresent()) {
             return;
         }
-        var lagres = eksisterende.orElseGet(() -> new FagsakEgenskap(fagsakId, nøkkel, verdi));
+        var lagres = eksisterende.orElseGet(() -> new FagsakEgenskap(fagsakId, verdi));
         lagres.setEgenskapVerdi(verdi);
+        lagres.setAktiv(true);
         entityManager.persist(lagres);
         entityManager.flush();
     }

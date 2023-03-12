@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -25,15 +27,18 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyringshåndterer<OverstyringUtenlandssakMarkeringDto> {
 
     private HistorikkTjenesteAdapter historikkAdapter;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     MarkereUtenlandssakOverstyringshåndterer() {
         // for CDI proxy
     }
 
     @Inject
-    public MarkereUtenlandssakOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter) {
+    public MarkereUtenlandssakOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
+                                                    FagsakEgenskapRepository fagsakEgenskapRepository) {
         super(historikkAdapter, AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
         this.historikkAdapter = historikkAdapter;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     @Override
@@ -41,6 +46,8 @@ public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyri
         var builder = OppdateringResultat.utenTransisjon();
         behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+        var nymerking = UtlandMarkering.valueOf(dto.getBegrunnelse());
+        fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), nymerking);
         return builder.build();
     }
 

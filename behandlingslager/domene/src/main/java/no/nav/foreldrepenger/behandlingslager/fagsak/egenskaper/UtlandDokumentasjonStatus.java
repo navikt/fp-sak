@@ -9,11 +9,14 @@ public enum UtlandDokumentasjonStatus implements EgenskapVerdi {
     DOKUMENTASJON_VIL_BLI_INNHENTET,
     DOKUMENTASJON_VIL_IKKE_BLI_INNHENTET;
 
-    public static final EgenskapNøkkel NØKKEL =  EgenskapNøkkel.UTLAND_DOKUMENTASJON;
+    @Override
+    public String getVerdi() {
+        return name();
+    }
 
     @Override
     public EgenskapNøkkel getNøkkel() {
-        return NØKKEL;
+        return EgenskapNøkkel.UTLAND_DOKUMENTASJON;
     }
 
 }

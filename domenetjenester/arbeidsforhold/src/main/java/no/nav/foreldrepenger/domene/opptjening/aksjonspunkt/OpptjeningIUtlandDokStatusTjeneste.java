@@ -36,18 +36,19 @@ public class OpptjeningIUtlandDokStatusTjeneste {
     }
 
     public Optional<OpptjeningIUtlandDokStatus> hentStatus(Behandling behandling) {
-        var entitet = repository.hent(behandling.getId());
-        return entitet.map(OpptjeningIUtlandDokStatusEntitet::getDokStatus);
+        return fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(behandling.getFagsakId())
+            .map(s -> OpptjeningIUtlandDokStatus.valueOf(s.name()))
+            .or(() -> repository.hent(behandling.getId()).map(OpptjeningIUtlandDokStatusEntitet::getDokStatus));
     }
 
     public Optional<UtlandMarkering> hentUtlandMarkering(Behandling behandling) {
-        return fagsakEgenskapRepository.finnEgenskapVerdi(UtlandMarkering.class, behandling.getFagsakId(), UtlandMarkering.NØKKEL);
+        return fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId());
     }
 
     public boolean harUtlandsMarkering(Behandling behandling) {
         var legacyMarkering = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE)
-            .map(Aksjonspunkt::getBegrunnelse).filter(b -> !UtlandMarkering.NASJONAL.equals(b)).isPresent();
-        return legacyMarkering || fagsakEgenskapRepository.finnEgenskapVerdi(UtlandMarkering.class, behandling.getFagsakId(), UtlandMarkering.NØKKEL)
+            .map(Aksjonspunkt::getBegrunnelse).filter(b -> !UtlandMarkering.NASJONAL.equals(UtlandMarkering.valueOf(b))).isPresent();
+        return legacyMarkering || fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId())
             .filter(e -> !UtlandMarkering.NASJONAL.equals(e)).isPresent();
     }
 

@@ -33,8 +33,7 @@ public class BehandlingskontrollEventObserver {
 
     public void observerStoppetEvent(@Observes BehandlingskontrollEvent.StoppetEvent event) {
         try {
-            var prosessTaskData = opprettProsessTask(event, HendelseForBehandling.ANNET);
-            taskTjeneste.lagre(prosessTaskData);
+            opprettProsessTask(event, HendelseForBehandling.ANNET);
         } catch (Exception ex) {
             LOG.warn("Publisering av StoppetEvent feilet", ex);
         }
@@ -45,8 +44,7 @@ public class BehandlingskontrollEventObserver {
     public void observerAksjonspunkterFunnetEvent(@Observes AksjonspunktStatusEvent event) {
         if (event.getAksjonspunkter().stream().anyMatch(e -> e.erOpprettet() && AUTO_MANUELT_SATT_PÅ_VENT.equals(e.getAksjonspunktDefinisjon()))) {
             try {
-                var prosessTaskData = opprettProsessTask(event, HendelseForBehandling.AKSJONSPUNKT);
-                taskTjeneste.lagre(prosessTaskData);
+                opprettProsessTask(event, HendelseForBehandling.AKSJONSPUNKT);
             } catch (Exception ex) {
                 LOG.warn("Publisering av AksjonspunkterFunnetEvent feilet", ex);
             }
@@ -55,8 +53,7 @@ public class BehandlingskontrollEventObserver {
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingOpprettetEvent event) {
         try {
-            var prosessTaskData = opprettProsessTask(event, HendelseForBehandling.OPPRETTET);
-            taskTjeneste.lagre(prosessTaskData);
+            opprettProsessTask(event, HendelseForBehandling.OPPRETTET);
         } catch (Exception ex) {
             LOG.warn("Publisering av BehandlingAvsluttetEvent feilet", ex);
         }
@@ -64,8 +61,7 @@ public class BehandlingskontrollEventObserver {
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
         try {
-            var prosessTaskData = opprettProsessTask(event, HendelseForBehandling.AVSLUTTET);
-            taskTjeneste.lagre(prosessTaskData);
+            opprettProsessTask(event, HendelseForBehandling.AVSLUTTET);
         } catch (Exception ex) {
             LOG.warn("Publisering av BehandlingAvsluttetEvent feilet", ex);
         }
@@ -73,20 +69,19 @@ public class BehandlingskontrollEventObserver {
 
     public void observerAksjonspunktHarEndretBehandlendeEnhetEvent(@Observes BehandlingEnhetEvent event) {
         try {
-            var prosessTaskData = opprettProsessTask(event, HendelseForBehandling.ENHET);
-            taskTjeneste.lagre(prosessTaskData);
+            opprettProsessTask(event, HendelseForBehandling.ENHET);
         } catch (Exception ex) {
             LOG.warn("Publisering av AksjonspunktHarEndretBehandlendeEnhetEvent feilet", ex);
         }
     }
 
-    private ProsessTaskData opprettProsessTask(BehandlingEvent behandlingEvent, HendelseForBehandling hendelse) {
+    private void opprettProsessTask(BehandlingEvent behandlingEvent, HendelseForBehandling hendelse) {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
         prosessTaskData.setBehandling(behandlingEvent.getFagsakId(), behandlingEvent.getBehandlingId(), behandlingEvent.getAktørId().getId());
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, hendelse.name());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(90);
-        return prosessTaskData;
+        taskTjeneste.lagre(prosessTaskData);
     }
 
 }

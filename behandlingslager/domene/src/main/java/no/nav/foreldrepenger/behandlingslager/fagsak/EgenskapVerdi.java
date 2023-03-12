@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 public interface EgenskapVerdi {
 
-    String name();
+    String getVerdi();
+
     EgenskapNøkkel getNøkkel();
 }

@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -47,6 +48,7 @@ public class FagsakFullTjeneste {
     private BehandlingRepository behandlingRepository;
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
 
@@ -60,10 +62,11 @@ public class FagsakFullTjeneste {
     }
 
     @Inject
-    public FagsakFullTjeneste(FagsakRepository fagsakRepository,
+    public FagsakFullTjeneste(FagsakRepository fagsakRepository,  // NOSONAR
                               BehandlingRepository behandlingRepository,
                               PersoninfoAdapter personinfoAdapter,
                               FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                              FagsakEgenskapRepository fagsakEgenskapRepository,
                               FamilieHendelseTjeneste familieHendelseTjeneste,
                               PersonopplysningTjeneste personopplysningTjeneste,
                               BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
@@ -73,6 +76,7 @@ public class FagsakFullTjeneste {
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
@@ -94,10 +98,11 @@ public class FagsakFullTjeneste {
         var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper()).flatMap(Collection::stream)
             .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), bt)))
             .toList();
+        var utlandMarkering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId()).orElse(null);
         var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         var historikk = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(saksnummer, dokumentPath);
-        var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, oppretting, behandlinger, historikk);
+        var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, utlandMarkering, oppretting, behandlinger, historikk);
         return Optional.of(dto);
     }
 
