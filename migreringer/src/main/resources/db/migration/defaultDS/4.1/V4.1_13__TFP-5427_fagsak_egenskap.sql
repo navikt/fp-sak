@@ -33,3 +33,4 @@ comment on column FAGSAK_EGENSKAP.EGENSKAP_VALUE is 'Verdi som er en kodeverdi';
 create index IDX_FAGSAK_EGENSKAP_1
     on FAGSAK_EGENSKAP (FAGSAK_ID);
 
+
