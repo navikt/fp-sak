@@ -299,7 +299,7 @@ public class InformasjonssakRepository {
     public List<Long> finnUtlandBehandlingerMedÅpentAksjonspunkt() {
         var query =  entityManager.createNativeQuery("""
            select b.id from behandling b where behandling_status<>'AVSLU'
-           and b.fagsak_id in (select fagsak_id from fagsak_egenskap)
+           and b.fagsak_id in (select fagsak_id from FAGSAK_EGENSKAPER)
            and exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'OPPR' and aksjonspunkt_def < '7000')
         """);
         @SuppressWarnings("unchecked")

@@ -15,11 +15,11 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "FagsakEgenskap")
-@Table(name = "FAGSAK_EGENSKAP")
+@Table(name = "FAGSAK_EGENSKAPER")
 public class FagsakEgenskap extends BaseEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FAGSAK_EGENSKAP")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FAGSAK_EGENSKAPER")
     private Long id;
 
     @Column(name = "fagsak_id", nullable = false)

@@ -211,7 +211,7 @@ class SjekkDbStrukturTest {
             try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    var t = rs.getString(1) + ", " + rs.getString(2);
+                    var t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }

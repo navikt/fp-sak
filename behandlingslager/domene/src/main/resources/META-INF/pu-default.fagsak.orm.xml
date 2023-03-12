@@ -8,7 +8,7 @@
 	<sequence-generator name="SEQ_FAGSAK" allocation-size="50" sequence-name="SEQ_FAGSAK" />
 	<sequence-generator name="SEQ_FAGSAK_PROSESS_TASK" allocation-size="50" sequence-name="SEQ_FAGSAK_PROSESS_TASK"/>
 	<sequence-generator name="SEQ_FAGSAK_RELASJON" allocation-size="50" sequence-name="SEQ_FAGSAK_RELASJON" />
-    <sequence-generator name="SEQ_FAGSAK_EGENSKAP" allocation-size="50" sequence-name="SEQ_FAGSAK_EGENSKAP" />
+    <sequence-generator name="SEQ_FAGSAK_EGENSKAPER" allocation-size="50" sequence-name="SEQ_FAGSAK_EGENSKAPER" />
     <sequence-generator name="SEQ_JOURNALPOST" allocation-size="50" sequence-name="SEQ_JOURNALPOST" />
 
 	<sequence-generator name="SEQ_BRUKER" allocation-size="50" sequence-name="SEQ_BRUKER" />
