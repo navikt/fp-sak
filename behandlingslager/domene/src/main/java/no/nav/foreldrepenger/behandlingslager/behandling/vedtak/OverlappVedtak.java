@@ -192,6 +192,7 @@ public class OverlappVedtak extends BaseEntitet {
             Objects.requireNonNull(kladd.hendelse);
             Objects.requireNonNull(kladd.fagsystem);
             Objects.requireNonNull(kladd.ytelse);
+            Objects.requireNonNull(kladd.utbetalingsprosent);
         }
     }
 }
