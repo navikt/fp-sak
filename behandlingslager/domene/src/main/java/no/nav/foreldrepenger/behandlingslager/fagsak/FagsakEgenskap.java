@@ -40,6 +40,13 @@ public class FagsakEgenskap extends BaseEntitet {
         // For Hibernate
     }
 
+    FagsakEgenskap(Long fagsakId, EgenskapVerdi verdi) {
+        this.fagsakId = fagsakId;
+        this.egenskapNøkkel = verdi.getNøkkel();
+        this.egenskapVerdi = verdi.getVerdi();
+    }
+
+
     FagsakEgenskap(Long fagsakId, EgenskapNøkkel nøkkel, String verdi) {
         this.fagsakId = fagsakId;
         this.egenskapNøkkel = nøkkel;
@@ -80,16 +87,20 @@ public class FagsakEgenskap extends BaseEntitet {
         return Optional.ofNullable(egenskapVerdi).map(v -> Enum.valueOf(enumCls, v));
     }
 
-    public <E extends Enum<E>> E getEgenskapVerdi(Class<E> enumCls) {
-        return egenskapVerdi != null ? Enum.valueOf(enumCls, egenskapVerdi) : null;
-    }
-
     void fjernEgenskapVerdi() {
         this.egenskapVerdi = null;
     }
 
+    void setEgenskapVerdi(EgenskapVerdi egenskapVerdi) {
+        this.egenskapVerdi = egenskapVerdi.getVerdi();
+    }
+
     void setEgenskapVerdi(String egenskapVerdi) {
         this.egenskapVerdi = egenskapVerdi;
+    }
+
+    boolean harSammeVerdi(EgenskapVerdi verdi) {
+        return Objects.equals(this.egenskapNøkkel, verdi.getNøkkel()) && Objects.equals(this.egenskapVerdi, verdi.getVerdi());
     }
 
     @Override

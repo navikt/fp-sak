@@ -9,6 +9,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.RegistrerFagsakEgenskaper;
 import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.TilknyttFagsakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -18,6 +19,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -45,6 +47,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     private KobleSakerTjeneste kobleSakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
+    private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
 
     TilknyttFagsakStegImpl() {
         // for CDI proxy
@@ -52,13 +55,16 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider,
-            KobleSakerTjeneste kobleSakTjeneste,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste, InntektArbeidYtelseTjeneste iayTjeneste) {
+                                  KobleSakerTjeneste kobleSakTjeneste,
+                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                                  InntektArbeidYtelseTjeneste iayTjeneste,
+                                  RegistrerFagsakEgenskaper registrerFagsakEgenskaper) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
         this.kobleSakTjeneste = kobleSakTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
+        this.registrerFagsakEgenskaper = registrerFagsakEgenskaper;
     }
 
     @Override
@@ -71,7 +77,11 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         // Vurder automatisk merking av opptjening utland
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 
-        if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering() && harOppgittUtland(kontekst)) {
+        boolean undersøkeEØS = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && harOppgittUtland(kontekst);
+
+        registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, undersøkeEØS);
+
+        if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && undersøkeEØS) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
         }
 

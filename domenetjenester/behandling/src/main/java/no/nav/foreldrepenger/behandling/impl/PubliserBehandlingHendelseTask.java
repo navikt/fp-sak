@@ -27,7 +27,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 @Dependent
 @ProsessTask("oppgavebehandling.behandlingshendelse")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-class PubliserBehandlingHendelseTask extends GenerellProsessTask {
+public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
 
     public static final String HENDELSE_TYPE = "hendelseType";
 
@@ -39,12 +39,8 @@ class PubliserBehandlingHendelseTask extends GenerellProsessTask {
         AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
         AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);
 
-    private BehandlingHendelseProducer kafkaProducer;
-    private BehandlingRepository behandlingRepository;
-
-    PubliserBehandlingHendelseTask() {
-        // for CDI proxy
-    }
+    private final BehandlingHendelseProducer kafkaProducer;
+    private final BehandlingRepository behandlingRepository;
 
     @Inject
     public PubliserBehandlingHendelseTask(BehandlingHendelseProducer kafkaProducer, BehandlingRepository behandlingRepository) {

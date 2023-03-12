@@ -172,7 +172,7 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
             return attribute.getKode();
             // TODO (jol): vurdere å konvertere til å lagre offisiellKode: 1) Varsle alle med spørringer, 2) gjøre formidling robust 3) Endre her og frontend,
             //  4) fpfordel: metrics ser på fordel sine tasks og grafana må endres hvis Inntektsmelding blir til I000067
-            //  return attribute.getOffisiellKode() != null ? attribute.getOffisiellKode() : UDEFINERT.getKode();
+            //  return attribute.getOffisiellKode() != null ? attribute.getOffisiellKode() : UDEFINERT.getVerdi();
         }
 
         @Override

@@ -20,12 +20,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettGjenopptaTask extends GenerellProsessTask {
 
-    private BehandlingRepository behandlingRepository;
-    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-
-    OpprettGjenopptaTask() {
-        // for CDI proxy
-    }
+    private final BehandlingRepository behandlingRepository;
+    private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Inject
     public OpprettGjenopptaTask(BehandlingRepository behandlingRepository,

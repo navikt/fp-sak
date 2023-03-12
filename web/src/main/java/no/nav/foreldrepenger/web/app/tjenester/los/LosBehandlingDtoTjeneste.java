@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -208,9 +207,11 @@ public class LosBehandlingDtoTjeneste {
 
     private LosFagsakEgenskaperDto mapFagsakEgenskaper(Behandling behandling) {
         var skalInnhente = behandling.harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK) ?
-            OpptjeningIUtlandDokStatus.DOKUMENTASJON_VIL_BLI_INNHENTET.equals(utlandDokStatusRepository.hent(behandling.getId())
-                .map(OpptjeningIUtlandDokStatusEntitet::getDokStatus).orElse(null)) : null;
-        var markering = fagsakEgenskapRepository.finnEgenskapVerdi(UtlandMarkering.class, behandling.getFagsakId(), UtlandMarkering.NØKKEL)
+            fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(behandling.getFagsakId())
+                .or(() -> utlandDokStatusRepository.hent(behandling.getId()).map(OpptjeningIUtlandDokStatusEntitet::getDokStatus).map(s -> UtlandDokumentasjonStatus.valueOf(s.name())))
+                .map(status -> UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET.equals(status) ? Boolean.TRUE : Boolean.FALSE)
+                .orElse(null) : null;
+        var markering = fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId())
             .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE).map(Aksjonspunkt::getBegrunnelse).map(UtlandMarkering::valueOf))
             .orElse(null);
         var mapped = markering == null ? null : switch (markering) {
@@ -222,10 +223,10 @@ public class LosBehandlingDtoTjeneste {
     }
 
     public LosFagsakEgenskaperDto lagFagsakEgenskaper(Fagsak fagsak) {
-        var skalInnhente = fagsakEgenskapRepository.finnEgenskapVerdi(UtlandDokumentasjonStatus.class, fagsak.getId(), UtlandDokumentasjonStatus.NØKKEL)
+        var skalInnhente = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsak.getId())
             .map(status -> UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET.equals(status) ? Boolean.TRUE : Boolean.FALSE)
             .orElse(null);
-        var markering = fagsakEgenskapRepository.finnEgenskapVerdi(UtlandMarkering.class, fagsak.getId(), UtlandMarkering.NØKKEL)
+        var markering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId())
             .orElse(null);
         var mapped = markering == null ? null : switch (markering) {
             case NASJONAL -> LosFagsakEgenskaperDto.UtlandMarkering.NASJONAL;
