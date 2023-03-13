@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.felles.jms.JmsMessage;
 @Mq
 public class ØkonomioppdragJmsProducerImpl extends ØkonomioppdragJmsProducer {
 
-    public ØkonomioppdragJmsProducerImpl() {
+    ØkonomioppdragJmsProducerImpl() {
         // CDI
     }
 
@@ -23,7 +23,7 @@ public class ØkonomioppdragJmsProducerImpl extends ØkonomioppdragJmsProducer {
 
     @Override
     public void sendØkonomiOppdrag(String oppdragXML) {
-        log.info("Sender oppdragXML til Oppdragssystemet");
+        LOG.info("Sender oppdragXML til Oppdragssystemet");
         sendTextMessage(JmsMessage.builder().withMessage(oppdragXML).build());
     }
 }
