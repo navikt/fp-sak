@@ -34,7 +34,7 @@ class FarsJustering implements ForelderFødselJustering {
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         guard(termindato, fødselsdato);
-        var slåttSammen = slåSammenLikePerioder(oppgittePerioder);
+        var slåttSammen = slåSammen(oppgittePerioder);
         if (!skalJustere(slåttSammen)) {
             return oppgittePerioder;
         }
@@ -49,13 +49,17 @@ class FarsJustering implements ForelderFødselJustering {
     @Override
     public List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder) {
         guard(fødselsdato, termindato);
-        var slåttSammen = slåSammenLikePerioder(oppgittePerioder);
+        var slåttSammen = slåSammen(oppgittePerioder);
         if (!skalJustere(slåttSammen)) {
-            return slåttSammen;
+            return oppgittePerioder;
         }
         var justerFørstePeriode = justerFødselFørTermin(slåttSammen.get(0));
         slåttSammen.set(0, justerFørstePeriode);
         return slåttSammen;
+    }
+
+    private static List<OppgittPeriodeEntitet> slåSammen(List<OppgittPeriodeEntitet> oppgittePerioder) {
+        return slåSammenLikePerioder(oppgittePerioder, true);
     }
 
     private static void guard(LocalDate førsteDato, LocalDate sisteDato) {

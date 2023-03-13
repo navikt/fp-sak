@@ -57,6 +57,10 @@ public class OppgittPeriodeUtil {
     }
 
     public static List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder) {
+        return slåSammenLikePerioder(perioder, false);
+    }
+
+    public static List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder, boolean ignorerTidligstMottattDato) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
 
         var i = 0;
@@ -67,7 +71,8 @@ public class OppgittPeriodeUtil {
                 //Hvis ikke hull mellom periodene skal vi se om de er like for å så slå de sammen
                 while (j < perioder.size()) {
                     var nestePeriode = perioder.get(j);
-                    if (!erHullMellom(slåttSammen.getTom(), nestePeriode.getFom()) && erLikBortsettFraTidsperiode(slåttSammen, nestePeriode)) {
+                    if (!erHullMellom(slåttSammen.getTom(), nestePeriode.getFom()) && erLikBortsettFraTidsperiode(slåttSammen, nestePeriode,
+                        ignorerTidligstMottattDato)) {
                         slåttSammen = slåSammen(slåttSammen, nestePeriode);
                     } else {
                         break;
@@ -81,7 +86,9 @@ public class OppgittPeriodeUtil {
         return resultat;
     }
 
-    public static boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
+    private static boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1,
+                                                       OppgittPeriodeEntitet periode2,
+                                                       boolean ignorerTidligstMottattDato) {
         //begrunnelse ikke viktig å se på
         return Objects.equals(periode1.getGraderingAktivitetType(), periode2.getGraderingAktivitetType()) &&
             Objects.equals(periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) &&
@@ -92,7 +99,7 @@ public class OppgittPeriodeUtil {
             Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
             Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
-            Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato()) &&
+            (ignorerTidligstMottattDato || Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato())) &&
             Objects.equals(periode1.getÅrsak(), periode2.getÅrsak()) &&
             Objects.equals(periode1.getArbeidsprosentSomStillingsprosent(), periode2.getArbeidsprosentSomStillingsprosent());
     }

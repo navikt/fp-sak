@@ -243,7 +243,8 @@ class FarsJusteringTest {
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato.plusWeeks(1).minusDays(1), uttakPeriodeType);
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusWeeks(4), termindato.plusWeeks(5).minusDays(1), uttakPeriodeType);
 
-        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2))).isInstanceOf(IllegalStateException.class);
+        var perioder = List.of(søktPeriode1, søktPeriode2);
+        assertThatThrownBy(() -> farsJustering.justerVedFødselEtterTermin(perioder)).isInstanceOf(IllegalStateException.class);
     }
 
     @ParameterizedTest
@@ -339,6 +340,54 @@ class FarsJusteringTest {
 
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato, uttakPeriodeType);
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusDays(1), LocalDate.of(2022, 12, 16), uttakPeriodeType);
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+            .medPeriodeType(uttakPeriodeType)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .build();
+
+        var justert = farsJustering.justerVedFødselFørTermin(List.of(søktPeriode1, søktPeriode2, periodeEtterUke6));
+        assertThat(justert).hasSize(2);
+        assertThat(justert.get(0).getFom()).isEqualTo(fødselsdato);
+        assertThat(justert.get(0).getTom()).isEqualTo(LocalDate.of(2022, 12, 15));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "typerStønadskonto")
+    void fødselEtterTerminFlereLikePerioderBortsettFraTidligstMottattDatoKanJusteres(UttakPeriodeType uttakPeriodeType) {
+        var termindato = LocalDate.of(2022, 12, 5);
+        var fødselsdato = termindato.plusDays(1);
+        var farsJustering = new FarsJustering(termindato, fødselsdato, true);
+
+        var søktPeriode1 = periodeForFarRundtFødselBuilder(termindato, termindato, uttakPeriodeType)
+            .medTidligstMottattDato(termindato)
+            .build();
+        var søktPeriode2 = periodeForFarRundtFødselBuilder(termindato.plusDays(1), LocalDate.of(2022, 12, 16), uttakPeriodeType)
+            .medTidligstMottattDato(fødselsdato)
+            .build();
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+            .medPeriodeType(uttakPeriodeType)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .build();
+
+        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode1, søktPeriode2, periodeEtterUke6));
+        assertThat(justert).hasSize(2);
+        assertThat(justert.get(0).getFom()).isEqualTo(fødselsdato);
+        assertThat(justert.get(0).getTom()).isEqualTo(LocalDate.of(2022, 12, 19));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "typerStønadskonto")
+    void fødselFørTerminFlereLikePerioderBortsettFraTidligstMottattDatoKanJusteres(UttakPeriodeType uttakPeriodeType) {
+        var termindato = LocalDate.of(2022, 12, 6);
+        var fødselsdato = termindato.minusDays(1);
+        var farsJustering = new FarsJustering(termindato, fødselsdato, true);
+
+        var søktPeriode1 = periodeForFarRundtFødselBuilder(termindato, termindato, uttakPeriodeType)
+            .medTidligstMottattDato(termindato)
+            .build();
+        var søktPeriode2 = periodeForFarRundtFødselBuilder(termindato.plusDays(1), LocalDate.of(2022, 12, 16), uttakPeriodeType)
+            .medTidligstMottattDato(fødselsdato)
+            .build();
         var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
