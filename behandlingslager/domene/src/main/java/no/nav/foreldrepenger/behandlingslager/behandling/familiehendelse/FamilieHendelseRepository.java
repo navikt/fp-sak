@@ -50,8 +50,7 @@ public class FamilieHendelseRepository {
     }
 
     public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
-        final var aktivtFamilieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(behandlingId);
-        return aktivtFamilieHendelseGrunnlag.isPresent() ? Optional.of(aktivtFamilieHendelseGrunnlag.get()) : Optional.empty();
+        return getAktivtFamilieHendelseGrunnlag(behandlingId);
     }
 
     private Optional<FamilieHendelseGrunnlagEntitet> getAktivtFamilieHendelseGrunnlag(Long behandlingId) {
@@ -185,7 +184,7 @@ public class FamilieHendelseRepository {
     private void fjernBekreftetData(Long behandlingId) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         final var grunnlag = hentAggregatHvisEksisterer(behandlingId);
-        if (!grunnlag.isPresent()) {
+        if (grunnlag.isEmpty()) {
             return;
         }
         final var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);

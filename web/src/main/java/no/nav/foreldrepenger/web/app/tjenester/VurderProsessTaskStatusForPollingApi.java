@@ -31,7 +31,7 @@ public class VurderProsessTaskStatusForPollingApi {
 
         if (!nesteTask.isEmpty()) {
             var optTask = Optional.ofNullable(nesteTask.get(gruppe));
-            if (!optTask.isPresent()) {
+            if (optTask.isEmpty()) {
                 // plukker neste til å polle på
                 optTask = nesteTask.entrySet().stream()
                     .map(e -> e.getValue())

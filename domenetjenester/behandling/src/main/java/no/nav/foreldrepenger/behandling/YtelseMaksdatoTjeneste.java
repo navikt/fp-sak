@@ -96,7 +96,7 @@ public class YtelseMaksdatoTjeneste {
             for (var entry : perArbeidsforhold.entrySet()) {
                 var perioder = entry.getValue();
                 var sisteUttaksdag = finnMorsSisteUttaksdag(perioder);
-                if (!sisteUttaksdag.isPresent()) {
+                if (sisteUttaksdag.isEmpty()) {
                     return Optional.empty();
                 }
                 var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdagerForeldrepenger(perioder, behandling.getFagsak());

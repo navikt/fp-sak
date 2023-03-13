@@ -91,7 +91,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     private void byggHistorikkinnslag(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter) {
         var behandlingId = parameter.getBehandlingId();
         var vergeAggregatOpt = vergeRepository.hentAggregat(behandlingId);
-        if (!vergeAggregatOpt.isPresent() || !vergeAggregatOpt.get().getVerge().isPresent()) {
+        if (vergeAggregatOpt.isEmpty() || vergeAggregatOpt.get().getVerge().isEmpty()) {
             var tekstBuilder = new HistorikkInnslagTekstBuilder()
                 .medSkjermlenke(SkjermlenkeType.FAKTA_OM_VERGE);
             lagHistorikkinnslag(behandlingId, tekstBuilder, HistorikkinnslagType.REGISTRER_OM_VERGE);

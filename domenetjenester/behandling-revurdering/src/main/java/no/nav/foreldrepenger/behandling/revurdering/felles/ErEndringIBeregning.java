@@ -16,10 +16,10 @@ public class ErEndringIBeregning {
     }
 
     public static boolean vurder(Optional<Beregningsgrunnlag> revurderingsGrunnlag, Optional<Beregningsgrunnlag> originaltGrunnlag) {
-        if (!revurderingsGrunnlag.isPresent() && !originaltGrunnlag.isPresent()) {
+        if (revurderingsGrunnlag.isEmpty() && originaltGrunnlag.isEmpty()) {
             return false;
         }
-        if (!revurderingsGrunnlag.isPresent() || !originaltGrunnlag.isPresent()) {
+        if (revurderingsGrunnlag.isEmpty() || originaltGrunnlag.isEmpty()) {
             return true;
         }
 

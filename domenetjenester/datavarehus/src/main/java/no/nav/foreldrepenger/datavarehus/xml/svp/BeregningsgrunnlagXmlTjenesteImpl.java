@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -77,8 +76,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         longOpplysning.setValue(1);
         beregningsgrunnlagSvangerskapspenger.setDekningsgrad(longOpplysning);
 
-        var skjaeringstidspunktOpt = VedtakXmlUtil.lagDateOpplysning(LocalDate.now());
-        beregningsgrunnlagSvangerskapspenger.setSkjaeringstidspunkt(skjaeringstidspunktOpt.get());
+        VedtakXmlUtil.lagDateOpplysning(LocalDate.now()).ifPresent(beregningsgrunnlagSvangerskapspenger::setSkjaeringstidspunkt);
 
         var beregningsgrunnlag1 = new Beregningsgrunnlag();
         beregningsgrunnlag1.getAny().add(beregningsgrunnlagSvangerskapspenger);
@@ -90,14 +88,14 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
     private void setBeregningsgrunnlagPerioder(BeregningsgrunnlagSvangerskapspenger beregningsgrunnlag, List<BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder) {
         var periodeListe = beregningsgrunnlagPerioder
             .stream()
-            .map(this::konverterFraDomene).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         beregningsgrunnlag.getBeregningsgrunnlagPeriode().addAll(periodeListe);
     }
 
     private void setBeregningsgrunnlagAktivitetStatuser(BeregningsgrunnlagSvangerskapspenger beregningsgrunnlag, List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
         var aktivitetStatusListe = aktivitetStatuser
             .stream()
-            .map(this::konverterFraDomene).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         beregningsgrunnlag.getAktivitetstatuser().addAll(aktivitetStatusListe);
     }
 
@@ -137,7 +135,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
     private void setBeregningsgrunnlagPrStatusOgAndel(no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.BeregningsgrunnlagPeriode kontrakt, List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
         var beregningsgrunnlagPrStatusOgAndelKontrakt = beregningsgrunnlagPrStatusOgAndelList
             .stream()
-            .map(this::konverterFraDomene).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         kontrakt.getBeregningsgrunnlagPrStatusOgAndel().addAll(beregningsgrunnlagPrStatusOgAndelKontrakt);
     }
 

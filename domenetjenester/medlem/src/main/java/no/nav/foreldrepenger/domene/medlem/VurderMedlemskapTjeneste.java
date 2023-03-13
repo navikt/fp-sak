@@ -63,7 +63,7 @@ public class VurderMedlemskapTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         avklarOmErBosatt.utled(ref, vurderingsdato).ifPresent(resultat::add);
         avklarGyldigPeriode.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);
-        avklarBarnFødtUtenlands.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);
+        avklarBarnFødtUtenlands.utled(behandlingId).ifPresent(resultat::add);
         if (vurderingsdato.equals(ref.getUtledetSkjæringstidspunkt())) {
             avklarOmSøkerOppholderSegINorge.utledVedSTP(ref).ifPresent(resultat::add);
         }
