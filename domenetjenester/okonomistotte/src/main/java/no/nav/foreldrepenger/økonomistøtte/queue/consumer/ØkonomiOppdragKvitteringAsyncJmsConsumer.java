@@ -6,8 +6,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 import javax.xml.stream.XMLStreamException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import jakarta.jms.JMSException;
@@ -28,8 +26,6 @@ import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
 public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer implements Controllable {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ØkonomiOppdragKvitteringAsyncJmsConsumer.class);
 
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
     private DatabasePreconditionChecker preconditionChecker;
@@ -58,11 +54,11 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer imp
 
     @Override
     public void handle(Message message) throws JMSException {
-        log.debug("Mottar melding");
+        LOG.debug("Mottar melding");
         if (message instanceof TextMessage tm) {
             handle(tm.getText());
         } else {
-            log.warn("Mottok en ikke støttet melding av klasse {}. Kø-elementet ble ignorert.", message.getClass());
+            LOG.warn("Mottok en ikke støttet melding av klasse {}. Kø-elementet ble ignorert.", message.getClass());
         }
     }
 
@@ -91,7 +87,7 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer imp
         var alvorlighetsgrad = mmel.getAlvorlighetsgrad();
         var beskrivendeMelding = mmel.getBeskrMelding();
         var kodeMelding = mmel.getKodeMelding();
-        log.warn("""
+        LOG.warn("""
             Mottok og ignorerte kvitteringsmelding uten oppdragslinjer,
             kan ikke direkte identifisere behandling. Gjelder fagsystemId={}.
             Innhold i kvittering: alvorlighetsgrad={} meldingKode='{}' beskrivendeMelding='{}', fagomraade={}.
@@ -142,18 +138,18 @@ public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer imp
     @Override
     public void start() {
         if (!isDisabled()) {
-            LOGGER.debug("Starter {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+            LOG.debug("Starter {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
             super.start();
-            LOGGER.info("Startet: {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+            LOG.info("Startet: {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
         }
     }
 
     @Override
     public void stop() {
         if (!isDisabled()) {
-            LOGGER.debug("Stoping {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+            LOG.debug("Stoping {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
             super.stop();
-            LOGGER.info("Stoppet: {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
+            LOG.info("Stoppet: {}", ØkonomiOppdragKvitteringAsyncJmsConsumer.class.getSimpleName());
         }
     }
 }
