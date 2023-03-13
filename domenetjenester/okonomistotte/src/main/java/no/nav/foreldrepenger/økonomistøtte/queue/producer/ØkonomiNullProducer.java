@@ -28,7 +28,7 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
 
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
 
-    public ØkonomiNullProducer() {
+    ØkonomiNullProducer() {
         // CDI
     }
 
