@@ -1,11 +1,8 @@
 package no.nav.foreldrepenger.mottak;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -140,7 +137,7 @@ public class Behandlingsoppretter {
         var forrigeÅrsaker = sisteYtelseBehandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .filter(bat -> !revurderingsÅrsak.equals(bat))
-            .collect(Collectors.toList());
+            .toList();
         if (!forrigeÅrsaker.isEmpty()) {
             var årsakBuilder = BehandlingÅrsak.builder(forrigeÅrsaker);
             revurdering.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
@@ -209,7 +206,7 @@ public class Behandlingsoppretter {
     private List<MottattDokument> hentAlleInntektsmeldingdokumenter(Long fagsakId) {
         return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId).stream()
             .filter(dok -> DokumentTypeId.INNTEKTSMELDING.equals(dok.getDokumentType()))
-            .collect(toList());
+            .toList();
     }
 
 
@@ -254,9 +251,9 @@ public class Behandlingsoppretter {
     }
 
     public Behandling opprettNyFørstegangsbehandlingFraTidligereSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling behandlingMedSøknad) {
-        var sisteYtelsesbehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId());
-        var harÅpenBehandling = !sisteYtelsesbehandling.map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
-        var behandling = harÅpenBehandling ? oppdaterBehandlingViaHenleggelse(sisteYtelsesbehandling.get(), behandlingÅrsakType)
+        var sisteYtelsesbehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).orElseThrow();
+        var harÅpenBehandling = !sisteYtelsesbehandling.erSaksbehandlingAvsluttet();
+        var behandling = harÅpenBehandling ? oppdaterBehandlingViaHenleggelse(sisteYtelsesbehandling, behandlingÅrsakType)
             : opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.of(behandlingMedSøknad));
 
         kopierTidligereGrunnlagFraTil(fagsak, behandlingMedSøknad, behandling);
@@ -268,7 +265,7 @@ public class Behandlingsoppretter {
         var behandlingsresultat = behandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
         if (behandlingsresultat.isPresent() && erHenlagt(behandlingsresultat.get())) {
             var førstegangsbehandlingBehandlingsresultat = hentFørstegangsbehandlingsresultat(fagsak);
-            return førstegangsbehandlingBehandlingsresultat.map(br -> erHenlagt(br)).orElse(false);
+            return førstegangsbehandlingBehandlingsresultat.map(this::erHenlagt).orElse(false);
         }
         return false;
     }

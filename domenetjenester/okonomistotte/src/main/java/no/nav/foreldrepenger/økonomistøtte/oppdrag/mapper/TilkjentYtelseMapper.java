@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYt
 
 public class TilkjentYtelseMapper {
 
-    private FamilieYtelseType ytelseType;
+    private final FamilieYtelseType ytelseType;
 
     public TilkjentYtelseMapper(FamilieYtelseType ytelseType) {
         this.ytelseType = ytelseType;
@@ -54,17 +54,16 @@ public class TilkjentYtelseMapper {
         Map<KjedeNøkkel, Ytelse.Builder> buildere = new HashMap<>();
 
         for (var tyPeriode : sortert(tilkjentYtelsePerioder)) {
-            var andelPrNøkkel = tyPeriode.getBeregningsresultatAndelList().stream()
+            var andelPrNøkkel = tyPeriode.getBeregningsresultatAndelList()
+                .stream()
                 .filter(andel -> andel.getDagsats() != 0)
                 .map(andel -> tilYtelsePeriodeMedNøkkel(tyPeriode, andel))
                 .collect(Collectors.groupingBy(YtelsePeriodeMedNøkkel::getNøkkel));
             for (var entry : andelPrNøkkel.entrySet()) {
                 var nøkkel = entry.getKey();
                 var ytelsePeriode = YtelsePeriode.summer(entry.getValue(), YtelsePeriodeMedNøkkel::getYtelsePeriode);
-                if (!buildere.containsKey(nøkkel)) {
-                    buildere.put(nøkkel, Ytelse.builder());
-                }
-                buildere.get(nøkkel).leggTilPeriode(ytelsePeriode);
+                var builder = buildere.computeIfAbsent(nøkkel, kjedeNøkkel -> Ytelse.builder());
+                builder.leggTilPeriode(ytelsePeriode);
             }
         }
 
@@ -82,8 +81,7 @@ public class TilkjentYtelseMapper {
                 }
             }
         }
-        var feriepengerPrNøkkel = alleFeriepenger.stream()
-            .collect(Collectors.groupingBy(YtelsePeriodeMedNøkkel::getNøkkel));
+        var feriepengerPrNøkkel = alleFeriepenger.stream().collect(Collectors.groupingBy(YtelsePeriodeMedNøkkel::getNøkkel));
 
         Map<KjedeNøkkel, Ytelse> resultat = new HashMap<>();
         for (var entry : feriepengerPrNøkkel.entrySet()) {
@@ -105,7 +103,8 @@ public class TilkjentYtelseMapper {
     }
 
     private YtelsePeriode tilYtelsePeriode(BeregningsresultatPeriode periode, BeregningsresultatAndel andel) {
-        return new YtelsePeriode(Periode.of(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), Satsen.dagsats(andel.getDagsats()), tilUtbetalingsgrad(andel));
+        return new YtelsePeriode(Periode.of(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()),
+            Satsen.dagsats(andel.getDagsats()), tilUtbetalingsgrad(andel));
     }
 
     private Utbetalingsgrad tilUtbetalingsgrad(BeregningsresultatAndel andel) {
@@ -117,16 +116,15 @@ public class TilkjentYtelseMapper {
 
     private KjedeNøkkel tilNøkkel(BeregningsresultatAndel andel) {
         var tilBruker = andel.skalTilBrukerEllerPrivatperson();
-        return tilBruker
-            ? KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER)
-            : KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().get().getOrgnr()));
+        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER) : KjedeNøkkel.lag(
+            KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()));
     }
 
     private KjedeNøkkel tilNøkkelFeriepenger(BeregningsresultatAndel andel, int opptjeningsår) {
         var tilBruker = andel.skalTilBrukerEllerPrivatperson();
-        return tilBruker
-            ? KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepenger(), Betalingsmottaker.BRUKER, opptjeningsår)
-            : KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().get().getOrgnr()), opptjeningsår);
+        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepenger(), Betalingsmottaker.BRUKER, opptjeningsår) : KjedeNøkkel.lag(
+            KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType),
+            Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), opptjeningsår);
     }
 
     private Map<KjedeNøkkel, Ytelse> build(Map<KjedeNøkkel, Ytelse.Builder> buildere) {
@@ -138,9 +136,7 @@ public class TilkjentYtelseMapper {
     }
 
     private static List<BeregningsresultatPeriode> sortert(Collection<BeregningsresultatPeriode> usortert) {
-        return usortert.stream()
-            .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
-            .collect(Collectors.toList());
+        return usortert.stream().sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)).toList();
     }
 
 }
