@@ -4,10 +4,10 @@ import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 import no.nav.foreldrepenger.felles.jms.QueueProducer;
 
 public abstract class ØkonomioppdragJmsProducer extends QueueProducer {
-    public ØkonomioppdragJmsProducer() {
+    protected ØkonomioppdragJmsProducer() {
     }
 
-    public ØkonomioppdragJmsProducer(JmsKonfig konfig) {
+    protected ØkonomioppdragJmsProducer(JmsKonfig konfig) {
         super(konfig);
     }
 
