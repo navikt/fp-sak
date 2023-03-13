@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandling.impl;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 
 /**
  * Observerer Aksjonspunkt*Events og registrerer HistorikkInnslag for enkelte
@@ -26,16 +26,10 @@ import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 public class HistorikkInnslagForAksjonspunktEventObserver {
 
     private HistorikkRepository historikkRepository;
-    private String systembruker;
 
     @Inject
     public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository) {
-        this(historikkRepository, Systembruker.username());
-    }
-
-    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository, String systembruker) {
         this.historikkRepository = historikkRepository;
-        this.systembruker = systembruker;
     }
 
     /**
@@ -71,9 +65,9 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
             builder.medÅrsak(venteårsak);
         }
         var historikkinnslag = new Historikkinnslag();
-        var brukerident = KontekstHolder.getKontekst().getUid();
-        // TODO - finn på noe helt annet enn å sjekke systembruker. Prøv heller å sjekke KontekstHolder når den er på plass
-        historikkinnslag.setAktør(!Objects.equals(systembruker, brukerident) ? HistorikkAktør.SAKSBEHANDLER : HistorikkAktør.VEDTAKSLØSNINGEN);
+        var erSystemBruker = Optional.ofNullable(KontekstHolder.getKontekst().getIdentType()).filter(IdentType::erSystem).isPresent() ||
+            Optional.ofNullable(KontekstHolder.getKontekst().getUid()).map(String::toLowerCase).filter(s -> s.startsWith("srv")).isPresent();
+        historikkinnslag.setAktør(erSystemBruker ? HistorikkAktør.VEDTAKSLØSNINGEN : HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandlingId);
         historikkinnslag.setFagsakId(fagsakId);
@@ -93,4 +87,5 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
             }
         }
     }
+
 }
