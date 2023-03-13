@@ -53,7 +53,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
     protected boolean minstEnGyldigUttaksPeriode(Behandlingsresultat behandlingsresultat) {
         var uttakResultat = svangerskapspengerUttakResultatRepository
                 .hentHvisEksisterer(behandlingsresultat.getBehandlingId());
-        if (!uttakResultat.isPresent()) {
+        if (uttakResultat.isEmpty()) {
             return false;
         }
         for (var arbeidsforhold : uttakResultat.get().getUttaksResultatArbeidsforhold()) {

@@ -71,14 +71,14 @@ public class StønadskontoSaldoTjeneste {
     private SaldoUtregningGrunnlag saldoUtregningGrunnlag(List<FastsattUttakPeriode> perioderSøker,
                                                           UttakInput uttakInput,
                                                           boolean berørtBehandling,
-                                                          Optional<Set<Stønadskonto>> stønadskontoer) {
+                                                          Set<Stønadskonto> stønadskontoer) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
         var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
             .map(Annenpart::søknadOpprettetTidspunkt)
             .orElse(null);
         var kreverSammenhengendeUttak = uttakInput.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak();
-        if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
+        if (!stønadskontoer.isEmpty() && !perioderSøker.isEmpty()) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
             var kontoer  = kontoerGrunnlagBygger.byggGrunnlag(uttakInput).build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
@@ -100,12 +100,11 @@ public class StønadskontoSaldoTjeneste {
         var stønadskontoer = stønadskontoer(ref);
         var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, false, stønadskontoer);
         var saldoUtregning = SaldoUtregningTjeneste.lagUtregning(saldoUtregningGrunnlag);
-        var annenpartFørst = saldoUtregning.negativSaldoPåNoenKontoByttParterKonservativ();
-        return annenpartFørst;
+        return saldoUtregning.negativSaldoPåNoenKontoByttParterKonservativ();
     }
 
     private List<FastsattUttakPeriode> mapTilRegelPerioder(List<UttakResultatPeriodeEntitet> perioder) {
-        return perioder.stream().map(StønadskontoSaldoTjeneste::map).collect(Collectors.toList());
+        return perioder.stream().map(StønadskontoSaldoTjeneste::map).toList();
     }
 
     private List<AnnenpartUttakPeriode> perioderAnnenpart(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
@@ -114,7 +113,7 @@ public class StønadskontoSaldoTjeneste {
             .getPerioder()
             .stream()
             .map(AnnenPartGrunnlagBygger::map)
-            .collect(Collectors.toList()))
+            .toList())
             .orElseGet(List::of);
     }
 
@@ -130,10 +129,11 @@ public class StønadskontoSaldoTjeneste {
             .map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
     }
 
-    private Optional<Set<Stønadskonto>> stønadskontoer(BehandlingReferanse ref) {
+    private Set<Stønadskonto> stønadskontoer(BehandlingReferanse ref) {
         return fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.saksnummer())
             .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning)
-            .map(Stønadskontoberegning::getStønadskontoer);
+            .map(Stønadskontoberegning::getStønadskontoer)
+            .orElse(Set.of());
     }
 
     public int finnStønadRest(SaldoUtregning saldoUtregning) {

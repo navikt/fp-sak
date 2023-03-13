@@ -35,7 +35,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjon implements Aksjonspunk
 
         var søknadVersjon = familieHendelseTjeneste.hentAggregat(param.getBehandlingId()).getSøknadVersjon();
         var adopsjon = søknadVersjon.getAdopsjon();
-        if (!adopsjon.isPresent()) {
+        if (adopsjon.isEmpty()) {
             return aksjonspunktResultater;
         }
 
