@@ -9,9 +9,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -41,7 +38,6 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
-    private static final Logger LOG = LoggerFactory.getLogger(StartpunktUtlederInntektArbeidYtelse.class);
 
     public StartpunktUtlederInntektArbeidYtelse() {
         // For CDI
@@ -136,7 +132,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         if (erInntektsmeldingEndret) {
             var startpunktIM = startpunktUtlederInntektsmelding.utledStartpunkt(ref, grunnlag1, grunnlag2);
             if (StartpunktType.KONTROLLER_ARBEIDSFORHOLD.equals(startpunktIM)) {
-                arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(ref.behandlingId(), ref.aktørId());
+                arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(ref.behandlingId());
             }
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, startpunktIM, "inntektsmelding");
         }

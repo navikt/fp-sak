@@ -5,7 +5,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 /**
  * Håndterer administrasjon(saksbehandlers input) vedrørende arbeidsforhold.
@@ -40,13 +39,13 @@ public class ArbeidsforholdAdministrasjonTjeneste {
      * @param behandlingId behandlingId
      * @param builder      ArbeidsforholdsOverstyringene som skal lagrers
      */
-    public void lagreOverstyring(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder) {
-        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingId, aktørId, builder);
+    public void lagreOverstyring(Long behandlingId, ArbeidsforholdInformasjonBuilder builder) {
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingId, builder);
     }
 
-    public void fjernOverstyringerGjortAvSaksbehandler(Long behandlingId, AktørId aktørId) {
+    public void fjernOverstyringerGjortAvSaksbehandler(Long behandlingId) {
         var builder = opprettBuilderFor(behandlingId);
         builder.fjernAlleOverstyringer();
-        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingId, aktørId, builder);
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingId, builder);
     }
 }

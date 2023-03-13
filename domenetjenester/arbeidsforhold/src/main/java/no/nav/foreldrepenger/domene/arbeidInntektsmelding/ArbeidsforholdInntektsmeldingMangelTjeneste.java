@@ -61,7 +61,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         if (eksisterendeInfo.map(info -> ArbeidsforholdInntektsmeldingRyddeTjeneste.arbeidsforholdSomMåRyddesBortVedNyttValg(dto, info)).orElse(false)) {
             var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
             informasjonBuilder.fjernOverstyringerSomGjelder(ArbeidsforholdInntektsmeldingMangelMapper.lagArbeidsgiver(dto.getArbeidsgiverIdent()));
-            arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), informasjonBuilder);
+            arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), informasjonBuilder);
         }
     }
 
@@ -79,7 +79,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
 
         // Kall til abakus, gjøres til slutt
-        arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), behandlingReferanse.aktørId(), oppdatertBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandlingReferanse.behandlingId(), oppdatertBuilder);
     }
 
     public List<ArbeidsforholdMangel> utledManglerPåArbeidsforholdInntektsmelding(BehandlingReferanse behandlingReferanse) {
@@ -129,7 +129,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
                 LOG.info("Fjerner overstyring som ikke lenger er gyldig: {}", os);
                 informasjonBuilder.fjernOverstyringerSomGjelder(os.getArbeidsgiver());
             });
-            arbeidsforholdTjeneste.lagreOverstyring(ref.behandlingId(), ref.aktørId(), informasjonBuilder);
+            arbeidsforholdTjeneste.lagreOverstyring(ref.behandlingId(), informasjonBuilder);
         }
     }
 }

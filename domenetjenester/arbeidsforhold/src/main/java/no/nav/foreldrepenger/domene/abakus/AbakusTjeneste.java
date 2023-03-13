@@ -36,7 +36,6 @@ import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
 import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
 import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
-import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
 import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.abakus.vedtak.ytelse.Aktør;
 import no.nav.abakus.vedtak.ytelse.Periode;
@@ -64,7 +63,6 @@ public class AbakusTjeneste {
     private final ObjectReader iayGrunnlagReader = iayMapper.readerFor(InntektArbeidYtelseGrunnlagDto.class);
     private final ObjectReader arbeidsforholdReader = iayMapper.readerFor(ArbeidsforholdDto[].class);
     private final ObjectReader uuidReader = iayMapper.readerFor(UuidDto.class);
-    private final ObjectReader iayGrunnlagSnapshotReader = iayMapper.readerFor(InntektArbeidYtelseGrunnlagSakSnapshotDto.class);
     private final ObjectReader inntektsmeldingerReader = iayMapper.readerFor(InntektsmeldingerDto.class);
     private URI innhentRegisterdata;
     private RestClient restClient;
@@ -75,7 +73,6 @@ public class AbakusTjeneste {
     private URI endpointMottaInntektsmeldinger;
     private URI endpointMottaOppgittOpptjening;
     private URI endpointKopierGrunnlag;
-    private URI endpointGrunnlagSnapshot;
     private URI endpointInntektsmeldinger;
     private URI endpointYtelser;
     private URI endpointOverstyring;
@@ -93,7 +90,6 @@ public class AbakusTjeneste {
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
         this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
-        this.endpointGrunnlagSnapshot = toUri("/api/iay/grunnlag/v1/snapshot");
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
@@ -157,14 +153,6 @@ public class AbakusTjeneste {
     public InntektsmeldingerDto hentUnikeUnntektsmeldinger(InntektsmeldingerRequest request) throws IOException {
         var endpoint = endpointInntektsmeldinger;
         var responseHandler = new AbakusResponseHandler<InntektsmeldingerDto>(inntektsmeldingerReader);
-        var json = iayJsonWriter.writeValueAsString(request);
-
-        return hentFraAbakus(endpoint, responseHandler, json);
-    }
-
-    public InntektArbeidYtelseGrunnlagSakSnapshotDto hentGrunnlagSnapshot(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
-        var endpoint = endpointGrunnlagSnapshot;
-        var responseHandler = new AbakusResponseHandler<InntektArbeidYtelseGrunnlagSakSnapshotDto>(iayGrunnlagSnapshotReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);

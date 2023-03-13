@@ -147,32 +147,6 @@ public class InntektArbeidYtelseAggregatBuilder {
         return versjon;
     }
 
-    void oppdaterArbeidsforholdReferanseEtterErstatting(AktørId søker, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef gammelRef,
-            InternArbeidsforholdRef nyRef) {
-        final var builder = getAktørArbeidBuilder(søker);
-        if (builder.getErOppdatering()) {
-            if (eksistererIkkeFraFør(arbeidsgiver, gammelRef, builder)) {
-                final var yrkesaktivitetBuilder = builder.getYrkesaktivitetBuilderForNøkkelAvType(
-                        Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(gammelRef, arbeidsgiver),
-                        ArbeidType.AA_REGISTER_TYPER);
-                if (yrkesaktivitetBuilder.getErOppdatering()) {
-                    yrkesaktivitetBuilder.medArbeidsforholdId(nyRef);
-                    builder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-                    leggTilAktørArbeid(builder);
-                }
-            }
-        }
-    }
-
-    private boolean eksistererIkkeFraFør(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef gammelRef, AktørArbeidBuilder builder) {
-        return !builder.getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(gammelRef, arbeidsgiver),
-                ArbeidType.AA_REGISTER_TYPER).getErOppdatering();
-    }
-
-    public void tilbakestillYrkesaktiviteter() {
-
-    }
-
     public void medNyInternArbeidsforholdRef(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef nyRef, EksternArbeidsforholdRef eksternReferanse) {
         nyeInternArbeidsforholdReferanser.add(new ArbeidsforholdReferanse(arbeidsgiver, nyRef, eksternReferanse));
     }
@@ -284,10 +258,6 @@ public class InntektArbeidYtelseAggregatBuilder {
 
         public InntektBuilder getInntektBuilder(InntektsKilde inntektsKilde, Opptjeningsnøkkel opptjeningsnøkkel) {
             return kladd.getInntektBuilder(inntektsKilde, opptjeningsnøkkel);
-        }
-
-        public InntektBuilder getInntektBuilderForYtelser(InntektsKilde inntektsKilde) {
-            return kladd.getInntektBuilderForYtelser(inntektsKilde);
         }
 
         public AktørInntektBuilder leggTilInntekt(InntektBuilder builder) {

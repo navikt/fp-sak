@@ -149,7 +149,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
 
         var arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty()).leggTil(arbeidsforholdOverstyringBuilder);
 
-        iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), behandling.getAktørId(), arbeidsforholdInformasjonBuilder);
+        iayTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), arbeidsforholdInformasjonBuilder);
 
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
             AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);

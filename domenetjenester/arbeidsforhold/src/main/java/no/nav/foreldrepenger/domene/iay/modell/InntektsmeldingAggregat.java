@@ -48,7 +48,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
      *         Merk denne filtrerer inntektsmeldinger ifht hva som skal brukes.
      */
     public List<Inntektsmelding> getInntektsmeldingerSomSkalBrukes() {
-        return inntektsmeldinger.stream().filter(this::skalBrukes).collect(Collectors.toUnmodifiableList());
+        return inntektsmeldinger.stream().filter(this::skalBrukes).toList();
     }
 
     /** Get alle inntetksmeldinger (både de som skal brukes og ikke brukes). */
@@ -95,10 +95,6 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         inntektsmeldinger.stream().filter(it -> it.gjelderSammeArbeidsforhold(inntektsmelding) && !fjernet).findFirst().ifPresent(
                 e -> LOG.info("Persistert inntektsmelding med journalpostid {} er nyere enn den mottatte med journalpostid {}. Ignoreres",
                         e.getJournalpostId(), inntektsmelding.getJournalpostId()));
-    }
-
-    public void fjern(Inntektsmelding inntektsmelding) {
-        inntektsmeldinger.remove(inntektsmelding);
     }
 
     private boolean skalFjerneInntektsmelding(Inntektsmelding gammel, Inntektsmelding ny) {

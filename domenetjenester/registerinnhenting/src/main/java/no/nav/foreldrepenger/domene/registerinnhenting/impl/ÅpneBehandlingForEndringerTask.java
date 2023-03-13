@@ -46,7 +46,7 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.erSaksbehandlingAvsluttet()) return;
         var startpunkt = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
-        arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
+        arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         reaktiverAksjonspunkter(kontekst, behandling, startpunkt);
         behandling.setÅpnetForEndring(true);

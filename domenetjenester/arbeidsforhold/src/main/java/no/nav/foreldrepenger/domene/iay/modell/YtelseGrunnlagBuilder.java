@@ -58,15 +58,7 @@ public class YtelseGrunnlagBuilder {
         return this;
     }
 
-    public void tilbakestillStørrelse() {
-        this.ytelseGrunnlag.tilbakestillStørrelse();
-    }
-
     public YtelseGrunnlag build() {
         return ytelseGrunnlag;
-    }
-
-    public YtelseStørrelseBuilder getStørrelseBuilder() {
-        return YtelseStørrelseBuilder.ny();
     }
 }

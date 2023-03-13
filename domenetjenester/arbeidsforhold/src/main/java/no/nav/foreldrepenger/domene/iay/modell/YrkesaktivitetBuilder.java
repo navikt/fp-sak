@@ -62,11 +62,6 @@ public class YrkesaktivitetBuilder {
         return this;
     }
 
-    public YrkesaktivitetBuilder tilbakestillPermisjon() {
-        kladd.tilbakestillPermisjon();
-        return this;
-    }
-
     public YrkesaktivitetBuilder tilbakestillAvtaler() {
         kladd.tilbakestillAvtaler();
         return this;
@@ -121,10 +116,6 @@ public class YrkesaktivitetBuilder {
 
     public void fjernPeriode(DatoIntervallEntitet aktivitetsPeriode) {
         kladd.fjernPeriode(aktivitetsPeriode);
-    }
-
-    public boolean harArbeidsgiver() {
-        return kladd.getArbeidsgiver().getIdentifikator() != null;
     }
 
     public YrkesaktivitetBuilder medArbeidType(String kode) {

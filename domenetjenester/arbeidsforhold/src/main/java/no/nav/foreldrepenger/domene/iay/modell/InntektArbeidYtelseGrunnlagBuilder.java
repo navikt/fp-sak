@@ -1,13 +1,9 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class InntektArbeidYtelseGrunnlagBuilder {
 
@@ -54,7 +50,7 @@ public class InntektArbeidYtelseGrunnlagBuilder {
     public ArbeidsforholdInformasjon getInformasjon() {
         var informasjon = kladd.getArbeidsforholdInformasjon();
 
-        var informasjonEntitet = informasjon.orElseGet(() -> new ArbeidsforholdInformasjon());
+        var informasjonEntitet = informasjon.orElseGet(ArbeidsforholdInformasjon::new);
         kladd.setInformasjon(informasjonEntitet);
         return informasjonEntitet;
     }
@@ -107,21 +103,6 @@ public class InntektArbeidYtelseGrunnlagBuilder {
         return this;
     }
 
-    public void ryddOppErstattedeArbeidsforhold(AktørId søker,
-            List<ArbeidsforholdInformasjonBuilder.ArbeidsgiverForholdRefs> erstattArbeidsforhold) {
-        final var registerFørVersjon = kladd.getRegisterVersjon();
-        for (var tuple : erstattArbeidsforhold) {
-            if (registerFørVersjon.isPresent()) {
-                // TODO: Vurder konsekvensen av dette.
-                final var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(registerFørVersjon,
-                        VersjonType.REGISTER);
-                builder.oppdaterArbeidsforholdReferanseEtterErstatting(søker, tuple.arbeidsgiver(), tuple.ref1(),
-                        tuple.ref2());
-                medData(builder);
-            }
-        }
-    }
-
     public Optional<ArbeidsforholdInformasjon> getArbeidsforholdInformasjon() {
         return kladd.getArbeidsforholdInformasjon();
     }
@@ -138,9 +119,5 @@ public class InntektArbeidYtelseGrunnlagBuilder {
     public InntektArbeidYtelseGrunnlagBuilder medInntektsmeldinger(Collection<Inntektsmelding> inntektsmeldinger) {
         setInntektsmeldinger(new InntektsmeldingAggregat(inntektsmeldinger));
         return this;
-    }
-
-    public InntektArbeidYtelseGrunnlagBuilder medInntektsmeldinger(Inntektsmelding... inntektsmeldinger) {
-        return medInntektsmeldinger(Arrays.asList(inntektsmeldinger));
     }
 }

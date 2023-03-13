@@ -30,10 +30,6 @@ public class InntektsmeldingBuilder {
         return new InntektsmeldingBuilder(new Inntektsmelding());
     }
 
-    public static InntektsmeldingBuilder kopi(Inntektsmelding inntektsmelding) {
-        return new InntektsmeldingBuilder(new Inntektsmelding(inntektsmelding));
-    }
-
     public Inntektsmelding build() {
         return build(false);
     }
@@ -132,12 +128,6 @@ public class InntektsmeldingBuilder {
         precondition();
         kladd.setInntektsmeldingInnsendingsårsak(inntektsmeldingInnsendingsårsak);
         return this;
-    }
-
-    public InntektsmeldingBuilder medInntektsmeldingaarsak(String inntektsmeldingInnsendingsårsak) {
-        precondition();
-        return medInntektsmeldingaarsak(
-                inntektsmeldingInnsendingsårsak == null ? null : InntektsmeldingInnsendingsårsak.fraKode(inntektsmeldingInnsendingsårsak));
     }
 
     public InntektsmeldingBuilder medJournalpostId(JournalpostId id) {

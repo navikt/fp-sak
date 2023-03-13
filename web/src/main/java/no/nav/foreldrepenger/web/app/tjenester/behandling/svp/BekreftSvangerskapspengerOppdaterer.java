@@ -121,7 +121,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .toList();
         if (!oppdaterePermisjonBuildere.isEmpty()) {
             oppdaterePermisjonBuildere.forEach(infoBuilder::leggTil);
-            arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(param.getBehandlingId(), param.getAktørId(), infoBuilder);
+            arbeidsforholdAdministrasjonTjeneste.lagreOverstyring(param.getBehandlingId(), infoBuilder);
         }
     }
 

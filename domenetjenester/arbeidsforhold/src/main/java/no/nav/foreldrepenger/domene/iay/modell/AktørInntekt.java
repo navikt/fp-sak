@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class AktørInntekt extends BaseEntitet implements IndexKey {
@@ -79,28 +78,9 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
         return oppdatere;
     }
 
-    public InntektBuilder getInntektBuilderForYtelser(InntektsKilde inntektsKilde) {
-        var inntektOptional = getInntekt()
-                .stream()
-                .filter(i -> i.getArbeidsgiver() == null)
-                .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
-                .filter(i -> i.getAlleInntektsposter().stream()
-                        .anyMatch(post -> post.getInntektspostType().equals(InntektspostType.YTELSE)))
-                .findFirst();
-        var oppdatere = InntektBuilder.oppdatere(inntektOptional);
-        if (!oppdatere.getErOppdatering()) {
-            oppdatere.medInntektsKilde(inntektsKilde);
-        }
-        return oppdatere;
-    }
-
     void leggTilInntekt(Inntekt inntekt) {
         this.inntekt.add(inntekt);
         inntekt.setAktørInntekt(this);
-    }
-
-    void fjernInntekterFraKilde(InntektsKilde inntektsKilde) {
-        this.inntekt.removeIf(it -> it.getInntektsKilde().equals(inntektsKilde));
     }
 
     @Override

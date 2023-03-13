@@ -1,15 +1,11 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Filter for å hente ytelser fra grunnlag. Tilbyr håndtering av
@@ -51,10 +47,6 @@ public class YtelseFilter {
         return ytelser.isEmpty();
     }
 
-    public boolean isEmptyFiltered() {
-        return getFiltrertYtelser().isEmpty();
-    }
-
     public YtelseFilter før(LocalDate skjæringstidspunkt) {
         return copyWith(this.ytelser, skjæringstidspunkt, true);
     }
@@ -83,10 +75,9 @@ public class YtelseFilter {
      * Get ytelser. Filtrer for skjæringstidspunkt, etc hvis definert
      */
     private Collection<Ytelse> getFiltrertYtelser(Collection<Ytelse> ytelser) {
-        Collection<Ytelse> resultat = ytelser.stream()
-                .filter(yt -> ((this.ytelseFilter == null) || this.ytelseFilter.test(yt)) && skalMedEtterSkjæringstidspunktVurdering(yt))
-                .collect(Collectors.toList());
-        return Collections.unmodifiableCollection(resultat);
+        return ytelser.stream()
+                .filter(yt -> (this.ytelseFilter == null || this.ytelseFilter.test(yt)) && skalMedEtterSkjæringstidspunktVurdering(yt))
+                .toList();
     }
 
     private boolean skalMedEtterSkjæringstidspunktVurdering(Ytelse ytelse) {
@@ -101,20 +92,13 @@ public class YtelseFilter {
         return true;
     }
 
-    /**
-     * Appliserer angitt funksjon til hver ytelse som matcher dette filteret.
-     */
-    public void forFilter(Consumer<Ytelse> consumer) {
-        getAlleYtelser().forEach(consumer);
-    }
-
     public YtelseFilter filter(Predicate<Ytelse> filterFunc) {
-        var copy = copyWith(getFiltrertYtelser().stream().filter(filterFunc).collect(Collectors.toList()), skjæringstidspunkt,
+        var copy = copyWith(getFiltrertYtelser().stream().filter(filterFunc).toList(), skjæringstidspunkt,
                 venstreSideASkjæringstidspunkt);
         if (copy.ytelseFilter == null) {
             copy.ytelseFilter = filterFunc;
         } else {
-            copy.ytelseFilter = (ytelse) -> filterFunc.test(ytelse) && this.ytelseFilter.test(ytelse);
+            copy.ytelseFilter = ytelse -> filterFunc.test(ytelse) && this.ytelseFilter.test(ytelse);
         }
         return copy;
     }
@@ -123,16 +107,6 @@ public class YtelseFilter {
         var copy = new YtelseFilter(ytelser, skjæringstidspunkt, venstreSideASkjæringstidspunkt);
         copy.ytelseFilter = this.ytelseFilter;
         return copy;
-    }
-
-    public boolean anyMatchFilter(Predicate<Ytelse> matcher) {
-        return getAlleYtelser().stream().anyMatch(matcher);
-    }
-
-    public <R> Collection<R> mapYtelse(Function<Ytelse, R> mapper) {
-        List<R> result = new ArrayList<>();
-        forFilter(ytelse -> mapper.apply(ytelse));
-        return Collections.unmodifiableList(result);
     }
 
 }
