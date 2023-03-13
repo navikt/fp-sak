@@ -160,18 +160,6 @@ public class PipRepository {
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    @SuppressWarnings({ "unchecked", "cast" })
-    public Set<Long> behandlingsIdForOppgaveId(Collection<String> oppgaveIder) {
-        if (oppgaveIder.isEmpty()) {
-            return Collections.emptySet();
-        }
-        var sql = "SELECT behandling_id FROM OPPGAVE_BEHANDLING_KOBLING WHERE oppgave_id in (:oppgaveIder)";
-        var query = entityManager.createNativeQuery(sql);
-        query.setParameter("oppgaveIder", oppgaveIder);
-        var result = (List<BigDecimal>) query.getResultList();
-        return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
     public static boolean harAksjonspunktTypeOverstyring(Collection<AksjonspunktDefinisjon> aksjonspunktKoder) {
         return aksjonspunktKoder.stream()
             .map(AksjonspunktDefinisjon::getAksjonspunktType)

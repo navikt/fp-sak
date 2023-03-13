@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -296,28 +294,70 @@ public class InformasjonssakRepository {
         return toOverlappData(resultatList);
     }
 
-    public List<Long> finnYtelsesfordelingForMigreringAvklartDok() {
-        var query = entityManager.createNativeQuery("""
-             select distinct gryf.behandling_id from GR_YTELSES_FORDELING gryf
-             where (gryf.migrert_dok = 'N' or gryf.migrert_dok is null) and gryf.aktiv = 'J'
-             and (gryf.opprinnelige_aktkrav_per_id is not null or gryf.saksbehandlede_aktkrav_per_id is not null or gryf.uttak_dokumentasjon_id is not null or gryf.overstyrt_fordeling_id is not null)
-             and rownum <= 25
-             """);
+
+
+    public List<Long> finnUtlandBehandlingerMedÅpentAksjonspunkt() {
+        var query =  entityManager.createNativeQuery("""
+           select b.id from behandling b where behandling_status<>'AVSLU'
+           and b.fagsak_id in (select fagsak_id from FAGSAK_EGENSKAP)
+           and exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'OPPR' and aksjonspunkt_def < '7000')
+        """);
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
-        return resultatList.stream().map(o -> o.longValue()).toList();
+        return resultatList.stream().map(BigDecimal::longValue).toList();
     }
 
-    public List<Long> finnBehandlingerMedGamleUttakAP(Set<AksjonspunktDefinisjon> ap) {
-        var query = entityManager.createNativeQuery("""
-             select distinct a.behandling_id from AKSJONSPUNKT a
-             where a.aksjonspunkt_def in (:ap)
-             and a.aksjonspunkt_status = 'OPPR'
-             and rownum <= 5
-             """);
-        query.setParameter("ap", ap.stream().map(a -> a.getKode()).collect(Collectors.toSet()));
+    public record UtlandMigrering(Long fagsakId, String kode) {}
+
+    public List<UtlandMigrering> finnBehandlingerMedUtlandsDokumentasjonValg() {
+        var query =  entityManager.createNativeQuery("""
+            select distinct makso.mf, ds.vd
+            from
+            (select fagsak_id mf, max(udv.opprettet_tid) mo from GR_OPPTJ_UTLAND_DOK_VALG udv join behandling b on udv.behandling_id = b.id
+            where aktiv = 'J'
+            and exists (select * from aksjonspunkt ap where ap.behandling_id = udv.behandling_id and aksjonspunkt_def = '5068')
+            group by fagsak_id) makso
+            join
+            (select fagsak_id vf, udv.dok_status vd, udv.opprettet_tid vo from GR_OPPTJ_UTLAND_DOK_VALG udv join behandling b on udv.behandling_id = b.id
+            where aktiv = 'J'
+            and exists (select * from aksjonspunkt ap where ap.behandling_id = udv.behandling_id and aksjonspunkt_def = '5068')) ds
+            on (makso.mf = ds.vf and makso.mo = ds.vo)
+        """);
         @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        return resultatList.stream().map(o -> o.longValue()).toList();
+        List<Object[]> resultatList = query.getResultList();
+        return toUtlandMigrering(resultatList);
     }
+
+    public List<UtlandMigrering> finnBehandlingerMedUtlandsMerking() {
+        var query =  entityManager.createNativeQuery("""
+            select distinct siste.b6068, felt.tvk\s
+            from
+            (select fagsak_id b6068, max(hf.opprettet_tid) feltOpprettetMax\s
+            from HISTORIKKINNSLAG hh join historikkinnslag_del hd on hd.historikkinnslag_id = hh.id
+            join historikkinnslag_felt hf on hf.historikkinnslag_del_id = hd.id
+            where behandling_id in (select behandling_id from aksjonspunkt where aksjonspunkt_def = 6068)
+            and HISTORIKKINNSLAG_type='FAKTA_ENDRET'
+            and (fra_verdi_kode in ('NASJONAL', 'EØS_BOSATT_NORGE','BOSATT_UTLAND') or til_verdi_kode in ('NASJONAL', 'EØS_BOSATT_NORGE','BOSATT_UTLAND'))
+            group by fagsak_id) siste
+            join\s
+            (select fagsak_id bverdi, til_verdi_kode tvk, hf.opprettet_tid feltOpprettet
+            from HISTORIKKINNSLAG hh join historikkinnslag_del hd on hd.historikkinnslag_id = hh.id
+            join historikkinnslag_felt hf on hf.historikkinnslag_del_id = hd.id
+            where behandling_id in (select behandling_id from aksjonspunkt where aksjonspunkt_def = 6068)
+            and HISTORIKKINNSLAG_type='FAKTA_ENDRET'
+            and (fra_verdi_kode in ('NASJONAL', 'EØS_BOSATT_NORGE','BOSATT_UTLAND') or til_verdi_kode in ('NASJONAL', 'EØS_BOSATT_NORGE','BOSATT_UTLAND'))) felt
+            on (siste.b6068 = felt.bverdi and siste.feltOpprettetMax = felt.feltOpprettet)
+        """);
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultatList = query.getResultList();
+        return toUtlandMigrering(resultatList);
+    }
+
+    private List<UtlandMigrering> toUtlandMigrering(List<Object[]> resultatList) {
+        List<UtlandMigrering> resList = new ArrayList<>();
+        resultatList.forEach(resultat -> resList.add(new UtlandMigrering(((BigDecimal) resultat[0]).longValue(), (String) resultat[1])));
+        return resList;
+    }
+
+
 }

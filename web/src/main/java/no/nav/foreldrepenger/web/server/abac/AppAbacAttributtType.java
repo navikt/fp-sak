@@ -13,7 +13,6 @@ public enum AppAbacAttributtType implements AbacAttributtType {
     /**
      * egen-definert oppgaveId i Gsak.
      */
-    OPPGAVE_ID("oppgaveId"),
     SAKER_FOR_AKTØR("aktoridSok"),
     ABAC_ANSVALIG_SAKSBEHANDLER("ansvarlig_saksbehandler"),
     ABAC_BEHANDLING_STATUS("behandling_status"),

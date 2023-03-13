@@ -97,7 +97,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
         Set<Long> behandlingsIder = new LinkedHashSet<>(behandlingId0);
         behandlingsIder.addAll(pipRepository.behandlingsIdForUuid(uuids));
-        behandlingsIder.addAll(pipRepository.behandlingsIdForOppgaveId(attributter.getVerdier(AppAbacAttributtType.OPPGAVE_ID)));
 
         if (behandlingsIder.isEmpty()) {
             return Optional.empty();

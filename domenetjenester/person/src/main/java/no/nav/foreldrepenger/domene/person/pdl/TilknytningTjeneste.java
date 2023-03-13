@@ -12,6 +12,7 @@ import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
+import no.nav.pdl.GtType;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
@@ -49,6 +50,19 @@ public class TilknytningTjeneste {
             case UTLAND -> geografiskTilknytning.getGtLand();
             case UDEFINERT -> null;
         };
+    }
+
+    public boolean harGeografiskTilknytningUtland(AktørId aktørId) {
+
+        var queryGT = new HentGeografiskTilknytningQueryRequest();
+        queryGT.setIdent(aktørId.getId());
+        var projectionGT = new GeografiskTilknytningResponseProjection().gtType();
+
+        var geografiskTilknytning = pdlKlient.hentGT(queryGT, projectionGT);
+
+        return geografiskTilknytning == null || geografiskTilknytning.getGtType() == null ||
+            GtType.UTLAND.equals(geografiskTilknytning.getGtType()) || GtType.UDEFINERT.equals(geografiskTilknytning.getGtType());
+
     }
 
     public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {

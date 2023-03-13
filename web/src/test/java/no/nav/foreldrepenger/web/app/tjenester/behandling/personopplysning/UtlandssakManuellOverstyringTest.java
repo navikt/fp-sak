@@ -53,7 +53,7 @@ class UtlandssakManuellOverstyringTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         var behandlingId = behandling.getId();
 
-        var fødselDto = new OverstyringUtenlandssakMarkeringDto("NORSK", "NORSK");
+        var fødselDto = new OverstyringUtenlandssakMarkeringDto("NASJONAL", "BOSATT_UTLAND");
 
         // Act
         applikasjonstjeneste.overstyrAksjonspunkter(singletonList(fødselDto), behandlingId);

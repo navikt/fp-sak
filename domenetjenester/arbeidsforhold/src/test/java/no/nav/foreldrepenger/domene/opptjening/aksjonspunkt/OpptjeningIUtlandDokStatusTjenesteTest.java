@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.Op
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
@@ -28,7 +29,7 @@ class OpptjeningIUtlandDokStatusTjenesteTest {
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
-        tjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(entityManager));
+        tjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(entityManager), new FagsakEgenskapRepository(entityManager));
         fagsakRepository = new FagsakRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
     }
@@ -39,7 +40,7 @@ class OpptjeningIUtlandDokStatusTjenesteTest {
         var status = OpptjeningIUtlandDokStatus.DOKUMENTASJON_VIL_BLI_INNHENTET;
         tjeneste.lagreStatus(behandling.getId(), status);
 
-        var lagret = tjeneste.hentStatus(behandling.getId());
+        var lagret = tjeneste.hentStatus(behandling);
         assertThat(lagret).isPresent();
         assertThat(lagret.get()).isEqualTo(status);
     }
@@ -51,7 +52,7 @@ class OpptjeningIUtlandDokStatusTjenesteTest {
         tjeneste.lagreStatus(behandling.getId(), status);
         tjeneste.deaktiverStatus(behandling.getId());
 
-        var lagret = tjeneste.hentStatus(behandling.getId());
+        var lagret = tjeneste.hentStatus(behandling);
         assertThat(lagret).isNotPresent();
     }
 
@@ -60,7 +61,7 @@ class OpptjeningIUtlandDokStatusTjenesteTest {
         var behandling = opprettBehandling();
         tjeneste.deaktiverStatus(behandling.getId());
 
-        var lagret = tjeneste.hentStatus(behandling.getId());
+        var lagret = tjeneste.hentStatus(behandling);
         assertThat(lagret).isNotPresent();
     }
 

@@ -30,13 +30,24 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakFullTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.EndreUtlandMarkeringDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
@@ -66,18 +77,25 @@ public class FagsakRestTjeneste {
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
     private static final String SOK_PART_PATH = "/sok";
     public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH;
+    private static final String ENDRE_UTLAND_PART_PATH = "/endre-utland";
+    public static final String ENDRE_UTLAND_PATH = BASE_PATH + ENDRE_UTLAND_PART_PATH;
 
     private FagsakTjeneste fagsakTjeneste;
     private FagsakFullTjeneste fagsakFullTjeneste;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private HistorikkRepository historikkRepository;
 
     public FagsakRestTjeneste() {
         // For Rest-CDI
     }
 
     @Inject
-    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, FagsakFullTjeneste fagsakFullTjeneste) {
+    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, HistorikkRepository historikkRepository,
+                              FagsakFullTjeneste fagsakFullTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.fagsakFullTjeneste = fagsakFullTjeneste;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.historikkRepository = historikkRepository;
     }
 
     @GET
@@ -158,5 +176,51 @@ public class FagsakRestTjeneste {
             return attributter;
         }
     }
+
+    @POST
+    @Path(ENDRE_UTLAND_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Endre utlandsmerking av sak", tags = "fagsak", summary = ("Endre merking fra tidligere verdi."))
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response endreUtlandMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class)
+                                          @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid EndreUtlandMarkeringDto endreUtland) {
+        var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
+        if (endreUtland.utlandMarkering() != null && fagsak != null) {
+            var eksisterende = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId()).orElse(UtlandMarkering.NASJONAL);
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.utlandMarkering());
+            lagHistorikkInnslag(fagsak, eksisterende, endreUtland.utlandMarkering());
+            return Response.ok().build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    public static class EndreUtlandAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (EndreUtlandMarkeringDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
+        }
+    }
+
+    private void lagHistorikkInnslag(Fagsak fagsak, UtlandMarkering eksisterende, UtlandMarkering ny) {
+        var fraVerdi = HistorikkEndretFeltVerdiType.valueOf(eksisterende.name());
+        var tilVerdi = HistorikkEndretFeltVerdiType.valueOf(ny.name());
+
+        var historikkinnslag = new Historikkinnslag.Builder()
+            .medFagsakId(fagsak.getId())
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medType(HistorikkinnslagType.FAKTA_ENDRET)
+            .build();
+
+        var builder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+            .medEndretFelt(HistorikkEndretFeltType.UTLAND, fraVerdi, tilVerdi);
+
+        builder.build(historikkinnslag);
+        historikkRepository.lagre(historikkinnslag);
+    }
+
 
 }

@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.RegistrerFagsakEgenskaper;
 import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.TilknyttFagsakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -50,7 +51,8 @@ class TilknyttFagsakUtlandsAksjonspunktTest {
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
             provider.getBehandlingRepository().taSkriveLås(behandling));
 
-        tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class), mock(InntektArbeidYtelseTjeneste.class));
+        tilknyttFagsakSteg = new TilknyttFagsakStegImpl(provider, kobleSakerTjeneste, mock(BehandlendeEnhetTjeneste.class), mock(InntektArbeidYtelseTjeneste.class),
+            mock(RegistrerFagsakEgenskaper.class));
 
         // Act
         var resultat = tilknyttFagsakSteg.utførSteg(kontekst);

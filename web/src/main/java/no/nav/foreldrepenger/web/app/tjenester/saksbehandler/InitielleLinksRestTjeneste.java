@@ -58,6 +58,7 @@ public class InitielleLinksRestTjeneste {
         List<ResourceLink> saklenker = new ArrayList<>();
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_FULL_PATH, "fagsak-full"));
         saklenker.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste"));
+        saklenker.add(post(FagsakRestTjeneste.ENDRE_UTLAND_PATH, "endre-utland-markering"));
         return new InitLinksDto(tilgangerTjeneste.innloggetBruker(), kodeverkTjeneste.hentBehandlendeEnheter(), lenkene, saklenker);
     }
 

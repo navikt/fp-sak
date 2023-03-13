@@ -4,6 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.RegistrerFagsakEgenskaper;
 import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.TilknyttFagsakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -12,6 +13,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -22,26 +24,30 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @ApplicationScoped
 public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
-    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
 
     TilknyttFagsakStegImpl() {
         // for CDI proxy
     }
 
     @Inject
-    public TilknyttFagsakStegImpl(FagsakRepository fagsakRepository,
-            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
-        this.fagsakRepository = fagsakRepository;
+    public TilknyttFagsakStegImpl(BehandlingRepository behandlingRepository,
+                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                  RegistrerFagsakEgenskaper registrerFagsakEgenskaper) {
+        this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.registrerFagsakEgenskaper = registrerFagsakEgenskaper;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        var fagsak = fagsakRepository.finnEksaktFagsak(kontekst.getFagsakId());
-        if (fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).isEmpty()) {
-            fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        if (fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()).isEmpty()) {
+            fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         }
+        registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, false);
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 }
