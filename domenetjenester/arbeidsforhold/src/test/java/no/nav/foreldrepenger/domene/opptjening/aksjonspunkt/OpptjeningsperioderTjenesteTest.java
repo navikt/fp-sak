@@ -481,7 +481,7 @@ class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
-    void skal_kunne_bygge_opptjeninsperiode_basert_på_arbeidsforhold_lagt_til_avsaksbehandler() {
+    void skal_kunne_bygge_opptjeningsperiode_basert_på_arbeidsforhold_lagt_til_avsaksbehandler() {
         final var behandling = opprettBehandling();
         var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var start = LocalDate.now().minusMonths(5);
@@ -498,7 +498,8 @@ class OpptjeningsperioderTjenesteTest {
 
         iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, arbeidsforholdInformasjonBuilder);
 
-        forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
+        var perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
+        assertThat(perioder).isNotEmpty();
 
     }
 
