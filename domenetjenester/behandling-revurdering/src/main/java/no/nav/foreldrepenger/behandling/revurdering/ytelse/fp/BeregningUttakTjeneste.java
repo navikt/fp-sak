@@ -85,7 +85,7 @@ public class BeregningUttakTjeneste {
     }
 
     private List<AndelGradering> utled(BehandlingReferanse ref, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat) {
-        if (ytelseFordelingAggregat.isEmpty()) {
+        if (!ytelseFordelingAggregat.isPresent()) {
             return List.of();
         }
         var søknadsperioder = ytelseFordelingAggregat.get().getGjeldendeFordeling();

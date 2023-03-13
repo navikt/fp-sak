@@ -54,13 +54,13 @@ public class UttakXmlTjenesteImpl {
 
         var svangerskapspengerUttakOptional = uttakRepository.hentHvisEksisterer(behandling.getId());
 
-        svangerskapspengerUttakOptional.flatMap(
-                uttaksperiodegrense -> uttaksperiodegrense.finnFørsteUttaksdato().flatMap(VedtakXmlUtil::lagDateOpplysning))
-            .ifPresent(uttakSvangerskapspenger::setFoersteUttaksdato);
+        svangerskapspengerUttakOptional.ifPresent(uttaksperiodegrense ->
+            uttaksperiodegrense.finnFørsteUttaksdato().ifPresent(førsteUttaksdato ->
+                VedtakXmlUtil.lagDateOpplysning(førsteUttaksdato).ifPresent(uttakSvangerskapspenger::setFoersteUttaksdato)));
 
-        svangerskapspengerUttakOptional.flatMap(
-                uttaksperiodegrense -> uttaksperiodegrense.finnSisteUttaksdato().flatMap(VedtakXmlUtil::lagDateOpplysning))
-            .ifPresent(uttakSvangerskapspenger::setSisteUttaksdato);
+        svangerskapspengerUttakOptional.ifPresent(uttaksperiodegrense ->
+            uttaksperiodegrense.finnSisteUttaksdato().ifPresent(sisteUttaksdato ->
+                VedtakXmlUtil.lagDateOpplysning(sisteUttaksdato).ifPresent(uttakSvangerskapspenger::setSisteUttaksdato)));
 
         svangerskapspengerUttakOptional.ifPresent(svangerskapspengerUttak ->
             setUttakUttaksResultatArbeidsforhold(uttakSvangerskapspenger, svangerskapspengerUttak.getUttaksResultatArbeidsforhold()));

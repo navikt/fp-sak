@@ -51,7 +51,7 @@ public class MedlemskapVilkårPeriodeRepository {
 
     public void kopierGrunnlagFraEksisterendeBehandling(Behandling eksisterendeBehandling, Behandling nyBehandling) {
         var eksisterendeGrunnlag = hentAktivtGrunnlag(eksisterendeBehandling);
-        if (eksisterendeGrunnlag.isEmpty()) {
+        if (!eksisterendeGrunnlag.isPresent()) {
             return; // Intet å kopiere
         }
         var nyttGrunnlag = MedlemskapVilkårPeriodeGrunnlagEntitet.fra(eksisterendeGrunnlag, nyBehandling);

@@ -155,7 +155,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
             return Optional.empty();
         }
         var opptjeningOptional = opptjeningRepository.finnOpptjening(behandlingReferanse.behandlingId());
-        if (opptjeningOptional.isEmpty()) {
+        if (!opptjeningOptional.isPresent()) {
             return Optional.empty();
         }
 

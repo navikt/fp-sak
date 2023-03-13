@@ -119,7 +119,7 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         var aktørId = param.getAktørId();
         var grunnlagOpt = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
-        if (grunnlagOpt.isEmpty()) {
+        if (!grunnlagOpt.isPresent()) {
             return false;
         }
         var grunnlag = grunnlagOpt.get();

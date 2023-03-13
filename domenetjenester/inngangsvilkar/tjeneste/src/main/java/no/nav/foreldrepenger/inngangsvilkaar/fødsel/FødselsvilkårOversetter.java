@@ -63,7 +63,7 @@ public class FødselsvilkårOversetter {
 
     public FødselsvilkårGrunnlag oversettTilRegelModellFødsel(BehandlingReferanse ref) {
         var medFarMedmorUttakRundtFødsel = !ref.getSkjæringstidspunkt().utenMinsterett();
-        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
+        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
         var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
         var kjønn = tilSøkerKjøenn(getSøkersKjønn(ref));
@@ -78,13 +78,14 @@ public class FødselsvilkårOversetter {
         var behandlingsdatoEtterTidligsteDato = erBehandlingsdatoEtterTidligsteDato(gjeldendeTermindato);
         var terminbekreftelseUtstedtEtterTidligsteDato = erTerminbekreftelseUtstedtEtterTidligsteDato(gjeldendeTermindato, gjeldendeUtstedtDato);
 
-        return new FødselsvilkårGrunnlag(kjønn, rolle, LocalDate.now(),
+        var grunnlag = new FødselsvilkårGrunnlag(kjønn, rolle, LocalDate.now(),
             bekreftetFødselsDato, gjeldendeTermindato,
             antallbarn,
             fristRegistreringUtløpt,
             morForSykVedFødsel, søktOmTermin,
             behandlingsdatoEtterTidligsteDato,
             terminbekreftelseUtstedtEtterTidligsteDato, medFarMedmorUttakRundtFødsel);
+        return grunnlag;
     }
 
     /**
@@ -126,20 +127,21 @@ public class FødselsvilkårOversetter {
 
     private RelasjonsRolleType finnRelasjonRolle(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
-        var hendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
-        var familiehendelse = hendelseGrunnlag.getGjeldendeBekreftetVersjon();
-        if (familiehendelse.isEmpty()) {
+        final var hendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        if (hendelseGrunnlag.getGjeldendeBekreftetVersjon().isEmpty()) {
             // Kan ikke finne relasjonsrolle dersom fødsel ikke er bekreftet.
             return null;
         }
-        var fødselsdato = familiehendelse.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
-        if (fødselsdato.isEmpty()) {
+        final var familieHendelse = hendelseGrunnlag.getGjeldendeBekreftetVersjon().get();
+        final var fødselsdato = familieHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
+
+        if (!fødselsdato.isPresent()) {
             return null;
         }
 
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
 
-        var fødselIntervall = byggIntervall(fødselsdato.get(), fødselsdato.get());
+        final var fødselIntervall = byggIntervall(fødselsdato.get(), fødselsdato.get());
         var alleBarnPåFødselsdato = personopplysninger.getAlleBarnFødtI(fødselIntervall);
 
         var søkerPersonopplysning = personopplysninger.getSøker();
@@ -147,7 +149,7 @@ public class FødselsvilkårOversetter {
 
         if (!alleBarnPåFødselsdato.isEmpty()) {
             // Forutsetter at barn som er født er tvillinger, og sjekker derfor bare første barn.
-            var personRelasjon = personopplysninger.getRelasjoner()
+            final var personRelasjon = personopplysninger.getRelasjoner()
                 .stream()
                 .filter(relasjon -> relasjon.getTilAktørId().equals(søkersAktørId))
                 .filter(familierelasjon -> RelasjonsRolleType.erRegistrertForeldre(familierelasjon.getRelasjonsrolle()))

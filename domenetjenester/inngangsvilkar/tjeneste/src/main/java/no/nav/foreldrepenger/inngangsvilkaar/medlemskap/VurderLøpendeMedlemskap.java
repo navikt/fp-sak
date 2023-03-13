@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertLøpe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -115,7 +117,7 @@ public class VurderLøpendeMedlemskap {
         var vurderingsdatoerListe = utledVurderingsdatoerMedlemskap.finnVurderingsdatoer(ref)
             .stream()
             .sorted(LocalDate::compareTo)
-            .toList();
+            .collect(Collectors.toList());
 
         if (vurderingsdatoerListe.isEmpty()) {
             return Collections.emptyMap();
@@ -126,10 +128,10 @@ public class VurderLøpendeMedlemskap {
         Map<LocalDate, MedlemskapsvilkårGrunnlag> resulatat = new TreeMap<>();
         for (var vurderingsdato : vurderingsdatoerListe) {
             var vurdertOpt = Optional.ofNullable(map.get(vurderingsdato));
-            var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, vurderingsdato);
+            var aggregatOptional = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, vurderingsdato);
 
             // // FP VK 2.13
-            var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, vurdertOpt, personopplysningerAggregat, vurderingsdato);
+            var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, vurdertOpt, aggregatOptional.get(), vurderingsdato);
             // FP VK 2.2 Er bruker avklart som pliktig eller frivillig medlem?
             var avklartPliktigEllerFrivillig = erAvklartSomPliktigEllerFrivillingMedlem(vurdertOpt, medlemskap, vurderingsdato);
             // defaulter uavklarte fakta til true
@@ -138,8 +140,8 @@ public class VurderLøpendeMedlemskap {
             var vurdertOppholdsrett = vurdertOpt.map(v -> defaultValueTrue(v.getOppholdsrettVurdering())).orElse(true);
 
             var grunnlag = new MedlemskapsvilkårGrunnlag(
-                tilPersonStatusType(personopplysningerAggregat), // FP VK 2.1
-                brukerNorskNordisk(personopplysningerAggregat, vurderingsdato), // FP VK 2.11
+                tilPersonStatusType(aggregatOptional), // FP VK 2.1
+                brukerNorskNordisk(aggregatOptional, vurderingsdato), // FP VK 2.11
                 vurdertOpt.map(v -> defaultValueTrue(v.getErEøsBorger())).orElse(true), // FP VIK 2.12
                 harOppholdstillatelsePåDato(ref, vurderingsdato),
                 finnOmSøkerHarArbeidsforholdOgInntekt(behandling, vurderingsdato),
@@ -210,15 +212,17 @@ public class VurderLøpendeMedlemskap {
             medlemskap.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet()), vurderingsdato);
     }
 
-    private boolean brukerNorskNordisk(PersonopplysningerAggregat personopplysningerAggregat, LocalDate vurderingsdato) {
-        var søker = personopplysningerAggregat.getSøker();
-        return personopplysningerAggregat.harStatsborgerskapRegionVedTidspunkt(søker.getAktørId(), Region.NORDEN, vurderingsdato);
+    private boolean brukerNorskNordisk(Optional<PersonopplysningerAggregat> aggregatOptional, LocalDate vurderingsdato) {
+        return aggregatOptional
+            .map(a -> a.harStatsborgerskapRegionVedTidspunkt(a.getSøker().getAktørId(), Region.NORDEN, vurderingsdato))
+            .orElse(false);
     }
 
-    private RegelPersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysningerAggregat) {
-        var søker = personopplysningerAggregat.getSøker();
-        var personstatus = personopplysningerAggregat.getPersonstatusFor(søker.getAktørId()).getPersonstatus();
-        return MAP_PERSONSTATUS_TYPE.get(personstatus);
+    private RegelPersonStatusType tilPersonStatusType(Optional<PersonopplysningerAggregat> aggregatOptional) {
+        return aggregatOptional.map(aggregat -> aggregat.getPersonstatusFor(aggregat.getSøker().getAktørId()))
+            .map(PersonstatusEntitet::getPersonstatus)
+            .map(MAP_PERSONSTATUS_TYPE::get)
+            .orElse(null);
     }
 
     private boolean finnOmSøkerHarArbeidsforholdOgInntekt(Behandling behandling, LocalDate vurderingsdato) {

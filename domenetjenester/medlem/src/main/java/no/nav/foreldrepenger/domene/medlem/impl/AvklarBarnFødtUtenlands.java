@@ -21,15 +21,16 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
 public class AvklarBarnFødtUtenlands {
 
-    private final MedlemskapRepository medlemskapRepository;
-    private final FamilieHendelseRepository familieHendelseRepository;
+    private MedlemskapRepository medlemskapRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
 
     public AvklarBarnFødtUtenlands(BehandlingRepositoryProvider repositoryProvider) {
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
-    public Optional<MedlemResultat> utled(Long behandlingId) {
+
+    public Optional<MedlemResultat> utled(Long behandlingId, @SuppressWarnings("unused") LocalDate vurderingsdato) {
         var bekreftetFH = familieHendelseRepository.hentAggregat(behandlingId).getBekreftetVersjon().orElse(null);
 
         if (!((erSøktPåBakgrunnAvFødselsdato(behandlingId) == JA) || erFødselBekreftet(bekreftetFH) == JA)) {
@@ -45,7 +46,7 @@ public class AvklarBarnFødtUtenlands {
     private Utfall erSøktPåBakgrunnAvFødselsdato(Long behandlingId) {
         var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
 
-        if (grunnlag.getGjeldendeVersjon().getTerminbekreftelse().isEmpty() && grunnlag.getGjeldendeVersjon().getAdopsjon().isEmpty()) {
+        if (!grunnlag.getGjeldendeVersjon().getTerminbekreftelse().isPresent() && !grunnlag.getGjeldendeVersjon().getAdopsjon().isPresent()) {
             return JA;
         }
         return NEI;
@@ -57,17 +58,17 @@ public class AvklarBarnFødtUtenlands {
 
     private Utfall erFødselsdatoFraTpsInnenforEnOppgittUtlandsperiode(FamilieHendelseEntitet bekreftet, Long behandlingId) {
         var aggregat = medlemskapRepository.hentMedlemskap(behandlingId);
-        if (aggregat.isEmpty() || bekreftet == null) {
+        if (!aggregat.isPresent() || bekreftet == null) {
             return NEI;
         }
         var medlemskapAggregat = aggregat.get();
         var utenlandsopphold = getOppgittUtenlandsOpphold(medlemskapAggregat);
-        if (utenlandsopphold.isEmpty()) {
+        if (!utenlandsopphold.isPresent()) {
             return NEI;
         }
 
         for (var barnet : bekreftet.getBarna()) {
-            if (erFødselsdatoInnenforEtUtenlandsopphold(barnet.getFødselsdato(), utenlandsopphold.get())) {
+            if (erFødselsdatoInnenforEtUtenlandsopphold(barnet.getFødselsdato(), utenlandsopphold)) {
                 return JA;
             }
         }
@@ -78,18 +79,18 @@ public class AvklarBarnFødtUtenlands {
         var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
 
         var aggregat = medlemskapRepository.hentMedlemskap(behandlingId);
-        if (aggregat.isEmpty()) {
+        if (!aggregat.isPresent()) {
             return NEI;
         }
         var medlemskapAggregat = aggregat.get();
         var utenlandsopphold = getOppgittUtenlandsOpphold(medlemskapAggregat);
-        if (utenlandsopphold.isEmpty()) {
+        if (!utenlandsopphold.isPresent()) {
             return NEI;
         }
         var barnFraSøknad = grunnlag.getGjeldendeVersjon().getBarna();
 
         for (var barnet : barnFraSøknad) {
-            if (erFødselsdatoInnenforEtUtenlandsopphold(barnet.getFødselsdato(), utenlandsopphold.get())) {
+            if (erFødselsdatoInnenforEtUtenlandsopphold(barnet.getFødselsdato(), utenlandsopphold)) {
                 return JA;
             }
         }
@@ -98,7 +99,7 @@ public class AvklarBarnFødtUtenlands {
 
     private Optional<Set<MedlemskapOppgittLandOppholdEntitet>> getOppgittUtenlandsOpphold(MedlemskapAggregat medlemskapAggregat) {
         var opphold = medlemskapAggregat.getOppgittTilknytning().map(MedlemskapOppgittTilknytningEntitet::getOpphold);
-        if (opphold.isEmpty()) {
+        if (!opphold.isPresent()) {
             return Optional.empty();
         }
         var utenlandsOpphold = opphold.get().stream().filter(o -> !o.getLand().equals(Landkoder.NOR)).collect(Collectors.toSet());
@@ -108,8 +109,8 @@ public class AvklarBarnFødtUtenlands {
         return Optional.of(utenlandsOpphold);
     }
 
-    private boolean erFødselsdatoInnenforEtUtenlandsopphold(LocalDate barnetsFødselsdato, Set<MedlemskapOppgittLandOppholdEntitet> utenlandsopphold) {
-        for (var utenlandsoppholdet : utenlandsopphold) {
+    private boolean erFødselsdatoInnenforEtUtenlandsopphold(LocalDate barnetsFødselsdato, Optional<Set<MedlemskapOppgittLandOppholdEntitet>> utenlandsopphold) {
+        for (var utenlandsoppholdet : utenlandsopphold.get()) {
             if (erBarnetFødtUnderDetteUtenlandsoppholdet(barnetsFødselsdato, utenlandsoppholdet.getPeriodeFom(), utenlandsoppholdet.getPeriodeTom())) {
                 return true;
             }

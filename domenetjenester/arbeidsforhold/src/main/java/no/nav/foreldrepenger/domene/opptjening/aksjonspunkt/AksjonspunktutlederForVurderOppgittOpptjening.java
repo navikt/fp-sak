@@ -68,7 +68,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
 
         var inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
         var fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
-        if (inntektArbeidYtelseGrunnlagOptional.isEmpty() || fastsattOpptjeningOptional.isEmpty()) {
+        if (!inntektArbeidYtelseGrunnlagOptional.isPresent() || !fastsattOpptjeningOptional.isPresent()) {
             return INGEN_AKSJONSPUNKTER;
         }
         var oppgittOpptjening = inntektArbeidYtelseGrunnlagOptional.get().getOppgittOpptjening().orElse(null);
@@ -213,7 +213,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
     boolean girAksjonspunktForOppgittNæring(Long behandlingId, AktørId aktørId, InntektArbeidYtelseGrunnlag iayg,
             Skjæringstidspunkt skjæringstidspunkt) {
         var fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
-        if (fastsattOpptjeningOptional.isEmpty()) {
+        if (!fastsattOpptjeningOptional.isPresent()) {
             return false;
         }
         var oppgittOpptjening = iayg.getOppgittOpptjening().orElse(null);

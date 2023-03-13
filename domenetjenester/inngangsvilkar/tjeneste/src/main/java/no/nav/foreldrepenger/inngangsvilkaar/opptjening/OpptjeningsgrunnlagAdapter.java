@@ -25,9 +25,9 @@ import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class OpptjeningsgrunnlagAdapter {
-    private final LocalDate behandlingstidspunkt;
-    private final LocalDate startDato;
-    private final LocalDate sluttDato;
+    private LocalDate behandlingstidspunkt;
+    private LocalDate startDato;
+    private LocalDate sluttDato;
 
     public OpptjeningsgrunnlagAdapter(LocalDate behandlingstidspunkt, LocalDate startDato, LocalDate sluttDato) {
         this.behandlingstidspunkt = behandlingstidspunkt;
@@ -47,15 +47,19 @@ public class OpptjeningsgrunnlagAdapter {
 
     private List<InntektPeriode> utledInntekter(Collection<OpptjeningInntektPeriode> opptjeningInntekter) {
         List<InntektPeriode> inntekter = new ArrayList<>();
-        var lønn = opptjeningInntekter.stream().filter(i -> InntektspostType.LØNN.equals(i.getType())).toList();
-        for (var inn : lønn) {
+        for (var inn : opptjeningInntekter) {
+            if (!InntektspostType.LØNN.equals(inn.getType())) {
+                continue;
+            }
+
+            var dateInterval = new LocalDateInterval(inn.getFraOgMed(), inn.getTilOgMed());
+            var beløpHeltall = inn.getBeløp() == null ? 0L : inn.getBeløp().longValue();
 
             var opptjeningsnøkkel = inn.getOpptjeningsnøkkel();
+
             var refType = getAktivtetReferanseType(opptjeningsnøkkel.getType());
 
             if (refType != null) {
-                var dateInterval = new LocalDateInterval(inn.getFraOgMed(), inn.getTilOgMed());
-                var beløpHeltall = inn.getBeløp() == null ? 0L : inn.getBeløp().longValue();
                 if (opptjeningsnøkkel.harType(Opptjeningsnøkkel.Type.ARBEIDSFORHOLD_ID)) {
                     var aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.LØNN, getAktivitetReferanseFraNøkkel(opptjeningsnøkkel), refType);
                     inntekter.add(new InntektPeriode(dateInterval, aktivitet, beløpHeltall));
@@ -106,7 +110,7 @@ public class OpptjeningsgrunnlagAdapter {
     }
 
     private Collection<OpptjeningAktivitetPeriode> filtrer(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter) {
-        var utenNøkkel = opptjeningAktiveter.stream().filter(o -> o.getOpptjeningsnøkkel() == null).toList();
+        var utenNøkkel = opptjeningAktiveter.stream().filter(o -> o.getOpptjeningsnøkkel() == null).collect(Collectors.toList());
         //fjerner de uten opptjeningsnøkkel
         opptjeningAktiveter.removeAll(utenNøkkel);
         List<OpptjeningAktivitetPeriode> resultat = new ArrayList<>(utenNøkkel);
@@ -122,7 +126,7 @@ public class OpptjeningsgrunnlagAdapter {
                 var tidsserier = aktiviteterPåSammeOrgnummer.stream()
                     .map(a -> new LocalDateSegment<>(a.getPeriode().getFomDato(), a.getPeriode().getTomDato(), a))
                     .map(s -> new LocalDateTimeline<>(List.of(s)))
-                    .toList();
+                    .collect(Collectors.toList());
 
                 @SuppressWarnings("unchecked")
                 LocalDateTimeline<OpptjeningAktivitetPeriode> tidsserie = LocalDateTimeline.EMPTY_TIMELINE;

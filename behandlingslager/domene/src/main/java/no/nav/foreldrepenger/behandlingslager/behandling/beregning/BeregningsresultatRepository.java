@@ -75,7 +75,7 @@ public class BeregningsresultatRepository {
     public Optional<Boolean> lagreMedTilbaketrekk(Behandling behandling, boolean skalHindreTilbaketrekk) {
         var behandlingId = behandling.getId();
         var aggregatOpt = hentBeregningsresultatAggregat(behandlingId);
-        if (aggregatOpt.isEmpty()) {
+        if (!aggregatOpt.isPresent()) {
             throw new IllegalStateException("Finner ikke beregningsresultataggregat for behandlingen" + behandlingId);
         }
 

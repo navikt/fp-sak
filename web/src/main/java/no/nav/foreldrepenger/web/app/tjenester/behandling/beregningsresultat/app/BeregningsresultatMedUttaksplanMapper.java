@@ -134,12 +134,12 @@ public class BeregningsresultatMedUttaksplanMapper {
                     .medStillingsprosent(brukersAndel.getStillingsprosent());
                 var internArbeidsforholdId = brukersAndel.getArbeidsforholdRef() != null ? brukersAndel.getArbeidsforholdRef().getReferanse() : null;
                 dtoBuilder.medArbeidsforholdId(internArbeidsforholdId);
-                iayGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon).ifPresent(arbeidsforholdInformasjon -> {
+                iayGrunnlag.ifPresent(iay -> iay.getArbeidsforholdInformasjon().ifPresent(arbeidsforholdInformasjon -> {
                     if (internArbeidsforholdId != null && arbeidsgiver.isPresent()) {
                         var eksternArbeidsforholdRef = arbeidsforholdInformasjon.finnEkstern(arbeidsgiver.get(), brukersAndel.getArbeidsforholdRef());
                         dtoBuilder.medEksternArbeidsforholdId(eksternArbeidsforholdRef.getReferanse());
                     }
-                });
+                }));
                 arbeidsgiver.ifPresent(arb -> settArbeidsgiverfelter(arb, dtoBuilder));
                 return dtoBuilder
                     .create();

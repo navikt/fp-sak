@@ -37,7 +37,7 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(provider);
 
         // Act
-        var medlemResultat = tjeneste.utled(behandling.getId());
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).isEmpty();
@@ -64,7 +64,7 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(provider);
 
         // Act
-        var medlemResultat = tjeneste.utled(behandling.getId());
+        var medlemResultat = tjeneste.utled(behandling.getId(), termindato);
 
         //Assert
         assertThat(medlemResultat).isEmpty();
@@ -87,7 +87,7 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(provider);
 
         // Act
-        var medlemResultat = tjeneste.utled(behandling.getId());
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).isEmpty();
@@ -110,7 +110,7 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(provider);
 
         // Act
-        var medlemResultat = tjeneste.utled(behandling.getId());
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).contains(AVKLAR_OM_ER_BOSATT);
@@ -133,7 +133,7 @@ class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(provider);
 
         // Act
-        var medlemResultat = tjeneste.utled(behandling.getId());
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).contains(AVKLAR_OM_ER_BOSATT);

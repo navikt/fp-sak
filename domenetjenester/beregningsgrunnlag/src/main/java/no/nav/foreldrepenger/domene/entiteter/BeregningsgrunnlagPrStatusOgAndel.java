@@ -268,7 +268,7 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
 
     private boolean gjelderSammeArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
         var bgAndelArbeidsforholdOpt = getBgAndelArbeidsforhold();
-        if (!Objects.equals(getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || bgAndelArbeidsforholdOpt.isEmpty()) {
+        if (!Objects.equals(getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || !bgAndelArbeidsforholdOpt.isPresent()) {
             return false;
         }
         return Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver), arbeidsgiver)

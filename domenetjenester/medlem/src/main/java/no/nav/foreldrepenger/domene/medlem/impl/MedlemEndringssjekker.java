@@ -13,7 +13,7 @@ public abstract class MedlemEndringssjekker {
 
     public boolean erEndret(Optional<MedlemskapAggregat> medlemskap, List<MedlemskapPerioderEntitet> list1, List<MedlemskapPerioderEntitet> list2) {
         var differ = opprettNyDiffer();
-        return medlemskap.isEmpty() || differ.erForskjellPå(list1, list2);
+        return !medlemskap.isPresent() || differ.erForskjellPå(list1, list2);
     }
 
     public boolean erEndring(Optional<MedlemskapAggregat> nyttMedlemskap, Optional<MedlemskapAggregat> eksisterendeMedlemskap) {

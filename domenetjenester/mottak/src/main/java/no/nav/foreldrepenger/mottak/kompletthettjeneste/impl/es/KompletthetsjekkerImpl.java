@@ -80,7 +80,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
 
         // Manuelt registrerte søknader har foreløpig ikke vedleggsliste og kan derfor ikke kompletthetssjekkes:
-        if (søknad.isEmpty() || (!søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null || søknad.get().getSøknadVedlegg().isEmpty())) {
+        if (!søknad.isPresent() || (!søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null || søknad.get().getSøknadVedlegg().isEmpty())) {
             return emptyList();
         }
 

@@ -65,7 +65,7 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
                                                           List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         mottarYtelseVerdi.ifPresent(mottarYtelse -> {
             var mottarYtelseForrige = finnVerdiForMottarYtelseForAndelIForrigeGrunnlag(andel, forrigeBG);
-                if (mottarYtelseForrige.isEmpty() || !mottarYtelseForrige.get().equals(mottarYtelse)){
+                if (!mottarYtelseForrige.isPresent() || !mottarYtelseForrige.get().equals(mottarYtelse)){
                     var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
                         andel.getArbeidsgiver(),
                         andel.getArbeidsforholdRef(),
@@ -81,7 +81,7 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
     private void lagHistorikkinnslagForFrilans(Optional<BeregningsgrunnlagEntitet> forrigeBG, MottarYtelseDto mottarYtelseDto,
                                                HistorikkInnslagTekstBuilder tekstBuilder) {
         var mottarYtelseForrige = finnVerdiForMottarYtelseForFrilansIForrigeGrunnlag(forrigeBG);
-        if (mottarYtelseForrige.isEmpty() || !mottarYtelseForrige.get().equals(mottarYtelseDto.getFrilansMottarYtelse())) {
+        if (!mottarYtelseForrige.isPresent() || !mottarYtelseForrige.get().equals(mottarYtelseDto.getFrilansMottarYtelse())) {
             tekstBuilder
                 .medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_FRILANS, mottarYtelseForrige.orElse(null), mottarYtelseDto.getFrilansMottarYtelse());
         }

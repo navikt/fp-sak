@@ -185,7 +185,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         boolean komplettSøknad;
         boolean elektroniskSøknad;
         boolean erBarnetFødt;
-        if (optionalSøknad.isEmpty()) {
+        if (!optionalSøknad.isPresent()) {
             komplettSøknad = false;
             elektroniskSøknad = false;
             erBarnetFødt = false;

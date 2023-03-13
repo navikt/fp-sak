@@ -160,7 +160,7 @@ public class MedlemTjeneste {
 
     private VurderMedlemskap mapTilVurderMeldemspa(Set<MedlemResultat> vurderinger, Set<VurderingsÅrsak> vurderingsÅrsaks) {
         final var aksjonspunkter = vurderinger.stream()
-            .map(vu -> mapMedlemResulatTilAkDef.get(vu))
+            .map(vu -> Optional.ofNullable(mapMedlemResulatTilAkDef.get(vu)).orElse(null))
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
         return new VurderMedlemskap(aksjonspunkter, vurderingsÅrsaks);
@@ -216,7 +216,7 @@ public class MedlemTjeneste {
                                                       EndringsresultatPersonopplysningerForMedlemskap.Builder builder, EndretAttributt endretAttributt) {
         var endringer = elementer
             .sorted(Comparator.comparing(ElementMedGyldighetsintervallWrapper::sortPeriode))
-            .distinct().toList();
+            .distinct().collect(Collectors.toList());
 
         leggTilEndringer(endringer, builder, endretAttributt);
     }
@@ -246,7 +246,7 @@ public class MedlemTjeneste {
                 .getPerioder()
                 .stream().map(MedlemskapsvilkårPerioderEntitet::getFom)
                 .max(LocalDate::compareTo)
-                .orElseThrow();
+                .get();
 
             if (startDato.isBefore(date)) {
                 startDato = date;
@@ -317,8 +317,11 @@ public class MedlemTjeneste {
             if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            var other = (ElementMedGyldighetsintervallWrapper<?>) obj;
-            return element.equals(other.element);
+            if (obj instanceof ElementMedGyldighetsintervallWrapper<?>) {
+                var other = (ElementMedGyldighetsintervallWrapper<?>) obj;
+                return element.equals(other.element);
+            }
+            return false;
         }
 
         @Override

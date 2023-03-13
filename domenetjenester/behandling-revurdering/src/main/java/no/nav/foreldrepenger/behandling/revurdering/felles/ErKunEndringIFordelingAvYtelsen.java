@@ -38,10 +38,10 @@ class ErKunEndringIFordelingAvYtelsen {
     private static boolean kontrollerEndringIFordelingAvYtelsen(Optional<Beregningsgrunnlag> revurderingsGrunnlagOpt,
             Optional<Beregningsgrunnlag> originalGrunnlagOpt) {
 
-        if (revurderingsGrunnlagOpt.isEmpty() && originalGrunnlagOpt.isEmpty()) {
+        if (!revurderingsGrunnlagOpt.isPresent() && !originalGrunnlagOpt.isPresent()) {
             return false;
         }
-        if (revurderingsGrunnlagOpt.isEmpty() || originalGrunnlagOpt.isEmpty()) {
+        if (!revurderingsGrunnlagOpt.isPresent() || !originalGrunnlagOpt.isPresent()) {
             return true;
         }
 
@@ -98,7 +98,7 @@ class ErKunEndringIFordelingAvYtelsen {
         var originaleAndeler = originalPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
         for (var andel : revuderingAndeler) {
             var matchetAndel = finnMatchendeAndel(andel, originaleAndeler);
-            if (matchetAndel.isEmpty() || !erAndelerLike(andel, matchetAndel.get())) {
+            if (!matchetAndel.isPresent() || !erAndelerLike(andel, matchetAndel.get())) {
                 return true;
             }
         }

@@ -60,7 +60,7 @@ public class InnsynTjeneste {
             .medMottattDato(innsynResultat.getMottattDato())
             .medInnsynResultatType(innsynType);
 
-        if (innsynEntitetOpt.isEmpty()) {
+        if (!innsynEntitetOpt.isPresent()) {
             innsynBuilder
                 .medBegrunnelse(innsynResultat.getBegrunnelse())
                 .medBehandlingId(behandling.getId());
