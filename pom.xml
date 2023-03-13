@@ -34,7 +34,7 @@
         <fp-uttak.version>14.3.11</fp-uttak.version>
         <fp-stonadskonto.version>1.0.0</fp-stonadskonto.version>
         <svp-uttak.version>2.3.7</svp-uttak.version>
-        
+
         <felles.version>4.2.35</felles.version>
         <prosesstask.version>3.1.24</prosesstask.version>
 
@@ -138,16 +138,10 @@
                 <version>${kalkulus.version}</version>
             </dependency>
 
-            <!-- Flytt til bom og fjern herfra -->
-            <dependency>
-                <groupId>jakarta.jms</groupId>
-                <artifactId>jakarta.jms-api</artifactId>
-                <version>3.0.0</version>
-            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
 
             <dependency>
