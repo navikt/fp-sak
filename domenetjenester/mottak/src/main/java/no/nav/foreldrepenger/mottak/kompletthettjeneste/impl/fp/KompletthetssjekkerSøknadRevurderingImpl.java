@@ -110,7 +110,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
 
     private List<ManglendeVedlegg> identifiserManglendeVedleggSomFølgerAvUtsettelse(Optional<OppgittFordelingEntitet> oppgittFordeling,
                                                                                     Set<DokumentTypeId> dokumentTypeIdSet) {
-        if (!oppgittFordeling.isPresent()) {
+        if (oppgittFordeling.isEmpty()) {
             return emptyList();
         }
 

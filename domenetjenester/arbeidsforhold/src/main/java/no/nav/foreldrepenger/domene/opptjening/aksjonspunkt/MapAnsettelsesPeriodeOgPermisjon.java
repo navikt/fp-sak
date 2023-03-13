@@ -25,7 +25,7 @@ class MapAnsettelsesPeriodeOgPermisjon {
         var bekreftetPermisjonOpt = HentBekreftetPermisjon.hent(grunnlag, yrkesaktivitet);
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), yrkesaktivitet);
         var ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
-        if (!bekreftetPermisjonOpt.isPresent()) {
+        if (bekreftetPermisjonOpt.isEmpty()) {
             return ansettelsesPerioder;
         }
         var bekreftetPermisjon = bekreftetPermisjonOpt.get();

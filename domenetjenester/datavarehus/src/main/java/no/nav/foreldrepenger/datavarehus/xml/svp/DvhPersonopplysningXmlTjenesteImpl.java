@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.DvhPersonopplysningXmlTjeneste;
@@ -323,16 +324,14 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     }
 
     private void setVerge(Long behandlingId, PersonopplysningerDvhForeldrepenger personopplysninger) {
-        vergeRepository.hentAggregat(behandlingId).ifPresent(vergeAggregat -> {
-            vergeAggregat.getVerge().ifPresent(vergeFraBehandling -> {
-                var verge = personopplysningDvhObjectFactory.createVerge();
-                verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));
-                verge.setGyldighetsperiode(VedtakXmlUtil.lagPeriodeOpplysning(vergeFraBehandling.getGyldigFom(), vergeFraBehandling.getGyldigTom()));
+        vergeRepository.hentAggregat(behandlingId).flatMap(VergeAggregat::getVerge).ifPresent(vergeFraBehandling -> {
+            var verge = personopplysningDvhObjectFactory.createVerge();
+            verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));
+            verge.setGyldighetsperiode(VedtakXmlUtil.lagPeriodeOpplysning(vergeFraBehandling.getGyldigFom(), vergeFraBehandling.getGyldigTom()));
 
-                // TODO(PJV): DVH må utvides med de nye feltene for organisasjon (og evt. adresse)
+            // TODO(PJV): DVH må utvides med de nye feltene for organisasjon (og evt. adresse)
 
-                personopplysninger.setVerge(verge);
-            });
+            personopplysninger.setVerge(verge);
         });
     }
 
@@ -342,9 +341,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         if (Arrays.asList(FamilieHendelseType.FØDSEL, FamilieHendelseType.TERMIN).contains(gjeldendeFamilieHendelse.getType())) {
             var fødsel = personopplysningBaseObjectFactory.createFoedsel();
             fødsel.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(gjeldendeFamilieHendelse.getAntallBarn()));
-            gjeldendeFamilieHendelse.getFødselsdato().ifPresent(fødselsdato -> {
-                VedtakXmlUtil.lagDateOpplysning(fødselsdato).ifPresent(fødsel::setFoedselsdato);
-            });
+            gjeldendeFamilieHendelse.getFødselsdato().flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(fødsel::setFoedselsdato);
             familieHendelse.setFoedsel(fødsel);
         }
     }

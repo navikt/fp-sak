@@ -47,7 +47,7 @@ public class BeregningsgrunnlagRepository {
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId, Optional<Long> originalBehandlingId,
                                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         var sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, beregningsgrunnlagTilstand);
-        if (!sisteBg.isPresent() && originalBehandlingId.isPresent()) {
+        if (sisteBg.isEmpty() && originalBehandlingId.isPresent()) {
             return hentSisteBeregningsgrunnlagGrunnlagEntitet(originalBehandlingId.get(), beregningsgrunnlagTilstand);
         }
         return sisteBg;
@@ -57,7 +57,7 @@ public class BeregningsgrunnlagRepository {
                                                                                                                  LocalDateTime opprettetEtter,
                                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         var sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(behandlingId, opprettetEtter, beregningsgrunnlagTilstand);
-        if (!sisteBg.isPresent() && originalBehandlingId.isPresent()) {
+        if (sisteBg.isEmpty() && originalBehandlingId.isPresent()) {
             return hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(originalBehandlingId.get(), opprettetEtter, beregningsgrunnlagTilstand);
         }
         return sisteBg;
@@ -309,8 +309,7 @@ public class BeregningsgrunnlagRepository {
     }
 
     private BeregningsgrunnlagGrunnlagBuilder opprettGrunnlagBuilderFor(Long behandlingId) {
-        var entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
+        var grunnlag = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         return BeregningsgrunnlagGrunnlagBuilder.kopi(grunnlag);
     }
 

@@ -39,7 +39,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var fagsak = fagsakRepository.finnEksaktFagsak(kontekst.getFagsakId());
-        if (!fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).isPresent()) {
+        if (fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).isEmpty()) {
             fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();

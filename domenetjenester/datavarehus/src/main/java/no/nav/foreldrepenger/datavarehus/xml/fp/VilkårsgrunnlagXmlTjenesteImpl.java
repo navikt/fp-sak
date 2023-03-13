@@ -179,7 +179,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         boolean elektroniskSøknad;
         LocalDate mottattDato;
         LocalDate skjæringstidspunkt;
-        if (!optionalSøknad.isPresent()) {
+        if (optionalSøknad.isEmpty()) {
             elektroniskSøknad = false;
             mottattDato = null;
             skjæringstidspunkt = null;

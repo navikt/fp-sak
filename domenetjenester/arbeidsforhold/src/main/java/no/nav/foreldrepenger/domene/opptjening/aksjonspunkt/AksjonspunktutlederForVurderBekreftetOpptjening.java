@@ -57,7 +57,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         var behandlingId = param.getBehandlingId();
         var inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
         var fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
-        if (!inntektArbeidYtelseGrunnlagOptional.isPresent() || !fastsattOpptjeningOptional.isPresent()) {
+        if (inntektArbeidYtelseGrunnlagOptional.isEmpty() || fastsattOpptjeningOptional.isEmpty()) {
             return INGEN_AKSJONSPUNKTER;
         }
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseGrunnlagOptional.get();

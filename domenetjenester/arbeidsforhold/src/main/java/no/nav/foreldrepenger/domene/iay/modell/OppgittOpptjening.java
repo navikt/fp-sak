@@ -151,6 +151,6 @@ public class OppgittOpptjening extends BaseEntitet {
      * frilans.
      */
     public boolean harOpptjening() {
-        return !getOppgittArbeidsforhold().isEmpty() || !getEgenNæring().isEmpty() || !getAnnenAktivitet().isEmpty() || !getFrilans().isEmpty();
+        return !getOppgittArbeidsforhold().isEmpty() || !getEgenNæring().isEmpty() || !getAnnenAktivitet().isEmpty() || getFrilans().isPresent();
     }
 }
