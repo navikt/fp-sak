@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.impl.HendelseForBehandling;
 import no.nav.foreldrepenger.behandling.impl.PubliserBehandlingHendelseTask;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -19,13 +20,16 @@ class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
     public static final String HENDELSE_TYPE = "hendelseType";
 
     private final ProsessTaskTjeneste taskTjeneste;
+    private final BehandlingRepository behandlingRepository;
     private final InformasjonssakRepository informasjonssakRepository;
 
     @Inject
     public RefreshUtlandBehandlingHendelseTask(ProsessTaskTjeneste taskTjeneste,
+                                               BehandlingRepository behandlingRepository,
                                                InformasjonssakRepository informasjonssakRepository) {
         this.taskTjeneste =taskTjeneste;
         this.informasjonssakRepository = informasjonssakRepository;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -34,8 +38,9 @@ class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
     }
 
     private void opprettProsessTask(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
-        prosessTaskData.setBehandling(behandlingId, behandlingId);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandlingId);
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(90);
