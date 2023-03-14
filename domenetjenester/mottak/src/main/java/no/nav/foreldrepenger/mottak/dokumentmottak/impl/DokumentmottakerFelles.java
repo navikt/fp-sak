@@ -130,8 +130,9 @@ public class DokumentmottakerFelles {
 
     String hentBehandlendeEnhetTilVurderDokumentOppgave(MottattDokument dokument, Fagsak sak, Behandling behandling) {
         // Prod: Klageinstans + Viken sender dokumenter til scanning med forside som inneholder enhet. Journalføring og Vurder dokument skal til enheten.
-        if (dokument.getJournalEnhet().filter(behandlendeEnhetTjeneste::gyldigEnhetNfpNk).isPresent()) {
-            return dokument.getJournalEnhet().get();
+        var journalEnhet = dokument.getJournalEnhet();
+        if (journalEnhet.filter(behandlendeEnhetTjeneste::gyldigEnhetNfpNk).isPresent()) {
+            return journalEnhet.get();
         }
         if (behandling == null) {
             return finnEnhetFraFagsak(sak).enhetId();

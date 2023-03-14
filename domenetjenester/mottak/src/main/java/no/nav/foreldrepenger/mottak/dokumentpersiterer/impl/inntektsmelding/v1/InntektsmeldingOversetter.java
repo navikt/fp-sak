@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -127,8 +126,9 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
     private void mapInnsendingstidspunkt(InntektsmeldingWrapper wrapper,
                                          MottattDokument mottattDokument,
                                          InntektsmeldingBuilder builder) {
-        if (wrapper.getInnsendingstidspunkt().isPresent()) { // LPS
-            builder.medInnsendingstidspunkt(wrapper.getInnsendingstidspunkt().get());
+        var innsendingstidspunkt = wrapper.getInnsendingstidspunkt();
+        if (innsendingstidspunkt.isPresent()) { // LPS
+            builder.medInnsendingstidspunkt(innsendingstidspunkt.get());
         } else if (mottattDokument.getMottattTidspunkt() != null) { // Altinn
             builder.medInnsendingstidspunkt(mottattDokument.getMottattTidspunkt());
         } else {
@@ -160,7 +160,6 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private void mapUtsettelse(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         for (var detaljer : wrapper.getUtsettelser()) {
-            // FIXME (weak reference)
             var årsakUtsettelse = ÅrsakUtsettelseKodeliste.fromValue(detaljer.getAarsakTilUtsettelse().getValue());
             final var årsak = UtsettelseÅrsak.fraKode(årsakUtsettelse.name());
             builder.leggTil(UtsettelsePeriode.utsettelse(detaljer.getPeriode().getValue().getFom().getValue(),
@@ -176,7 +175,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private void mapNaturalYtelser(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         // Ved gjenopptakelse gjelder samme beløp
-        Map<NaturalYtelseType, BigDecimal> beløp = new HashMap<>();
+        Map<NaturalYtelseType, BigDecimal> beløp = new EnumMap<>(NaturalYtelseType.class);
         for (var detaljer : wrapper.getOpphørelseAvNaturalytelse()) {
             var naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
             final var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
