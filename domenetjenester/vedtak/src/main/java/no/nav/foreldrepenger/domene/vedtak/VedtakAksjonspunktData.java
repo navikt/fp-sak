@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 
 public class VedtakAksjonspunktData {
 
-    private boolean godkjent;
-    private String begrunnelse;
+    private final boolean godkjent;
+    private final String begrunnelse;
     private Set<String> vurderÅrsakskoder = Collections.emptySet();
-    private AksjonspunktDefinisjon aksjonspunktDefinisjon;
+    private final AksjonspunktDefinisjon aksjonspunktDefinisjon;
 
     public VedtakAksjonspunktData(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean godkjent, String begrunnelse, Collection<String> vurderÅrsakskoder) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
@@ -42,20 +42,17 @@ public class VedtakAksjonspunktData {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
+    public boolean equals(Object o) {
+        if (this == o)
             return true;
-        }
-        if (obj == null || !Objects.equals(obj.getClass(), this.getClass())) {
+        if (o == null || getClass() != o.getClass())
             return false;
-        }
-        var other = (VedtakAksjonspunktData) obj;
-        return Objects.equals(aksjonspunktDefinisjon, other.aksjonspunktDefinisjon);
+        var that = (VedtakAksjonspunktData) o;
+        return aksjonspunktDefinisjon == that.aksjonspunktDefinisjon;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(aksjonspunktDefinisjon);
     }
-
 }

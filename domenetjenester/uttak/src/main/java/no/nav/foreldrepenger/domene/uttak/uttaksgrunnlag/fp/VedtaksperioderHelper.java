@@ -251,14 +251,13 @@ public class VedtaksperioderHelper {
     }
 
     private static Optional<BigDecimal> finnGraderingArbeidsprosent(UttakResultatPeriodeEntitet up) {
-        if (up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getGraderingArbeidsprosent).isEmpty()) {
-            return Optional.empty();
-        }
-        for (var akt : up.getAktiviteter()) {
-            if (akt.isSøktGradering()) {
-                return Optional.ofNullable(up.getPeriodeSøknad().get().getGraderingArbeidsprosent());
+        return up.getPeriodeSøknad().map(ps -> {
+            for (var akt : up.getAktiviteter()) {
+                if (akt.isSøktGradering()) {
+                    return ps.getGraderingArbeidsprosent();
+                }
             }
-        }
-        return Optional.empty();
+            return null;
+        });
     }
 }

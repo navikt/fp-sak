@@ -199,7 +199,7 @@ class InngangsvilkårOpptjeningTest {
         assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P10M5D"));
-        assertThat(output.getAkseptertMellomliggendePerioder()).hasSize(0);
+        assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
         assertThat(output.getUnderkjentePerioder()).isEmpty();
         assertThat(output.getBekreftetGodkjentePerioder()).hasSize(6);
         assertThat(output.getAntattGodkjentePerioder()).isEmpty();

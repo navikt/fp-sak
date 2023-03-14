@@ -1045,7 +1045,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
 
         var opp150ForOpphPåFLIAndreRevurderingListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(andreRevurdOpp150Liste,
             KodeKlassifik.FPF_DAGPENGER);
-        assertThat(opp150ForOpphPåFLIAndreRevurderingListe).hasSize(0);
+        assertThat(opp150ForOpphPåFLIAndreRevurderingListe).isEmpty();
     }
 
     private void verifiserOppdrag110KodeEndring(List<Oppdrag110> oppdrag110List, List<KodeEndring> kode) {

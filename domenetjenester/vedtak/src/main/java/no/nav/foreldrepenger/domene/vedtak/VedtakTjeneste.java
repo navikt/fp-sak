@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -121,7 +120,7 @@ public class VedtakTjeneste {
     private void lagHistorikkInnslagVedtakReturEllerNK(HistorikkinnslagType hendelse,
                                                        Behandling behandling,
                                                        Collection<Totrinnsvurdering> medTotrinnskontroll) {
-        Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering = new HashMap<>();
+        Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering = new EnumMap<>(SkjermlenkeType.class);
         List<HistorikkinnslagTotrinnsvurdering> vurderingUtenLenke = new ArrayList<>();
 
         var delBuilder = new HistorikkInnslagTekstBuilder().medHendelse(hendelse);
@@ -165,7 +164,8 @@ public class VedtakTjeneste {
     }
 
     public VedtakResultatType utledVedtakResultatType(Behandling behandling) {
-        var behandlingResultatType = getBehandlingsresultat(behandling.getId()).getBehandlingResultatType();
+        Long behandlingId = behandling.getId();
+        var behandlingResultatType = behandlingsresultatRepository.hent(behandlingId).getBehandlingResultatType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingResultatType);
         }
@@ -176,10 +176,6 @@ public class VedtakTjeneste {
             return utledVedtakResultatType(original);
         }
         return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
-    }
-
-    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
     }
 
 }

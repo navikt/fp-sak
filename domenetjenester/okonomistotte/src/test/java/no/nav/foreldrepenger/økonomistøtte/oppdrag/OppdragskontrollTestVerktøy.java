@@ -70,7 +70,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static void verifiserKjedingForOppdragslinje150(List<Oppdragslinje150> originaltOppdr150ListeAT, List<Oppdragslinje150> originaltOppdr150ListeFL) {
         for (var opp150FL : originaltOppdr150ListeFL) {
-            assertThat(originaltOppdr150ListeAT).allSatisfy(opp150AT -> {
+            assertThat(originaltOppdr150ListeAT).isNotEmpty().allSatisfy(opp150AT -> {
                 assertThat(opp150AT.getDelytelseId()).isNotEqualTo(opp150FL.getDelytelseId());
                 assertThat(opp150AT.getRefDelytelseId()).isNotEqualTo(opp150FL.getDelytelseId());
                 assertThat(opp150FL.getRefDelytelseId()).isNotEqualTo(opp150AT.getDelytelseId());
@@ -245,7 +245,7 @@ public class OppdragskontrollTestVerktøy {
         for (var opp150Ny : opp150NyList) {
             assertThat(opp150Ny.getKodeStatusLinje()).isNull();
             assertThat(opp150Ny.getDatoStatusFom()).isNull();
-            assertThat(originaltOpp150Liste).allMatch(opp150 -> !opp150.getDelytelseId().equals(opp150Ny.getDelytelseId()));
+            assertThat(originaltOpp150Liste).isNotEmpty().allMatch(opp150 -> !opp150.getDelytelseId().equals(opp150Ny.getDelytelseId()));
             if (opp150Ny.getRefDelytelseId() != null) {
                 assertThat(opp150RevurdListe).anySatisfy(opp150 ->
                     assertThat(opp150.getDelytelseId()).isEqualTo(opp150Ny.getRefDelytelseId()));

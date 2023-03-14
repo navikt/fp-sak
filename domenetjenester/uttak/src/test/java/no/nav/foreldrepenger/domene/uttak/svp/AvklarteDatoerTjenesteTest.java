@@ -48,7 +48,7 @@ class AvklarteDatoerTjenesteTest {
         assertThat(avklarteDatoer.getOpphørsdatoForMedlemskap()).isNotPresent();
         assertThat(avklarteDatoer.getFørsteLovligeUttaksdato().orElseThrow()).isEqualTo(
             LocalDate.of(2019, Month.MAY, 1));
-        assertThat(avklarteDatoer.getFerier()).hasSize(0);
+        assertThat(avklarteDatoer.getFerier()).isEmpty();
     }
 
     private UttakInput input(Behandling behandling, LocalDate termindato, LocalDate fødselsdato) {
@@ -79,7 +79,7 @@ class AvklarteDatoerTjenesteTest {
         assertThat(avklarteDatoer.getOpphørsdatoForMedlemskap()).isNotPresent();
         assertThat(avklarteDatoer.getFørsteLovligeUttaksdato().orElseThrow()).isEqualTo(
             LocalDate.of(2019, Month.MAY, 1));
-        assertThat(avklarteDatoer.getFerier()).hasSize(0);
+        assertThat(avklarteDatoer.getFerier()).isEmpty();
     }
 
 }

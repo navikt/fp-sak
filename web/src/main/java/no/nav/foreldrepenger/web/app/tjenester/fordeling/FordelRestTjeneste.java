@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -332,14 +333,12 @@ public class FordelRestTjeneste {
 
     private BehandlendeFagsystemDto map(BehandlendeFagsystem behandlendeFagsystem) {
         BehandlendeFagsystemDto dto;
-        if (behandlendeFagsystem.getSaksnummer().isPresent()) {
-            dto = new BehandlendeFagsystemDto(behandlendeFagsystem.getSaksnummer().get().getVerdi());
-        } else {
-            dto = new BehandlendeFagsystemDto();
-        }
-        switch (behandlendeFagsystem.behandlendeSystem()) {
-            case VEDTAKSLØSNING -> dto.setBehandlesIVedtaksløsningen(true);
-            case MANUELL_VURDERING -> dto.setManuellVurdering(true);
+        var saksnummer = behandlendeFagsystem.getSaksnummer();
+        dto = saksnummer.map(value -> new BehandlendeFagsystemDto(value.getVerdi())).orElseGet(BehandlendeFagsystemDto::new);
+        if (Objects.requireNonNull(behandlendeFagsystem.behandlendeSystem()) == BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING) {
+            dto.setBehandlesIVedtaksløsningen(true);
+        } else if (behandlendeFagsystem.behandlendeSystem() == BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING) {
+            dto.setManuellVurdering(true);
         }
         return dto;
     }
@@ -406,7 +405,7 @@ public class FordelRestTjeneste {
                 throw new TekniskException("F-217605", "Input-validering-feil: Avsender sendte payload, men oppgav ikke lengde på innhold");
             }
             var bytes = Base64.getUrlDecoder().decode(base64EncodedPayload);
-            var streng = new String(bytes, Charset.forName("UTF-8"));
+            var streng = new String(bytes, StandardCharsets.UTF_8);
             if (streng.length() != deklarertLengde) {
                 throw new TekniskException("F-483098", String.format("Input-validering-feil: Avsender oppgav at lengde på innhold var %s, men lengden var egentlig %s",
                     deklarertLengde, streng.length()));

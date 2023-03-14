@@ -53,7 +53,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -69,7 +69,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -89,7 +89,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -137,7 +137,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -157,7 +157,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -175,7 +175,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -195,7 +195,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -215,7 +215,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -235,7 +235,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -255,7 +255,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -275,7 +275,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -379,7 +379,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -399,7 +399,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -419,7 +419,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -439,7 +439,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -457,7 +457,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -507,7 +507,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -528,7 +528,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -548,7 +548,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -568,7 +568,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -672,7 +672,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -692,7 +692,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -712,7 +712,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -732,7 +732,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -808,7 +808,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -828,7 +828,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -850,7 +850,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -872,7 +872,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     /**
@@ -990,7 +990,7 @@ class FinnEndringerIUtbetaltYtelseTest {
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode() {

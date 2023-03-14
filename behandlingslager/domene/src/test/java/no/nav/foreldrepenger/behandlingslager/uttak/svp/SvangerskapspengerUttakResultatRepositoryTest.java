@@ -136,7 +136,7 @@ class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTe
         assertThat(arbeidsforhold).hasSize(1);
         assertThat(arbeidsforhold.get(0).getArbeidsforholdIkkeOppfyltÅrsak()).isEqualTo(ArbeidsforholdIkkeOppfyltÅrsak.UTTAK_KUN_PÅ_HELG);
         var perioder = arbeidsforhold.get(0).getPerioder();
-        assertThat(perioder).hasSize(0);
+        assertThat(perioder).isEmpty();
     }
 
     private Behandling opprettBehandling() {

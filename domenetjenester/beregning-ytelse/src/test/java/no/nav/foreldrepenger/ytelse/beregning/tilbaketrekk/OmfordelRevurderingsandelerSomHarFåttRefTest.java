@@ -47,7 +47,7 @@ class OmfordelRevurderingsandelerSomHarFåttRefTest {
         var resultat = OmfordelRevurderingsandelerSomHarFåttRef.omfordel(revurderingNøkkelAndeler.get(0), originalNøkkelMedAndeler.get(0));
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     @Test
@@ -67,7 +67,7 @@ class OmfordelRevurderingsandelerSomHarFåttRefTest {
         var resultat = OmfordelRevurderingsandelerSomHarFåttRef.omfordel(revurderingNøkkelAndeler.get(0), originalNøkkelMedAndeler.get(0));
 
         // Assert
-        assertThat(resultat).hasSize(0);
+        assertThat(resultat).isEmpty();
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode() {
