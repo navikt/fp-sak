@@ -9,13 +9,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 
@@ -34,7 +33,7 @@ public class BehandlingDvhMapper {
         AVBRUTT_BEHANDLINGSRESULTAT.add(BehandlingResultatType.HENLAGT_SØKNAD_MANGLER);
     }
 
-    public static BehandlingDvh map(Behandling behandling,
+    public static BehandlingDvh map(Behandling behandling, // NOSONAR
                                     Behandlingsresultat behandlingsresultat,
                                     LocalDateTime mottattTidspunkt,
                                     Optional<BehandlingVedtak> vedtak,
@@ -42,7 +41,8 @@ public class BehandlingDvhMapper {
                                     Optional<KlageResultatEntitet> klageResultat,
                                     Optional<AnkeResultatEntitet> ankeResultat,
                                     Optional<ForeldrepengerUttak> uttak,
-                                    Optional<LocalDate> skjæringstidspunkt) {
+                                    Optional<LocalDate> skjæringstidspunkt,
+                                    UtlandMarkering utlandMarkering) {
 
         return BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
@@ -57,7 +57,7 @@ public class BehandlingDvhMapper {
             .fagsakId(behandling.getFagsakId())
             .funksjonellTid(LocalDateTime.now())
             .opprettetDato(behandling.getOpprettetDato().toLocalDate())
-            .utlandstilsnitt(mapUtlandstilsnitt(behandling))
+            .utlandstilsnitt(utlandMarkering.name())
             .toTrinnsBehandling(behandling.isToTrinnsBehandling())
             .vedtakId(vedtak.map(BehandlingVedtak::getId).orElse(null))
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
@@ -121,21 +121,4 @@ public class BehandlingDvhMapper {
         return FagsakStatus.AVSLUTTET.equals(behandling.getFagsak().getStatus());
     }
 
-    private static String mapUtlandstilsnitt(Behandling behandling) {
-
-        var utenlandstilsnitt = "NASJONAL";
-
-        var utlandsakAksjonpunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
-
-        if (utlandsakAksjonpunkt.isPresent()) {
-            if (HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {
-                utenlandstilsnitt = HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE.getKode();
-            } else if (HistorikkEndretFeltVerdiType.BOSATT_UTLAND.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {
-                utenlandstilsnitt = HistorikkEndretFeltVerdiType.BOSATT_UTLAND.getKode();
-            } else if (HistorikkEndretFeltVerdiType.NASJONAL.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {
-                utenlandstilsnitt = HistorikkEndretFeltVerdiType.NASJONAL.getKode();
-            }
-        }
-        return utenlandstilsnitt;
-    }
 }

@@ -40,8 +40,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -56,6 +58,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     private DatavarehusRepository datavarehusRepository;
     private FagsakRepository fagsakRepository;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -70,10 +73,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
-    public DatavarehusTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
+    public DatavarehusTjenesteImpl(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
                                    DatavarehusRepository datavarehusRepository,
                                    BehandlingsresultatRepository behandlingsresultatRepository,
                                    TotrinnRepository totrinnRepository,
+                                   FagsakEgenskapRepository fagsakEgenskapRepository,
                                    AnkeRepository ankeRepository,
                                    KlageRepository klageRepository,
                                    MottatteDokumentRepository mottatteDokumentRepository,
@@ -94,6 +98,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         this.dvhVedtakXmlTjeneste = dvhVedtakXmlTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     public DatavarehusTjenesteImpl() {
@@ -158,8 +163,9 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             skjæringstidspunkt(behandling, fh.get()) : Optional.empty();
         var mottattTidspunkt = finnMottattTidspunkt(behandling);
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        var utlandMarkering = fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).orElse(UtlandMarkering.NASJONAL);
         var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null),
-            mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat, uttak, skjæringstidspunkt);
+            mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat, uttak, skjæringstidspunkt, utlandMarkering);
         datavarehusRepository.lagre(behandlingDvh);
     }
 
