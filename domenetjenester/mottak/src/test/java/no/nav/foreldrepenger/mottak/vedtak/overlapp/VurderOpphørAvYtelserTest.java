@@ -99,7 +99,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
@@ -131,7 +131,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(2);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(2);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
@@ -174,7 +174,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(morAdopsjonIVB);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(adopsjonFarLop.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
 
@@ -218,7 +218,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehMorSomOverlapperFar);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehFar.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
 
@@ -243,7 +243,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehFar);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avslBehFar.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
 
@@ -269,7 +269,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
@@ -316,7 +316,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyAvsBehandlingMor);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
     }
@@ -334,7 +334,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(nyBehSVPOverlapper.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
@@ -351,7 +351,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(løpendeSVP);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(løpendeSVP.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
@@ -368,7 +368,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nySVPNyttBarnOverlapperFP);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(nySVPNyttBarnOverlapperFP.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }
@@ -404,7 +404,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(nyBehSVPOverlapper);
 
-        ProsessTaskData håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(avsluttetFPBehMor.getFagsak().getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).contains("Overlapp identifisert:");
     }

@@ -33,7 +33,7 @@ public class HåndterePermisjoner {
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
 
         for (var ya : filter.getYrkesaktiviteter()) {
-            boolean harArbeidsforholdetPermisjonUtenSluttdato = harArbeidsforholdetPermisjonUtenSluttdato(filter, List.of(ya), stp);
+            var harArbeidsforholdetPermisjonUtenSluttdato = harArbeidsforholdetPermisjonUtenSluttdato(filter, List.of(ya), stp);
             if (harArbeidsforholdetPermisjonUtenSluttdato) {
                 arbForholdMedPermUtenSluttdato.add(new ArbeidsforholdMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
             }

@@ -93,7 +93,7 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PleiepengerInnleggelseEntitet that = (PleiepengerInnleggelseEntitet) o;
+        var that = (PleiepengerInnleggelseEntitet) o;
         return Objects.equals(periode, that.periode) &&
             Objects.equals(pleiepengerSaksnummer, that.pleiepengerSaksnummer) &&
             Objects.equals(pleietrengendeAktørId, that.pleietrengendeAktørId);

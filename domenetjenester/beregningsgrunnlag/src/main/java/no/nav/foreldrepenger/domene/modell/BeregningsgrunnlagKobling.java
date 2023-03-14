@@ -26,7 +26,7 @@ public class BeregningsgrunnlagKobling {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BeregningsgrunnlagKobling that = (BeregningsgrunnlagKobling) o;
+        var that = (BeregningsgrunnlagKobling) o;
         return Objects.equals(skjæringstidspunkt, that.skjæringstidspunkt) &&
             Objects.equals(referanse, that.referanse);
     }

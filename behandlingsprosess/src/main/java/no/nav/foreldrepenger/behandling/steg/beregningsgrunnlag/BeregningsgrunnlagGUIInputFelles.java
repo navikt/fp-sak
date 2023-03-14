@@ -82,7 +82,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             .map(opptjeningAktiviteter1 -> OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter1, iayGrunnlag,
             ref)).orElse(null);
 
-        List<KravperioderPrArbeidsforholdDto> kravperioder = mapKravperioder(ref, iayGrunnlag);
+        var kravperioder = mapKravperioder(ref, iayGrunnlag);
         var input = new BeregningsgrunnlagGUIInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagDto,

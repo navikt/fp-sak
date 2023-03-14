@@ -28,14 +28,14 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void mapper_manglende_inntektsmelding_som_skal_vurderes() {
         // Arrange
-        String orgnr = "999999999";
-        String begrunnelse = "Begrunnelse";
-        ManglendeOpplysningerVurderingDto dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
+        var orgnr = "999999999";
+        var begrunnelse = "Begrunnelse";
+        var dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
             begrunnelse, orgnr, null);
         var mangler = Arrays.asList(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
 
         // Act
-        List<ArbeidsforholdValg> resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
+        var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
 
         // Assert
         assertThat(resultat).hasSize(1);
@@ -48,9 +48,9 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void skal_registrere_samme_valg_for_alle_arbeidsforhold_hos_samme_ag_hvis_arbeidsforholdId_mangler_fra_dto() {
         // Arrange
-        String orgnr = "999999999";
-        String begrunnelse = "Begrunnelse";
-        ManglendeOpplysningerVurderingDto dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
+        var orgnr = "999999999";
+        var begrunnelse = "Begrunnelse";
+        var dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
             begrunnelse, orgnr, null);
         var ref1 = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
@@ -60,7 +60,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
             lagMangel(orgnr, ref3, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
 
         // Act
-        List<ArbeidsforholdValg> resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
+        var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
 
         // Assert
         assertThat(resultat).hasSize(3);
@@ -82,10 +82,10 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void mapper_manglende_inntektsmelding_som_ikke_skal_vurderes() {
         // Arrange
-        String orgnr1 = "999999999";
-        String orgnr2 = "999999998";
-        String begrunnelse = "Begrunnelse";
-        ManglendeOpplysningerVurderingDto dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
+        var orgnr1 = "999999999";
+        var orgnr2 = "999999998";
+        var begrunnelse = "Begrunnelse";
+        var dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
             begrunnelse, orgnr1, null);
         var mangler = Arrays.asList(lagMangel(orgnr2, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
 
@@ -96,11 +96,11 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void mapper_til_nytt_arbeidsforhold_som_er_basert_på_inntektsmeldingen() {
         // Arrange
-        String orgnr = "999999999";
-        String begrunnelse = "Begrunnelse";
-        LocalDate fom = LocalDate.of(2022,1,1);
-        LocalDate tom = LocalDate.of(2023,1,1);
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
+        var orgnr = "999999999";
+        var begrunnelse = "Begrunnelse";
+        var fom = LocalDate.of(2022,1,1);
+        var tom = LocalDate.of(2023,1,1);
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, orgnr, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING);
         var mangler = Arrays.asList(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
@@ -125,11 +125,11 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void mapper_til_nytt_arbeidsforhold_som_er_lagt_til_av_saksbehandler() {
         // Arrange
-        String orgnr = "999999999";
-        String begrunnelse = "Begrunnelse";
-        LocalDate fom = LocalDate.of(2022,1,1);
-        LocalDate tom = LocalDate.of(2023,1,1);
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
+        var orgnr = "999999999";
+        var begrunnelse = "Begrunnelse";
+        var fom = LocalDate.of(2022,1,1);
+        var tom = LocalDate.of(2023,1,1);
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
         var ref = InternArbeidsforholdRef.nyRef().getReferanse();
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, orgnr, ref, "Dette er et navn",
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER);
@@ -156,17 +156,17 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void mapper_til_nytt_arbeidsforhold_når_annet_arbeidsforhold_finnes_fra_før() {
         // Arrange
-        String nyttOrgnr = "999999999";
-        String eksisterendeOrgnr = "999999998";
-        String begrunnelse = "Begrunnelse";
-        LocalDate fom = LocalDate.of(2022,1,1);
-        LocalDate tom = LocalDate.of(2023,1,1);
+        var nyttOrgnr = "999999999";
+        var eksisterendeOrgnr = "999999998";
+        var begrunnelse = "Begrunnelse";
+        var fom = LocalDate.of(2022,1,1);
+        var tom = LocalDate.of(2023,1,1);
 
         // Gammel avklaring fra saksbehandler
-        ArbeidsforholdInformasjon eksisterendeInformasjonBuilder = getArbeidsforholdInformasjonBuilder(eksisterendeOrgnr, Optional.empty());
+        var eksisterendeInformasjonBuilder = getArbeidsforholdInformasjonBuilder(eksisterendeOrgnr, Optional.empty());
 
         // Saksbehandler sender inn ny overstyring
-        ArbeidsforholdInformasjonBuilder nyInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.of(eksisterendeInformasjonBuilder));
+        var nyInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.of(eksisterendeInformasjonBuilder));
 
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, nyttOrgnr, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING);
@@ -195,13 +195,13 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void skal_kunne_fjerne_eksisterende_overstyring() {
         // Arrange
-        String eksisterendeOrgnr = "342352362";
-        String begrunnelse = "Begrunnelse";
-        LocalDate fom = LocalDate.of(2022,1,1);
-        LocalDate tom = LocalDate.of(2023,1,1);
+        var eksisterendeOrgnr = "342352362";
+        var begrunnelse = "Begrunnelse";
+        var fom = LocalDate.of(2022,1,1);
+        var tom = LocalDate.of(2023,1,1);
 
-        ArbeidsforholdInformasjon eksisterendeInformasjonBuilder = getArbeidsforholdInformasjonBuilder(eksisterendeOrgnr, Optional.empty());
-        ArbeidsforholdInformasjonBuilder nyInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.of(eksisterendeInformasjonBuilder));
+        var eksisterendeInformasjonBuilder = getArbeidsforholdInformasjonBuilder(eksisterendeOrgnr, Optional.empty());
+        var nyInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.of(eksisterendeInformasjonBuilder));
 
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, eksisterendeOrgnr, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.FJERN_FRA_BEHANDLINGEN);
@@ -217,15 +217,15 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
     @Test
     void skal_kunne_fjerne_eksisterende_overstyring_men_ta_vare_på_andre() {
         // Arrange
-        String orgNrSomIkkeSkalSlettes = "999999998";
-        String orgNrSomSkalSlettes = "999999999";
-        String begrunnelse = "Begrunnelse";
-        LocalDate fom = LocalDate.of(2022,1,1);
-        LocalDate tom = LocalDate.of(2023,1,1);
+        var orgNrSomIkkeSkalSlettes = "999999998";
+        var orgNrSomSkalSlettes = "999999999";
+        var begrunnelse = "Begrunnelse";
+        var fom = LocalDate.of(2022,1,1);
+        var tom = LocalDate.of(2023,1,1);
 
-        ArbeidsforholdInformasjon informasjonMedEksisterendeOrgnr = getArbeidsforholdInformasjonBuilder(orgNrSomIkkeSkalSlettes, Optional.empty());
-        ArbeidsforholdInformasjon informasjonMedOrgnrSomSkalSlettes = getArbeidsforholdInformasjonBuilder(orgNrSomSkalSlettes, Optional.of(informasjonMedEksisterendeOrgnr));
-        ArbeidsforholdInformasjonBuilder nyInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.of(informasjonMedOrgnrSomSkalSlettes));
+        var informasjonMedEksisterendeOrgnr = getArbeidsforholdInformasjonBuilder(orgNrSomIkkeSkalSlettes, Optional.empty());
+        var informasjonMedOrgnrSomSkalSlettes = getArbeidsforholdInformasjonBuilder(orgNrSomSkalSlettes, Optional.of(informasjonMedEksisterendeOrgnr));
+        var nyInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.of(informasjonMedOrgnrSomSkalSlettes));
 
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, orgNrSomSkalSlettes, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.FJERN_FRA_BEHANDLINGEN);
@@ -243,7 +243,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
 
 
     private ArbeidsforholdInformasjon getArbeidsforholdInformasjonBuilder(String eksisterendeOrgnr, Optional<ArbeidsforholdInformasjon> eksisterende) {
-        ArbeidsforholdInformasjonBuilder eksisterendeInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(eksisterende);
+        var eksisterendeInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(eksisterende);
         var eksisterendeOSBuilder = eksisterendeInformasjonBuilder.getOverstyringBuilderFor(Arbeidsgiver.virksomhet(eksisterendeOrgnr), InternArbeidsforholdRef.nullRef());
         eksisterendeOSBuilder.medAngittStillingsprosent(new Stillingsprosent(100))
             .medBeskrivelse("Dette er en beskrivelse")

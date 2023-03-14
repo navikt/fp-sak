@@ -110,7 +110,7 @@ class VedtattYtelseMapper {
     }
 
     private List<AnvistAndel> mapAndeler(List<BeregningsresultatAndel> beregningsresultatAndelList) {
-        Map<AnvistAndelNøkkel, List<BeregningsresultatAndel>> resultatPrNøkkkel = beregningsresultatAndelList.stream()
+        var resultatPrNøkkkel = beregningsresultatAndelList.stream()
             .collect(Collectors.groupingBy(a -> new AnvistAndelNøkkel(a.getArbeidsgiver().orElse(null), a.getArbeidsforholdRef(), a.getInntektskategori())));
         return resultatPrNøkkkel.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
@@ -161,7 +161,7 @@ class VedtattYtelseMapper {
     }
 
     private static Desimaltall finnUtbetalingsgrad(List<BeregningsresultatAndel> resultatAndeler) {
-        BigDecimal utbetalingsgrad = resultatAndeler.stream().map(BeregningsresultatAndel::getUtbetalingsgrad)
+        var utbetalingsgrad = resultatAndeler.stream().map(BeregningsresultatAndel::getUtbetalingsgrad)
             .map(grad -> grad == null ? BigDecimal.valueOf(100) : grad)
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO)
@@ -199,9 +199,9 @@ class VedtattYtelseMapper {
             if (this.equals(o)) {
                 return 0;
             }
-            boolean arbeidsgiverErLik = Objects.equals(this.arbeidsgiver, o.arbeidsgiver());
+            var arbeidsgiverErLik = Objects.equals(this.arbeidsgiver, o.arbeidsgiver());
             if (arbeidsgiverErLik) {
-                boolean arbeidsforholdRefErLik = Objects.equals(this.arbeidsforholdRef, o.arbeidsforholdRef());
+                var arbeidsforholdRefErLik = Objects.equals(this.arbeidsforholdRef, o.arbeidsforholdRef());
                 if (arbeidsforholdRefErLik) {
                     return this.inntektskategori().compareTo(o.inntektskategori());
                 }

@@ -83,7 +83,7 @@ class BehandlingModellTest {
 
         var modell = setupModell(modellData);
 
-        Set<AksjonspunktDefinisjon> ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_1);
+        var ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_1);
 
         assertThat(ads).
 
@@ -128,7 +128,7 @@ class BehandlingModellTest {
 
         var modell = setupModell(modellData);
 
-        Set<AksjonspunktDefinisjon> ads = modell.finnAksjonspunktDefinisjonerInngang(STEG_1);
+        var ads = modell.finnAksjonspunktDefinisjonerInngang(STEG_1);
         assertThat(ads).isEmpty();
 
         ads = modell.finnAksjonspunktDefinisjonerInngang(STEG_2);

@@ -45,7 +45,7 @@ public class BeregningAktivitet {
     }
 
     public BeregningAktivitetNøkkel getNøkkel() {
-        BeregningAktivitetNøkkel.Builder builder = BeregningAktivitetNøkkel.builder()
+        var builder = BeregningAktivitetNøkkel.builder()
                 .medOpptjeningAktivitetType(opptjeningAktivitetType)
                 .medFom(periode.getFomDato())
                 .medTom(periode.getTomDato())
@@ -62,7 +62,7 @@ public class BeregningAktivitet {
     }
 
     boolean skalBrukes(BeregningAktivitetOverstyringer overstyringer) {
-        List<BeregningAktivitetOverstyring> overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
+        var overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
                 .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).collect(Collectors.toList());
         if (overstyringerForAktivitet.isEmpty()) {
             return true;
@@ -81,7 +81,7 @@ public class BeregningAktivitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BeregningAktivitet that = (BeregningAktivitet) o;
+        var that = (BeregningAktivitet) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
                 Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) &&

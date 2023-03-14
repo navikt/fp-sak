@@ -94,7 +94,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public InntektArbeidYtelseGrunnlagDto hentGrunnlagKontrakt(Long behandlingId) {
-        InntektArbeidYtelseGrunnlagRequest request = initRequest(behandlingRepository.hentBehandling(behandlingId));
+        var request = initRequest(behandlingRepository.hentBehandling(behandlingId));
         return hentGrunnlag(request);
     }
 

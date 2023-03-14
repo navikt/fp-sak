@@ -18,18 +18,18 @@ class BeregningAksjonspunktResultatMapperTest {
     @Test
     void tester_mapping_av_vanlig_aksjonspunkt() {
         var beregningAp = BeregningAvklaringsbehovResultat.opprettFor(AvklaringsbehovDefinisjon.FORDEL_BG);
-        AksjonspunktResultat ap = BeregningAksjonspunktResultatMapper.map(beregningAp);
+        var ap = BeregningAksjonspunktResultatMapper.map(beregningAp);
         assertThat(ap.getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.FORDEL_BEREGNINGSGRUNNLAG);
         assertThat(ap.getVenteårsak()).isNull();
     }
 
     @Test
     void tester_mapping_av_aksjonspunkt_med_vent() {
-        LocalDateTime frist = LocalDateTime.now();
+        var frist = LocalDateTime.now();
         var beregningAp = BeregningAvklaringsbehovResultat.opprettMedFristFor(AvklaringsbehovDefinisjon.AUTO_VENT_PÅ_INNTKT_RAP_FRST,
             BeregningVenteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST,
             frist);
-        AksjonspunktResultat ap = BeregningAksjonspunktResultatMapper.map(beregningAp);
+        var ap = BeregningAksjonspunktResultatMapper.map(beregningAp);
         assertThat(ap.getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST);
         assertThat(ap.getVenteårsak()).isEqualTo(Venteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST);
         assertThat(ap.getFrist()).isEqualTo(frist);

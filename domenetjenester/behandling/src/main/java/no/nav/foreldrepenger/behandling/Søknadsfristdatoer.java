@@ -37,7 +37,7 @@ public class Søknadsfristdatoer {
             return true;
         if (!(o instanceof Søknadsfristdatoer))
             return false;
-        Søknadsfristdatoer that = (Søknadsfristdatoer) o;
+        var that = (Søknadsfristdatoer) o;
         return Objects.equals(søknadGjelderPeriode, that.søknadGjelderPeriode)
             && Objects.equals(søknadMottattDato, that.søknadMottattDato);
     }

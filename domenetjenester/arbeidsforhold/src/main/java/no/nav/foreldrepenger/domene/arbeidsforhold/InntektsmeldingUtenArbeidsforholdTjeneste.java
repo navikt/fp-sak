@@ -60,7 +60,7 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
                                       AktørId aktørId,
                                       LocalDate utledetStp) {
         var erRegistrertSomFrilans = gjelderFrilans(aktørId, grunnlag, inntektsmelding);
-        boolean erAmbasade = erArbeidsgiverAmbasade(inntektsmelding.getArbeidsgiver());
+        var erAmbasade = erArbeidsgiverAmbasade(inntektsmelding.getArbeidsgiver());
         if (erRegistrertSomFrilans && !erAmbasade) {
             // Arbeidsgiver sender av og til inntektsmeldinger på frilansforhold.
             // Dette er ikke riktig praksis, og saksbehandlingen ignorerer disse så vi trenger ikke lage arbeidsforhold på de.

@@ -280,7 +280,7 @@ class FaktaUttakFellesTjenesteTest {
             .lagre(repositoryProvider);
 
         var uttakperioder = new UttakResultatPerioderEntitet();
-        for (FaktaUttakPeriodeDto faktaUttakPeriodeDto : perioder) {
+        for (var faktaUttakPeriodeDto : perioder) {
             var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(faktaUttakPeriodeDto.fom(), faktaUttakPeriodeDto.tom())
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
                 .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet.Builder()

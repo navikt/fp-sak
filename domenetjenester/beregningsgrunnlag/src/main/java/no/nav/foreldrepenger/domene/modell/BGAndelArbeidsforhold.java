@@ -66,7 +66,7 @@ public class BGAndelArbeidsforhold {
         } else if (!(obj instanceof BGAndelArbeidsforhold)) {
             return false;
         }
-        BGAndelArbeidsforhold other = (BGAndelArbeidsforhold) obj;
+        var other = (BGAndelArbeidsforhold) obj;
         return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
                 && Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef);
     }

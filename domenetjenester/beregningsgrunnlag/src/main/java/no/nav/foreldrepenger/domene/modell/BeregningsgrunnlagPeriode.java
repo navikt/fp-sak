@@ -144,7 +144,7 @@ public class BeregningsgrunnlagPeriode {
         } else if (!(obj instanceof BeregningsgrunnlagPeriode)) {
             return false;
         }
-        BeregningsgrunnlagPeriode other = (BeregningsgrunnlagPeriode) obj;
+        var other = (BeregningsgrunnlagPeriode) obj;
         return Objects.equals(this.periode.getFomDato(), other.periode.getFomDato())
                 && Objects.equals(this.periode.getTomDato(), other.periode.getTomDato())
                 && Objects.equals(this.getBruttoPrÅr(), other.getBruttoPrÅr())
@@ -198,7 +198,7 @@ public class BeregningsgrunnlagPeriode {
         public Builder fjernBeregningsgrunnlagPrStatusOgAndelerSomIkkeLiggerIListeAvAndelsnr(List<Long> listeAvAndelsnr) {
             verifiserKanModifisere();
             List<BeregningsgrunnlagPrStatusOgAndel> andelerSomSkalFjernes = new ArrayList<>();
-            for (BeregningsgrunnlagPrStatusOgAndel andel : kladd.getBeregningsgrunnlagPrStatusOgAndelList()) {
+            for (var andel : kladd.getBeregningsgrunnlagPrStatusOgAndelList()) {
                 if (!listeAvAndelsnr.contains(andel.getAndelsnr()) && andel.getLagtTilAvSaksbehandler()) {
                     andelerSomSkalFjernes.add(andel);
                 }
@@ -246,7 +246,7 @@ public class BeregningsgrunnlagPeriode {
         public Builder leggTilPeriodeÅrsak(PeriodeÅrsak periodeÅrsak) {
             verifiserKanModifisere();
             if (!kladd.getPeriodeÅrsaker().contains(periodeÅrsak)) {
-                BeregningsgrunnlagPeriodeÅrsak.Builder bgPeriodeÅrsakBuilder = new BeregningsgrunnlagPeriodeÅrsak.Builder();
+                var bgPeriodeÅrsakBuilder = new BeregningsgrunnlagPeriodeÅrsak.Builder();
                 bgPeriodeÅrsakBuilder.medPeriodeÅrsak(periodeÅrsak);
                 bgPeriodeÅrsakBuilder.build(kladd);
             }

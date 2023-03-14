@@ -73,7 +73,7 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        TilretteleggingFOM that = (TilretteleggingFOM) o;
+        var that = (TilretteleggingFOM) o;
         return type == that.type && Objects.equals(fomDato, that.fomDato) && Objects.equals(stillingsprosent, that.stillingsprosent)
             && Objects.equals(overstyrtUtbetalingsgrad, that.overstyrtUtbetalingsgrad);
     }

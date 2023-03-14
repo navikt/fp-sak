@@ -27,9 +27,9 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
     }
 
     public static List<ArbeidsforholdValg> mapManglendeOpplysningerVurdering(ManglendeOpplysningerVurderingDto saksbehandlersVurdering, List<ArbeidsforholdMangel> arbeidsforholdMedMangler) {
-        Arbeidsgiver arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
+        var arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
 
-        InternArbeidsforholdRef referanse = finnReferanse(saksbehandlersVurdering);
+        var referanse = finnReferanse(saksbehandlersVurdering);
 
         // En avklaring kan gjelde flere mangler, dersom det er flere arbeidsforhold hos samme arbeidsgiver med samme mangel må samme valg gjelde for alle
         var manglerSomBlirAvklart = finnManglerSomBlirAvklart(arbeidsgiver, referanse, arbeidsforholdMedMangler,
@@ -79,7 +79,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
                                                                  List<ArbeidsforholdMangel> arbeidsforholdMedMangler,
                                                                  AksjonspunktÅrsak... gyldigeÅrsaker) {
         var årsaker = Arrays.asList(gyldigeÅrsaker);
-        long arbeidsforholdMedMangelSomMatcherAvklaring = arbeidsforholdMedMangler.stream()
+        var arbeidsforholdMedMangelSomMatcherAvklaring = arbeidsforholdMedMangler.stream()
             .filter(arbfor -> arbfor.arbeidsgiver().equals(arbeidsgiver) && referanse.gjelderFor(arbfor.ref()))
             .filter(arbfor -> årsaker.contains(arbfor.årsak()))
             .count();
@@ -94,7 +94,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
                                                                             List<ArbeidsforholdMangel> arbeidsforholdMedMangler,
                                                                             ArbeidsforholdInformasjonBuilder informasjonBuilder) {
         if (saksbehandlersVurdering.getVurdering().equals(ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING)) {
-            Arbeidsgiver arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
+            var arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
             validerAtArbeidsforholdErÅpentForEndring(arbeidsgiver, InternArbeidsforholdRef.nullRef(), arbeidsforholdMedMangler, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD);
             leggTilArbeidsforhold(saksbehandlersVurdering, informasjonBuilder);
         } else if (saksbehandlersVurdering.getVurdering().equals(ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER)) {
@@ -108,17 +108,17 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
     }
 
     private static void fjernOpprettetArbeidsforhold(String arbeidsgiversIdent, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
-        Arbeidsgiver arbeidsgiver = lagArbeidsgiver(arbeidsgiversIdent);
+        var arbeidsgiver = lagArbeidsgiver(arbeidsgiversIdent);
         informasjonBuilder.fjernOverstyringerSomGjelder(arbeidsgiver);
     }
 
     private static void leggTilArbeidsforhold(ManueltArbeidsforholdDto saksbehandlersVurdering, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
-        Arbeidsgiver arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
+        var arbeidsgiver = lagArbeidsgiver(saksbehandlersVurdering.getArbeidsgiverIdent());
         var ref = saksbehandlersVurdering.getInternArbeidsforholdRef() == null
                 ? InternArbeidsforholdRef.nullRef()
                 : InternArbeidsforholdRef.ref(saksbehandlersVurdering.getInternArbeidsforholdRef());
         informasjonBuilder.fjernOverstyringVedrørende(arbeidsgiver, ref);
-        ArbeidsforholdOverstyringBuilder builder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, InternArbeidsforholdRef.nullRef());
+        var builder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, InternArbeidsforholdRef.nullRef());
         builder.medArbeidsgiver(arbeidsgiver)
             .medArbeidsforholdRef(ref)
             .medHandling(mapTilHandling(saksbehandlersVurdering))

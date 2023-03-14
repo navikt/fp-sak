@@ -54,7 +54,7 @@ class KabalDokumenterTest {
         var behandlingId = 1234L;
         var journalpost = new JournalpostId("12345");
 
-        BehandlingDokumentEntitet behandlingDokument = opprettBehandlingDokumentEntitet(behandlingId, journalpost, DokumentMalType.KLAGE_OVERSENDT);
+        var behandlingDokument = opprettBehandlingDokumentEntitet(behandlingId, journalpost, DokumentMalType.KLAGE_OVERSENDT);
 
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokument));
 
@@ -70,7 +70,7 @@ class KabalDokumenterTest {
         var påKlagdBehandlingId = 4321L;
         var journalpost = new JournalpostId("23456");
 
-        BehandlingDokumentEntitet behandlingDokument = opprettBehandlingDokumentEntitet(påKlagdBehandlingId, journalpost,
+        var behandlingDokument = opprettBehandlingDokumentEntitet(påKlagdBehandlingId, journalpost,
             DokumentMalType.FORELDREPENGER_INNVILGELSE);
 
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
@@ -87,7 +87,7 @@ class KabalDokumenterTest {
         var behandlingId = 1234L;
         var journalpost = new JournalpostId("76543");
 
-        MottattDokument dokumentMottatt = opprettMottattDokument(DokumentTypeId.KLAGE_DOKUMENT, behandlingId, journalpost);
+        var dokumentMottatt = opprettMottattDokument(DokumentTypeId.KLAGE_DOKUMENT, behandlingId, journalpost);
 
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of(dokumentMottatt));
 
@@ -103,7 +103,7 @@ class KabalDokumenterTest {
         var påKlagdBehandling = 5432L;
         var journalpost = new JournalpostId("87654");
 
-        MottattDokument dokumentMottatt = opprettMottattDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, påKlagdBehandling, journalpost);
+        var dokumentMottatt = opprettMottattDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, påKlagdBehandling, journalpost);
 
         when(mottatteDokumentRepository.hentMottatteDokument(påKlagdBehandling)).thenReturn(List.of(dokumentMottatt));
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of());

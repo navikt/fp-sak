@@ -45,15 +45,15 @@ public class LdapBrukeroppslag {
         if (ident == null || ident.isEmpty()) {
             throw new TekniskException("F-344885", "Kan ikke slå opp brukernavn uten å ha ident");
         }
-        Matcher matcher = IDENT_PATTERN.matcher(ident);
+        var matcher = IDENT_PATTERN.matcher(ident);
         if (!matcher.matches()) {
             throw new TekniskException("F-271934", String.format("Mulig LDAP-injection forsøk. Søkte med ugyldig ident '%s'", ident));
         }
 
-        SearchControls controls = new SearchControls();
+        var controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         controls.setCountLimit(1);
-        String søkestreng = String.format("(cn=%s)", ident);
+        var søkestreng = String.format("(cn=%s)", ident);
         try {
             var result = context.search(searchBase, søkestreng, controls);
             if (result.hasMoreElements()) {
@@ -69,8 +69,8 @@ public class LdapBrukeroppslag {
     }
 
     protected String getDisplayName(SearchResult result) {
-        String attributeName = "displayName";
-        Attribute displayName = find(result, attributeName);
+        var attributeName = "displayName";
+        var displayName = find(result, attributeName);
         try {
             return displayName.get().toString();
         } catch (NamingException e) {
@@ -122,15 +122,15 @@ public class LdapBrukeroppslag {
      *         av
      */
     protected Collection<String> getMemberOf(SearchResult result) {
-        String attributeName = "memberOf";
+        var attributeName = "memberOf";
         List<String> groups = new ArrayList<>();
 
-        Attribute memberOf = find(result, attributeName);
+        var memberOf = find(result, attributeName);
         try {
-            NamingEnumeration<?> all = memberOf.getAll();
+            var all = memberOf.getAll();
             while (all.hasMoreElements()) {
-                Object group = all.nextElement();
-                String dnValue = group.toString();
+                var group = all.nextElement();
+                var dnValue = group.toString();
                 groups.add(dnValue);
             }
         } catch (NamingException e) {
@@ -140,7 +140,7 @@ public class LdapBrukeroppslag {
     }
 
     private static Attribute find(SearchResult element, String attributeName) {
-        Attribute attribute = element.getAttributes().get(attributeName);
+        var attribute = element.getAttributes().get(attributeName);
         if (attribute == null) {
             throw new IntegrasjonException("F-828846", String.format("Resultat fra LDAP manglet påkrevet attributtnavn %s", attributeName));
         }
@@ -148,7 +148,7 @@ public class LdapBrukeroppslag {
     }
 
     private static LdapName lagLdapSearchBase() {
-        String userBaseDn = LdapInnlogging.getRequiredProperty("ldap.user.basedn");
+        var userBaseDn = LdapInnlogging.getRequiredProperty("ldap.user.basedn");
         try {
             return new LdapName(userBaseDn);
         } catch (InvalidNameException e) {

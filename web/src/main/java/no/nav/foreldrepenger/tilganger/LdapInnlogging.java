@@ -21,16 +21,16 @@ public class LdapInnlogging {
     }
 
     public static LdapContext lagLdapContext() {
-        String authMode = ENV.getProperty("ldap.auth", "simple");
-        String url = getRequiredProperty("ldap.url");
+        var authMode = ENV.getProperty("ldap.auth", "simple");
+        var url = getRequiredProperty("ldap.url");
 
-        Hashtable<String, Object> environment = new Hashtable<>();  //metodeparameter krever Hashtable
+        var environment = new Hashtable<String, Object>();  //metodeparameter krever Hashtable
         environment.put(Context.INITIAL_CONTEXT_FACTORY, ENV.getProperty("ldap.ctxfactory", "com.sun.jndi.ldap.LdapCtxFactory"));
         environment.put(Context.PROVIDER_URL, url);
         environment.put(Context.SECURITY_AUTHENTICATION, authMode);
 
         if ("simple".equals(authMode)) {
-            String user = getRequiredProperty("ldap.username") + "@" + getRequiredProperty("ldap.domain");
+            var user = getRequiredProperty("ldap.username") + "@" + getRequiredProperty("ldap.domain");
             environment.put(Context.SECURITY_CREDENTIALS, getRequiredProperty("ldap.password"));
             environment.put(Context.SECURITY_PRINCIPAL, user);
         } else if ("none".equals(authMode)) {

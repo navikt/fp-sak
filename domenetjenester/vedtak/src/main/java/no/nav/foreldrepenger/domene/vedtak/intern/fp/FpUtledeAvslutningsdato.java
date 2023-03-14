@@ -68,10 +68,10 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
         if (behandling != null) {
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-            FamilieHendelser familieHendelser = fpGrunnlag.getFamilieHendelser();
+            var familieHendelser = fpGrunnlag.getFamilieHendelser();
 
             if (familieHendelser != null ) {
-                FamilieHendelse familieHendelse = familieHendelser.getGjeldendeFamilieHendelse();
+                var familieHendelse = familieHendelser.getGjeldendeFamilieHendelse();
                 var nesteSakGrunnlag = fpGrunnlag.getNesteSakGrunnlag().orElse(null);
                 var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
 

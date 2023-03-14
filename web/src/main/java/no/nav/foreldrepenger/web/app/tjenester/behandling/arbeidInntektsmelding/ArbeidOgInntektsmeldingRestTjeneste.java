@@ -97,7 +97,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public ArbeidOgInntektsmeldingDto getArbeidOgInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        BehandlingReferanse ref = lagReferanse(uuidDto.getBehandlingUuid());
+        var ref = lagReferanse(uuidDto.getBehandlingUuid());
         return arbeidOgInntektsmeldingDtoTjeneste.lagDto(ref).orElse(null);
     }
 
@@ -110,7 +110,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response lagreVurderingAvManglendeOpplysninger(@TilpassetAbacAttributt(supplierClass = ManglendeInntektsmeldingVurderingAbacDataSupplier.class)
                                                                    @NotNull @Parameter(description = "Vurdering av opplysning som mangler.") @Valid ManglendeOpplysningerVurderingDto manglendeOpplysningerVurderingDto) {
-        BehandlingReferanse ref = lagReferanse(manglendeOpplysningerVurderingDto.getBehandlingUuid());
+        var ref = lagReferanse(manglendeOpplysningerVurderingDto.getBehandlingUuid());
         arbeidsforholdInntektsmeldingMangelTjeneste.lagreManglendeOpplysningerVurdering(ref, manglendeOpplysningerVurderingDto);
         return Response.ok().build();
     }
@@ -122,7 +122,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response lagreManuelleArbeidsforhold(@TilpassetAbacAttributt(supplierClass = ManueltArbeidsforholdDtoAbacDataSupplier.class)
                                                  @NotNull @Parameter(description = "Registrering av arbeidsforhold.") @Valid ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
-        BehandlingReferanse ref = lagReferanse(manueltArbeidsforholdDto.getBehandlingUuid());
+        var ref = lagReferanse(manueltArbeidsforholdDto.getBehandlingUuid());
         if (endringGjelderHelmanueltArbeidsforhold(manueltArbeidsforholdDto) && !erOverstyringLovlig()) {
             var msg = String.format(
                     "Feil: Prøve å gjøre endringer på et helmanuelt arbeidsforhold uten å være overstyrer på behandling %s", ref.behandlingId());

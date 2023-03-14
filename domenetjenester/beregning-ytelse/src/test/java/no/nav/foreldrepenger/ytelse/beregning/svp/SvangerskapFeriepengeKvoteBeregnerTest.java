@@ -24,7 +24,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_beregne_maks_kvote_når_ingen_dager_brukt() {
         // Arrange
-        BeregningsresultatEntitet bgr = lagBgr();
+        var bgr = lagBgr();
         lagTYPeriode(dagerEtter(0), dagerEtter(64), bgr, true);
 
         // Act
@@ -38,8 +38,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_beregne_maks_kvote_når_tidligere_ty_ikke_har_feriepenger() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(64), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(30), tidligereYtelse, false);
@@ -55,8 +55,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_ikke_trekke_fra_kvoter_på_ytelse_som_starter_etter_den_som_nå_beregnes() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerEtter(50), dagerEtter(60), tidligereYtelse, true);
@@ -73,8 +73,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_trekke_fra_kvote_når_en_ytelse_er_tidligere_innvilget() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse, true); // 7 virkedager
@@ -91,9 +91,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_trekke_fra_kvote_når_to_ytelser_er_tidligere_innvilget() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse2 = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse1 = lagBgr();
+        var tidligereYtelse2 = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1, true); // 7 virkedager
@@ -112,10 +112,10 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_trekke_fra_kvote_når_tre_ytelser_er_tidligere_innvilget() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse2 = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse3 = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse1 = lagBgr();
+        var tidligereYtelse2 = lagBgr();
+        var tidligereYtelse3 = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1, true); // 7 virkedager
@@ -136,8 +136,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_ikke_beregne_når_det_ikke_er_grunnlag_for_feriepenger_på_ny_behandling() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse1 = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, false);
         lagTYPeriode(dagerFør(150), dagerFør(100), tidligereYtelse1, true);
@@ -153,10 +153,10 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_kun_trekke_fra_periode_før_ny_beregnet_ytelse() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse2 = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse3 = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse1 = lagBgr();
+        var tidligereYtelse2 = lagBgr();
+        var tidligereYtelse3 = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse1, true); // 7 virkedager
@@ -177,8 +177,8 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_trekke_fra_kvote_når_en_ytelse_er_tidligere_innvilget_delt_periode() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(50), dagerFør(40), tidligereYtelse, true); // 7 virkedager
@@ -200,9 +200,9 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
     @Test
     void skal_kaste_feil_om_feriekvote_overskrider_tillatt_sum_i_tidligere_behandlinger() {
         // Arrange
-        BeregningsresultatEntitet nyYtelse = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse1 = lagBgr();
-        BeregningsresultatEntitet tidligereYtelse2 = lagBgr();
+        var nyYtelse = lagBgr();
+        var tidligereYtelse1 = lagBgr();
+        var tidligereYtelse2 = lagBgr();
 
         lagTYPeriode(dagerEtter(0), dagerEtter(20), nyYtelse, true);
         lagTYPeriode(dagerFør(100), dagerFør(50), tidligereYtelse1, true); // 37 virkedager
@@ -214,7 +214,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         // Act
         Exception exception = assertThrows(IllegalStateException.class, () -> beregner.beregn(nyYtelse, Arrays.asList(tidligereYtelse1, tidligereYtelse2)));
 
-        String forventetFeilmelding = "Brukte feriedager overstiger kvote! Tidligere saker må revurderes først. Brukte feriedager var 68";
+        var forventetFeilmelding = "Brukte feriedager overstiger kvote! Tidligere saker må revurderes først. Brukte feriedager var 68";
 
         assertThat(exception.getMessage()).isEqualTo(forventetFeilmelding);
     }

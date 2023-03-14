@@ -1005,7 +1005,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         uttakResultatPerioder.leggTilPeriode(periode);
 
         for (var aktivitetTuple : aktiviteter) {
-            Trekkdager trekkdager = aktivitetTuple.trekkdagerOptional()
+            var trekkdager = aktivitetTuple.trekkdagerOptional()
                 .orElseGet(() -> new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(periode.getFom(), periode.getTom()),
                     false, BigDecimal.ZERO, null).decimalValue()));
 

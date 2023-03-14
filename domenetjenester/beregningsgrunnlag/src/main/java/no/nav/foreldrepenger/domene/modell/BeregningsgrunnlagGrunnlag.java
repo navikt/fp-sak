@@ -47,7 +47,7 @@ public class BeregningsgrunnlagGrunnlag {
     }
 
     public Optional<BeregningAktivitetAggregat> getOverstyrteEllerSaksbehandletAktiviteter() {
-        Optional<BeregningAktivitetAggregat> overstyrteAktiviteter = getOverstyrteAktiviteter();
+        var overstyrteAktiviteter = getOverstyrteAktiviteter();
         if (overstyrteAktiviteter.isPresent()) {
             return overstyrteAktiviteter;
         }
@@ -60,14 +60,14 @@ public class BeregningsgrunnlagGrunnlag {
 
     private Optional<BeregningAktivitetAggregat> getOverstyrteAktiviteter() {
         if (overstyringer != null) {
-            List<BeregningAktivitet> overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter()
+            var overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter()
                 .stream()
                 .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
                 .collect(Collectors.toList());
-            BeregningAktivitetAggregat.Builder overstyrtBuilder = BeregningAktivitetAggregat.builder()
+            var overstyrtBuilder = BeregningAktivitetAggregat.builder()
                 .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
             overstyrteAktiviteter.forEach(aktivitet -> {
-                BeregningAktivitet kopiert = BeregningAktivitet.builder(aktivitet).build();
+                var kopiert = BeregningAktivitet.builder(aktivitet).build();
                 overstyrtBuilder.leggTilAktivitet(kopiert);
             });
             return Optional.of(overstyrtBuilder.build());
@@ -84,7 +84,7 @@ public class BeregningsgrunnlagGrunnlag {
     }
 
     public BeregningAktivitetAggregat getOverstyrteEllerRegisterAktiviteter() {
-        Optional<BeregningAktivitetAggregat> overstyrteAktiviteter = getOverstyrteAktiviteter();
+        var overstyrteAktiviteter = getOverstyrteAktiviteter();
         if (overstyrteAktiviteter.isPresent()) {
             return overstyrteAktiviteter.get();
         }

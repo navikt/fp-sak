@@ -35,7 +35,7 @@ public class FellesJmsKonfig {
     }
 
     private static MQConnectionFactory createConnectionFactory(String hostName, Integer port, String channel, String queueManagerName) throws JMSException {
-        MQConnectionFactory connectionFactory = new MQConnectionFactory();
+        var connectionFactory = new MQConnectionFactory();
         connectionFactory.setHostName(hostName);
         connectionFactory.setPort(port);
         if (channel != null) {

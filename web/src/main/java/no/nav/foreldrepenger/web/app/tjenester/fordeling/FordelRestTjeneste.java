@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -256,7 +255,7 @@ public class FordelRestTjeneste {
         }
         List<SakInfoDto> saksinfoDtoer = new ArrayList<>();
         var fagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId())).stream().toList();
-        for (Fagsak fagsak : fagsaker) {
+        for (var fagsak : fagsaker) {
             saksinfoDtoer.add(sakInfoDtoTjeneste.mapSakInfoDto(fagsak));
         }
         return saksinfoDtoer;

@@ -52,19 +52,19 @@ public class FrilansAvvikLoggTjeneste {
 
     public void loggFrilansavvikVedBehov(BehandlingReferanse ref) {
         var gr = beregningTjeneste.hent(ref.behandlingId());
-        Optional<LocalDate> stpBGOpt = gr.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).map(Beregningsgrunnlag::getSkjæringstidspunkt);
+        var stpBGOpt = gr.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).map(Beregningsgrunnlag::getSkjæringstidspunkt);
 
         if (stpBGOpt.isEmpty()) {
             return;
         }
-        LocalDate stpBG = stpBGOpt.get();
+        var stpBG = stpBGOpt.get();
 
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
-        Optional<OppgittFrilans> relevantOppgittFrilans = finnOppgittFrilansFraSøknad(iayGrunnlag);
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
+        var relevantOppgittFrilans = finnOppgittFrilansFraSøknad(iayGrunnlag);
 
-        List<Yrkesaktivitet> frilansPåSTP = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.aktørId());
-        List<Arbeidsgiver> arbeidsgivereMedInntektFørSTP = finnArbeidsgivereMedInntekterSiste3Mnd(stpBG, iayGrunnlag, ref.aktørId());
-        List<Yrkesaktivitet> frilansaktiviteterPåSTPMedInntektSiste3Mnd = frilansPåSTP.stream()
+        var frilansPåSTP = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.aktørId());
+        var arbeidsgivereMedInntektFørSTP = finnArbeidsgivereMedInntekterSiste3Mnd(stpBG, iayGrunnlag, ref.aktørId());
+        var frilansaktiviteterPåSTPMedInntektSiste3Mnd = frilansPåSTP.stream()
             .filter(ya -> arbeidsgivereMedInntektFørSTP.contains(ya.getArbeidsgiver()))
             .collect(Collectors.toList());
 
@@ -80,7 +80,7 @@ public class FrilansAvvikLoggTjeneste {
 
             // Ingen aktiv inntekt på stp, logg alder på frilansforholdene som er åpne på stp
             frilansPåSTP.forEach(fl -> {
-                Optional<LocalDate> startdato = finnStartdato(fl, stpBG);
+                var startdato = finnStartdato(fl, stpBG);
                 startdato.ifPresent(dato -> {
                     LOG.info("FP-654897: Saksnr {}. Oppgitt frilans i søknad uten inntekt siste periode før stp. " +
                             "Åpent frilansforhold hos {} som er {} måneder gammelt (startet {})",
@@ -106,10 +106,10 @@ public class FrilansAvvikLoggTjeneste {
     private List<Arbeidsgiver> finnArbeidsgivereMedInntekterSiste3Mnd(LocalDate stpBG,
                                                                       InntektArbeidYtelseGrunnlag grunnlag,
                                                                       AktørId aktørId) {
-        LocalDate datoViSjekkerInntektFra = LocalDate.now().isBefore(stpBG.minusWeeks(2))
+        var datoViSjekkerInntektFra = LocalDate.now().isBefore(stpBG.minusWeeks(2))
             ? stpBG.minusMonths(4).withDayOfMonth(1)
             : stpBG.minusMonths(3).withDayOfMonth(1);
-        InntektFilter inntektfilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId));
+        var inntektfilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId));
         return inntektfilter.getAlleInntekter(InntektsKilde.INNTEKT_BEREGNING).stream()
             .filter(innt -> innt.getArbeidsgiver() != null)
             .filter(innt -> finnesInntektEtterDato(innt.getAlleInntektsposter(), datoViSjekkerInntektFra))
@@ -128,7 +128,7 @@ public class FrilansAvvikLoggTjeneste {
     private List<Yrkesaktivitet> finnFrilansIRegisterSomKrysserSTP(LocalDate stpBG,
                                                                    InntektArbeidYtelseGrunnlag grunnlag,
                                                                    AktørId aktørId) {
-        YrkesaktivitetFilter filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
             grunnlag.getAktørArbeidFraRegister(aktørId)).før(stpBG);
         return filter.getFrilansOppdrag().stream()
             .filter(ya -> erAnsattPåDato(ya.getAlleAktivitetsAvtaler(), stpBG))

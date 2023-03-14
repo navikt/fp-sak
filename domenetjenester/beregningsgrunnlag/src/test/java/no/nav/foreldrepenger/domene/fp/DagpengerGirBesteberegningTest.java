@@ -172,7 +172,7 @@ class DagpengerGirBesteberegningTest {
     @Test
     void åpent_sykepengevedtak_skal_ikke_gi_besteberegning() {
         // Act
-        LocalDate localDate = VirkedagUtil.tomVirkedag(LocalDate.of(2021, 6, 7));
+        var localDate = VirkedagUtil.tomVirkedag(LocalDate.of(2021, 6, 7));
         var mandagSTP = STP.minusDays(1);
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.ÅPEN);

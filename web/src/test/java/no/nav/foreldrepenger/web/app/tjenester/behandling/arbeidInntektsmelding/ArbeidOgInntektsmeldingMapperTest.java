@@ -154,9 +154,9 @@ class ArbeidOgInntektsmeldingMapperTest {
             ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
 
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
-        LocalDate stp = LocalDate.now().minusDays(3);
-        List<ArbeidsforholdMangel> mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING), new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
+        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+        var stp = LocalDate.now().minusDays(3);
+        var mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING), new ArbeidsforholdMangel(arbeidsgiver, arbeidsforholdId, AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler, Collections.emptyList(), Collections.emptyList()).orElse(null);
@@ -195,7 +195,7 @@ class ArbeidOgInntektsmeldingMapperTest {
         var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
 
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT, yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
@@ -227,7 +227,7 @@ class ArbeidOgInntektsmeldingMapperTest {
         var arbeidsgiver = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
 
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT, yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).orElse(null);
@@ -252,9 +252,9 @@ class ArbeidOgInntektsmeldingMapperTest {
             ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null).build();
 
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
-        LocalDate stp = LocalDate.now().minusDays(3);
-        List<ArbeidsforholdMangel> mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, internArbeidsforholdRef, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING),
+        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
+        var stp = LocalDate.now().minusDays(3);
+        var mangler = List.of(new ArbeidsforholdMangel(arbeidsgiver, internArbeidsforholdRef, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING),
             new ArbeidsforholdMangel(arbeidsgiver, internArbeidsforholdRef, AksjonspunktÅrsak.PERMISJON_UTEN_SLUTTDATO));
 
         var overstyring = List.of(ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
@@ -287,8 +287,8 @@ class ArbeidOgInntektsmeldingMapperTest {
             ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, LocalDate.now().plusMonths(8)).build();
 
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
-        LocalDate stp = LocalDate.now().minusDays(3);
+        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, internArbeidsforholdRef, arbeidsforholdReferanse));
+        var stp = LocalDate.now().minusDays(3);
 
 
         //Act
@@ -306,7 +306,7 @@ class ArbeidOgInntektsmeldingMapperTest {
     }
 
     private Inntekt lagInntekter(YearMonth fom, YearMonth tom, String orgnr) {
-        YearMonth counter = fom;
+        var counter = fom;
 
         var builder = InntektBuilder.oppdatere(Optional.empty())
             .medInntektsKilde(InntektsKilde.INNTEKT_BEREGNING)

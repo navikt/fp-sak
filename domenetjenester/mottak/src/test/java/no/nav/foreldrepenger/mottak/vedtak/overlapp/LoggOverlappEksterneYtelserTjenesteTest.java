@@ -77,7 +77,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     public void oppsett() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         overlappRepository = new OverlappVedtakRepository(getEntityManager());
-        BehandlingRepository behandlingRepository = new BehandlingRepository(getEntityManager());
+        var behandlingRepository = new BehandlingRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(null,
             beregningsresultatRepository, personinfoAdapter, infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock,

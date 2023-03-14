@@ -119,9 +119,9 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
-        Optional<BeregningsgrunnlagGrunnlag> bgGrunnlag = beregningTjeneste.hent(behandlingReferanse.behandlingId());
-        boolean harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getRegisterAktiviteter));
-        boolean harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getGjeldendeAktiviteter));
+        var bgGrunnlag = beregningTjeneste.hent(behandlingReferanse.behandlingId());
+        var harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getRegisterAktiviteter));
+        var harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlag::getGjeldendeAktiviteter));
         return harDPFraRegister && !harDPIGjeldendeAggregat;
     }
 
@@ -133,15 +133,15 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean beregningsgrunnlagErOverstyrt(BehandlingReferanse behandlingReferanse) {
-        Optional<Beregningsgrunnlag> bg = beregningTjeneste.hent(behandlingReferanse.behandlingId()).flatMap(
+        var bg = beregningTjeneste.hent(behandlingReferanse.behandlingId()).flatMap(
             BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         return bg.map(Beregningsgrunnlag::isOverstyrt).orElse(false);
     }
 
     public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
-        YtelseFilter ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
-        Optional<DatoIntervallEntitet> periodeYtelserKanVæreRelevantForBB = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet()
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
+        var ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
+        var periodeYtelserKanVæreRelevantForBB = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet()
             .map(stp -> DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(12), stp));
         if (periodeYtelserKanVæreRelevantForBB.isEmpty()) {
             return Collections.emptyList();
@@ -149,7 +149,7 @@ public class BesteberegningFødendeKvinneTjeneste {
         List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
         BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter)
             .ifPresent(grunnlag::add);
-        List<Saksnummer> saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
+        var saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
         grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
         return grunnlag;
     }
@@ -157,7 +157,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     private List<Ytelsegrunnlag> hentOgMapFpsakYtelser(List<Saksnummer> saksnummer) {
         List<Ytelsegrunnlag> resultater = new ArrayList<>();
         saksnummer.forEach(sak -> {
-            Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(sak);
+            var fagsak = fagsakRepository.hentSakGittSaksnummer(sak);
             fagsak.flatMap(fag -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fag.getId()))
                 .flatMap(beh -> beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId()))
                 .flatMap(br -> BesteberegningYtelsegrunnlagMapper.mapFpsakYtelseTilYtelsegrunnlag(br, fagsak.get().getYtelseType()))
@@ -173,7 +173,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean harAktiviteterSomErGodkjentForAutomatiskBeregning(BehandlingReferanse ref) {
-        InntektArbeidYtelseGrunnlag iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
+        var iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
         var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iay);
         var opptjeningAktiviteter = opptjening.map(OpptjeningAktiviteter::getOpptjeningPerioder).orElse(Collections.emptyList());
         return opptjeningAktiviteter.stream().allMatch(a -> GODKJENT_FOR_AUTOMATISK_BEREGNING.contains(a.opptjeningAktivitetType()));

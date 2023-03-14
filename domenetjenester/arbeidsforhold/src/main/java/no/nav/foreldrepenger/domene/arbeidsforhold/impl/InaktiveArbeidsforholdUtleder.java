@@ -45,7 +45,7 @@ public class InaktiveArbeidsforholdUtleder {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
 
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            boolean erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt(), referanse.saksnummer());
+            var erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), referanse.getUtledetSkjæringstidspunkt(), referanse.saksnummer());
             if (!erInaktivt) {
                 List<InternArbeidsforholdRef> aktiveArbeidsforholdsRef = new ArrayList<>();
                 //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
@@ -107,7 +107,7 @@ public class InaktiveArbeidsforholdUtleder {
                                                         LocalDate stp,
                                                         Saksnummer saksnummer) {
         var periodeViDefinererSomAkivt = DatoIntervallEntitet.fraOgMedTilOgMed(stp.minusMonths(AKTIVE_MÅNEDER_FØR_STP), stp);
-        Collection<Ytelse> ytelser = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(søkerAktørId)
+        var ytelser = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(søkerAktørId)
             .map(AktørYtelse::getAlleYtelser)
             .orElse(Collections.emptyList());
         return ytelser.stream()
@@ -142,7 +142,7 @@ public class InaktiveArbeidsforholdUtleder {
     }
 
     private static boolean erEldreEnnGrense(Yrkesaktivitet arb, LocalDate stp) {
-        LocalDate fomDefinertSomNyoppstartet = stp.minusMonths(NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND);
+        var fomDefinertSomNyoppstartet = stp.minusMonths(NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND);
         return arb.getAlleAktivitetsAvtaler().stream()
             .filter(AktivitetsAvtale::erAnsettelsesPeriode)
             .anyMatch(aa -> aa.getPeriode().getFomDato().isBefore(fomDefinertSomNyoppstartet));

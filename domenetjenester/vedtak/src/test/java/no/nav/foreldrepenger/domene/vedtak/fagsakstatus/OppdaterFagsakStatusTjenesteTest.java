@@ -59,7 +59,7 @@ class OppdaterFagsakStatusTjenesteTest {
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().minusDays(1));
         behandling = scenario.lagMocked();
 
-        BehandlingRepositoryProvider behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
         behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
 
         oppdaterFagsakStatusTjeneste = new OppdaterFagsakStatusTjeneste(behandlingRepositoryProvider.getFagsakRepository(), fagsakStatusEventPubliserer, behandlingsresultatRepository, behandlingRepository, fagsakRelasjonRepository);
@@ -102,7 +102,7 @@ class OppdaterFagsakStatusTjenesteTest {
 
     @Test
     void ikke_avslutt_fasakstatus_når_harYtelse_og_avslutningsdato() {
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatInnvilget));
@@ -116,7 +116,7 @@ class OppdaterFagsakStatusTjenesteTest {
 
     @Test
     void avslutt_fasakstatus_når_harYtelse_og_ingen_avslutningsdato() {
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatInnvilget));
@@ -129,7 +129,7 @@ class OppdaterFagsakStatusTjenesteTest {
 
     @Test
     void avslutt_fasakstatus_når_harYtelse_og_avslått() {
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatAvslått));
@@ -141,7 +141,7 @@ class OppdaterFagsakStatusTjenesteTest {
 
     @Test
     void ikke_avslutt_sak_når_enkeltopphør_og_ikke_er_koblet_til_annen_part() {
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
 
         Mockito.when(behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsakId)).thenReturn(Collections.emptyList());
         Mockito.when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())).thenReturn(Optional.of(behandlingsresultatOpphørt));

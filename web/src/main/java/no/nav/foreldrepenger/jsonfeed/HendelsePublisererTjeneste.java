@@ -170,15 +170,15 @@ public class HendelsePublisererTjeneste {
     }
 
     private Optional<LocalDateInterval> finnPeriode(Long behandlingId) {
-        LocalDateTimeline<Boolean> tilkjentYtelseTidslinje = finnTilkjentYtelseTidlinje(behandlingId);
+        var tilkjentYtelseTidslinje = finnTilkjentYtelseTidlinje(behandlingId);
         if (tilkjentYtelseTidslinje.isEmpty()) {
             return Optional.empty();
         }
-        LocalDate førsteUtbetDato = VirkedagUtil.fomVirkedag(tilkjentYtelseTidslinje.getMinLocalDate());
-        LocalDate sisteUtbetDato = VirkedagUtil.tomVirkedag(tilkjentYtelseTidslinje.getMaxLocalDate());
+        var førsteUtbetDato = VirkedagUtil.fomVirkedag(tilkjentYtelseTidslinje.getMinLocalDate());
+        var sisteUtbetDato = VirkedagUtil.tomVirkedag(tilkjentYtelseTidslinje.getMaxLocalDate());
 
         //bruken av VikedagUtil vil gjøre at hvis hele tidslinjen består av kun en helg, blir førsteUtbetDato etter sisteUtbetDato
-        boolean bareTilkjentYtelseIHelg = førsteUtbetDato.isAfter(sisteUtbetDato);
+        var bareTilkjentYtelseIHelg = førsteUtbetDato.isAfter(sisteUtbetDato);
         if (bareTilkjentYtelseIHelg) {
             return Optional.empty();
         }
@@ -226,8 +226,8 @@ public class HendelsePublisererTjeneste {
     private LocalDateTimeline<Boolean> finnTilkjentYtelseTidlinje(Long behandlingId) {
         var brResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
 
-        List<BeregningsresultatPeriode> brPerioder = brResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList());
-        List<LocalDateSegment<Boolean>> segmenterFinnesYtelse = brPerioder.stream()
+        var brPerioder = brResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList());
+        var segmenterFinnesYtelse = brPerioder.stream()
             .filter(brPeriode -> brPeriode.getDagsats() > 0)
             .map(brPeriode -> new LocalDateSegment<>(brPeriode.getBeregningsresultatPeriodeFom(), brPeriode.getBeregningsresultatPeriodeTom(), true))
             .sorted()

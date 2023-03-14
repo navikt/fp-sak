@@ -145,7 +145,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             && uttakresultatRevurderingOpt.kontrollerErSisteUttakAvslåttMedÅrsak()) {
             // Endret ifm TFP-5356 la bruker søke på restdager av minsterett også etter ny stønadsperiode
             // Aktuell kode for TFP-5360 - håndtering av søknad som gir både innvilget og avslått/opphør-perioder
-            boolean opphør = !uttakresultatOriginalOpt.harOpphørsUttakNyeInnvilgetePerioder(uttakresultatRevurderingOpt) || !totette(revurdering);
+            var opphør = !uttakresultatOriginalOpt.harOpphørsUttakNyeInnvilgetePerioder(uttakresultatRevurderingOpt) || !totette(revurdering);
             if (opphør) {
                 return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultatRevurdering.orElse(null), Vedtaksbrev.AUTOMATISK);
             }

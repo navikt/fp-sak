@@ -46,8 +46,8 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
     public void opprettHistorikkinnslag(BehandlingReferanse behandlingReferanse,
                                         ManglendeOpplysningerVurderingDto vurderingFraSaksbehandler,
                                         InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        Arbeidsgiver ag = lagArbeidsgiver(vurderingFraSaksbehandler.getArbeidsgiverIdent());
-        InternArbeidsforholdRef internRef = lagInternRef(vurderingFraSaksbehandler.getInternArbeidsforholdRef());
+        var ag = lagArbeidsgiver(vurderingFraSaksbehandler.getArbeidsgiverIdent());
+        var internRef = lagInternRef(vurderingFraSaksbehandler.getInternArbeidsforholdRef());
         var eksternRef = finnEksternRef(internRef, ag, iayGrunnlag);
         var opplysninger = arbeidsgiverTjeneste.hent(ag);
         var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, eksternRef);

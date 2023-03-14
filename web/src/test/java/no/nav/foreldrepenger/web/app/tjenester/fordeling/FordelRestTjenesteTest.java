@@ -77,7 +77,7 @@ class FordelRestTjenesteTest {
     @BeforeEach
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        FagsakTjeneste fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
+        var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakOrchestratorMock, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
     }
 
@@ -149,11 +149,11 @@ class FordelRestTjenesteTest {
         var førsteuttaksdato = LocalDate.now().minusMonths(6);
 
 
-        Fagsak fagsak1 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr1);
+        var fagsak1 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr1);
         fagsak1.setOpprettetTidspunkt(opprettetTidSak1);
         fagsak1.setId(125L);
 
-        Fagsak fagsak2 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr2);
+        var fagsak2 = Fagsak.opprettNy(foreldrepenger, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr2);
         fagsak2.setOpprettetTidspunkt(opprettetTidSak2);
         fagsak2.setEndretTidspunkt(opprettetTidSak2);
         fagsak2.setId(126L);
@@ -184,8 +184,8 @@ class FordelRestTjenesteTest {
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
         var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBruker(aktørIdDto));
 
-        String expectedMessage = "Oppgitt aktørId er ikke en gyldig ident.";
-        String actualMessage = exception.getMessage();
+        var expectedMessage = "Oppgitt aktørId er ikke en gyldig ident.";
+        var actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
     }

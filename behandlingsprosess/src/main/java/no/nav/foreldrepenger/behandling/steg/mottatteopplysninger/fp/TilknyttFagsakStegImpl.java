@@ -77,7 +77,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         // Vurder automatisk merking av opptjening utland
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 
-        boolean undersøkeEØS = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && harOppgittUtland(kontekst);
+        var undersøkeEØS = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && harOppgittUtland(kontekst);
 
         registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, undersøkeEØS);
 

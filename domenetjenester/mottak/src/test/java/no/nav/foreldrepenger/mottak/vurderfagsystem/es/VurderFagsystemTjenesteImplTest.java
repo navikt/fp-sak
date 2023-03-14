@@ -270,7 +270,7 @@ class VurderFagsystemTjenesteImplTest {
         when(behandlingVedtakRepositoryMock.hentForBehandling(any())).thenReturn(vedtak);
 
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.empty());
-        List<Fagsak> saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
+        var saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
 
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
@@ -296,7 +296,7 @@ class VurderFagsystemTjenesteImplTest {
         when(behandlingVedtakRepositoryMock.hentForBehandling(any())).thenReturn(vedtak);
 
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.empty());
-        List<Fagsak> saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
+        var saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
 
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
@@ -318,7 +318,7 @@ class VurderFagsystemTjenesteImplTest {
         when(behandlingVedtakRepositoryMock.hentForBehandling(any())).thenReturn(vedtak);
 
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.empty());
-        List<Fagsak> saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
+        var saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
 
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));

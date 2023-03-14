@@ -111,7 +111,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
             return lagInputFortsettForeslå(stegProsesseringInput);
         }
         if (stegType.equals(BehandlingStegType.VURDER_VILKAR_BERGRUNN)) {
-            Optional<BeregningsgrunnlagGrunnlagEntitet> førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
+            var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(behandling.getId());
             return lagInputVurderVilkår(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
         }
         if (stegType.equals(BehandlingStegType.VURDER_REF_BERGRUNN)) {

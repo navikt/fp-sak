@@ -37,7 +37,7 @@ public class Sammenligningsgrunnlag {
         } else if (!(obj instanceof Sammenligningsgrunnlag)) {
             return false;
         }
-        Sammenligningsgrunnlag other = (Sammenligningsgrunnlag) obj;
+        var other = (Sammenligningsgrunnlag) obj;
         return Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
                 && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom())
                 && Objects.equals(this.getRapportertPrÅr(), other.getRapportertPrÅr());

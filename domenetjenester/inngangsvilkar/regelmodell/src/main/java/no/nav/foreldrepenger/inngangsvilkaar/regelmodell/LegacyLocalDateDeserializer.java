@@ -16,9 +16,9 @@ public class LegacyLocalDateDeserializer extends JsonDeserializer<LocalDate> {
     public LocalDate deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
         JsonNode node = parser.getCodec().readTree(parser);
         try {
-            int year = node.get("year").intValue();
+            var year = node.get("year").intValue();
             var month = Month.valueOf(node.get("month").asText());
-            int day = node.get("dayOfMonth").intValue();
+            var day = node.get("dayOfMonth").intValue();
             return LocalDate.of(year, month, day);
         } catch (Exception e) {
             throw JsonMappingException.from(parser, node.toString(), e);

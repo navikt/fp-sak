@@ -78,7 +78,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         }
 
         var behandling = sisteYtelsesbehandling.get();
-        boolean sisteYtelseErFerdigbehandlet = behandling.erSaksbehandlingAvsluttet();
+        var sisteYtelseErFerdigbehandlet = behandling.erSaksbehandlingAvsluttet();
         LOG.info("DYD mottatt dokument {} for fagsak {} sistebehandling {} ferdig {}", mottattDokument.getId(), fagsak.getId(),
             behandling.getId(), behandling.getStatus().getKode());
         if (sisteYtelseErFerdigbehandlet) {

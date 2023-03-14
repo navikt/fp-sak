@@ -164,7 +164,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
-        Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = Map.of(
+        var vilkårTypeSkjermlenkeTypeMap = Map.of(
             VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
             VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
@@ -261,7 +261,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
-        Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = Map.of(
+        var vilkårTypeSkjermlenkeTypeMap = Map.of(
             VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.UDEFINERT,
             VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.UDEFINERT,
             VilkårType.SØKNADSFRISTVILKÅRET, SkjermlenkeType.UDEFINERT,

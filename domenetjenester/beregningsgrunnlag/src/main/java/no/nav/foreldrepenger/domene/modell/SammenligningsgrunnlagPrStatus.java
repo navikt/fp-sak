@@ -48,7 +48,7 @@ public class SammenligningsgrunnlagPrStatus {
         } else if (!(obj instanceof SammenligningsgrunnlagPrStatus)) {
             return false;
         }
-        SammenligningsgrunnlagPrStatus other = (SammenligningsgrunnlagPrStatus) obj;
+        var other = (SammenligningsgrunnlagPrStatus) obj;
         return Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag())
                 && Objects.equals(this.getSammenligningsgrunnlagType(), other.getSammenligningsgrunnlagType())
                 && Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
