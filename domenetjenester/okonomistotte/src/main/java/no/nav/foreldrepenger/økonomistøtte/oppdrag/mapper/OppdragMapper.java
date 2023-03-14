@@ -75,7 +75,7 @@ public class OppdragMapper {
             var refusjonsinfoBuilder = byggRefusjonsinfoBuilderFor(oppdrag, kjedeNøkkel, input.getVedtaksdato());
             for (var oppdragLinje : entry.getValue().getOppdragslinjer()) {
                 var oppdragslinje150 = mapTilOppdragslinje150(oppdrag110, kjedeNøkkel, oppdragLinje, input.getVedtaksdato());
-                refusjonsinfoBuilder.map(o156Builder -> o156Builder.medOppdragslinje150(oppdragslinje150).build());
+                refusjonsinfoBuilder.ifPresent(o156Builder -> o156Builder.medOppdragslinje150(oppdragslinje150).build());
             }
         }
     }
