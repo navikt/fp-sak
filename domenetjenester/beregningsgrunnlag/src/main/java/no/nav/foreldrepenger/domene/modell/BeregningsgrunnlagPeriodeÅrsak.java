@@ -36,7 +36,7 @@ public class BeregningsgrunnlagPeriodeÅrsak {
         } else if (!(obj instanceof BeregningsgrunnlagPeriodeÅrsak)) {
             return false;
         }
-        BeregningsgrunnlagPeriodeÅrsak other = (BeregningsgrunnlagPeriodeÅrsak) obj;
+        var other = (BeregningsgrunnlagPeriodeÅrsak) obj;
         return Objects.equals(this.getBeregningsgrunnlagPeriode(), other.getBeregningsgrunnlagPeriode())
                 && Objects.equals(this.getPeriodeÅrsak(), other.getPeriodeÅrsak());
     }

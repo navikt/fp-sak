@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 class BeregningAksjonspunktResultatMapper {
 
     static AksjonspunktResultat map(BeregningAvklaringsbehovResultat beregningResultat) {
-        AksjonspunktDefinisjon apDef = mapTilAksjonspunkt(beregningResultat);
+        var apDef = mapTilAksjonspunkt(beregningResultat);
         if (beregningResultat.harFrist()) {
             return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, mapTilVenteårsak(beregningResultat),
                     beregningResultat.getVentefrist());

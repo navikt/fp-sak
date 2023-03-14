@@ -66,7 +66,7 @@ public class FpOppdragRestKlient {
     }
 
     private static void handleResponse(HttpResponse<String> response) {
-        int status = response.statusCode();
+        var status = response.statusCode();
         if (status >= HTTP_OK && status < HTTP_MULT_CHOICE) {
             return;
         }

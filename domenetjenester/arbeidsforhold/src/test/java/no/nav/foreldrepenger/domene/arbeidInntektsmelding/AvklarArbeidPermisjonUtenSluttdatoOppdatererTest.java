@@ -89,7 +89,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
 
         avklarArbeidPermisjonUtenSluttdatoOppdaterer = new AvklarArbeidPermisjonUtenSluttdatoOppdaterer(arbeidsforholdAdministrasjonTjeneste, arbeidsforholdHistorikkTjeneste, iayTjeneste);
 
-        IAYScenarioBuilder iayScenarioBuilder = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var iayScenarioBuilder = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
         behandling = iayScenarioBuilder.lagre(provider);
     }
 

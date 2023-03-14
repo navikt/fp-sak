@@ -56,7 +56,7 @@ class RestApiAbacTest {
         var feilmeldinger = new StringBuilder();
 
         for (var restMethode : RestApiTester.finnAlleRestMetoder()) {
-            int i = 0;
+            var i = 0;
             for (var parameter : restMethode.getParameters()) {
                 var parameterType = parameter.getType();
                 var parameterAnnotations = restMethode.getParameterAnnotations();

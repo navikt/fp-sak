@@ -31,7 +31,7 @@ public class VentPåSykemelding {
     public static Optional<LocalDate> utledVenteFrist(YtelseFilter filter,
                                                       LocalDate skjæringstidspunkt,
                                                       LocalDate dagensDato) {
-        Collection<Ytelse> alleSykepengerBasertPåDagpenger = filter.før(skjæringstidspunkt)
+        var alleSykepengerBasertPåDagpenger = filter.før(skjæringstidspunkt)
             .filter(y -> RelatertYtelseType.SYKEPENGER.equals(y.getRelatertYtelseType()))
             .filter(yt -> erBasertPåDagpenger(yt.getYtelseGrunnlag()))
             .getFiltrertYtelser();

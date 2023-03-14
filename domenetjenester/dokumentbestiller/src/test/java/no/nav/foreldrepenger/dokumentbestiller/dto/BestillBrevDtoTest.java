@@ -22,7 +22,7 @@ class BestillBrevDtoTest {
 
         var brev = new BestillBrevDto(behandlingId, UUID.fromString(uuid), dokumentMal, null, arsak);
 
-        String json = DefaultJsonMapper.toJson(brev);
+        var json = DefaultJsonMapper.toJson(brev);
 
         var etterRoundtrip = DefaultJsonMapper.fromJson(json, BestillBrevDto.class);
 

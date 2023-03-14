@@ -30,7 +30,7 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
     }
 
     public boolean utledAksjonspunktFor(UttakInput input) {
-        List<DokumentasjonVurderingBehov> dokumentasjonVurderingBehov = utledDokumentasjonVurderingBehov(input);
+        var dokumentasjonVurderingBehov = utledDokumentasjonVurderingBehov(input);
         return dokumentasjonVurderingBehov.stream().anyMatch(periodeBehov -> periodeBehov.måVurderes());
     }
 

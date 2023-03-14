@@ -93,9 +93,9 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
+        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
             LocalDate.now().minusYears(15));
-        PersonopplysningerAggregat personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
         when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
@@ -115,9 +115,9 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
+        var personopplysningGrunnlagEntitet = opprettPersonopplysningGrunnlag(behandling.getAktørId(),
             LocalDate.now().minusYears(15));
-        PersonopplysningerAggregat personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagEntitet, behandling.getAktørId(), LocalDate.now(), LocalDate.now());
         lenient().when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(personopplysningerAggregat));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
 

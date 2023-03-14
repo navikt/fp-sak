@@ -60,7 +60,7 @@ class SakInfoDtoTjenesteTest {
         var førsteuttaksdato = LocalDate.now().minusMonths(6);
 
 
-        Fagsak fagsak= Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        var fagsak= Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak.setOpprettetTidspunkt(opprettetTidSak1);
         fagsak.setId(125L);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -92,7 +92,7 @@ class SakInfoDtoTjenesteTest {
         var førsteuttaksdato = LocalDate.now().minusMonths(6);
 
 
-        Fagsak fagsak= Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        var fagsak= Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak.setOpprettetTidspunkt(opprettetTidSak1);
         fagsak.setId(125L);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -125,7 +125,7 @@ class SakInfoDtoTjenesteTest {
         var opprettetTid = LocalDateTime.now().minusMonths(16);
 
 
-        Fagsak fagsak= Fagsak.opprettNy(ytelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        var fagsak= Fagsak.opprettNy(ytelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak.setOpprettetTidspunkt(opprettetTid);
         fagsak.setId(125L);
 

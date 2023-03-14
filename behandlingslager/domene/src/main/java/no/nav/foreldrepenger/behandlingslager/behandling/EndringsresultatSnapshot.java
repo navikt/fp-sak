@@ -115,7 +115,7 @@ public class EndringsresultatSnapshot {
         if (this == o) return true;
         if (o == null || !(o instanceof EndringsresultatSnapshot)) return false;
 
-        EndringsresultatSnapshot that = (EndringsresultatSnapshot) o;
+        var that = (EndringsresultatSnapshot) o;
 
         return Objects.equals(getGrunnlagRef(), that.getGrunnlagRef()) &&
             Objects.equals(grunnlagKlasse, that.grunnlagKlasse);

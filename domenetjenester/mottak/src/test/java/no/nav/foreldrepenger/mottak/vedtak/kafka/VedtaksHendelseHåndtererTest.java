@@ -200,12 +200,12 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     void overlappOpplæringspengerSVP() {
-        Behandling svp = leggPerioderPå(
+        var svp = leggPerioderPå(
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
             periodeMedGrad("2020-05-01", "2020-05-25", 100));
 
-        YtelseV1 ytelseV1 = lagVedtakForPeriode(
+        var ytelseV1 = lagVedtakForPeriode(
             YtelseType.OPPLÆRINGSPENGER, aktørFra(svp),
             periode("2020-04-01", "2020-05-04"),
             periodeMedGrad("2020-04-01", "2020-04-30", 100),
@@ -219,7 +219,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
         // given
-        Behandling fpBehandling = leggPerioderPå(lagBehandlingFP(),
+        var fpBehandling = leggPerioderPå(lagBehandlingFP(),
             periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
@@ -245,12 +245,12 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     void vedtak_om_PSB_som_IKKE_overlapper_med_FP_skaper_ingen_tasks() {
         // given
-        Behandling fpBehandling = leggPerioderPå(
+        var fpBehandling = leggPerioderPå(
             lagBehandlingFP(),
             periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
-        YtelseV1 psbYtelseUTENOverlapp = lagVedtakForPeriode(
+        var psbYtelseUTENOverlapp = lagVedtakForPeriode(
             YtelseType.PLEIEPENGER_SYKT_BARN,
             aktørFra(fpBehandling),
             periode("2020-06-01", "2020-06-30"));
@@ -274,8 +274,8 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     private Behandling leggPerioderPå(Behandling behandling, PeriodeMedUtbetalingsgrad... perioder) {
         var berResSvp = lagBeregningsresultat(perioder[0].getFomDato(), perioder[0].getTomDato(), perioder[0].utbetalingsgrad);
-        for (int i = 1; i < perioder.length; i++) {
-            PeriodeMedUtbetalingsgrad periode = perioder[i];
+        for (var i = 1; i < perioder.length; i++) {
+            var periode = perioder[i];
             leggTilBerPeriode(berResSvp, periode.getFomDato(), periode.getTomDato(), 442, periode.utbetalingsgrad, 100);
         }
         beregningsresultatRepository.lagre(behandling, berResSvp);
@@ -284,7 +284,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
 
     private Aktør aktørFra(Behandling fpBehandling) {
-        Aktør aktør = new Aktør();
+        var aktør = new Aktør();
         aktør.setVerdi(fpBehandling.getAktørId().getId());
         return aktør;
     }

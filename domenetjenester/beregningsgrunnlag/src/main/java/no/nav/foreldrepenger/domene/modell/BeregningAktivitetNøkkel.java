@@ -20,7 +20,7 @@ public class BeregningAktivitetNøkkel {
         if (!(o instanceof BeregningAktivitetNøkkel)) {
             return false;
         }
-        BeregningAktivitetNøkkel that = (BeregningAktivitetNøkkel) o;
+        var that = (BeregningAktivitetNøkkel) o;
         return Objects.equals(opptjeningAktivitetType, that.opptjeningAktivitetType)
                 && Objects.equals(fom, that.fom)
                 && Objects.equals(tom, that.tom)

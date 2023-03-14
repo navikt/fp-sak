@@ -1,11 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -16,7 +11,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import java.util.Objects;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "ArbeidsforholdValg")
 @Table(name = "ARBEIDSFORHOLD_VALG")
@@ -109,7 +110,7 @@ public class ArbeidsforholdValg extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArbeidsforholdValg that = (ArbeidsforholdValg) o;
+        var that = (ArbeidsforholdValg) o;
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(vurdering, that.vurdering) &&
             Objects.equals(begrunnelse, that.begrunnelse) &&

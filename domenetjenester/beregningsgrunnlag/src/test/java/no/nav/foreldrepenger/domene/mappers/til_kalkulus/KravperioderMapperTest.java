@@ -225,7 +225,7 @@ class KravperioderMapperTest {
                             int beløp,
                             LocalDate fom,
                             LocalDate tom) {
-        KravperioderPrArbeidsforholdDto mappetKrav = finnrettKrav(resultat, ag, ref);
+        var mappetKrav = finnrettKrav(resultat, ag, ref);
         assertThat(mappetKrav.getPerioder()).hasSize(1);
         assertThat(mappetKrav.getPerioder()).hasSize(1);
         assertThat(mappetKrav.getPerioder().get(0).getPerioder()).hasSize(1);
@@ -269,7 +269,7 @@ class KravperioderMapperTest {
     }
 
     private void lagOverstyrtArbeid(Arbeidsgiver ag, InternArbeidsforholdRef internRef, LocalDate fom, LocalDate tom) {
-        ArbeidsforholdOverstyringBuilder builder = ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
+        var builder = ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
             .medArbeidsgiver(ag)
             .medAngittStillingsprosent(new Stillingsprosent(BigDecimal.valueOf(100)))
             .leggTilOverstyrtPeriode(fom, tom);

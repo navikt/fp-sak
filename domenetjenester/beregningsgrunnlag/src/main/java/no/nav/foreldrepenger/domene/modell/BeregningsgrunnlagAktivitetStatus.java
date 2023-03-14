@@ -33,7 +33,7 @@ public class BeregningsgrunnlagAktivitetStatus {
         } else if (!(obj instanceof BeregningsgrunnlagAktivitetStatus)) {
             return false;
         }
-        BeregningsgrunnlagAktivitetStatus other = (BeregningsgrunnlagAktivitetStatus) obj;
+        var other = (BeregningsgrunnlagAktivitetStatus) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus());
     }
 

@@ -107,7 +107,7 @@ public class SkjæringstidspunktUtils {
             throw new IllegalArgumentException("Utvikler-feil: Finner ikke årsak/rolle for behandling:" + behandling.getId());
         }
 
-        LocalDate hendelsedato = Optional.ofNullable(gjeldendeHendelseDato)
+        var hendelsedato = Optional.ofNullable(gjeldendeHendelseDato)
             .or(() -> gjeldendeTermindato)
             .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandling.getId()));
 

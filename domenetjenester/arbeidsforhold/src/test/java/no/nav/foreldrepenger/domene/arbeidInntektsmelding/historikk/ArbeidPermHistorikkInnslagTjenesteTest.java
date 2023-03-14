@@ -61,7 +61,7 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
 
     @Test
     void lagTekstMedArbeidsgiver() {
-        List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold = List.of(new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
+        var avklarteArbForhold = List.of(new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
             new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID_2, BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON));
 
         arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(avklarteArbForhold, "begrunnelse");

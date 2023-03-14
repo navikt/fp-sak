@@ -28,7 +28,7 @@ class BrevmalTjenesteTest {
 
     @Test
     void hent_brevmaler_for_es_førstegangsbehandling() {
-        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         when(behandling.getType()).thenReturn(BehandlingType.FØRSTEGANGSSØKNAD);
         var brevmalDtos = brevmalTjeneste.hentBrevmalerFor(behandling);
@@ -41,7 +41,7 @@ class BrevmalTjenesteTest {
 
     @Test
     void hent_brevmaler_for_es_revurdering_manuelt_opprettet() {
-        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -54,7 +54,7 @@ class BrevmalTjenesteTest {
 
     @Test
     void hent_brevmaler_for_es_revurdering_automatisk_opprettet() {
-        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(false);
@@ -67,7 +67,7 @@ class BrevmalTjenesteTest {
 
     @Test
     void hent_brevmaler_for_fp_revurdering() {
-        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -80,7 +80,7 @@ class BrevmalTjenesteTest {
 
     @Test
     void hent_brevmaler_for_fp_revurdering_varsel_sendt() {
-        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);
         when(behandling.erManueltOpprettet()).thenReturn(true);
@@ -96,7 +96,7 @@ class BrevmalTjenesteTest {
 
     @Test
     void hent_brevmaler_for_fp_innsyn() {
-        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.INNSYN);
 
@@ -112,7 +112,7 @@ class BrevmalTjenesteTest {
 
     @Test
     void hent_brevmaler_for_fp_klage() {
-        BrevmalTjeneste brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
+        var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste);
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.FORELDREPENGER);
         when(behandling.getType()).thenReturn(BehandlingType.KLAGE);
 

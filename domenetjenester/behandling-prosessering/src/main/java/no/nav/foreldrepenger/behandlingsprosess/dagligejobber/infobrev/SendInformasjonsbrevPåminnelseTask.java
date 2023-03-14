@@ -79,7 +79,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
         var enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY), prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
         var brukEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
 
-        Optional<Behandling> eksisterendeBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
+        var eksisterendeBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
         if (eksisterendeBehandling.isPresent() && !eksisterendeBehandling.get().erAvsluttet()) {
             var bestillBrevDto = new BestillBrevDto(eksisterendeBehandling.get().getId(), eksisterendeBehandling.get().getUuid(), DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);

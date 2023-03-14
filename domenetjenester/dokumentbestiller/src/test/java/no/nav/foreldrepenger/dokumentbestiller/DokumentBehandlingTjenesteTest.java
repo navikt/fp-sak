@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -159,7 +158,7 @@ class DokumentBehandlingTjenesteTest {
             .medVedtakFritekst(VEDTAK_FRITEKST);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
 
-        Optional<BehandlingDokumentEntitet> behandlingDokumentFør = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingDokumentFør = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokumentFør).isPresent();
         assertThat(behandlingDokumentFør.get().getVedtakFritekst()).isEqualTo(VEDTAK_FRITEKST);
 
@@ -167,7 +166,7 @@ class DokumentBehandlingTjenesteTest {
         dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
 
         // Assert
-        Optional<BehandlingDokumentEntitet> behandlingDokumentEtter = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingDokumentEtter = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokumentEtter).isPresent();
         assertThat(behandlingDokumentEtter.get().getVedtakFritekst()).isNull();
     }
@@ -181,7 +180,7 @@ class DokumentBehandlingTjenesteTest {
         dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
 
         // Assert
-        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isNotPresent();
     }
 }

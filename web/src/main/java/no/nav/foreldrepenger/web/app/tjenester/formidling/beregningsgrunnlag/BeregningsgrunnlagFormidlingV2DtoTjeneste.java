@@ -163,7 +163,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     }
 
     private BeregningsgrunnlagAndelDto mapAndel(BeregningsgrunnlagPrStatusOgAndel andel) {
-        Optional<FaktaVurdering> faktaVurdering = finnFaktaavklaringForGrunnlag().map(FaktaAktør::getErNyIArbeidslivetSN);
+        var faktaVurdering = finnFaktaavklaringForGrunnlag().map(FaktaAktør::getErNyIArbeidslivetSN);
         var arbeidsforholdDto = andel.getBgAndelArbeidsforhold().map(this::mapArbeidsforhold);
         var aktivitetStatus = mapAktivitetStatusTilDto(andel.getAktivitetStatus());
         return new BeregningsgrunnlagAndelDto(andel.getDagsats(), aktivitetStatus,

@@ -91,7 +91,7 @@ public class YtelseAnvistAndel extends BaseEntitet implements IndexKey {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        YtelseAnvistAndel that = (YtelseAnvistAndel) o;
+        var that = (YtelseAnvistAndel) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
             dagsats.equals(that.dagsats) &&
             inntektskategori == that.inntektskategori &&

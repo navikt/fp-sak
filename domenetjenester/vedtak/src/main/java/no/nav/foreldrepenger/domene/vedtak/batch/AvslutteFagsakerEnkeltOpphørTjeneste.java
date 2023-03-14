@@ -66,12 +66,12 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
     }
 
     public int avslutteSakerMedEnkeltOpphør() {
-        List<Fagsak> aktuelleFagsaker = fagsakRepository.hentFagsakerRelevanteForAvslutning();
+        var aktuelleFagsaker = fagsakRepository.hentFagsakerRelevanteForAvslutning();
 
-        int antallSakerSomSkalAvsluttes = 0;
+        var antallSakerSomSkalAvsluttes = 0;
 
-        for (Fagsak fagsak : aktuelleFagsaker) {
-            Behandling sisteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand for faksak " + fagsak.getSaksnummer()));
+        for (var fagsak : aktuelleFagsaker) {
+            var sisteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow(() -> new IllegalStateException("Ugyldig tilstand for faksak " + fagsak.getSaksnummer()));
 
             if (!alleBarnaErDøde(sisteBehandling) && erBehandlingResultatOpphørt(sisteBehandling)) {
                 var opphørsdato = hentSisteUtbetalingsdato(sisteBehandling).plusDays(1);

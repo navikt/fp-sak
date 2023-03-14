@@ -24,7 +24,7 @@ public final class Redirect {
     }
 
     public static Response tilBehandlingPollStatus(HttpServletRequest request, UUID behandlingUuid, Optional<String> gruppeOpt) throws URISyntaxException {
-        UriBuilder uriBuilder = getUriBuilder(request)
+        var uriBuilder = getUriBuilder(request)
             .path(BehandlingRestTjenestePathHack1.STATUS_PATH)
             .queryParam(UuidDto.NAME, behandlingUuid);
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
@@ -58,7 +58,7 @@ public final class Redirect {
     }
 
     private static UriBuilder getUriBuilder(HttpServletRequest request) {
-        UriBuilder uriBuilder = request == null || request.getContextPath() == null ? UriBuilder.fromUri("") : UriBuilder.fromUri(URI.create(request.getContextPath()));
+        var uriBuilder = request == null || request.getContextPath() == null ? UriBuilder.fromUri("") : UriBuilder.fromUri(URI.create(request.getContextPath()));
         Optional.ofNullable(request).map(HttpServletRequest::getServletPath).ifPresent(c -> uriBuilder.path(c));
         return uriBuilder;
     }
@@ -77,7 +77,7 @@ public final class Redirect {
     private static URI honorXForwardedProto(HttpServletRequest request, URI location) throws URISyntaxException {
         URI newLocation = null;
         if (relativLocationAndRequestAvailable(location)) {
-            String xForwardedProto = getXForwardedProtoHeader(request);
+            var xForwardedProto = getXForwardedProtoHeader(request);
 
             if (mismatchedScheme(xForwardedProto, request)) {
                 var path = location.toString();

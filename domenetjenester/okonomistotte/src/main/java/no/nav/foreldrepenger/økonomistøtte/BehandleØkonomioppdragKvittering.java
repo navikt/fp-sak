@@ -119,7 +119,7 @@ public class BehandleØkonomioppdragKvittering {
             throw new IllegalStateException("Det forventes at oppdrag110 finnes.");
         }
         var grupperteOppdrag = oppdrag110Liste.stream().collect(Collectors.groupingBy(Oppdrag110::getFagsystemId));
-        for (Map.Entry<Long, List<Oppdrag110>> entry : grupperteOppdrag.entrySet()) {
+        for (var entry : grupperteOppdrag.entrySet()) {
             var sisteOppdrag = entry.getValue().stream().max(Comparator.comparing(Oppdrag110::getOpprettetTidspunkt)).orElseThrow();
             if (!OppdragKvitteringTjeneste.harPositivKvittering(sisteOppdrag)) {
                 return false;

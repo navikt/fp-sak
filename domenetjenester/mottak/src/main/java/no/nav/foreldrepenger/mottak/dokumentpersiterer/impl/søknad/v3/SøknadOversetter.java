@@ -463,7 +463,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         List<TilretteleggingFOM> nyFomListe = new ArrayList<>(nyTlR.getTilretteleggingFOMListe());
         var tidligsteNyFom = nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(LocalDate.EPOCH);
 
-        List<TilretteleggingFOM> eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
+        var eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
 
         eksisterendeFOMSomSkalKopieres.forEach(eksFom ->
             nyFomListe.add(new TilretteleggingFOM.Builder()

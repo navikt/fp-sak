@@ -28,7 +28,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        boolean skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
+        var skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
 
         // Assert
         assertThat(skalHaAksjonspunkt).isFalse();
@@ -42,7 +42,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        boolean skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
+        var skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
 
         // Assert
         assertThat(skalHaAksjonspunkt).isTrue();
@@ -56,7 +56,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        boolean resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
+        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -69,7 +69,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 100;
 
         // Act
-        boolean resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barn));
+        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barn));
 
         // Assert
         assertThat(resultat).isFalse();
@@ -81,7 +81,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        boolean resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of());
+        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of());
 
         // Assert
         assertThat(resultat).isFalse();

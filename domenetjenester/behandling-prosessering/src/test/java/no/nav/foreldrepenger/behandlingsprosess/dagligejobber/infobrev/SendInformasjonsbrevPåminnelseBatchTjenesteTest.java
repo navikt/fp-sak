@@ -86,8 +86,8 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     @Test
     void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_barnet_er_dødt(EntityManager em) {
         // Arrange
-        Behandling behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
-        FødtBarnInfo fødtBarnInfo = new FødtBarnInfo.Builder()
+        var behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
+        var fødtBarnInfo = new FødtBarnInfo.Builder()
             .medIdent(new PersonIdent("11"))
             .medFødselsdato(LocalDate.now().plusDays(2))
             .medDødsdato(LocalDate.now().plusDays(2))
@@ -104,8 +104,8 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     @Test
     void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_far_har_søkt(EntityManager em) {
         // Arrange
-        Behandling behandlingFar = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingFar;
-        SøknadEntitet søknad = new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).build();
+        var behandlingFar = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingFar;
+        var søknad = new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandlingFar, søknad);
 
         // Act
@@ -118,7 +118,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     @Test
     void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_mor_har_en_nyere_sak(EntityManager em) {
         // Arrange
-        Behandling behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
+        var behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
         var nyFagsakMor = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingMor.getFagsak().getNavBruker());
         repositoryProvider.getFagsakRepository().opprettNy(nyFagsakMor);
 
@@ -132,7 +132,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     @Test
     void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_far_har_en_nyere_sak(EntityManager em) {
         // Arrange
-        Behandling behandlingFar = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingFar;
+        var behandlingFar = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingFar;
         var nyFagsakFar = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingFar.getFagsak().getNavBruker());
         repositoryProvider.getFagsakRepository().opprettNy(nyFagsakFar);
 
@@ -153,7 +153,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     private MorOgFarBehandling opprettTestdata(EntityManager em, LocalDate fødselsdato) {
         var scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medSøknadDato(fødselsdato.minusDays(40));
-        AktørId aktørIdFar = new AktørId("1111111111111");
+        var aktørIdFar = new AktørId("1111111111111");
         scenarioMor.medSøknadAnnenPart().medAktørId(aktørIdFar).medNavn("Bruker Brukersen").build();
 
         scenarioMor.medBekreftetHendelse()

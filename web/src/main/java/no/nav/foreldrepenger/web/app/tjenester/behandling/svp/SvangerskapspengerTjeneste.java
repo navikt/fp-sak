@@ -91,7 +91,7 @@ public class SvangerskapspengerTjeneste {
         var gjeldendeFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(behandling.getAktørId(), iayGrunnlag));
 
         gjeldendeTilrettelegginger.forEach(tilr -> {
-            SvpArbeidsforholdDto tilretteleggingDto = mapTilretteleggingsinfo(tilr);
+            var tilretteleggingDto = mapTilretteleggingsinfo(tilr);
             tilretteleggingDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(tilr, registerFilter, gjeldendeFilter));
             finnEksternRef(tilr, arbeidsforholdInformasjon).ifPresent(tilretteleggingDto::setEksternArbeidsforholdReferanse);
             tilretteleggingDto.setKanTilrettelegges(erTilgjengeligForBeregning(tilr, registerFilter));

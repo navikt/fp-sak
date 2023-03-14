@@ -36,7 +36,7 @@ public class BesteberegningYtelsegrunnlagMapper {
     }
 
     public static List<Saksnummer> saksnummerSomMåHentesFraFpsak(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB, YtelseFilter ytelseFilter) {
-        Collection<Ytelse> ytelserFraFpsak = ytelseFilter.filter(y -> FPSAK_YTELSER.contains(y.getRelatertYtelseType()))
+        var ytelserFraFpsak = ytelseFilter.filter(y -> FPSAK_YTELSER.contains(y.getRelatertYtelseType()))
             .filter(y -> y.getKilde().equals(Fagsystem.FPSAK))
             .filter(y -> y.getPeriode().overlapper(periodeYtelserKanVæreRelevantForBB))
             .getFiltrertYtelser();
@@ -44,10 +44,10 @@ public class BesteberegningYtelsegrunnlagMapper {
     }
 
     public static Optional<Ytelsegrunnlag> mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB, YtelseFilter ytelseFilter) {
-        Collection<Ytelse> sykepengegrunnlag = ytelseFilter.filter(y -> y.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
+        var sykepengegrunnlag = ytelseFilter.filter(y -> y.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
             .filter(y -> y.getPeriode().overlapper(periodeYtelserKanVæreRelevantForBB))
             .getFiltrertYtelser();
-        List<Ytelseperiode> sykepengeperioder = sykepengegrunnlag.stream()
+        var sykepengeperioder = sykepengegrunnlag.stream()
             .map(BesteberegningYtelsegrunnlagMapper::mapTilYtelsegrunnlag)
             .flatMap(Optional::stream)
             .collect(Collectors.toList());
@@ -58,7 +58,7 @@ public class BesteberegningYtelsegrunnlagMapper {
 
     public static Optional<Ytelsegrunnlag> mapFpsakYtelseTilYtelsegrunnlag(BeregningsresultatEntitet resultat,
                                                                            no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType ytelseType) {
-        List<Ytelseperiode> ytelseperioder = resultat.getBeregningsresultatPerioder().stream()
+        var ytelseperioder = resultat.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
             .map(BesteberegningYtelsegrunnlagMapper::mapPeriode)
             .collect(Collectors.toList());
@@ -68,7 +68,7 @@ public class BesteberegningYtelsegrunnlagMapper {
     }
 
     private static Ytelseperiode mapPeriode(BeregningsresultatPeriode periode) {
-        List<Ytelseandel> andeler = periode.getBeregningsresultatAndelList().stream()
+        var andeler = periode.getBeregningsresultatAndelList().stream()
             .map(BesteberegningYtelsegrunnlagMapper::mapAndel)
             .collect(Collectors.toList());
         return new Ytelseperiode(Intervall.fraOgMedTilOgMed(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), andeler);
@@ -82,12 +82,12 @@ public class BesteberegningYtelsegrunnlagMapper {
 
 
     private static Optional<Ytelseperiode> mapTilYtelsegrunnlag(Ytelse sp) {
-        Optional<Arbeidskategori> arbeidskategori = sp.getYtelseGrunnlag()
+        var arbeidskategori = sp.getYtelseGrunnlag()
             .flatMap(YtelseGrunnlag::getArbeidskategori);
         if (arbeidskategori.isEmpty() || harUgyldigTilstandForBesteberegning(arbeidskategori.get(), sp.getStatus())) {
             return Optional.empty();
         }
-        Ytelseandel andel = new Ytelseandel(no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()),
+        var andel = new Ytelseandel(no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()),
             null);
         return Optional.of(new Ytelseperiode(Intervall.fraOgMedTilOgMed(sp.getPeriode().getFomDato(), sp.getPeriode().getTomDato()),
             Collections.singletonList(andel)));

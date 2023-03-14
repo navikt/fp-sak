@@ -59,7 +59,7 @@ public class UgyldigGraderingUtleder {
         if (stpOpptjening == null) {
             return Optional.empty();
         }
-        for (ArbeidGraderingMap andel : andelGraderingDatoMap) {
+        for (var andel : andelGraderingDatoMap) {
             var andelFinnesIIAY = finnesAndelIIAY(andel, yrkesaktiviteter, stpOpptjening);
             var andelFinnesIOpptjening = finnesAndelIOpptjening(andel, opptjeningsperioder);
             if (!andelFinnesIIAY && !andelFinnesIOpptjening) {

@@ -380,7 +380,7 @@ public class OpptjeningsperioderTjeneste {
             builder.medErManueltBehandlet();
         }
         builder.medStillingsandel(new Stillingsprosent(BigDecimal.valueOf(100)));
-        Optional<String> beskrivelseOpt = finnNæringBegrunnelseFraSaksbehandlet(grunnlag, aktørId);
+        var beskrivelseOpt = finnNæringBegrunnelseFraSaksbehandlet(grunnlag, aktørId);
         beskrivelseOpt.ifPresent(builder::medBegrunnelse);
         return builder.build();
     }

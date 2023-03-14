@@ -164,17 +164,17 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     void alle_arbeidsforhold_er_aktive() {
         // Arrange
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
-        InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
-        InternArbeidsforholdRef internRef2 = InternArbeidsforholdRef.nyRef();
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRef2));
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var internRef1 = InternArbeidsforholdRef.nyRef();
+        var internRef2 = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRef2));
         lagIM(arbeidsgiver);
         lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef1);
         lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef2);
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -186,17 +186,17 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     void ett_av_to_arbeidsforhold_er_inaktivt_pga_permisjon() {
         // Arrange
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
-        InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
-        InternArbeidsforholdRef internRefMedPermisjon = InternArbeidsforholdRef.nyRef();
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRefMedPermisjon));
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var internRef1 = InternArbeidsforholdRef.nyRef();
+        var internRefMedPermisjon = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRefMedPermisjon));
         lagIM(arbeidsgiver);
         lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef1);
         lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRefMedPermisjon);
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -209,17 +209,17 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     void alle_arbeidsforhold_er_inaktive_for_arbeidsgiver_pga_permisjon() {
         // Arrange
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
-        InternArbeidsforholdRef internRef1MedPermisjon = InternArbeidsforholdRef.nyRef();
-        InternArbeidsforholdRef internRef2MedPermisjon = InternArbeidsforholdRef.nyRef();
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1MedPermisjon, internRef2MedPermisjon));
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var internRef1MedPermisjon = InternArbeidsforholdRef.nyRef();
+        var internRef2MedPermisjon = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1MedPermisjon, internRef2MedPermisjon));
         lagIM(arbeidsgiver);
         lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRef1MedPermisjon);
         lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, true, internRef2MedPermisjon);
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -231,12 +231,12 @@ class InaktiveArbeidsforholdUtlederTest {
     @Test
     void ett_arbeidsforhold_er_inaktivt_pga_ytelse() {
         // Arrange
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("999999999");
-        Arbeidsgiver arbeidsgiverMedYtelse = arbeidsgiver("888888888");
-        InternArbeidsforholdRef internRef1 = InternArbeidsforholdRef.nyRef();
-        InternArbeidsforholdRef internRef2 = InternArbeidsforholdRef.nyRef();
-        InternArbeidsforholdRef internRefYtelse = InternArbeidsforholdRef.nyRef();
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRef2), arbeidsgiverMedYtelse, Set.of(internRefYtelse));
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var arbeidsgiverMedYtelse = arbeidsgiver("888888888");
+        var internRef1 = InternArbeidsforholdRef.nyRef();
+        var internRef2 = InternArbeidsforholdRef.nyRef();
+        var internRefYtelse = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRef2), arbeidsgiverMedYtelse, Set.of(internRefYtelse));
         lagIM(arbeidsgiver);
         lagYtelse(arbeidsgiverMedYtelse, STP.minusMonths(2), STP.minusMonths(1), RelatertYtelseType.DAGPENGER);
         lagArbeid(arbeidsgiver, STP.minusYears(2), Tid.TIDENES_ENDE, false, internRef1);
@@ -244,7 +244,7 @@ class InaktiveArbeidsforholdUtlederTest {
         var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
             .medBruker(AKTØR);
         var behandling = scenario.lagMocked();
-        BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
+        var behandlingReferanse = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(STP));
 
         // Act
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse );
@@ -263,7 +263,7 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     private void lagYtelse(Arbeidsgiver arbeidsgiver, LocalDate fom, LocalDate tom, RelatertYtelseType ytelse) {
-        YtelseBuilder builder = ytelseBuilder.getYtelselseBuilderForType(Fagsystem.AAREGISTERET, ytelse, new Saksnummer("12313123"));
+        var builder = ytelseBuilder.getYtelselseBuilderForType(Fagsystem.AAREGISTERET, ytelse, new Saksnummer("12313123"));
         builder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         var ytelseAnvist = builder.getAnvistBuilder()
             .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
@@ -303,11 +303,11 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     private void lagInntekt(Arbeidsgiver ag, LocalDate fom, int måneder) {
-        InntektBuilder intBuilder = InntektBuilder.oppdatere(Optional.empty());
+        var intBuilder = InntektBuilder.oppdatere(Optional.empty());
         intBuilder.medArbeidsgiver(ag).medInntektsKilde(InntektsKilde.INNTEKT_BEREGNING);
-        for (int i = 0; i<måneder; i++) {
-            LocalDate start = fom.plusMonths(i);
-            InntektspostBuilder postBuilder = intBuilder.getInntektspostBuilder();
+        for (var i = 0; i<måneder; i++) {
+            var start = fom.plusMonths(i);
+            var postBuilder = intBuilder.getInntektspostBuilder();
             postBuilder.medPeriode(start.withDayOfMonth(1), start.with(TemporalAdjusters.lastDayOfMonth()))
                 .medBeløp(BigDecimal.valueOf(100))
                 .medInntektspostType(InntektspostType.LØNN);

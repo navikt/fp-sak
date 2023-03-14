@@ -74,13 +74,13 @@ public class Beregningsgrunnlag {
         if (aktivitetStatuser.size() == 1) {
             return aktivitetStatuser.get(0).getHjemmel();
         }
-        Optional<BeregningsgrunnlagAktivitetStatus> dagpenger = aktivitetStatuser.stream()
+        var dagpenger = aktivitetStatuser.stream()
             .filter(as -> Hjemmel.F_14_7_8_49.equals(as.getHjemmel()))
             .findFirst();
         if (dagpenger.isPresent()) {
             return dagpenger.get().getHjemmel();
         }
-        Optional<BeregningsgrunnlagAktivitetStatus> gjelder = aktivitetStatuser.stream()
+        var gjelder = aktivitetStatuser.stream()
             .filter(as -> !Hjemmel.F_14_7.equals(as.getHjemmel()))
             .findFirst();
         return gjelder.isPresent() ? gjelder.get().getHjemmel() : Hjemmel.F_14_7;
@@ -108,7 +108,7 @@ public class Beregningsgrunnlag {
         } else if (!(obj instanceof Beregningsgrunnlag)) {
             return false;
         }
-        Beregningsgrunnlag other = (Beregningsgrunnlag) obj;
+        var other = (Beregningsgrunnlag) obj;
         return Objects.equals(this.getSkjæringstidspunkt(), other.getSkjæringstidspunkt());
     }
 
@@ -184,7 +184,7 @@ public class Beregningsgrunnlag {
 
         public Builder fjernAktivitetstatus(AktivitetStatus status) {
             verifiserKanModifisere();
-            List<BeregningsgrunnlagAktivitetStatus> statuserSomSkalFjernes = kladd.aktivitetStatuser.stream().filter(a -> Objects.equals(a.getAktivitetStatus(), status)).collect(Collectors.toList());
+            var statuserSomSkalFjernes = kladd.aktivitetStatuser.stream().filter(a -> Objects.equals(a.getAktivitetStatus(), status)).collect(Collectors.toList());
             if (statuserSomSkalFjernes.size() != 1) {
                 throw new IllegalStateException("Ikke entydig hvilken status som skal fjernes fra beregningsgrunnlaget.");
             }
@@ -200,7 +200,7 @@ public class Beregningsgrunnlag {
 
         private void leggTilFaktaOmBeregningTilfeller(FaktaOmBeregningTilfelle tilfelle) {
             verifiserKanModifisere();
-            BeregningsgrunnlagFaktaOmBeregningTilfelle b = BeregningsgrunnlagFaktaOmBeregningTilfelle.builder().medFaktaOmBeregningTilfelle(tilfelle).build(kladd);
+            var b = BeregningsgrunnlagFaktaOmBeregningTilfelle.builder().medFaktaOmBeregningTilfelle(tilfelle).build(kladd);
             this.kladd.faktaOmBeregningTilfeller.add(b);
         }
 

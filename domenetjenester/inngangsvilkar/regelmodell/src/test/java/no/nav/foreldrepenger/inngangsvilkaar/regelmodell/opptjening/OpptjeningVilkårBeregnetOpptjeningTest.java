@@ -39,7 +39,7 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
         );
         // inntekt
-        List<InntektPeriode> inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
+        var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4, aktiviteter, inntekter);
 
@@ -91,7 +91,7 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
         );
         // inntekt
-        List<InntektPeriode> inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
+        var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, inntekter);
 
@@ -138,7 +138,7 @@ class OpptjeningVilkårBeregnetOpptjeningTest {
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
         );
         // inntekt
-        List<InntektPeriode> inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
+        var inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, inntekter);
 

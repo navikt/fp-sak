@@ -68,7 +68,7 @@ public class BeregnYtelseTjeneste {
 
     private void log(BeregningsresultatGrunnlag grunnlag) {
         try {
-            String maskertRegelinput = DefaultJsonMapper.toPrettyJson(grunnlag).replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
+            var maskertRegelinput = DefaultJsonMapper.toPrettyJson(grunnlag).replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
             LOG.info("Regelinput til beregning av tilkjent ytelse {}", maskertRegelinput);
         } catch (TekniskException jsonProcessingException) {
             LOG.warn("Feil ved logging av regelinput", jsonProcessingException);

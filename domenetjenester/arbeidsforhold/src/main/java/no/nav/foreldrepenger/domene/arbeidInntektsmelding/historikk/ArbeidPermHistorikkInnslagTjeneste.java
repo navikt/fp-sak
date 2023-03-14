@@ -36,7 +36,7 @@ public class ArbeidPermHistorikkInnslagTjeneste {
 
     public void opprettHistorikkinnslag(List<AvklarPermisjonUtenSluttdatoDto> avklarteArbForhold, String begrunnelse) {
         avklarteArbForhold.forEach( avklartArbForhold -> {
-                Arbeidsgiver arbeidsgiver = lagArbeidsgiver(avklartArbForhold.arbeidsgiverIdent());
+            var arbeidsgiver = lagArbeidsgiver(avklartArbForhold.arbeidsgiverIdent());
                 var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
                 var arbeidsforholdNavn = ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(opplysninger, Optional.empty());
                 var historikkInnslagType = utledHistorikkInnslagValg(avklartArbForhold.permisjonStatus());

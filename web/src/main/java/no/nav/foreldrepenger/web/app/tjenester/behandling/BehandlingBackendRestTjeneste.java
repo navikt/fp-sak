@@ -71,7 +71,7 @@ public class BehandlingBackendRestTjeneste {
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
         var taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
-        Optional<OrganisasjonsEnhet> endretEnhet = sjekkEnhet(behandling);
+        var endretEnhet = sjekkEnhet(behandling);
         BehandlingDto dto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, taskStatus, endretEnhet);
         var responseBuilder = Response.ok().entity(dto);
         return responseBuilder.build();

@@ -55,7 +55,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
 
     private static no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer mapBeregningAktivitetOverstyringer(
         BeregningAktivitetOverstyringerEntitet overstyringer) {
-        no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer.Builder builder = BeregningAktivitetOverstyringer.builder();
+        var builder = BeregningAktivitetOverstyringer.builder();
         overstyringer.getOverstyringer()
             .stream()
             .map(FraEntitetTilBehandlingsmodellMapper::mapAktivitetOverstyring)
@@ -75,7 +75,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
     }
 
     private static no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat mapBeregningAktivitetAggregat(BeregningAktivitetAggregatEntitet registerAktiviteter) {
-        no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat.Builder builder = BeregningAktivitetAggregat.builder()
+        var builder = BeregningAktivitetAggregat.builder()
             .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
         registerAktiviteter.getBeregningAktiviteter()
             .stream()
@@ -141,7 +141,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
     }
 
     private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode mapPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode beregningsgrunnlagPeriodeDto) {
-        no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode.Builder periodeBuilder = no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode.builder()
+        var periodeBuilder = no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPeriodeFom(),
                 beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPeriodeTom())
             .medAvkortetPrÅr(beregningsgrunnlagPeriodeDto.getAvkortetPrÅr())
@@ -157,7 +157,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
     }
 
     private static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel mapAndel(BeregningsgrunnlagPrStatusOgAndel andelEntitet) {
-        no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel.Builder builder = no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel.builder()
+        var builder = no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAktivitetStatus(andelEntitet.getAktivitetStatus())
             .medAndelsnr(andelEntitet.getAndelsnr())
             .medArbforholdType(andelEntitet.getArbeidsforholdType())

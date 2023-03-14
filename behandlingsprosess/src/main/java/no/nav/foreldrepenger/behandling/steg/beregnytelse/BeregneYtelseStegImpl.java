@@ -92,23 +92,23 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     }
 
     private void loggPermisjonssaker(BeregningsresultatEntitet beregningsresultat, BehandlingReferanse ref) {
-        Optional<LocalDate> førsteUttaksdagOpt = beregningsresultat.getBeregningsresultatPerioder()
+        var førsteUttaksdagOpt = beregningsresultat.getBeregningsresultatPerioder()
             .stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
             .min(LocalDate::compareTo);
         if (førsteUttaksdagOpt.isEmpty()) {
             return;
         }
-        LocalDate førsteUttaksdag = førsteUttaksdagOpt.get();
+        var førsteUttaksdag = førsteUttaksdagOpt.get();
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId());
-        List<Inntektsmelding> inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .orElse(Collections.emptyList());
-        YrkesaktivitetFilter yafilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
+        var yafilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(),
             iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
         yafilter.getYrkesaktiviteter().forEach(ya -> {
-            boolean kreverRefusjon = harIMSomKreverRefusjon(inntektsmeldinger, ya);
-            boolean harPermisajonSomOverlapperUtbetaling = harPermisjonSomOverlapperUtbetaling(beregningsresultat, ya, førsteUttaksdag);
+            var kreverRefusjon = harIMSomKreverRefusjon(inntektsmeldinger, ya);
+            var harPermisajonSomOverlapperUtbetaling = harPermisjonSomOverlapperUtbetaling(beregningsresultat, ya, førsteUttaksdag);
             if (kreverRefusjon && harPermisajonSomOverlapperUtbetaling) {
                 var msg = String.format("FP-564876: Saksnummer %s har tilkommet permisjon og krever refusjon fra start", ref.saksnummer().getVerdi());
                 LOG.info(msg);
@@ -120,7 +120,7 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     private boolean harPermisjonSomOverlapperUtbetaling(BeregningsresultatEntitet beregningsresultatEntitet,
                                                         Yrkesaktivitet yrkesaktivitet,
                                                         LocalDate førsteUttaksdag) {
-        List<Permisjon> tilkomnePermisjoner = yrkesaktivitet.getPermisjon().stream()
+        var tilkomnePermisjoner = yrkesaktivitet.getPermisjon().stream()
             .filter(perm -> erRelevant(perm, førsteUttaksdag))
             .collect(Collectors.toList());
         return beregningsresultatEntitet.getBeregningsresultatPerioder()
@@ -130,7 +130,7 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     }
 
     private boolean overlapperPermisjonsperiode(BeregningsresultatPeriode p, List<Permisjon> tilkomnePermisjoner) {
-        DatoIntervallEntitet tyPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(p.getBeregningsresultatPeriodeFom(),
+        var tyPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(p.getBeregningsresultatPeriodeFom(),
             p.getBeregningsresultatPeriodeTom());
         return tilkomnePermisjoner.stream().anyMatch(perm -> perm.getPeriode().overlapper(tyPeriode));
     }

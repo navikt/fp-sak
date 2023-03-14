@@ -75,7 +75,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
                 continue;
             }
 
-            try (LocalProsessTaskHandlerRef handler = LocalProsessTaskHandlerRef.lookup(task.taskType())) {
+            try (var handler = LocalProsessTaskHandlerRef.lookup(task.taskType())) {
                 var rekkefølge = handler.getFagsakProsesstaskRekkefølge();
                 var sekvensNr = rekkefølge.gruppeSekvens() ? gruppeSekvensNr : null;
                 repository.lagre(new FagsakProsessTask(task.getFagsakId(), task.getId(), getBehandlingId(task), sekvensNr));
@@ -113,7 +113,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         }
 
         public static LocalProsessTaskHandlerRef lookup(TaskType taskType) {
-            ProsessTaskHandler bean = lookupHandler(taskType);
+            var bean = lookupHandler(taskType);
             return new LocalProsessTaskHandlerRef(bean);
         }
 

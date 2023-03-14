@@ -28,20 +28,20 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_ett_arbeidsforhold_med_full_utbetaling_til_bruker() {
 
-        BeregningsresultatEntitet resultat = BeregningsresultatEntitet.builder()
+        var resultat = BeregningsresultatEntitet.builder()
             .medRegelInput("input")
             .medRegelSporing("regelsporing")
             .build();
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
+        var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
             .build(resultat);
-        InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
-        String eksternReferanse = "jifesjsioejf";
-        int dagsats = 500;
-        ArbeidsforholdReferanse arbeidsforholdReferanse = lagReferanser(arbeidsgiver, arbeidsforholdRef, eksternReferanse);
-        BeregningsresultatAndel arbeidsforhold = BeregningsresultatAndel.builder()
+        var arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
+        var eksternReferanse = "jifesjsioejf";
+        var dagsats = 500;
+        var arbeidsforholdReferanse = lagReferanser(arbeidsgiver, arbeidsforholdRef, eksternReferanse);
+        var arbeidsforhold = BeregningsresultatAndel.builder()
             .medArbeidsforholdRef(arbeidsforholdRef)
             .medArbeidsgiver(arbeidsgiver)
             .medStillingsprosent(BigDecimal.valueOf(100))
@@ -53,8 +53,8 @@ class VedtattYtelseForeldrepengerMapperTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(periode);
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -71,30 +71,30 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_to_arbeidsforhold_med_full_utbetaling_til_arbeidsgiver() {
 
-        BeregningsresultatEntitet resultat = BeregningsresultatEntitet.builder()
+        var resultat = BeregningsresultatEntitet.builder()
             .medRegelInput("input")
             .medRegelSporing("regelsporing")
             .build();
 
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
             .build(resultat);
-        InternArbeidsforholdRef arbeidsforholdRef1 = InternArbeidsforholdRef.nyRef();
-        String eksternReferanse1 = "jifesjsioejf";
-        int dagsats1 = 500;
-        Arbeidsgiver arbeidsgiver1 = Arbeidsgiver.virksomhet("123566324");
-        ArbeidsforholdReferanse arbeidsforholdReferanse1 = lagReferanser(arbeidsgiver1, arbeidsforholdRef1, eksternReferanse1);
+        var arbeidsforholdRef1 = InternArbeidsforholdRef.nyRef();
+        var eksternReferanse1 = "jifesjsioejf";
+        var dagsats1 = 500;
+        var arbeidsgiver1 = Arbeidsgiver.virksomhet("123566324");
+        var arbeidsforholdReferanse1 = lagReferanser(arbeidsgiver1, arbeidsforholdRef1, eksternReferanse1);
         fullRefusjon(arbeidsgiver1, periode, arbeidsforholdRef1, dagsats1);
 
-        InternArbeidsforholdRef arbeidsforholdRef2 = InternArbeidsforholdRef.nyRef();
-        String eksternReferanse2 = "husefiuse";
-        int dagsats2 = 200;
-        Arbeidsgiver arbeidsgiver2 = Arbeidsgiver.virksomhet("463465235");
-        ArbeidsforholdReferanse arbeidsforholdReferanse2 = lagReferanser(arbeidsgiver1, arbeidsforholdRef2, eksternReferanse2);
+        var arbeidsforholdRef2 = InternArbeidsforholdRef.nyRef();
+        var eksternReferanse2 = "husefiuse";
+        var dagsats2 = 200;
+        var arbeidsgiver2 = Arbeidsgiver.virksomhet("463465235");
+        var arbeidsforholdReferanse2 = lagReferanser(arbeidsgiver1, arbeidsforholdRef2, eksternReferanse2);
         fullRefusjon(arbeidsgiver2, periode, arbeidsforholdRef2, dagsats2);
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(arbeidsforholdReferanse1, arbeidsforholdReferanse2);
-        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse1, arbeidsforholdReferanse2);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -123,23 +123,23 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_ett_arbeidsforhold_med_full_utbetaling_til_arbeidsgiver() {
 
-        BeregningsresultatEntitet resultat = BeregningsresultatEntitet.builder()
+        var resultat = BeregningsresultatEntitet.builder()
             .medRegelInput("input")
             .medRegelSporing("regelsporing")
             .build();
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
+        var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
             .build(resultat);
-        InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
-        String eksternReferanse = "jifesjsioejf";
-        int dagsats = 500;
-        ArbeidsforholdReferanse arbeidsforholdReferanse = lagReferanser(arbeidsgiver, arbeidsforholdRef, eksternReferanse);
+        var arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
+        var eksternReferanse = "jifesjsioejf";
+        var dagsats = 500;
+        var arbeidsforholdReferanse = lagReferanser(arbeidsgiver, arbeidsforholdRef, eksternReferanse);
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
-        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        var arbeidsforholdReferanser = List.of(arbeidsforholdReferanse);
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -157,21 +157,21 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_ett_arbeidsforhold_med_full_utbetaling_til_arbeidsgiver_aggregert() {
 
-        BeregningsresultatEntitet resultat = BeregningsresultatEntitet.builder()
+        var resultat = BeregningsresultatEntitet.builder()
             .medRegelInput("input")
             .medRegelSporing("regelsporing")
             .build();
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123566324");
+        var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
             .build(resultat);
-        InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.nullRef();
-        int dagsats = 500;
+        var arbeidsforholdRef = InternArbeidsforholdRef.nullRef();
+        var dagsats = 500;
         fullRefusjon(arbeidsgiver, periode, arbeidsforholdRef, dagsats);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);
@@ -189,16 +189,16 @@ class VedtattYtelseForeldrepengerMapperTest {
     @Test
     void skal_mappe_dagpenger() {
 
-        BeregningsresultatEntitet resultat = BeregningsresultatEntitet.builder()
+        var resultat = BeregningsresultatEntitet.builder()
             .medRegelInput("input")
             .medRegelSporing("regelsporing")
             .build();
 
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))
             .build(resultat);
-        InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
-        int dagsats = 500;
+        var arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
+        var dagsats = 500;
         BeregningsresultatAndel.builder()
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medArbeidsforholdType(OpptjeningAktivitetType.DAGPENGER)
@@ -210,7 +210,7 @@ class VedtattYtelseForeldrepengerMapperTest {
             .build(periode);
 
         var arbeidsforholdReferanser = new ArrayList<ArbeidsforholdReferanse>();
-        List<Anvisning> anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
+        var anvisninger = VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser)
             .mapForeldrepenger(resultat);
 
         assertThat(anvisninger.size()).isEqualTo(1);

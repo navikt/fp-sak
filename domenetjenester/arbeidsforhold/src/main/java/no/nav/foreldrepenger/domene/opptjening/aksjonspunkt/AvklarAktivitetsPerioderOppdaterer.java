@@ -76,7 +76,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         }
         var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
-        List<OpptjeningsperiodeForSaksbehandling> opptjeningsaktiviteter = opptjeningsperioderTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(param.getRef());
+        var opptjeningsaktiviteter = opptjeningsperioderTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(param.getRef());
         var bekreftOpptjeningPerioder = map(dto.getOpptjeningsaktiviteter(), overstyringer);
         var skjæringstidspunkt = param.getSkjæringstidspunkt();
 
@@ -94,9 +94,9 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         var erEndret = false;
         for (var bekreftetAktivitet : bekreftedePerioder) {
             var eksisterendeAktivitet = finnLagretAktivitet(bekreftetAktivitet, eksisterendeAktiviteter);
-            DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(bekreftetAktivitet.getOpptjeningFom(), bekreftetAktivitet.getOpptjeningTom());
-            String fraVerdi = finnFraVerdi(eksisterendeAktivitet, periode);
-            String tilVerdi = finnTilVerdi(bekreftetAktivitet, periode);
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(bekreftetAktivitet.getOpptjeningFom(), bekreftetAktivitet.getOpptjeningTom());
+            var fraVerdi = finnFraVerdi(eksisterendeAktivitet, periode);
+            var tilVerdi = finnTilVerdi(bekreftetAktivitet, periode);
             if (!bekreftetAktivitet.getErGodkjent()) {
                 byggHistorikkinnslag(bekreftetAktivitet, behandlingId, fraVerdi, tilVerdi);
                 erEndret = true;
