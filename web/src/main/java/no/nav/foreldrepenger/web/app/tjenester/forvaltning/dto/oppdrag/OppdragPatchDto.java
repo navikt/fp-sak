@@ -41,7 +41,7 @@ public class OppdragPatchDto implements AbacDto {
     private String arbeidsgiverOrgNr;
 
     @NotNull
-    @Pattern(regexp = "^UEND|ENDR|NY$")
+    @Pattern(regexp = "^UEND$|^ENDR$|^NY$")
     @JsonProperty("kodeEndring")
     private String kodeEndring;
 

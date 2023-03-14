@@ -162,10 +162,10 @@ public class OpptjeningsgrunnlagAdapter {
                                                                         LocalDateSegment<OpptjeningAktivitetPeriode> førsteVersjon,
                                                                         LocalDateSegment<OpptjeningAktivitetPeriode> sisteVersjon) {
 
-        if (førsteVersjon == null && sisteVersjon != null) {
+        if (førsteVersjon == null) {
             return lagSegment(di, sisteVersjon.getValue());
         }
-        if (sisteVersjon == null && førsteVersjon != null) {
+        if (sisteVersjon == null) {
             return lagSegment(di, førsteVersjon.getValue());
         }
 
