@@ -4,8 +4,8 @@ import static no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem.K9SAK;
 import static no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet.fraOgMedTilOgMed;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -53,10 +53,10 @@ public class YtelserGrunnlagBygger {
     private List<PleiepengerPeriode> slåSammenLike(List<PleiepengerPeriode> perioder) {
         var segments = perioder.stream()
             .map(p -> new LocalDateSegment<>(p.getFom(), VirkedagUtil.fredagLørdagTilSøndag(p.getTom()), p.isBarnInnlagt()))
-            .toList();
+            .collect(Collectors.toList());
         var timeline = new LocalDateTimeline<>(segments, YtelserGrunnlagBygger::slåSammenOverlappendePleiepenger);
 
-        return timeline.compress(Objects::equals, StandardCombinators::leftOnly)
+        return timeline.compress((b1, b2) -> b1 == b2, StandardCombinators::leftOnly)
             .stream()
             .map(s -> new PleiepengerPeriode(s.getFom(), VirkedagUtil.tomVirkedag(s.getTom()), s.getValue()))
             .toList();

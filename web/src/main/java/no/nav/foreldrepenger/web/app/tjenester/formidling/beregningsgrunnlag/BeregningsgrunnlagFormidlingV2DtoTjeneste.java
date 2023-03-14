@@ -5,18 +5,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
@@ -41,10 +43,10 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     public Optional<BeregningsgrunnlagDto> map() {
         var bgPerioder = grunnlag.getBeregningsgrunnlag()
             .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
-            .orElse(List.of())
+            .orElse(Collections.emptyList())
             .stream()
             .map(this::mapPeriode)
-            .toList();
+            .collect(Collectors.toList());
         return grunnlag.getBeregningsgrunnlag().map(bg -> new BeregningsgrunnlagDto(mapAktivitetstatuser(bg.getAktivitetStatuser()),
             mapHjemmelTilDto(bg.getHjemmel()),
             bg.getGrunnbeløp().getVerdi(),
@@ -91,7 +93,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
         return aktivitetStatuser.stream()
             .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
             .map(this::mapAktivitetStatusTilDto)
-            .toList();
+            .collect(Collectors.toList());
     }
 
     private AktivitetStatusDto mapAktivitetStatusTilDto(AktivitetStatus aktivitetStatus) {
@@ -110,14 +112,14 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             case KUN_YTELSE -> AktivitetStatusDto.KUN_YTELSE;
             case TTLSTØTENDE_YTELSE -> AktivitetStatusDto.TTLSTØTENDE_YTELSE;
             case VENTELØNN_VARTPENGER -> AktivitetStatusDto.VENTELØNN_VARTPENGER;
-            case UDEFINERT -> throw new IllegalArgumentException("AKtivitetStatus udefinert");
+            case UDEFINERT -> null;
         };
     }
 
     private BeregningsgrunnlagPeriodeDto mapPeriode(BeregningsgrunnlagPeriode bgPeriode) {
         var andeler = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .map(this::mapAndel)
-            .toList();
+            .collect(Collectors.toList());
         var bruttoInkludertBortfaltNaturalytelsePrAar = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoInkludertNaturalYtelser)
             .filter(Objects::nonNull)
@@ -165,8 +167,8 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     private BeregningsgrunnlagAndelDto mapAndel(BeregningsgrunnlagPrStatusOgAndel andel) {
         Optional<FaktaVurdering> faktaVurdering = finnFaktaavklaringForGrunnlag().map(FaktaAktør::getErNyIArbeidslivetSN);
         var arbeidsforholdDto = andel.getBgAndelArbeidsforhold().map(this::mapArbeidsforhold);
-        var aktivitetStatus = mapAktivitetStatusTilDto(andel.getAktivitetStatus());
-        return new BeregningsgrunnlagAndelDto(andel.getDagsats(), aktivitetStatus,
+        return new BeregningsgrunnlagAndelDto(andel.getDagsats(),
+            mapAktivitetStatusTilDto(andel.getAktivitetStatus()),
             andel.getBruttoPrÅr(), andel.getAvkortetPrÅr(),
             faktaVurdering.map(FaktaVurdering::getVurdering).orElse(null),
             mapOpptjeningAktivitetsTypeTilDto(andel.getArbeidsforholdType()),
@@ -179,6 +181,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     private Optional<FaktaAktør> finnFaktaavklaringForGrunnlag() {
         return grunnlag.getFaktaAggregat().flatMap(FaktaAggregat::getFaktaAktør);
     }
+
 
     private OpptjeningAktivitetDto mapOpptjeningAktivitetsTypeTilDto(OpptjeningAktivitetType arbeidsforholdType) {
         return switch (arbeidsforholdType) {
@@ -200,7 +203,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             case VIDERE_ETTERUTDANNING -> OpptjeningAktivitetDto.VIDERE_ETTERUTDANNING;
             case UTENLANDSK_ARBEIDSFORHOLD -> OpptjeningAktivitetDto.UTENLANDSK_ARBEIDSFORHOLD;
             case MILITÆR_ELLER_SIVILTJENESTE -> OpptjeningAktivitetDto.MILITÆR_ELLER_SIVILTJENESTE;
-            case UDEFINERT -> throw new IllegalArgumentException("Argumentet støttes ikke: UDEFINERT");
+            case UDEFINERT -> null;
             case FRILOPP -> throw new IllegalArgumentException("Argumentet støttes ikke: FRILOPP");
         };
     }

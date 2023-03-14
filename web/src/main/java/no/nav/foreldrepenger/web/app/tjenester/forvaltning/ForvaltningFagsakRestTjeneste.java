@@ -201,9 +201,9 @@ public class ForvaltningFagsakRestTjeneste {
         var fagsak1 = fagsakRepository.hentSakGittSaksnummer(saksnummer1).orElse(null);
         var fagsak2 = fagsakRepository.hentSakGittSaksnummer(saksnummer2).orElse(null);
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak1).orElse(null);
-        if (fagsak1 == null || fagsak2 == null || !erFagsakRelasjonKoblet(fagsakRelasjon) || !fagsakRelasjon.getFagsakNrEn()
-            .getId()
-            .equals(fagsak1.getId()) || !fagsakRelasjon.getFagsakNrTo().orElseThrow().getId().equals(fagsak2.getId())) {
+        if (fagsak1 == null || fagsak2 == null || fagsakRelasjon == null || !erFagsakRelasjonKoblet(fagsakRelasjon) ||
+                !fagsakRelasjon.getFagsakNrEn().getId().equals(fagsak1.getId()) ||
+                !fagsakRelasjon.getFagsakNrTo().get().getId().equals(fagsak2.getId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         LOG.info("Kobler fra hverandre fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi());
