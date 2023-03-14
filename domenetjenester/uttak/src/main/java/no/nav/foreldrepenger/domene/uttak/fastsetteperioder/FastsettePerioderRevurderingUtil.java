@@ -90,9 +90,7 @@ public final class FastsettePerioderRevurderingUtil {
         if (periode.getDokRegel() != null) {
             builder.medDokRegel(kopierDokRegel(periode.getDokRegel()));
         }
-        if (periode.getPeriodeSøknad().isPresent()) {
-            builder.medPeriodeSoknad(periode.getPeriodeSøknad().get());
-        }
+        periode.getPeriodeSøknad().ifPresent(builder::medPeriodeSoknad);
         return builder.build();
     }
 
