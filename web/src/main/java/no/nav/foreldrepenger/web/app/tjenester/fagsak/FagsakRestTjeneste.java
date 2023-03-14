@@ -30,6 +30,9 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandling.impl.HendelseForBehandling;
+import no.nav.foreldrepenger.behandling.impl.PubliserBehandlingHendelseTask;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -55,6 +58,8 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -84,6 +89,7 @@ public class FagsakRestTjeneste {
     private FagsakFullTjeneste fagsakFullTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private HistorikkRepository historikkRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public FagsakRestTjeneste() {
         // For Rest-CDI
@@ -91,11 +97,13 @@ public class FagsakRestTjeneste {
 
     @Inject
     public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste, HistorikkRepository historikkRepository,
-                              FagsakFullTjeneste fagsakFullTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository) {
+                              FagsakFullTjeneste fagsakFullTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository,
+                              ProsessTaskTjeneste taskTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.fagsakFullTjeneste = fagsakFullTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.historikkRepository = historikkRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     @GET
@@ -185,14 +193,28 @@ public class FagsakRestTjeneste {
     public Response endreUtlandMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class)
                                           @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
-        if (endreUtland.utlandMarkering() != null && fagsak != null) {
-            var eksisterende = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId()).orElse(UtlandMarkering.NASJONAL);
+        if (fagsak != null) {
+            var eksisterendeOpt = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId());
+            // Sjekk om unedret merking
+            if (eksisterendeOpt.filter(eum -> endreUtland.utlandMarkering().equals(eum)).isPresent()) {
+                return Response.ok().build();
+            }
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.utlandMarkering());
-            lagHistorikkInnslag(fagsak, eksisterende, endreUtland.utlandMarkering());
+            lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(UtlandMarkering.NASJONAL), endreUtland.utlandMarkering());
+            // Oppdater LOS-oppgaver
+            fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).forEach(this::opprettProsessTask);
             return Response.ok().build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+    }
+
+    private void opprettProsessTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
+        prosessTaskData.setCallIdFraEksisterende();
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     public static class EndreUtlandAbacDataSupplier implements Function<Object, AbacDataAttributter> {

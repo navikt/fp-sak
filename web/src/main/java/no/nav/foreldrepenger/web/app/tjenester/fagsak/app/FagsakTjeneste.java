@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -21,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -46,7 +46,6 @@ public class FagsakTjeneste {
 
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private PersonopplysningTjeneste personopplysningTjeneste;
 
     protected FagsakTjeneste() {
         // CDI runner
@@ -58,14 +57,12 @@ public class FagsakTjeneste {
                           ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                           PersoninfoAdapter personinfoAdapter,
                           FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                          FamilieHendelseTjeneste familieHendelseTjeneste,
-                          PersonopplysningTjeneste personopplysningTjeneste) {
+                          FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.fagsakRepository = fagsakRepository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.personopplysningTjeneste = personopplysningTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
     }
 
@@ -129,6 +126,12 @@ public class FagsakTjeneste {
             .collect(Collectors.toList());
         var aktoerInfoDto = new AktoerInfoDto(personinfo.aktørId().getId(), personDto, fagsakDtoer);
         return Optional.of(aktoerInfoDto);
+    }
+
+    public List<Behandling> hentBehandlingerMedÅpentAksjonspunkt(Fagsak fagsak) {
+        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+            .filter(b -> b.getÅpneAksjonspunkter().stream().anyMatch(a -> !a.erAutopunkt()))
+            .toList();
     }
 
     private Integer finnDekningsgrad(Saksnummer saksnummer) {
