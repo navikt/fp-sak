@@ -244,7 +244,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     private void verifiserAvstemming(List<Oppdrag110> oppdrag110Liste) {
-        assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
+        assertThat(oppdrag110Liste).isNotEmpty().allSatisfy(oppdrag110 -> {
             var avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
             assertThat(avstemming.getNøkkel()).isNotNull();

@@ -260,7 +260,7 @@ class FødselForretningshendelseSaksvelgerTest {
         // Assert
         assertThat(behandlingÅrsakTypeListMap).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(0);
+        assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).isEmpty();
     }
 
     @Test

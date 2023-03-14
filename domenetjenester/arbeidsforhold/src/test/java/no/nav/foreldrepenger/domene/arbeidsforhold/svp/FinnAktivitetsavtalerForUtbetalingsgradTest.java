@@ -27,7 +27,7 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales).hasSize(0);
+        assertThat(aktivitetsAvtales).isEmpty();
     }
 
     @Test
@@ -44,7 +44,7 @@ class FinnAktivitetsavtalerForUtbetalingsgradTest {
         var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
-        assertThat(aktivitetsAvtales).hasSize(0);
+        assertThat(aktivitetsAvtales).isEmpty();
     }
 
     @Test

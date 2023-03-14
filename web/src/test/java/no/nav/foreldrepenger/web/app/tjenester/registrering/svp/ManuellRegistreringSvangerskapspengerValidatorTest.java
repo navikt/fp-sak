@@ -20,7 +20,7 @@ class ManuellRegistreringSvangerskapspengerValidatorTest {
 
         var feltFeilDtos = ManuellRegistreringSvangerskapspengerValidator.validerOpplysninger(dto);
 
-        assertThat(feltFeilDtos).hasSize(0);
+        assertThat(feltFeilDtos).isEmpty();
     }
 
     @Test

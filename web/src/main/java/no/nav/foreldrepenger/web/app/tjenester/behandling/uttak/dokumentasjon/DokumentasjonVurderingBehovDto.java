@@ -11,7 +11,7 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom,
                                              @NotNull LocalDate tom,
                                              @NotNull DokumentasjonVurderingBehov.Behov.Type type,
                                              @NotNull DokumentasjonVurderingBehov.Behov.Årsak årsak,
-                                             @NotNull Vurdering vurdering) {
+                                             Vurdering vurdering) {
 
     static DokumentasjonVurderingBehovDto from(DokumentasjonVurderingBehov o) {
         return new DokumentasjonVurderingBehovDto(o.oppgittPeriode().getFom(), o.oppgittPeriode().getTom(), o.behov().type(),

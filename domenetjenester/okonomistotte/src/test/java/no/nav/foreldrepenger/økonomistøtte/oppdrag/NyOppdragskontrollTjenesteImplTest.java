@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 
-public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestBase {
+class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestBase {
 
     @BeforeEach
     public void setUp() {
@@ -638,7 +638,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     private void verifiserAvstemming(List<Oppdrag110> oppdrag110Liste) {
-        assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
+        assertThat(oppdrag110Liste).isNotEmpty().allSatisfy(oppdrag110 -> {
             var avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
             assertThat(avstemming.getNøkkel()).isNotNull();
@@ -656,9 +656,9 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     private void verifiserUtbetalingene150(List<Oppdrag110> mottakere110, List<KodeKlassifik> forventetKodeKlasifikk) {
         var oppdragLinjer150 = mottakere110.stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
-        assertThat(oppdragLinjer150.stream()).allSatisfy(periode150 -> {
+        assertThat(oppdragLinjer150.stream()).isNotEmpty().allSatisfy(periode150 -> {
             assertThat(periode150.getKodeKlassifik()).isIn(forventetKodeKlasifikk);
             assertThat(periode150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
             assertThat(periode150.getTypeSats()).isEqualTo(periode150.getKodeKlassifik().gjelderFeriepenger() ? TypeSats.ENG : TypeSats.DAG);
@@ -687,13 +687,13 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
     private void varifiserMottakere110(List<Oppdrag110> mottakere110, int antallMottakere, List<KodeFagområde> kodeFagområder) {
         assertThat(mottakere110).isNotEmpty();
-        assertThat(mottakere110.size()).isEqualTo(antallMottakere);
+        assertThat(mottakere110).hasSize(antallMottakere);
 
         assertThat(mottakere110.stream().map(Oppdrag110::getKodeFagomrade).distinct()).containsExactlyInAnyOrderElementsOf(kodeFagområder);
         assertThat(mottakere110).allMatch(oppdrag110 -> oppdrag110.getOppdragGjelderId().equals(BRUKER_FNR));
         assertThat(mottakere110).allMatch(oppdrag110 -> oppdrag110.getSaksbehId().equals(ANSVARLIG_SAKSBEHANDLER));
         assertThat(mottakere110.stream().map(Oppdrag110::getFagsystemId)).allSatisfy(fagsystemId ->
-            assertThat(String.valueOf(fagsystemId).contains(SAKSNUMMER.getVerdi())).isTrue()
+            assertThat(String.valueOf(fagsystemId)).contains(SAKSNUMMER.getVerdi())
         );
         assertThat(mottakere110.stream().map(Oppdrag110::getFagsystemId).distinct().count()).isEqualTo(antallMottakere);
         verifiserAvstemming(mottakere110);

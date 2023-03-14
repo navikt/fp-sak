@@ -49,8 +49,8 @@ class SøknadMapperTest {
         var tilretteleggingRot = svangerskapspenger.getTilretteleggingListe().getTilrettelegging().get(0);
         assertThat(tilretteleggingRot.getIngenTilrettelegging()).hasSize(1);
         assertThat(tilretteleggingRot.getIngenTilrettelegging().get(0).getSlutteArbeidFom()).isEqualTo(behovsdato);
-        assertThat(tilretteleggingRot.getHelTilrettelegging()).hasSize(0);
-        assertThat(tilretteleggingRot.getDelvisTilrettelegging()).hasSize(0);
+        assertThat(tilretteleggingRot.getHelTilrettelegging()).isEmpty();
+        assertThat(tilretteleggingRot.getDelvisTilrettelegging()).isEmpty();
     }
 
     private NavBruker lagNavBruker() {

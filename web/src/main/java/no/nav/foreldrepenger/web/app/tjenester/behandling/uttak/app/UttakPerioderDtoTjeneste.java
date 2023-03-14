@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -151,7 +150,7 @@ public class UttakPerioderDtoTjeneste {
         return list
             .stream()
             .sorted(Comparator.comparing(UttakResultatPeriodeDto::getFom))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private UttakResultatPeriodeAktivitetDto map(ForeldrepengerUttakPeriodeAktivitet aktivitet,
@@ -176,8 +175,12 @@ public class UttakPerioderDtoTjeneste {
         var arbeidsgiverOptional = aktivitet.getUttakAktivitet().getArbeidsgiver();
         var arbeidsgiverReferanse = arbeidsgiverOptional.map(Arbeidsgiver::getIdentifikator).orElse(null);
         var ref = aktivitet.getArbeidsforholdRef();
-        if (ref != null && inntektArbeidYtelseGrunnlag.isPresent() && inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().isPresent() && arbeidsgiverOptional.isPresent()) {
-            var eksternArbeidsforholdId = inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().get().finnEkstern(arbeidsgiverOptional.get(), ref);
+        if (ref != null && inntektArbeidYtelseGrunnlag.isPresent() && inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().isPresent()
+            && arbeidsgiverOptional.isPresent()) {
+            var eksternArbeidsforholdId = inntektArbeidYtelseGrunnlag.orElseThrow()
+                .getArbeidsforholdInformasjon()
+                .orElseThrow()
+                .finnEkstern(arbeidsgiverOptional.get(), ref);
             builder.medArbeidsforhold(ref, eksternArbeidsforholdId.getReferanse(), arbeidsgiverReferanse);
         } else {
             builder.medArbeidsforhold(null, null, arbeidsgiverReferanse);

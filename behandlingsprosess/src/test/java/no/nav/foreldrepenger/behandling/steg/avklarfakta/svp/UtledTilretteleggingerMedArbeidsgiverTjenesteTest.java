@@ -66,7 +66,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, List.of(tilrettelegging));
 
         // Assert
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
 
     }
 
@@ -254,7 +254,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
 
         // Assert
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
 
     }
 

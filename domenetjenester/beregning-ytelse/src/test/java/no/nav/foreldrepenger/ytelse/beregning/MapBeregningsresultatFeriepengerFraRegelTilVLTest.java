@@ -47,7 +47,7 @@ class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
         // Assert
         var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get()
                 .getBeregningsresultatFeriepengerPrÅrListe();
-        assertThat(beregningsresultatFeriepengerPrÅrListe).hasSize(0);
+        assertThat(beregningsresultatFeriepengerPrÅrListe).isEmpty();
     }
 
     @Test
