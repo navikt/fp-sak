@@ -299,7 +299,7 @@ public class PersoninfoTjeneste {
         var builder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
         var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
                 .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
-                .collect(Collectors.toList());
+                .toList();
         periodiserPersonstatus(personStatusPerioder).stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(builder::leggTil);
@@ -374,10 +374,10 @@ public class PersoninfoTjeneste {
     }
 
     private static List<PersonstatusPeriode> periodiserPersonstatus(List<PersonstatusPeriode> perioder) {
-        var gyldighetsperioder = perioder.stream().map(PersonstatusPeriode::getGyldighetsperiode).collect(Collectors.toList());
+        var gyldighetsperioder = perioder.stream().map(PersonstatusPeriode::getGyldighetsperiode).toList();
         return perioder.stream()
                 .map(p -> new PersonstatusPeriode(finnFraPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getPersonstatus()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static List<AdressePeriode> periodiserAdresse(List<AdressePeriode> perioder) {
@@ -389,7 +389,7 @@ public class PersoninfoTjeneste {
                         finnFraPerioder(adresseTypePerioder.get(forSortering(p.getAdresse().getAdresseType())), p.getGyldighetsperiode()),
                         p.getAdresse()))
                 .filter(a -> !a.getGyldighetsperiode().getFom().isAfter(a.getGyldighetsperiode().getTom()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static AdresseType forSortering(AdresseType type) {
@@ -424,7 +424,7 @@ public class PersoninfoTjeneste {
         var alleLand = statsborgerskap.stream()
                 .map(Statsborgerskap::getLand)
                 .map(Landkoder::fraKodeDefaultUdefinert)
-                .collect(Collectors.toList());
+                .toList();
         return alleLand.stream().anyMatch(Landkoder.NOR::equals) ? List.of(Landkoder.NOR) : alleLand;
     }
 
@@ -646,10 +646,10 @@ public class PersoninfoTjeneste {
 
     // TODO: Sjekk hva som kommer. Vurder Periodisering
     private List<OppholdstillatelsePeriode> periodiserOppholdstillatelser(List<OppholdstillatelsePeriode> uperiodisert) {
-        var gyldighetsperioder = uperiodisert.stream().map(OppholdstillatelsePeriode::getGyldighetsperiode).collect(Collectors.toList());
+        var gyldighetsperioder = uperiodisert.stream().map(OppholdstillatelsePeriode::getGyldighetsperiode).toList();
         return uperiodisert.stream()
                 .map(p -> new OppholdstillatelsePeriode(finnFomFraTomPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getTillatelse()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static Gyldighetsperiode finnFomFraTomPerioder(List<Gyldighetsperiode> alleperioder, Gyldighetsperiode periode) {

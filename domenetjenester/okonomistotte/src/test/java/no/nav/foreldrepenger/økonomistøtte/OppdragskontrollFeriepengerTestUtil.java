@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -140,7 +139,7 @@ public class OppdragskontrollFeriepengerTestUtil {
     public static List<Oppdragslinje150> getOppdr150ForFeriepengerForEnMottaker(List<Oppdragslinje150> forrigeOpp150FeriepengerListe,
                                                                                 boolean erBrukerMottaker) {
         var kodeKlassifik = erBrukerMottaker ? KodeKlassifik.FERIEPENGER_BRUKER : KodeKlassifik.FPF_FERIEPENGER_AG;
-        return forrigeOpp150FeriepengerListe.stream().filter(opp150 -> kodeKlassifik.equals(opp150.getKodeKlassifik())).collect(Collectors.toList());
+        return forrigeOpp150FeriepengerListe.stream().filter(opp150 -> kodeKlassifik.equals(opp150.getKodeKlassifik())).toList();
     }
 
     static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdragskontroll oppdrag) {
@@ -148,13 +147,13 @@ public class OppdragskontrollFeriepengerTestUtil {
             .stream()
             .map(NyOppdragskontrollTjenesteTestBase::getOppdragslinje150Feriepenger)
             .flatMap(List::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
         return oppdrag110.getOppdragslinje150Liste()
             .stream()
             .filter(opp150 -> opp150.getKodeKlassifik().gjelderFeriepenger())
-            .collect(Collectors.toList());
+            .toList();
     }
 }

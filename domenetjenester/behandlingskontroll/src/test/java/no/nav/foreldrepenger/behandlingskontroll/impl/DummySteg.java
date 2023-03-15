@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -41,7 +40,7 @@ class DummySteg implements BehandlingSteg {
         if (tilbakefør) {
             var tilbakeført = BehandleStegResultat
                     .tilbakeførtMedAksjonspunkter(aksjonspunkter.stream()
-                            .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList()));
+                            .map(AksjonspunktResultat::getAksjonspunktDefinisjon).toList());
             sisteUtførStegResultat.set(tilbakeført);
             return tilbakeført;
         }

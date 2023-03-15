@@ -192,7 +192,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {
-        return perioder.stream().map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build()).collect(Collectors.toList());
+        return perioder.stream().map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build()).toList();
     }
 
     private List<OppgittPeriodeEntitet> getSøknadsPerioderOppdatertMedMottattDato(UttakInput input, YtelseFordelingAggregat aggregat) {
@@ -203,7 +203,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                 .map(p -> OppgittPeriodeBuilder.fraEksisterende(p)
                     .medTidligstMottattDato(utledMottattDato(p.getTidligstMottattDato().orElseGet(p::getMottattDato), mottattDato))
                     .build())
-                .collect(Collectors.toList());
+                .toList();
         } else {
             return aggregat.getOppgittFordeling().getPerioder();
         }

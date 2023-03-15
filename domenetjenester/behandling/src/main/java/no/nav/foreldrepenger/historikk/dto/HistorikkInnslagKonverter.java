@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -44,7 +43,7 @@ public final class HistorikkInnslagKonverter {
 
     private static List<HistorikkInnslagDokumentLinkDto> mapLenker(List<HistorikkinnslagDokumentLink> lenker,
             List<JournalpostId> journalPosterForSak, URI dokumentPath) {
-        return lenker.stream().map(lenke -> map(lenke, journalPosterForSak, dokumentPath)).collect(Collectors.toList());
+        return lenker.stream().map(lenke -> map(lenke, journalPosterForSak, dokumentPath)).toList();
     }
 
     private static HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke, List<JournalpostId> journalPosterForSak, URI dokumentPath) {

@@ -80,13 +80,13 @@ public class DatavarehusRepository {
         query.setParameter("fom", fom);
         query.setParameter("tom", tom);
 
-        return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).collect(Collectors.toList());
+        return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).toList();
     }
 
     public List<Long> hentVedtakBehandlinger(Long behandlingid) {
         var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :bid ", VedtakUtbetalingDvh.class);
         query.setParameter("bid", behandlingid);
-        return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).collect(Collectors.toList());
+        return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).toList();
     }
 
     public long oppdater(VedtakUtbetalingDvh vedtakUtbetalingDvh, String nyVedtakXml) {

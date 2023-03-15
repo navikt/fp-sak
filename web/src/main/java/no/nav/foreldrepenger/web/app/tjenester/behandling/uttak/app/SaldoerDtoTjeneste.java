@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -79,7 +78,7 @@ public class SaldoerDtoTjeneste {
     }
 
     private List<FastsattUttakPeriode> mapFromDto(List<UttakResultatPeriodeLagreDto> perioder) {
-        return perioder.stream().map(this::map).collect(Collectors.toList());
+        return perioder.stream().map(this::map).toList();
     }
 
     private SaldoerDto lagStønadskontoDto(UttakInput input, SaldoUtregning saldoUtregning) {
@@ -250,7 +249,7 @@ public class SaldoerDtoTjeneste {
     }
 
     private List<FastsattUttakPeriodeAktivitet> map(List<UttakResultatPeriodeAktivitetLagreDto> aktiviteter) {
-        return aktiviteter.stream().map(this::map).collect(Collectors.toList());
+        return aktiviteter.stream().map(this::map).toList();
     }
 
     private FastsattUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetLagreDto dto) {

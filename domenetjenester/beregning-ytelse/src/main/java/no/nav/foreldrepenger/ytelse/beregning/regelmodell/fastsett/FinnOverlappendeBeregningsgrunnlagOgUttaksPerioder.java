@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.ytelse.beregning.BeregningsgrunnlagUttakArbeidsforholdMatcher;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
@@ -58,7 +57,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         var uttakTimeline = uttakResultat.getUttakPeriodeTimeline();
         var resultatTimeline = intersectTimelines(grunnlagTimeline, uttakTimeline, resultater)
             .compress();
-        return resultatTimeline.toSegments().stream().map(LocalDateSegment::getValue).collect(Collectors.toList());
+        return resultatTimeline.toSegments().stream().map(LocalDateSegment::getValue).toList();
     }
 
     private LocalDateTimeline<BeregningsresultatPeriode> intersectTimelines(LocalDateTimeline<BeregningsgrunnlagPeriode> grunnlagTimeline, LocalDateTimeline<UttakResultatPeriode> uttakTimeline, Map<String, Object> resultater) {
@@ -258,7 +257,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     private LocalDateTimeline<BeregningsgrunnlagPeriode> mapGrunnlagTimeline(Beregningsgrunnlag grunnlag) {
         var grunnlagPerioder = grunnlag.beregningsgrunnlagPerioder().stream()
             .map(p -> new LocalDateSegment<>(p.periode(), p))
-            .collect(Collectors.toList());
+            .toList();
         return new LocalDateTimeline<>(grunnlagPerioder);
     }
 

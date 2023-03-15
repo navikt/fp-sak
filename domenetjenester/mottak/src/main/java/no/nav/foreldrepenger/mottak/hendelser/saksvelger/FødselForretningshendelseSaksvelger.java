@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -62,7 +61,7 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
             .filter(fagsak -> fagsakErRelevantForHendelse(fagsak, forretningshendelse))
             .filter(f -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
                 || erFagsakPassendeForFamilieHendelse(forretningshendelse.fødselsdato(), f))
-            .collect(Collectors.toList());
+            .toList();
 
         if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
             || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {

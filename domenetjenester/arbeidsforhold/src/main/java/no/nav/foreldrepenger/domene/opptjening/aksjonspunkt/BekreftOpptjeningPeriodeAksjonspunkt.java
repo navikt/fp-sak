@@ -4,12 +4,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -46,7 +44,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
 
         var ugyldigePerioder = bekreftedeOpptjeningsaktiviteter.stream()
                 .filter(it -> !kanOverstyresOgSkalKunneLagreResultat(behandlingId, aktørId, iayGrunnlag, kodeRelasjonMap, it, skjæringstidspunkt))
-            .collect(Collectors.toList());
+            .toList();
 
         if (ugyldigePerioder.size() > 0) {
             throw new IllegalStateException("Det finnes saksbehandlede perioder som ikke er åpne for saksbehandling. Ugyldige perioder: " + ugyldigePerioder);

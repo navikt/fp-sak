@@ -9,7 +9,6 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
@@ -57,7 +56,7 @@ public class GrensesnittavstemmingMapper {
         this.objectFactory = new ObjectFactory();
         this.avstemmingId = encodeUUIDBase64(UUID.randomUUID());
         this.fagområde = fagområde;
-        this.oppdragsliste = oppdragsliste.stream().filter(opp -> opp.getKodeFagomrade().equals(kodeFagområde)).collect(Collectors.toList());
+        this.oppdragsliste = oppdragsliste.stream().filter(opp -> opp.getKodeFagomrade().equals(kodeFagområde)).toList();
     }
 
     private static String encodeUUIDBase64(UUID uuid) {

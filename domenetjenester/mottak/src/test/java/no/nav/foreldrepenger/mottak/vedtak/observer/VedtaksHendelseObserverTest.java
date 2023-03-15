@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +61,7 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         verify(taskTjeneste, times(2)).lagre(captor.capture());
         var prosessTaskDataList = captor.getAllValues();
 
-        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), TaskType.forProsessTask(StartBerørtBehandlingTask.class));
 
     }
@@ -78,7 +77,7 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
         verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskDataList = captor.getAllValues();
 
-        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).collect(Collectors.toList());
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
 
         assertThat(tasktyper).contains(TaskType.forProsessTask(VurderOpphørAvYtelserTask.class));
     }

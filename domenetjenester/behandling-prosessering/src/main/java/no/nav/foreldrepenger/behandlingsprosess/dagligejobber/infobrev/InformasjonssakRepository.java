@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -107,7 +106,7 @@ public class InformasjonssakRepository {
          * levende barn - Begrenset til at det er oppgitt annen part
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-                .collect(Collectors.toList());
+                .toList();
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_VANLIG);
         query.setParameter("fomdato", fom);
         query.setParameter("tomdato", tom);
@@ -187,7 +186,7 @@ public class InformasjonssakRepository {
 
     public List<InformasjonssakData> finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(LocalDate fom, LocalDate tom) {
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-            .collect(Collectors.toList());
+            .toList();
         var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_PÅMINNELSE);
         query.setParameter("fomdato", fom);
         query.setParameter("tomdato", tom);
@@ -271,7 +270,7 @@ public class InformasjonssakRepository {
          * første periode
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-                .collect(Collectors.toList());
+                .toList();
         Query query;
         if (saksnummer == null) {
             query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato ");

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -66,9 +65,9 @@ public class ArbeidsforholdInntektsmeldingsMangelUtleder {
     }
     private List<ArbeidsforholdMangel> lagArbeidsforholdMedMangel(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap, AksjonspunktÅrsak manglendeInntektsmelding) {
         return arbeidsgiverSetMap.entrySet().stream()
-            .map(entry -> entry.getValue().stream().map(refer -> new ArbeidsforholdMangel(entry.getKey(), refer, manglendeInntektsmelding)).collect(Collectors.toList()))
+            .map(entry -> entry.getValue().stream().map(refer -> new ArbeidsforholdMangel(entry.getKey(), refer, manglendeInntektsmelding)).toList())
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Boolean erEndringssøknad(BehandlingReferanse referanse) {

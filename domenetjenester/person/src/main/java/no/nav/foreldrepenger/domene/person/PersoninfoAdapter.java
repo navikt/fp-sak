@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.person;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -93,7 +92,7 @@ public class PersoninfoAdapter {
     public List<AktørId> finnAktørIdForForeldreTil(PersonIdent personIdent) {
         return fødselTjeneste.hentForeldreTil(personIdent).stream()
             .flatMap(p -> aktørConsumer.hentAktørIdForPersonIdent(p).stream())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {

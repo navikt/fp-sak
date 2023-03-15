@@ -65,7 +65,7 @@ public class MapYtelseperioderTjeneste {
         var orgnumre = grunnlagList.stream()
                 .map(ys -> ys.getOrgnr().orElse(null))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         // Aksepter Utbetprosent null, men ikke tallet 0
         ytelse.getYtelseAnvist().stream()
@@ -131,10 +131,10 @@ public class MapYtelseperioderTjeneste {
     private static List<OpptjeningsperiodeForSaksbehandling> slåSammenYtelseListe(List<OpptjeningsperiodeForSaksbehandling> ytelser) {
         var tidslinje = new LocalDateTimeline<>(ytelser.stream()
                 .map(s -> new LocalDateSegment<>(new LocalDateInterval(s.getPeriode().getFomDato(), s.getPeriode().getTomDato()), s))
-                .collect(Collectors.toList()), MapYtelseperioderTjeneste::slåSammenToSegment);
+                .toList(), MapYtelseperioderTjeneste::slåSammenToSegment);
         return tidslinje.compress((v1, v2) -> true, MapYtelseperioderTjeneste::slåSammenToSegment).toSegments().stream()
                 .map(LocalDateSegment::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static LocalDateSegment<OpptjeningsperiodeForSaksbehandling> slåSammenToSegment(LocalDateInterval i,

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import java.util.stream.Collectors;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -39,7 +37,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
     public OppdateringResultat oppdater(BekreftSokersOpplysningspliktManuDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = param.getBehandling();
         final var erVilkårOk = dto.getErVilkarOk() &&
-            dto.getInntektsmeldingerSomIkkeKommer().stream().filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer()).collect(Collectors.toList()).isEmpty();
+            dto.getInntektsmeldingerSomIkkeKommer().stream().filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer()).toList().isEmpty();
         leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), erVilkårOk);
 
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();

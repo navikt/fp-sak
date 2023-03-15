@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -43,6 +42,6 @@ public class UttakResultatPerioderEntitet extends BaseEntitet {
     }
 
     public List<UttakResultatPeriodeEntitet> getPerioder() {
-        return perioder.stream().sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom)).collect(Collectors.toList());
+        return perioder.stream().sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom)).toList();
     }
 }

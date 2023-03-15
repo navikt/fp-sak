@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -258,7 +257,7 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         månedBeløpMap.entrySet().stream().map(entry -> InntektspostBuilder.ny()
                 .medBeløp(BigDecimal.valueOf(entry.getValue()))
                 .medPeriode(entry.getKey().atDay(1), entry.getKey().atDay(entry.getKey().lengthOfMonth())))
-            .collect(Collectors.toList())
+            .toList()
             .forEach(inntektBuilder::leggTilInntektspost);
         return inntektBuilder;
     }

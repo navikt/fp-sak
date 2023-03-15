@@ -127,7 +127,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private List<UidentifisertBarn> konverterBarn(List<UidentifisertBarnDto> barn) {
         return barn.stream()
             .map(b -> new AntallBarnOgFødselsdato(b.getFodselsdato(), b.getDodsdato(), 0))
-            .collect(Collectors.toList());
+            .collect(Collectors.toList()); //NOSONAR
     }
 
     private Boolean hentOrginalDokumentasjonForeligger(FamilieHendelseGrunnlagEntitet grunnlag) {

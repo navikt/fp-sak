@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -120,13 +119,13 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
         var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterForVisning(referanse.saksnummer()).stream()
             .filter(this::gjelderInntektsmelding)
-            .collect(Collectors.toList());
+            .toList();
         return inntektsmeldinger.stream().map(im -> {
                 var dokumentId = finnDokumentId(im.getJournalpostId(), alleInntektsmeldingerFraArkiv);
                 var kontaktinfo = finnMotattXML(motatteDokumenter, im).flatMap(this::trekkUtKontaktInfo);
                 return ArbeidOgInntektsmeldingMapper.mapInntektsmelding(im, referanser, kontaktinfo, dokumentId, mangler, saksbehandlersVurderinger);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean gjelderInntektsmelding(ArkivJournalPost dok) {

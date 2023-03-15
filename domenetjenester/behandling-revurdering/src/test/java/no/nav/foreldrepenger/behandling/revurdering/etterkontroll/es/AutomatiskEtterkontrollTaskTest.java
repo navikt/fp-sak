@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -117,7 +116,7 @@ class AutomatiskEtterkontrollTaskTest {
         assertThat(behandlingÅrsaker).isNotEmpty();
         var årsaker = behandlingÅrsaker.stream()
                 .map(bå -> bå.getBehandlingÅrsakType())
-                .collect(Collectors.toList());
+                .toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
     }
 

@@ -5,7 +5,6 @@ import static java.util.Objects.isNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -54,7 +53,7 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
     private static Fordeling mapFordelingEndringssøknad(ManuellRegistreringEndringsøknadDto registreringDto) {
         var fordeling = new Fordeling();
         var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
-        fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));
+        fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).toList());
         fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
         return fordeling;
     }
@@ -87,7 +86,7 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
         if (isNull(utsettelserDto)) {
             return new ArrayList<>();
         }
-        return utsettelserDto.stream().map(EndringssøknadSøknadMapper::mapUtsettelsesperiode).collect(Collectors.toList());
+        return utsettelserDto.stream().map(EndringssøknadSøknadMapper::mapUtsettelsesperiode).toList();
     }
 
     private static Utsettelsesperiode mapUtsettelsesperiode(UtsettelseDto utsettelserDto) {

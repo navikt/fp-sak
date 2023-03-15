@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -375,8 +374,8 @@ class InntektsmeldingTjenesteTest {
 
     private boolean erDisjonkteListerAvInntektsmeldinger(List<Inntektsmelding> imsA, List<Inntektsmelding> imsB) {
         return Collections.disjoint(
-                imsA.stream().map(Inntektsmelding::getJournalpostId).collect(Collectors.toList()),
-                imsB.stream().map(Inntektsmelding::getJournalpostId).collect(Collectors.toList()));
+                imsA.stream().map(Inntektsmelding::getJournalpostId).toList(),
+                imsB.stream().map(Inntektsmelding::getJournalpostId).toList());
     }
 
     private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,

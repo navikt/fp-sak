@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsforholdRef;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulator.modell.svp.PeriodeMedUtbetalingsgradDto;
 import no.nav.folketrygdloven.kalkulator.modell.svp.AktivitetDto;
@@ -20,7 +19,7 @@ public class TilretteleggingMapperTilKalkulus {
     public static List<UtbetalingsgradPrAktivitetDto> mapTilretteleggingerMedUtbetalingsgrad(List<TilretteleggingMedUtbelingsgrad> tilretteleggingMedUtbelingsgrad) {
         return tilretteleggingMedUtbelingsgrad.stream().
             map(TilretteleggingMapperTilKalkulus::mapTilretteleggingMedUtbetalingsgrad)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static UtbetalingsgradPrAktivitetDto mapTilretteleggingMedUtbetalingsgrad(TilretteleggingMedUtbelingsgrad tilretteleggingMedUtbelingsgrad) {
@@ -33,7 +32,7 @@ public class TilretteleggingMapperTilKalkulus {
     private static List<PeriodeMedUtbetalingsgradDto> mapPerioderMedUtbetalingsgrad(List<PeriodeMedUtbetalingsgrad> periodeMedUtbetalingsgrad) {
         return periodeMedUtbetalingsgrad.stream()
             .map(TilretteleggingMapperTilKalkulus::mapPeriodeMedUtbetalingsgrad)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static PeriodeMedUtbetalingsgradDto mapPeriodeMedUtbetalingsgrad(PeriodeMedUtbetalingsgrad periodeMedUtbetalingsgrad) {

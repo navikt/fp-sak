@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.personopplysning;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -133,7 +132,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
             .filter(p -> p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) || OPPHOLD_BRUK_UDEFINERT_FOM.isBefore(p.getTomDato()))
             .map(p -> new LocalDateInterval(p.getFomDato().isAfter(OPPHOLD_AKSEPTER_FOM_ETTER) ? p.getFomDato() : OPPHOLD_BRUK_UDEFINERT_FOM, p.getTomDato()))
             .map(ot -> new LocalDateSegment<>(ot, Boolean.TRUE))
-            .collect(Collectors.toList());
+            .toList();
         return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch).compress();
     }
 

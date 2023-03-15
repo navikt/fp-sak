@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -110,7 +109,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         final var aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
         final var tilPersoner = aggregat.getSøkersRelasjoner().stream()
             .filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null)
-            .collect(Collectors.toList());
+            .toList();
         if (!tilPersoner.isEmpty()) {
             var familierelasjoner = personopplysningDvhObjectFactory
                 .createPersonopplysningerDvhEngangsstoenadFamilierelasjoner();

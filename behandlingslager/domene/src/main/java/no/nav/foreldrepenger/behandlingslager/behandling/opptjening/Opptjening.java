@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -82,7 +81,7 @@ public class Opptjening extends BaseEntitet {
         this.opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(annen.getFom(), annen.getTom());
         this.opptjentPeriode = annen.getOpptjentPeriode() == null ? null : annen.getOpptjentPeriode().toString();
         this.opptjeningAktivitet
-                .addAll(annen.getOpptjeningAktivitet().stream().map(oa -> new OpptjeningAktivitet(oa)).collect(Collectors.toList()));
+                .addAll(annen.getOpptjeningAktivitet().stream().map(OpptjeningAktivitet::new).toList());
         // kopierer ikke data som ikke er relevante (aktiv, versjon, id, etc)
 
     }

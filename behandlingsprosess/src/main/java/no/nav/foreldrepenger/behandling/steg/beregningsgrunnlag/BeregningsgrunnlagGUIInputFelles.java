@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KravperioderMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class BeregningsgrunnlagGUIInputFelles {
@@ -97,7 +95,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         return aksjonspunkter.stream()
             .map(this::mapTilAvklaringsbehov)
             .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Optional<AvklaringsbehovDto> mapTilAvklaringsbehov(Aksjonspunkt ap) {

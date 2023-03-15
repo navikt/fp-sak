@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
@@ -30,7 +29,7 @@ public class EndringsresultatPersonopplysningerForMedlemskap {
     }
 
     public List<Endring> getEndredeAttributter() {
-        return endringer.stream().filter(Endring::isErEndret).collect(Collectors.toList());
+        return endringer.stream().filter(Endring::isErEndret).toList();
     }
 
     /**

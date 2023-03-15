@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -104,7 +103,7 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
         // Assert
         var ref = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
         var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref)
-                .stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.NÆRING)).collect(Collectors.toList());
+                .stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.NÆRING)).toList();
 
         assertThat(perioder).hasSize(1);
         var aktivitetPeriode = perioder.get(0);
@@ -135,7 +134,7 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
         var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
         assertThat(perioder).hasSize(1);
         assertThat(
-                perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_GODKJENT)).collect(Collectors.toList()))
+                perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_GODKJENT)).toList())
                         .hasSize(1);
     }
 
@@ -167,7 +166,7 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
         var perioder = opptjeningTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
         assertThat(perioder).hasSize(1);
         assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT))
-                .collect(Collectors.toList()))
+                .toList())
                         .hasSize(1);
     }
 

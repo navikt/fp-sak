@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -37,11 +36,11 @@ public class MapUttakResultatFraVLTilRegel {
             .map(periode -> {
                 var uttakAktiviteter = periode.getAktiviteter().stream()
                     .map(aktivitet -> mapAktivitet(input, aktivitet, periode.getFom(), periode.isGraderingInnvilget()))
-                    .collect(Collectors.toList());
+                    .toList();
                 return new UttakResultatPeriode(periode.getFom(), periode.getTom(), uttakAktiviteter,
                     periode.isOpphold());
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return new UttakResultat(uttakResultatPerioder);
     }

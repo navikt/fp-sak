@@ -5,7 +5,6 @@ import static java.lang.Boolean.TRUE;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -93,7 +92,7 @@ public class FatteVedtakTjeneste {
             if (sendesTilbakeTilSaksbehandler(totrinnaksjonspunktvurderinger)) {
                 var aksjonspunktDefinisjoner = totrinnaksjonspunktvurderinger.stream()
                         .filter(a -> !TRUE.equals(a.isGodkjent()))
-                        .map(Totrinnsvurdering::getAksjonspunktDefinisjon).collect(Collectors.toList());
+                        .map(Totrinnsvurdering::getAksjonspunktDefinisjon).toList();
 
                 return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
             }

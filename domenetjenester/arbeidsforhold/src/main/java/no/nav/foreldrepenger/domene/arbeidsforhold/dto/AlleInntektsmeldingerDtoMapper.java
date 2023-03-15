@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -45,6 +44,6 @@ public class AlleInntektsmeldingerDtoMapper {
                     var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
                     return new InntektsmeldingDto(inntektsmelding, virksomhet);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

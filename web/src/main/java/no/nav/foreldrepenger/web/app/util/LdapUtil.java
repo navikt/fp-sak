@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.util;
 
 import java.util.Collection;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -21,7 +20,7 @@ public class LdapUtil {
     public static Collection<String> filtrerGrupper(Collection<String> grupper) {
         return grupper.stream()
             .map(LdapUtil::filterDNtoCNvalue)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static String filterDNtoCNvalue(String value) {

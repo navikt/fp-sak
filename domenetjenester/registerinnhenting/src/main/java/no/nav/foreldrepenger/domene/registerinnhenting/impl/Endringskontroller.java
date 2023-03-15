@@ -158,11 +158,11 @@ public class Endringskontroller {
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> resultater.isEmpty() || resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
             .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.fagsakYtelseType(), ref.behandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
-            .collect(Collectors.toList());
+            .toList();
         var opprettes = resultater.stream()
             .filter(ar -> !AksjonspunktStatus.UTFØRT.equals(behandling.getAksjonspunktMedDefinisjonOptional(ar.getAksjonspunktDefinisjon())
                 .map(Aksjonspunkt::getStatus).orElse(AksjonspunktStatus.OPPRETTET)))
-            .collect(Collectors.toList());
+            .toList();
         if (!avbrytes.isEmpty()) {
             behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), avbrytes);
         }

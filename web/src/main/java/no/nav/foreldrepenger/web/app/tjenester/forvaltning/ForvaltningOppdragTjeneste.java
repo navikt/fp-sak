@@ -7,7 +7,6 @@ import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -117,7 +116,7 @@ class ForvaltningOppdragTjeneste {
         // Finn oppdrag som skal patches
         var oppdrag110TilPatching = oppdragskontroll.getOppdrag110Liste().stream()
             .filter(oppdrag110 -> oppdrag110.getFagsystemId() == fagsystemId)
-            .collect(Collectors.toList());
+            .toList();
 
         if (oppdrag110TilPatching.size() != 1) {
             LOG.warn("Mer enn oppdrag110 funnet for behandlingId {} og fagsystemId {}. Avbryttet patching.", behandlingId, fagsystemId);

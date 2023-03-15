@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
@@ -88,7 +87,7 @@ public class AvklarOmErBosatt {
                 .filter(opphold -> !opphold.isTidligereOpphold()
                     && !opphold.getLand().equals(Landkoder.NOR))
                 .map(o -> finnSegment(vurderingsdato, o.getPeriodeFom(), o.getPeriodeTom()))
-                .collect(Collectors.toList());
+                .toList();
 
             var fremtidigePerioder = new LocalDateTimeline<>(fremtidigeOpphold,
                 StandardCombinators::alwaysTrueForMatch).compress();

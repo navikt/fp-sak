@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 
@@ -77,7 +76,7 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
             .orElse(0);
         var originaleBrukersAndelSomIkkeMatcherRevurderingAndeler = alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering.stream()
             .filter(BeregningsresultatAndel::erBrukerMottaker)
-            .collect(Collectors.toList());
+            .toList();
         var originalDagsatsAndelerUtenMatchendeRef = originaleBrukersAndelSomIkkeMatcherRevurderingAndeler.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
         return originalDagsatsAndelUtenReferanse + originalDagsatsAndelerUtenMatchendeRef;
     }

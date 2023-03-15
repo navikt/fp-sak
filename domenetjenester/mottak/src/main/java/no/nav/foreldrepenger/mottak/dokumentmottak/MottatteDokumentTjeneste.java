@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -98,7 +97,7 @@ public class MottatteDokumentTjeneste {
         var spesialtyper = DokumentTypeId.getSpesialTyperKoder();
         return mottatteDokumentRepository.hentMottatteDokument(behandlingId).stream()
             .filter(m -> !spesialtyper.contains(m.getDokumentType()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public void oppdaterMottattDokumentMedBehandling(MottattDokument mottattDokument, Long behandlingId) {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.historikk;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
 import no.nav.vedtak.exception.TekniskException;
@@ -24,7 +23,7 @@ final class HistorikkInnsalgFeil {
     }
 
     private static List<String> map(Collection<HistorikkinnslagFeltType> feltTyper) {
-        return feltTyper.stream().map(HistorikkinnslagFeltType::getKode).collect(Collectors.toList());
+        return feltTyper.stream().map(HistorikkinnslagFeltType::getKode).toList();
     }
 
     static TekniskException manglerMinstEtFeltForHistorikkinnslag(String type, List<String> manglendeFelt) {

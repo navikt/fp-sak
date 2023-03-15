@@ -9,7 +9,6 @@ import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegist
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ManuellRegistreringValidatorUtil {
 
@@ -43,7 +42,7 @@ public class ManuellRegistreringValidatorUtil {
     }
 
     public static List<String> startdatoFørSluttdato(List<Periode> perioder) {
-        return perioder.stream().filter(p -> !p.startFørSlutt()).map(p -> STARTDATO_FØR_SLUTTDATO).collect(Collectors.toList());
+        return perioder.stream().filter(p -> !p.startFørSlutt()).map(p -> STARTDATO_FØR_SLUTTDATO).toList();
     }
 
     public static List<String> datoIkkeNull(List<Periode> perioder) {
@@ -57,11 +56,11 @@ public class ManuellRegistreringValidatorUtil {
     }
 
     public static List<String> startdatoFørMottatDato(List<Periode> perioder, LocalDate mottattDato) {
-        return perioder.stream().filter(p -> p.start.isBefore(mottattDato)).map(p -> LIK_ELLER_ETTER_MOTTATT_DATO).collect(Collectors.toList());
+        return perioder.stream().filter(p -> p.start.isBefore(mottattDato)).map(p -> LIK_ELLER_ETTER_MOTTATT_DATO).toList();
     }
 
     public static List<String> periodeFørDagensDato(List<Periode> perioder) {
-        return perioder.stream().filter(p -> !p.erFørDagensDato()).map(p -> TIDLIGERE_DATO).collect(Collectors.toList());
+        return perioder.stream().filter(p -> !p.erFørDagensDato()).map(p -> TIDLIGERE_DATO).toList();
     }
 
     public record Periode(LocalDate start, LocalDate slutt) {

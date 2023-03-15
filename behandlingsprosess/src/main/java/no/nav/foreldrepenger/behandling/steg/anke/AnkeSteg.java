@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.anke;
 
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -126,7 +125,7 @@ public class AnkeSteg implements BehandlingSteg {
             .filter(b -> BehandlingType.KLAGE.equals(b.getType()))
             .filter(Behandling::erSaksbehandlingAvsluttet)
             .filter(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()).filter(br -> !br.isBehandlingHenlagt()).isPresent())
-            .collect(Collectors.toList());
+            .toList();
         if (aktuelleKlager.size() == 1) {
             return Optional.of(lagrePåanketBehandling(anke, aktuelleKlager.get(0)));
         } else if (aktuelleKlager.size() > 1) {

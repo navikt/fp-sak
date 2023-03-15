@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -47,7 +46,7 @@ public final class BehandlingDtoUtil {
 
     private static List<BehandlingÅrsakDto> lagBehandlingÅrsakDto(Behandling behandling) {
         if (!behandling.getBehandlingÅrsaker().isEmpty()) {
-            return behandling.getBehandlingÅrsaker().stream().map(BehandlingDtoUtil::map).collect(Collectors.toList());
+            return behandling.getBehandlingÅrsaker().stream().map(BehandlingDtoUtil::map).toList();
         }
         return Collections.emptyList();
     }

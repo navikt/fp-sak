@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -56,7 +55,7 @@ public class AnnenPartGrunnlagBygger {
             .filter(this::erInnvilgetPeriodeEllerHarTrekkdager)
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(AnnenPartGrunnlagBygger::map)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static AnnenpartUttakPeriode map(UttakResultatPeriodeEntitet periode) {

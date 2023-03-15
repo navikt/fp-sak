@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -389,7 +388,7 @@ class BeregningUttakTjenesteTest {
             var arbeidsgier1 = arbeidsgiver == null ? null : arbeidsgiver.getIdentifikator();
             var arbeidsgiver2 = ag.getArbeidsgiver() == null ? null : ag.getArbeidsgiver().getIdentifikator();
             return ag.getAktivitetStatus().equals(status) && Objects.equals(arbeidsgier1, arbeidsgiver2);
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
 }

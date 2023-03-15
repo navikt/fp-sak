@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -208,7 +207,7 @@ class FagsakRevurderingTest {
         var behandlinger = asList(nyBehandling, gammelBehandling);
         var sorterteBehandlinger = behandlinger.stream()
                 .sorted(behandlingAvsluttetDatoComparator)
-                .collect(Collectors.toList());
+                .toList();
 
         assertThat(sorterteBehandlinger.get(0).getAvsluttetDato()).isEqualTo(now);
     }
@@ -231,7 +230,7 @@ class FagsakRevurderingTest {
         var behandlinger = asList(nyBehandling, gammelBehandling);
         var sorterteBehandlinger = behandlinger.stream()
                 .sorted(behandlingAvsluttetDatoComparator)
-                .collect(Collectors.toList());
+                .toList();
 
         assertThat(sorterteBehandlinger.get(0).getAvsluttetDato()).isNull();
         assertThat(sorterteBehandlinger.get(0).getOpprettetDato()).isEqualTo(now);

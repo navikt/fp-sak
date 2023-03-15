@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk.overstyring;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -50,7 +49,7 @@ public class FaktaOmBeregningOverstyringHistorikkTjeneste {
                 .finnOverlappendePeriodeOmKunEnFinnes(bgPeriode, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
             var endringer = overstyrteAndeler.stream()
                 .map(andelDto -> MapTilLønnsendring.mapTilLønnsendringForAndelIPeriode(andelDto, andelDto.getFastsatteVerdier(), bgPeriode, forrigeBgPeriode))
-                .collect(Collectors.toList());
+                .toList();
             inntektHistorikkTjeneste.lagHistorikk(tekstBuilder, endringer, iayGrunnlag);
         }
         settSkjermlenke(tekstBuilder);

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         this.inntektsmeldinger.addAll(inntektsmeldinger.stream().map(i -> {
             final var inntektsmelding = new Inntektsmelding(i);
             return inntektsmelding;
-        }).collect(Collectors.toList()));
+        }).toList());
     }
 
     /**
@@ -76,7 +75,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
      * @return Liste med {@link Inntektsmelding}
      */
     public List<Inntektsmelding> getInntektsmeldingerFor(Arbeidsgiver arbeidsgiver) {
-        return getInntektsmeldingerSomSkalBrukes().stream().filter(i -> i.getArbeidsgiver().equals(arbeidsgiver)).collect(Collectors.toList());
+        return getInntektsmeldingerSomSkalBrukes().stream().filter(i -> i.getArbeidsgiver().equals(arbeidsgiver)).toList();
     }
 
     /**

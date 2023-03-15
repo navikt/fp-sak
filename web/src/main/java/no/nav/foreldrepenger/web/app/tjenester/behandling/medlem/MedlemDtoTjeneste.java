@@ -85,7 +85,7 @@ public class MedlemDtoTjeneste {
             dto.setDekningType(mp.getDekningType());
             dto.setBeslutningsdato(mp.getBeslutningsdato());
             return dto;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public Optional<MedlemV2Dto> lagMedlemV2Dto(Long behandlingId) {
@@ -158,7 +158,7 @@ public class MedlemDtoTjeneste {
     private List<OppholdstillatelseDto> mapOppholdstillatelser(Long behandlingId) {
         return personopplysningTjeneste.hentOppholdstillatelser(behandlingId).stream()
             .map(this::mapOppholdstillatelse)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private OppholdstillatelseDto mapOppholdstillatelse(OppholdstillatelseEntitet oppholdstillatelse) {

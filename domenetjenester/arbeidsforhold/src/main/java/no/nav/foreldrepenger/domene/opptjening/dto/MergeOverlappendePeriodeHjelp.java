@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetKlassifisering;
@@ -46,7 +45,7 @@ class MergeOverlappendePeriodeHjelp {
         LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie, List<OpptjeningAktivitet> opptjeningAktivitet, OpptjeningAktivitetKlassifisering filter,
         LocalDateSegmentCombinator<OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering> combinator) {
 
-        for (var aktivitet : opptjeningAktivitet.stream().filter(oa -> filter.equals(oa.getKlassifisering())).collect(Collectors.toList())) {
+        for (var aktivitet : opptjeningAktivitet.stream().filter(oa -> filter.equals(oa.getKlassifisering())).toList()) {
             var timeline = new LocalDateTimeline<OpptjeningAktivitetKlassifisering>(aktivitet.getFom(), aktivitet.getTom(), filter);
             tidsserie = tidsserie.combine(timeline, combinator, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         }

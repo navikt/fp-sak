@@ -80,14 +80,14 @@ public class DokumentArkivTjeneste {
         return hentAlleJournalposterForSak(saksnummer).stream()
             .map(this::kopiMedKunArkivdokument)
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private ArkivJournalPost kopiMedKunArkivdokument(ArkivJournalPost journalPost) {
         var hoved = Optional.ofNullable(journalPost.getHovedDokument()).filter(this::erDokumentArkiv);
         var andre = journalPost.getAndreDokument().stream()
             .filter(this::erDokumentArkiv)
-            .collect(Collectors.toList());
+            .toList();
         if (hoved.isEmpty() && andre.isEmpty()) return null;
 
         return ArkivJournalPost.Builder.ny()
@@ -122,7 +122,7 @@ public class DokumentArkivTjeneste {
         var journalposter = resultat.getJournalposter().stream()
             .filter(j -> j.getJournalstatus() == null || !EKSKLUDER_STATUS.contains(j.getJournalstatus()))
             .map(this::mapTilArkivJournalPost)
-            .collect(Collectors.toList());
+            .toList();
 
         SAK_JOURNAL_CACHE.put(saksnummer.getVerdi(), journalposter);
         return journalposter;
@@ -154,7 +154,7 @@ public class DokumentArkivTjeneste {
             .filter(j -> Journalposttype.U.equals(j.getJournalposttype()))
             .map(DokumentArkivTjeneste::mapTilArkivDokumentUtgående)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
 
         return journalposter;
     }
@@ -243,7 +243,7 @@ public class DokumentArkivTjeneste {
 
         var dokumenter = journalpost.getDokumenter().stream()
             .map(this::mapTilArkivDokument)
-            .collect(Collectors.toList());
+            .toList();
 
         var doktypeFraTilleggsopplysning = Optional.ofNullable(journalpost.getTilleggsopplysninger()).orElse(List.of()).stream()
             .filter(to -> FP_DOK_TYPE.equals(to.getNokkel()))

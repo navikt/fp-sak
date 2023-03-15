@@ -6,13 +6,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseperiode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -69,7 +66,7 @@ class BesteberegningYtelsegrunnlagMapperTest {
         lagFpsakResultatAndel(lagFpsakResultatPeriode(brres, månederFørStp(5), månederFørStp(2)), AktivitetStatus.ARBEIDSTAKER, 700);
         var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapFpsakYtelseTilYtelsegrunnlag(brres, FagsakYtelseType.FORELDREPENGER);
         assertThat(mappetGrunnlag).isPresent();
-        var sortertePerioder = mappetGrunnlag.get().getPerioder().stream().sorted(Comparator.comparing(Ytelseperiode::getPeriode)).collect(Collectors.toList());
+        var sortertePerioder = mappetGrunnlag.get().getPerioder().stream().sorted(Comparator.comparing(Ytelseperiode::getPeriode)).toList();
         assertThat(sortertePerioder).hasSize(2);
         assertThat(sortertePerioder.get(0).getPeriode().getFomDato()).isEqualTo(månederFørStp(12));
         assertThat(sortertePerioder.get(0).getPeriode().getTomDato()).isEqualTo(månederFørStp(7));

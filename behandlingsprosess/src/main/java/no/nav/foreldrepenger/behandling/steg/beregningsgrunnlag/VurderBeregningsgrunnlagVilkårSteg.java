@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -56,7 +55,7 @@ public class VurderBeregningsgrunnlagVilkårSteg implements BeregningsgrunnlagSt
         }
         var aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
         return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
+                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {

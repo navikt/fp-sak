@@ -93,7 +93,7 @@ public class FagsakProsessTaskRepository {
                                                       LocalDateTime nesteKjoeringFraOgMed,
                                                       LocalDateTime nesteKjoeringTilOgMed) {
 
-        var statusNames = statuser.stream().map(ProsessTaskStatus::getDbKode).collect(Collectors.toList());
+        var statusNames = statuser.stream().map(ProsessTaskStatus::getDbKode).toList();
 
         // native sql for å håndtere join og subselect,
         // samt cast til hibernate spesifikk håndtering av parametere som kan være NULL
@@ -242,7 +242,7 @@ public class FagsakProsessTaskRepository {
     }
 
     private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
-        return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).collect(Collectors.toList());
+        return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).toList();
     }
 
 }

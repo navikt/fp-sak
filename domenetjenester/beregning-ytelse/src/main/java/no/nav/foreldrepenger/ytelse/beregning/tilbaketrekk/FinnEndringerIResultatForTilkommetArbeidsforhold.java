@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
@@ -95,14 +94,14 @@ class FinnEndringerIResultatForTilkommetArbeidsforhold {
             .map(a -> {
                 var revurderingBrukersAndelMedReferanse = nøkkelForAvsluttetArbeid.getBrukersAndelMedReferanse(a.getArbeidsforholdRef()).get();
                 return new EndringIBeregningsresultat(revurderingBrukersAndelMedReferanse, a);
-            }).collect(Collectors.toList());
+            }).toList();
     }
 
     private static List<EndringIBeregningsresultat> initEndringerForTilkomneAndeler(TilbaketrekkForTilkommetArbeidEntry tilbaketrekk) {
         return tilbaketrekk.getTilkomneNøklerMedStartEtterDato().stream()
                     .flatMap(n -> n.getArbeidsgiversAndelerTilknyttetNøkkel().stream())
                     .map(EndringIBeregningsresultat::new)
-                    .collect(Collectors.toList());
+                    .toList();
     }
 
 }

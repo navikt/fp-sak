@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -60,7 +59,7 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
             return aktivitetPerioder.stream()
                 .filter(periode -> periode.erManueltBehandlet() || periode.getBegrunnelse() != null)
                 .map(this::lagDtoAvPeriode)
-                .collect(Collectors.toList());
+                .toList();
         }
         return Collections.emptyList();
     }

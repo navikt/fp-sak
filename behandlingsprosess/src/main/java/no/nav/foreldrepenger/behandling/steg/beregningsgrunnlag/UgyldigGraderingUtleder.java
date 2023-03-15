@@ -102,7 +102,7 @@ public class UgyldigGraderingUtleder {
             .collect(Collectors.toSet());
         return startdatoerGradering.stream()
             .map(g -> new ArbeidGraderingMap(andelGradering.getArbeidsgiver().getIdentifikator(), andelGradering.getArbeidsforholdRef(), g))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     protected record ArbeidGraderingMap(String arbeidsgiverIdent, InternArbeidsforholdRefDto internRef, LocalDate startdatoGradering){};

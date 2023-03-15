@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -105,7 +104,7 @@ public class FagsakBehandlingDtoTjeneste {
             var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato).orElse(null);
             return lagBehandlingDto(behandling, behandlingsresultat, erBehandlingMedGjeldendeVedtak, vedtaksdato);
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
 

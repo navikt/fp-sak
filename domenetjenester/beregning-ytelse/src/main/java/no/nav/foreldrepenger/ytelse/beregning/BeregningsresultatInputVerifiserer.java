@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
@@ -57,7 +56,7 @@ public final class BeregningsresultatInputVerifiserer {
             .stream()
             .map(UttakResultatPeriode::uttakAktiviteter)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static List<BeregningsgrunnlagPrStatus> hentBGAndeler(BeregningsresultatGrunnlag input) {
@@ -69,7 +68,7 @@ public final class BeregningsresultatInputVerifiserer {
             .filter(bgp -> !bgp.periode().getFomDato().isAfter(sisteUttaksdato))
             .map(BeregningsgrunnlagPeriode::beregningsgrunnlagPrStatus)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static void verifiserUttak(UttakAktivitet uttakAndel, List<BeregningsgrunnlagPrStatus> bGAndeler) {

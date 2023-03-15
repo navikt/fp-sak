@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -171,7 +170,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         vurderOmOverlappSYK(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         return overlappene.stream()
             .map(b -> b.medSaksnummer(saksnummer).medBehandlingId(behandlingId))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandling(Long behandlingId, FagsakYtelseType ytelseType) {
@@ -190,7 +189,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(),
                 p.getKalkulertUtbetalingsgrad()))
-            .collect(Collectors.toList());
+            .toList();
 
         return new LocalDateTimeline<>(segments, LoggOverlappEksterneYtelserTjeneste::max)
             .compress(this::like, this::kombiner);
@@ -207,7 +206,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .filter(p -> p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(),
                 beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
-            .collect(Collectors.toList());
+            .toList();
         var resultatsegments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
             .orElse(Collections.emptyList())
@@ -215,7 +214,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> finnUtbetalingsgradFor(p, grunnlagUtbetGrad))
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .toList();
         return new LocalDateTimeline<>(resultatsegments, LoggOverlappEksterneYtelserTjeneste::max)
             .compress(this::like, this::kombiner);
     }
@@ -245,7 +244,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(),
                 utbetalingsgradHundreHvisNull(p.getUtbetalingsgrad())))
             .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
-            .collect(Collectors.toList());
+            .toList();
         return new LocalDateTimeline<>(graderteSegments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like,
             this::kombiner);
     }
@@ -301,7 +300,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                 .map(
                     p -> new LocalDateSegment<>(p.fom(), p.tom(), utbetalingsgradHundreHvisNull(p.gradScale2())))
                 .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
-                .collect(Collectors.toList());
+                .toList();
             var ytelseTidslinje = new LocalDateTimeline<>(graderteSegments,
                 LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
             overlappene.addAll(
@@ -354,7 +353,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .map(s -> opprettOverlappBuilder(s.getLocalDateInterval(), s.getValue()).medFagsystem(fagsystem)
                 .medYtelse(ytelseType)
                 .medReferanse(referanse))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private LocalDateTimeline<BigDecimal> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag) {
@@ -364,7 +363,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .filter(v -> v.utbetalingsgrad() > 0)
             .map(p -> new LocalDateSegment<>(normertIntervall(p.periode().fom(), p.periode().tom()),
                 new BigDecimal(p.utbetalingsgrad())))
-            .collect(Collectors.toList());
+            .toList();
 
         return new LocalDateTimeline<>(segmenter, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like,
             this::kombiner);

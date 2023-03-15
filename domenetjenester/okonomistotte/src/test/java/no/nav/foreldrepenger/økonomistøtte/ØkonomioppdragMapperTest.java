@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,18 +79,18 @@ class ØkonomioppdragMapperTest {
             var delytelseIdFraOpp150GenerertList = oppdrag110Generert.getOppdragsLinje150()
                 .stream()
                 .map(OppdragsLinje150::getDelytelseId)
-                .collect(Collectors.toList());
+                .toList();
             var ikkeSortertDelytelseIdFraOpp150List = oppdrag110.getOppdragslinje150Liste()
                 .stream()
                 .map(Oppdragslinje150::getDelytelseId)
                 .map(Object::toString)
-                .collect(Collectors.toList());
+                .toList();
 
             assertThat(delytelseIdFraOpp150GenerertList).isNotEqualTo(ikkeSortertDelytelseIdFraOpp150List);
 
             var sortertDelytelseIdFraOpp150List = ikkeSortertDelytelseIdFraOpp150List.stream()
                 .sorted(Comparator.comparing(Long::parseLong))
-                .collect(Collectors.toList());
+                .toList();
 
             assertThat(delytelseIdFraOpp150GenerertList).isEqualTo(sortertDelytelseIdFraOpp150List);
         }

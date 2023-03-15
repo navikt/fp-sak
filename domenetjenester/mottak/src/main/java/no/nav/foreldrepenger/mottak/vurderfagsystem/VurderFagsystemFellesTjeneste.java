@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -79,7 +78,7 @@ public class VurderFagsystemFellesTjeneste {
     }
 
     private BehandlendeFagsystem håndterHenvendelse(VurderFagsystem vurderFagsystem, FagsakYtelseType ytelseType, List<Fagsak> alleBrukersFagsaker) {
-        var brukersSakerAvType = alleBrukersFagsaker.stream().filter(s -> ytelseType.equals(s.getYtelseType())).collect(Collectors.toList());
+        var brukersSakerAvType = alleBrukersFagsaker.stream().filter(s -> ytelseType.equals(s.getYtelseType())).toList();
 
         var vurderFagsystemTjeneste = FagsakYtelseTypeRef.Lookup.find(vurderFagsystemTjenester, ytelseType)
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode()));

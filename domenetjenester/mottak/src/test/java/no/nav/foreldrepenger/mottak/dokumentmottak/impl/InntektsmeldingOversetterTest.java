@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,7 +73,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         //Hent ut alle endringsrefusjoner fra alle inntektsmeldingene.
         var endringerIRefusjon = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .map(i -> i.stream().flatMap(im -> im.getEndringerRefusjon().stream()).collect(Collectors.toList()))
+            .map(i -> i.stream().flatMap(im -> im.getEndringerRefusjon().stream()).toList())
             .orElse(Collections.emptyList());
 
         assertThat(endringerIRefusjon.size()).as(
@@ -91,13 +90,13 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         // Hent opp alle naturalytelser
         var naturalYtelser = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .map(e -> e.stream().flatMap(im -> im.getNaturalYtelser().stream()).collect(Collectors.toList()))
+            .map(e -> e.stream().flatMap(im -> im.getNaturalYtelser().stream()).toList())
             .orElse(Collections.emptyList());
 
         assertThat(naturalYtelser.size()).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.")
             .isEqualTo(4);
 
-        assertThat(naturalYtelser.stream().map(e -> e.getType()).collect(Collectors.toList())).containsOnly(
+        assertThat(naturalYtelser.stream().map(e -> e.getType()).toList()).containsOnly(
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS, ELEKTRISK_KOMMUNIKASJON);
         assertThat(naturalYtelser.stream().map(e -> e.getBeloepPerMnd())).containsOnly(new Beløp(100));
     }
@@ -121,7 +120,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
             .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
-            .collect(Collectors.toList())
+            .toList()
             .stream()
             .findFirst();
 
@@ -159,7 +158,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
             .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
-            .collect(Collectors.toList())
+            .toList()
             .stream()
             .findFirst();
 
@@ -200,7 +199,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
             .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
-            .collect(Collectors.toList())
+            .toList()
             .stream()
             .findFirst();
 

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +59,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
-        assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).collect(Collectors.toList()))
+        assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).toList())
             .containsExactlyInAnyOrder(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, AVKLAR_ADOPSJONSDOKUMENTAJON);
     }
 
@@ -72,7 +71,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
-        assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).collect(Collectors.toList()))
+        assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).toList())
             .containsExactlyInAnyOrder(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, AVKLAR_ADOPSJONSDOKUMENTAJON);
     }
 
@@ -84,7 +83,7 @@ class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
-        assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).collect(Collectors.toList()))
+        assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).toList())
             .containsExactlyInAnyOrder(AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, AVKLAR_ADOPSJONSDOKUMENTAJON);
     }
 

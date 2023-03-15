@@ -95,7 +95,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
             .forEach(arkivDokumentTypeIds::add);
         arkivDokumentTypeIds.addAll(DokumentTypeId.ekvivalenter(arkivDokumentTypeIds));
 
-        final var manglendeVedlegg = identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds);
+        final var manglendeVedlegg = new ArrayList<>(identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds));
         var oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getOppgittFordeling);
         final var manglendeVedleggUtsettelse = identifiserManglendeVedleggSomFølgerAvUtsettelse(oppgittFordeling, arkivDokumentTypeIds);

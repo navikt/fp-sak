@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 
@@ -52,7 +51,7 @@ public class OppdragDto extends SporingDto {
         var oppdragDto = new OppdragDto(oppdragskontroll);
         oppdragDto.saksnummer = oppdragskontroll.getSaksnummer().getVerdi();
         oppdragDto.behandlingId = oppdragskontroll.getBehandlingId();
-        oppdragDto.oppdrag110 = oppdragskontroll.getOppdrag110Liste().stream().map(Oppdrag110Dto::fraDomene).collect(Collectors.toList());
+        oppdragDto.oppdrag110 = oppdragskontroll.getOppdrag110Liste().stream().map(Oppdrag110Dto::fraDomene).toList();
         oppdragDto.venterKvittering = oppdragskontroll.getVenterKvittering();
         return oppdragDto;
     }

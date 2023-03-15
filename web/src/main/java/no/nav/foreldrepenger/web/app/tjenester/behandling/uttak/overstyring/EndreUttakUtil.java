@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -26,7 +25,7 @@ public class EndreUttakUtil {
         }
         var msg = String.format("Fant ikke gjeldende periode for ny periode fom %s tom %s i %s",
             nyPeriode.getFomDato(), nyPeriode.getTomDato(), gjeldende.stream().map(p -> p.getTidsperiode())
-                .collect(Collectors.toList()));
+                .toList());
         throw new TekniskException("FP-817091", msg);
     }
 

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -60,7 +59,7 @@ public class ToForeldreBarnDødTjeneste {
         return uttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
             .map(uttakResultat -> uttakResultat
                 .getGjeldendePerioder().stream().filter(periode -> periode.harUtbetaling())
-                .collect(Collectors.toList()))
+                .toList())
             .orElse(Collections.emptyList());
     }
 
@@ -77,8 +76,8 @@ public class ToForeldreBarnDødTjeneste {
                                                       Behandling behandlingF2, List<ForeldrepengerUttakPeriode> uttaksPerioderF2) {
         var uttaksGrenserF1 = finnUttaksGrenser(uttaksPerioderF1);
         var uttaksGrenserF2 = finnUttaksGrenser(uttaksPerioderF2);
-        var avstanderF1 = uttaksGrenserF1.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
-        var avstanderF2 = uttaksGrenserF2.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
+        var avstanderF1 = uttaksGrenserF1.stream().map(this::avstandTilNåMedBuffer).toList();
+        var avstanderF2 = uttaksGrenserF2.stream().map(this::avstandTilNåMedBuffer).toList();
         var minValueF1 = Collections.min(avstanderF1);
         var minValueF2 = Collections.min(avstanderF2);
         return minValueF1 < minValueF2 ? behandlingF1 : behandlingF2;

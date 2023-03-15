@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ForeldrepengerUttak {
 
@@ -52,6 +51,6 @@ public class ForeldrepengerUttak {
     }
 
     private List<ForeldrepengerUttakPeriode> sortByFom(List<ForeldrepengerUttakPeriode> perioder) {
-        return perioder.stream().sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom)).collect(Collectors.toList());
+        return perioder.stream().sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom)).toList();
     }
 }

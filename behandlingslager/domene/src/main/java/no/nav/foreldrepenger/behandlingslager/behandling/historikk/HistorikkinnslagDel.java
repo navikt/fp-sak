@@ -136,7 +136,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
 
         var alleAksjonspunktFelt = historikkinnslagFelt.stream()
             .filter(felt -> aksjonspunktFeltTypeKoder.contains(felt.getFeltType()))
-            .collect(Collectors.toList());
+            .toList();
 
         var totrinnsvurderinger = alleAksjonspunktFelt.stream()
             .collect(Collectors.groupingBy(HistorikkinnslagFelt::getSekvensNr))
@@ -144,7 +144,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
             .stream()
             .map(entry -> lagHistorikkinnslagAksjonspunkt(entry.getKey(), entry.getValue()))
             .sorted(Comparator.comparing(HistorikkinnslagTotrinnsvurdering::getSekvensNr))
-            .collect(Collectors.toList());
+            .toList();
         return totrinnsvurderinger;
     }
 
@@ -180,7 +180,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
         return historikkinnslagFelt.stream()
             .filter(felt -> felt.getFeltType().equals(feltType))
             .sorted(Comparator.comparing(HistorikkinnslagFelt::getSekvensNr))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static Builder builder() {

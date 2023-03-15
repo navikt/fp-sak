@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
@@ -57,7 +56,7 @@ public class YtelsePeriode {
     }
 
     public static <T> YtelsePeriode summer(Collection<T> perioder, Function<T, YtelsePeriode> periodeKonverterer) {
-        return summer(perioder.stream().map(periodeKonverterer).collect(Collectors.toList()));
+        return summer(perioder.stream().map(periodeKonverterer).toList());
     }
 
     public static YtelsePeriode summer(Collection<YtelsePeriode> perioder) {

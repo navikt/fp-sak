@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -68,6 +67,6 @@ public class OpphørUttakTjeneste {
             .map(UttakResultatEntitet::getGjeldendePerioder)
             .map(UttakResultatPerioderEntitet::getPerioder).orElse(Collections.emptyList()).stream()
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom).reversed())
-            .collect(Collectors.toList());
+            .toList();
     }
 }

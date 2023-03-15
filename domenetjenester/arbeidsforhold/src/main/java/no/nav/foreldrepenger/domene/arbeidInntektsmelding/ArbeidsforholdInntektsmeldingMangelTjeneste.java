@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidInntektHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 
 @ApplicationScoped
 public class ArbeidsforholdInntektsmeldingMangelTjeneste {

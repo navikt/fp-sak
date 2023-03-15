@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -122,7 +120,7 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
                                                         LocalDate førsteUttaksdag) {
         var tilkomnePermisjoner = yrkesaktivitet.getPermisjon().stream()
             .filter(perm -> erRelevant(perm, førsteUttaksdag))
-            .collect(Collectors.toList());
+            .toList();
         return beregningsresultatEntitet.getBeregningsresultatPerioder()
             .stream()
             .filter(p -> harUtbetalingForYA(p.getBeregningsresultatAndelList(), yrkesaktivitet))

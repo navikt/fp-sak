@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -216,7 +215,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
         var historikkinnslag = historikkRepository.hentHistorikk(behandling.getId());
-        assertThat(historikkinnslag.stream().map(Historikkinnslag::getType).collect(Collectors.toList())).contains(
+        assertThat(historikkinnslag.stream().map(Historikkinnslag::getType).toList()).contains(
             HistorikkinnslagType.FJERNET_VERGE);
     }
 

@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +41,8 @@ final class MapArbeidsforholdInformasjon {
             .thenComparing(ref -> ref.getArbeidsforholdReferanse() == null ? null : ref.getArbeidsforholdReferanse().getAbakusReferanse(),
                     Comparator.nullsLast(Comparator.naturalOrder()));
     private static final Comparator<Periode> COMP_PERIODE = Comparator
-            .comparing((Periode per) -> per.getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
-            .thenComparing(per -> per.getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
+            .comparing(Periode::getFom, Comparator.nullsFirst(Comparator.naturalOrder()))
+            .thenComparing(Periode::getTom, Comparator.nullsLast(Comparator.naturalOrder()));
 
     private MapArbeidsforholdInformasjon() {
         // hidden
@@ -77,7 +76,7 @@ final class MapArbeidsforholdInformasjon {
             });
 
             // overstyrte perioder
-            ov.getArbeidsforholdOverstyrtePerioder().stream().forEach(p -> overstyringBuilder.leggTilOverstyrtPeriode(p.getFom(), p.getTom()));
+            ov.getArbeidsforholdOverstyrtePerioder().forEach(p -> overstyringBuilder.leggTilOverstyrtPeriode(p.getFom(), p.getTom()));
 
             return overstyringBuilder;
         }
@@ -129,7 +128,7 @@ final class MapArbeidsforholdInformasjon {
                             .map(ArbeidsforholdOverstyrtePerioder::getOverstyrtePeriode)
                             .map(this::mapPeriode)
                             .sorted(COMP_PERIODE)
-                            .collect(Collectors.toList());
+                            .toList();
         }
 
         private Aktør mapAktør(Arbeidsgiver arbeidsgiver) {
@@ -234,13 +233,13 @@ final class MapArbeidsforholdInformasjon {
                         return dto;
                     })
                     .sorted(COMP_ARBEIDSFORHOLD_OVERSTYRING)
-                    .collect(Collectors.toList());
+                    .toList();
 
             var referanser = entitet.getArbeidsforholdReferanser().stream()
                     .map(this::mapArbeidsforholdReferanse)
                     .filter(it -> it != null)
                     .sorted(COMP_ARBEIDSFORHOLD_REFERANSE)
-                    .collect(Collectors.toList());
+                    .toList();
 
             return arbeidsforholdInformasjon
                     .medOverstyringer(overstyringer)

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
@@ -23,7 +22,7 @@ public class MatchBeregningsgrunnlagTjeneste {
         var matchedePerioder = forrigeGrunnlag.map(bg ->
             bg.getBeregningsgrunnlagPerioder().stream()
             .filter(periodeIGjeldendeGrunnlag -> periode.getPeriode()
-                .overlapper(periodeIGjeldendeGrunnlag.getPeriode())).collect(Collectors.toList())).orElse(Collections.emptyList());
+                .overlapper(periodeIGjeldendeGrunnlag.getPeriode())).toList()).orElse(Collections.emptyList());
         if (matchedePerioder.size() == 1) {
             return Optional.of(matchedePerioder.get(0));
         }

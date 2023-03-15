@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 
@@ -27,7 +26,7 @@ public class UtlandsoppholdDto {
                         utlandsopphold.getLand().getNavn(),
                         utlandsopphold.getPeriodeFom(),
                         utlandsopphold.getPeriodeTom())
-                ).collect(Collectors.toList());
+                ).toList();
     }
 
     public String getLandNavn() {

@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -164,7 +163,7 @@ public class VurderBehovForÅHindreTilbaketrekk {
     private static Optional<BRNøkkelMedAndeler> finnSammenligningsandelMedSammeNøkkel(AktivitetOgArbeidsgiverNøkkel nøkkel, List<BRNøkkelMedAndeler> liste) {
         var matchendeNøkler = liste.stream()
             .filter(a -> Objects.equals(a.getNøkkel(), nøkkel))
-            .collect(Collectors.toList());
+            .toList();
         if (matchendeNøkler.size() > 1) {
             throw new IllegalStateException("Forventet å ikke finne mer enn en matchende nøkkel i liste for nøkkel " + nøkkel + " men fant " + matchendeNøkler.size());
         }

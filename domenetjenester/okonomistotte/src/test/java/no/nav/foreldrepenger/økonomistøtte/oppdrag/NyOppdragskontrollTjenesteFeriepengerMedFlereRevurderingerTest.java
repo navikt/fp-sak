@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -601,10 +600,10 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
             assertThat(opp150AndreRevurderingFeriepengerListe).hasSize(4);
             var opp150FørsteRevurderingAndreÅrListe = opp150FørsteRevurderingFeriepengerListe.stream()
                 .filter(opp150 -> opp150.getDatoVedtakFom().getYear() == FERIEPENGEÅR_LISTE.get(1))
-                .collect(Collectors.toList());
+                .toList();
             var opp150AndreRevurderingFeriepengerOpphList = opp150AndreRevurderingFeriepengerListe.stream()
                 .filter(Oppdragslinje150::gjelderOpphør)
-                .collect(Collectors.toList());
+                .toList();
 
             assertThat(opp150AndreRevurderingFeriepengerOpphList).hasSize(2);
 
@@ -657,10 +656,10 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
             assertThat(opp150AndreRevurderingFeriepengerListe).hasSize(4);
             var opp150FørsteRevurderingFørsteÅrListe = opp150FørsteRevurderingFeriepengerListe.stream()
                 .filter(opp150 -> opp150.getDatoVedtakFom().getYear() == FERIEPENGEÅR_LISTE.get(0))
-                .collect(Collectors.toList());
+                .toList();
             var opp150AndreRevurderingFeriepengerOpphList = opp150AndreRevurderingFeriepengerListe.stream()
                 .filter(Oppdragslinje150::gjelderOpphør)
-                .collect(Collectors.toList());
+                .toList();
 
             assertThat(opp150AndreRevurderingFeriepengerOpphList).hasSize(2);
 

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -58,7 +57,7 @@ public class KontoerGrunnlagBygger {
         var stønadskontoer = hentStønadskontoer(ref);
         return getBuilder(uttakInput, stønadskontoer).kontoList(stønadskontoer.stream()
             //Flerbarnsdager er stønadskontotype i stønadskontoberegningen, men ikke i fastsette perioder
-            .filter(sk -> !sk.getStønadskontoType().equals(StønadskontoType.FLERBARNSDAGER)).map(this::map).collect(Collectors.toList()));
+            .filter(sk -> !sk.getStønadskontoType().equals(StønadskontoType.FLERBARNSDAGER)).map(this::map).toList());
     }
 
     private Konto.Builder map(Stønadskonto stønadskonto) {

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -23,7 +22,7 @@ public final class VilkårDtoMapper {
             .map(Behandlingsresultat::getVilkårResultat)
             .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
             .map(vilkår -> lagVilkårDto(behandling, vilkår))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static VilkårDto lagVilkårDto(Behandling behandling, Vilkår vilkår) {

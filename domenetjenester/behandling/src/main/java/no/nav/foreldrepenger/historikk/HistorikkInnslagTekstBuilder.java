@@ -392,7 +392,7 @@ public class HistorikkInnslagTekstBuilder {
         }
 
         var sortedList = vurdering.entrySet().stream()
-                .sorted(getHistorikkDelComparator()).collect(Collectors.toList());
+                .sorted(getHistorikkDelComparator()).toList();
 
         for (var lenkeVurdering : sortedList) {
             if (første) {
@@ -569,7 +569,7 @@ public class HistorikkInnslagTekstBuilder {
         if (opt.isPresent()) {
             return Optional.empty();
         }
-        var feltKoder = fieldList.stream().map(HistorikkinnslagFeltType::getKode).collect(Collectors.toList());
+        var feltKoder = fieldList.stream().map(HistorikkinnslagFeltType::getKode).toList();
         return Optional.of(HistorikkInnsalgFeil.manglerMinstEtFeltForHistorikkinnslag(type, feltKoder));
     }
 

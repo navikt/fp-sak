@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -162,7 +161,7 @@ class OpptjeningsperioderTjenesteTest {
         assertThat(perioder).hasSize(3);
         var ytelser = perioder.stream()
                 .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
-                .collect(Collectors.toList());
+                .toList();
         assertThat(ytelser.get(0).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)));
         assertThat(ytelser.get(1).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)));
         assertThat(ytelser.get(1).getPeriode().getTomDato()).isEqualTo(VirkedagUtil.fredagLørdagTilSøndag(skjæringstidspunkt.minusDays(2)));
@@ -203,7 +202,7 @@ class OpptjeningsperioderTjenesteTest {
         assertThat(perioder).hasSize(3);
         var ytelserSP = perioder.stream()
                 .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
-                .collect(Collectors.toList());
+                .toList();
         assertThat(ytelserSP).hasSize(1);
         assertThat(ytelserSP.get(0).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(15)));
         assertThat(perioder.stream().map(OpptjeningsperiodeForSaksbehandling::getOpptjeningAktivitetType)
@@ -249,8 +248,8 @@ class OpptjeningsperioderTjenesteTest {
                 .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList()))
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).toList())
                 .hasSize(1);
     }
 
@@ -284,11 +283,11 @@ class OpptjeningsperioderTjenesteTest {
         var perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).collect(Collectors.toList())).hasSize(2);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList()))
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).toList()).hasSize(2);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).toList())
                 .hasSize(1);
-        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
-        assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(3);
+        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).toList()).isEmpty();
+        assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).toList()).hasSize(3);
     }
 
     @Test
@@ -311,7 +310,7 @@ class OpptjeningsperioderTjenesteTest {
         // Assert
         var perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
                 .stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE))
-                .collect(Collectors.toList());
+                .toList();
 
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getErPeriodeEndret()).isTrue();
@@ -342,13 +341,13 @@ class OpptjeningsperioderTjenesteTest {
         var perioderVilkår = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioderVilkår.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
-        assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioderVilkår.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).toList()).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).toList()).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).toList()).isEmpty();
+        assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).toList()).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(o -> !o.getErManueltRegistrert()).toList()).hasSize(1);
 
         // Act 2
         var saksbehandlet = opprettOverstyrtOppgittOpptjening(periode1,
@@ -357,11 +356,11 @@ class OpptjeningsperioderTjenesteTest {
         perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).toList()).hasSize(1);
     }
 
     @Test
@@ -392,14 +391,14 @@ class OpptjeningsperioderTjenesteTest {
         var perioderVilkår = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioderVilkår.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
-        assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioderVilkår.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(2);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).toList()).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).toList()).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).toList()).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT)).toList()).hasSize(1);
+        assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).toList()).isEmpty();
+        assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).toList()).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(o -> !o.getErManueltRegistrert()).toList()).hasSize(2);
 
         // Act 2
         var saksbehandlet = InntektArbeidYtelseAggregatBuilder
@@ -408,9 +407,9 @@ class OpptjeningsperioderTjenesteTest {
         perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).toList())
                 .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList()))
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).toList())
                 .hasSize(1);
         var frilansPeriode = perioder.stream()
                 .filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).findFirst().get();
@@ -440,10 +439,10 @@ class OpptjeningsperioderTjenesteTest {
         var perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).collect(Collectors.toList()))
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).toList())
                 .hasSize(1);
         assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING))
-                .collect(Collectors.toList()))
+                .toList())
                         .hasSize(1);
 
         // Act 2
@@ -453,10 +452,10 @@ class OpptjeningsperioderTjenesteTest {
         perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).toList())
                 .hasSize(1);
         assertThat(
-                perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_GODKJENT)).collect(Collectors.toList()))
+                perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_GODKJENT)).toList())
                         .hasSize(1);
     }
 

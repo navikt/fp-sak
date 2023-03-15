@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +64,7 @@ class RegelFastsettBeregningsresultatSVPTest {
                 .flatMap(entry -> entry.getValue().stream())
                 .distinct()
                 .map(arb -> lagPrArbeidsforhold(1000, 500, arb))
-                .collect(Collectors.toList());
+                .toList();
         var beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
         var uttakResultat = opprettUttak(periodeMap);
         return new BeregningsresultatGrunnlag(beregningsgrunnlag, uttakResultat);
@@ -97,6 +96,6 @@ class RegelFastsettBeregningsresultatSVPTest {
     private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, BigDecimal utbetalingsgrad, List<Arbeidsforhold> arbeidsforholdList) {
         return arbeidsforholdList.stream()
                 .map(arb -> new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arb, AktivitetStatus.ATFL, false, stillingsgrad))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

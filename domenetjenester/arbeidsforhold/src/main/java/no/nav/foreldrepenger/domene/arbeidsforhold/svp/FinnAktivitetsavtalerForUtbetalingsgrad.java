@@ -17,12 +17,12 @@ class FinnAktivitetsavtalerForUtbetalingsgrad {
                 .stream()
                 .filter(a -> a.getProsentsats() != null)
                 .filter(a -> a.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, termindato)))
-                .collect(Collectors.toList());
+                .toList();
         if (avtalerSomOverlapperMedPeriode.isEmpty()) {
             avtalerSomOverlapperMedPeriode = avtalerAAreg
                     .stream()
                     .filter(a -> a.getPeriode().overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, termindato)))
-                    .collect(Collectors.toList());
+                    .toList();
             if (avtalerSomOverlapperMedPeriode.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -34,7 +34,7 @@ class FinnAktivitetsavtalerForUtbetalingsgrad {
             Collection<AktivitetsAvtale> avtalerSomOverlapperMedPeriode) {
         var avtalerSomInkludererDagenFørJordmorsdato = avtalerSomOverlapperMedPeriode.stream()
                 .filter(a -> a.getPeriode().inkluderer(jordmorsdato.minusDays(1)))
-                .collect(Collectors.toList());
+                .toList();
         if (!avtalerSomInkludererDagenFørJordmorsdato.isEmpty()) {
             return avtalerSomInkludererDagenFørJordmorsdato;
         }

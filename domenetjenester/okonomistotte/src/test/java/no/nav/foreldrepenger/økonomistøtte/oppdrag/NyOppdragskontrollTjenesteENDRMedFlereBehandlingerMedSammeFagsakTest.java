@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -523,7 +522,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         assertThat(opp150ListeForArbeidsgiver_2_List).hasSize(1);
         var opp150OpphListeForArbeidsgiver_2 = opp150ListeForArbeidsgiver_2_List.stream()
             .filter(Oppdragslinje150::gjelderOpphør)
-            .collect(Collectors.toList());
+            .toList();
         assertThat(opp150OpphListeForArbeidsgiver_2).hasSize(1);
         var opp150OpphForArbeidsgiver_2 = opp150ListeForArbeidsgiver_2_List.get(0);
         assertThat(opp150OpphForArbeidsgiver_2.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
@@ -609,7 +608,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         assertThat(opp150ForOpphIAndreRevurderingOpt.get().getDelytelseId()).isEqualTo(opp150ForOpphIFørsteRevurdering.getDelytelseId());
         assertThat(opp150ForOpphIAndreRevurderingOpt.get().getDatoStatusFom()).isEqualTo(andreEndringsdato);
         var opp150AndreRevurdUtenOpphListe = andreRevurdOpp150Liste.stream()
-            .filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
+            .filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150AndreRevurdUtenOpphListe).hasSize(2);
         verifiserKjedingNårDetErFlereBehandlingerMedSammeFagsak(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2, true);
     }
@@ -1065,7 +1064,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
     private void verifiserOpphørFom(List<Oppdragslinje150> oppdragslinje150Liste, LocalDate statusFom) {
         var opp150ForOpph = oppdragslinje150Liste.stream()
             .filter(Oppdragslinje150::gjelderOpphør)
-            .collect(Collectors.toList());
+            .toList();
         assertThat(oppdragslinje150Liste).hasSize(1);
         assertThat(opp150ForOpph.get(0).getDatoStatusFom()).isEqualTo(statusFom);
     }

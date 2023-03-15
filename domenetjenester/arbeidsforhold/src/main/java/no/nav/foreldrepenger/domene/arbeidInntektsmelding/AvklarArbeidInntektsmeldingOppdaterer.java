@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -63,22 +62,22 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
     private void validerInntektsmeldingerSomManglerArbeidsforhold(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg, List<ArbeidsforholdOverstyring> alleManuelleArbeidsforhold) {
         var eksisterendeMangler = alleMangler.stream()
             .filter(m -> m.årsak().equals(AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD))
-            .collect(Collectors.toList());
+            .toList();
 
         var aksepterteMangler = alleSaksbehandlersValg.stream()
             .filter(valg -> finnesIListe(eksisterendeMangler, valg))
-            .collect(Collectors.toList());
+            .toList();
 
         var opprettedeArbeidsforholdPåMangel = alleManuelleArbeidsforhold.stream()
             .filter(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING))
-            .collect(Collectors.toList());
+            .toList();
 
         // Alle inntektsmeldinger som mangler arbeidsforhold må enten ha et manuelt opprettet arbeidsforhold knyttet til seg,
         // eller så må saksbehandler ha eksplisitt avklart at det ikke skal opprettes arbeidsforhold for inntektsmeldingen.
         var uavklarteMangler = eksisterendeMangler.stream()
             .filter(mangel -> !finnesManueltArbeidsforhold(mangel, opprettedeArbeidsforholdPåMangel)
                 && !avklartIkkeRelevant(mangel, aksepterteMangler))
-            .collect(Collectors.toList());
+            .toList();
 
 
         if (!uavklarteMangler.isEmpty()) {
@@ -88,7 +87,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
 
         var arbeidsforholdUlovligOpprettet = opprettedeArbeidsforholdPåMangel.stream()
             .filter(os -> !liggerIMangelListe(os, eksisterendeMangler))
-            .collect(Collectors.toList());
+            .toList();
 
         if (!arbeidsforholdUlovligOpprettet.isEmpty()) {
             var msg = String.format("Det finnes arbeidsforhold basert på inntektsmelding i IAY-aggregat"
@@ -100,12 +99,12 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
     private void validerArbeidsforholdSomManglerInntektsmelding(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg) {
         var alleArbeidsforholdSomManglerIM = alleMangler.stream()
             .filter(m -> m.årsak().equals(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING))
-            .collect(Collectors.toList());
+            .toList();
 
         var saksbehandlersValgOmManglendeIM = alleSaksbehandlersValg.stream()
             .filter(valg -> finnesIListe(alleArbeidsforholdSomManglerIM, valg))
             .filter(valg -> valg.getVurdering().equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING))
-            .collect(Collectors.toList());
+            .toList();
 
         if (saksbehandlersValgOmManglendeIM.size() != alleArbeidsforholdSomManglerIM.size()) {
             throw new IllegalStateException("Ikke like mange arbeidsforhold med manglende inntektsmelding mangler som avklarte arbeidsforhold." +

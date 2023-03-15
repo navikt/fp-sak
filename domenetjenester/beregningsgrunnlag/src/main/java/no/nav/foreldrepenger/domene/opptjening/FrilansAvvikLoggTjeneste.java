@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class FrilansAvvikLoggTjeneste {
@@ -66,7 +65,7 @@ public class FrilansAvvikLoggTjeneste {
         var arbeidsgivereMedInntektFørSTP = finnArbeidsgivereMedInntekterSiste3Mnd(stpBG, iayGrunnlag, ref.aktørId());
         var frilansaktiviteterPåSTPMedInntektSiste3Mnd = frilansPåSTP.stream()
             .filter(ya -> arbeidsgivereMedInntektFørSTP.contains(ya.getArbeidsgiver()))
-            .collect(Collectors.toList());
+            .toList();
 
         if (relevantOppgittFrilans.isEmpty()) {
             frilansaktiviteterPåSTPMedInntektSiste3Mnd.forEach(fl -> {
@@ -114,7 +113,7 @@ public class FrilansAvvikLoggTjeneste {
             .filter(innt -> innt.getArbeidsgiver() != null)
             .filter(innt -> finnesInntektEtterDato(innt.getAlleInntektsposter(), datoViSjekkerInntektFra))
             .map(Inntekt::getArbeidsgiver)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean finnesInntektEtterDato(Collection<Inntektspost> alleInntektsposter, LocalDate dato) {
@@ -132,7 +131,7 @@ public class FrilansAvvikLoggTjeneste {
             grunnlag.getAktørArbeidFraRegister(aktørId)).før(stpBG);
         return filter.getFrilansOppdrag().stream()
             .filter(ya -> erAnsattPåDato(ya.getAlleAktivitetsAvtaler(), stpBG))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean erAnsattPåDato(Collection<AktivitetsAvtale> alleAktivitetsAvtaler, LocalDate stpBG) {

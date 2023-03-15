@@ -103,7 +103,7 @@ public class BeregningsresultatMedUttaksplanMapper {
                 .medDagsats(beregningsresultatPeriode.getDagsats())
                 .medAndeler(lagAndeler(beregningsresultatPeriode, uttak, andelTilSisteUtbetalingsdatoMap, iayGrunnlag))
                 .create())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     List<BeregningsresultatPeriodeAndelDto> lagAndeler(BeregningsresultatPeriode beregningsresultatPeriode,
@@ -144,7 +144,7 @@ public class BeregningsresultatMedUttaksplanMapper {
                 return dtoBuilder
                     .create();
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private void settArbeidsgiverfelter(Arbeidsgiver arb, BeregningsresultatPeriodeAndelDto.Builder dtoBuilder) {
@@ -184,7 +184,7 @@ public class BeregningsresultatMedUttaksplanMapper {
 
             return new AndelerBrukerAG(brukerAndel, arbeidsgiverAndel);
         })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Optional<String> finnSekundærIdentifikator(BeregningsresultatAndel andel) {
@@ -265,7 +265,7 @@ public class BeregningsresultatMedUttaksplanMapper {
             .filter(aktivitet -> Objects.equals(brukersAndel.getArbeidsgiver().orElse(null), aktivitet.getArbeidsgiver().orElse(null)))
             .filter(aktivitet -> Objects.equals(brukersAndel.getArbeidsforholdRef(), aktivitet.getArbeidsforholdRef()))
             .filter(aktivitet -> Objects.equals(UttakArbeidType.ORDINÆRT_ARBEID, aktivitet.getUttakArbeidType()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private ForeldrepengerUttakPeriode finnTilhørendeUttakPeriodeAktivitet(Collection<ForeldrepengerUttakPeriode> uttakResultatPerioder,

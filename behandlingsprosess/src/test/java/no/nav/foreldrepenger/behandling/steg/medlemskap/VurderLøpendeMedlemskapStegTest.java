@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -163,7 +162,7 @@ class VurderLøpendeMedlemskapStegTest {
         assertThat(grunnlagOpt).isPresent();
         var grunnlag = grunnlagOpt.get();
         var ikkeOppfylt = grunnlag.getMedlemskapsvilkårPeriode().getPerioder().stream()
-                .filter(p -> p.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)).collect(Collectors.toList());
+                .filter(p -> p.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)).toList();
         assertThat(ikkeOppfylt).hasSize(1);
         var behandlingsresultat1 = behandlingsresultatRepository.hent(revudering.getId());
         assertThat(behandlingsresultat1.getVilkårResultat().getVilkårene().stream()

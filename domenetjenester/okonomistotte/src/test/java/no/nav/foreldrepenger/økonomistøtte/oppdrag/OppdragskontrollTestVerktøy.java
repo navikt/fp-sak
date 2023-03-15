@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -34,7 +33,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static List<Oppdragslinje150> getOppdragslinje150MedKlassekode(List<Oppdragslinje150> opp150Liste, KodeKlassifik klassekode) {
         return opp150Liste.stream().filter(opp150 -> opp150.getKodeKlassifik().equals(klassekode))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static Oppdrag110 getOppdrag110ForBruker(List<Oppdrag110> oppdrag110Liste) {
@@ -58,14 +57,14 @@ public class OppdragskontrollTestVerktøy {
             .filter(oppdrag110 -> KodeFagområde.FPREF.equals(oppdrag110.getKodeFagomrade()))
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(oppdragslinje150 -> oppdragslinje150.getRefusjonsinfo156().getRefunderesId().equals(endreTilElleveSiffer(virksomhetOrgnr)))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static List<Oppdragslinje150> getOpp150ListeForBruker(List<Oppdrag110> oppdrag110Liste) {
         return oppdrag110Liste.stream()
             .filter(oppdrag110 -> KodeFagområde.FP.equals(oppdrag110.getKodeFagomrade()))
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static void verifiserKjedingForOppdragslinje150(List<Oppdragslinje150> originaltOppdr150ListeAT, List<Oppdragslinje150> originaltOppdr150ListeFL) {
@@ -81,11 +80,11 @@ public class OppdragskontrollTestVerktøy {
     public static void verifiserOppdr150SomAndelerSlåSammen(Oppdragskontroll originaltOppdrag, Oppdragskontroll revurderingOppdrag) {
         var originaltoppdr150Liste = getOppdragslinje150Liste(originaltOppdrag);
         var originaltOppdr150ListeBruker = originaltoppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FP))
-            .filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)).collect(Collectors.toList());
+            .filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)).toList();
         var revurderingOppdr150Liste = getOppdragslinje150Liste(revurderingOppdrag);
         var revurderingOppdr150ListeBruker = revurderingOppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FP))
             .filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)).filter(opp150 -> opp150.getKodeEndringLinje().equals(KodeEndringLinje.NY))
-            .filter(opp150 -> opp150.getDatoVedtakFom().equals(LocalDate.now().plusDays(8))).collect(Collectors.toList());
+            .filter(opp150 -> opp150.getDatoVedtakFom().equals(LocalDate.now().plusDays(8))).toList();
 
         assertThat(originaltOppdr150ListeBruker).hasSize(1);
         assertThat(revurderingOppdr150ListeBruker).hasSize(1);
@@ -98,8 +97,8 @@ public class OppdragskontrollTestVerktøy {
     public static void verifiserOppdr150MedNyKlassekode(List<Oppdragslinje150> opp150RevurdListe) {
         var opp150Liste = opp150RevurdListe.stream()
             .filter(oppdr150 -> !oppdr150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER) && !oppdr150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG))
-            .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(KodeEndringLinje.NY)).collect(Collectors.toList());
-        var klasseKodeListe = opp150Liste.stream().map(Oppdragslinje150::getKodeKlassifik).distinct().collect(Collectors.toList());
+            .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(KodeEndringLinje.NY)).toList();
+        var klasseKodeListe = opp150Liste.stream().map(Oppdragslinje150::getKodeKlassifik).distinct().toList();
         assertThat(klasseKodeListe).containsOnly(KodeKlassifik.FPF_DAGPENGER, KodeKlassifik.FPF_REFUSJON_AG);
         assertThat(opp150Liste).anySatisfy(opp150 -> assertThat(opp150.getRefDelytelseId()).isNull());
     }
@@ -114,7 +113,7 @@ public class OppdragskontrollTestVerktøy {
     public static void verifiserDelYtelseOgFagsystemIdForFlereKlassekode(List<Oppdragslinje150> opp150RevurderingListe, List<Oppdragslinje150> opp150OriginalListe) {
         opp150OriginalListe.removeIf(opp150 -> opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)
             || opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG));
-        var klassekodeListe = opp150OriginalListe.stream().map(Oppdragslinje150::getKodeKlassifik).distinct().collect(Collectors.toList());
+        var klassekodeListe = opp150OriginalListe.stream().map(Oppdragslinje150::getKodeKlassifik).distinct().toList();
         klassekodeListe.forEach(kode -> {
             if (opp150RevurderingListe.stream().anyMatch(opp150 -> opp150.getKodeKlassifik().equals(kode))) {
                 var førsteOpp150IKjede = opp150RevurderingListe.stream().filter(opp150 -> opp150.getKodeKlassifik().equals(kode) && !opp150.gjelderOpphør())
@@ -127,7 +126,7 @@ public class OppdragskontrollTestVerktøy {
     public static List<Oppdragslinje150> getOppdragslinje150Liste(Oppdragskontroll oppdragskontroll) {
         return oppdragskontroll.getOppdrag110Liste().stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static boolean erOpp150ForFeriepenger(Oppdragslinje150 opp150) {
@@ -144,7 +143,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static void verifiserAvstemming(Oppdragskontroll oppdragRevurdering) {
         var avstemmingRevurdList = oppdragRevurdering.getOppdrag110Liste().stream()
-            .map(Oppdrag110::getAvstemming).collect(Collectors.toList());
+            .map(Oppdrag110::getAvstemming).toList();
 
         assertThat(avstemmingRevurdList).isNotEmpty();
         assertThat(avstemmingRevurdList).hasSameSizeAs(oppdragRevurdering.getOppdrag110Liste());
@@ -178,7 +177,7 @@ public class OppdragskontrollTestVerktøy {
 
         var opp150RevurderingList = opp110RevurderingList.stream().filter(opp110 -> opp110.getKodeFagomrade().equals(KodeFagområde.FPREF))
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         var originaltOpp150Liste = getOppdragslinje150Liste(originaltOppdrag);
 
@@ -205,9 +204,9 @@ public class OppdragskontrollTestVerktøy {
     }
 
     public static void verifiserOpphørsdatoen(Oppdragskontroll originaltOppdrag, Oppdragskontroll oppdragRevurdering) {
-        var originaltOppdr150Liste = originaltOppdrag.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).collect(Collectors.toList());
+        var originaltOppdr150Liste = originaltOppdrag.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).toList();
         var oppdr150OpphørtListe = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
-            .stream()).filter(opp150 -> opp150.gjelderOpphør() && !opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_REFUSJON_AG)).collect(Collectors.toList());
+            .stream()).filter(opp150 -> opp150.gjelderOpphør() && !opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_REFUSJON_AG)).toList();
         for (var opp150Opphørt : oppdr150OpphørtListe) {
             var klassekode = opp150Opphørt.getKodeKlassifik();
             var førsteDatoVedtakFom = originaltOppdr150Liste.stream().filter(opp150 -> opp150.getKodeKlassifik().equals(klassekode)).min(Comparator.comparing(Oppdragslinje150::getDatoVedtakFom))
@@ -238,7 +237,7 @@ public class OppdragskontrollTestVerktøy {
     public static void verifiserOppdr150SomErNy(List<Oppdragslinje150> opp150RevurdListe, List<Oppdragslinje150> originaltOpp150Liste, List<Integer> gradering) {
         var opp150NyList = opp150RevurdListe.stream()
             .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(KodeEndringLinje.NY))
-            .collect(Collectors.toList());
+            .toList();
 
         List<Oppdragslinje150> opp150List = new ArrayList<>();
         assertThat(opp150NyList).isNotEmpty();
@@ -308,7 +307,7 @@ public class OppdragskontrollTestVerktøy {
             .filter(Oppdragslinje150::gjelderOpphør)
             .map(Oppdragslinje150::getKodeKlassifik)
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static List<KodeKlassifik> getKodeklassifikIOppdr150Liste(List<Oppdragslinje150> originaltOpp150Liste) {
@@ -317,7 +316,7 @@ public class OppdragskontrollTestVerktøy {
                 && !opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG))
             .map(Oppdragslinje150::getKodeKlassifik)
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -357,9 +356,9 @@ public class OppdragskontrollTestVerktøy {
             assertThat(opp150.getTypeSats()).isEqualTo(TypeSats.ENG));
         var opp150FeriepgBrukerList = opp150RevurdListe.stream().filter(o150 -> o150.getUtbetalesTilId() != null)
             .filter(opp150 -> opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER))
-            .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());
+            .filter(Oppdragslinje150::gjelderOpphør).toList();
         var opp150ArbeidsgiverList = opp150RevurdListe.stream()
-            .filter(opp150 -> opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG)).collect(Collectors.toList());
+            .filter(opp150 -> opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG)).toList();
         assertThat(opp150FeriepgBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPH));
         assertThat(opp150ArbeidsgiverList).anySatisfy(opp150 ->

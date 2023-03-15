@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
@@ -42,7 +41,7 @@ public class VentPåSykemelding {
 
         var løpendeSPBasertPåDagpenger = alleSykepengerBasertPåDagpenger.stream()
             .filter(y -> RelatertYtelseTilstand.LØPENDE.equals(y.getStatus()))
-            .collect(Collectors.toList());
+            .toList();
 
         if (løpendeSPBasertPåDagpenger.isEmpty()) {
             return Optional.empty();

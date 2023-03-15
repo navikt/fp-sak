@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -39,13 +38,13 @@ class UtledNyeTilretteleggingerTjeneste {
                 opprinneligeTilrettelegginger);
         return Stream.of(tilretteleggingerUtenArbeidsgiver, tilretteleggingerMedArbeidsgiver)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     static List<SvpTilretteleggingEntitet> utled(List<SvpTilretteleggingEntitet> opprinneligeTilrettelegginger) {
         return opprinneligeTilrettelegginger.stream()
                 .filter(tlr -> tlr.getArbeidsgiver().isEmpty())
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

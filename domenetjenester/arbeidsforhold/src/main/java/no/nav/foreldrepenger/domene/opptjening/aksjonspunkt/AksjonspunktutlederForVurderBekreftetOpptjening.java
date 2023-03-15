@@ -9,7 +9,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -108,7 +107,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
         if (!yrkesaktiviteter.isEmpty()) {
             for (var yrkesaktivitet : yrkesaktiviteter.stream()
-                    .filter(it -> ArbeidType.AA_REGISTER_TYPER.contains(it.getArbeidType())).collect(Collectors.toList())) {
+                    .filter(it -> ArbeidType.AA_REGISTER_TYPER.contains(it.getArbeidType())).toList()) {
                 if (girAksjonspunkt(filter, opptjeningPeriode, yrkesaktivitet)) {
                     return JA;
                 }

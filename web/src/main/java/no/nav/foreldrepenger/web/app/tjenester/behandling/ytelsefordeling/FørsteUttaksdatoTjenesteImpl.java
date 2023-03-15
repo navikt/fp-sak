@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -67,6 +66,6 @@ public class FørsteUttaksdatoTjenesteImpl implements FørsteUttaksdatoTjeneste 
     private List<OppgittPeriodeEntitet> sortert(List<OppgittPeriodeEntitet> oppgittePerioder) {
         return oppgittePerioder.stream()
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

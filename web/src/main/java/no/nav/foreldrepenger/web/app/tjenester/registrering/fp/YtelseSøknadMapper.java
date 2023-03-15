@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -108,7 +107,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
 
         var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
-        fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));
+        fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).toList());
 
         return fordeling;
     }
@@ -128,7 +127,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
     static List<Uttaksperiode> mapUttaksperioder(List<PermisjonPeriodeDto> permisjonsPerioder) {
         List<Uttaksperiode> result = new ArrayList<>();
         if (!isNull(permisjonsPerioder)) {
-            result.addAll(permisjonsPerioder.stream().map(YtelseSøknadMapper::mapPermisjonPeriodeDto).collect(Collectors.toList()));
+            result.addAll(permisjonsPerioder.stream().map(YtelseSøknadMapper::mapPermisjonPeriodeDto).toList());
         }
         return result;
     }
@@ -137,7 +136,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         List<Uttaksperiode> result = new ArrayList<>();
 
         if (!isNull(graderingsperioder)) {
-            return graderingsperioder.stream().map(YtelseSøknadMapper::mapGraderingsperiode).collect(Collectors.toList());
+            return graderingsperioder.stream().map(YtelseSøknadMapper::mapGraderingsperiode).toList();
         }
         return result;
     }
@@ -146,7 +145,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         List<Oppholdsperiode> result = new ArrayList<>();
 
         if (!isNull(oppholdPerioder)) {
-            return oppholdPerioder.stream().map(YtelseSøknadMapper::mapOppholdPeriode).collect(Collectors.toList());
+            return oppholdPerioder.stream().map(YtelseSøknadMapper::mapOppholdPeriode).toList();
         }
         return result;
     }
@@ -251,7 +250,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         if (isNull(utsettelserDto)) {
             return new ArrayList<>();
         }
-        return utsettelserDto.stream().map(YtelseSøknadMapper::mapUtsettelsesperiode).collect(Collectors.toList());
+        return utsettelserDto.stream().map(YtelseSøknadMapper::mapUtsettelsesperiode).toList();
     }
 
     static Utsettelsesperiode mapUtsettelsesperiode(UtsettelseDto utsettelserDto) {
@@ -278,7 +277,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static List<Overfoeringsperiode> mapOverføringsperioder(List<OverføringsperiodeDto> overføringsperioder, ForeldreType søker) {
-        return overføringsperioder.stream().map(p -> mapOverføringsperiode(p, søker)).collect(Collectors.toList());
+        return overføringsperioder.stream().map(p -> mapOverføringsperiode(p, søker)).toList();
     }
 
     static Overfoeringsperiode mapOverføringsperiode(OverføringsperiodeDto overføringsperiode, ForeldreType soker) {

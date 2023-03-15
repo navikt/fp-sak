@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import no.nav.abakus.iaygrunnlag.Organisasjon;
 import no.nav.abakus.iaygrunnlag.Periode;
@@ -88,13 +87,13 @@ class MapOppgittOpptjening {
 
             dto.medArbeidsforhold(
                     oppgittOpptjening.getOppgittArbeidsforhold().stream().map(MapTilDto::mapArbeidsforhold).sorted(COMP_OPPGITT_ARBEIDSFORHOLD)
-                            .collect(Collectors.toList()));
+                            .toList());
             dto.medEgenNæring(
                     oppgittOpptjening.getEgenNæring().stream().map(MapTilDto::mapEgenNæring).sorted(COMP_OPPGITT_EGEN_NÆRING)
-                            .collect(Collectors.toList()));
+                            .toList());
             dto.medAnnenAktivitet(
                     oppgittOpptjening.getAnnenAktivitet().stream().map(MapTilDto::mapAnnenAktivitet).sorted(COMP_ANNEN_AKTIVITET)
-                            .collect(Collectors.toList()));
+                            .toList());
 
             oppgittOpptjening.getFrilans().ifPresent(f -> dto.medFrilans(mapFrilans(f)));
 
@@ -107,7 +106,7 @@ class MapOppgittOpptjening {
             }
 
             var frilansoppdrag = frilans.getFrilansoppdrag().stream().map(MapTilDto::mapFrilansoppdrag).sorted(COMP_FRILANSOPPDRAG)
-                    .collect(Collectors.toList());
+                    .toList();
             var frilansDto = new OppgittFrilansDto(frilansoppdrag)
                     .medErNyoppstartet(frilans.getErNyoppstartet())
                     .medHarInntektFraFosterhjem(frilans.getHarInntektFraFosterhjem())
@@ -240,7 +239,7 @@ class MapOppgittOpptjening {
             if (data == null) {
                 return Collections.emptyList();
             }
-            return data.stream().map(transform).collect(Collectors.toList());
+            return data.stream().map(transform).toList();
         }
 
         private static OppgittFrilans mapFrilans(OppgittFrilansDto dto) {

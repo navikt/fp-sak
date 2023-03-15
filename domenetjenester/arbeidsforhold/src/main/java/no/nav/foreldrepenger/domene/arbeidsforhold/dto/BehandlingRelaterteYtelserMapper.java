@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -43,7 +42,7 @@ public class BehandlingRelaterteYtelserMapper {
     public static List<TilgrensendeYtelserDto> mapFraBehandlingRelaterteYtelser(Collection<Ytelse> ytelser) {
         return ytelser.stream()
                 .map(BehandlingRelaterteYtelserMapper::lagTilgrensendeYtelse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static RelatertYtelseType mapFraFagsakYtelseTypeTilRelatertYtelseType(FagsakYtelseType type) {
@@ -91,6 +90,6 @@ public class BehandlingRelaterteYtelserMapper {
     private static List<TilgrensendeYtelserDto> sortTilgrensendeYtelser(List<TilgrensendeYtelserDto> relatertYtelser, String relatertYtelseType) {
         return relatertYtelser.stream().filter(tilgrensendeYtelserDto -> (relatertYtelseType.equals(tilgrensendeYtelserDto.getRelatertYtelseType())))
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
     }
 }

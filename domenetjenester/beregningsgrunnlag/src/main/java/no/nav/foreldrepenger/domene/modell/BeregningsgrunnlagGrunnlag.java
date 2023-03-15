@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
@@ -63,7 +61,7 @@ public class BeregningsgrunnlagGrunnlag {
             var overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter()
                 .stream()
                 .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
-                .collect(Collectors.toList());
+                .toList();
             var overstyrtBuilder = BeregningAktivitetAggregat.builder()
                 .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
             overstyrteAktiviteter.forEach(aktivitet -> {

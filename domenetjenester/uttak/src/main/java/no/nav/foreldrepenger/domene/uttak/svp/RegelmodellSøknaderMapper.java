@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -45,11 +44,11 @@ public class RegelmodellSøknaderMapper {
         return svpGrunnlag.hentTilretteleggingerSomSkalBrukes()
             .stream()
             .map(tilrettelegging -> lagSøknad(input, tilrettelegging, termindato))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Søknad lagSøknad(UttakInput input, SvpTilretteleggingEntitet tilrettelegging, LocalDate termindato) {
-        var tilrettelegginger = tilrettelegging.getTilretteleggingFOMListe().stream().map(this::mapTilrettelegging).collect(Collectors.toList());
+        var tilrettelegginger = tilrettelegging.getTilretteleggingFOMListe().stream().map(this::mapTilrettelegging).toList();
         var aktivitetType = mapTilAktivitetType(tilrettelegging.getArbeidType());
         var arbeidsforhold = lagArbeidsforhold(tilrettelegging.getArbeidsgiver(), tilrettelegging.getInternArbeidsforholdRef(), aktivitetType);
         var stillingsprosent = finnStillingsprosent(input, tilrettelegging, arbeidsforhold);

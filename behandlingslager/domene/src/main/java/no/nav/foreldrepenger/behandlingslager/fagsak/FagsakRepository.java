@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -194,7 +193,7 @@ public class FagsakRepository {
                 "select f.saksnummer from FAGSAK f where f.FAGSAK_STATUS<>'AVSLU' and not exists (select * from BEHANDLING b where b.FAGSAK_ID = f.ID)");
         @SuppressWarnings("unchecked")
         List<String> saksnumre = query.getResultList();
-        return saksnumre.stream().filter(Objects::nonNull).map(Saksnummer::new).collect(Collectors.toList());
+        return saksnumre.stream().filter(Objects::nonNull).map(Saksnummer::new).toList();
     }
 
     public Saksnummer genererNyttSaksnummer() {

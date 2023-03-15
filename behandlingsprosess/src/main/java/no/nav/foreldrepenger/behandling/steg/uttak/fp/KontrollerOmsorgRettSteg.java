@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.util.stream.Collectors;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -49,7 +47,7 @@ public class KontrollerOmsorgRettSteg implements BehandlingSteg {
         var aksjonspunktDefinisjonList = omsorgRettUttakTjeneste.utledAksjonspunkter(input);
         var resultater = aksjonspunktDefinisjonList.stream()
                 .map(AksjonspunktResultat::opprettForAksjonspunkt)
-                .collect(Collectors.toList());
+                .toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
     }
 

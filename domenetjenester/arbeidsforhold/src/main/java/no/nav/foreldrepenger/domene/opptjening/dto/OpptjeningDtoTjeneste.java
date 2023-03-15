@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.opptjening.dto;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -52,7 +51,7 @@ public class OpptjeningDtoTjeneste {
                     forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
                             .stream()
                             .map(this::lagDtoFraOAPeriode)
-                            .collect(Collectors.toList()));
+                            .toList());
         } else {
             resultat.setOpptjeningAktivitetList(Collections.emptyList());
         }

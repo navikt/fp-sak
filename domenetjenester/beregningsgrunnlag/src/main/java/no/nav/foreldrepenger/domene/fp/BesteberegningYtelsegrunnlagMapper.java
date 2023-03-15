@@ -21,11 +21,9 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class BesteberegningYtelsegrunnlagMapper {
     private static final List<RelatertYtelseType> FPSAK_YTELSER = Arrays.asList(RelatertYtelseType.FORELDREPENGER,
@@ -40,7 +38,7 @@ public class BesteberegningYtelsegrunnlagMapper {
             .filter(y -> y.getKilde().equals(Fagsystem.FPSAK))
             .filter(y -> y.getPeriode().overlapper(periodeYtelserKanVæreRelevantForBB))
             .getFiltrertYtelser();
-        return ytelserFraFpsak.stream().map(Ytelse::getSaksnummer).collect(Collectors.toList());
+        return ytelserFraFpsak.stream().map(Ytelse::getSaksnummer).toList();
     }
 
     public static Optional<Ytelsegrunnlag> mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet periodeYtelserKanVæreRelevantForBB, YtelseFilter ytelseFilter) {
@@ -50,7 +48,7 @@ public class BesteberegningYtelsegrunnlagMapper {
         var sykepengeperioder = sykepengegrunnlag.stream()
             .map(BesteberegningYtelsegrunnlagMapper::mapTilYtelsegrunnlag)
             .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+            .toList();
         return sykepengeperioder.isEmpty()
             ? Optional.empty()
             : Optional.of(new Ytelsegrunnlag(FagsakYtelseType.SYKEPENGER, sykepengeperioder));
@@ -61,7 +59,7 @@ public class BesteberegningYtelsegrunnlagMapper {
         var ytelseperioder = resultat.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
             .map(BesteberegningYtelsegrunnlagMapper::mapPeriode)
-            .collect(Collectors.toList());
+            .toList();
         return ytelseperioder.isEmpty()
             ? Optional.empty()
             : Optional.of(new Ytelsegrunnlag(FagsakYtelseType.fraKode(ytelseType.getKode()), ytelseperioder));
@@ -70,7 +68,7 @@ public class BesteberegningYtelsegrunnlagMapper {
     private static Ytelseperiode mapPeriode(BeregningsresultatPeriode periode) {
         var andeler = periode.getBeregningsresultatAndelList().stream()
             .map(BesteberegningYtelsegrunnlagMapper::mapAndel)
-            .collect(Collectors.toList());
+            .toList();
         return new Ytelseperiode(Intervall.fraOgMedTilOgMed(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), andeler);
     }
 

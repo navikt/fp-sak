@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ class MottattDokumentSortererTest {
         var dokumenter = List.of(andre, første);
 
         // Act
-        var sortert = dokumenter.stream().sorted(MottattDokumentSorterer.sorterMottattDokument()).collect(Collectors.toList());
+        var sortert = dokumenter.stream().sorted(MottattDokumentSorterer.sorterMottattDokument()).toList();
 
         // Assert
         Assertions.assertThat(sortert).containsExactly(første, andre);
@@ -57,7 +56,7 @@ class MottattDokumentSortererTest {
         var dokumenter = List.of(andre, første);
 
         // Act
-        var sortert = dokumenter.stream().sorted(MottattDokumentSorterer.sorterMottattDokument()).collect(Collectors.toList());
+        var sortert = dokumenter.stream().sorted(MottattDokumentSorterer.sorterMottattDokument()).toList();
 
         // Assert
         Assertions.assertThat(sortert).containsExactly(første, andre);
@@ -84,7 +83,7 @@ class MottattDokumentSortererTest {
         var dokumenter = List.of(andre, første);
 
         // Act
-        var sortert = dokumenter.stream().sorted(MottattDokumentSorterer.sorterMottattDokument()).collect(Collectors.toList());
+        var sortert = dokumenter.stream().sorted(MottattDokumentSorterer.sorterMottattDokument()).toList();
 
         // Assert
         Assertions.assertThat(sortert).containsExactly(første, andre);

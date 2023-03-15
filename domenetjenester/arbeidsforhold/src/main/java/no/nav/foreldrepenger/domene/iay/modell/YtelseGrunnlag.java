@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -49,7 +48,7 @@ public class YtelseGrunnlag extends BaseEntitet {
         this.ytelseStørrelse = ytelseGrunnlag.getYtelseStørrelse().stream().map(ys -> {
             var ytelseStørrelse = new YtelseStørrelse(ys);
             return ytelseStørrelse;
-        }).collect(Collectors.toList());
+        }).toList();
         this.vedtaksDagsats = ytelseGrunnlag.getVedtaksDagsats().orElse(null);
     }
 

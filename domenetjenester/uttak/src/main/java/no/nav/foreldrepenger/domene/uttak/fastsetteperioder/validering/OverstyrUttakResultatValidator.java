@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -58,7 +57,7 @@ public class OverstyrUttakResultatValidator {
     }
 
     private List<FastsattUttakPeriode> map(List<ForeldrepengerUttakPeriode> perioder) {
-        return perioder.stream().map(this::map).collect(Collectors.toList());
+        return perioder.stream().map(this::map).toList();
     }
 
     private FastsattUttakPeriode map(ForeldrepengerUttakPeriode periode) {
@@ -76,7 +75,7 @@ public class OverstyrUttakResultatValidator {
     }
 
     private List<FastsattUttakPeriodeAktivitet> mapAktiviteter(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
-        return aktiviteter.stream().map(this::map).collect(Collectors.toList());
+        return aktiviteter.stream().map(this::map).toList();
     }
 
     private FastsattUttakPeriodeAktivitet map(ForeldrepengerUttakPeriodeAktivitet aktivitet) {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.svp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -68,7 +67,7 @@ public class SvangerskapFeriepengeKvoteBeregner {
             .stream()
             .filter(p -> finnesAndelMedKravPåFeriepengerOgUtbetaling(p.getBeregningsresultatAndelList()))
             .map(this::lagIntervall)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Optional<LocalDateInterval> lagFeriepengeperiode(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {

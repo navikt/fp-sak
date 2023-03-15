@@ -9,7 +9,6 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -275,7 +274,7 @@ public class FamilieHendelseTjeneste {
     }
 
     static List<LocalDateInterval> utledPerioderForRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        return utledTidslineFraGrunnlag(familieHendelseGrunnlag).getLocalDateIntervals().stream().collect(Collectors.toUnmodifiableList());
+        return utledTidslineFraGrunnlag(familieHendelseGrunnlag).getLocalDateIntervals().stream().toList();
     }
 
     static LocalDateTimeline<Boolean> utledTidslineFraGrunnlag(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {

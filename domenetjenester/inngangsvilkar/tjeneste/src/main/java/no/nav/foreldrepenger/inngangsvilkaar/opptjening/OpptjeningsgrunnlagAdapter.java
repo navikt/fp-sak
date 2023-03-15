@@ -105,13 +105,12 @@ public class OpptjeningsgrunnlagAdapter {
         return aktiviteter;
     }
 
-    private Collection<OpptjeningAktivitetPeriode> filtrer(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter) {
-        var utenNøkkel = opptjeningAktiveter.stream().filter(o -> o.getOpptjeningsnøkkel() == null).toList();
-        //fjerner de uten opptjeningsnøkkel
-        opptjeningAktiveter.removeAll(utenNøkkel);
+    private Collection<OpptjeningAktivitetPeriode> filtrer(Collection<OpptjeningAktivitetPeriode> opptjeningAktiviteter) {
+        var medNøkkel = opptjeningAktiviteter.stream().filter(o -> o.getOpptjeningsnøkkel() != null).toList();
+        var utenNøkkel = opptjeningAktiviteter.stream().filter(o -> o.getOpptjeningsnøkkel() == null).toList();
         List<OpptjeningAktivitetPeriode> resultat = new ArrayList<>(utenNøkkel);
 
-        var identifikatorTilAktivitetMap = opptjeningAktiveter.stream()
+        var identifikatorTilAktivitetMap = medNøkkel.stream()
             .collect(Collectors.groupingBy(this::getIdentifikator));
         for (var entry : identifikatorTilAktivitetMap.entrySet()) {
             //legger de med ett innslag rett til i listen

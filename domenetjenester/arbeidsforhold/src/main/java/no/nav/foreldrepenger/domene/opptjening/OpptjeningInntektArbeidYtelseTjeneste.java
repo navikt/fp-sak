@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -68,7 +67,7 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
         final var perioder = opptjeningsperioderTjeneste
                 .hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
 
-        return perioder.stream().map(this::mapTilPerioder).collect(Collectors.toList());
+        return perioder.stream().map(this::mapTilPerioder).toList();
     }
 
     private OpptjeningAktivitetPeriode mapTilPerioder(OpptjeningsperiodeForSaksbehandling periode) {

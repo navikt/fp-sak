@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -131,7 +130,7 @@ class KunYtelseHistorikkTjenesteTest {
         var andelHistorikkinnslag = deler.stream()
             .filter(del -> del != null && del.getTema().isPresent() && andelsInfo.equals(
                 del.getTema().get().getNavnVerdi()))
-            .collect(Collectors.toList());
+            .toList();
         var fordelingInnslag = andelHistorikkinnslag.stream()
             .filter(del -> del.getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).isPresent())
             .findFirst();

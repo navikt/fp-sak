@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
@@ -61,7 +60,7 @@ public class KopierRegelsporing {
             .filter(e -> !grunnlagSporinger.containsKey(e.getKey()))
             .map(Map.Entry::getValue)
             .map(BeregningsgrunnlagRegelSporing::new)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static Map<ÅpenDatoIntervallEntitet, List<BeregningsgrunnlagPeriodeRegelSporing>> finnRegelsporingerSomSkalKopieresFraPeriode(
@@ -78,7 +77,7 @@ public class KopierRegelsporing {
                 .filter((e) -> !regelSporinger.containsKey(e.getKey()))
                 .map(Map.Entry::getValue)
                 .map(BeregningsgrunnlagPeriodeRegelSporing::new)
-                .collect(Collectors.toList());
+                .toList();
             regelsporinger.put(periode.getPeriode(), sporinger);
         });
         return regelsporinger;

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -32,11 +31,11 @@ class SatsTypeTest {
         var grunnbeløpListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
             .stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GRUNNBELØP))
-            .collect(Collectors.toList());
+            .toList();
         var gsnittListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
             .stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT))
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(grunnbeløpListe).isNotEmpty();
         assertThat(gsnittListe).isNotEmpty();
@@ -48,7 +47,7 @@ class SatsTypeTest {
         var gsnittListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
             .stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT))
-            .collect(Collectors.toList());
+            .toList();
 
         for (var sats : gsnittListe) {
             final var satsPeriode = sats.getPeriode();

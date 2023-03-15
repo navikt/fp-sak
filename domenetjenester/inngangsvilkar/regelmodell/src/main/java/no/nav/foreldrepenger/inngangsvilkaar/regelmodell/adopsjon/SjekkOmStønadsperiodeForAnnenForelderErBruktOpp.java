@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.fpsak.nare.evaluation.Evaluation;
-import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 class SjekkOmStønadsperiodeForAnnenForelderErBruktOpp extends LeafSpecification<AdopsjonsvilkårGrunnlag> {

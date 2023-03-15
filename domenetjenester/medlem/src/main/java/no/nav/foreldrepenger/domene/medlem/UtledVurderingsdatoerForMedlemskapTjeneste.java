@@ -135,8 +135,8 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         var første = førsteVersjon.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet());
         var siste = sisteVersjon.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet());
 
-        var førsteListe = første.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).collect(Collectors.toList());
-        var sisteListe = siste.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).collect(Collectors.toList());
+        var førsteListe = første.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).toList();
+        var sisteListe = siste.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).toList();
 
         var førsteTidsserie = new LocalDateTimeline<MedlemskapPerioderEntitet>(førsteListe, this::slåSammenMedlemskapPerioder);
         var andreTidsserie = new LocalDateTimeline<MedlemskapPerioderEntitet>(sisteListe, this::slåSammenMedlemskapPerioder);
@@ -162,7 +162,7 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         var adresseSegmenter = personopplysningerAggregat.getAdresserFor(ref.aktørId()).stream()
             .filter(PersonAdresseEntitet::erUtlandskAdresse)
             .map(PersonAdresseEntitet::getPeriode)
-            .collect(Collectors.toList());
+            .toList();
         var fomdatoer = adresseSegmenter.stream().map(DatoIntervallEntitet::getFomDato).collect(Collectors.toSet());
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
 
@@ -180,7 +180,7 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForPersonstatus(PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
         var personstatus = personopplysningerAggregat.getPersonstatuserFor(ref.aktørId())
             .stream().sorted(Comparator.comparing(s -> s.getPeriode().getFomDato()))
-            .collect(Collectors.toList());
+            .toList();
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
         IntStream.range(0, personstatus.size() - 1).forEach(i -> {
             if (i != personstatus.size() - 1) { // sjekker om det er siste element
@@ -202,9 +202,9 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         var statsborgerskapDatoer = statsborgerskapene.stream()
             .map(StatsborgerskapEntitet::getPeriode).map(DatoIntervallEntitet::getFomDato)
             .collect(Collectors.toSet());
-        var statsborgerskapLand = statsborgerskapene.stream().map(StatsborgerskapEntitet::getStatsborgerskap).collect(Collectors.toList());
+        var statsborgerskapLand = statsborgerskapene.stream().map(StatsborgerskapEntitet::getStatsborgerskap).toList();
         statsborgerskapDatoer.addAll(MapRegionLandkoder.utledRegionsEndringsDatoer(statsborgerskapLand));
-        var statsborgerskap = statsborgerskapDatoer.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+        var statsborgerskap = statsborgerskapDatoer.stream().sorted(Comparator.naturalOrder()).toList();
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
         var max = statsborgerskap.size() - 1;
         IntStream.range(0, max).forEach(i -> {

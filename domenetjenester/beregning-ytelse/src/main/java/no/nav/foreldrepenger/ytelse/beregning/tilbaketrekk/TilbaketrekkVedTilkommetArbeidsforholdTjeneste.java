@@ -57,13 +57,13 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
         var tilkomneAndeler = revurderingAndelerSortertPåNøkkel.stream()
             .filter(brNøkkelMedAndeler -> originaleAndelerSortertPåNøkkel.stream().map(BRNøkkelMedAndeler::getNøkkel).noneMatch(originalNøkkel -> originalNøkkel.equals(brNøkkelMedAndeler.getNøkkel())))
             .filter(n -> finnTidligsteStartdatoForArbeidsforholdPåNøkkel(n, yrkesaktiviteter, skjæringstidspunkt).isPresent())
-            .collect(Collectors.toList());
+            .toList();
         return tilkomneAndeler
             .stream()
             .map(n -> finnTidligsteStartdatoForArbeidsforholdPåNøkkel(n, yrkesaktiviteter, skjæringstidspunkt).get())
             .distinct()
             .map(lagTilbaketrekkEntry(revurderingAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel, yrkesaktiviteter, skjæringstidspunkt, tilkomneAndeler))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static Function<LocalDate, TilbaketrekkForTilkommetArbeidEntry> lagTilbaketrekkEntry(List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel, List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt, List<BRNøkkelMedAndeler> tilkomneAndeler) {
@@ -78,7 +78,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
 
     private static Function<LocalDate, List<BRNøkkelMedAndeler>> finnNøklerMedStartLikEllerEtter(Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt, List<BRNøkkelMedAndeler> tilkomneAndelerStream) {
         return d -> tilkomneAndelerStream.stream().filter(n -> !finnTidligsteStartdatoForArbeidsforholdPåNøkkel(n, yrkesaktiviteter, skjæringstidspunkt).get().isBefore(d))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static Map<LocalDate, List<BRNøkkelMedAndeler>> finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(LocalDate startdatoArbeid, LocalDate skjæringstidspunkt,
@@ -87,7 +87,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
         var nøklerSomSlutterFørDatoIkkeErTilkommet = nøkler.stream()
             .filter(harNøkkelAvsluttetArbeidsforhold(startdatoArbeid, skjæringstidspunkt, yrkesaktiviteter))
             .filter(erIkkeTilkommetIRevurdering(originaleAndelerSortertPåNøkkel))
-            .collect(Collectors.toList());
+            .toList();
         return nøklerSomSlutterFørDatoIkkeErTilkommet.stream()
             .collect(Collectors.toMap(n -> finnSluttdatoFørTilkommetForNøkkel(n, startdatoArbeid, yrkesaktiviteter, skjæringstidspunkt), List::of, (l1, l2) -> {
                 var newList = new ArrayList<BRNøkkelMedAndeler>();
@@ -128,7 +128,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
         {
             var matchendeAktiviteter = yrkesaktiviteter.stream()
                 .filter(matchMedAndel(beregningsresultatAndel.getArbeidsgiver().get(), beregningsresultatAndel.getArbeidsforholdRef()))
-                .collect(Collectors.toList());
+                .toList();
             var harPeriodeSomSlutterFørStartdato = matchendeAktiviteter.stream()
                 .anyMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(skjæringstidspunkt, startdatoArbeid));
             var harIkkePeriodeSomSlutterEtterStartdato = matchendeAktiviteter.stream()

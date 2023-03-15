@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -49,14 +48,14 @@ public class OppgittTilknytningDto {
         return UtlandsoppholdDto.mapFra(opphold.stream()
             .filter(MedlemskapOppgittLandOppholdEntitet::isTidligereOpphold)
             .filter(o -> !o.getLand().equals(Landkoder.NOR))
-            .collect(Collectors.toList()));
+            .toList());
     }
 
     private static List<UtlandsoppholdDto> mapEtter(Set<MedlemskapOppgittLandOppholdEntitet> utlandsopphold) {
         return UtlandsoppholdDto.mapFra(utlandsopphold.stream()
             .filter(o -> !o.isTidligereOpphold())
             .filter(o -> !o.getLand().equals(Landkoder.NOR))
-            .collect(Collectors.toList()));
+            .toList());
     }
 
     public boolean isOppholdNorgeNa() {

@@ -9,7 +9,6 @@ import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriod
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +78,7 @@ final class JusterFordelingTjeneste {
         return oppgittePerioder.stream()
             .filter(p -> !erHelg(p))
             .map(p -> kopier(p, flyttFraHelgTilMandag(p.getFom()), flyttFraHelgTilFredag(p.getTom())))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     static LocalDate flyttFraHelgTilFredag(LocalDate dato) {

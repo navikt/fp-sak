@@ -397,7 +397,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(opp150RevurderingListe).hasSize(6).anySatisfy(linjeOpphør -> {
             assertThat(linjeOpphør.gjelderOpphør()).isTrue();
@@ -420,7 +420,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             .stream()
             .filter(oppdrag110 -> !oppdrag110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver() == erBruker)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Test
@@ -452,7 +452,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         var opp150RevurderingListeForBruker = getOppdragslinje150ForMottaker(oppdragRevurdering, true);
         assertThat(opp150RevurderingListeForBruker).hasSize(3)
@@ -500,7 +500,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(opp150RevurderingListe).hasSize(4);
         var opp150RevurderingListeForBruker = getOppdragslinje150ForMottaker(oppdragRevurdering, true);
@@ -574,7 +574,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(opp150RevurderingListe).hasSize(4).anySatisfy(linjeOpphør -> {
             assertThat(linjeOpphør.gjelderOpphør()).isTrue();
@@ -630,7 +630,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(opp150RevurderingListe).hasSize(4);
         var opp150RevurderingListeForBruker = getOppdragslinje150ForMottaker(oppdragRevurdering, true);
@@ -686,7 +686,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         var opp150RevurderingListeForBruker = getOppdragslinje150ForMottaker(oppdragRevurdering, true);
         var opp150RevurderingListeForArbeidsgiver = getOppdragslinje150ForMottaker(oppdragRevurdering, false);
@@ -742,7 +742,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         var opp150RevurderingListeForBruker = getOppdragslinje150ForMottaker(oppdragRevurdering, true);
         assertThat(opp150RevurderingListeForBruker).hasSize(3);
@@ -798,7 +798,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(opp150RevurderingListe).hasSize(3).anySatisfy(linjeOpphør -> {
             assertThat(linjeOpphør.gjelderOpphør()).isTrue();
@@ -1073,7 +1073,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var andreOpp150ForDP = sortertOpp150OpphForDPListe.get(1);
         assertThat(andreOpp150ForDP.getRefDelytelseId()).isEqualTo(førsteOpp150ForDP.getDelytelseId());
         //Sjekk om delytelseId er unikt for oppdragslinje150
-        var delytelseIdList = opp150RevurderingListe.stream().map(Oppdragslinje150::getDelytelseId).collect(Collectors.toList());
+        var delytelseIdList = opp150RevurderingListe.stream().map(Oppdragslinje150::getDelytelseId).toList();
         Set<Long> delytelseIdSet = Sets.newHashSet(delytelseIdList);
         assertThat(delytelseIdList).hasSize(delytelseIdSet.size());
     }
@@ -1126,7 +1126,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         verifiserKodeklassifik(originaltOpp150Liste, opp150RevurdListe);
         var opp150IAndrePeriode = opp150RevurdListe.stream()
             .filter(opp150 -> opp150.getDatoVedtakFom().equals(b2Periode_2.getBeregningsresultatPeriodeFom()))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(opp150IAndrePeriode).hasSize(1);
         assertThat(opp150IAndrePeriode.get(0).getSats()).isEqualTo(Sats.på(3000));
     }
@@ -1173,7 +1173,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var originaltOpp150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
         var opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         verifiserKodeklassifik(originaltOpp150Liste, opp150RevurdListe);
-        var opp150IAndrePeriode = opp150RevurdListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
+        var opp150IAndrePeriode = opp150RevurdListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150IAndrePeriode).hasSize(3).allSatisfy(opp150 -> assertThat(opp150.getUtbetalingsgrad().getVerdi()).isEqualTo(80));
     }
 
@@ -1373,7 +1373,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         });
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
         assertThat(revurderingOpp150Liste).hasSize(2).allSatisfy(opp150 -> {
             assertThat(opp150.getDatoStatusFom()).isEqualTo(sistePeriodeTom.minusDays(3));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
@@ -1432,7 +1432,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         });
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
         assertThat(revurderingOpp150Liste).hasSize(2).allSatisfy(opp150 -> {
             assertThat(opp150.getDatoVedtakFom()).isEqualTo(sistePeriodeTom.plusDays(1));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
@@ -1490,7 +1490,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         });
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
         assertThat(revurderingOpp150Liste).hasSize(6)
             .allSatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
@@ -1545,7 +1545,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         });
         var revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
         assertThat(revurderingOpp150Liste).hasSize(6)
             .allSatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
@@ -1631,11 +1631,11 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         });
         var oppdragslinje150OpphPå_AT = revurderingOpp150ListeForBruker.stream()
             .filter(opp150 -> KodeKlassifik.FPF_ARBEIDSTAKER.equals(opp150.getKodeKlassifik()))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(oppdragslinje150OpphPå_AT).hasSize(1);
         var oppdragslinje150OpphPå_SN = revurderingOpp150ListeForBruker.stream()
             .filter(opp150 -> KodeKlassifik.FPF_SELVSTENDIG.equals(opp150.getKodeKlassifik()))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(oppdragslinje150OpphPå_SN).hasSize(1);
     }
 
@@ -2346,7 +2346,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
         assertThat(alleOpp150BrukerListe).hasSize(3).anySatisfy(opp150 -> assertThat(opp150.gjelderOpphør()).isTrue());
-        var opp150UtenOpphBrukerListe = alleOpp150BrukerListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
+        var opp150UtenOpphBrukerListe = alleOpp150BrukerListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150UtenOpphBrukerListe).hasSize(2).allSatisfy(opp150 -> {
             assertThat(opp150.getSats()).isEqualTo(Sats.på(2400L));
             assertThat(opp150.getRefDelytelseId()).isNotNull();
@@ -2400,7 +2400,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
         assertThat(alleOpp150BrukerListe).hasSize(3).anySatisfy(opp150 -> assertThat(opp150.gjelderOpphør()).isTrue());
-        var opp150UtenOpphBrukerListe = alleOpp150BrukerListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
+        var opp150UtenOpphBrukerListe = alleOpp150BrukerListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150UtenOpphBrukerListe).hasSize(2).allSatisfy(opp150 -> {
             assertThat(opp150.getSats()).isEqualTo(Sats.på(3700L));
             assertThat(opp150.getRefDelytelseId()).isNotNull();
@@ -2448,7 +2448,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         var alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
         assertThat(alleOpp150BrukerListe).hasSize(3).anySatisfy(opp150 -> assertThat(opp150.gjelderOpphør()).isTrue());
-        var opp150UtenOpphBrukerListe = alleOpp150BrukerListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
+        var opp150UtenOpphBrukerListe = alleOpp150BrukerListe.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150UtenOpphBrukerListe).hasSize(2).allSatisfy(opp150 -> {
             assertThat(opp150.getSats()).isEqualTo(Sats.på(1200));
             assertThat(opp150.getRefDelytelseId()).isNotNull();
@@ -2543,7 +2543,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
         // AG + FP
         assertThat(opp150RevurderingListe).hasSize(2)
             .allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue())
@@ -2566,7 +2566,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe2 = oppdragRevurdering2.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         // AG + Bruker + 2 * FP
         assertThat(opp150RevurderingListe2).hasSize(4).noneSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
@@ -2741,7 +2741,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe = oppdragRevurdering2.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         // Bruker + FP
         assertThat(opp150RevurderingListe).hasSize(8).anySatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
@@ -2825,7 +2825,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(l -> l.getUtbetalesTilId() != null)
-            .collect(Collectors.toList());
+            .toList();
 
         // Bruker + FP
         assertThat(opp150RevurderingListe).hasSize(2).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
@@ -2899,7 +2899,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150RevurderingListe5 = oppdragRevurdering5.getOppdrag110Liste()
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         // AG +  FP
         assertThat(opp150RevurderingListe5).hasSize(2).allSatisfy(l -> assertThat(l.gjelderOpphør()).isTrue());
@@ -2934,7 +2934,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(l -> l.getUtbetalesTilId() == null)
-            .collect(Collectors.toList());
+            .toList();
 
         // AG + FP
         assertThat(opp150RevurderingListe).hasSize(2).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
@@ -2955,7 +2955,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(l -> l.getUtbetalesTilId() != null)
-            .collect(Collectors.toList());
+            .toList();
 
         // AG +  FP
         assertThat(opp150RevurderingListe5).hasSize(2).allSatisfy(l -> assertThat(l.gjelderOpphør()).isTrue());
@@ -2964,13 +2964,13 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
 
     private List<Oppdragslinje150> sortOppdragslinj150Liste(List<Oppdragslinje150> opp150OpphForDPListe) {
-        return opp150OpphForDPListe.stream().sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)).collect(Collectors.toList());
+        return opp150OpphForDPListe.stream().sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)).toList();
     }
 
     private void verifiserOpp150NårDetErFlereArbeidsgivereSomMottaker(LocalDate datoStatusFom, List<Oppdragslinje150> revurderingOpp150Arbgvr) {
         assertThat(revurderingOpp150Arbgvr).hasSize(5);
         var opp150ForOpph = revurderingOpp150Arbgvr.stream().filter(Oppdragslinje150::gjelderOpphør).findFirst().get();
-        var opp150FomEndringsdato = revurderingOpp150Arbgvr.stream().filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
+        var opp150FomEndringsdato = revurderingOpp150Arbgvr.stream().filter(opp150 -> !opp150.gjelderOpphør()).toList();
         assertThat(opp150ForOpph.getDatoStatusFom()).isEqualTo(datoStatusFom);
         assertThat(opp150ForOpph.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
         assertThat(opp150ForOpph.getRefusjonsinfo156().getRefunderesId()).isIn(
@@ -2995,7 +2995,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     private List<Oppdragslinje150> getOpp150MedKodeklassifik(List<Oppdragslinje150> opp150RevurdListe, KodeKlassifik kodeKlassifik) {
-        return opp150RevurdListe.stream().filter(opp150 -> kodeKlassifik.equals(opp150.getKodeKlassifik())).collect(Collectors.toList());
+        return opp150RevurdListe.stream().filter(opp150 -> kodeKlassifik.equals(opp150.getKodeKlassifik())).toList();
     }
 
     private void verifiserKodeklassifik(List<Oppdragslinje150> originaltOpp150Liste, List<Oppdragslinje150> opp150RevurdListe) {
@@ -3036,7 +3036,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
                 .getRefunderesId()
                 .equals(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)))
             .filter(oppdragslinje150 -> oppdragslinje150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(opp150VirksomhetListe).isEmpty();
     }
 }

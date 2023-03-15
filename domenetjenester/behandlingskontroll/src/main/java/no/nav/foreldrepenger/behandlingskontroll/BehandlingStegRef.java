@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
@@ -128,11 +127,11 @@ public @interface BehandlingStegRef {
         }
 
         private static List<FagsakYtelseType> coalesce(FagsakYtelseType... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().toList();
         }
 
         private static List<BehandlingType> coalesce(BehandlingType... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().toList();
         }
 
     }

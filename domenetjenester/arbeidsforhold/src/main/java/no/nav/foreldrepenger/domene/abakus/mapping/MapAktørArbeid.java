@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,7 @@ public class MapAktørArbeid {
             if ((dtos == null) || dtos.isEmpty()) {
                 return Collections.emptyList();
             }
-            return dtos.stream().map(this::mapAktørArbeid).collect(Collectors.toUnmodifiableList());
+            return dtos.stream().map(this::mapAktørArbeid).toList();
         }
 
         private AktørArbeidBuilder mapAktørArbeid(ArbeidDto dto) {
@@ -178,13 +177,13 @@ public class MapAktørArbeid {
             if ((aktørArbeid == null) || aktørArbeid.isEmpty()) {
                 return Collections.emptyList();
             }
-            return aktørArbeid.stream().map(this::map).collect(Collectors.toList());
+            return aktørArbeid.stream().map(this::map).toList();
         }
 
         private ArbeidDto map(AktørArbeid arb) {
             List<YrkesaktivitetDto> yrkesaktiviteter = new ArrayList<>(getYrkesaktiviteter(arb.hentAlleYrkesaktiviteter()));
 
-            var aktiviteter = yrkesaktiviteter.stream().filter(this::erGyldigYrkesaktivitet).sorted(COMP_YRKESAKTIVITET).collect(Collectors.toList());
+            var aktiviteter = yrkesaktiviteter.stream().filter(this::erGyldigYrkesaktivitet).sorted(COMP_YRKESAKTIVITET).toList();
 
             var dto = new ArbeidDto(new AktørIdPersonident(arb.getAktørId().getId()))
                     .medYrkesaktiviteter(aktiviteter);
@@ -196,7 +195,7 @@ public class MapAktørArbeid {
         }
 
         private List<YrkesaktivitetDto> getYrkesaktiviteter(Collection<Yrkesaktivitet> aktiviteter) {
-            return aktiviteter.stream().map(this::mapYrkesaktivitet).collect(Collectors.toList());
+            return aktiviteter.stream().map(this::mapYrkesaktivitet).toList();
         }
 
         private AktivitetsAvtaleDto map(AktivitetsAvtale aa) {
@@ -221,8 +220,8 @@ public class MapAktørArbeid {
         }
 
         private YrkesaktivitetDto mapYrkesaktivitet(Yrkesaktivitet a) {
-            var aktivitetsAvtaler = a.getAlleAktivitetsAvtaler().stream().map(this::map).sorted(COMP_AKTIVITETSAVTALE).collect(Collectors.toList());
-            var permisjoner = a.getPermisjon().stream().map(this::map).sorted(COMP_PERMISJON).collect(Collectors.toList());
+            var aktivitetsAvtaler = a.getAlleAktivitetsAvtaler().stream().map(this::map).sorted(COMP_AKTIVITETSAVTALE).toList();
+            var permisjoner = a.getPermisjon().stream().map(this::map).sorted(COMP_PERMISJON).toList();
 
             var arbeidsforholdId = mapArbeidsforholdsId(a.getArbeidsgiver(), a);
 

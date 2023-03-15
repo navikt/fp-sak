@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgS
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -52,7 +51,7 @@ public class PersonopplysningDtoTjeneste {
     private static List<PersonadresseDto> lagAddresseDto(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
         return aggregat.getAdresserFor(personopplysning.getAktørId()).stream()
             .map(PersonopplysningDtoTjeneste::lagDto)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static PersonadresseDto lagDto(PersonAdresseEntitet adresse) {

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -157,7 +156,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         var aksjonspunkter = behandling.getAksjonspunkter().stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-            .collect(Collectors.toList());
+            .toList();
 
         avbrytAksjonspunkter(behandling, aksjonspunkter);
     }
@@ -167,7 +166,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         var aksjonspunkter = behandling.getAksjonspunkter().stream()
             .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-            .collect(Collectors.toList());
+            .toList();
 
         avbrytAksjonspunkter(behandling, aksjonspunkter);
     }

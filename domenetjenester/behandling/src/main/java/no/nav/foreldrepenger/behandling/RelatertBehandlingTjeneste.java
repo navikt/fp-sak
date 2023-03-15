@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -57,7 +56,7 @@ public class RelatertBehandlingTjeneste {
                 .filter(f -> ytelseType.equals(f.getYtelseType()))
                 .filter(f -> behandlingVedtakRepository.hentGjeldendeVedtak(f).map(BehandlingVedtak::getVedtakResultatType)
                         .filter(VedtakResultatType.INNVILGET::equals).isPresent())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Optional<Behandling> hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(Behandling behandling) {
@@ -97,7 +96,7 @@ public class RelatertBehandlingTjeneste {
         return behandlinger.stream()
                 .map(b -> vedtakForBehandling(b))
                 .sorted((v1, v2) -> compare(v1, v2))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean harVedtakFør(BehandlingVedtak vedtak1, BehandlingVedtak vedtak2) {

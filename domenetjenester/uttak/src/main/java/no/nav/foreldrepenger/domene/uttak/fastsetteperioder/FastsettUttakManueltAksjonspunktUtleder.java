@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -74,7 +73,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKNAD_FRIST)) {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST);
         }
-        return aksjonspunkter.stream().distinct().collect(Collectors.toList());
+        return aksjonspunkter.stream().distinct().toList();
     }
 
     private Optional<AksjonspunktDefinisjon> utledAksjonspunktForManuellBehandlingFraRegler(Long behandlingId) {

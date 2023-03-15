@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -103,7 +102,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
             .stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(oppdragslinje150 -> !oppdragslinje150.gjelderOpphør())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private List<BeregningsresultatPeriode> hentBeregningsperioder(Long behandlingId) {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.abakus;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -51,7 +50,7 @@ public class IAYRegisterdataTjeneste {
             .stream()
             .filter(it -> ABAKUS_TASK.equals(it.taskType()))
             .filter(it -> it.getBehandlingId().equals("" + callback.getBehandlingId()))
-            .collect(Collectors.toList());
+            .toList();
 
         if (tasksSomVenterPåSvar.isEmpty()) {
             LOG.info("Mottatt callback hvor ingen task venter på svar... {}", callback);

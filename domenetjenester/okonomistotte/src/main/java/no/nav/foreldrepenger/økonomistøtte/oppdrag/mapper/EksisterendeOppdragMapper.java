@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class EksisterendeOppdragMapper {
     private static final Logger LOG = LoggerFactory.getLogger(EksisterendeOppdragMapper.class);
 
     public static Map<KjedeNøkkel, OppdragKjede> tilKjeder(List<Oppdragskontroll> oppdragskontroll) {
-        return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).collect(Collectors.toList()));
+        return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).toList());
     }
 
     private static Map<KjedeNøkkel, OppdragKjede> oppdragTilKjeder(List<Oppdrag110> tidligereOppdrag) {
@@ -125,7 +124,7 @@ public class EksisterendeOppdragMapper {
         return tidligereOppdrag.stream()
             .filter(ok -> ok.venterKvittering() || OppdragKvitteringTjeneste.harPositivKvittering(ok))
             .sorted(Comparator.comparing(Oppdrag110::getAvstemming))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static OppdragLinje tilOppdragslinje(Oppdragslinje150 linje) {
@@ -191,7 +190,7 @@ public class EksisterendeOppdragMapper {
         return oppdragslinje150Liste.stream()
             .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)
                 .thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
-            .collect(Collectors.toList());
+            .toList();
     }
 
 }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -125,7 +124,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         return beregningsgrunnlagPerioder
             .stream()
             .sorted(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom))
-            .collect(Collectors.toUnmodifiableList());
+            .toList();
     }
 
     public Optional<Sammenligningsgrunnlag> getSammenligningsgrunnlag() {
@@ -246,7 +245,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         return faktaOmBeregningTilfeller
             .stream()
             .map(BeregningsgrunnlagFaktaOmBeregningTilfelle::getFaktaOmBeregningTilfelle)
-            .collect(Collectors.toUnmodifiableList());
+            .toList();
     }
 
     public List<SammenligningsgrunnlagPrStatus> getSammenligningsgrunnlagPrStatusListe() {
@@ -456,7 +455,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
         public List<BeregningsgrunnlagPeriode.Builder> getPeriodeBuilders(ÅpenDatoIntervallEntitet periode) {
             return kladd.getBeregningsgrunnlagPerioder().stream().filter(p -> p.getPeriode().overlapper(periode))
-                .map(BeregningsgrunnlagPeriode::oppdater).collect(Collectors.toList());
+                .map(BeregningsgrunnlagPeriode::oppdater).toList();
         }
     }
 }

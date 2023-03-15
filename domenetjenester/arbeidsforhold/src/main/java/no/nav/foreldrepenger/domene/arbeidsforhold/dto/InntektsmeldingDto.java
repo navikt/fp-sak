@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
@@ -43,7 +42,7 @@ public class InntektsmeldingDto {
             this.utsettelsePerioder.addAll(utsettelser
                     .stream()
                     .map(UtsettelsePeriodeDto::new)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         var graderinger = inntektsmelding.getGraderinger();
@@ -51,7 +50,7 @@ public class InntektsmeldingDto {
             this.graderingPerioder.addAll(graderinger
                     .stream()
                     .map(GraderingPeriodeDto::new)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         getRefusjonBeløpPerMnd = inntektsmelding.getRefusjonBeløpPerMnd();

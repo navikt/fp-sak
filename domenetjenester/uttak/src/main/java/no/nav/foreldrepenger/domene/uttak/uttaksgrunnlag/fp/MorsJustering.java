@@ -51,7 +51,7 @@ class MorsJustering implements ForelderFødselJustering {
             var justert = flyttPeriodeTilHøyre(oppgittPeriode, virkedagerSomSkalSkyvePeriode, ikkeFlyttbarePerioder);
             justertePerioder.addAll(justert);
         }
-        justertePerioder = sorterEtterFom(justertePerioder);
+        justertePerioder = new ArrayList<>(sorterEtterFom(justertePerioder));
         if (førsteUttaksdatoErFlyttet(oppgittePerioder, justertePerioder)) {
             var ekstraPeriode = lagEkstraPeriodeFraOpprinneligUttaksdato(oppgittePerioder, justertePerioder);
             justertePerioder.add(0, ekstraPeriode);

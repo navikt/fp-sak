@@ -77,7 +77,7 @@ public class InntektsmeldingTjeneste {
         var datoFilterDato = Optional.ofNullable(skjæringstidspunktForOpptjening).orElseGet(LocalDate::now);
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(emptyList())
-            .stream().filter(im -> skalIkkeFiltrereStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).collect(Collectors.toList());
+            .stream().filter(im -> skalIkkeFiltrereStartdato || kanInntektsmeldingBrukesForSkjæringstidspunkt(im, skjæringstidspunktForOpptjening)).toList();
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(ref.aktørId()));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
@@ -108,7 +108,7 @@ public class InntektsmeldingTjeneste {
                         || !Objects.equals(origIM.get(imRevurderingEntry.getKey()).getJournalpostId(),
                                 imRevurderingEntry.getValue().getJournalpostId()))
                 .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Optional<Inntektsmelding> hentInntektsMeldingFor(Long behandlingId, JournalpostId journalpostId) {

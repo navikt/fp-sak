@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -46,12 +45,12 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjeneste {
         var atAndeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
             .filter(andel -> andel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER))
-            .collect(Collectors.toList());
+            .toList();
 
         var flAndeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
             .filter(andel -> andel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER))
-            .collect(Collectors.toList());
+            .toList();
 
         lagHistorikkInnslag(dto, param, atAndeler, flAndeler);
     }

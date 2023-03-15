@@ -57,7 +57,7 @@ public class FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste {
         for (var periode : dto.getFastsatteTidsbegrensedePerioder()) {
             var bgPerioderSomSkalFastsettesAvDennePerioden = perioder.stream()
                 .filter(p -> !p.getBeregningsgrunnlagPeriodeFom().isBefore(periode.getPeriodeFom()))
-                .collect(Collectors.toList());
+                .toList();
             var fastatteAndeler = periode.getFastsatteTidsbegrensedeAndeler();
             fastatteAndeler.forEach(andel -> lagHistorikkForAndelIPeriode(arbeidsforholdInntekterMap, periode,
                 bgPerioderSomSkalFastsettesAvDennePerioden, andel, overstyringer));

@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -74,7 +73,7 @@ public class FødselTjeneste {
 
         return alleBarn.stream()
                 .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.fødselsdato())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<PersonIdent> hentForeldreTil(PersonIdent barn) {
@@ -90,7 +89,7 @@ public class FødselTjeneste {
                 .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
                 .filter(Objects::nonNull)
                 .map(PersonIdent::fra)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static FødtBarnInfo fraDødfødsel(DoedfoedtBarn barn) {

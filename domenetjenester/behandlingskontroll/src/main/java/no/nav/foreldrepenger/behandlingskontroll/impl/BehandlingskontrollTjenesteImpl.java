@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -477,7 +476,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     private void doForberedGjenopptak(Behandling behandling, BehandlingskontrollKontekst kontekst, boolean erHenleggelse) {
         var aksjonspunkterSomMedførerTilbakehopp = behandling.getÅpneAksjonspunkter().stream()
                 .filter(a -> a.getAksjonspunktDefinisjon().tilbakehoppVedGjenopptakelse())
-                .collect(Collectors.toList());
+                .toList();
 
         if (aksjonspunkterSomMedførerTilbakehopp.size() > 1) {
             throw new TekniskException("FP-105126",

@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalk
 
 import java.time.YearMonth;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -87,12 +86,12 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     private static BesteberegningVurderingGrunnlag mapTilVurderinsgrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
         return new BesteberegningVurderingGrunnlag(besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream()
-            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).collect(Collectors.toList()), besteberegninggrunnlagEntitet.getAvvik().orElse(null));
+            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).toList(), besteberegninggrunnlagEntitet.getAvvik().orElse(null));
     }
 
     private static BesteberegningMånedGrunnlag mapTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
         return new BesteberegningMånedGrunnlag(månedsgrunnlagEntitet.getInntekter().stream()
-            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilInntekt).collect(Collectors.toList()), YearMonth.from(månedsgrunnlagEntitet.getPeriode().getFomDato()));
+            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilInntekt).toList(), YearMonth.from(månedsgrunnlagEntitet.getPeriode().getFomDato()));
     }
 
     private static Inntekt mapTilInntekt(BesteberegningInntektEntitet besteberegningInntektEntitet) {

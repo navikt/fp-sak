@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -52,7 +51,7 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
             .filter(fagsak -> YTELSE_TYPER.contains(fagsak.getYtelseType()) && fagsak.erÅpen())
             .filter(fagsak -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
                 || erFagsakPassendeForFamilieHendelse(forretningshendelse.dødfødselsdato(), fagsak))
-            .collect(Collectors.toList());
+            .toList();
 
         if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
             || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {

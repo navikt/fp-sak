@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -133,7 +132,7 @@ public class InaktiveArbeidsforholdUtleder {
             .orElse(Collections.emptyList())
             .stream()
             .filter(arb -> arb.getArbeidsgiver() != null && arb.getArbeidsgiver().equals(arbeidsgiver))
-            .collect(Collectors.toList());
+            .toList();
         if (alleArbeidsforholdHosAG.isEmpty()) {
             return false;
         }
@@ -158,7 +157,7 @@ public class InaktiveArbeidsforholdUtleder {
         var overlappendeAnvisninger = ytelse.getYtelseAnvist()
             .stream()
             .filter(ya -> periode.inkluderer(ya.getAnvistFOM()) || periode.inkluderer(ya.getAnvistTOM()))
-            .collect(Collectors.toList());
+            .toList();
         if (overlappendeAnvisninger.isEmpty()) {
             return false;
         }

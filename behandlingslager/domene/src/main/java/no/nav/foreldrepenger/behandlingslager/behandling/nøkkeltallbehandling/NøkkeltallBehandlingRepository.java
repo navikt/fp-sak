@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -70,7 +69,7 @@ public class NøkkeltallBehandlingRepository {
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());
         @SuppressWarnings("unchecked")
         var result = (List<Object[]>) query.getResultList();
-        return result.stream().map(NøkkeltallBehandlingRepository::map).collect(Collectors.toList());
+        return result.stream().map(NøkkeltallBehandlingRepository::map).toList();
     }
 
     private static NøkkeltallBehandlingVentestatus map(Object record) {

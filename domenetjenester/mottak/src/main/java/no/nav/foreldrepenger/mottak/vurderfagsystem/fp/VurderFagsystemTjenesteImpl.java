@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -44,7 +43,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         var matchendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForSøknadFamilieHendelse(vurderFagsystem, s))
             .map(Fagsak::getSaksnummer)
-            .collect(Collectors.toList());
+            .toList();
 
         if (matchendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.get(0));
@@ -57,7 +56,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         var relevanteFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForSøknadFamilieHendelse(vurderFagsystem, s, true))
             .map(Fagsak::getSaksnummer)
-            .collect(Collectors.toList());
+            .toList();
 
         if (relevanteFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0));
@@ -67,14 +66,14 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
-        var åpneSaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType).stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+        var åpneSaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType).stream().map(Fagsak::getSaksnummer).toList();
         if (åpneSaker.size() > 1) {
             LOG.info("VurderFagsystem FP strukturert søknad mer enn 1 åpen sak {}", åpneSaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType).stream()
             .filter(s -> !fellesUtils.erFagsakMedAnnenFamilieHendelseEnnSøknadFamilieHendelse(vurderFagsystem, s))
-            .collect(Collectors.toList());
+            .toList();
         if (!sakOpprettetInnenIntervall.isEmpty()) {
             LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);

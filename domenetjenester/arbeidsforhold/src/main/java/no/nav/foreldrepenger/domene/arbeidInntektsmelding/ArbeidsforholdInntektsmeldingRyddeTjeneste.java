@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
@@ -45,7 +44,7 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
                                                                                                  List<ArbeidsforholdValg> gjeldendeValg) {
         var valgSomMatcherManueltArbeidsforhold = gjeldendeValg.stream()
             .filter(valg -> valg.getArbeidsgiver().getIdentifikator().equals(opprettetArbeidsforhold.getArbeidsgiverIdent()))
-            .collect(Collectors.toList());
+            .toList();
         if (valgSomMatcherManueltArbeidsforhold.size() > 1) {
             throw new IllegalStateException("Feil: Fant flere valg som matcher manuelt opprettet arbeidsforhold." +
                 " Antall matcher var " + valgSomMatcherManueltArbeidsforhold.size() + " på identifikator " + opprettetArbeidsforhold.getArbeidsgiverIdent());
@@ -64,7 +63,7 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
                                                                       List<ArbeidsforholdMangel> manglerPåBehandlingen) {
         return valgPåBehandlingen.stream()
             .filter(valg -> !liggerIMangelListe(valg, manglerPåBehandlingen))
-            .collect(Collectors.toList());
+            .toList();
 
     }
 
@@ -77,6 +76,6 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
     public static List<ArbeidsforholdOverstyring> finnUgyldigeOverstyringer(List<ArbeidsforholdOverstyring> overstyringer) {
         return overstyringer.stream()
             .filter(os -> UGYLDIGE_HANDLINGER.contains(os.getHandling()))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -60,7 +59,7 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
     public List<SvpTilretteleggingEntitet> hentTilretteleggingerSomSkalBrukes() {
         return getGjeldendeVersjon().getTilretteleggingListe().stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Long getBehandlingId() {

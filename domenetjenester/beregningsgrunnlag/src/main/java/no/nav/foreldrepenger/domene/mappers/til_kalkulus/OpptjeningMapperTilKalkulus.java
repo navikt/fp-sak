@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ public class OpptjeningMapperTilKalkulus {
                 opptjeningPeriode.arbeidsgiverOrgNummer(), opptjeningPeriode.arbeidsgiverAktørId(),
                 opptjeningPeriode.arbeidsforholdId() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(
                     opptjeningPeriode.arbeidsforholdId())))
-            .collect(Collectors.toList()));
+            .toList());
 
         if (opptjeningInput.getOpptjeningPerioder().isEmpty() && !opptjeningAktiviteter.getOpptjeningPerioder().isEmpty()) {
             LOG.warn("FP-658423: Fjernet alle opptjeningsaktiviteter før innsending til beregning. Oppteningaktiviteter: " + opptjeningAktiviteter);
@@ -61,7 +60,7 @@ public class OpptjeningMapperTilKalkulus {
             .filter(im -> im.getArbeidsgiver().equals(getArbeidsgiver(opp)))
             // Trenger ikke se på inntektsmeldinger med arbeidsforholdId som ikke er knyttet til et reelt arbeidsforhold
             .filter(im -> harArbeidsforholdIdSomEksisterer(im, yrkesfilter, utledetSkjæringstidspunkt))
-            .collect(Collectors.toList());
+            .toList();
         if (inntektsmeldingerForArbeidsforholdHosAG.isEmpty()) {
             return true;
         }

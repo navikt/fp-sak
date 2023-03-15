@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -66,6 +65,6 @@ public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends Komple
     }
 
     private String lagDokumentTypeString(List<ManglendeVedlegg> manglendeVedlegg) {
-        return manglendeVedlegg.stream().map(mv -> mv.getDokumentType().getKode()).collect(Collectors.toList()).toString();
+        return manglendeVedlegg.stream().map(mv -> mv.getDokumentType().getKode()).toList().toString();
     }
 }

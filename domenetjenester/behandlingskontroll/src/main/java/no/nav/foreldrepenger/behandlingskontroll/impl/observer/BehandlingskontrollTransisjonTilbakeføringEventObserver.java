@@ -89,7 +89,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         var endredeAksjonspunkter = behandling.getAksjonspunkter().stream()
                 .filter(a -> !a.erAutopunkt()) // Autopunkt skal ikke håndteres; skal alltid være lukket ved tilbakehopp
                 .filter(a -> mellomliggendeAksjonspunkt.contains(a.getAksjonspunktDefinisjon()))
-                .collect(Collectors.toList());
+                .toList();
 
         List<Aksjonspunkt> oppdaterteAksjonspunkt = new ArrayList<>();
         endredeAksjonspunkter.forEach(a -> håndterEndretAksjonspunkt(a, førsteSteg, modell, oppdaterteAksjonspunkt, tilInngangFørsteSteg));

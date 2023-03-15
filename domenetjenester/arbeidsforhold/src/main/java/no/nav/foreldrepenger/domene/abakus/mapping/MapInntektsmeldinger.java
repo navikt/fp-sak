@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.abakus.mapping;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +87,7 @@ public class MapInntektsmeldinger {
                 var dto = new InntektsmeldingerDto();
                 var inntektsmeldinger = inntektsmeldingAggregat.getAlleInntektsmeldinger().stream()
                         .map(im -> this.mapInntektsmelding(arbeidsforholdInformasjon, im, validerArbeidsforholdId)).sorted(COMP_INNTEKTSMELDING)
-                        .collect(Collectors.toList());
+                        .toList();
                 dto.medInntektsmeldinger(inntektsmeldinger);
 
                 return dto;
@@ -134,16 +133,16 @@ public class MapInntektsmeldinger {
                     .medNærRelasjon(im.getErNærRelasjon());
 
             inntektsmeldingDto.medEndringerRefusjon(
-                    im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).collect(Collectors.toList()));
+                    im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).toList());
 
             inntektsmeldingDto
-                    .medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).collect(Collectors.toList()));
+                    .medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).toList());
 
             inntektsmeldingDto.medNaturalytelser(
-                    im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).collect(Collectors.toList()));
+                    im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).toList());
 
             inntektsmeldingDto.medUtsettelsePerioder(
-                    im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).collect(Collectors.toList()));
+                    im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).toList());
 
             return inntektsmeldingDto;
         }
@@ -203,7 +202,7 @@ public class MapInntektsmeldinger {
                 return null;
             }
             return new InntektsmeldingerDto()
-                    .medInntektsmeldinger(inntektsmeldingBuildere.stream().map(this::map).collect(Collectors.toList()));
+                    .medInntektsmeldinger(inntektsmeldingBuildere.stream().map(this::map).toList());
         }
 
         private InntektsmeldingDto map(InntektsmeldingBuilder builder) {
@@ -228,16 +227,16 @@ public class MapInntektsmeldinger {
                     .medNærRelasjon(im.getErNærRelasjon());
 
             inntektsmeldingDto.medEndringerRefusjon(
-                    im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).collect(Collectors.toList()));
+                    im.getEndringerRefusjon().stream().map(this::mapEndringRefusjon).sorted(COMP_ENDRINGER_REFUSJON).toList());
 
             inntektsmeldingDto
-                    .medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).collect(Collectors.toList()));
+                    .medGraderinger(im.getGraderinger().stream().map(this::mapGradering).sorted(COMP_GRADERING).toList());
 
             inntektsmeldingDto.medNaturalytelser(
-                    im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).collect(Collectors.toList()));
+                    im.getNaturalYtelser().stream().map(this::mapNaturalytelse).sorted(COMP_NATURALYTELSE).toList());
 
             inntektsmeldingDto.medUtsettelsePerioder(
-                    im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).collect(Collectors.toList()));
+                    im.getUtsettelsePerioder().stream().map(this::mapUtsettelsePeriode).sorted(COMP_UTSETTELSE).toList());
 
             return inntektsmeldingDto;
         }
@@ -250,7 +249,7 @@ public class MapInntektsmeldinger {
                 return null;
             }
             var inntektsmeldinger = dto.getInntektsmeldinger().stream().map(im -> mapInntektsmelding(arbeidsforholdInformasjon, im))
-                    .collect(Collectors.toList());
+                    .toList();
             return new InntektsmeldingAggregat(inntektsmeldinger);
         }
 
