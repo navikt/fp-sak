@@ -28,7 +28,6 @@ import org.hibernate.annotations.Immutable;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 
 /**
@@ -156,7 +155,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
      */
     @Override
     public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
-        if (Environment.current().getCluster() == Cluster.LOCAL) {
+        if (Environment.current().isLocal()) {
             super.setOpprettetTidspunkt(opprettetTidspunkt);
         } else {
             throw new IllegalArgumentException("Det er ikke tillat å endre opprettetTidspunkt for Oppdrag110 noe annet sted enn i enhetstester.");
