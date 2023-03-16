@@ -31,17 +31,17 @@ public class RegistrerFagsakEgenskaper {
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
-    public void registrerFagsakEgenskaper(Behandling behandling, boolean oppgittRelasjonTilEØS) {
+    public UtlandMarkering registrerFagsakEgenskaper(Behandling behandling, boolean oppgittRelasjonTilEØS) {
         if (!BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) ||
             fagsakEgenskapRepository.finnEgenskap(behandling.getFagsakId(), EgenskapNøkkel.UTLAND_MARKERING).isPresent()) {
-            return;
+            return fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).orElse(UtlandMarkering.NASJONAL);
         }
         var geografiskTilknyttetUtlandEllerUkjent = personinfo.harGeografiskTilknytningUtland(behandling.getAktørId());
         var medlemskapFramtidigLangtOppholdUtlands = medlemskapRepository.hentMedlemskap(behandling.getId())
             .flatMap(MedlemskapAggregat::getOppgittTilknytning)
             .map(MedlemskapOppgittTilknytningEntitet::getOpphold).orElse(Set.of()).stream()
             .filter(land -> !land.isTidligereOpphold())
-            .anyMatch(land -> Math.abs(DAYS.between(land.getPeriodeFom(), land.getPeriodeTom())) > 300);
+            .anyMatch(land -> Math.abs(DAYS.between(land.getPeriodeFom(), land.getPeriodeTom())) > 350);
 
         var utlandMarkering = UtlandMarkering.NASJONAL;
         if (oppgittRelasjonTilEØS) {
@@ -52,6 +52,7 @@ public class RegistrerFagsakEgenskaper {
         if (!UtlandMarkering.NASJONAL.equals(utlandMarkering)) {
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), utlandMarkering);
         }
+        return utlandMarkering;
     }
 
 

@@ -44,11 +44,11 @@ public class TilknytningTjeneste {
 
         if (geografiskTilknytning == null || geografiskTilknytning.getGtType() == null)
             return null;
+        // Alle Utland + Udefinert til samme enhet.
         return switch (geografiskTilknytning.getGtType()) {
             case BYDEL -> geografiskTilknytning.getGtBydel();
             case KOMMUNE -> geografiskTilknytning.getGtKommune();
-            case UTLAND -> geografiskTilknytning.getGtLand();
-            case UDEFINERT -> null;
+            case UTLAND, UDEFINERT -> null;
         };
     }
 
