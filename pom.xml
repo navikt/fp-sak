@@ -31,7 +31,7 @@
     <properties>
         <revision>1.0-SNAPSHOT</revision>
 
-        <fp-uttak.version>14.3.11</fp-uttak.version>
+        <fp-uttak.version>14.3.12</fp-uttak.version>
         <fp-stonadskonto.version>1.0.0</fp-stonadskonto.version>
         <svp-uttak.version>2.3.7</svp-uttak.version>
 
