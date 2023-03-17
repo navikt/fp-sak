@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
@@ -79,7 +80,11 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
         var undersøkeEØS = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && harOppgittUtland(kontekst);
 
-        registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, undersøkeEØS);
+        var utland = registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, undersøkeEØS);
+        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && UtlandMarkering.BOSATT_UTLAND.equals(utland) &&
+            !BehandlendeEnhetTjeneste.erUtlandsEnhet(behandling)) {
+            behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetUtland(behandling, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysninger");
+        }
 
         if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && undersøkeEØS) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));

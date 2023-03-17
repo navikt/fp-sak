@@ -179,6 +179,27 @@ public class BehandlendeEnhetTjeneste {
         return EnhetsTjeneste.getEnhetKlage();
     }
 
+    public static boolean erUtlandsEnhet(Behandling behandling) {
+        return EnhetsTjeneste.getEnhetUtland().enhetId().equals(behandling.getBehandlendeEnhet());
+    }
+
+
+    // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
+    public void oppdaterBehandlendeEnhetUtland(Behandling behandling, HistorikkAktør endretAv, String begrunnelse) {
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        if (erUtlandsEnhet(behandling)) {
+            return;
+        }
+        if (endretAv != null) {
+            lagHistorikkInnslagForByttBehandlendeEnhet(behandling, EnhetsTjeneste.getEnhetUtland(), begrunnelse, endretAv);
+        }
+        behandling.setBehandlendeEnhet(EnhetsTjeneste.getEnhetUtland());
+        behandling.setBehandlendeEnhetÅrsak(begrunnelse);
+
+        behandlingRepository.lagre(behandling, lås);
+        eventPubliserer.fireEvent(behandling);
+    }
+
     // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
     public void oppdaterBehandlendeEnhet(Behandling behandling, OrganisasjonsEnhet nyEnhet, HistorikkAktør endretAv, String begrunnelse) {
         var lås = behandlingRepository.taSkriveLås(behandling);

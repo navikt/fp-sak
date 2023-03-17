@@ -134,6 +134,12 @@ public class FagsakTjeneste {
             .toList();
     }
 
+    public List<Behandling> hentÅpneBehandlinger(Fagsak fagsak) {
+        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+            .filter(b -> b.getÅpneAksjonspunkter().stream().anyMatch(a -> !a.erAutopunkt()))
+            .toList();
+    }
+
     private Integer finnDekningsgrad(Saksnummer saksnummer) {
         return fagsakRelasjonTjeneste.finnRelasjonHvisEksisterer(saksnummer)
             .map(FagsakRelasjon::getGjeldendeDekningsgrad)

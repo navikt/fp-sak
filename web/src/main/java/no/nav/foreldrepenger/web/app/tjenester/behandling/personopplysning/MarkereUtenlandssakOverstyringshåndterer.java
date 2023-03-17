@@ -21,6 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetUtlandTask;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringUtenlandssakMarkeringDto.class, adapter = Overstyringshåndterer.class)
@@ -28,6 +31,7 @@ public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyri
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     MarkereUtenlandssakOverstyringshåndterer() {
         // for CDI proxy
@@ -35,10 +39,12 @@ public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyri
 
     @Inject
     public MarkereUtenlandssakOverstyringshåndterer(HistorikkTjenesteAdapter historikkAdapter,
-                                                    FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                                    FagsakEgenskapRepository fagsakEgenskapRepository,
+                                                    ProsessTaskTjeneste taskTjeneste) {
         super(historikkAdapter, AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
         this.historikkAdapter = historikkAdapter;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     @Override
@@ -48,6 +54,13 @@ public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyri
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         var nymerking = UtlandMarkering.valueOf(dto.getBegrunnelse());
         fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), nymerking);
+        if (UtlandMarkering.BOSATT_UTLAND.equals(nymerking)) {
+            var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetUtlandTask.class);
+            prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+            prosessTaskData.setProperty(OppdaterBehandlendeEnhetUtlandTask.BESTILLER_KEY, HistorikkAktør.SAKSBEHANDLER.name());
+            prosessTaskData.setCallIdFraEksisterende();
+            taskTjeneste.lagre(prosessTaskData);
+        }
         return builder.build();
     }
 

@@ -44,6 +44,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetUtlandTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
@@ -201,18 +203,32 @@ public class FagsakRestTjeneste {
             }
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.utlandMarkering());
             lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(UtlandMarkering.NASJONAL), endreUtland.utlandMarkering());
+            // Bytt enhet ved utland for åpne behandlinger
+            if (UtlandMarkering.BOSATT_UTLAND.equals(endreUtland.utlandMarkering())) {
+                fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
+                    .filter(b -> !BehandlendeEnhetTjeneste.erUtlandsEnhet(b))
+                    .forEach(this::opprettUtlandProsessTask);
+            }
             // Oppdater LOS-oppgaver
-            fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).forEach(this::opprettProsessTask);
+            fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).forEach(this::opprettLosProsessTask);
             return Response.ok().build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
 
-    private void opprettProsessTask(Behandling behandling) {
+    private void opprettLosProsessTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
+        prosessTaskData.setCallIdFraEksisterende();
+        taskTjeneste.lagre(prosessTaskData);
+    }
+
+    private void opprettUtlandProsessTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetUtlandTask.class);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setProperty(OppdaterBehandlendeEnhetUtlandTask.BESTILLER_KEY, HistorikkAktør.SAKSBEHANDLER.name());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }

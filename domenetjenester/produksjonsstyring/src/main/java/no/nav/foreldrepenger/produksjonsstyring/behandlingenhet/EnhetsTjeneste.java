@@ -40,10 +40,12 @@ public class EnhetsTjeneste {
     private static final String NK_ENHET_ID = "4292"; // Klageinstans
     private static final String EA_ENHET_ID = "4883"; // Egne ansatte mfl
     private static final String SF_ENHET_ID = "2103"; // Adressesperre
-    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID);
+    private static final String UT_ENHET_ID = "4883"; // Egne ansatte mfl
+    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID); // Ta med UT_ENHET_ID ved nasjonal kø
 
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
     private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
+    private static final OrganisasjonsEnhet UTLAND_ENHET =  new OrganisasjonsEnhet(UT_ENHET_ID, "NAV Familie- og pensjonsytelser Drammen");
     private static final OrganisasjonsEnhet KODE6_ENHET = new OrganisasjonsEnhet(SF_ENHET_ID, "NAV Vikafossen");
 
     private PersoninfoAdapter personinfoAdapter;
@@ -81,7 +83,7 @@ public class EnhetsTjeneste {
         } else {
             var geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
             if (geografiskTilknytning == null) {
-                return tilfeldigEnhet();
+                return UTLAND_ENHET;
             }
             var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
             return enheter.isEmpty() ? tilfeldigEnhet() : enheter.get(0);
@@ -152,11 +154,18 @@ public class EnhetsTjeneste {
         if (SKJERMET_ENHET.enhetId().equals(enhetSak1.enhetId()) || SKJERMET_ENHET.enhetId().equals(enhetSak2.enhetId())) {
             return SKJERMET_ENHET;
         }
+        if (UTLAND_ENHET.enhetId().equals(enhetSak1.enhetId()) || UTLAND_ENHET.enhetId().equals(enhetSak2.enhetId())) {
+            return UTLAND_ENHET;
+        }
         return enhetSak1;
     }
 
     static OrganisasjonsEnhet getEnhetKlage() {
         return KLAGE_ENHET;
+    }
+
+    static OrganisasjonsEnhet getEnhetUtland() {
+        return UTLAND_ENHET;
     }
 
     private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, BehandlingTema behandlingTema) {
