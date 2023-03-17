@@ -222,7 +222,7 @@ class NyOppdragskontrollTjenesteImplKontantytelseTest {
     private List<Oppdragslinje150> verifiserOppdragslinje150(List<Oppdrag110> oppdrag110Liste) {
         var oppdragslinje150List = oppdrag110Liste.stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .collect(Collectors.toList());
+            .toList();
 
         var løpenummer = 100L;
         for (var oppdrag110 : oppdrag110Liste) {

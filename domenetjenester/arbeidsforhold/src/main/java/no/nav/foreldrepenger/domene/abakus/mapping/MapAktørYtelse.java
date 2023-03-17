@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.abakus.iaygrunnlag.Aktør;
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
@@ -189,7 +188,7 @@ public class MapAktørYtelse {
         }
 
         private List<YtelseDto> mapTilYtelser(Collection<Ytelse> ytelser) {
-            return ytelser.stream().map(this::tilYtelse).sorted(COMP_YTELSE).collect(Collectors.toList());
+            return ytelser.stream().map(this::tilYtelse).sorted(COMP_YTELSE).toList();
         }
 
         private YtelseGrunnlagDto mapYtelseGrunnlag(YtelseGrunnlag gr) {
@@ -229,7 +228,7 @@ public class MapAktørYtelse {
                     .comparing((AnvisningDto anv) -> anv.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
                     .thenComparing(anv -> anv.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
-            var anvisninger = ytelse.getYtelseAnvist().stream().map(this::map).sorted(compAnvisning).collect(Collectors.toList());
+            var anvisninger = ytelse.getYtelseAnvist().stream().map(this::map).sorted(compAnvisning).toList();
             dto.setAnvisninger(anvisninger);
 
             return dto;
@@ -248,7 +247,7 @@ public class MapAktørYtelse {
             if ((aktørYtelser == null) || aktørYtelser.isEmpty()) {
                 return Collections.emptyList();
             }
-            return aktørYtelser.stream().map(this::mapTilYtelser).collect(Collectors.toList());
+            return aktørYtelser.stream().map(this::mapTilYtelser).toList();
         }
 
         /**

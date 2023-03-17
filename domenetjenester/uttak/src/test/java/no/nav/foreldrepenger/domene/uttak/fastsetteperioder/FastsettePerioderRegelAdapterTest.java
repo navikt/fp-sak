@@ -222,7 +222,7 @@ class FastsettePerioderRegelAdapterTest {
                 .getTrekkonto()
                 .getKode()
                 .equals(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode()))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(foreldrepengerUttakPerioder).hasSize(1);
 
         var foreldrePengerUttakPeriode = foreldrepengerUttakPerioder.get(0);
@@ -673,7 +673,7 @@ class FastsettePerioderRegelAdapterTest {
                 .getTrekkonto()
                 .getKode()
                 .equals(StønadskontoType.FEDREKVOTE.getKode()))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(fedrekvotePerioder).hasSize(1);
         assertThat(fedrekvotePerioder.get(0).getFom()).isEqualTo(startDatoFedrekvote);
         assertThat(fedrekvotePerioder.get(0).getTom()).isEqualTo(sluttDatoFedrekvote);
@@ -689,7 +689,7 @@ class FastsettePerioderRegelAdapterTest {
                 .getTrekkonto()
                 .getKode()
                 .equals(StønadskontoType.MØDREKVOTE.getKode()))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(mødrekvotePerioder).hasSize(1);
         assertThat(mødrekvotePerioder.get(0).getFom()).isEqualTo(fødselsdato);
         assertThat(mødrekvotePerioder.get(0).getTom()).isEqualTo(sluttDatoMødrekvote);

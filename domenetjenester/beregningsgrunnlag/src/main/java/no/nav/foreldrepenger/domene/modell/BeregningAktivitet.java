@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -63,7 +61,7 @@ public class BeregningAktivitet {
 
     boolean skalBrukes(BeregningAktivitetOverstyringer overstyringer) {
         var overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
-                .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).collect(Collectors.toList());
+                .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).toList();
         if (overstyringerForAktivitet.isEmpty()) {
             return true;
         }

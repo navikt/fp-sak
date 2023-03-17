@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -29,31 +28,31 @@ public class BRNøkkelMedAndeler {
     public List<InternArbeidsforholdRef> getAlleReferanserForDenneNøkkelen() {
         return andelerTilknyttetNøkkel.stream()
             .map(BeregningsresultatAndel::getArbeidsforholdRef)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<BeregningsresultatAndel> getBrukersAndelerTilknyttetNøkkel() {
         return andelerTilknyttetNøkkel.stream()
             .filter(BeregningsresultatAndel::erBrukerMottaker)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<BeregningsresultatAndel> getArbeidsgiversAndelerTilknyttetNøkkel() {
         return andelerTilknyttetNøkkel.stream()
             .filter(a -> !a.erBrukerMottaker())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<BeregningsresultatAndel> getAndelerSomHarReferanse() {
         return andelerTilknyttetNøkkel.stream()
             .filter(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Optional<BeregningsresultatAndel> getBrukersAndelMedReferanse(InternArbeidsforholdRef ref) {
         var korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .collect(Collectors.toList());
+            .toList();
         if(korresponderendeAndeler.size() > 1) {
             throw new IllegalArgumentException("Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel
                 + ". Antall matchende aktiviteter var " + korresponderendeAndeler.size());
@@ -64,7 +63,7 @@ public class BRNøkkelMedAndeler {
     public Optional<BeregningsresultatAndel> getArbeidsgiversAndelMedReferanse(InternArbeidsforholdRef ref) {
         var korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .collect(Collectors.toList());
+            .toList();
         if(korresponderendeAndeler.size() > 1) {
             throw new IllegalArgumentException("Forventet å finne maks en korresponderende BeregningsresultatAndel " + nøkkel
                 + ". Antall matchende aktiviteter var " + korresponderendeAndeler.size());
@@ -75,7 +74,7 @@ public class BRNøkkelMedAndeler {
     public Optional<BeregningsresultatAndel> getBrukersAndelUtenreferanse() {
         var korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .collect(Collectors.toList());
+            .toList();
 
         if(korresponderendeAndeler.size() > 1) {
             throw new IllegalArgumentException("Forventet å finne maks en andel uten referanse for BeregningsresultatAndel " + nøkkel
@@ -87,7 +86,7 @@ public class BRNøkkelMedAndeler {
     public Optional<BeregningsresultatAndel> getArbeidsgiversAndelUtenReferanse() {
         var korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .collect(Collectors.toList());
+            .toList();
 
         if(korresponderendeAndeler.size() > 1) {
             throw new IllegalArgumentException("Forventet å finne maks en andel uten referanse for BeregningsresultatAndel " + nøkkel
@@ -103,7 +102,7 @@ public class BRNøkkelMedAndeler {
     public List<BeregningsresultatAndel> getAlleBrukersAndelerMedReferanse(InternArbeidsforholdRef ref) {
         return getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -114,7 +113,7 @@ public class BRNøkkelMedAndeler {
     public List<BeregningsresultatAndel> getAlleBrukersAndelerUtenReferanse() {
         return getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -124,7 +123,7 @@ public class BRNøkkelMedAndeler {
     public List<BeregningsresultatAndel> getAlleArbeidsgiversAndelerMedReferanse(InternArbeidsforholdRef ref) {
         return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -134,7 +133,7 @@ public class BRNøkkelMedAndeler {
     public List<BeregningsresultatAndel> getAlleArbeidsgiversAndelerUtenReferanse() {
         return getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     void leggTilAndel(BeregningsresultatAndel andel) {
@@ -150,7 +149,7 @@ public class BRNøkkelMedAndeler {
     public List<BeregningsresultatAndel> getAlleAndelerMedRefSomIkkeFinnesIListe(List<InternArbeidsforholdRef> referanseliste) {
         return andelerTilknyttetNøkkel.stream()
             .filter(a -> !referanseliste.contains(a.getArbeidsforholdRef()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public boolean erArbeidstaker() {
@@ -164,6 +163,6 @@ public class BRNøkkelMedAndeler {
     public List<BeregningsresultatAndel> getAndelerUtenReferanse() {
         return andelerTilknyttetNøkkel.stream()
             .filter(a -> !a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
-            .collect(Collectors.toList());
+            .toList();
     }
 }

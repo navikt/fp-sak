@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -103,7 +102,7 @@ class KontrollerFaktaStegImplTest {
         var resulat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat().getVilkårene()
                 .stream()
                 .map(Vilkår::getVilkårType)
-                .collect(Collectors.toList());
+                .toList();
 
         assertThat(resulat)
                 .containsExactlyInAnyOrder(MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET,

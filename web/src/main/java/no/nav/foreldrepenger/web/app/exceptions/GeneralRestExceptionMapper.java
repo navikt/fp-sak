@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.exceptions;
 
-import java.util.stream.Collectors;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -99,7 +97,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     private static Response valideringsfeil(Valideringsfeil valideringsfeil) {
         var feltNavn = valideringsfeil.getFeltFeil().stream()
             .map(FeltFeilDto::getNavn)
-            .collect(Collectors.toList());
+            .toList();
         return Response
             .status(Response.Status.BAD_REQUEST)
             .entity(new FeilDto("Det oppstod valideringsfeil på felt " + feltNavn

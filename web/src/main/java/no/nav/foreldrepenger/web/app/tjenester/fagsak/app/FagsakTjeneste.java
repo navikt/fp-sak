@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -95,7 +94,7 @@ public class FagsakTjeneste {
         try {
             var sak = hentFagsakForSaksnummer(new Saksnummer(søkestreng));
             var person = sak.map(Fagsak::getAktørId).flatMap(personinfoAdapter::hentBrukerBasisForAktør).orElse(null);
-            return sak.map(f -> mapFraFagsakTilFagsakSøkDto(f, person)).stream().collect(Collectors.toList());
+            return sak.map(f -> mapFraFagsakTilFagsakSøkDto(f, person)).stream().toList();
         } catch (Exception e) { // Ugyldig saksnummer
             return List.of();
         }
@@ -107,7 +106,7 @@ public class FagsakTjeneste {
 
     private List<FagsakSøkDto> hentFagsakSøkDtoForAktørId(AktørId aktørId) {
         var brukerinfo = personinfoAdapter.hentBrukerBasisForAktør(aktørId).orElse(null);
-        return fagsakRepository.hentForBruker(aktørId).stream().map(f -> mapFraFagsakTilFagsakSøkDto(f, brukerinfo)).collect(Collectors.toList());
+        return fagsakRepository.hentForBruker(aktørId).stream().map(f -> mapFraFagsakTilFagsakSøkDto(f, brukerinfo)).toList();
     }
 
     public Optional<FagsakBackendDto> hentFagsakDtoForSaksnummer(Saksnummer saksnummer) {
@@ -123,7 +122,7 @@ public class FagsakTjeneste {
         var fagsakDtoer = fagsakRepository.hentForBruker(aktørId)
             .stream()
             .map(f -> mapFraFagsakTilFagsakSøkDto(f, null))
-            .collect(Collectors.toList());
+            .toList();
         var aktoerInfoDto = new AktoerInfoDto(personinfo.aktørId().getId(), personDto, fagsakDtoer);
         return Optional.of(aktoerInfoDto);
     }

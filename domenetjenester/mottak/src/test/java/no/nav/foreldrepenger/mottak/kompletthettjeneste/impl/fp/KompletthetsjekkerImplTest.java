@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -296,7 +295,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         assertThat(manglendeVedlegg).hasSize(1);
         var koder = manglendeVedlegg.stream()
                 .map(ManglendeVedlegg::getDokumentType)
-                .collect(Collectors.toList());
+                .toList();
         assertThat(koder).containsExactlyInAnyOrder(DokumentTypeId.DOK_INNLEGGELSE);
     }
 

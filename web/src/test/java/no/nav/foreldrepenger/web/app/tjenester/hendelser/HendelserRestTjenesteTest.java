@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -134,13 +133,13 @@ class HendelserRestTjenesteTest {
         var resultat = hendelserRestTjeneste.grovSorter(sorter);
 
         assertThat(resultat).hasSameSizeAs(harSak);
-        assertThat(resultat).isEqualTo(harSak.stream().map(AktørId::getId).collect(Collectors.toList()));
+        assertThat(resultat).isEqualTo(harSak.stream().map(AktørId::getId).toList());
     }
 
     private FødselHendelseDto lagFødselHendelse(List<AktørId> aktørIdForeldre, LocalDate fødselsdato) {
         var hendelse = new FødselHendelseDto();
         hendelse.setId(HENDELSE_ID);
-        hendelse.setAktørIdForeldre(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).collect(Collectors.toList()));
+        hendelse.setAktørIdForeldre(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).toList());
         hendelse.setFødselsdato(fødselsdato);
         return hendelse;
     }
@@ -148,7 +147,7 @@ class HendelserRestTjenesteTest {
     private DødfødselHendelseDto lagDødfødselHendelse(List<AktørId> aktørIdForeldre, LocalDate dødfødseldato) {
         var hendelse = new DødfødselHendelseDto();
         hendelse.setId(HENDELSE_ID);
-        hendelse.setAktørId(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).collect(Collectors.toList()));
+        hendelse.setAktørId(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).toList());
         hendelse.setDødfødselsdato(dødfødseldato);
         return hendelse;
     }

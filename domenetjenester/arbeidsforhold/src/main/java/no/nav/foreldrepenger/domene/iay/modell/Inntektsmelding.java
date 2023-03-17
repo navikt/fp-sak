@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.Convert;
 
@@ -100,19 +99,19 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         this.graderinger = inntektsmelding.getGraderinger().stream().map(g -> {
             final var gradering = new Gradering(g);
             return gradering;
-        }).collect(Collectors.toList());
+        }).toList();
         this.naturalYtelser = inntektsmelding.getNaturalYtelser().stream().map(n -> {
             final var naturalYtelse = new NaturalYtelse(n);
             return naturalYtelse;
-        }).collect(Collectors.toList());
+        }).toList();
         this.utsettelsePerioder = inntektsmelding.getUtsettelsePerioder().stream().map(u -> {
             final var utsettelsePeriode = new UtsettelsePeriode(u);
             return utsettelsePeriode;
-        }).collect(Collectors.toList());
+        }).toList();
         this.endringerRefusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> {
             final var refusjon = new Refusjon(r);
             return refusjon;
-        }).collect(Collectors.toList());
+        }).toList();
         this.ytelseType = inntektsmelding.getFagsakYtelseType();
     }
 

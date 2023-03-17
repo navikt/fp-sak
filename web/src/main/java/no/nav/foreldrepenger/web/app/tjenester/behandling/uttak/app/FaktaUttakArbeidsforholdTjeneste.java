@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -20,7 +19,7 @@ public class FaktaUttakArbeidsforholdTjeneste {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static Optional<ArbeidsforholdDto> map(BeregningsgrunnlagStatus statusPeriode) {

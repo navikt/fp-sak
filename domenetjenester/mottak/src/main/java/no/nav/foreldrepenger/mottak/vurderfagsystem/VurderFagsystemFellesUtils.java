@@ -98,14 +98,14 @@ public class VurderFagsystemFellesUtils {
         }
         return saker.stream()
             .filter(s -> behandlingTema.erKompatibelMed(this.getBehandlingsTemaForFagsak(s)))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<Fagsak> finnÅpneSaker(List<Fagsak> saker) {
         return saker.stream()
             .filter(Fagsak::erÅpen)
             .filter(s -> FagsakStatus.LØPENDE.equals(s.getStatus()) || harÅpenYtelsesBehandling(s))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean harÅpenYtelsesBehandling(Fagsak fagsak) {
@@ -123,7 +123,7 @@ public class VurderFagsystemFellesUtils {
     private List<Fagsak> harSakMedAvslagGrunnetManglendeDok(List<Fagsak> saker) {
         return saker.stream()
             .filter(s -> mottatteDokumentTjeneste.erSisteYtelsesbehandlingAvslåttPgaManglendeDokumentasjon(s) && !mottatteDokumentTjeneste.harFristForInnsendingAvDokGåttUt(s))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Optional<FamilieHendelseEntitet> finnGjeldendeFamilieHendelseSVP(Fagsak fagsak) {
@@ -140,7 +140,7 @@ public class VurderFagsystemFellesUtils {
         var sammenlign = LocalDateTime.now().minus(PERIODE_FOR_AKTUELLE_SAKER);
         return sakerGittYtelseType.stream()
             .filter(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<Saksnummer> sakerOpprettetInnenTvilsintervall(List<Fagsak> sakerGittYtelseType) {
@@ -148,7 +148,7 @@ public class VurderFagsystemFellesUtils {
         return sakerGittYtelseType.stream()
             .filter(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign))
             .map(Fagsak::getSaksnummer)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public boolean harSakOpprettetInnenIntervallForIM(List<Fagsak> sakerGittYtelseType, LocalDate referanseDato) {
@@ -388,7 +388,7 @@ public class VurderFagsystemFellesUtils {
     public Optional<BehandlendeFagsystem> klageinstansUstrukturertDokumentVurdering(List<Fagsak> sakerTilVurdering) {
         var åpneFagsaker = sakerTilVurdering.stream()
             .filter(this::harÅpenEllerNyligAvsluttetKlageEllerAnkeBehandlingKlageinstans)
-            .collect(Collectors.toList());
+            .toList();
         return åpneFagsaker.size() != 1 ? Optional.empty() :
             Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, åpneFagsaker.get(0).getSaksnummer()));
     }
@@ -400,14 +400,14 @@ public class VurderFagsystemFellesUtils {
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .filter(Objects::nonNull)
             .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
-            .collect(Collectors.toList());
+            .toList();
         if (behandlinger.isEmpty() && !sakerTilVurdering.isEmpty() && (behandlingTema != null && !BehandlingTema.UDEFINERT.equals(behandlingTema))) {
             // Det var oppgitt et behandlingtema men vi fant ingen passende saker som matchet oppgitt behandlingtema. Sjekker derfor alle saker
             behandlinger = sakerTilVurdering.stream()
                 .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
                 .filter(Objects::nonNull)
                 .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
-                .collect(Collectors.toList());
+                .toList();
         }
 
         var sakerMedKjenteNyereKlager = sakerTilVurdering.stream()
@@ -429,17 +429,17 @@ public class VurderFagsystemFellesUtils {
         if (behandlinger.isEmpty() && sakerTilVurdering.isEmpty()) {
             LOG.info("VFS-KLAGE ingen saker i VL");
         } else if (behandlinger.isEmpty()) {
-            var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).toList();
             var sakerMedÅpenBehandling = sakerTilVurdering.stream().filter(f -> !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(f.getId()).isEmpty()).count();
             LOG.info("VFS-KLAGE ingen vedtak - antall saker {} saker med åpen behandling {} saksnummer {}", sakerTilVurdering.size(), sakerMedÅpenBehandling, saker);
         } else if (behandlinger.size() > 1) {
             var sistOpprettetSakMinusÅr = behandlinger.stream().map(b -> b.getFagsak().getOpprettetTidspunkt())
                 .max(Comparator.naturalOrder()).orElseGet(LocalDateTime::now).minusMonths(12);
-            var fagsakerSisteÅret = behandlinger.stream().map(Behandling::getFagsak).filter(f -> f.getOpprettetTidspunkt().isAfter(sistOpprettetSakMinusÅr)).collect(Collectors.toList());
+            var fagsakerSisteÅret = behandlinger.stream().map(Behandling::getFagsak).filter(f -> f.getOpprettetTidspunkt().isAfter(sistOpprettetSakMinusÅr)).toList();
             if (fagsakerSisteÅret.size() == 1) { // Første element i fordelingslogikk klage
                 return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, fagsakerSisteÅret.get(0).getSaksnummer()));
             }
-            var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).toList();
             var sakerMedKlage = sakerTilVurdering.stream().filter(f -> behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(f.getId(), BehandlingType.KLAGE).isPresent()).count();
             LOG.info("VFS-KLAGE flere saker - antall saker {} saker med klage {} saksnummer {}", sakerTilVurdering.size(), sakerMedKlage, saker);
         }

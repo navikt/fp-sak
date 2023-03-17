@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder.oppgittHarAnnenForeldreRett;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -37,7 +36,7 @@ public class OmsorgRettUttakTjeneste {
     public OmsorgRettUttakTjeneste(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) Instance<OmsorgRettAksjonspunktUtleder> uttakUtledere,
                                    YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                    PersonopplysningerForUttak personopplysninger) {
-        this(uttakUtledere.stream().collect(Collectors.toList()), ytelseFordelingTjeneste, personopplysninger);
+        this(uttakUtledere.stream().toList(), ytelseFordelingTjeneste, personopplysninger);
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.personopplysninger = personopplysninger;
     }

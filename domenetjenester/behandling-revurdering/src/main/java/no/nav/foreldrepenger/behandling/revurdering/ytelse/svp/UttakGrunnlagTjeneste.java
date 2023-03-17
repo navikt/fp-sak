@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -76,7 +75,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
         var termindato = terminbekreftelse.get().getTermindato();
         var fødselsdatoOptional = gjeldendeFamiliehendelse.getFødselsdato();
-        var barna = gjeldendeFamiliehendelse.getBarna().stream().map(ib -> new Barn(ib.getDødsdato().orElse(null))).collect(Collectors.toList());
+        var barna = gjeldendeFamiliehendelse.getBarna().stream().map(ib -> new Barn(ib.getDødsdato().orElse(null))).toList();
         return Optional.of(FamilieHendelse.forFødsel(termindato, fødselsdatoOptional.orElse(null), barna, gjeldendeFamiliehendelse.getAntallBarn()));
     }
 }

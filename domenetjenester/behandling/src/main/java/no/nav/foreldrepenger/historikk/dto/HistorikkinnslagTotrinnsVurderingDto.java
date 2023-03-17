@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.historikk.dto;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -48,7 +47,7 @@ public class HistorikkinnslagTotrinnsVurderingDto {
     static List<HistorikkinnslagTotrinnsVurderingDto> mapFra(List<HistorikkinnslagTotrinnsvurdering> aksjonspunkter) {
         return aksjonspunkter.stream()
                 .map(HistorikkinnslagTotrinnsVurderingDto::mapFra)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static HistorikkinnslagTotrinnsVurderingDto mapFra(HistorikkinnslagTotrinnsvurdering totrinnsvurdering) {

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -155,7 +154,7 @@ public class ForretningshendelseMottak {
     }
 
     private static List<AktørId> mapToAktørIds(HendelseDto hendelseDto) {
-        return hendelseDto.getAlleAktørId().stream().map(AktørId::new).collect(Collectors.toList());
+        return hendelseDto.getAlleAktørId().stream().map(AktørId::new).toList();
     }
 
     private static Endringstype getEndringstype(HendelseDto d) {

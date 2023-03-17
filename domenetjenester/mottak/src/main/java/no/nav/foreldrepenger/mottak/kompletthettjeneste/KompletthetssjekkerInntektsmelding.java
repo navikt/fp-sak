@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,7 +30,7 @@ public class KompletthetssjekkerInntektsmelding {
             .keySet()
             .stream()
             .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse ref) {
@@ -39,6 +38,6 @@ public class KompletthetssjekkerInntektsmelding {
             .keySet()
             .stream()
             .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

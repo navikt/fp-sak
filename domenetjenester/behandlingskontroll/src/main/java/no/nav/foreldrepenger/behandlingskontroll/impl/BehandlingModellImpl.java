@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.inject.spi.CDI;
@@ -184,7 +183,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     @Override
     public BehandlingStegModell finnFørsteSteg(BehandlingStegType... behandlingStegTyper) {
         Set<BehandlingStegType> stegTyper = new LinkedHashSet<>(Arrays.asList(behandlingStegTyper).stream().filter(bs -> bs != null)
-                .collect(Collectors.toList()));
+                .toList());
 
         for (var stegModell : steg) {
             var sjekkSteg = stegModell.getBehandlingStegType();
@@ -206,7 +205,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
     @Override
     public List<BehandlingStegType> getAlleBehandlingStegTyper() {
-        return steg.stream().map(s -> s.getBehandlingStegType()).collect(Collectors.toList());
+        return steg.stream().map(s -> s.getBehandlingStegType()).toList();
     }
 
     /**

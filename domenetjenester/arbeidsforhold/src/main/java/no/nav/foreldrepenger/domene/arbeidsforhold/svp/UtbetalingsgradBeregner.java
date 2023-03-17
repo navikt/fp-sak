@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
@@ -68,7 +67,7 @@ class UtbetalingsgradBeregner {
         var periodeMedUtbetalingsgrad = beholdUtbetalingsgradSelvOmArbeidFrafaller(ferdigKappet).toSegments()
                 .stream()
                 .map(s -> new PeriodeMedUtbetalingsgrad(DatoIntervallEntitet.fraOgMedTilOgMed(s.getFom(), s.getTom()), s.getValue()))
-                .collect(Collectors.toList());
+                .toList();
 
         var tilretteleggingArbeidsforhold = new TilretteleggingArbeidsforhold(
                 svpTilrettelegging.getArbeidsgiver().orElse(null),
@@ -188,7 +187,7 @@ class UtbetalingsgradBeregner {
             LocalDate jordmorsdato,
             LocalDate termindato) {
         var sortert = tilretteleggingFOMListe.stream().sorted(Comparator.comparing(TilretteleggingFOM::getFomDato))
-                .collect(Collectors.toList());
+                .toList();
         List<LocalDateSegment<UtbetalingsgradBeregningProsent>> segmenter = new ArrayList<>();
 
         for (var i = 0; i < sortert.size(); i++) {

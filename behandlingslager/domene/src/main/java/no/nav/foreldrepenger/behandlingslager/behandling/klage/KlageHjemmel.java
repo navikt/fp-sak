@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -134,7 +133,7 @@ public enum KlageHjemmel implements Kodeverdi {
             return new ArrayList<>(KODER.values());
         } else {
             var ytelse = FagsakYtelseType.YtelseType.valueOf(fagsakYtelseType.getKode());
-            return KODER.values().stream().filter(h -> h.ytelser.contains(ytelse)).collect(Collectors.toList());
+            return KODER.values().stream().filter(h -> h.ytelser.contains(ytelse)).toList();
         }
     }
 

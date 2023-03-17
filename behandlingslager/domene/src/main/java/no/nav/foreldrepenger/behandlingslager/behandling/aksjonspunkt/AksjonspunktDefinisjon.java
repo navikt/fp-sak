@@ -702,7 +702,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     public static List<AksjonspunktDefinisjon> finnAksjonspunktDefinisjoner(BehandlingStegType behandlingStegType, VurderingspunktType vurderingspunktType) {
         return KODER.values().stream()
             .filter(ad -> Objects.equals(ad.getBehandlingSteg(), behandlingStegType) && Objects.equals(ad.getVurderingspunktType(), vurderingspunktType))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Converter(autoApply = true)

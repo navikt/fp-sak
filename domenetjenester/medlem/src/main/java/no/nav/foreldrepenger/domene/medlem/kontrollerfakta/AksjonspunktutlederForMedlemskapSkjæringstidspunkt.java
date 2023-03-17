@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.medlem.kontrollerfakta;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -46,7 +45,7 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
         var resultat = tjeneste.vurderMedlemskap(param.getRef(), skjæringstidspunkt);
         return resultat.stream()
             .map(mr -> opprettForMedlemResultat(param.getRef(), mr))
-           .collect(Collectors.toList());
+           .toList();
     }
 
     private AksjonspunktResultat opprettForMedlemResultat(BehandlingReferanse ref, MedlemResultat mr) {

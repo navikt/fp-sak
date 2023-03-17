@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -161,7 +160,7 @@ public class Behandlingsresultat extends BaseEntitet {
     }
 
     public List<KonsekvensForYtelsen> getKonsekvenserForYtelsen() {
-        return konsekvenserForYtelsen.stream().map(BehandlingsresultatKonsekvensForYtelsen::getKonsekvensForYtelsen).collect(Collectors.toList());
+        return konsekvenserForYtelsen.stream().map(BehandlingsresultatKonsekvensForYtelsen::getKonsekvensForYtelsen).toList();
     }
 
     public Vedtaksbrev getVedtaksbrev() {

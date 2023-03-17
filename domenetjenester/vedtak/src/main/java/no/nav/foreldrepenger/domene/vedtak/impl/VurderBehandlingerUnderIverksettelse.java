@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -78,7 +77,7 @@ public class VurderBehandlingerUnderIverksettelse {
             .filter(beh -> BehandlingStatus.IVERKSETTER_VEDTAK.equals(beh.getStatus()))
             .filter(Behandling::erYtelseBehandling)
             .filter(beh -> !behandling.getId().equals(beh.getId()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private LocalDateTime utledVedtakstidspunkt(Behandling behandling) {

@@ -159,14 +159,14 @@ public class KobleSakerTjeneste {
             .flatMap(f -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(f.getId()).stream())
             .filter(this::ekskluderAvslåtte)
             .filter(b -> sammeFamilieHendelse(grunnlag, b))
-            .collect(Collectors.toList());
+            .toList();
         if (filtrertGrunnlag.size() > 1) {
             // Studere logger og vurdere å legge inn heuristikker
             // Eksempelvis prioritere saker der man har oppgitt hverandre - eller foreldre fra registrerte barn fra FREG
             LOG.info("KobleSak: Flere saker å koble med for fagsakId {} behandlinger {}", behandling.getFagsak().getId(),
-                filtrertGrunnlag.stream().map(Behandling::getId).collect(Collectors.toList()));
+                filtrertGrunnlag.stream().map(Behandling::getId).toList());
         }
-        return filtrertGrunnlag.stream().map(Behandling::getFagsak).collect(Collectors.toList());
+        return filtrertGrunnlag.stream().map(Behandling::getFagsak).toList();
     }
 
     private boolean sammeFamilieHendelse(FamilieHendelseGrunnlagEntitet grunnlag, Behandling aktuellBehandling) {

@@ -68,7 +68,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
         lagOpptjeningsperiodeForFrilansAktivitet(behandlingReferanse, oppgittOpptjening.orElse(null), grunnlag, perioder, skjæringstidspunkt,
                 mapArbeidOpptjening).ifPresent(perioder::add);
 
-        return perioder.stream().sorted(Comparator.comparing(OpptjeningsperiodeForSaksbehandling::getPeriode)).collect(Collectors.toList());
+        return perioder.stream().sorted(Comparator.comparing(OpptjeningsperiodeForSaksbehandling::getPeriode)).toList();
     }
 
     public Optional<Opptjening> hentOpptjeningHvisFinnes(Long behandlingId) {
@@ -171,7 +171,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
             var periode = opptjeningOptional.get().getOpptjeningPeriode();
             var frilansMedInntekt = frilansOppdrag.stream()
                     .filter(frilans -> harInntektFraVirksomhetForPeriode(frilans, inntektFilter, periode))
-                    .collect(Collectors.toList());
+                    .toList();
             var brukType = utledOpptjeningType(mapArbeidOpptjening, ArbeidType.FRILANSER);
             var brukPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjeningOptional.get().getFom(),
                     opptjeningOptional.get().getTom());

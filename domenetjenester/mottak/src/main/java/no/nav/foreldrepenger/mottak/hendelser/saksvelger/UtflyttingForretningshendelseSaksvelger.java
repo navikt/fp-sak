@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -60,7 +59,7 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
         var saker = forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(f -> erFagsakPassendeForUtflyttingHendelse(forretningshendelse, f))
-            .collect(Collectors.toList());
+            .toList();
 
         if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
             || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {

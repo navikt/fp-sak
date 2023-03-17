@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
@@ -10,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -42,7 +40,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
                 .medVurdering(saksbehandlersVurdering.getVurdering())
                 .medBegrunnelse(saksbehandlersVurdering.getBegrunnelse())
                 .build())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static List<ArbeidsforholdMangel> finnManglerSomBlirAvklart(Arbeidsgiver arbeidsgiver,
@@ -53,7 +51,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
         var manglerSomAvklares = arbeidsforholdMedMangler.stream()
             .filter(mangel -> mangel.arbeidsgiver().equals(arbeidsgiver) && mangel.ref().gjelderFor(referanse))
             .filter(mangel -> gyldigeÅrsaker.contains(mangel.årsak()))
-            .collect(Collectors.toList());
+            .toList();
         if (manglerSomAvklares.size() < 1) {
             throw new IllegalStateException("Feil: Finnes ingen åpne mangler på arbeidsforhold hos "
                 + arbeidsgiver + " med arbeidsforholdId " + referanse);

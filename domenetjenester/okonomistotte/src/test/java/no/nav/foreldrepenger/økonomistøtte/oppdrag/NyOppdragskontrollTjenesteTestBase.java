@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -418,7 +417,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         if (medFeriepenger) {
             var opp150List = nyOpp110Liste.stream()
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-                .collect(Collectors.toList());
+                .toList();
             assertThat(opp150List).anySatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(
                 KodeKlassifik.FERIEPENGER_BRUKER));
             assertThat(opp150List).anySatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(
@@ -733,14 +732,14 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             .stream()
             .map(NyOppdragskontrollTjenesteTestBase::getOppdragslinje150Feriepenger)
             .flatMap(List::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
         return oppdrag110.getOppdragslinje150Liste()
             .stream()
             .filter(opp150 -> opp150.getKodeKlassifik().gjelderFeriepenger())
-            .collect(Collectors.toList());
+            .toList();
     }
 
 }

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -89,7 +88,7 @@ public class BeregningUttakTjeneste {
             return List.of();
         }
         var søknadsperioder = ytelseFordelingAggregat.get().getGjeldendeFordeling();
-        var perioderMedGradering = fraSøknad(søknadsperioder.getPerioder());
+        var perioderMedGradering = new ArrayList<>(fraSøknad(søknadsperioder.getPerioder()));
 
         if (ref.erRevurdering()) {
             var originalBehandling = ref.getOriginalBehandlingId()
@@ -133,9 +132,9 @@ public class BeregningUttakTjeneste {
 
     private List<PeriodeMedGradering> fraSøknad(List<OppgittPeriodeEntitet> oppgittePerioder) {
         return oppgittePerioder.stream()
-                .filter(oppgittPeriode -> oppgittPeriode.isGradert())
+                .filter(OppgittPeriodeEntitet::isGradert)
                 .map(this::map)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private PeriodeMedGradering map(OppgittPeriodeEntitet gradertPeriode) {
@@ -146,15 +145,12 @@ public class BeregningUttakTjeneste {
 
     private List<PeriodeMedGradering> fraVedtak(Optional<LocalDate> førsteDatoSøknad, Long originalBehandling) {
         var uttak = uttakTjeneste.hentUttakHvisEksisterer(originalBehandling);
-        if (uttak.isEmpty()) {
-            return List.of();
-        }
-
-        return uttak.get().getGjeldendePerioder().stream()
-                .filter(periode -> førsteDatoSøknad.isEmpty() || periode.getFom().isBefore(førsteDatoSøknad.get()))
-                .filter(periode -> gradertAktivitet(periode).isPresent())
-                .map(periode -> map(periode, gradertAktivitet(periode).orElseThrow(), førsteDatoSøknad))
-                .collect(Collectors.toList());
+        return uttak.map(foreldrepengerUttak -> foreldrepengerUttak.getGjeldendePerioder()
+            .stream()
+            .filter(periode -> førsteDatoSøknad.isEmpty() || periode.getFom().isBefore(førsteDatoSøknad.get()))
+            .filter(periode -> gradertAktivitet(periode).isPresent())
+            .map(periode -> map(periode, gradertAktivitet(periode).orElseThrow(), førsteDatoSøknad))
+            .toList()).orElseGet(List::of);
 
     }
 

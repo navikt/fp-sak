@@ -22,7 +22,7 @@ public class ManuellRegistreringEndringssøknadValidator {
         return Stream.of(
             validerTidsromPermisjon(registreringDto))
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static List<FeltFeilDto> validerTidsromPermisjon(ManuellRegistreringEndringsøknadDto registreringDto) {
@@ -53,7 +53,7 @@ public class ManuellRegistreringEndringssøknadValidator {
         var permisjonperioder = tidsromPermisjon.getPermisjonsPerioder();
         if (!isNull(permisjonperioder)) {
             var perioder = permisjonperioder.stream().map(fkp ->
-                new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom())).collect(Collectors.toList());
+                new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom())).toList();
             feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
             feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));
             feil.addAll(ManuellRegistreringValidatorUtil.overlappendePerioder(perioder));

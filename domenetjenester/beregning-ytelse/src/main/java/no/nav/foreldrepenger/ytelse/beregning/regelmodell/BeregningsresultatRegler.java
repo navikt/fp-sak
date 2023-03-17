@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
-import java.util.stream.Collectors;
-
 import no.nav.foreldrepenger.stønadskonto.regelmodell.KontoRegelFeil;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.fastsett.RegelFastsettBeregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
@@ -31,7 +29,7 @@ public final class BeregningsresultatRegler {
         var regelInput = toJson(grunnlag);
         var mellomregningsperioder = grunnlag.getBeregningsresultatPerioder().stream()
             .map(BeregningsresultatPeriode::copyUtenFeriepenger)
-            .collect(Collectors.toList());
+            .toList();
         var mellomregning = new BeregningsresultatFeriepengerRegelModell(grunnlag, mellomregningsperioder);
 
         var evaluation = new RegelBeregnFeriepenger().evaluer(mellomregning);

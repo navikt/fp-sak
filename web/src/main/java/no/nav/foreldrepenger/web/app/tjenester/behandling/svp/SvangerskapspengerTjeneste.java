@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -165,7 +164,7 @@ public class SvangerskapspengerTjeneste {
             .filter( ya -> harRelevantPermisjonSomOverlapperTilretteleggingFom(ya, svpTilrettelegging.getBehovForTilretteleggingFom() ))
             .flatMap(ya -> ya.getPermisjon().stream())
             .map(p -> mapPermisjon(p, yrkesfilter))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean erSammeArbeidsgiver(Yrkesaktivitet yrkesaktivitet, Arbeidsgiver arbeidsgiver, SvpTilretteleggingEntitet svpTilrettelegging) {
@@ -206,6 +205,6 @@ public class SvangerskapspengerTjeneste {
     private List<SvpTilretteleggingDatoDto> utledTilretteleggingDatoer(SvpTilretteleggingEntitet svpTilrettelegging) {
         return svpTilrettelegging.getTilretteleggingFOMListe().stream()
             .map(fom -> new SvpTilretteleggingDatoDto(fom.getFomDato(), fom.getType(), fom.getStillingsprosent(), fom.getOverstyrtUtbetalingsgrad()))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

@@ -76,7 +76,7 @@ public class YtelserKonsolidertTjeneste {
         Collection<Ytelse> fraGrunnlag = ytelser.stream()
                .filter(ytelse -> inkluder.isEmpty() || inkluder.contains(ytelse.getRelatertYtelseType()))
                 .filter(ytelse -> !(RelatertYtelseType.ENGANGSSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
-                .collect(Collectors.toList());
+                .toList();
         List<TilgrensendeYtelserDto> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
         var saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -89,7 +89,7 @@ public class YtelserKonsolidertTjeneste {
                     (FagsakYtelseType.ENGANGSTØNAD.equals(sak.getYtelseType()) && !erSisteBehandlingAvsluttetAvslag(sak)))
                 .map(sak -> mapFraFagsakForBruker(sak, iDag))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         resultat.addAll(resultatÅpen);
         return resultat;
@@ -107,7 +107,7 @@ public class YtelserKonsolidertTjeneste {
         Collection<Ytelse> fraGrunnlag = ytelser.stream()
                 .filter(ytelse -> inkluder.isEmpty() || inkluder.contains(ytelse.getRelatertYtelseType()))
                 .filter(ytelse -> !(RelatertYtelseType.ENGANGSSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
-                .collect(Collectors.toList());
+                .toList();
         List<TilgrensendeYtelserDto> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
         var saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -117,7 +117,7 @@ public class YtelserKonsolidertTjeneste {
                         || inkluder.contains(BehandlingRelaterteYtelserMapper.mapFraFagsakYtelseTypeTilRelatertYtelseType(sak.getYtelseType())))
                 .filter(sak -> STATUS_ÅPEN.contains(sak.getStatus()) || !erSisteBehandlingAvsluttetAvslag(sak))
                 .map(sak -> mapFraFagsakForAnnenPart(sak, sak.getOpprettetTidspunkt().toLocalDate()))
-                .collect(Collectors.toList());
+                .toList();
 
         resultat.addAll(resultatÅpen);
         return resultat;

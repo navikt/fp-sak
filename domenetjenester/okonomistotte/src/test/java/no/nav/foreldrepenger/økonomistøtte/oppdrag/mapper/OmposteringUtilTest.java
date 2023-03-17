@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.Map;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,11 +16,7 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste.EndringsdatoTjeneste;
 
 class OmposteringUtilTest {
 

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.validering.FeltFeilDto;
@@ -44,7 +43,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
                     validerFrilans(registreringDto.getFrilans()))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-            ).collect(Collectors.toList());
+            ).toList();
 
         return funnetFeil;
     }
@@ -107,7 +106,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
 
     private static Optional<FeltFeilDto> validerTidligereUtenlandsoppholdDatoer(List<UtenlandsoppholdDto> tidligereOppholdUtenlands, String feltnavn) {
         var feil = new ArrayList<String>();
-        var perioder = tidligereOppholdUtenlands.stream().map(tou -> new Periode(tou.getPeriodeFom(), tou.getPeriodeTom())).collect(Collectors.toList());
+        var perioder = tidligereOppholdUtenlands.stream().map(tou -> new Periode(tou.getPeriodeFom(), tou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.periodeFørDagensDato(perioder));
@@ -132,7 +131,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
 
     private static Optional<FeltFeilDto> validerFremtidigOppholdUtenlandsDatoer(List<UtenlandsoppholdDto> fremtidigOppholdUtenlands, LocalDate mottattDato, String feltnavn) {
         var feil = new ArrayList<String>();
-        var perioder = fremtidigOppholdUtenlands.stream().map(fou -> new Periode(fou.getPeriodeFom(), fou.getPeriodeTom())).collect(Collectors.toList());
+        var perioder = fremtidigOppholdUtenlands.stream().map(fou -> new Periode(fou.getPeriodeFom(), fou.getPeriodeTom())).toList();
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørMottatDato(perioder, mottattDato));

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -105,7 +104,7 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
         if (overstyringer != null) {
             var overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter().stream()
                     .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
-                    .collect(Collectors.toList());
+                    .toList();
             var overstyrtBuilder = BeregningAktivitetAggregatEntitet.builder()
                     .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
             overstyrteAktiviteter.forEach(aktivitet -> {

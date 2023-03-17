@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -327,14 +326,14 @@ public class SøknadMapperFelles {
             periode.setFom(p.getPeriodeFom());
             periode.setTom(p.getPeriodeTom());
             return periode;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         frilans.setErNyoppstartet(getNullBooleanAsFalse(dto.getErNyoppstartetFrilanser()));
         frilans.setNaerRelasjon(getNullBooleanAsFalse(dto.getHarHattOppdragForFamilie()));
         frilans.setHarInntektFraFosterhjem(getNullBooleanAsFalse(dto.getHarInntektFraFosterhjem()));
 
         if (getNullBooleanAsFalse(dto.getHarHattOppdragForFamilie())) {
-            var frilansoppdrag = dto.getOppdragPerioder().stream().map(SøknadMapperFelles::mapAlleFrilansOppdragperioder).collect(Collectors.toList());
+            var frilansoppdrag = dto.getOppdragPerioder().stream().map(SøknadMapperFelles::mapAlleFrilansOppdragperioder).toList();
             frilans.getFrilansoppdrag().addAll(frilansoppdrag);
         }
 
@@ -359,7 +358,7 @@ public class SøknadMapperFelles {
         }
         //Arbeidsforhold kan komme inn som liste med ett ArbeidsforholdDto objekt som bare inneholder null verdier. Denne må filtreres bort, siden frontend ikke gjør dette for oss i tilfellene hvor det ikke registreres utenlands arbeidsforhold.
         Predicate<ArbeidsforholdDto> predicateArbeidsforholdFelterUlikNull = arbeidsforholdDto -> arbeidsforholdDto.getPeriodeFom() != null && arbeidsforholdDto.getPeriodeTom() != null && arbeidsforholdDto.getLand() != null;
-        return arbeidsforhold.stream().filter(predicateArbeidsforholdFelterUlikNull).map(SøknadMapperFelles::mapUtenlandskArbeidsforhold).collect(Collectors.toList());
+        return arbeidsforhold.stream().filter(predicateArbeidsforholdFelterUlikNull).map(SøknadMapperFelles::mapUtenlandskArbeidsforhold).toList();
     }
 
     private static UtenlandskArbeidsforhold mapUtenlandskArbeidsforhold(ArbeidsforholdDto arbeidsforholdDto) {
@@ -380,7 +379,7 @@ public class SøknadMapperFelles {
         if ((isNull(egenVirksomhetDto)) || isNull(egenVirksomhetDto.getVirksomheter())) {
             return new ArrayList<>();
         }
-        return egenVirksomhetDto.getVirksomheter().stream().map(v -> mapEgenNæring(v, virksomhetTjeneste)).collect(Collectors.toList());
+        return egenVirksomhetDto.getVirksomheter().stream().map(v -> mapEgenNæring(v, virksomhetTjeneste)).toList();
     }
 
     //TODO PFP-8741: mapEgenNæring kan ikke fullføres. Er avheig av avklaringer: https://confluence.adeo.no/display/MODNAV/05g.+Avklaringer
@@ -469,7 +468,7 @@ public class SøknadMapperFelles {
         if (isNull(andreYtelser)) {
             return new ArrayList<>();
         }
-        return andreYtelser.stream().map(SøknadMapperFelles::opprettAnnenOpptjening).collect(Collectors.toList());
+        return andreYtelser.stream().map(SøknadMapperFelles::opprettAnnenOpptjening).toList();
     }
 
     private static AnnenOpptjening opprettAnnenOpptjening(AndreYtelserDto opptjening) {

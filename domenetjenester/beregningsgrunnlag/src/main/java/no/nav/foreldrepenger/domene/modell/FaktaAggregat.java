@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
@@ -20,12 +19,12 @@ public class FaktaAggregat {
     }
 
     public FaktaAggregat(FaktaAggregat faktaAggregatDto) {
-        this.faktaArbeidsforholdListe = faktaAggregatDto.getFaktaArbeidsforhold().stream().map(FaktaArbeidsforhold::new).collect(Collectors.toList());
+        this.faktaArbeidsforholdListe = faktaAggregatDto.getFaktaArbeidsforhold().stream().map(FaktaArbeidsforhold::new).toList();
         this.faktaAktør = faktaAggregatDto.getFaktaAktør().map(FaktaAktør::new).orElse(null);
     }
 
     public List<FaktaArbeidsforhold> getFaktaArbeidsforhold() {
-        return faktaArbeidsforholdListe.stream().collect(Collectors.toUnmodifiableList());
+        return faktaArbeidsforholdListe.stream().toList();
     }
 
     public Optional<FaktaArbeidsforhold> getFaktaArbeidsforhold(BGAndelArbeidsforhold bgAndelArbeidsforholdDto) {

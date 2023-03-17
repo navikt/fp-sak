@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
@@ -19,7 +18,7 @@ public record BeregningsgrunnlagPeriode(LocalDateInterval periode, List<Beregnin
     public List<BeregningsgrunnlagPrStatus> getBeregningsgrunnlagPrStatus(AktivitetStatus aktivitetStatus) {
         return beregningsgrunnlagPrStatus().stream()
                 .filter(af -> aktivitetStatus.equals(af.aktivitetStatus()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

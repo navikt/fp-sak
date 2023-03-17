@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -93,7 +92,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             .map(this::finnDokumentTypeId)
             .filter(doc -> !dokumentTypeIds.contains(doc))
             .map(ManglendeVedlegg::new)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override

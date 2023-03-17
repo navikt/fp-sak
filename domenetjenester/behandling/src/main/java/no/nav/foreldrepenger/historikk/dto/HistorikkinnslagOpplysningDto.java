@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.historikk.dto;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
@@ -31,7 +30,7 @@ public class HistorikkinnslagOpplysningDto {
     }
 
     static List<HistorikkinnslagOpplysningDto> mapFra(List<HistorikkinnslagFelt> opplysninger) {
-        return opplysninger.stream().map(o -> mapFra(o)).collect(Collectors.toList());
+        return opplysninger.stream().map(o -> mapFra(o)).toList();
     }
 
     private static HistorikkinnslagOpplysningDto mapFra(HistorikkinnslagFelt opplysning) {

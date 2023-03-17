@@ -717,7 +717,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             var frilansoppdragEntitet = new OppgittFrilansoppdrag(fo.getOppdragsgiver(), mapPeriode(fo.getPeriode()));
             frilansoppdragEntitet.setFrilans(frilansEntitet);
             return frilansoppdragEntitet;
-        }).collect(Collectors.toList()));
+        }).toList());
         return frilansEntitet;
     }
 

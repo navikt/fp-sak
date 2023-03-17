@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -108,7 +107,7 @@ public class FaktaBeregningHistorikkHåndterer {
             .map(kode -> FaktaOmBeregningTilfelleRef.Lookup.find(faktaOmBeregningHistorikkTjeneste, kode))
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .collect(Collectors.toList())
+            .toList()
             .forEach(historikkTjeneste -> historikkTjeneste.lagHistorikk(behandlingId, dto, tekstBuilder,
                 nyttBeregningsgrunnlag, forrigeGrunnlag, iayGrunnlag));
     }

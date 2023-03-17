@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
         for (var arbeidsforholdEntitet : uttakResultat.getUttaksResultatArbeidsforhold()) {
 
             var uttakResultatPeriodeDtos = arbeidsforholdEntitet.getPerioder().stream()
-                .map(this::mapSvpUttakResultatPeriodeDto).collect(Collectors.toList());
+                .map(this::mapSvpUttakResultatPeriodeDto).toList();
 
             arbeidsforholdDtos.add(mapSvpUttakResultatArbeidsforholdDto(arbeidsforholdEntitet,
                 sortSvpUttakResultatPeriodeDtoer(uttakResultatPeriodeDtos)));
@@ -53,7 +52,7 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
     private List<SvangerskapspengerUttakResultatPeriodeDto> sortSvpUttakResultatPeriodeDtoer(List<SvangerskapspengerUttakResultatPeriodeDto> uttakResultatPeriodeDtos) {
         return uttakResultatPeriodeDtos.stream()
             .sorted(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeDto::getFom))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private SvangerskapspengerUttakResultatPeriodeDto mapSvpUttakResultatPeriodeDto(

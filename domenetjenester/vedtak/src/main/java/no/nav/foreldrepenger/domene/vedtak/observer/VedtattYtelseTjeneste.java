@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.observer;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -86,7 +85,7 @@ public class VedtattYtelseTjeneste {
             inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
                 .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon)
                 .stream()
-                .flatMap(a -> a.getArbeidsforholdReferanser().stream()).collect(Collectors.toList());
+                .flatMap(a -> a.getArbeidsforholdReferanser().stream()).toList();
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             return !mapArbeidsforhold ? VedtattYtelseMapper.utenArbeidsforhold().mapForeldrepenger(tilkjentYtelse) :
                 VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(tilkjentYtelse);

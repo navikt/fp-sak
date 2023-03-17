@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -220,7 +219,7 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 4, 4));
 
         assertThat(resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
-                .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream()).collect(Collectors.toList())).hasSize(6);
+                .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream()).toList()).hasSize(6);
         resultat.resultat().beregningsresultatPerioder().get(0).getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
         resultat.resultat().beregningsresultatPerioder().get(1).getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
         resultat.resultat().beregningsresultatPerioder().get(2).getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
@@ -275,7 +274,7 @@ class RegelBeregnFeriepengerTest {
         assertThat(resultat.resultat().feriepengerPeriode().getTomDato()).isEqualTo(LocalDate.of(2018, 4, 3));
 
         assertThat(resultat.resultat().beregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
-                .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream()).collect(Collectors.toList())).hasSize(2);
+                .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream()).toList()).hasSize(2);
         var aPeriode1 = resultat.resultat().beregningsresultatPerioder().stream()
             .filter(p -> p.getPeriode().equals(periode1.getPeriode())).findFirst().orElseThrow();
         aPeriode1.getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));

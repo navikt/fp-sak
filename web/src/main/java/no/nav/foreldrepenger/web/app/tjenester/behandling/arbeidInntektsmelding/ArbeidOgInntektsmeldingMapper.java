@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
@@ -241,7 +240,7 @@ public class ArbeidOgInntektsmeldingMapper {
         return filter.getAlleInntektBeregningsgrunnlag().stream()
             .filter(inntekt -> inntekt.getArbeidsgiver() != null)
             .map(inntekt -> mapInntekt(inntekt, utledetSkjæringstidspunkt))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static InntektDto mapInntekt(Inntekt inntekt, LocalDate utledetSkjæringstidspunkt) {
@@ -249,7 +248,7 @@ public class ArbeidOgInntektsmeldingMapper {
         var poster = inntekt.getAlleInntektsposter().stream()
             .filter(post -> post.getPeriode().overlapper(sisteÅr))
             .map(ArbeidOgInntektsmeldingMapper::mapInntektspost)
-            .collect(Collectors.toList());
+            .toList();
         return new InntektDto(inntekt.getArbeidsgiver().getIdentifikator(), poster);
     }
 
@@ -267,7 +266,7 @@ public class ArbeidOgInntektsmeldingMapper {
         return arbeidsforholdOverstyringer.stream()
             .filter(os -> MANUELT_ARBEIDSFOROHOLD_HANDLING.contains(os.getHandling()))
             .map(overstyring -> mapManueltArbeidsforhold(overstyring, referanser, mangler))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static ArbeidsforholdDto mapManueltArbeidsforhold(ArbeidsforholdOverstyring overstyring,

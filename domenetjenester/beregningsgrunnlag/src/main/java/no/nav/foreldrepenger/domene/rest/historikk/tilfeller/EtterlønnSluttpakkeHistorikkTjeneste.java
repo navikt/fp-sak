@@ -5,7 +5,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -52,7 +51,7 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
             .getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
             .filter(bpsa -> bpsa.getArbeidsforholdType().equals(OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private void lagHistorikkInnslagFastsattEtterlønnSluttpakke(BigDecimal nyVerdiEtterlønnSLuttpakke, BigDecimal opprinneligEtterlønnSluttpakkeInntekt,

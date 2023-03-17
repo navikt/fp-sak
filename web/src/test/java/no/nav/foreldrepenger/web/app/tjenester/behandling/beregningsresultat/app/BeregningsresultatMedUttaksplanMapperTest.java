@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -374,7 +373,7 @@ class BeregningsresultatMedUttaksplanMapperTest {
                         .medTrekkdager(new Trekkdager(20))
                         .medArbeidsprosent(BigDecimal.ZERO)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
         var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
                 .medTidsperiode(p1Fom, p1Tom)
                 .medResultatType(PeriodeResultatType.INNVILGET)

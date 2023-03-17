@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -405,7 +404,7 @@ class AutomatiskEtterkontrollTaskTest {
         assertThat(behandlingÅrsaker).isNotEmpty();
         var årsaker = behandlingÅrsaker.stream()
                 .map(BehandlingÅrsak::getBehandlingÅrsakType)
-                .collect(Collectors.toList());
+                .toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
         assertThat(revurdering.get().isBehandlingPåVent()).isFalse();
     }
@@ -418,7 +417,7 @@ class AutomatiskEtterkontrollTaskTest {
         assertThat(behandlingÅrsaker).isNotEmpty();
         var årsaker = behandlingÅrsaker.stream()
                 .map(BehandlingÅrsak::getBehandlingÅrsakType)
-                .collect(Collectors.toList());
+                .toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
         assertThat(revurdering.get().isBehandlingPåVent()).isTrue();
         assertThat(revurdering.get()

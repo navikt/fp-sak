@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
@@ -45,7 +44,7 @@ public class OppdragFactory {
         }
         return resultat.stream()
             .filter(Oppdrag::harLinjer)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private KodeFagområde utledØkonomiFagområde(Betalingsmottaker betalingsmottaker) {

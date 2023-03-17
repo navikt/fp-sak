@@ -113,7 +113,7 @@ public class DokumentRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
             .map(MottattDokumentDto::new)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @GET
@@ -220,14 +220,14 @@ public class DokumentRestTjeneste {
             var behandlinger = mottatteIMDokument.get(dto.getJournalpostId()).stream()
                     .filter(imdok -> inntektsMeldinger.containsKey(dto.getJournalpostId()))
                     .map(MottattDokument::getBehandlingId)
-                    .collect(Collectors.toList());
+                    .toList();
             dto.setBehandlinger(behandlinger);
             var behandlingUuidList = mottatteIMDokument.get(dto.getJournalpostId()).stream()
                 .filter(imdok -> inntektsMeldinger.containsKey(dto.getJournalpostId()))
                 .map(MottattDokument::getBehandlingId)
                 .filter(Objects::nonNull)
                 .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId).getUuid())
-                .collect(Collectors.toList());
+                .toList();
             dto.setBehandlingUuidList(behandlingUuidList);
 
             var navn = inntektsMeldinger.getOrDefault(dto.getJournalpostId(), Collections.emptyList())

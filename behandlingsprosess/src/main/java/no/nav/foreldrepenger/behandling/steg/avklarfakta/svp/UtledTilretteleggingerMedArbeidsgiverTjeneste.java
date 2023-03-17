@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.AA_RE
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -63,7 +62,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .stream()
                 .filter(yrkesaktivitet -> AA_REGISTER_TYPER.contains(yrkesaktivitet.getArbeidType()))
                 .filter(yrkesaktivitet -> harAnsettelsesperiodeSomInkludererEllerTilkommerEtterStp(stp, yrkesaktivitet))
-                .collect(Collectors.toList());
+                .toList();
 
         var tilretteleggingerMedArbeidsforholdId = tilretteleggingerMedArbeidsgiver.stream()
             .filter(t -> t.getInternArbeidsforholdRef().isPresent())
@@ -83,7 +82,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
 
             var inntektsmeldingerForArbeidsgiver = inntektsmeldinger.stream()
                     .filter(im -> arbeidsgiver.equals(im.getArbeidsgiver()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (skalKunOppretteEnTilretteleggingForArbeidsgiver(inntektsmeldingerForArbeidsgiver)) {
                 nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).build());
@@ -112,7 +111,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .map(yrkesaktivitet -> new SvpTilretteleggingEntitet.Builder(tilrettelegging)
                         .medInternArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean harAnsettelsesperiodeSomInkludererEllerTilkommerEtterStp(LocalDate stp, Yrkesaktivitet yrkesaktivitet) {

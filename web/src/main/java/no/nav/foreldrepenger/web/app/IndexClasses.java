@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.jboss.jandex.AnnotationTarget.Kind;
 import org.jboss.jandex.ClassInfo;
@@ -34,8 +33,8 @@ public class IndexClasses {
 
     private static final ConcurrentMap<URI, IndexClasses> INDEXES = new ConcurrentHashMap<>();
 
-    private URI scanLocation;
-    private String jandexIndexFileName;
+    private final URI scanLocation;
+    private final String jandexIndexFileName;
 
     private IndexClasses(URI location) {
         this(location, "jandex.idx");
@@ -74,8 +73,7 @@ public class IndexClasses {
                     }
                 });
             }
-            var index = indexer.complete();
-            return index;
+            return indexer.complete();
         } catch (IOException e) {
             throw new IllegalStateException("Fikk ikke lest path " + location + ", kan ikke scanne klasser", e);
         }
@@ -142,7 +140,7 @@ public class IndexClasses {
 
     public List<Class<?>> getSubClassesWithAnnotation(Class<?> klasse, Class<?> annotationClass) {
         var classesWithAnnotation = getClassesWithAnnotation(annotationClass);
-        return classesWithAnnotation.stream().filter(c -> klasse.isAssignableFrom(c)).collect(Collectors.toList());
+        return classesWithAnnotation.stream().filter(klasse::isAssignableFrom).toList();
     }
 
     public List<Class<?>> getClasses(Predicate<ClassInfo> predicate, Predicate<Class<?>> classPredicate) {
@@ -166,10 +164,6 @@ public class IndexClasses {
     }
 
     public static IndexClasses getIndexFor(final URI location) {
-        return INDEXES.computeIfAbsent(location, uri -> new IndexClasses(uri));
-    }
-
-    public static IndexClasses getIndexFor(final URI location, final String jandexIdxFileName) {
-        return INDEXES.computeIfAbsent(location, uri -> new IndexClasses(uri, jandexIdxFileName));
+        return INDEXES.computeIfAbsent(location, IndexClasses::new);
     }
 }

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetAggregatDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetDto;
@@ -77,7 +76,7 @@ public final class KalkulusTilBehandlingslagerMapper {
         builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagFraKalkulus.getFaktaOmBeregningTilfeller()
             .stream()
             .map(fakta -> FaktaOmBeregningTilfelle.fraKode(fakta.getKode()))
-            .collect(Collectors.toList()));
+            .toList());
         beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlagPrStatusListe()
             .forEach(sammenligningsgrunnlagPrStatus -> builder.leggTilSammenligningsgrunnlag(
                 KalkulusTilBGMapper.mapSammenligningsgrunnlagMedStatus(sammenligningsgrunnlagPrStatus)));
@@ -90,7 +89,7 @@ public final class KalkulusTilBehandlingslagerMapper {
         return regelSporingAggregat.stream()
             .flatMap(rs -> rs.getRegelsporingPerioder().stream())
             .filter(rs -> rs.getPeriode().overlapper(periode))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static void leggTilRegelsporing(List<RegelSporingGrunnlag> regelSporingerGrunnlag,

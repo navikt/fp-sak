@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -67,7 +66,7 @@ public class ØkonomioppdragMapper {
     public List<String> generateOppdragXML(Oppdragskontroll oppdragskontroll) {
         var oppdrag110UtenKvittering = oppdragskontroll.getOppdrag110Liste().stream()
             .filter(Oppdrag110::venterKvittering)
-            .collect(Collectors.toList());
+            .toList();
 
         List<String> oppdragXmlListe = new ArrayList<>();
         for (var okoOppdrag110 : oppdrag110UtenKvittering) {
@@ -183,7 +182,7 @@ public class ØkonomioppdragMapper {
         }
         return oppdragsLinje150Liste.stream()
             .sorted(Comparator.comparing(opp150 -> Long.parseLong(opp150.getDelytelseId())))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 mapRefusjonInfo156(Refusjonsinfo156 okoRefusjonsInfo156) {

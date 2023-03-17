@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -137,7 +136,7 @@ public class ForvaltningUttrekkRestTjeneste {
         List<Object[]> resultatList = query.getResultList();
         var åpneAksjonspunkt = resultatList.stream()
                 .map(this::mapFraAksjonspunktTilDto)
-                .collect(Collectors.toList());
+                .toList();
         return Response.ok(åpneAksjonspunkt).build();
     }
 
@@ -195,7 +194,7 @@ public class ForvaltningUttrekkRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<SaksnummerDto> listFagsakUtenBehandling() {
-        return fagsakRepository.hentÅpneFagsakerUtenBehandling().stream().map(SaksnummerDto::new).collect(Collectors.toList());
+        return fagsakRepository.hentÅpneFagsakerUtenBehandling().stream().map(SaksnummerDto::new).toList();
     }
 
     @POST
@@ -285,7 +284,7 @@ public class ForvaltningUttrekkRestTjeneste {
                                                    @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var resultat = overlappRepository.hentForSaksnummer(new Saksnummer(s.getVerdi())).stream()
                 .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
-                .collect(Collectors.toList());
+                .toList();
         return Response.ok(resultat).build();
     }
 
@@ -307,7 +306,7 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
-        return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).collect(Collectors.toList());
+        return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).toList();
     }
 
 }

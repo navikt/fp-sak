@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -56,7 +55,7 @@ class MapBRAndelSammenligningTidslinje {
                         p.getBeregningsresultatPeriodeFom(),
                         p.getBeregningsresultatPeriodeTom(),
                         p.getBeregningsresultatAndelList()))
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     private static LocalDateSegment<BRAndelSammenligning> combine(LocalDateInterval interval,

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.historikk;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -49,11 +48,11 @@ public class HistorikkTjenesteAdapter {
         var historikkinnslagList = Optional.ofNullable(historikkRepository.hentHistorikkForSaksnummer(saksnummer)).orElse(List.of());
         var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSak(saksnummer).stream()
                 .map(ArkivJournalPost::getJournalpostId)
-                .collect(Collectors.toList());
+                .toList();
         return historikkinnslagList.stream()
                 .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak, behandlingRepository, dokumentPath))
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

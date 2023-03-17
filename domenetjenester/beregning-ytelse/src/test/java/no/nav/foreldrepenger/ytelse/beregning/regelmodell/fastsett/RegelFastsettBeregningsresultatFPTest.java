@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -62,8 +61,8 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(andelList).hasSize(2);
 
         var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
-                .collect(Collectors.toList());
-        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+                .toList();
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).toList();
         assertThat(brukerAndeler).hasSize(1);
         assertThat(brukerAndeler.get(0).getArbeidsforhold().identifikator()).isEqualTo("111");
         assertThat(brukerAndeler.get(0).getDagsats()).isEqualTo(1000);
@@ -120,21 +119,21 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(andelList).hasSize(5);
 
         var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
-                .collect(Collectors.toList());
-        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+                .toList();
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).toList();
         assertThat(brukerAndeler).hasSize(3);
 
-        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("111")).collect(Collectors.toList()).get(0)
+        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("111")).toList().get(0)
                 .getDagsats()).isEqualTo(2000);
-        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).collect(Collectors.toList()).get(0)
+        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).toList().get(0)
                 .getDagsats()).isEqualTo(0);
-        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).collect(Collectors.toList()).get(0)
+        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).toList().get(0)
                 .getDagsats()).isEqualTo(1000);
 
         assertThat(arbAndeler).hasSize(2);
-        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).collect(Collectors.toList()).get(0)
+        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).toList().get(0)
                 .getDagsats()).isEqualTo(1500);
-        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).collect(Collectors.toList()).get(0)
+        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).toList().get(0)
                 .getDagsats()).isEqualTo(500);
     }
 
@@ -161,17 +160,17 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(andelList).hasSize(3);
 
         var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
-                .collect(Collectors.toList());
-        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+                .toList();
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).toList();
         assertThat(brukerAndeler).hasSize(2);
 
-        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold() == null).collect(Collectors.toList()).get(0).getDagsats())
+        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold() == null).toList().get(0).getDagsats())
                 .isEqualTo(2000);
-        assertThat(brukerAndeler.stream().filter(af -> "222".equals(af.getArbeidsgiverId())).collect(Collectors.toList()).get(0).getDagsats())
+        assertThat(brukerAndeler.stream().filter(af -> "222".equals(af.getArbeidsgiverId())).toList().get(0).getDagsats())
                 .isEqualTo(0);
 
         assertThat(arbAndeler).hasSize(1);
-        assertThat(arbAndeler.stream().filter(af -> "222".equals(af.getArbeidsforhold().identifikator())).collect(Collectors.toList()).get(0)
+        assertThat(arbAndeler.stream().filter(af -> "222".equals(af.getArbeidsforhold().identifikator())).toList().get(0)
                 .getDagsats()).isEqualTo(1500);
     }
 
@@ -193,18 +192,18 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(periode1.getTom()).isEqualTo(FØDSELSDATO);
         assertThat(periode1.getBeregningsresultatAndelList()).hasSize(2);
         assertThat(periode1.getBeregningsresultatAndelList().stream().filter(BeregningsresultatAndel::erBrukerMottaker)
-                .collect(Collectors.toList()).get(0).getDagsats()).isEqualTo(1000);
+                .toList().get(0).getDagsats()).isEqualTo(1000);
         assertThat(periode1.getBeregningsresultatAndelList().stream().filter(a -> !a.erBrukerMottaker())
-                .collect(Collectors.toList()).get(0).getDagsats()).isEqualTo(800);
+                .toList().get(0).getDagsats()).isEqualTo(800);
 
         var periode2 = perioder.get(1);
         assertThat(periode2.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
         assertThat(periode2.getTom()).isEqualTo(FØDSELSDATO.plusWeeks(4));
         assertThat(periode2.getBeregningsresultatAndelList()).hasSize(2);
         assertThat(periode2.getBeregningsresultatAndelList().stream().filter(BeregningsresultatAndel::erBrukerMottaker)
-                .collect(Collectors.toList()).get(0).getDagsats()).isEqualTo(1000);
+                .toList().get(0).getDagsats()).isEqualTo(1000);
         assertThat(periode2.getBeregningsresultatAndelList().stream().filter(a -> !a.erBrukerMottaker())
-                .collect(Collectors.toList()).get(0).getDagsats()).isEqualTo(800);
+                .toList().get(0).getDagsats()).isEqualTo(800);
 
         var periode3 = perioder.get(2);
         assertThat(periode3.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL.plusWeeks(4));
@@ -240,21 +239,21 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(andelList).hasSize(5);
 
         var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
-                .collect(Collectors.toList());
-        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+                .toList();
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).toList();
         assertThat(brukerAndeler).hasSize(3);
 
-        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("111")).collect(Collectors.toList()).get(0)
+        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("111")).toList().get(0)
                 .getDagsats()).isEqualTo(2165);
-        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).collect(Collectors.toList()).get(0)
+        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).toList().get(0)
                 .getDagsats()).isEqualTo(0);
-        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).collect(Collectors.toList()).get(0)
+        assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).toList().get(0)
                 .getDagsats()).isEqualTo(1002);
 
         assertThat(arbAndeler).hasSize(2);
-        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).collect(Collectors.toList()).get(0)
+        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).toList().get(0)
                 .getDagsats()).isEqualTo(1551);
-        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).collect(Collectors.toList()).get(0)
+        assertThat(arbAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).toList().get(0)
                 .getDagsats()).isEqualTo(500);
     }
 
@@ -283,7 +282,7 @@ class RegelFastsettBeregningsresultatFPTest {
     private BeregningsresultatGrunnlag opprettRegelmodellMedArbeidsforhold(BeregningsgrunnlagPrArbeidsforhold... arbeidsforhold) {
         var beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
         var arbeidsforholdList = Arrays.stream(arbeidsforhold).map(BeregningsgrunnlagPrArbeidsforhold::arbeidsforhold)
-                .collect(Collectors.toList());
+                .toList();
         var uttakResultat = opprettUttak(Collections.singletonList(MØDREKVOTE_PERIODE), AktivitetStatus.ATFL, arbeidsforholdList);
         return new BeregningsresultatGrunnlag(beregningsgrunnlag, uttakResultat);
     }
@@ -340,6 +339,6 @@ class RegelFastsettBeregningsresultatFPTest {
                 .map(arb -> {
                     var arbeidsforhold = aktivitetsStatus.equals(AktivitetStatus.ATFL) ? arb : null;
                     return new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arbeidsforhold, aktivitetsStatus, erGradering, stillingsgrad);
-                }).collect(Collectors.toList());
+                }).toList();
     }
 }

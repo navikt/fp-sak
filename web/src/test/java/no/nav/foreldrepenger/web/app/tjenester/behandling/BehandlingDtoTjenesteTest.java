@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -189,11 +188,11 @@ class BehandlingDtoTjenesteTest {
     }
 
     private List<URI> getLinkHref(UtvidetBehandlingDto dto) {
-        return dto.getLinks().stream().map(ResourceLink::getHref).collect(Collectors.toList());
+        return dto.getLinks().stream().map(ResourceLink::getHref).toList();
     }
 
     private List<String> getLinkRel(UtvidetBehandlingDto dto) {
-        return dto.getLinks().stream().map(ResourceLink::getRel).collect(Collectors.toList());
+        return dto.getLinks().stream().map(ResourceLink::getRel).toList();
     }
 
     public Collection<ResourceLink> getRoutes() {

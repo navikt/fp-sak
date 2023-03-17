@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
 
-import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 public class KvitteringDto extends K27PatchDto implements AbacDto {

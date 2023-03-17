@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -135,7 +134,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
                 .filter(sak -> sak.getOpprettetTidspunkt().toLocalDate().isAfter(opprettetEtter.minusDays(1)))
                 .filter(Fagsak::erÅpen)
                 .filter(sak -> erRelevantFagsak(sak, familieHendelse))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean erRelevantFagsak(Fagsak fagsak, LocalDate fhDato) {

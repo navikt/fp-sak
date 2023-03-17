@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -54,11 +53,11 @@ public class SvangerskapspengerFeriekvoteTjeneste {
         var svpSaker = fagsakerPåSøker.stream()
             .filter(fs -> fs.getYtelseType().equals(FagsakYtelseType.SVANGERSKAPSPENGER))
             .filter(fs -> !fs.getSaksnummer().equals(behandlingReferanse.saksnummer()))
-            .collect(Collectors.toList());
+            .toList();
         var gjeldendeVedtakForSVP = svpSaker.stream()
             .map(fs -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fs.getId()))
             .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+            .toList();
         var termindato = finnTermindato(behandlingReferanse.behandlingId()).orElseThrow();
 
         // Finner behandlinger som gjelder samme svangerskap
@@ -66,7 +65,7 @@ public class SvangerskapspengerFeriekvoteTjeneste {
         var annenTilkjentYtelsePåSammeSvangerskap = behandlingerSomAngårSammeSvangerskap.stream()
             .map(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
             .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+            .toList();
         return svangerskapFeriepengeKvoteBeregner.beregn(beregnetYtelse, annenTilkjentYtelsePåSammeSvangerskap);
     }
 

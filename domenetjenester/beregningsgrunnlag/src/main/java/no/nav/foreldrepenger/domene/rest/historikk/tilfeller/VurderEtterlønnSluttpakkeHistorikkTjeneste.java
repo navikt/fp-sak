@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -59,7 +58,7 @@ public class VurderEtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregnin
             .getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
             .filter(bpsa -> bpsa.getArbeidsforholdType().equals(OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE))
-            .collect(Collectors.toList());
+            .toList();
     }
 
 }

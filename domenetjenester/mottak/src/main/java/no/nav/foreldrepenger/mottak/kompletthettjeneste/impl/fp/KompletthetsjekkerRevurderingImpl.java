@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -90,7 +89,7 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
         return fellesUtil.hentAlleInntektsmeldingerSomIkkeKommer(ref)
             .stream()
             .map(e -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, e.getArbeidsgiver().getIdentifikator(), true))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean endringssøknadErMottatt(Behandling behandling) {

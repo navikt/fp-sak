@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -86,7 +85,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         }
         // hent på nytt i tilfelle lagret og flushet
         return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
+                .utførtMedAksjonspunktResultater(aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).toList());
     }
 
     private Optional<AksjonspunktResultat> skalVentePåSykemelding(Behandling behandling) {

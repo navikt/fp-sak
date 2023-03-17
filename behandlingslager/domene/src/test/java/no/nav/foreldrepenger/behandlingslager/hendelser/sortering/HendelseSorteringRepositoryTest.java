@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,7 +75,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     void skal_returnere_4_aktør_ider_fra_fagsaker() {
         var personer = genererFagsaker(6);
 
-        var finnAktørIder = personer.stream().limit(4).collect(Collectors.toList());
+        var finnAktørIder = personer.stream().limit(4).toList();
 
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
         assertThat(resultat).hasSize(4);

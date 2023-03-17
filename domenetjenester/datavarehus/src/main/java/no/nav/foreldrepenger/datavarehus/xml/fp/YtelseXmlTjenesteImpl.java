@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -30,7 +30,7 @@ import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
 public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     private ObjectFactory ytelseObjectFactory;
 
-    BeregningsresultatRepository beregningsresultatRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
 
     private VirksomhetTjeneste virksomhetTjeneste;
 
@@ -60,7 +60,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     private void setBeregningsresultat(YtelseForeldrepenger ytelseForeldrepenger, List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         var resultat = beregningsresultatPerioder
             .stream()
-            .map(periode -> periode.getBeregningsresultatAndelList()).flatMap(andeler -> andeler.stream()).map(andel -> konverterFraDomene(andel)).collect(Collectors.toList());
+            .map(periode -> periode.getBeregningsresultatAndelList()).flatMap(Collection::stream).map(this::konverterFraDomene).toList();
 
         ytelseForeldrepenger.getBeregningsresultat().addAll(resultat);
     }

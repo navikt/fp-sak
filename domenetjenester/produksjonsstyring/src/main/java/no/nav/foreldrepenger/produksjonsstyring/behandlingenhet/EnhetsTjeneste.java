@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -188,7 +187,7 @@ public class EnhetsTjeneste {
         return restenhet.stream()
             .filter(r -> !SPESIALENHETER.contains(r.enhetNr()))
             .map(r -> new OrganisasjonsEnhet(r.enhetNr(), r.enhetNavn()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
 }

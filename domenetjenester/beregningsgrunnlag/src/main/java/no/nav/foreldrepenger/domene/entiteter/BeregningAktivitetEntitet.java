@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
@@ -112,7 +111,7 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
 
     boolean skalBrukes(BeregningAktivitetOverstyringerEntitet overstyringer) {
         var overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
-                .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).collect(Collectors.toList());
+                .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).toList();
         if (overstyringerForAktivitet.isEmpty()) {
             return true;
         }

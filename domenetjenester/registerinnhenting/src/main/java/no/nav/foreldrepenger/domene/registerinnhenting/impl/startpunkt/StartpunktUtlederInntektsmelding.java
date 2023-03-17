@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -56,7 +55,7 @@ class StartpunktUtlederInntektsmelding {
         var nyim = hentInntektsmeldingerFraGittGrunnlag(fersktGrunnlag);
         var deltaIM = nyim.stream()
             .filter(im -> !gamle.contains(im))
-            .collect(Collectors.toList());
+            .toList();
 
         var saksbehandlersArbeidsforholdvalg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(ref);
         if (ref.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
@@ -65,7 +64,7 @@ class StartpunktUtlederInntektsmelding {
 
         var origIm = gamle.stream()
             .sorted(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
-            .collect(Collectors.toList());
+            .toList();
 
         return deltaIM.stream()
             .map(nyIm -> finnStartpunktForNyIm(ref, fersktGrunnlag, nyIm, origIm, saksbehandlersArbeidsforholdvalg))

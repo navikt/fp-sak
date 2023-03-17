@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
@@ -21,7 +20,7 @@ class UttakOverstyringsPeriodeSplitt {
     }
 
     public List<LocalDateInterval> getSplittet() {
-        return splittet.stream().sorted(Comparator.comparing(LocalDateInterval::getFomDato)).collect(Collectors.toList());
+        return splittet.stream().sorted(Comparator.comparing(LocalDateInterval::getFomDato)).toList();
     }
 
     static class Builder {

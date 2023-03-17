@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,7 +31,7 @@ public class HentOppdragMedPositivKvittering {
             .orElse(Collections.emptyList());
         return oppdrag110List.stream()
             .filter(OppdragKvitteringTjeneste::harPositivKvittering)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<Oppdrag110> hentOppdragMedPositivKvitteringFeilHvisVenter(Behandling behandling) {
@@ -43,7 +42,7 @@ public class HentOppdragMedPositivKvittering {
             throw new IllegalStateException("Utviklerfeil har ikke ventet på at oppdrag er kvittert");
         return oppdrag110List.stream()
             .filter(OppdragKvitteringTjeneste::harPositivKvittering)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<Oppdrag110> hentOppdragMedPositivKvittering(Saksnummer saksnummer) {
@@ -51,6 +50,6 @@ public class HentOppdragMedPositivKvittering {
         return oppdragskontrollList.stream().map(Oppdragskontroll::getOppdrag110Liste)
             .flatMap(List::stream)
             .filter(OppdragKvitteringTjeneste::harPositivKvittering)
-            .collect(Collectors.toList());
+            .toList();
     }
 }

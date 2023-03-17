@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -99,8 +98,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
 
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultater = query.getResultList();
-        var liste = resultater.stream().map(s ->  s.longValue()).collect(Collectors.toList());
-        return liste;
+        return resultater.stream().map(Number::longValue).toList();
 
     }
 
@@ -118,8 +116,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
 
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultater = query.getResultList();
-        var liste = resultater.stream().map(s ->  s.longValue()).collect(Collectors.toList());
-        return liste;
+        return resultater.stream().map(Number::longValue).toList();
     }
 
 }

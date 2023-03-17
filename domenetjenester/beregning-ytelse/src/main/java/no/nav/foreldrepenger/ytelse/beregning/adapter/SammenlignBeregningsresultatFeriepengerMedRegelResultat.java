@@ -42,7 +42,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
                 .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
                 .flatMap(andel -> andel.getBeregningsresultatFeriepengerPrÅrListe().stream())
                 .filter(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvrundetÅrsbeløpUlik0)
-                .collect(Collectors.toList());
+                .toList();
 
         return sammenlignFeriepengeandelerHarAvvik(andelerFraRegelKjøring,
             resultat.getBeregningsresultatFeriepenger().map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()));

@@ -56,24 +56,24 @@ public class PersonopplysningerAggregat {
             final var registerPersonstatus = registerversjon.getPersonstatus()
                     .stream()
                     .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
-                    .collect(Collectors.toList());
+                    .toList();
             this.orginalPersonstatus = registerversjon.getPersonstatus()
                     .stream()
                     .filter(it -> !finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
-                    .collect(Collectors.toList());
+                    .toList();
             this.aktuellePersonstatus = Stream.concat(
                 registerPersonstatus.stream(),
                 overstyrtPersonstatus.stream())
                     .filter(st -> erIkkeSøker(aktørId, st.getAktørId()) ||
                         erGyldigIPeriode(forPeriode, st.getPeriode()))
-                    .collect(Collectors.toList());
+                    .toList();
             this.statsborgerskap = registerversjon.getStatsborgerskap().stream()
                     .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) ||
                         erGyldigIPeriode(forPeriode, adr.getPeriode()))
                     .collect(Collectors.groupingBy(StatsborgerskapEntitet::getAktørId));
             this.oppholdstillatelser = registerversjon.getOppholdstillatelser().stream()
                 .filter(adr -> erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                .collect(Collectors.toList());
+                .toList();
         } else {
             this.alleRelasjoner = Collections.emptyList();
             this.personopplysninger = Map.of();
@@ -109,7 +109,7 @@ public class PersonopplysningerAggregat {
     public List<PersonstatusEntitet> getPersonstatuserFor(AktørId aktørId) {
         return aktuellePersonstatus.stream()
                 .filter(ss -> ss.getAktørId().equals(aktørId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public PersonstatusEntitet getPersonstatusFor(AktørId aktørId) {
@@ -182,7 +182,7 @@ public class PersonopplysningerAggregat {
     public List<PersonAdresseEntitet> getAdresserFor(AktørId aktørId) {
         return adresser.getOrDefault(aktørId, List.of()).stream()
             .sorted(Comparator.comparing(PersonAdresseEntitet::getPeriode).reversed())
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<PersonopplysningEntitet> getBarna() {
@@ -229,7 +229,7 @@ public class PersonopplysningerAggregat {
             .map(PersonRelasjonEntitet::getTilAktørId)
             .map(personopplysninger::get)
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Optional<PersonRelasjonEntitet> finnRelasjon(AktørId fraAktørId, AktørId tilAktørId) {
@@ -241,7 +241,7 @@ public class PersonopplysningerAggregat {
     public List<PersonRelasjonEntitet> finnRelasjon(AktørId fraAktørId) {
         return getRelasjoner().stream()
                 .filter(e -> e.getAktørId().equals(fraAktørId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Optional<OppgittAnnenPartEntitet> getOppgittAnnenPart() {
@@ -251,7 +251,7 @@ public class PersonopplysningerAggregat {
     public List<PersonopplysningEntitet> getAlleBarnFødtI(SimpleLocalDateInterval fødselIntervall) {
         return getBarnaTil(søkerAktørId).stream()
                 .filter(barn -> fødselIntervall.overlapper(SimpleLocalDateInterval.fraOgMedTomNotNull(barn.getFødselsdato(), barn.getFødselsdato())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean søkerHarSammeAdresseSom(AktørId aktørId, RelasjonsRolleType relasjonsRolle) {

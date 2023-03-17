@@ -101,7 +101,7 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         return new LocalDateTimeline<>(uttaksPerioder.stream()
                 .map(p -> new WrapUttakPeriode(p.getTidsperiode(), p))
                 .map(w -> new LocalDateSegment<>(w.getI(), w))
-                .collect(Collectors.toList()))
+                .toList())
                         .compress(WrapUttakPeriode::erLikeNaboer, this::kombinerLikeNaboer);
     }
 

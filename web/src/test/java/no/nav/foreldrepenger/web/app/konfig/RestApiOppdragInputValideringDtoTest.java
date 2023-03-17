@@ -28,7 +28,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.Entity;
@@ -267,7 +266,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     }
 
     private static Collection<Field> fjernStaticFields(List<Field> fields) {
-        return fields.stream().filter(f -> !Modifier.isStatic(f.getModifiers())).collect(Collectors.toList());
+        return fields.stream().filter(f -> !Modifier.isStatic(f.getModifiers())).toList();
     }
 
     private static void validerRiktigAnnotert(Field field) {

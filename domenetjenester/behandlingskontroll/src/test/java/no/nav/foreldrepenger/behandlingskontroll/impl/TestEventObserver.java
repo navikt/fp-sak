@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -79,7 +78,7 @@ public class TestEventObserver {
     @SuppressWarnings("unchecked")
     private static <V> List<V> getEvents(Class<?> cls) {
         return (List<V>) allEvents.stream().filter(p -> cls.isAssignableFrom(p.getClass()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static void containsExactly(BehandlingskontrollEvent... bke) {

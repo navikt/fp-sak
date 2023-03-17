@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     public List<AksjonspunktResultat> utledAksjonspunkterFomSteg(BehandlingReferanse ref, BehandlingStegType steg) {
         return utledAksjonspunkter(ref).stream()
                 .filter(ap -> skalBeholdeAksjonspunkt(ref, steg, ap.getAksjonspunktDefinisjon()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -66,7 +65,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
         // startpunktet:
         return aksjonspunktResultat.stream()
                 .filter(ap -> skalBeholdeAksjonspunkt(referanse, startpunkt.getBehandlingSteg(), ap.getAksjonspunktDefinisjon()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean skalBeholdeAksjonspunkt(BehandlingReferanse ref, BehandlingStegType steg, AksjonspunktDefinisjon apDef) {

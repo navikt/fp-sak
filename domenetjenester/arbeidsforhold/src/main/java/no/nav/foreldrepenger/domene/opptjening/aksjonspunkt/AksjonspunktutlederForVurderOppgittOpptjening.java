@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiPredicate;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -105,7 +104,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         return List.of(ArbeidType.values())
                 .stream()
                 .filter(ArbeidType::erAnnenOpptjening)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Utfall harBrukerOppgittArbeidsforholdMed(ArbeidType annenOpptjeningType, DatoIntervallEntitet opptjeningPeriode,

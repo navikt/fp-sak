@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -101,7 +100,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
 
             var oppdragLinjer150 = mottakere110.stream()
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-                .collect(Collectors.toList());
+                .toList();
 
             verifyOpp150NårFørstegangsoppdragBlirSendtIRevurdering(oppdragLinjer150);
         } else {
@@ -145,7 +144,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
 
             var oppdragLinjer150 = mottakere110.stream()
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-                .collect(Collectors.toList());
+                .toList();
 
             verifyOpp150NårFørstegangsoppdragBlirSendtIRevurdering(oppdragLinjer150);
         } else {
@@ -243,7 +242,7 @@ class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestB
             verifiserOppdragslinje150MedFlereKlassekode(ok);
             var oppdragslinje150Liste = ok.getOppdrag110Liste().stream()
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-                .collect(Collectors.toList());
+                .toList();
             assertThat(oppdragslinje150Liste).hasSize(2);
             assertThat(oppdragslinje150Liste.stream()
                 .anyMatch(odl150 -> SimpleLocalDateInterval.fraOgMedTomNotNull(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())

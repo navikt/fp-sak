@@ -150,9 +150,9 @@ public class OpptjeningsperioderTjeneste {
             return perioder.stream()
                 .filter(oa -> !FRILOPP.equals(oa.getOpptjeningAktivitetType()))
                 .sorted(Comparator.comparing(OpptjeningsperiodeForSaksbehandling::getPeriode))
-                .collect(Collectors.toList());
+                .toList();
         }
-        return perioder.stream().sorted(Comparator.comparing(OpptjeningsperiodeForSaksbehandling::getPeriode)).collect(Collectors.toList());
+        return perioder.stream().sorted(Comparator.comparing(OpptjeningsperiodeForSaksbehandling::getPeriode)).toList();
     }
 
     private void håndterManueltLagtTilAktiviteter(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
@@ -439,7 +439,7 @@ public class OpptjeningsperioderTjeneste {
             .filter(p -> harInntektFraVirksomhetForPeriode(p.getArbeidsgiver(), inntektFilter, opptjeningsperiode))
             .map(OpptjeningsperiodeForSaksbehandling::getPeriode)
             .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
-            .collect(Collectors.toList());
+            .toList();
 
         if (aktivitetsperioder.isEmpty()) return Optional.empty();
         var opptjeningsperiodeTimeline = new LocalDateTimeline<>(opptjeningsperiode.getFomDato(), opptjeningsperiode.getTomDato(), Boolean.TRUE);

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.OrderBy;
 
@@ -101,7 +100,7 @@ public class ArbeidsforholdInformasjon extends BaseEntitet {
     public Optional<InternArbeidsforholdRef> finnForEkstern(Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef ref) {
         final var arbeidsforholdReferanseEntitetStream = this.referanser.stream()
                 .filter(this::erIkkeMerget)
-                .collect(Collectors.toList());
+                .toList();
         return arbeidsforholdReferanseEntitetStream.stream()
                 .filter(it -> it.getArbeidsgiver().equals(arbeidsgiver) && it.getEksternReferanse().equals(ref))
                 .findFirst().map(ArbeidsforholdReferanse::getInternReferanse);

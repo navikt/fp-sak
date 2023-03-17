@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -37,8 +36,8 @@ public class BehandlingRevurderingRepository {
 
     private static final List<String> RES_TYPER_REGULERING = List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(),
         BehandlingResultatType.INGEN_ENDRING.getKode(), BehandlingResultatType.OPPHØR.getKode());
-    private static final List<String> STATUS_FERDIG = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).collect(Collectors.toList());
-    private static final List<String> YTELSE_TYPER = BehandlingType.getYtelseBehandlingTyper().stream().map(BehandlingType::getKode).collect(Collectors.toList());
+    private static final List<String> STATUS_FERDIG = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).toList();
+    private static final List<String> YTELSE_TYPER = BehandlingType.getYtelseBehandlingTyper().stream().map(BehandlingType::getKode).toList();
 
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
@@ -82,7 +81,7 @@ public class BehandlingRevurderingRepository {
             }
             return behandlingsIder.stream()
                 .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId))
-                .collect(Collectors.toList());
+                .toList();
         }
         return Collections.emptyList();
     }
@@ -119,7 +118,7 @@ public class BehandlingRevurderingRepository {
     public Optional<Behandling> finnÅpenYtelsesbehandling(Long fagsakId) {
         var åpenBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
             .filter(beh -> !beh.erKøet())
-            .collect(Collectors.toList());
+            .toList();
         check(åpenBehandling.size() <= 1, "Kan maks ha én åpen ytelsesbehandling");
         return optionalFirst(åpenBehandling);
     }
@@ -127,7 +126,7 @@ public class BehandlingRevurderingRepository {
     public Optional<Behandling> finnKøetYtelsesbehandling(Long fagsakId) {
         var køetBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
             .filter(Behandling::erKøet)
-            .collect(Collectors.toList());
+            .toList();
         check(køetBehandling.size() <= 1, "Kan maks ha én køet ytelsesbehandling");
         return optionalFirst(køetBehandling);
     }
@@ -153,7 +152,7 @@ public class BehandlingRevurderingRepository {
         }
         final var behandlinger = behandlingIder.stream()
             .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId))
-            .collect(Collectors.toList());
+            .toList();
         check(behandlinger.size() <= 2, "Kan maks ha én åpen og én køet ytelsesbehandling");
         check(behandlinger.stream().filter(Behandling::erKøet).count() <= 1, "Kan maks ha én køet ytelsesbehandling");
         check(behandlinger.stream().filter(it -> !it.erKøet()).count() <= 1, "Kan maks ha én åpen ytelsesbehandling");
@@ -261,7 +260,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
@@ -286,7 +285,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
@@ -305,7 +304,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger Arena-regulering og det ikke finnes åpen behandling */
@@ -326,7 +325,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
     }
 
     private void setStandardParametersFP(Query query, LocalDate gjeldendeFom) {
@@ -334,7 +333,7 @@ public class BehandlingRevurderingRepository {
             .setParameter(AVSLUTTET_KEY, STATUS_FERDIG)
             .setParameter("fomdato", gjeldendeFom)
             .setParameter("ytelse", YTELSE_TYPER)
-            .setParameter("berort", BehandlingÅrsakType.alleTekniskeÅrsaker().stream().map(BehandlingÅrsakType::getKode).collect(Collectors.toList()))
+            .setParameter("berort", BehandlingÅrsakType.alleTekniskeÅrsaker().stream().map(BehandlingÅrsakType::getKode).toList())
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode())
             .setParameter("sokfrist", PeriodeResultatÅrsak.SØKNADSFRIST.getKode())
             .setParameter("utinnvilg", PeriodeResultatType.INNVILGET.getKode());
@@ -397,7 +396,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
@@ -422,7 +421,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
@@ -441,7 +440,7 @@ public class BehandlingRevurderingRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList());
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
     }
 
     public record FagsakIdAktørId(Long fagsakId, AktørId aktørId) { }

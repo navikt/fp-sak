@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -19,7 +18,7 @@ public final class UttakPerioderMapper {
 
     public static List<ForeldrepengerUttakPeriode> map(List<UttakResultatPeriodeLagreDto> dtoPerioder,
                                                        List<ForeldrepengerUttakPeriode> gjeldenePerioder) {
-        return dtoPerioder.stream().map(p -> map(p, gjeldenePerioder)).collect(Collectors.toList());
+        return dtoPerioder.stream().map(p -> map(p, gjeldenePerioder)).toList();
     }
 
     private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeLagreDto dtoPeriode,

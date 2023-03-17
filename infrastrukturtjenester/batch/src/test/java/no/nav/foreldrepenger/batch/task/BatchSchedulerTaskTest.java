@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ class BatchSchedulerTaskTest {
                 .map(t -> t.getProperty(BatchRunnerTask.BATCH_PARAMS))
                 .filter(Objects::nonNull)
                 .filter(s -> s.matches("[a-zA-Z,= ]*antallDager=[1-7]"))
-                .collect(Collectors.toList());
+                .toList();
         if (props.size() > 1) {
             System.out.println(matches);
             assertThat(matches).hasSize(7); // Antall dagsensitive batcher.

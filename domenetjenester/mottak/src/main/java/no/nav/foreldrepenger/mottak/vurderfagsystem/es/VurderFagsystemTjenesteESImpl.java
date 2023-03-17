@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -42,7 +41,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         var matchendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForSøknadFamilieHendelse(vurderFagsystem, s))
             .map(Fagsak::getSaksnummer)
-            .collect(Collectors.toList());
+            .toList();
 
         if (matchendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.get(0));
@@ -55,7 +54,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         var passendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForSøknadFamilieHendelse(vurderFagsystem, s, false))
             .map(Fagsak::getSaksnummer)
-            .collect(Collectors.toList());
+            .toList();
 
         if (passendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, passendeFagsaker.get(0));
@@ -89,7 +88,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
 
         var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(kompatibleFagsaker).stream()
             .map(Fagsak::getSaksnummer)
-            .collect(Collectors.toList());
+            .toList();
         if (!sakOpprettetInnenIntervall.isEmpty()) {
             LOG.info("VurderFagsystem ES ustrukturert finnes nyere sak enn 10mnd {}", sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);

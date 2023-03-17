@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.persistence.Convert;
 
@@ -133,7 +132,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
 
     public Optional<AktørArbeid> getAktørArbeidFraRegister(AktørId aktørId) {
         if (register != null) {
-            var aktørArbeid = register.getAktørArbeid().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).collect(Collectors.toList());
+            var aktørArbeid = register.getAktørArbeid().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).toList();
             if (aktørArbeid.size() > 1) {
                 throw new IllegalStateException(
                         "Kan kun ha ett innslag av AktørArbeid for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
@@ -145,7 +144,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
 
     public Optional<AktørYtelse> getAktørYtelseFraRegister(AktørId aktørId) {
         if (register != null) {
-            var aktørYtelse = register.getAktørYtelse().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).collect(Collectors.toList());
+            var aktørYtelse = register.getAktørYtelse().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).toList();
             if (aktørYtelse.size() > 1) {
                 throw new IllegalStateException(
                         "Kan kun ha ett innslag av AktørYtelse for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
@@ -158,7 +157,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     public Optional<AktørInntekt> getAktørInntektFraRegister(AktørId aktørId) {
         if (register != null) {
             var aktørInntekt = register.getAktørInntekt().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId))
-                    .collect(Collectors.toList());
+                    .toList();
             if (aktørInntekt.size() > 1) {
                 throw new IllegalStateException(
                         "Kan kun ha ett innslag av AktørInntekt for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
@@ -198,7 +197,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
 
                     return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<ArbeidsforholdOverstyring> getArbeidsforholdOverstyringer() {

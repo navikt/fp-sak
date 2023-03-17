@@ -154,7 +154,7 @@ public class PipRepository {
         }
         var sql = "SELECT fagsak_id FROM JOURNALPOST WHERE journalpost_id in (:journalpostId)";
         var query = entityManager.createNativeQuery(sql);
-        query.setParameter("journalpostId", journalpostId.stream().map(j -> j.getVerdi()).collect(Collectors.toList()));
+        query.setParameter("journalpostId", journalpostId.stream().map(j -> j.getVerdi()).toList());
 
         var result = (List<BigDecimal>) query.getResultList();
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -174,7 +174,7 @@ public class PipRepository {
         }
         var sql = "SELECT f.id from FAGSAK f join BRUKER b on (f.bruker_id = b.id) where b.aktoer_id in (:aktørId)";
         var query = entityManager.createNativeQuery(sql);
-        query.setParameter("aktørId", aktørId.stream().map(AktørId::getId).collect(Collectors.toList()));
+        query.setParameter("aktørId", aktørId.stream().map(AktørId::getId).toList());
         var result = (List<BigDecimal>) query.getResultList();
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
     }

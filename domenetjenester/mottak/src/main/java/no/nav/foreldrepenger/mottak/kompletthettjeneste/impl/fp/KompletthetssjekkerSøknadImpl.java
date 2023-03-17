@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 
@@ -54,7 +53,6 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
     }
 
     protected List<ManglendeVedlegg> identifiserManglendeVedlegg(Optional<SøknadEntitet> søknad, Set<DokumentTypeId> dokumentTypeIds) {
-
         return getSøknadVedleggListe(søknad)
             .stream()
             .filter(SøknadVedleggEntitet::isErPåkrevdISøknadsdialog)
@@ -62,7 +60,7 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
             .map(this::finnDokumentTypeId)
             .filter(doc -> !dokumentTypeIds.contains(doc))
             .map(ManglendeVedlegg::new)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Set<SøknadVedleggEntitet> getSøknadVedleggListe(Optional<SøknadEntitet> søknad) {

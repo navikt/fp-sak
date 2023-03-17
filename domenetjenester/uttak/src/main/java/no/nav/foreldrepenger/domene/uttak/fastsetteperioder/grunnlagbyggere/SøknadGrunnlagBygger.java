@@ -63,7 +63,7 @@ public class SøknadGrunnlagBygger {
 
         return oppgittePerioder.stream()
             .map(op -> byggOppgittperiode(op, new UttakYrkesaktiviteter(input).tilAktivitetIdentifikatorer()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private OppgittPeriode byggOppgittperiode(OppgittPeriodeEntitet oppgittPeriode,

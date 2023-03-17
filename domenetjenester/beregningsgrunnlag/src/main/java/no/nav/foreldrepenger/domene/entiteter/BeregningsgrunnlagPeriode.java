@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -170,7 +169,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     public List<PeriodeÅrsak> getPeriodeÅrsaker() {
         return beregningsgrunnlagPeriodeÅrsaker.stream()
             .map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     void addBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndel) {

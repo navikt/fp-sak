@@ -66,12 +66,12 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         klageRepository = new KlageRepository(getEntityManager());
-        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
-            mock(DokumentArkivTjeneste.class), behandlingRepository);
-        klageVurderingTjeneste = new KlageVurderingTjeneste(null, null,null, behandlingRepository, klageRepository, null,
-                repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
-        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter,
-                behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient, mock(BehandlingskontrollTjeneste.class));
+        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), mock(DokumentArkivTjeneste.class),
+            behandlingRepository);
+        klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, null, behandlingRepository, klageRepository, null,
+            repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
+        klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter, behandlingRepository,
+            repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient, mock(BehandlingskontrollTjeneste.class));
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
     }
@@ -84,11 +84,10 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     @Test
     void skal_oppdatere_klage_aksjonspunkt_for_tilbakekreving_behandling() {
         initKlage();
-        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
-                TILBAKEKREVING_BEHANDLING_TYPE);
+        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(behandling,
-                behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
 
         var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
         fellesKlageAssert();
@@ -104,15 +103,14 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         initKlage();
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(false, null);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(behandling,
-                behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isNotEmpty();
 
-        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
-                TILBAKEKREVING_BEHANDLING_TYPE);
+        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
@@ -121,37 +119,34 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(TILBAKEKREVING_BEHANDLING_UUID));
 
-        var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+            URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
-        historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         var historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && BehandlingType.FØRSTEGANGSSØKNAD.getNavn().equals(historikkinnslagEndretFeltDto.getTilVerdi().toString().trim())))
-                                .isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && BehandlingType.FØRSTEGANGSSØKNAD.getNavn().equals(historikkinnslagEndretFeltDto.getTilVerdi().toString().trim()))).isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
     }
 
     @Test
     void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_tilbakekreving_behandling() {
         initKlage();
-        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
-                TILBAKEKREVING_BEHANDLING_TYPE);
+        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(behandling,
-                behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
@@ -161,8 +156,9 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         var nyTilbakekrevingUUID = UUID.randomUUID();
         var vedtakDato = LocalDate.now().minusDays(1);
-        when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
-                klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
+        when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(
+            new TilbakekrevingVedtakDto(1L, klageTilbakekrevingDto.tilbakekrevingVedtakDato(),
+                klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
         klageTilbakekrevingDto = new KlageTilbakekrevingDto(nyTilbakekrevingUUID, vedtakDato, TILBAKEKREVING_BEHANDLING_TYPE);
         klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
@@ -172,38 +168,35 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatEntitet.getPåKlagdBehandlingId()).isEmpty();
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isEqualTo(Optional.of(nyTilbakekrevingUUID));
 
-        var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+            URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
-        historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         var historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && historikkinnslagEndretFeltDto.getTilVerdi()
-                                .equals(TILBAKEKREVING_BEHANDLING_TYPE_NAVN + " " + vedtakDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))))
-                                        .isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && historikkinnslagEndretFeltDto.getTilVerdi()
+                    .equals(TILBAKEKREVING_BEHANDLING_TYPE_NAVN + " " + vedtakDato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))))).isTrue();
     }
 
     @Test
     void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_ingen_påklagd_vedtak() {
         initKlage();
-        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
-                TILBAKEKREVING_BEHANDLING_TYPE);
+        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(behandling,
-                behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
@@ -211,42 +204,40 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isNotEmpty();
 
-        when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
-                klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true,
-            null, "test", false, null);
+        when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(
+            new TilbakekrevingVedtakDto(1L, klageTilbakekrevingDto.tilbakekrevingVedtakDato(),
+                klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, null, "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+            URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
-        historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         var historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && historikkinnslagEndretFeltDto.getTilVerdi().equals("Ikke påklagd et vedtak"))).isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && historikkinnslagEndretFeltDto.getTilVerdi().equals("Ikke påklagd et vedtak"))).isTrue();
     }
 
     @Test
     void skal_oppdatere_klage_aksjonspunkt_fra_tilbakekreving_til_fpsak_behandling() {
         initKlage();
-        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(),
-                TILBAKEKREVING_BEHANDLING_TYPE);
+        var klageTilbakekrevingDto = new KlageTilbakekrevingDto(TILBAKEKREVING_BEHANDLING_UUID, LocalDate.now(), TILBAKEKREVING_BEHANDLING_TYPE);
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(behandling,
-                behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), klageFormkravAksjonspunktDto);
         var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
@@ -254,33 +245,31 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         assertThat(klageResultatEntitet.getPåKlagdEksternBehandlingUuid()).isNotEmpty();
 
-        when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
-                klageTilbakekrevingDto.tilbakekrevingVedtakDato(), klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true,
-            true, behandling.getUuid(), "test", false, null);
+        when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(
+            new TilbakekrevingVedtakDto(1L, klageTilbakekrevingDto.tilbakekrevingVedtakDato(),
+                klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
-        var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+            URI.create("http://dummy/dummy")).stream().sorted(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt)).toList();
         assertThat(historikkInnslager).hasSize(2);
-        historikkInnslager.sort(Comparator.comparing(HistorikkinnslagDto::getOpprettetTidspunkt));
         var historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         var historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && historikkinnslagEndretFeltDto.getTilVerdi().toString().contains(TILBAKEKREVING_BEHANDLING_TYPE_NAVN))).isTrue();
 
         historikkinnslagDto = historikkInnslager.get(1);
         assertThat(historikkinnslagDto.getHistorikkinnslagDeler()).hasSize(1);
         historikkinnslagEndretFelter = historikkinnslagDto.getHistorikkinnslagDeler().get(0).getEndredeFelter();
         assertThat(historikkinnslagEndretFelter.stream()
-                .anyMatch(historikkinnslagEndretFeltDto -> historikkinnslagEndretFeltDto.getEndretFeltNavn()
-                        .equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
-                        && BehandlingType.FØRSTEGANGSSØKNAD.getNavn().equals(historikkinnslagEndretFeltDto.getTilVerdi().toString().trim())))
-                                .isTrue();
+            .anyMatch(historikkinnslagEndretFeltDto ->
+                historikkinnslagEndretFeltDto.getEndretFeltNavn().equals(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID)
+                    && BehandlingType.FØRSTEGANGSSØKNAD.getNavn().equals(historikkinnslagEndretFeltDto.getTilVerdi().toString().trim()))).isTrue();
     }
 
     private void fellesKlageAssert() {
@@ -294,16 +283,15 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     private void fellesKlageHistoriskAssert() {
-        var historikkInnslager = historikkTjenesteAdapter
-                .hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(), URI.create("http://dummy/dummy"));
+        var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
+            URI.create("http://dummy/dummy"));
         assertThat(historikkInnslager).hasSize(1);
         var historikkinnslagDto = historikkInnslager.get(0);
         assertThat(historikkinnslagDto.getType()).isEqualByComparingTo(HistorikkinnslagType.KLAGE_BEH_NFP);
     }
 
     private KlageFormkravAksjonspunktDto lagKlageAksjonspunktDto(boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        return new KlageFormkravAksjonspunktDto(true, true, true, true,
-            behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto);
+        return new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto);
     }
 
 }

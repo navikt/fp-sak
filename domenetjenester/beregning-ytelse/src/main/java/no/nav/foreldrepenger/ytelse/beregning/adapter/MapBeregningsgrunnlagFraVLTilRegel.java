@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
@@ -24,7 +23,7 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
     public static Beregningsgrunnlag map(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
         var aktivitetStatuser = vlBeregningsgrunnlag.getAktivitetStatuser().stream()
             .map(vlBGAktivitetStatus -> AktivitetStatusMapper.fraVLTilRegel(vlBGAktivitetStatus.getAktivitetStatus()))
-            .collect(Collectors.toList());
+            .toList();
 
         var perioder = mapBeregningsgrunnlagPerioder(vlBeregningsgrunnlag);
 
@@ -49,7 +48,7 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
     private static List<BeregningsgrunnlagPeriode> mapBeregningsgrunnlagPerioder(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
         return vlBeregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .map(MapBeregningsgrunnlagFraVLTilRegel::mapBeregningsgrunnlagPeriode)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static BeregningsgrunnlagPeriode mapBeregningsgrunnlagPeriode(no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode vlBGPeriode) {

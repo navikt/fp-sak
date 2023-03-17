@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -92,7 +91,7 @@ public class ForvaltningBeregningRestTjeneste {
         return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT).stream()
                 .map(beregningsresultatRepository::finnGjeldendeSats)
                 .map(BeregningSatsDto::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @POST
@@ -115,7 +114,7 @@ public class ForvaltningBeregningRestTjeneste {
         var nysats = new BeregningSats(type, DatoIntervallEntitet.fraOgMedTilOgMed(dto.getSatsFom(), brukTom), dto.getSatsVerdi());
         beregningsresultatRepository.lagreSats(nysats);
         var nygjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
-        return Set.of(gjeldende, nygjeldende).stream().map(BeregningSatsDto::new).collect(Collectors.toList());
+        return Set.of(gjeldende, nygjeldende).stream().map(BeregningSatsDto::new).toList();
     }
 
     private boolean sjekkVerdierOK(BeregningSatsDto dto, BeregningSats gjeldende, LocalDate brukTom) {

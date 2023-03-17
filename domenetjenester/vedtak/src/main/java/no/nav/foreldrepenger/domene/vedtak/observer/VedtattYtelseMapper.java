@@ -53,7 +53,7 @@ class VedtattYtelseMapper {
         return tilkjent.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
             .map(this::mapForeldrepengerPeriode)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Anvisning mapForeldrepengerPeriode(BeregningsresultatPeriode periode) {
@@ -64,12 +64,12 @@ class VedtattYtelseMapper {
         var grunnlagSatsUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .filter(p -> p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagSatsUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
-            .collect(Collectors.toList());
+            .toList();
         return tilkjent.getBeregningsresultatPerioder().stream()
             .filter(p -> p.getDagsats() > 0)
             .map(p -> mapSvangerskapspengerPeriode(p, grunnlagSatsUtbetGrad))
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Anvisning mapSvangerskapspengerPeriode(BeregningsresultatPeriode periode, List<LocalDateSegment<DagsatsUtbgradSVP>> dagsatsGrader) {
@@ -115,7 +115,7 @@ class VedtattYtelseMapper {
         return resultatPrNøkkkel.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .map(this::mapTilAnvistAndel)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private AnvistAndel mapTilAnvistAndel(Map.Entry<AnvistAndelNøkkel, List<BeregningsresultatAndel>> e) {

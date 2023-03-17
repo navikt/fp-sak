@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -89,7 +88,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
         var arenaTimeline = new LocalDateTimeline<>(arenaYtelser.stream()
             .map(Ytelse::getPeriode)
             .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
-            .collect(Collectors.toList()), StandardCombinators::alwaysTrueForMatch);
+            .toList(), StandardCombinators::alwaysTrueForMatch);
         var overlapp = lagTidslinjeFP(behandlingId).intersection(arenaTimeline).compress();
 
         // Ingen overlapp VL / Arena
@@ -128,7 +127,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(brp -> brp.getDagsats() > 0)
             .map(brp -> new LocalDateSegment<>(brp.getBeregningsresultatPeriodeFom(), brp.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
-            .collect(Collectors.toList());
+            .toList();
         return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch);
     }
 
@@ -163,7 +162,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
         }
         var ytelserPåVedtaksdato = ytelser.stream()
             .filter(y -> y.getPeriode().inkluderer(vedtaksdato))
-            .collect(Collectors.toList());
+            .toList();
         if (!ytelserPåVedtaksdato.isEmpty()) {
             return Optional.of(sisteAnvisteDatoArena.plus(MELDEKORT_PERIODE));
         }

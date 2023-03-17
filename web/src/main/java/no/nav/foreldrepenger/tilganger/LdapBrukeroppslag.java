@@ -3,12 +3,10 @@ package no.nav.foreldrepenger.tilganger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.naming.InvalidNameException;
 import javax.naming.LimitExceededException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchControls;

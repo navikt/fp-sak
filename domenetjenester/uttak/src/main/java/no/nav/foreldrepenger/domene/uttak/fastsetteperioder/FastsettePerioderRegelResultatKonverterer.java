@@ -124,7 +124,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         return oppgittFordeling.getPerioder()
             .stream()
             .map(oppgittPeriode -> lagPeriodeSøknad(oppgittPeriode))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Set<UttakAktivitetEntitet> lagUttakAktiviteter(List<FastsettePeriodeResultat> resultat) {

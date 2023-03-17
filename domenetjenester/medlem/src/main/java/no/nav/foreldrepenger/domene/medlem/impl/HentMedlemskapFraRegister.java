@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.medlem.impl;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ public class HentMedlemskapFraRegister {
         try {
             var mups = restKlient.finnMedlemsunntak(aktørId.getId(), fom, tom).stream()
                 .map(this::mapFraMedlemsunntak)
-                .collect(Collectors.toList());
+                .toList();
             LOG.info("MEDL2 REST RS {}", mups);
             return mups;
         } catch (Exception e) {

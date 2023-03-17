@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
@@ -123,7 +122,7 @@ public class IAYGrunnlagDiff {
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt);
         return filter.getFiltrertYtelser().stream()
                 .filter(predikatYtelseskilde)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean erEndringPleiepengerEtterStp(LocalDate skjæringstidspunkt, AktørId aktørId) {
@@ -141,6 +140,6 @@ public class IAYGrunnlagDiff {
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).etter(skjæringstidspunkt);
         return filter.getFiltrertYtelser().stream()
             .filter(predikatYtelseskilde)
-            .collect(Collectors.toList());
+            .toList();
     }
 }

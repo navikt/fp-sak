@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -58,7 +57,7 @@ public final class UttakHistorikkUtil {
             .stream()
             .map(periode -> lagHistorikkinnslagForPeriode(behandling, periode, gjeldende))
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private List<Historikkinnslag> lagHistorikkinnslagFraSplitting(Behandling behandling,
@@ -68,7 +67,7 @@ public final class UttakHistorikkUtil {
             return Collections.emptyList();
         }
         var splittet = finnSplittet(nyePerioder, gjeldende);
-        return splittet.stream().map(split -> lagHistorikkinnslag(behandling, split)).collect(Collectors.toList());
+        return splittet.stream().map(split -> lagHistorikkinnslag(behandling, split)).toList();
     }
 
     private Historikkinnslag lagHistorikkinnslag(Behandling behandling,
@@ -105,7 +104,7 @@ public final class UttakHistorikkUtil {
             }
         }
 
-        return map.values().stream().map(UttakOverstyringsPeriodeSplitt.Builder::build).collect(Collectors.toList());
+        return map.values().stream().map(UttakOverstyringsPeriodeSplitt.Builder::build).toList();
     }
 
     private boolean likeTidsperioder(UttakResultatPeriodeLagreDto periode, ForeldrepengerUttakPeriode matchendeGjeldendePeriode) {

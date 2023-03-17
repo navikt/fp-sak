@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -83,7 +82,7 @@ public class MapUttakResultatFraVLTilRegel {
             if (segmentB == null) {
                 return segmentA;
             }
-            return new LocalDateSegment<>(dateInterval, Stream.concat(segmentA.getValue().stream(), segmentB.getValue().stream()).collect(Collectors.toList()));
+            return new LocalDateSegment<>(dateInterval, Stream.concat(segmentA.getValue().stream(), segmentB.getValue().stream()).toList());
         };
     }
 
@@ -92,7 +91,7 @@ public class MapUttakResultatFraVLTilRegel {
             .stream()
             .map(uttakTimeline::getSegment)
             .map(segment -> new UttakResultatPeriode(segment.getFom(), segment.getTom(), Optional.ofNullable(segment.getValue()).orElse(List.of()), false))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private UttakAktivitet mapAktivitet(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold, SvangerskapspengerUttakResultatPeriodeEntitet periode) {

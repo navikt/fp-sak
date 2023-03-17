@@ -165,7 +165,7 @@ public class InntektsmeldingRegisterTjeneste {
             final var inntektsmeldingSomIkkeKommer = informasjon.getOverstyringer()
                     .stream()
                     .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
-                    .collect(Collectors.toList());
+                    .toList();
 
             fjernInntektsmeldinger(påkrevdeInntektsmeldinger, inntektsmeldingSomIkkeKommer, tilnternArbeidsforhold);
         }

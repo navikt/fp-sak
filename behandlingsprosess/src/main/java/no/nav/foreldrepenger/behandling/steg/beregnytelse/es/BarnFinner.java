@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -58,7 +57,7 @@ class BarnFinner {
                     var fødselsdato = barn.getFødselsdato();
                     return fødselsdato.isAfter(eldsteFristForOmsorgsovertakelse);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<BarnInfo> getBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
@@ -82,7 +81,7 @@ class BarnFinner {
         if (FamilieHendelseType.FØDSEL.equals(gjeldendeVersjon.getType()) && !gjeldendeBarn.isEmpty()) {
             return gjeldendeBarn.stream()
                     .map(it -> new BarnInfo(it.getBarnNummer(), it.getFødselsdato(), null))
-                    .collect(Collectors.toList());
+                    .toList();
         }
         var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
         if (gjeldendeTerminbekreftelse.isPresent()) {
@@ -100,6 +99,6 @@ class BarnFinner {
     private List<BarnInfo> adopsjonsvilkårTilBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         return familieHendelseGrunnlag.getGjeldendeBarna().stream()
                 .map(adopsjonBarn -> new BarnInfo(adopsjonBarn.getBarnNummer(), adopsjonBarn.getFødselsdato(), null))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

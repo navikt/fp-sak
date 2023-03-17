@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -64,7 +63,7 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
     }
 
     public List<SvangerskapspengerUttakResultatPeriodeEntitet> getPerioder() {
-        return perioder.stream().sorted(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getFom)).collect(Collectors.toList());
+        return perioder.stream().sorted(Comparator.comparing(SvangerskapspengerUttakResultatPeriodeEntitet::getFom)).toList();
     }
 
     public UttakArbeidType getUttakArbeidType() {

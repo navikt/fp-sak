@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -86,7 +85,7 @@ public class RevurderingTjenesteFelles {
     public OppgittFordelingEntitet kopierOppgittFordelingFraForrigeBehandling(OppgittFordelingEntitet forrigeBehandlingFordeling) {
         var kopiertFordeling = forrigeBehandlingFordeling.getPerioder().stream()
                 .map(periode -> OppgittPeriodeBuilder.fraEksisterende(periode).build())
-                .collect(Collectors.toList());
+                .toList();
         return new OppgittFordelingEntitet(kopiertFordeling, forrigeBehandlingFordeling.getErAnnenForelderInformert(),
             forrigeBehandlingFordeling.ønskerJustertVedFødsel());
     }

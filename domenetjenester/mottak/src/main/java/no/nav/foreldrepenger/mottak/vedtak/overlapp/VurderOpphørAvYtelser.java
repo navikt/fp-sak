@@ -5,7 +5,6 @@ import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -166,7 +165,7 @@ public class VurderOpphørAvYtelser {
             .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
             .filter(f -> !erSammeEllerKobletSak(fagsakIVB, f))
             .filter(f -> erMaxDatoPåLøpendeSakEtterStartDatoNysak(f, startdatoIVB))
-            .collect(Collectors.toList());
+            .toList();
         return saker;
     }
 
@@ -187,7 +186,7 @@ public class VurderOpphørAvYtelser {
             .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
             .filter(f -> !behandlingIVB.getFagsak().getSaksnummer().equals(f.getSaksnummer()))
             .flatMap(f -> sjekkOverlappMotIverksattSvangerskapspenger(f, behandlingIVB, stønadsperiodeIVB).stream())
-            .collect(Collectors.toList());
+            .toList();
         return saker;
     }
 

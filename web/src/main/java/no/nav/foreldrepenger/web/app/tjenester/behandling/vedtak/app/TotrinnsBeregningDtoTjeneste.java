@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -49,7 +48,7 @@ public class TotrinnsBeregningDtoTjeneste {
     }
 
     private List<FaktaOmBeregningTilfelle> mapTilfelle(List<FaktaOmBeregningTilfelle> tilfeller) {
-        return tilfeller.stream().map(t -> FaktaOmBeregningTilfelle.fraKode(t.getKode())).collect(Collectors.toList());
+        return tilfeller.stream().map(t -> FaktaOmBeregningTilfelle.fraKode(t.getKode())).toList();
     }
 
     private BeregningsgrunnlagEntitet hentBeregningsgrunnlag(Behandling behandling, Optional<Long> beregningsgrunnlagId) {

@@ -61,7 +61,7 @@ class MapAktørInntekt {
                 var builder = aggregatBuilder.getAktørInntektBuilder(tilAktørId(idto.getPerson()));
                 idto.getUtbetalinger().forEach(utbetalingDto -> builder.leggTilInntekt(mapUtbetaling(utbetalingDto)));
                 return builder;
-            }).collect(Collectors.toUnmodifiableList());
+            }).toList();
 
             return builders;
         }
@@ -145,7 +145,7 @@ class MapAktørInntekt {
         }
 
         private List<UtbetalingsPostDto> tilPoster(Collection<Inntektspost> inntektspost) {
-            return inntektspost.stream().map(this::tilPost).sorted(COMP_UTBETALINGSPOST).collect(Collectors.toList());
+            return inntektspost.stream().map(this::tilPost).sorted(COMP_UTBETALINGSPOST).toList();
         }
 
         private UtbetalingsPostDto tilPost(Inntektspost inntektspost) {

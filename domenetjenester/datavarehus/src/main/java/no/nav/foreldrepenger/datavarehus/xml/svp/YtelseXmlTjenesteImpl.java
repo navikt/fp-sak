@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.datavarehus.xml.svp;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.xml.vedtak.ytelse.svp.v2.YtelseSvangerskapspenger;
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
 public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
-    BeregningsresultatRepository beregningsresultatRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
     private ObjectFactory ytelseObjectFactory;
 
     public YtelseXmlTjenesteImpl() {
@@ -43,9 +43,8 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
         var ytelseSvangerskapspenger = ytelseObjectFactory.createYtelseSvangerskapspenger();
 
         var beregningsresultatOptional = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
-        if (beregningsresultatOptional.isPresent()) {
-            setBeregningsresultat(ytelseSvangerskapspenger, beregningsresultatOptional.get().getBeregningsresultatPerioder());
-        }
+        beregningsresultatOptional.ifPresent(
+            beregningsresultatEntitet -> setBeregningsresultat(ytelseSvangerskapspenger, beregningsresultatEntitet.getBeregningsresultatPerioder()));
         var tilkjentYtelse = new TilkjentYtelse();
         tilkjentYtelse.getAny().add(ytelseObjectFactory.createYtelseSvangerskapspenger(ytelseSvangerskapspenger));
         beregningsresultat.setTilkjentYtelse(tilkjentYtelse);
@@ -54,7 +53,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     private void setBeregningsresultat(YtelseSvangerskapspenger ytelseSvangerskapspenger, List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         var resultat = beregningsresultatPerioder
             .stream()
-            .map(periode -> periode.getBeregningsresultatAndelList()).flatMap(andeler -> andeler.stream()).map(andel -> konverterFraDomene(andel)).collect(Collectors.toList());
+            .map(periode -> periode.getBeregningsresultatAndelList()).flatMap(Collection::stream).map(this::konverterFraDomene).toList();
 
         ytelseSvangerskapspenger.getBeregningsresultat().addAll(resultat);
     }

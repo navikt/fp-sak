@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -60,7 +59,7 @@ public class KodeMapper<K extends Kodeverdi, O> {
         public KodeMapper<R, T> build() {
             return new KodeMapper<>(IntStream.range(0, rs.size())
                 .mapToObj(i -> new Kodemapping<R,T>(rs.get(i), ts.get(i)))
-                .collect(Collectors.toList()));
+                .toList());
         }
     }
 

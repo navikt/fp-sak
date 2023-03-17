@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,10 +38,10 @@ public class ForeldrepengerUttakTjeneste {
     public static ForeldrepengerUttak map(UttakResultatEntitet entitet) {
         var opprinneligPerioder = entitet.getOpprinneligPerioder().getPerioder().stream()
             .map(p -> map(p))
-            .collect(Collectors.toList());
+            .toList();
         var overstyrtPerioder = entitet.getOverstyrtPerioder() == null ? null : entitet.getOverstyrtPerioder().getPerioder().stream()
             .map(p -> map(p))
-            .collect(Collectors.toList());
+            .toList();
 
         return new ForeldrepengerUttak(opprinneligPerioder, overstyrtPerioder);
     }
@@ -50,7 +49,7 @@ public class ForeldrepengerUttakTjeneste {
     private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet) {
         var aktiviteter = entitet.getAktiviteter().stream()
             .map(a -> map(a))
-            .collect(Collectors.toList());
+            .toList();
         var mottattDato = entitet.getPeriodeSøknad().map(se -> se.getMottattDato()).orElse(null);
         var periodeBuilder = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(entitet.getFom(), entitet.getTom()))

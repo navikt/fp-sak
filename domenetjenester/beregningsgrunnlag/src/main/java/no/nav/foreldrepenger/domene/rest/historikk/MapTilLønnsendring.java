@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
@@ -116,7 +115,7 @@ public class MapTilLønnsendring {
             .filter(a -> !a.getNyAndel())
             .map(dtoAndel -> mapTilLønnsendring(dtoAndel.getAndelsnr(),
                 dtoAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag, forrigeBg))
-            .collect(Collectors.toList());
+            .toList();
         var nyDagpengeAndel = dto.getBesteberegningAndeler().getNyDagpengeAndel();
         if (nyDagpengeAndel != null) {
             var lønnsendringForNyAndel = mapTilLønnsendring(AktivitetStatus.DAGPENGER,
@@ -133,7 +132,7 @@ public class MapTilLønnsendring {
             .getVurderATogFLiSammeOrganisasjonAndelListe()
             .stream()
             .map(a -> mapTilLønnsendring(a.getAndelsnr(), a.getArbeidsinntekt(), nyttBeregningsgrunnlag, forrigeBg))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static List<Lønnsendring> mapLønnsendringFraATUtenInntektsmelding(FaktaBeregningLagreDto dto,
@@ -144,7 +143,7 @@ public class MapTilLønnsendring {
             .stream()
             .map(dtoAndel -> mapTilLønnsendring(dtoAndel.getAndelsnr(), mapTilFastsatteVerdier(dtoAndel),
                 nyttBeregningsgrunnlag, forrigeBg))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static FastsatteVerdierDto mapTilFastsatteVerdier(FastsettMånedsinntektUtenInntektsmeldingAndelDto dtoAndel) {

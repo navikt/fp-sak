@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -52,7 +51,7 @@ public class FortsettForeslåBeregningsgrunnlagSteg implements Beregningsgrunnla
         var input = getInputTjeneste(ref.fagsakYtelseType()).lagInput(ref.behandlingId());
         var resultat = beregningsgrunnlagKopierOgLagreTjeneste.fortsettForeslåBeregningsgrunnlag(input);
         var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
-            .collect(Collectors.toList());
+            .toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
 
     }

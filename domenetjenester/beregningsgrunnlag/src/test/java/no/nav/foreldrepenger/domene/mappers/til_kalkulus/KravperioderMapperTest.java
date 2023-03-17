@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -159,7 +158,7 @@ class KravperioderMapperTest {
         assertThat(krav.getPerioder()).hasSize(2);
         var kravperioder = krav.getPerioder().stream()
             .sorted(Comparator.comparing(PerioderForKravDto::getInnsendingsdato))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(kravperioder.get(0).getPerioder()).hasSize(1);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);
@@ -198,7 +197,7 @@ class KravperioderMapperTest {
         assertThat(krav.getPerioder()).hasSize(2);
         var kravperioder = krav.getPerioder().stream()
             .sorted(Comparator.comparing(PerioderForKravDto::getInnsendingsdato))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(kravperioder.get(0).getPerioder()).hasSize(1);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getFomDato()).isEqualTo(STP);
         assertThat(kravperioder.get(0).getPerioder().get(0).periode().getTomDato()).isEqualTo(Tid.TIDENES_ENDE);

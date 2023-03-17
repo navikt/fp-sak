@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
@@ -109,7 +108,7 @@ public class BeregningsgrunnlagPeriode {
     public List<PeriodeÅrsak> getPeriodeÅrsaker() {
         return beregningsgrunnlagPeriodeÅrsaker.stream()
             .map(BeregningsgrunnlagPeriodeÅrsak::getPeriodeÅrsak)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     void addBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndel) {

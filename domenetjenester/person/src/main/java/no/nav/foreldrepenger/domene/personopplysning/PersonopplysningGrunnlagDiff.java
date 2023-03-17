@@ -90,7 +90,7 @@ public class PersonopplysningGrunnlagDiff {
     private List<PersonRelasjonEntitet> hentRelasjonerFraMenIkkeTil(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> fra, Set<AktørId> ikkeTil) {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getRelasjoner).orElse(Collections.emptyList()).stream()
             .filter(rel -> fra.contains(rel.getAktørId()) && !ikkeTil.contains(rel.getTilAktørId()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public boolean erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet periode) {
@@ -145,7 +145,7 @@ public class PersonopplysningGrunnlagDiff {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()).stream()
             .filter(adr -> personer.contains(adr.getAktørId()))
             .filter(adr -> adr.getPeriode().overlapper(periode))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Set<String> hentAdresserLandForPeriode(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> personer, DatoIntervallEntitet periode) {

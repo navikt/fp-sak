@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
@@ -11,11 +10,11 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighets
 public class OppdragKvitteringTestUtil {
     public static List<OppdragKvittering> lagPositiveKvitteringer(Oppdragskontroll oppdragskontroll) {
         return oppdragskontroll.getOppdrag110Liste().stream().map(OppdragKvitteringTestUtil::lagPositivKvitting)
-            .collect(Collectors.toList());
+            .toList();
     }
     static List<OppdragKvittering> lagNegativeKvitteringer(Oppdragskontroll oppdragskontroll) {
         return oppdragskontroll.getOppdrag110Liste().stream().map(OppdragKvitteringTestUtil::lagNegativKvitting)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public static OppdragKvittering lagPositivKvitting(Oppdrag110 o110) {

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
@@ -104,7 +103,7 @@ public class Oppdrag110Dto extends SporingDto {
         var optOmposter = oppdrag110.getOmpostering116();
         oppdrag110Dto.oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().stream()
             .map(Oppdragslinje150Dto::fraDomene)
-            .collect(Collectors.toList());
+            .toList();
 
         if (optOmposter.isPresent()) {
             oppdrag110Dto.ompostering116Dto = Ompostering116Dto.fraDomene(optOmposter.get());

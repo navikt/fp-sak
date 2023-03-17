@@ -166,7 +166,7 @@ public class RegisterdataInnhenter {
             .filter(y -> Kildesystem.K9SAK.equals(y.getKildesystem()))
             .filter(y -> Ytelser.PLEIEPENGER_SYKT_BARN.equals(y.getYtelse()))
             .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
-            .collect(Collectors.toList());
+            .toList();
 
         LOG.info("PSB innhent behandling {} tidligst født {} antall potensielle vedtak {}", behandling.getId(), tidligstFødt, potensielleVedtak.size());
 
@@ -191,7 +191,7 @@ public class RegisterdataInnhenter {
 
         return medlemTjeneste.finnMedlemskapPerioder(behandling.getAktørId(), opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()).stream()
             .map(this::lagMedlemskapPeriode)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private MedlemskapPerioderEntitet lagMedlemskapPeriode(Medlemskapsperiode medlemskapsperiode) {

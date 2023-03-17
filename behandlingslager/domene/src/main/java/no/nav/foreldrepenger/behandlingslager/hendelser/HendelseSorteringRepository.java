@@ -49,7 +49,7 @@ public class HendelseSorteringRepository {
         return resultater
             .sorted()
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private TypedQuery<AktørId> getAktørIderMedRelevantSak(Set<AktørId> aktørIdListe) {

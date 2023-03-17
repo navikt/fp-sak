@@ -26,12 +26,12 @@ class TilbaketrekkForTilkommetArbeidEntry {
 
     public void setAndelerIRevurderingMedSluttFørDato(Map<LocalDate, List<BRNøkkelMedAndeler>> andelerIRevurderingMedSluttFørDato) {
         this.andelerIRevurderingSluttdatoTilNøkkelMap = andelerIRevurderingMedSluttFørDato;
-        this.andelerIRevurderingMedSluttFørDato = andelerIRevurderingMedSluttFørDato.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        this.andelerIRevurderingMedSluttFørDato = andelerIRevurderingMedSluttFørDato.values().stream().flatMap(Collection::stream).toList();
     }
 
     public void setAndelerIOriginalMedSluttFørDato(Map<LocalDate, List<BRNøkkelMedAndeler>> andelerIOriginalMedSluttFørDato) {
         this.andelerIOriginalSluttdatoTilNøkkelMap = andelerIOriginalMedSluttFørDato;
-        this.andelerIOriginalMedSluttFørDato = andelerIOriginalMedSluttFørDato.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        this.andelerIOriginalMedSluttFørDato = andelerIOriginalMedSluttFørDato.values().stream().flatMap(Collection::stream).toList();
     }
 
     public List<BRNøkkelMedAndeler> getTilkomneNøklerMedStartEtterDato() {

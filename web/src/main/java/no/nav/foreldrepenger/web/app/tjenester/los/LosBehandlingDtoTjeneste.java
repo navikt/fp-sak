@@ -150,7 +150,7 @@ public class LosBehandlingDtoTjeneste {
     private static List<LosBehandlingDto.LosAksjonspunktDto> mapAksjonspunkter(Behandling behandling) {
         return behandling.getAksjonspunkter().stream()
             .map(LosBehandlingDtoTjeneste::mapTilLosAksjonspunkt)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static LosBehandlingDto.LosAksjonspunktDto mapTilLosAksjonspunkt(Aksjonspunkt aksjonspunkt) {

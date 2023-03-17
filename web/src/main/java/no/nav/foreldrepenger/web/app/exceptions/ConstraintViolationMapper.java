@@ -48,7 +48,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             var feltNavn = getFeltNavn(constraintViolation.getPropertyPath());
             feilene.add(new FeltFeilDto(feltNavn, constraintViolation.getMessage(), koder.toString()));
         }
-        var feltNavn = feilene.stream().map(FeltFeilDto::getNavn).collect(Collectors.toList());
+        var feltNavn = feilene.stream().map(FeltFeilDto::getNavn).toList();
         var feilmelding = String.format(
             "Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
             feltNavn);
@@ -76,13 +76,13 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
                 return ((BekreftedeAksjonspunkterDto) executableParameter).getBekreftedeAksjonspunktDtoer()
                     .stream()
                     .map(dto -> getKode(dto))
-                    .collect(Collectors.toList());
+                    .toList();
             }
             if (executableParameter instanceof OverstyrteAksjonspunkterDto) {
                 return ((OverstyrteAksjonspunkterDto) executableParameter).getOverstyrteAksjonspunktDtoer()
                     .stream()
                     .map(dto -> getKode(dto))
-                    .collect(Collectors.toList());
+                    .toList();
             }
         }
         var aksjonspunktKode = getKode(førsteConstraint.getLeafBean());

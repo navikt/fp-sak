@@ -182,7 +182,7 @@ public class PersonopplysningInnhenter {
     private boolean utledSammeBosted(Personinfo fra, Personinfo til) {
         var tilAdresser = til.getAdresseInfoList().stream()
             .filter(ad -> AdresseType.BOSTEDSADRESSE.equals(ad.getGjeldendePostadresseType()))
-            .collect(Collectors.toList());
+            .toList();
         return fra.getAdresseInfoList().stream()
             .filter(a -> AdresseType.BOSTEDSADRESSE.equals(a.getGjeldendePostadresseType()))
             .anyMatch(adr1 -> tilAdresser.stream().anyMatch(adr2 -> Adresseinfo.likeAdresser(adr1, adr2)));

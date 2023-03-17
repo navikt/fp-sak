@@ -727,7 +727,7 @@ class FastsettePerioderTjenesteTest {
             .getPerioder()
             .stream()
             .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getTom))
-            .collect(Collectors.toList());
+            .toList();
         assertThat(overstyrtePerioder).hasSize(3);
         assertThat(overstyrtePerioder.get(0).getFom()).isEqualTo(fødselsdato);
         assertThat(overstyrtePerioder.get(0).getTom()).isEqualTo(opprinneligMødreKvoteSlutt);

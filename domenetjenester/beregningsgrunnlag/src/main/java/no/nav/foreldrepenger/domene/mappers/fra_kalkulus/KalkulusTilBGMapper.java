@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
 

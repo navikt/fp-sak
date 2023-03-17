@@ -45,7 +45,7 @@ public class UttakYrkesaktiviteter {
         return filter.getYrkesaktiviteter()
             .stream()
             .filter(yrkesaktivitet -> skalYrkesaktivitetTasMed(yrkesaktivitet, bgStatuser))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private boolean skalYrkesaktivitetTasMed(Yrkesaktivitet yrkesaktivitet,
@@ -146,7 +146,7 @@ public class UttakYrkesaktiviteter {
             .filter(ya -> riktigDato(dato, ansettelsePeriodeForYrkesaktivitet(filter, ya)))
             .filter(ya -> Objects.equals(ya.getArbeidsgiver(), arbeidsgiver))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(ref == null ? InternArbeidsforholdRef.nullRef() : ref))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private BigDecimal finnStillingsprosent(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {

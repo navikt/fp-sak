@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.opptjening;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -56,13 +55,13 @@ public class OpptjeningForBeregningTjeneste {
             .filter(oa -> oa.getPeriode().getFomDato().isBefore(behandlingReferanse.getUtledetSkjæringstidspunkt()))
             .filter(oa -> !oa.getPeriode().getTomDato().isBefore(opptjeningsperiodeFom))
             .filter(oa -> opptjeningsaktiviteterPerYtelse.erRelevantAktivitet(oa.getOpptjeningAktivitetType(), iayGrunnlag))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Optional<OpptjeningAktiviteter> hentOpptjeningForBeregning(BehandlingReferanse ref,
                                                                       InntektArbeidYtelseGrunnlag iayGrunnlag) {
         var opptjeningsPerioder = hentRelevanteOpptjeningsaktiviteterForBeregning(ref, iayGrunnlag).stream()
-            .map(this::mapOpptjeningPeriode).collect(Collectors.toList());
+            .map(this::mapOpptjeningPeriode).toList();
         if(opptjeningsPerioder.isEmpty()) {
             return Optional.empty();
         }

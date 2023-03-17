@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.CascadeType;
@@ -412,7 +411,7 @@ public class Behandling extends BaseEntitet {
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand() {
         var tilstander = behandlingStegTilstander.stream()
                 .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
-                .collect(Collectors.toList());
+                .toList();
         if (tilstander.size() > 1) {
             throw new IllegalStateException("Utvikler-feil: Kan ikke ha flere steg samtidig åpne: " + tilstander);
         }
@@ -441,7 +440,7 @@ public class Behandling extends BaseEntitet {
         var tilstander = behandlingStegTilstander.stream()
                 .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus())
                         && Objects.equals(stegType, t.getBehandlingSteg()))
-                .collect(Collectors.toList());
+                .toList();
         if (tilstander.size() > 1) {
             throw new IllegalStateException(
                     "Utvikler-feil: Kan ikke ha flere steg samtidig åpne for stegType[" + stegType + "]: " + tilstander);
@@ -581,25 +580,25 @@ public class Behandling extends BaseEntitet {
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter() {
         return getÅpneAksjonspunkterStream()
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter(AksjonspunktType aksjonspunktType) {
         return getÅpneAksjonspunkterStream()
                 .filter(ad -> Objects.equals(aksjonspunktType, ad.getAksjonspunktDefinisjon().getAksjonspunktType()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter(Collection<AksjonspunktDefinisjon> matchKriterier) {
         return getÅpneAksjonspunkterStream()
                 .filter(a -> matchKriterier.contains(a.getAksjonspunktDefinisjon()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Aksjonspunkt> getAksjonspunkterMedTotrinnskontroll() {
         return getAksjonspunkterStream()
                 .filter(a -> !a.erAvbrutt() && a.isToTrinnsBehandling())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean harAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {

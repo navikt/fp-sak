@@ -159,7 +159,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         if (ytelseGrunnlagDomene.isPresent()) {
             var ytelseGrunnlag = ytelseGrunnlagDomene.get();
             var ytelseStorrelser = ytelseGrunnlag.getYtelseStørrelse().stream().map(this::konverterFraDomene)
-                .collect(Collectors.toList());
+                .toList();
             relatertYtelseKontrakt.getYtelsesstorrelse().addAll(ytelseStorrelser);
         }
     }
@@ -201,7 +201,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void setYtelseAnvist(RelatertYtelse relatertYtelseKontrakt, Collection<YtelseAnvist> ytelseAnvistDomene) {
         var alleYtelserAnvist = ytelseAnvistDomene.stream()
-            .map(this::konverterFraDomene).collect(Collectors.toList());
+            .map(this::konverterFraDomene).toList();
         relatertYtelseKontrakt.getYtelseanvist().addAll(alleYtelserAnvist);
     }
 
@@ -219,7 +219,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         final var aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
         final var tilPersoner = aggregat.getSøkersRelasjoner().stream()
             .filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null)
-            .collect(Collectors.toList());
+            .toList();
         if (!tilPersoner.isEmpty()) {
             var familierelasjoner = personopplysningObjectFactory
                 .createPersonopplysningerForeldrepengerFamilierelasjoner();
