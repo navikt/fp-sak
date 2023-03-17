@@ -39,7 +39,7 @@ public class EnhetsTjeneste {
     private static final String NK_ENHET_ID = "4292"; // Klageinstans
     private static final String EA_ENHET_ID = "4883"; // Egne ansatte mfl
     private static final String SF_ENHET_ID = "2103"; // Adressesperre
-    private static final String UT_ENHET_ID = "4883"; // Egne ansatte mfl
+    private static final String UT_ENHET_ID = "4806"; // Utlandsenhet
     private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID); // Ta med UT_ENHET_ID ved nasjonal kø
 
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
