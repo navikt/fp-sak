@@ -27,7 +27,9 @@ public class JettyDevServer extends JettyServer {
         super(serverPort);
     }
 
+    @Override
     protected void updateContext(WebAppContext ctx) {
+        super.updateContext(ctx);
         // Find path to class-files while starting jetty from development environment.
         var resources = getWebInfClasses().stream()
             .map(c -> Resource.newResource(c.getProtectionDomain().getCodeSource().getLocation()))
