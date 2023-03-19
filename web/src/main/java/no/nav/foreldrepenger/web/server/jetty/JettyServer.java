@@ -29,7 +29,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -131,7 +130,9 @@ public class JettyServer {
     private void start() throws Exception {
         var server = new Server(getServerPort());
         server.setConnectors(createConnectors(server).toArray(new Connector[]{}));
-        var handlers = new HandlerList(new ResetLogContextHandler(), createContext());
+        var ctx = createContext();
+        updateContext(ctx);
+        var handlers = new HandlerList(new ResetLogContextHandler(), ctx);
         server.setHandler(handlers);
         server.start();
         server.join();
@@ -152,7 +153,7 @@ public class JettyServer {
         return httpConfig;
     }
 
-    private static ContextHandler createContext() throws IOException {
+    private static WebAppContext createContext() throws IOException {
         var ctx = new WebAppContext();
         ctx.setParentLoaderPriority(true);
 
@@ -178,6 +179,10 @@ public class JettyServer {
         ctx.setThrowUnavailableOnStartupException(true);
 
         return ctx;
+    }
+
+    protected void updateContext(@SuppressWarnings("unused") WebAppContext ctx) {
+        // NOOP
     }
 
     private static SecurityHandler createSecurityHandler() {
