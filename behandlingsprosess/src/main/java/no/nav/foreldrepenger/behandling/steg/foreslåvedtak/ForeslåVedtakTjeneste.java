@@ -45,7 +45,7 @@ class ForeslåVedtakTjeneste {
     }
 
     public BehandleStegResultat foreslåVedtak(Behandling behandling) {
-        long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         if (fagsak.erStengt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();

@@ -54,8 +54,7 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 @ApplicationScoped
 public class AksjonspunktTjeneste {
 
-    private static final Set<AksjonspunktDefinisjon> VEDTAK_AP = Set.of(
-        AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
+    private static final Set<AksjonspunktDefinisjon> VEDTAK_AP_UTEN_TOTRINN = Set.of(
         AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL,
         AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT,
         AksjonspunktDefinisjon.FATTER_VEDTAK
@@ -434,7 +433,7 @@ public class AksjonspunktTjeneste {
     }
 
     private boolean aksjonspunktStøtterTotrinn(Aksjonspunkt aksjonspunkt) {
-        return !VEDTAK_AP.contains(aksjonspunkt.getAksjonspunktDefinisjon())
+        return !VEDTAK_AP_UTEN_TOTRINN.contains(aksjonspunkt.getAksjonspunktDefinisjon())
             // Aksjonspunkter må ha SkjermlenkeType for å støtte totrinnskontroll
             && aksjonspunkt.kanSetteToTrinnsbehandling();
     }
