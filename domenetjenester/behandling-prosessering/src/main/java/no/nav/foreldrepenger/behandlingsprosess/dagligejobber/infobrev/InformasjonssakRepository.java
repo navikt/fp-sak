@@ -295,10 +295,14 @@ public class InformasjonssakRepository {
 
 
 
-    public List<Long> finnUtlandBehandlingerMedÅpentAksjonspunkt() {
+    public List<Long> finnEØSBehandlingerMedÅpentAksjonspunkt() {
         var query =  entityManager.createNativeQuery("""
            select b.id from behandling b where behandling_status<>'AVSLU'
-           and b.fagsak_id in (select fagsak_id from FAGSAK_EGENSKAP)
+           and b.fagsak_id in (select fagsak_id from FAGSAK_EGENSKAP where egenskap_value = 'EØS_BOSATT_NORGE' or egenskap_key = 'UTLAND_DOKUMENTASJON')
+           and exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'OPPR' and aksjonspunkt_def < '7000')
+           union
+           select b.id from behandling b where behandling_status<>'AVSLU'
+           and b.id in (select behandling_id from aksjonspunkt where aksjonspunkt_def = '5068' and aksjonspunkt_status <>'AVBR')
            and exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'OPPR' and aksjonspunkt_def < '7000')
         """);
         @SuppressWarnings("unchecked")

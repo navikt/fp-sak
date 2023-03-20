@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -34,7 +33,6 @@ public class BehandlingGrunnlagRepositoryProvider {
     private NesteSakRepository nesteSakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
-    private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
 
     BehandlingGrunnlagRepositoryProvider() {
@@ -53,7 +51,6 @@ public class BehandlingGrunnlagRepositoryProvider {
         this.pleiepengerRepository = new PleiepengerRepository(entityManager);
         this.uføretrygdRepository = new UføretrygdRepository(entityManager);
         this.søknadRepository = new SøknadRepository(entityManager, new BehandlingRepository(entityManager));
-        this.opptjeningIUtlandDokStatusRepository = new OpptjeningIUtlandDokStatusRepository(entityManager);
         this.nesteSakRepository = new NesteSakRepository(entityManager);
         this.arbeidsforholdValgRepository = new ArbeidsforholdValgRepository(entityManager);
 
@@ -96,10 +93,6 @@ public class BehandlingGrunnlagRepositoryProvider {
 
     public SvangerskapspengerRepository getSvangerskapspengerRepository() {
         return svangerskapspengerRepository;
-    }
-
-    public OpptjeningIUtlandDokStatusRepository getOpptjeningIUtlandDokStatusRepository() {
-        return opptjeningIUtlandDokStatusRepository;
     }
 
     public NesteSakRepository getNesteSakRepository() {

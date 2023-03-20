@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +85,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
             behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetUtland(behandling, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysninger");
         }
 
-        if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && undersøkeEØS) {
+        if (undersøkeEØS && !registrerFagsakEgenskaper.harVurdertInnhentingDokumentasjon(behandling)) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
         }
 

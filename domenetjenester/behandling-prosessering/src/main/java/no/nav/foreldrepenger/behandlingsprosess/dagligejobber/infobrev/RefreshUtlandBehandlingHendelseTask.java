@@ -34,7 +34,7 @@ class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        informasjonssakRepository.finnUtlandBehandlingerMedÅpentAksjonspunkt().forEach(this::opprettProsessTask);
+        informasjonssakRepository.finnEØSBehandlingerMedÅpentAksjonspunkt().forEach(this::opprettProsessTask);
     }
 
     private void opprettProsessTask(Long behandlingId) {

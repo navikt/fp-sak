@@ -135,7 +135,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String VURDER_OPPTJENINGSVILKÅRET_KODE = "5089";
 
     public static final String AUTOMATISK_MARKERING_AV_UTENLANDSSAK_KODE = "5068";
-    public static final String MANUELL_MARKERING_AV_UTLAND_SAKSTYPE_KODE = "6068";
 
     public static final String VURDER_SVP_TILRETTELEGGING_KODE = "5091";
     public static final String MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET_KODE = "5092";
@@ -156,16 +155,17 @@ public class AksjonspunktKodeDefinisjon {
     public static final boolean FORBLI = false;
 
     // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnnn til andre formål enn det opprinnelige før det har gått noe tid
-    //  "6013" "6070" "5099" "5070" "5081" "5098" "5097"
     //  "5009",
     //  "5022"  "5024"
     //  "5036"
     //  "5042"  "5045"  "5048"
     //  "5050"
-    //  "5078"  "5079"
-    //  "5080"  "5083"  "5088"
-    //  "5090"  "5093"  "5094"
-    //
+    //  "5070"  "5078"  "5079"
+    //  "5080"  "5081"  "5083"  "5088"
+    //  "5090"  "5093"  "5094"  "5097" "5098"  "5099"
+
+    //  "6013"  "6068"  "6070"
+
     //  "7006"  "7009"
     //  "7015"  "7016"  "7017"  "7018"  "7019"
     //  "7021"  "7022"  "7023"  "7024"  "7025"  "7026"  "7027"  "7028"  "7029"

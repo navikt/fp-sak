@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.EgenskapNøkkel;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -33,7 +32,7 @@ public class RegistrerFagsakEgenskaper {
 
     public UtlandMarkering registrerFagsakEgenskaper(Behandling behandling, boolean oppgittRelasjonTilEØS) {
         if (!BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) ||
-            fagsakEgenskapRepository.finnEgenskap(behandling.getFagsakId(), EgenskapNøkkel.UTLAND_MARKERING).isPresent()) {
+            fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).isPresent()) {
             return fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).orElse(UtlandMarkering.NASJONAL);
         }
         var geografiskTilknyttetUtlandEllerUkjent = personinfo.harGeografiskTilknytningUtland(behandling.getAktørId());
@@ -53,6 +52,10 @@ public class RegistrerFagsakEgenskaper {
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), utlandMarkering);
         }
         return utlandMarkering;
+    }
+
+    public boolean harVurdertInnhentingDokumentasjon(Behandling behandling) {
+        return fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(behandling.getFagsakId()).isPresent();
     }
 
 
