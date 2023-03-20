@@ -95,15 +95,13 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     private UttakAktivitet mapAktivitet(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold, SvangerskapspengerUttakResultatPeriodeEntitet periode) {
-        var utbetalingsgrad = periode.getUtbetalingsgrad().harUtbetaling() ? BigDecimal.valueOf(100) : BigDecimal.ZERO;
         var stillingsprosent = mapStillingsprosent(input, uttakArbeidsforhold);
         var totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakArbeidsforhold);
         var arbeidsforhold = mapArbeidsforhold(uttakArbeidsforhold);
         var aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakArbeidsforhold.getUttakArbeidType());
 
-        return UttakAktivitet.ny(aktivitetStatus)
+        return UttakAktivitet.ny(aktivitetStatus, periode.getUtbetalingsgrad().decimalValue(), false)
             .medArbeidsforhold(arbeidsforhold)
-            .medUtbetalingsgrad(utbetalingsgrad)
             .medStillingsgrad(stillingsprosent, totalStillingsprosent);
     }
 

@@ -2,8 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak.observer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,32 +20,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
 
 class VedtattYtelseMapper {
 
-    private List<ArbeidsforholdReferanse> arbeidsforholdReferanser = new ArrayList<>();
-    private final boolean skalMappeArbeidsforhold;
+    private final Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser;
 
-    private VedtattYtelseMapper(List<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
+    private VedtattYtelseMapper(Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
         this.arbeidsforholdReferanser = arbeidsforholdReferanser;
-        this.skalMappeArbeidsforhold = true;
     }
 
-    private VedtattYtelseMapper(boolean skalMappeArbeidsforhold) {
-        this.skalMappeArbeidsforhold = skalMappeArbeidsforhold;
-    }
-
-    static VedtattYtelseMapper medArbeidsforhold(List<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
+    static VedtattYtelseMapper medArbeidsforhold(Collection<ArbeidsforholdReferanse> arbeidsforholdReferanser) {
         return new VedtattYtelseMapper(arbeidsforholdReferanser);
-    }
-
-    static VedtattYtelseMapper utenArbeidsforhold() {
-        return new VedtattYtelseMapper(false);
     }
 
     List<Anvisning> mapForeldrepenger(BeregningsresultatEntitet tilkjent) {
@@ -57,55 +43,35 @@ class VedtattYtelseMapper {
     }
 
     private Anvisning mapForeldrepengerPeriode(BeregningsresultatPeriode periode) {
-        return mapPeriode(periode, periode.getDagsatsFraBg(), periode.getKalkulertUtbetalingsgrad());
+        return mapPeriode(periode, periode.getKalkulertUtbetalingsgrad());
     }
 
-    List<Anvisning> mapSvangerskapspenger(BeregningsresultatEntitet tilkjent, Beregningsgrunnlag beregningsgrunnlag) {
-        var grunnlagSatsUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
-            .filter(p -> p.getDagsats() > 0)
-            .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagSatsUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
-            .toList();
+    List<Anvisning> mapSvangerskapspenger(BeregningsresultatEntitet tilkjent) {
         return tilkjent.getBeregningsresultatPerioder().stream()
-            .filter(p -> p.getDagsats() > 0)
-            .map(p -> mapSvangerskapspengerPeriode(p, grunnlagSatsUtbetGrad))
-            .filter(Objects::nonNull)
+            .filter(periode -> periode.getDagsats() > 0)
+            .map(this::mapSvangerskapspengerPeriode)
             .toList();
     }
 
-    private Anvisning mapSvangerskapspengerPeriode(BeregningsresultatPeriode periode, List<LocalDateSegment<DagsatsUtbgradSVP>> dagsatsGrader) {
-        var utledetDagsatsGrad = finnKombinertDagsatsUtbetaling(periode, dagsatsGrader);
-        var dagsats = utledetDagsatsGrad != null ? utledetDagsatsGrad.dagsats() : periode.getDagsatsFraBg();
-        var utbetalingsgrad = utledetDagsatsGrad != null ? new BigDecimal(utledetDagsatsGrad.utbetalingsgrad()) : periode.getKalkulertUtbetalingsgrad();
-        return mapPeriode(periode, dagsats, utbetalingsgrad);
+    private Anvisning mapSvangerskapspengerPeriode(BeregningsresultatPeriode periode) {
+        var stipulertBruttoDagsats = periode.getBeregningsresultatAndelList().stream()
+            .filter(a -> a.getDagsats() > 0 && a.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) > 0)
+            .map(a -> BigDecimal.valueOf(a.getDagsats()).multiply(BigDecimal.valueOf(100)).divide(a.getUtbetalingsgrad(), 10, RoundingMode.HALF_EVEN))
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
+        var stipulertUtbetalingsgrad = BigDecimal.valueOf(100).multiply(BigDecimal.valueOf(periode.getDagsats())).divide(stipulertBruttoDagsats, 10, RoundingMode.HALF_EVEN);
+        return mapPeriode(periode, stipulertUtbetalingsgrad.setScale(2, RoundingMode.HALF_EVEN));
     }
 
-    private static DagsatsUtbgradSVP finnKombinertDagsatsUtbetaling(BeregningsresultatPeriode periode, List<LocalDateSegment<DagsatsUtbgradSVP>> dagsatsGrader) {
-        return dagsatsGrader.stream()
-            .filter(d -> d.getLocalDateInterval().encloses(periode.getBeregningsresultatPeriodeFom())) // Antar at BR-perioder ikke krysser BG-perioder
-            .findFirst()
-            .map(LocalDateSegment::getValue)
-            .orElse(null);
-    }
-
-    private static DagsatsUtbgradSVP beregnGrunnlagSatsUtbetGradSvp(BeregningsgrunnlagPeriode bgPeriode, BigDecimal grunnbeløp) {
-        var seksG = new BigDecimal(6).multiply(grunnbeløp);
-        var avkortet = bgPeriode.getBruttoPrÅr().compareTo(seksG) > 0 ? seksG : bgPeriode.getBruttoPrÅr();
-        var grad = BigDecimal.ZERO.compareTo(avkortet) == 0 ? 0 :
-            BigDecimal.TEN.multiply(BigDecimal.TEN).multiply(bgPeriode.getRedusertPrÅr()).divide(avkortet, RoundingMode.HALF_EVEN).longValue();
-        var dagsats = BigDecimal.ZERO.compareTo(bgPeriode.getRedusertPrÅr()) == 0 ? 0 :
-            new BigDecimal(bgPeriode.getDagsats()).multiply(avkortet).divide(bgPeriode.getRedusertPrÅr(), RoundingMode.HALF_EVEN).longValue();
-        return new DagsatsUtbgradSVP(dagsats, grad);
-    }
-
-    private Anvisning mapPeriode(BeregningsresultatPeriode periode, long dagsats, BigDecimal utbetalingsgrad) {
+    private Anvisning mapPeriode(BeregningsresultatPeriode periode, BigDecimal utbetalingsgrad) {
         final var anvisning = new Anvisning();
         final var p = new Periode();
         p.setFom(periode.getBeregningsresultatPeriodeFom());
         p.setTom(periode.getBeregningsresultatPeriodeTom());
         anvisning.setPeriode(p);
-        anvisning.setDagsats(new Desimaltall(new BigDecimal(dagsats)));
+        anvisning.setDagsats(new Desimaltall(BigDecimal.valueOf(periode.getDagsats())));
         anvisning.setUtbetalingsgrad(new Desimaltall(utbetalingsgrad));
-        anvisning.setAndeler(skalMappeArbeidsforhold ? mapAndeler(periode.getBeregningsresultatAndelList()) : Collections.emptyList());
+        anvisning.setAndeler(mapAndeler(periode.getBeregningsresultatAndelList()));
         return anvisning;
     }
 
@@ -216,8 +182,4 @@ class VedtattYtelseMapper {
             return this.arbeidsgiver != null ? 1 : -1;
         }
     }
-
-    private record DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
-    }
-
 }

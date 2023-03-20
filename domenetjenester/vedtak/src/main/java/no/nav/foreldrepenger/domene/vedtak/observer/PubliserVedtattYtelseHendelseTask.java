@@ -62,7 +62,7 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
     }
 
     private String generatePayload(Behandling behandling) {
-        var ytelse = vedtakTjeneste.genererYtelse(behandling, true);
+        var ytelse = vedtakTjeneste.genererYtelse(behandling);
 
         var violations = validator.validate(ytelse);
         if (!violations.isEmpty()) {

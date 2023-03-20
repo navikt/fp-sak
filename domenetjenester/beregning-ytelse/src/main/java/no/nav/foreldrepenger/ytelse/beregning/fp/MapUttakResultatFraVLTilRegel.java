@@ -58,9 +58,8 @@ public class MapUttakResultatFraVLTilRegel {
 
         var skalGraderes = periodeGraderingInvilget && uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode();
 
-        return UttakAktivitet.ny(aktivitetStatus)
+        return UttakAktivitet.ny(aktivitetStatus, utbetalingsgrad.decimalValue(), true)
             .medArbeidsforhold(arbeidsforhold)
-            .medUtbetalingsgrad(utbetalingsgrad.decimalValue())
             .medStillingsgrad(stillingsprosent, totalStillingsprosent)
             .medGradering(skalGraderes, arbeidstidsprosent);
     }

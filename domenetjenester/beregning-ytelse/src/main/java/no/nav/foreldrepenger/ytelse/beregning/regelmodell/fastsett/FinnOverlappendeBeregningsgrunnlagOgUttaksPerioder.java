@@ -205,8 +205,9 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         var utbetalingsgrad = uttakAktivitet.utbetalingsgrad().scaleByPowerOfTen(-2);
         var andelArbeidsgiver = Optional.ofNullable(redusertRefusjonPrÅr).orElse(BigDecimal.ZERO);
         var andelBruker = Optional.ofNullable(redusertBrukersAndelPrÅr).orElse(BigDecimal.ZERO);
-        var redusertAndelArb = andelArbeidsgiver.multiply(utbetalingsgrad);
-        var redusertAndelBruker = andelBruker.multiply(utbetalingsgrad);
+        // FP skal videre reduseres med gradering, mens SVP er ferdig redusert
+        var redusertAndelArb = uttakAktivitet.reduserDagsatsMedUtbetalingsgrad() ? andelArbeidsgiver.multiply(utbetalingsgrad) : andelArbeidsgiver;
+        var redusertAndelBruker = uttakAktivitet.reduserDagsatsMedUtbetalingsgrad() ? andelBruker.multiply(utbetalingsgrad) : andelBruker;
 
         if (skalGjøreOverkompensasjon(uttakAktivitet)) {
             var permisjonsProsent = finnPermisjonsprosent(uttakAktivitet);

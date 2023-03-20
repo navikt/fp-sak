@@ -333,12 +333,12 @@ class RegelFastsettBeregningsresultatFPTest {
         var erGradering = false;
         if (arbeidsforholdList.isEmpty()) {
             return Collections.singletonList(new UttakAktivitet(stillingsgrad, null, utbetalingsgrad,
-                    aktivitetsStatus.equals(AktivitetStatus.ATFL) ? ARBEIDSFORHOLD_1 : null, aktivitetsStatus, erGradering, stillingsgrad));
+                true, aktivitetsStatus.equals(AktivitetStatus.ATFL) ? ARBEIDSFORHOLD_1 : null, aktivitetsStatus, erGradering, stillingsgrad));
         }
         return arbeidsforholdList.stream()
                 .map(arb -> {
                     var arbeidsforhold = aktivitetsStatus.equals(AktivitetStatus.ATFL) ? arb : null;
-                    return new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arbeidsforhold, aktivitetsStatus, erGradering, stillingsgrad);
+                    return new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, true, arbeidsforhold, aktivitetsStatus, erGradering, stillingsgrad);
                 }).toList();
     }
 }
