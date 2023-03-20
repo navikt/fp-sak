@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -33,7 +32,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
     private SøknadRepository søknadRepository;
-    private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
     private RevurderingEndring revurderingEndring;
     private VergeRepository vergeRepository;
@@ -55,7 +53,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
         this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
         this.søknadRepository = grunnlagRepositoryProvider.getSøknadRepository();
-        this.opptjeningIUtlandDokStatusRepository = grunnlagRepositoryProvider.getOpptjeningIUtlandDokStatusRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
         this.vergeRepository = vergeRepository;
@@ -125,8 +122,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
             vergeRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId, nyBehandlingId);
         }
-        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(orginalBehandlingId,
-            nyBehandlingId);
     }
 
     @Override

@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
 
-public record OpptjeningIUtlandDokStatusDto(OpptjeningIUtlandDokStatus dokStatus, UtlandMarkering utlandMarkering) {
+public record OpptjeningIUtlandDokStatusDto(UtlandDokumentasjonStatus dokStatus) {
 
 }

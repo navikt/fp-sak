@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK_KODE)
 public class MerkOpptjeningUtlandDto extends BekreftetAksjonspunktDto {
 
-    private OpptjeningIUtlandDokStatus dokStatus;
+    private UtlandDokumentasjonStatus dokStatus;
 
-    public OpptjeningIUtlandDokStatus getDokStatus() {
+    public UtlandDokumentasjonStatus getDokStatus() {
         return dokStatus;
     }
 }

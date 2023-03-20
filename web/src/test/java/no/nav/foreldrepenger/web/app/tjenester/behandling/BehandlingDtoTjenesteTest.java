@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -71,9 +70,6 @@ class BehandlingDtoTjenesteTest {
     private TilbakekrevingRepository tilbakekrevingRepository;
 
     @Inject
-    private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
-
-    @Inject
     private BehandlingDokumentRepository behandlingDokumentRepository;
 
     @Inject
@@ -92,7 +88,7 @@ class BehandlingDtoTjenesteTest {
     @BeforeEach
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, foreldrepengerUttakTjeneste, null, mock(TotrinnTjeneste.class),
+                behandlingDokumentRepository, foreldrepengerUttakTjeneste, null, mock(TotrinnTjeneste.class),
             dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste);
     }
 

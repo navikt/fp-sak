@@ -82,11 +82,9 @@ public class OpptjeningRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public OpptjeningIUtlandDokStatusDto getDokStatus(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid());
-        if (behandling.isEmpty()) {
-            return null;
-        }
-        return opptjeningIUtlandDokStatusDtoTjeneste.mapFra(behandlingRef(behandling.get())).orElse(null);
+        return behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid())
+            .flatMap(opptjeningIUtlandDokStatusDtoTjeneste::mapFra)
+            .orElse(null);
     }
 
     private OpptjeningDto getOpptjeningFraBehandling(Behandling behandling) {

@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -54,7 +52,6 @@ public class LosBehandlingDtoTjeneste {
     private RisikovurderingTjeneste risikovurderingTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
-    private OpptjeningIUtlandDokStatusRepository utlandDokStatusRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
 
 
@@ -63,13 +60,11 @@ public class LosBehandlingDtoTjeneste {
                                     RisikovurderingTjeneste risikovurderingTjeneste,
                                     InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                     FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
-                                    OpptjeningIUtlandDokStatusRepository utlandDokStatusRepository,
                                     FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
-        this.utlandDokStatusRepository = utlandDokStatusRepository;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
@@ -156,7 +151,7 @@ public class LosBehandlingDtoTjeneste {
     private static LosBehandlingDto.LosAksjonspunktDto mapTilLosAksjonspunkt(Aksjonspunkt aksjonspunkt) {
         return new LosBehandlingDto.LosAksjonspunktDto(aksjonspunkt.getAksjonspunktDefinisjon().getKode(),
             mapAksjonspunktstatus(aksjonspunkt),
-            AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE.equals(aksjonspunkt.getAksjonspunktDefinisjon()) ? aksjonspunkt.getBegrunnelse() : null,
+            null,
             aksjonspunkt.getFristTid());
     }
 
@@ -207,33 +202,31 @@ public class LosBehandlingDtoTjeneste {
 
     private LosFagsakEgenskaperDto mapFagsakEgenskaper(Behandling behandling) {
         var skalInnhente = behandling.harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK) ?
-            fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(behandling.getFagsakId())
-                .or(() -> utlandDokStatusRepository.hent(behandling.getId()).map(OpptjeningIUtlandDokStatusEntitet::getDokStatus).map(s -> UtlandDokumentasjonStatus.valueOf(s.name())))
-                .map(status -> UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET.equals(status) ? Boolean.TRUE : Boolean.FALSE)
-                .orElse(null) : null;
-        var markering = fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId())
-            .or(() -> behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE).map(Aksjonspunkt::getBegrunnelse).map(UtlandMarkering::valueOf))
-            .orElse(null);
-        var mapped = markering == null ? null : switch (markering) {
-            case NASJONAL -> LosFagsakEgenskaperDto.UtlandMarkering.NASJONAL;
-            case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.UtlandMarkering.EØS_BOSATT_NORGE;
-            case BOSATT_UTLAND -> LosFagsakEgenskaperDto.UtlandMarkering.BOSATT_UTLAND;
-        };
-        return new LosFagsakEgenskaperDto(skalInnhente, mapped);
+            getSkalInnhente(behandling.getFagsakId()) : null;
+        var markering = fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).map(this::mapMarkering).orElse(null);
+        return new LosFagsakEgenskaperDto(skalInnhente, markering);
     }
 
     public LosFagsakEgenskaperDto lagFagsakEgenskaper(Fagsak fagsak) {
-        var skalInnhente = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsak.getId())
-            .map(status -> UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET.equals(status) ? Boolean.TRUE : Boolean.FALSE)
-            .orElse(null);
-        var markering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId())
-            .orElse(null);
-        var mapped = markering == null ? null : switch (markering) {
+        var skalInnhente = getSkalInnhente(fagsak.getId());
+        var markering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId()).map(this::mapMarkering).orElse(null);
+        return new LosFagsakEgenskaperDto(skalInnhente, markering);
+    }
+
+    private LosFagsakEgenskaperDto.UtlandMarkering mapMarkering(UtlandMarkering markering) {
+        return  switch (markering) {
             case NASJONAL -> LosFagsakEgenskaperDto.UtlandMarkering.NASJONAL;
             case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.UtlandMarkering.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> LosFagsakEgenskaperDto.UtlandMarkering.BOSATT_UTLAND;
         };
-        return new LosFagsakEgenskaperDto(skalInnhente, mapped);
     }
+
+    private Boolean getSkalInnhente(Long fagsakId) {
+        return fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsakId)
+            .map(UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET::equals)
+            .orElse(null);
+    }
+
+
 
 }

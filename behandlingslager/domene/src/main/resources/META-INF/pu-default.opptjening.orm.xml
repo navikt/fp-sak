@@ -5,12 +5,10 @@
 
     <sequence-generator name="SEQ_OPPTJENING" allocation-size="50" sequence-name="SEQ_OPPTJENING" />
     <sequence-generator name="SEQ_OPPTJENING_AKTIVITET" allocation-size="50" sequence-name="SEQ_OPPTJENING_AKTIVITET" />
-    <sequence-generator name="SEQ_GR_OPPTJ_UTLAND_DOK_VALG" allocation-size="50" sequence-name="SEQ_GR_OPPTJ_UTLAND_DOK_VALG" />
 
     <!-- Opptjening -->
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusEntitet"/>
 
 
 </entity-mappings>

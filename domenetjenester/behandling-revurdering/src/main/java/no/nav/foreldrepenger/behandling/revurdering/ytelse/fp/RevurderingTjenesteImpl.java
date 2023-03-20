@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
@@ -54,7 +53,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private UføretrygdRepository uføretrygdRepository;
     private NesteSakRepository nesteSakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
     private RevurderingEndring revurderingEndring;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -84,7 +82,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.medlemskapRepository = grunnlagProvider.getMedlemskapRepository();
         this.pleiepengerRepository = grunnlagProvider.getPleiepengerRepository();
         this.uføretrygdRepository = grunnlagProvider.getUføretrygdRepository();
-        this.opptjeningIUtlandDokStatusRepository = grunnlagProvider.getOpptjeningIUtlandDokStatusRepository();
         this.nesteSakRepository = grunnlagProvider.getNesteSakRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
@@ -159,7 +156,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         arbeidsforholdValgRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
@@ -185,7 +181,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
         var søknadBuilder = new SøknadEntitet.Builder(originalSøknad, true).medErEndringssøknad(false);
         søknadRepository.lagreOgFlush(ny, søknadBuilder.build());
-        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(originalBehandlingId, nyBehandlingId);

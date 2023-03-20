@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -47,7 +46,6 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManglendeOpplysningerV
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -107,7 +105,6 @@ public class BehandlingDtoTjeneste {
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private FagsakEgenskapRepository fagsakEgenskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SøknadRepository søknadRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
@@ -115,7 +112,6 @@ public class BehandlingDtoTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private String fpoppdragOverrideProxyUrl;
     private TotrinnTjeneste totrinnTjeneste;
@@ -128,15 +124,12 @@ public class BehandlingDtoTjeneste {
     public BehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  BeregningTjeneste beregningTjeneste,
                                  TilbakekrevingRepository tilbakekrevingRepository,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                 OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste,
-                                 BehandlingDokumentRepository behandlingDokumentRepository,
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BehandlingDokumentRepository behandlingDokumentRepository,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  @KonfigVerdi(value = "fpoppdrag.override.proxy.url", required = false) String fpoppdragOverrideProxyUrl,
                                  TotrinnTjeneste totrinnTjeneste,
                                  DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
                                  FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste) {
-
         this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
@@ -148,7 +141,6 @@ public class BehandlingDtoTjeneste {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        this.opptjeningIUtlandDokStatusTjeneste = opptjeningIUtlandDokStatusTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.fpoppdragOverrideProxyUrl = fpoppdragOverrideProxyUrl;
         this.totrinnTjeneste = totrinnTjeneste;
@@ -365,7 +357,7 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.ARBEIDSGIVERE_OPPLYSNINGER_PATH, "arbeidsgivere-oversikt", uuidDto));
         dto.leggTil(get(InntektArbeidYtelseRestTjeneste.ALLE_INNTEKTSMELDINGER_PATH, "inntektsmeldinger", uuidDto));
 
-        if (opptjeningIUtlandDokStatusTjeneste.hentStatus(behandling).isPresent() || opptjeningIUtlandDokStatusTjeneste.harUtlandsMarkering(behandling)) {
+        if (behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK)) {
             dto.leggTil(get(OpptjeningRestTjeneste.UTLAND_DOK_STATUS_PATH, "utland-dok-status", uuidDto));
         }
 

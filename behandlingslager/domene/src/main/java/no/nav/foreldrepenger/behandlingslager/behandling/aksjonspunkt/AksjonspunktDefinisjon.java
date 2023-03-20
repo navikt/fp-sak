@@ -330,8 +330,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_AVKLART_STARTDATO(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO_KODE, AksjonspunktType.MANUELL, "Overstyr avklart startdato for foreldrepengeperioden",
             BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
             TOTRINN, EnumSet.of(ES, FP, SVP)),
-    MANUELL_MARKERING_AV_UTLAND_SAKSTYPE(AksjonspunktKodeDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE_KODE, AksjonspunktType.MANUELL, "Manuell markering av utenlandssak",
-            BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.UTLAND, ENTRINN, EnumSet.of(ES, FP, SVP)),
 
     // Gruppe : 700
 
@@ -385,21 +383,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !
     @Deprecated
-    UTGÅTT_5070("5070", AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder"),
-    @Deprecated
-    UTGÅTT_5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
-    @Deprecated
-    UTGÅTT_6013("6013", AksjonspunktType.OVERSTYRING, "Overstyr søknadsperioder"),
-    @Deprecated
-    UTGÅTT_6070("6070", AksjonspunktType.OVERSTYRING, "Saksbehandler endret søknadsperioder uten aksjonspunkt"),
-    @Deprecated
-    UTGÅTT_5081("5081", AksjonspunktType.MANUELL, "Avklar første uttaksdato"),
-    @Deprecated
-    UTGÅTT_5097("5097", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på ukjent aktivitet"),
-    @Deprecated
-    UTGÅTT_5098("5098", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag"),
-
-    @Deprecated
     UTGÅTT_5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
     @Deprecated
     UTGÅTT_5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
@@ -416,11 +399,15 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
+    UTGÅTT_5070("5070", AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder"),
+    @Deprecated
     UTGÅTT_5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated
     UTGÅTT_5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
     @Deprecated // Erstattet av 5085
     UTGÅTT_5080("5080", AksjonspunktType.MANUELL, "Avklar arbeidsforhold"),
+    @Deprecated
+    UTGÅTT_5081("5081", AksjonspunktType.MANUELL, "Avklar første uttaksdato"),
     @Deprecated
     UTGÅTT_5083("5083", AksjonspunktType.MANUELL, "Vurder formkrav (NK)."),
     @Deprecated
@@ -433,6 +420,18 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5093("5093", AksjonspunktType.MANUELL, "Manuell vurdering av anke"),
     @Deprecated
     UTGÅTT_5094("5094", AksjonspunktType.MANUELL, "Manuell vurdering av anke merknader"),
+    @Deprecated
+    UTGÅTT_5097("5097", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på ukjent aktivitet"),
+    @Deprecated
+    UTGÅTT_5098("5098", AksjonspunktType.MANUELL, "Gradering i søknadsperiode er lagt på aktivitet uten beregningsgrunnlag"),
+    @Deprecated
+    UTGÅTT_5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
+    @Deprecated
+    UTGÅTT_6013("6013", AksjonspunktType.OVERSTYRING, "Overstyr søknadsperioder"),
+    @Deprecated
+    UTGÅTT_6068("6068", AksjonspunktType.MANUELL, "Manuell markering av utenlandssak"),
+    @Deprecated
+    UTGÅTT_6070("6070", AksjonspunktType.OVERSTYRING, "Saksbehandler endret søknadsperioder uten aksjonspunkt"),
     @Deprecated
     UTGÅTT_7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated
