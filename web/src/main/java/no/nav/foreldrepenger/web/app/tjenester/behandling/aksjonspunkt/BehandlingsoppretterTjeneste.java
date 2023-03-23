@@ -63,10 +63,12 @@ public class BehandlingsoppretterTjeneste {
             return false;
         }
         return switch (type) {
-            case ANKE -> behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId,
-                BehandlingType.KLAGE).filter(Behandling::erAvsluttet).isPresent();
-            case KLAGE -> behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId,
-                BehandlingType.FØRSTEGANGSSØKNAD).filter(Behandling::erAvsluttet).isPresent();
+            case ANKE -> behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId).stream()
+                .filter(Behandling::erSaksbehandlingAvsluttet)
+                .anyMatch(b -> BehandlingType.KLAGE.equals(b.getType()));
+            case KLAGE -> behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId).stream()
+                .filter(Behandling::erSaksbehandlingAvsluttet)
+                .anyMatch(b -> BehandlingType.FØRSTEGANGSSØKNAD.equals(b.getType()));
             case INNSYN -> true;
             case REVURDERING -> kanOppretteRevurdering(fagsakId);
             case FØRSTEGANGSSØKNAD -> kanOppretteFørstegangsbehandling(fagsakId);
