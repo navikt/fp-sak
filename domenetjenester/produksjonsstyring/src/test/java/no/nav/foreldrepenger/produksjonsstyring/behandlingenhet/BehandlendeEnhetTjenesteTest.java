@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -42,7 +43,8 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
         enhetsTjeneste = mock(EnhetsTjeneste.class);
         var eventPubliserer = mock(BehandlingEnhetEventPubliserer.class);
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider);
+        var egenskapRepository = new FagsakEgenskapRepository(getEntityManager());
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
     }
 
     @Test
@@ -60,13 +62,13 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
     void finn_mors_enhet_annenpart_kode6() {
         // Oppsett
         when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.empty());
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.empty());
 
         var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
 
         var morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingMor.getFagsak());
 
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
         var nyEnhet = behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandlingMor);
 
         assertThat(morEnhet.enhetId()).isEqualTo(enhetNormal.enhetId());
@@ -77,19 +79,19 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
     void finn_enhet_etter_kobling_far_relasjon_kode6() {
         // Oppsett
         when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.empty());
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(),any())).thenReturn(Optional.empty());
 
         var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate.now(),1,  FAR_AKTØR_ID);
+        behandlingMor.setBehandlendeEnhet(enhetNormal);
         var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, MOR_AKTØR_ID);
         behandlingFar.setBehandlendeEnhet(enhetKode6);
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
 
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
-        when(enhetsTjeneste.enhetsPresedens(any(), any())).thenReturn(enhetKode6);
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
 
-        var oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor, repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandlingMor.getFagsak()));
+        var oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor);
 
         assertThat(oppdatertEnhet).isPresent();
         assertThat(oppdatertEnhet).hasValueSatisfying(it -> assertThat(it.enhetId()).isEqualTo(enhetKode6.enhetId()));

@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -54,6 +55,8 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ExtendWith(MockitoExtension.class)
 class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
 
+    private static final OrganisasjonsEnhet ENHET = new OrganisasjonsEnhet("4833", "NFP");
+
     private static final LocalDate FØDSELS_DATO_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(2));
     private static final LocalDate SISTE_DAG_MOR = FØDSELS_DATO_1.plusWeeks(6);
 
@@ -84,7 +87,9 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
     @BeforeEach
     public void setUp() {
         var entityManager = getEntityManager();
-        lenient().when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);

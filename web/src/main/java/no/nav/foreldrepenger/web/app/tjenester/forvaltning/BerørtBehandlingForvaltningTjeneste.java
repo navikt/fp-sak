@@ -41,9 +41,8 @@ public class BerørtBehandlingForvaltningTjeneste {
         }
 
         var behandlingÅrsakType = BehandlingÅrsakType.BERØRT_BEHANDLING;
-        var behandlendeEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         var nyBehandling = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, behandlingÅrsakType,
-            behandlendeEnhet);
+            behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
         berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(nyBehandling, behandlingÅrsakType);
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(nyBehandling);
     }

@@ -49,8 +49,6 @@ public class SendInformasjonsbrevPåminnelseBatchTjeneste implements BatchTjenes
             data.setCallIdFraEksisterende();
             data.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 419)));
             data.setPrioritet(100);
-            data.setProperty(SendInformasjonsbrevPåminnelseTask.BEH_ENHET_ID_KEY, sak.getEnhet());
-            data.setProperty(SendInformasjonsbrevPåminnelseTask.BEH_ENHET_NAVN_KEY, sak.getEnhetNavn());
             data.setProperty(SendInformasjonsbrevPåminnelseTask.FAGSAK_ID_KEY, sak.getKildeFagsakId().toString());
             taskTjeneste.lagre(data);
         });

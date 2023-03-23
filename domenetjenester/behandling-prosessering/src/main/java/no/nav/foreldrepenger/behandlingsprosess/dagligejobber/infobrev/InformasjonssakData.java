@@ -10,7 +10,6 @@ public class InformasjonssakData {
     private LocalDate kildesakOpprettetDato;
     private LocalDate familieHndelseDato;
     private String enhet;
-    private String enhetNavn;
 
     InformasjonssakData(Long sak) {
         this.kildeFagsakId = sak;
@@ -34,10 +33,6 @@ public class InformasjonssakData {
 
     public String getEnhet() {
         return enhet;
-    }
-
-    public String getEnhetNavn() {
-        return enhetNavn;
     }
 
     public static class InformasjonssakDataBuilder {
@@ -68,11 +63,6 @@ public class InformasjonssakData {
 
         public InformasjonssakDataBuilder medEnhet(String enhet) {
             this.data.enhet = enhet;
-            return this;
-        }
-
-        public InformasjonssakDataBuilder medEnhetNavn(String enhetNavn) {
-            this.data.enhetNavn = enhetNavn;
             return this;
         }
 

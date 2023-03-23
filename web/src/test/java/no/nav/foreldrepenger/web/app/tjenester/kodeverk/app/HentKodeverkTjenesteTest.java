@@ -4,13 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-
 class HentKodeverkTjenesteTest {
 
     @Test
     void skal_filtere_arbeidtyper() {
-        var tjeneste = new HentKodeverkTjeneste(new BehandlendeEnhetTjeneste());
+        var tjeneste = new HentKodeverkTjeneste();
 
         var resultat = tjeneste.hentGruppertKodeliste();
         var arbeidType = resultat.get("ArbeidType");

@@ -59,6 +59,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @ExtendWith(MockitoExtension.class)
 class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
 
+    private static final OrganisasjonsEnhet ENHET = new OrganisasjonsEnhet("4833", "NFP");
+
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
@@ -96,8 +98,9 @@ class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
             new FagsakLåsRepository(entityManager));
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
-        var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
+        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
+        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
+        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste,
             enhetsTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter,

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
@@ -37,7 +39,7 @@ class OpprettOppgaveVurderKonsekvensTaskTest {
 
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(låsRepository);
         when(låsRepository.taLås(anyLong())).thenReturn(mock(FagsakLås.class));
-        when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(new OrganisasjonsEnhet("1234", "NFP"));
 
         opprettOppgaveVurderKonsekvensTask = new OpprettOppgaveVurderKonsekvensTask(oppgaveTjeneste, behandlendeEnhetTjeneste);
     }

@@ -43,7 +43,6 @@ public class InformasjonssakRepository {
     private static final int POS_AKTORID = 2;
     private static final int POS_FHDATO = 3;
     private static final int POS_ENHETID = 4;
-    private static final int POS_ENHETNAVN = 5;
 
     private EntityManager entityManager;
 
@@ -61,7 +60,7 @@ public class InformasjonssakRepository {
      * maksdato +andre kriterier
      */
     private static final String QUERY_INFORMASJONSBREV_VANLIG = """
-        select distinct fs.id, trunc(fs.opprettet_tid), anpa.aktoer_id, minfdato, beh.behandlende_enhet, beh.behandlende_enhet_navn from fagsak fs
+        select distinct fs.id, trunc(fs.opprettet_tid), anpa.aktoer_id, minfdato, beh.behandlende_enhet from fagsak fs
           join fagsak_relasjon fr on (fs.id in (fr.fagsak_en_id , fr.fagsak_to_id) and fr.aktiv='J' and fr.fagsak_to_id is null)
           join STOENADSKONTO sk on sk.STOENADSKONTOBEREGNING_ID = nvl(fr.OVERSTYRT_KONTO_BEREGNING_ID, fr.KONTO_BEREGNING_ID)
           join behandling beh on beh.fagsak_id = fs.id
@@ -131,8 +130,7 @@ public class InformasjonssakRepository {
                     .medAktørIdAnnenPart((String) resultat[POS_AKTORID])
                     .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate())
                     .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate())
-                    .medEnhet((String) resultat[POS_ENHETID])
-                    .medEnhetNavn((String) resultat[POS_ENHETNAVN]);
+                    .medEnhet((String) resultat[POS_ENHETID]);
             returnList.add(builder.build());
         });
         return returnList;
@@ -143,7 +141,7 @@ public class InformasjonssakRepository {
      * og ingen av foreldrene har foreldrepengesak på et senere barn.
      */
     private static final String QUERY_INFORMASJONSBREV_PÅMINNELSE = """
-        select distinct f_far.id as fagsak_id, a.aktoer_id, b_far.behandlende_enhet, b_far.behandlende_enhet_navn
+        select distinct f_far.id as fagsak_id, a.aktoer_id, b_far.behandlende_enhet
           from fagsak f_far
           join bruker a on a.id = f_far.bruker_id
           join fagsak_relasjon fr_far on (f_far.id in (fr_far.fagsak_en_id, fr_far.fagsak_to_id) and fr_far.aktiv='J')
@@ -205,8 +203,7 @@ public class InformasjonssakRepository {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
                 .ny(((BigDecimal) resultat[0]).longValue())
                 .medAktørIdAnnenPart((String) resultat[1])
-                .medEnhet((String) resultat[2])
-                .medEnhetNavn((String) resultat[3]);
+                .medEnhet((String) resultat[2]);
             returnList.add(builder.build());
         });
         return returnList;

@@ -1,9 +1,8 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Temagrupper;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
@@ -40,19 +40,45 @@ public class EnhetsTjeneste {
     private static final String EA_ENHET_ID = "4883"; // Egne ansatte mfl
     private static final String SF_ENHET_ID = "2103"; // Adressesperre
     private static final String UT_ENHET_ID = "4806"; // Utlandsenhet
+    private static final String NY_ENHET_ID = "4867"; // Nasjonal enhet
     private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID); // Ta med UT_ENHET_ID ved nasjonal kø
 
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
     private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
     private static final OrganisasjonsEnhet UTLAND_ENHET =  new OrganisasjonsEnhet(UT_ENHET_ID, "NAV Familie- og pensjonsytelser Drammen");
     private static final OrganisasjonsEnhet KODE6_ENHET = new OrganisasjonsEnhet(SF_ENHET_ID, "NAV Vikafossen");
+    private static final OrganisasjonsEnhet NASJONAL_ENHET = new OrganisasjonsEnhet(NY_ENHET_ID, "NAV Familie- og pensjonsytelser Foreldrepenger");
+
+    private static final OrganisasjonsEnhet DRAMMEN =  new OrganisasjonsEnhet("4806", "NAV Familie- og pensjonsytelser Drammen");
+    private static final OrganisasjonsEnhet BERGEN =  new OrganisasjonsEnhet("4812", "NAV Familie- og pensjonsytelser Bergen");
+    private static final OrganisasjonsEnhet STEINKJER =  new OrganisasjonsEnhet("4817", "NAV Familie- og pensjonsytelser Steinkjer");
+    private static final OrganisasjonsEnhet OSLO =  new OrganisasjonsEnhet("4833", "NAV Familie- og pensjonsytelser Oslo 1");
+    private static final OrganisasjonsEnhet STORD =  new OrganisasjonsEnhet("4842", "NAV Familie- og pensjonsytelser Stord");
+    private static final OrganisasjonsEnhet TROMSØ =  new OrganisasjonsEnhet("4849", "NAV Familie- og pensjonsytelser Tromsø");
+
+    // Oppdateres etterhvert som flytteprosessen foregår
+    private static final Map<String, OrganisasjonsEnhet> FLYTTE_MAP = Map.ofEntries(
+        Map.entry(KLAGE_ENHET.enhetId(), KLAGE_ENHET),
+        Map.entry(SKJERMET_ENHET.enhetId(), SKJERMET_ENHET),
+        Map.entry(KODE6_ENHET.enhetId(), KODE6_ENHET),
+        Map.entry(DRAMMEN.enhetId(), DRAMMEN),
+        Map.entry(BERGEN.enhetId(), BERGEN),
+        Map.entry(STEINKJER.enhetId(), STEINKJER),
+        Map.entry(OSLO.enhetId(), OSLO),
+        Map.entry(STORD.enhetId(), STORD),
+        Map.entry(TROMSØ.enhetId(), TROMSØ),
+        Map.entry("4802", OSLO),
+        Map.entry("4847", STEINKJER),
+        Map.entry("4205", KLAGE_ENHET)
+    );
+
+    private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(DRAMMEN, BERGEN, STEINKJER ,OSLO, STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
+
+    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET);
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
     private SkjermetPersonKlient skjermetPersonKlient;
-
-    private LocalDate sisteInnhenting = LocalDate.MIN;
-    private List<OrganisasjonsEnhet> alleBehandlendeEnheter = new ArrayList<>();
 
     public EnhetsTjeneste() {
         // For CDI proxy
@@ -67,14 +93,28 @@ public class EnhetsTjeneste {
         this.skjermetPersonKlient = skjermetPersonKlient;
     }
 
+    static OrganisasjonsEnhet velgEnhet(OrganisasjonsEnhet enhet, UtlandMarkering markering) {
+        return enhet != null ? velgEnhet(enhet.enhetId(), markering) : null;
+    }
 
-    List<OrganisasjonsEnhet> hentEnhetListe() {
-        oppdaterEnhetCache();
-        return alleBehandlendeEnheter;
+    static OrganisasjonsEnhet velgEnhet(String enhetId, UtlandMarkering markering) {
+        if (enhetId == null) {
+            return null;
+        }
+        if (SPESIALENHETER.contains(enhetId)) {
+            return FLYTTE_MAP.get(enhetId);
+        }
+        if (UtlandMarkering.BOSATT_UTLAND.equals(markering)) {
+            return UTLAND_ENHET;
+        }
+        return FLYTTE_MAP.get(enhetId);
+    }
+
+    static List<OrganisasjonsEnhet> hentEnhetListe() {
+        return ALLEBEHANDLENDEENHETER.stream().filter(e -> !IKKE_MENY.contains(e)).toList();
     }
 
     OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, BehandlingTema behandlingTema) {
-        oppdaterEnhetCache();
         if (harNoenDiskresjonskode6(Set.of(aktørId))) {
             return KODE6_ENHET;
         } else if (erNoenSkjermetPerson(Set.of(aktørId))) {
@@ -85,12 +125,12 @@ public class EnhetsTjeneste {
                 return UTLAND_ENHET;
             }
             var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
-            return enheter.isEmpty() ? tilfeldigEnhet() : enheter.get(0);
+            return enheter.isEmpty() ? tilfeldigEnhet() : velgEnhet(enheter.get(0), null); // TODO nasjonal kø
         }
     }
 
-    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, BehandlingTema behandlingTema, AktørId hovedAktør, Set<AktørId> alleAktører) {
-        oppdaterEnhetCache();
+    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, BehandlingTema behandlingTema, AktørId hovedAktør,
+                                                                    Set<AktørId> alleAktører, UtlandMarkering saksmarkering) {
         if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
         }
@@ -101,10 +141,13 @@ public class EnhetsTjeneste {
             LOG.info("FPSAK enhettjeneste skjermet person funnet");
             return Optional.of(SKJERMET_ENHET);
         }
-        if (finnOrganisasjonsEnhet(enhetId).isEmpty()) {
+        if (UtlandMarkering.BOSATT_UTLAND.equals(saksmarkering)) {
+            return  !UTLAND_ENHET.enhetId().equals(enhetId) ? Optional.of(UTLAND_ENHET) : Optional.empty();
+        }
+        if (FLYTTE_MAP.get(enhetId) == null) {
             return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, behandlingTema));
         }
-        return Optional.empty();
+        return Optional.of(FLYTTE_MAP.get(enhetId)).filter(ny -> !ny.enhetId().equals(enhetId));
     }
 
     private boolean harNoenDiskresjonskode6(Set<AktørId> aktører) {
@@ -120,41 +163,20 @@ public class EnhetsTjeneste {
             .anyMatch(p -> skjermetPersonKlient.erSkjermet(p.getIdent()));
     }
 
-    private void oppdaterEnhetCache() {
-        if (sisteInnhenting.isBefore(LocalDate.now())) {
-            alleBehandlendeEnheter.clear();
-            alleBehandlendeEnheter.addAll(hentEnheterFor(null, BehandlingTema.FORELDREPENGER));
-            alleBehandlendeEnheter.add(SKJERMET_ENHET);
-            alleBehandlendeEnheter.add(KLAGE_ENHET);
-            alleBehandlendeEnheter.add(KODE6_ENHET);
-            sisteInnhenting = LocalDate.now();
-        }
-    }
-
-    private OrganisasjonsEnhet tilfeldigEnhet() {
-        oppdaterEnhetCache();
-        var kanvelges = alleBehandlendeEnheter.stream().filter(e -> !SPESIALENHETER.contains(e.enhetId())).toList();
+    private static OrganisasjonsEnhet tilfeldigEnhet() {
+        var kanvelges = ALLEBEHANDLENDEENHETER.stream().filter(e -> !SPESIALENHETER.contains(e.enhetId())).toList();
         if (kanvelges.isEmpty()) {
             throw new IllegalStateException("Ingen enheter å velge mellom");
         }
-        return kanvelges.get(LocalDateTime.now().getNano() % kanvelges.size());
+        return FLYTTE_MAP.get(kanvelges.get(LocalDateTime.now().getNano() % kanvelges.size()).enhetId()); // TODO NASJONAL KØ
     }
 
-    Optional<OrganisasjonsEnhet> finnOrganisasjonsEnhet(String enhetId) {
-        oppdaterEnhetCache();
-        return alleBehandlendeEnheter.stream().filter(e -> enhetId.equals(e.enhetId())).findFirst();
-    }
-
-    OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {
-        oppdaterEnhetCache();
+    static OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {
         if (KODE6_ENHET.enhetId().equals(enhetSak1.enhetId()) || KODE6_ENHET.enhetId().equals(enhetSak2.enhetId())) {
             return KODE6_ENHET;
         }
         if (SKJERMET_ENHET.enhetId().equals(enhetSak1.enhetId()) || SKJERMET_ENHET.enhetId().equals(enhetSak2.enhetId())) {
             return SKJERMET_ENHET;
-        }
-        if (UTLAND_ENHET.enhetId().equals(enhetSak1.enhetId()) || UTLAND_ENHET.enhetId().equals(enhetSak2.enhetId())) {
-            return UTLAND_ENHET;
         }
         return enhetSak1;
     }
@@ -179,11 +201,7 @@ public class EnhetsTjeneste {
             .medDiskresjonskode(null)
             .medGeografiskOmraade(geografi)
             .build();
-        if (geografi == null) {
-            restenhet = norgRest.hentAlleAktiveEnheter(request);
-        } else {
-            restenhet = norgRest.finnEnhet(request);
-        }
+        restenhet = norgRest.finnEnhet(request);
         return restenhet.stream()
             .filter(r -> !SPESIALENHETER.contains(r.enhetNr()))
             .map(r -> new OrganisasjonsEnhet(r.enhetNr(), r.enhetNavn()))

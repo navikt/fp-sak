@@ -80,8 +80,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         var undersøkeEØS = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && harOppgittUtland(kontekst);
 
         var utland = registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, undersøkeEØS);
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && UtlandMarkering.BOSATT_UTLAND.equals(utland) &&
-            !BehandlendeEnhetTjeneste.erUtlandsEnhet(behandling)) {
+        if (UtlandMarkering.BOSATT_UTLAND.equals(utland) && !BehandlendeEnhetTjeneste.erUtlandsEnhet(behandling)) {
             behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetUtland(behandling, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysninger");
         }
 
@@ -132,7 +131,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
             // Ingen kobling foretatt
             return;
         }
-        behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling.get())
+        behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling)
                 .ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
                         .oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
     }

@@ -1,0 +1,4 @@
+drop index IDX_GR_OPPTJ_UTLAND_DOK_VALG_1;
+alter table GR_OPPTJ_UTLAND_DOK_VALG drop constraint PK_GR_OPPTJ_UTLAND_DOK_VALG;
+drop table GR_OPPTJ_UTLAND_DOK_VALG;
+drop sequence SEQ_GR_OPPTJ_UTLAND_DOK_VALG;

@@ -26,9 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
@@ -43,6 +45,7 @@ public class BehandlendeEnhetTjeneste {
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
     private HistorikkRepository historikkRepository;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     public BehandlendeEnhetTjeneste() {
         // For CDI
@@ -51,7 +54,8 @@ public class BehandlendeEnhetTjeneste {
     @Inject
     public BehandlendeEnhetTjeneste(EnhetsTjeneste enhetsTjeneste,
                                     BehandlingEnhetEventPubliserer eventPubliserer,
-                                    BehandlingRepositoryProvider provider) {
+                                    BehandlingRepositoryProvider provider,
+                                    FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.enhetsTjeneste = enhetsTjeneste;
         this.eventPubliserer = eventPubliserer;
         this.personopplysningRepository = provider.getPersonopplysningRepository();
@@ -59,11 +63,12 @@ public class BehandlendeEnhetTjeneste {
         this.fagsakRepository = provider.getFagsakRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
         this.historikkRepository = provider.getHistorikkRepository();
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     // Alle aktuelle enheter
-    public List<OrganisasjonsEnhet> hentEnhetListe() {
-        return enhetsTjeneste.hentEnhetListe();
+    public static List<OrganisasjonsEnhet> hentEnhetListe() {
+        return EnhetsTjeneste.hentEnhetListe();
     }
 
     // Brukes ved opprettelse av alle typer behandlinger og oppgaver
@@ -72,27 +77,31 @@ public class BehandlendeEnhetTjeneste {
         return sjekkMotKobletSak(fagsak, enhet);
     }
 
-    public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, OrganisasjonsEnhet sisteBrukt) {
-        if (gyldigEnhetNfpNk(sisteBrukt.enhetId())) return sisteBrukt;
-        return enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null));
+    public OrganisasjonsEnhet finnBehandlendeEnhetFor(Long fagsakId, String enhetId) {
+        return Optional.ofNullable(enhetId).map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsakId)))
+            .orElseGet(() -> finnBehandlendeEnhetFor(fagsakRepository.finnEksaktFagsak(fagsakId)));
     }
 
-    public OrganisasjonsEnhet finnBehandlendeEnhetForFagsakId(Long fagsakId) {
-        return finnEnhetFor(fagsakRepository.finnEksaktFagsak(fagsakId));
+    public OrganisasjonsEnhet finnBehandlendeEnhetFra(Behandling behandling) {
+        return Optional.ofNullable(EnhetsTjeneste.velgEnhet(behandling.getBehandlendeEnhet(), finnSaksmerking(behandling.getFagsakId())))
+            .orElseGet(() -> finnBehandlendeEnhetFor(behandling.getFagsak()));
     }
 
-    public OrganisasjonsEnhet finnBehandlendeEnhetForAktørId(AktørId aktørId) {
-        return enhetsTjeneste.hentEnhetSjekkKunAktør(aktørId, BehandlingTema.FORELDREPENGER);
+    public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, String sisteBrukt) {
+        return Optional.ofNullable(sisteBrukt).map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsak.getId())))
+            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null)));
     }
 
     private OrganisasjonsEnhet finnEnhetFor(Fagsak fagsak) {
-        var forrigeEnhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .filter(b -> gyldigEnhetNfpNk(b.getBehandlendeEnhet()))
-            .map(Behandling::getBehandlendeOrganisasjonsEnhet);
-        return forrigeEnhet.orElse(enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null)));
+        var merking = finnSaksmerking(fagsak);
+        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .map(Behandling::getBehandlendeOrganisasjonsEnhet)
+            .map(e -> EnhetsTjeneste.velgEnhet(e.enhetId(), merking))
+            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null)));
+        return EnhetsTjeneste.velgEnhet(enhet, merking);
     }
 
-    // Brukes for å sjekke om det er behov for å flytte eller endre til spesialenheter når saken tas av vent.
+    // Brukes for å sjekke om det er behov for å flytte eller endre til spesialenheter etter innhenting av oppdaterte registerdata
     public Optional<OrganisasjonsEnhet> sjekkEnhetEtterEndring(Behandling behandling) {
         var enhet = behandling.getBehandlendeOrganisasjonsEnhet();
         if (enhet.equals(EnhetsTjeneste.getEnhetKlage())) {
@@ -101,6 +110,14 @@ public class BehandlendeEnhetTjeneste {
         var oppdatertEnhet = getOrganisasjonsEnhetEtterEndring(behandling, enhet).orElse(enhet);
         var enhetFraKobling = sjekkMotKobletSak(behandling.getFagsak(), oppdatertEnhet);
         return enhet.equals(enhetFraKobling) ? Optional.empty() : Optional.of(enhetFraKobling);
+    }
+
+    private UtlandMarkering finnSaksmerking(Fagsak fagsak) {
+        return finnSaksmerking(fagsak.getId());
+    }
+
+    private UtlandMarkering finnSaksmerking(Long fagsakId) {
+        return fagsakEgenskapRepository.finnUtlandMarkering(fagsakId).orElse(null);
     }
 
     private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Behandling behandling, OrganisasjonsEnhet enhet) {
@@ -122,7 +139,7 @@ public class BehandlendeEnhetTjeneste {
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
         return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(),
-            BehandlingTema.fraFagsak(fagsak, null), hovedPerson, allePersoner);
+            BehandlingTema.fraFagsak(fagsak, null), hovedPerson, allePersoner, finnSaksmerking(fagsak));
     }
 
 
@@ -139,30 +156,26 @@ public class BehandlendeEnhetTjeneste {
     }
 
     // Sjekk om enhet skal endres etter kobling av fagsak. Andre fagsak vil arve enhet fra første i relasjon, med mindre det er diskresjonskoder. empty() betyr ingen endring
-    public Optional<OrganisasjonsEnhet> endretBehandlendeEnhetEtterFagsakKobling(Behandling behandling, FagsakRelasjon kobling) {
+    public Optional<OrganisasjonsEnhet> endretBehandlendeEnhetEtterFagsakKobling(Behandling behandling) {
 
-        var eksisterendeEnhet = behandling.getBehandlendeOrganisasjonsEnhet();
+        var eksisterendeEnhet = EnhetsTjeneste.velgEnhet(behandling.getBehandlendeOrganisasjonsEnhet(), finnSaksmerking(behandling.getFagsak()));
         var nyEnhet = sjekkMotKobletSak(behandling.getFagsak(), eksisterendeEnhet);
 
         return eksisterendeEnhet.equals(nyEnhet) ? Optional.empty() : Optional.of(nyEnhet);
     }
 
     private OrganisasjonsEnhet sjekkMotKobletSak(Fagsak sak, OrganisasjonsEnhet enhet) {
+        var merking = finnSaksmerking(sak);
+        var flyttet = EnhetsTjeneste.velgEnhet(enhet, merking);
         var relasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(sak).orElse(null);
         if (relasjon == null || relasjon.getFagsakNrTo().isEmpty()) {
-            return enhet;
+            return flyttet;
         }
         var relatertSak = relasjon.getRelatertFagsak(sak).get();  // NOSONAR sjekket over
         var relatertEnhet = finnEnhetFor(relatertSak);
-        if (sak.getOpprettetTidspunkt().isBefore(relatertSak.getOpprettetTidspunkt())) {
-            return enhetsTjeneste.enhetsPresedens(enhet, relatertEnhet);
-        }
-        return enhetsTjeneste.enhetsPresedens(relatertEnhet, enhet);
-    }
-
-    // Sjekk om angitt journalførende enhet er gyldig for enkelte oppgaver
-    public boolean gyldigEnhetNfpNk(String enhetId) {
-        return enhetsTjeneste.finnOrganisasjonsEnhet(enhetId).isPresent();
+        var preferert = (sak.getOpprettetTidspunkt().isBefore(relatertSak.getOpprettetTidspunkt())) ?  EnhetsTjeneste.enhetsPresedens(flyttet, relatertEnhet) :
+            EnhetsTjeneste.enhetsPresedens(relatertEnhet, flyttet);
+        return EnhetsTjeneste.velgEnhet(preferert, merking);
     }
 
     // Brukes for å sjekke om behandling skal flyttes etter endringer i NORG2-oppsett

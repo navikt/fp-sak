@@ -16,12 +16,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.InitLinksDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -34,16 +34,14 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class InitielleLinksRestTjeneste {
 
     private TilgangerTjeneste tilgangerTjeneste;
-    private HentKodeverkTjeneste kodeverkTjeneste;
 
     InitielleLinksRestTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public InitielleLinksRestTjeneste(TilgangerTjeneste tilgangerTjeneste, HentKodeverkTjeneste kodeverkTjeneste) {
+    public InitielleLinksRestTjeneste(TilgangerTjeneste tilgangerTjeneste) {
         this.tilgangerTjeneste = tilgangerTjeneste;
-        this.kodeverkTjeneste = kodeverkTjeneste;
     }
 
 
@@ -59,7 +57,7 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_FULL_PATH, "fagsak-full"));
         saklenker.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste"));
         saklenker.add(post(FagsakRestTjeneste.ENDRE_UTLAND_PATH, "endre-utland-markering"));
-        return new InitLinksDto(tilgangerTjeneste.innloggetBruker(), kodeverkTjeneste.hentBehandlendeEnheter(), lenkene, saklenker);
+        return new InitLinksDto(tilgangerTjeneste.innloggetBruker(), BehandlendeEnhetTjeneste.hentEnhetListe(), lenkene, saklenker);
     }
 
 }
