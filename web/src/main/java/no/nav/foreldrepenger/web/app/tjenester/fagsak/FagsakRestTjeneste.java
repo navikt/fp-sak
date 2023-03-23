@@ -239,7 +239,6 @@ public class FagsakRestTjeneste {
     private void opprettUtlandProsessTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetUtlandTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setProperty(OppdaterBehandlendeEnhetUtlandTask.BESTILLER_KEY, HistorikkAktør.SAKSBEHANDLER.name());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }
@@ -247,7 +246,6 @@ public class FagsakRestTjeneste {
     private void opprettKontrollProsessTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetKontrollTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setProperty(OppdaterBehandlendeEnhetUtlandTask.BESTILLER_KEY, HistorikkAktør.SAKSBEHANDLER.name());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
     }

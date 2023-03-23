@@ -301,11 +301,4 @@ public class InformasjonssakRepository {
         return resultatList.stream().map(BigDecimal::longValue).toList();
     }
 
-    public void slettApForUtlandsmerking() {
-        var query =  entityManager.createNativeQuery("""
-           delete from FAGSAK_EGENSKAP where egenskap_key = 'UTLAND_MARKERING'
-        """);
-        query.executeUpdate();
-    }
-
 }
