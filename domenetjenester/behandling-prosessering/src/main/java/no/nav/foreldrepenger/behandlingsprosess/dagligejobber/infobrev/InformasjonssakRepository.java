@@ -292,15 +292,9 @@ public class InformasjonssakRepository {
 
 
 
-    public List<Long> finnEØSBehandlingerMedÅpentAksjonspunkt() {
+    public List<Long> finnSakerMedUtlandMarkering() {
         var query =  entityManager.createNativeQuery("""
-           select b.id from behandling b where behandling_status<>'AVSLU'
-           and b.fagsak_id in (select fagsak_id from FAGSAK_EGENSKAP where egenskap_value = 'EØS_BOSATT_NORGE' or egenskap_key = 'UTLAND_DOKUMENTASJON')
-           and exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'OPPR' and aksjonspunkt_def < '7000')
-           union
-           select b.id from behandling b where behandling_status<>'AVSLU'
-           and b.id in (select behandling_id from aksjonspunkt where aksjonspunkt_def = '5068' and aksjonspunkt_status <>'AVBR')
-           and exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'OPPR' and aksjonspunkt_def < '7000')
+           select distinct fagsak_id from FAGSAK_EGENSKAP where egenskap_key = 'UTLAND_MARKERING' and egenskap_value is not null
         """);
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
@@ -309,7 +303,7 @@ public class InformasjonssakRepository {
 
     public void slettApForUtlandsmerking() {
         var query =  entityManager.createNativeQuery("""
-           delete from aksjonspunkt where aksjonspunkt_def = '6068' and behandling_id in (select b.id from behandling b where behandling_status<>'AVSLU')
+           delete from FAGSAK_EGENSKAP where egenskap_key = 'UTLAND_MARKERING'
         """);
         query.executeUpdate();
     }

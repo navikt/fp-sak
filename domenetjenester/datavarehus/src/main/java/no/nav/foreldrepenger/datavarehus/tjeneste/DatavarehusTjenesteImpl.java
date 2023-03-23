@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -163,7 +163,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             skjæringstidspunkt(behandling, fh.get()) : Optional.empty();
         var mottattTidspunkt = finnMottattTidspunkt(behandling);
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        var utlandMarkering = fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).orElse(UtlandMarkering.NASJONAL);
+        var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
         var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null),
             mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat, uttak, skjæringstidspunkt, utlandMarkering);
         datavarehusRepository.lagre(behandlingDvh);

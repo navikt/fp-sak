@@ -21,13 +21,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
 import no.nav.vedtak.hendelser.behandling.Aksjonspunktstatus;
@@ -89,7 +87,7 @@ public class LosBehandlingDtoTjeneste {
             mapBehandlingsårsaker(behandling).stream().toList(),
             harInnhentetRegisterData && mapFaresignaler(behandling),
             harRefusjonskrav(behandling),
-            mapFagsakEgenskaper(behandling),
+            lagFagsakEgenskaper(behandling.getFagsak()),
             mapForeldrepengerUttak(behandling),
             null);
     }
@@ -150,9 +148,7 @@ public class LosBehandlingDtoTjeneste {
 
     private static LosBehandlingDto.LosAksjonspunktDto mapTilLosAksjonspunkt(Aksjonspunkt aksjonspunkt) {
         return new LosBehandlingDto.LosAksjonspunktDto(aksjonspunkt.getAksjonspunktDefinisjon().getKode(),
-            mapAksjonspunktstatus(aksjonspunkt),
-            null,
-            aksjonspunkt.getFristTid());
+            mapAksjonspunktstatus(aksjonspunkt), aksjonspunkt.getFristTid());
     }
 
     private static Aksjonspunktstatus mapAksjonspunktstatus(Aksjonspunkt aksjonspunkt) {
@@ -176,11 +172,10 @@ public class LosBehandlingDtoTjeneste {
         }
         var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling).orElse(null);
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()).orElseThrow();
-        var skalAvklareAnnenForelderRettEØS = UttakOmsorgUtil.oppgittAnnenForelderTilknytningEØS(aggregat);
         var vurderSykdom = aggregat.getGjeldendeFordeling().getPerioder().stream()
             .anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
         var gradering = aggregat.getGjeldendeFordeling().getPerioder().stream().anyMatch(OppgittPeriodeEntitet::isGradert);
-        return new LosBehandlingDto.LosForeldrepengerDto(førsteUttaksdato, skalAvklareAnnenForelderRettEØS, vurderSykdom, gradering);
+        return new LosBehandlingDto.LosForeldrepengerDto(førsteUttaksdato, vurderSykdom, gradering);
     }
 
     private static boolean periodeGjelderSykdom(OppgittPeriodeEntitet periode) {
@@ -200,33 +195,19 @@ public class LosBehandlingDtoTjeneste {
             .anyMatch(beløp -> beløp.compareTo(Beløp.ZERO) > 0);
     }
 
-    private LosFagsakEgenskaperDto mapFagsakEgenskaper(Behandling behandling) {
-        var skalInnhente = behandling.harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK) ?
-            getSkalInnhente(behandling.getFagsakId()) : null;
-        var markering = fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).map(this::mapMarkering).orElse(null);
-        return new LosFagsakEgenskaperDto(skalInnhente, markering);
-    }
-
     public LosFagsakEgenskaperDto lagFagsakEgenskaper(Fagsak fagsak) {
-        var skalInnhente = getSkalInnhente(fagsak.getId());
-        var markering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId()).map(this::mapMarkering).orElse(null);
-        return new LosFagsakEgenskaperDto(skalInnhente, markering);
+        var markering = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).map(this::mapMarkering).orElse(null);
+        return new LosFagsakEgenskaperDto(markering);
     }
 
-    private LosFagsakEgenskaperDto.UtlandMarkering mapMarkering(UtlandMarkering markering) {
+    private LosFagsakEgenskaperDto.FagsakMarkering mapMarkering(FagsakMarkering markering) {
         return  switch (markering) {
-            case NASJONAL -> LosFagsakEgenskaperDto.UtlandMarkering.NASJONAL;
-            case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.UtlandMarkering.EØS_BOSATT_NORGE;
-            case BOSATT_UTLAND -> LosFagsakEgenskaperDto.UtlandMarkering.BOSATT_UTLAND;
+            case NASJONAL -> LosFagsakEgenskaperDto.FagsakMarkering.NASJONAL;
+            case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.FagsakMarkering.EØS_BOSATT_NORGE;
+            case BOSATT_UTLAND -> LosFagsakEgenskaperDto.FagsakMarkering.BOSATT_UTLAND;
+            case SAMMENSATT_KONTROLL -> LosFagsakEgenskaperDto.FagsakMarkering.SAMMENSATT_KONTROLL;
         };
     }
-
-    private Boolean getSkalInnhente(Long fagsakId) {
-        return fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsakId)
-            .map(UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET::equals)
-            .orElse(null);
-    }
-
 
 
 }

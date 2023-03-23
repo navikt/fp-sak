@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 
@@ -42,7 +42,7 @@ public class BehandlingDvhMapper {
                                     Optional<AnkeResultatEntitet> ankeResultat,
                                     Optional<ForeldrepengerUttak> uttak,
                                     Optional<LocalDate> skjæringstidspunkt,
-                                    UtlandMarkering utlandMarkering) {
+                                    FagsakMarkering fagsakMarkering) {
 
         return BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
@@ -57,7 +57,7 @@ public class BehandlingDvhMapper {
             .fagsakId(behandling.getFagsakId())
             .funksjonellTid(LocalDateTime.now())
             .opprettetDato(behandling.getOpprettetDato().toLocalDate())
-            .utlandstilsnitt(utlandMarkering.name())
+            .utlandstilsnitt(FagsakMarkering.SAMMENSATT_KONTROLL.equals(fagsakMarkering) ? FagsakMarkering.NASJONAL.name() : fagsakMarkering.name())
             .toTrinnsBehandling(behandling.isToTrinnsBehandling())
             .vedtakId(vedtak.map(BehandlingVedtak::getId).orElse(null))
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))

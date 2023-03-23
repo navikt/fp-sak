@@ -18,23 +18,23 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask("oppgavebehandling.utlandenhet")
+@ProsessTask("oppgavebehandling.kontrollenhet")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class OppdaterBehandlendeEnhetUtlandTask extends BehandlingProsessTask {
+public class OppdaterBehandlendeEnhetKontrollTask extends BehandlingProsessTask {
 
     public static final String BESTILLER_KEY = "bestiller";
 
-    private static final Logger LOG = LoggerFactory.getLogger(OppdaterBehandlendeEnhetUtlandTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppdaterBehandlendeEnhetKontrollTask.class);
 
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRepository behandlingRepository;
 
-    OppdaterBehandlendeEnhetUtlandTask() {
+    OppdaterBehandlendeEnhetKontrollTask() {
         // for CDI proxy
     }
 
     @Inject
-    public OppdaterBehandlendeEnhetUtlandTask(BehandlingRepositoryProvider repositoryProvider, BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+    public OppdaterBehandlendeEnhetKontrollTask(BehandlingRepositoryProvider repositoryProvider, BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -43,12 +43,12 @@ public class OppdaterBehandlendeEnhetUtlandTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (BehandlendeEnhetTjeneste.erUtlandsEnhet(behandling)) {
+        if (BehandlendeEnhetTjeneste.erKontrollEnhet(behandling)) {
             return;
         }
         var aktør = Optional.ofNullable(prosessTaskData.getPropertyValue(BESTILLER_KEY)).map(HistorikkAktør::valueOf).orElse(HistorikkAktør.VEDTAKSLØSNINGEN);
-        LOG.info("Endrer behandlende enhet til utland for behandling: {}", prosessTaskData.getBehandlingId());
-        behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetUtland(behandling, aktør, "Endret saksmarkering");
+        LOG.info("Endrer behandlende enhet til kontroll for behandling: {}", prosessTaskData.getBehandlingId());
+        behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetKontroll(behandling, aktør, "Endret saksmarkering");
 
     }
 }

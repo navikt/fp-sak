@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
@@ -80,7 +80,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         var undersøkeEØS = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && harOppgittUtland(kontekst);
 
         var utland = registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, undersøkeEØS);
-        if (UtlandMarkering.BOSATT_UTLAND.equals(utland) && !BehandlendeEnhetTjeneste.erUtlandsEnhet(behandling)) {
+        if (FagsakMarkering.BOSATT_UTLAND.equals(utland) && !BehandlendeEnhetTjeneste.erUtlandsEnhet(behandling)) {
             behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetUtland(behandling, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysninger");
         }
 

@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
@@ -112,12 +112,12 @@ public class BehandlendeEnhetTjeneste {
         return enhet.equals(enhetFraKobling) ? Optional.empty() : Optional.of(enhetFraKobling);
     }
 
-    private UtlandMarkering finnSaksmerking(Fagsak fagsak) {
+    private FagsakMarkering finnSaksmerking(Fagsak fagsak) {
         return finnSaksmerking(fagsak.getId());
     }
 
-    private UtlandMarkering finnSaksmerking(Long fagsakId) {
-        return fagsakEgenskapRepository.finnUtlandMarkering(fagsakId).orElse(null);
+    private FagsakMarkering finnSaksmerking(Long fagsakId) {
+        return fagsakEgenskapRepository.finnFagsakMarkering(fagsakId).orElse(null);
     }
 
     private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Behandling behandling, OrganisasjonsEnhet enhet) {
@@ -196,6 +196,10 @@ public class BehandlendeEnhetTjeneste {
         return EnhetsTjeneste.getEnhetUtland().enhetId().equals(behandling.getBehandlendeEnhet());
     }
 
+    public static boolean erKontrollEnhet(Behandling behandling) {
+        return EnhetsTjeneste.getEnhetKontroll().enhetId().equals(behandling.getBehandlendeEnhet());
+    }
+
 
     // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
     public void oppdaterBehandlendeEnhetUtland(Behandling behandling, HistorikkAktør endretAv, String begrunnelse) {
@@ -207,6 +211,22 @@ public class BehandlendeEnhetTjeneste {
             lagHistorikkInnslagForByttBehandlendeEnhet(behandling, EnhetsTjeneste.getEnhetUtland(), begrunnelse, endretAv);
         }
         behandling.setBehandlendeEnhet(EnhetsTjeneste.getEnhetUtland());
+        behandling.setBehandlendeEnhetÅrsak(begrunnelse);
+
+        behandlingRepository.lagre(behandling, lås);
+        eventPubliserer.fireEvent(behandling);
+    }
+
+    // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
+    public void oppdaterBehandlendeEnhetKontroll(Behandling behandling, HistorikkAktør endretAv, String begrunnelse) {
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        if (erKontrollEnhet(behandling)) {
+            return;
+        }
+        if (endretAv != null) {
+            lagHistorikkInnslagForByttBehandlendeEnhet(behandling, EnhetsTjeneste.getEnhetKontroll(), begrunnelse, endretAv);
+        }
+        behandling.setBehandlendeEnhet(EnhetsTjeneste.getEnhetKontroll());
         behandling.setBehandlendeEnhetÅrsak(begrunnelse);
 
         behandlingRepository.lagre(behandling, lås);

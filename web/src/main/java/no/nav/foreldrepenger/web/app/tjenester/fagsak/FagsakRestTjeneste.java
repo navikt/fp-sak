@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,10 +43,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetKontrollTask;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetUtlandTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
@@ -196,18 +199,26 @@ public class FagsakRestTjeneste {
                                           @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
-            var eksisterendeOpt = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId());
+            var fmFraDto = Optional.ofNullable(endreUtland.fagsakMarkering())
+                .or(() -> Optional.ofNullable(endreUtland.utlandMarkering()).map(um -> FagsakMarkering.valueOf(um.name())))
+                .orElseThrow();
+            var eksisterendeOpt = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId());
             // Sjekk om unedret merking
-            if (eksisterendeOpt.filter(eum -> endreUtland.utlandMarkering().equals(eum)).isPresent()) {
+            if (eksisterendeOpt.filter(em -> Objects.equals(em, fmFraDto)).isPresent()) {
                 return Response.ok().build();
             }
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.utlandMarkering());
-            lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(UtlandMarkering.NASJONAL), endreUtland.utlandMarkering());
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), fmFraDto);
+            lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(FagsakMarkering.NASJONAL), fmFraDto);
             // Bytt enhet ved utland for åpne behandlinger
-            if (UtlandMarkering.BOSATT_UTLAND.equals(endreUtland.utlandMarkering())) {
+            if (FagsakMarkering.BOSATT_UTLAND.equals(fmFraDto)) {
                 fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
                     .filter(b -> !BehandlendeEnhetTjeneste.erUtlandsEnhet(b))
                     .forEach(this::opprettUtlandProsessTask);
+            }
+            if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(fmFraDto)) {
+                fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
+                    .filter(b -> !BehandlendeEnhetTjeneste.erKontrollEnhet(b))
+                    .forEach(this::opprettKontrollProsessTask);
             }
             // Oppdater LOS-oppgaver
             fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).forEach(this::opprettLosProsessTask);
@@ -233,6 +244,14 @@ public class FagsakRestTjeneste {
         taskTjeneste.lagre(prosessTaskData);
     }
 
+    private void opprettKontrollProsessTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetKontrollTask.class);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setProperty(OppdaterBehandlendeEnhetUtlandTask.BESTILLER_KEY, HistorikkAktør.SAKSBEHANDLER.name());
+        prosessTaskData.setCallIdFraEksisterende();
+        taskTjeneste.lagre(prosessTaskData);
+    }
+
     public static class EndreUtlandAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
@@ -242,7 +261,7 @@ public class FagsakRestTjeneste {
         }
     }
 
-    private void lagHistorikkInnslag(Fagsak fagsak, UtlandMarkering eksisterende, UtlandMarkering ny) {
+    private void lagHistorikkInnslag(Fagsak fagsak, FagsakMarkering eksisterende, FagsakMarkering ny) {
         var fraVerdi = HistorikkEndretFeltVerdiType.valueOf(eksisterende.name());
         var tilVerdi = HistorikkEndretFeltVerdiType.valueOf(ny.name());
 
@@ -254,7 +273,7 @@ public class FagsakRestTjeneste {
 
         var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
-            .medEndretFelt(HistorikkEndretFeltType.UTLAND, fraVerdi, tilVerdi);
+            .medEndretFelt(HistorikkEndretFeltType.SAKSMARKERING, fraVerdi, tilVerdi);
 
         builder.build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
