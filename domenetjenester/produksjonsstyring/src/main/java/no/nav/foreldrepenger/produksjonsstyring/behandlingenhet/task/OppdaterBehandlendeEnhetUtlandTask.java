@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -21,8 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask("oppgavebehandling.utlandenhet")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OppdaterBehandlendeEnhetUtlandTask extends BehandlingProsessTask {
-
-    public static final String BESTILLER_KEY = "bestiller";
 
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterBehandlendeEnhetUtlandTask.class);
 
@@ -46,9 +42,8 @@ public class OppdaterBehandlendeEnhetUtlandTask extends BehandlingProsessTask {
         if (BehandlendeEnhetTjeneste.erUtlandsEnhet(behandling)) {
             return;
         }
-        var aktør = Optional.ofNullable(prosessTaskData.getPropertyValue(BESTILLER_KEY)).map(HistorikkAktør::valueOf).orElse(HistorikkAktør.VEDTAKSLØSNINGEN);
         LOG.info("Endrer behandlende enhet til utland for behandling: {}", prosessTaskData.getBehandlingId());
-        behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetUtland(behandling, aktør, "Endret saksmarkering");
+        behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetUtland(behandling, HistorikkAktør.VEDTAKSLØSNINGEN, "Endret saksmarkering");
 
     }
 }

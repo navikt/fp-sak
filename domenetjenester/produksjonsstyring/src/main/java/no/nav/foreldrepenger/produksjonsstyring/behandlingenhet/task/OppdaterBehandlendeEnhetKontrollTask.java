@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -21,8 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask("oppgavebehandling.kontrollenhet")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OppdaterBehandlendeEnhetKontrollTask extends BehandlingProsessTask {
-
-    public static final String BESTILLER_KEY = "bestiller";
 
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterBehandlendeEnhetKontrollTask.class);
 
@@ -46,9 +42,8 @@ public class OppdaterBehandlendeEnhetKontrollTask extends BehandlingProsessTask 
         if (BehandlendeEnhetTjeneste.erKontrollEnhet(behandling)) {
             return;
         }
-        var aktør = Optional.ofNullable(prosessTaskData.getPropertyValue(BESTILLER_KEY)).map(HistorikkAktør::valueOf).orElse(HistorikkAktør.VEDTAKSLØSNINGEN);
         LOG.info("Endrer behandlende enhet til kontroll for behandling: {}", prosessTaskData.getBehandlingId());
-        behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetKontroll(behandling, aktør, "Endret saksmarkering");
+        behandlendeEnhetTjeneste.oppdaterBehandlendeEnhetKontroll(behandling, HistorikkAktør.VEDTAKSLØSNINGEN, "Endret saksmarkering");
 
     }
 }
