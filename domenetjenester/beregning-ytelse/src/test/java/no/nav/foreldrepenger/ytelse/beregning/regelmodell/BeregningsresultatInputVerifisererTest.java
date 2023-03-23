@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,8 +22,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAkt
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class BeregningsresultatInputVerifisererTest {
     private List<BeregningsgrunnlagPeriode> bgPerioder = new ArrayList<>();
@@ -92,9 +92,8 @@ class BeregningsresultatInputVerifisererTest {
     private UttakAktivitet lagUttakAktivitet(String orgnr, String referanse, boolean erFrilans) {
         var arbeidsforhold = erFrilans ? Arbeidsforhold.frilansArbeidsforhold()
                 : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr, referanse);
-        return UttakAktivitet.ny(AktivitetStatus.ATFL)
+        return UttakAktivitet.ny(AktivitetStatus.ATFL, BigDecimal.valueOf(100), true)
             .medArbeidsforhold(arbeidsforhold)
-            .medUtbetalingsgrad( BigDecimal.valueOf(100))
             .medStillingsgrad( BigDecimal.valueOf(100),  BigDecimal.valueOf(100))
             .medGradering(false, BigDecimal.ZERO);
     }

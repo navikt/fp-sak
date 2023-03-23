@@ -581,9 +581,8 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
     private List<UttakResultatPeriode> lagUttakResultatPeriode(LocalDate fom, LocalDate tom, BigDecimal stillingsgrad, BigDecimal arbeidstidsprosent,
             BigDecimal utbetalingsgrad, AktivitetStatus aktivitetStatus, boolean erGradering) {
 
-        var uttakAktivitet = UttakAktivitet.ny(aktivitetStatus)
+        var uttakAktivitet = UttakAktivitet.ny(aktivitetStatus, utbetalingsgrad, true)
             .medArbeidsforhold(arbeidsforhold)
-            .medUtbetalingsgrad(utbetalingsgrad)
             .medStillingsgrad(stillingsgrad, stillingsgrad)
             .medGradering(erGradering, arbeidstidsprosent);
         var periode = new UttakResultatPeriode(fom, tom, List.of(uttakAktivitet), false);

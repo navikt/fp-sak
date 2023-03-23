@@ -31,6 +31,7 @@ class MapUttakResultatFraVLTilRegelTest {
     private static final int STILLING_70 = 70;
     private static final String ORGNR = "000000000";
     private static final InternArbeidsforholdRef ARB_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
+    private static final BigDecimal SEKSTISEKS = BigDecimal.valueOf(66);
 
     private Behandling behandling;
     private MapUttakResultatFraVLTilRegel mapper;
@@ -60,7 +61,7 @@ class MapUttakResultatFraVLTilRegelTest {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
-        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(SEKSTISEKS));
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
@@ -74,7 +75,7 @@ class MapUttakResultatFraVLTilRegelTest {
         assertThat(periode1.tom()).isEqualTo(tom);
         var uttakAktiviteter = periode1.uttakAktiviteter();
         assertThat(uttakAktiviteter).hasSize(1);
-        assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(SEKSTISEKS);
         assertThat(uttakAktiviteter.get(0).stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
         assertThat(uttakAktiviteter.get(0).arbeidsforhold().identifikator()).isEqualTo(ORGNR);
         assertThat(uttakAktiviteter.get(0).arbeidsforhold().arbeidsforholdId()).isEqualTo(ARB_ID.getReferanse());
@@ -86,7 +87,7 @@ class MapUttakResultatFraVLTilRegelTest {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
-        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(SEKSTISEKS));
         var uttakArbeidsforhold = lagUttakResultatArbeidsforhold(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, null, null, uttakPeriode);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
@@ -100,7 +101,7 @@ class MapUttakResultatFraVLTilRegelTest {
         assertThat(periode1.tom()).isEqualTo(tom);
         var uttakAktiviteter = periode1.uttakAktiviteter();
         assertThat(uttakAktiviteter).hasSize(1);
-        assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(SEKSTISEKS);
         assertThat(uttakAktiviteter.get(0).stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(uttakAktiviteter.get(0).aktivitetStatus()).isEqualTo(AktivitetStatus.SN);
     }
@@ -110,10 +111,10 @@ class MapUttakResultatFraVLTilRegelTest {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
-        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(SEKSTISEKS));
         var fom2 = tom.plusDays(1);
         var tom2 = LocalDate.of(2019, 4, 30);
-        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, new Utbetalingsgrad(66));
+        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, new Utbetalingsgrad(SEKSTISEKS));
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode, uttakPeriode2);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
@@ -130,7 +131,7 @@ class MapUttakResultatFraVLTilRegelTest {
         perioder.forEach(periode -> {
             var uttakAktiviteter = periode.uttakAktiviteter();
             assertThat(uttakAktiviteter).hasSize(1);
-            assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+            assertThat(uttakAktiviteter.get(0).utbetalingsgrad()).isEqualByComparingTo(SEKSTISEKS);
             assertThat(uttakAktiviteter.get(0).stillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
             assertThat(uttakAktiviteter.get(0).arbeidsforhold().identifikator()).isEqualTo(ORGNR);
             assertThat(uttakAktiviteter.get(0).arbeidsforhold().arbeidsforholdId()).isEqualTo(ARB_ID.getReferanse());
@@ -147,16 +148,16 @@ class MapUttakResultatFraVLTilRegelTest {
         var tom = LocalDate.of(2019, Month.MARCH, 31);
         var fom2 = tom.plusDays(1);
         var tom2 = LocalDate.of(2019, 4, 30);
-        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
-        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, new Utbetalingsgrad(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(SEKSTISEKS));
+        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, new Utbetalingsgrad(SEKSTISEKS));
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode, uttakPeriode2);
         // Arbeidsforhold 2
         var fom3 = LocalDate.of(2019, Month.FEBRUARY, 1);
         var tom3 = LocalDate.of(2019, Month.APRIL, 15);
         var fom4 = tom3.plusDays(1);
         var tom4 = LocalDate.of(2019, 5, 15);
-        var uttakPeriode3 = lagUttaksperiode(fom3, tom3, new Utbetalingsgrad(66));
-        var uttakPeriode4 = lagUttaksperiode(fom4, tom4, new Utbetalingsgrad(66));
+        var uttakPeriode3 = lagUttaksperiode(fom3, tom3, new Utbetalingsgrad(SEKSTISEKS));
+        var uttakPeriode4 = lagUttaksperiode(fom4, tom4, new Utbetalingsgrad(SEKSTISEKS));
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var uttakArbeidsforhold2 = lagArbeidsforhold("123", arbeidsforholdId, uttakPeriode3, uttakPeriode4);
         var uttakResultat = lagUttak(uttakArbeidsforhold, uttakArbeidsforhold2);

@@ -25,17 +25,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class VedtattYtelseTjeneste {
 
     private BehandlingVedtakRepository vedtakRepository;
-    private BeregningTjeneste beregningTjeneste;
     private BeregningsresultatRepository tilkjentYtelseRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -46,18 +43,16 @@ public class VedtattYtelseTjeneste {
 
     @Inject
     public VedtattYtelseTjeneste(BehandlingVedtakRepository vedtakRepository,
-                                 BeregningTjeneste beregningTjeneste,
                                  BeregningsresultatRepository tilkjentYtelseRepository,
                                  InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                  FamilieHendelseRepository familieHendelseRepository) {
         this.vedtakRepository = vedtakRepository;
-        this.beregningTjeneste = beregningTjeneste;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.familieHendelseRepository = familieHendelseRepository;
     }
 
-    public Ytelse genererYtelse(Behandling behandling, boolean mapArbeidsforhold) {
+    public Ytelse genererYtelse(Behandling behandling) {
         final var vedtak = vedtakRepository.hentForBehandling(behandling.getId());
         var berResultat = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId());
 
@@ -73,33 +68,24 @@ public class VedtattYtelseTjeneste {
         ytelse.setYtelseStatus(mapStatus(behandling.getFagsak().getStatus()));
 
         ytelse.setPeriode(utledPeriode(behandling, vedtak, berResultat.orElse(null)));
-        ytelse.setAnvist(map(behandling, berResultat.orElse(null), mapArbeidsforhold));
+        ytelse.setAnvist(map(behandling, berResultat.orElse(null)));
         return ytelse;
     }
 
-    private List<Anvisning> map(Behandling behandling, BeregningsresultatEntitet tilkjentYtelse, boolean mapArbeidsforhold) {
+    private List<Anvisning> map(Behandling behandling, BeregningsresultatEntitet tilkjentYtelse) {
         if (tilkjentYtelse == null) {
             return List.of();
         }
-        List<ArbeidsforholdReferanse> arbeidsforholdReferanser = !mapArbeidsforhold ? List.of() :
-            inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
+        var arbeidsforholdReferanser = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
                 .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon)
-                .stream()
-                .flatMap(a -> a.getArbeidsforholdReferanser().stream()).toList();
+                .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser).orElse(List.of());
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            return !mapArbeidsforhold ? VedtattYtelseMapper.utenArbeidsforhold().mapForeldrepenger(tilkjentYtelse) :
-                VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(tilkjentYtelse);
+            return VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapForeldrepenger(tilkjentYtelse);
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
+            return VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapSvangerskapspenger(tilkjentYtelse);
+        } else {
+            return List.of();
         }
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
-            var beregningsgrunnlag = beregningTjeneste.hent(behandling.getId()).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).orElse(null);
-            if (beregningsgrunnlag == null) {
-                return List.of();
-            }
-            // TODO - følg med på TFP-2667 må finne ny metode når Beregning/SVP er skrevet om.
-            return !mapArbeidsforhold ? VedtattYtelseMapper.utenArbeidsforhold().mapSvangerskapspenger(tilkjentYtelse, beregningsgrunnlag) :
-                VedtattYtelseMapper.medArbeidsforhold(arbeidsforholdReferanser).mapSvangerskapspenger(tilkjentYtelse,beregningsgrunnlag);
-        }
-        return List.of();
     }
 
 
