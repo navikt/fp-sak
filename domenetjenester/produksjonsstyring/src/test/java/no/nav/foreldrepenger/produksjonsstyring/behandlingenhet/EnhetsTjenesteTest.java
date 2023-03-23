@@ -19,6 +19,7 @@ import org.mockito.stubbing.Answer;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -39,10 +40,10 @@ class EnhetsTjenesteTest {
     private static PersonIdent MOR_PID = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
     private static PersonIdent FAR_PID = new PersonIdent(new FiktiveFnr().nesteMannFnr());
 
-    private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4802", "NAV Bærum");
+    private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4833", "NAV Oslo");
     private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
     private static OrganisasjonsEnhet enhetSkjermet = new OrganisasjonsEnhet("4883", "NAV Skjermet");
-    private static ArbeidsfordelingResponse respNormal = new ArbeidsfordelingResponse("4802", "NAV Bærum", "Aktiv", "FPY");
+    private static ArbeidsfordelingResponse respNormal = new ArbeidsfordelingResponse("4833", "NAV Oslo", "Aktiv", "FPY");
     private static ArbeidsfordelingResponse respKode6 = new ArbeidsfordelingResponse("2103", "NAV Viken", "Aktiv", "KO");
 
     @Mock
@@ -98,7 +99,7 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -111,7 +112,7 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -123,7 +124,7 @@ class EnhetsTjenesteTest {
         settOppTpsStrukturer(false, false, true);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
-            MOR_AKTØR_ID, FAMILIE);
+            MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
         assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
@@ -136,7 +137,7 @@ class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
         var enhet1 = enhetsTjeneste
-            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE);
+            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet).isEqualTo(enhetNormal);
@@ -160,7 +161,7 @@ class EnhetsTjenesteTest {
         settOppTpsStrukturer(true, false, true);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), BehandlingTema.ENGANGSSTØNAD,
-                MOR_AKTØR_ID, FAMILIE);
+                MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL);
 
         assertThat(enhet).isNotPresent();
     }
@@ -171,7 +172,7 @@ class EnhetsTjenesteTest {
         settOppTpsStrukturer(false, true, false);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
-                MOR_AKTØR_ID, FAMILIE);
+                MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
         assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
@@ -183,7 +184,7 @@ class EnhetsTjenesteTest {
         settOppTpsStrukturer(false, false, true);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
-                MOR_AKTØR_ID, FAMILIE);
+                MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
         assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetKode6));
@@ -195,7 +196,7 @@ class EnhetsTjenesteTest {
         settOppSkjermetStrukturer(false, true);
 
         var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
-            MOR_AKTØR_ID, FAMILIE);
+            MOR_AKTØR_ID, FAMILIE, UtlandMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
         assertThat(enhet).hasValueSatisfying(enhetObj -> assertThat(enhetObj).isEqualTo(enhetSkjermet));

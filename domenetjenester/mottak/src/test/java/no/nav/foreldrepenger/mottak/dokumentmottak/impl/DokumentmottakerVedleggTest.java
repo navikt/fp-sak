@@ -3,12 +3,12 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 import javax.inject.Inject;
 
@@ -46,6 +46,8 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @CdiDbAwareTest
 class DokumentmottakerVedleggTest {
 
+    private static final OrganisasjonsEnhet ENHET = new OrganisasjonsEnhet("4833", "NFP");
+
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -71,9 +73,9 @@ class DokumentmottakerVedleggTest {
     @BeforeEach
     public void oppsett() {
 
-        var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
-        lenient().when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
@@ -135,7 +137,7 @@ class DokumentmottakerVedleggTest {
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlendeEnhet("0450")
+                .medBehandlendeEnhet(ENHET.enhetId())
                 .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -155,7 +157,7 @@ class DokumentmottakerVedleggTest {
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         // Lik enheten som ble satt på behandlingen
-        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo("0450");
+        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(ENHET.enhetId());
     }
 
     @Test
@@ -164,13 +166,14 @@ class DokumentmottakerVedleggTest {
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-                .medBehandlendeEnhet("0450")
+                .medBehandlendeEnhet(ENHET.enhetId())
                 .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
         var behandling = scenario.lagre(repositoryProvider);
 
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
         mottattDokument.setJournalEnhet(BehandlendeEnhetTjeneste.getKlageInstans().enhetId());
-        when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), eq(BehandlendeEnhetTjeneste.getKlageInstans().enhetId()))).thenReturn(BehandlendeEnhetTjeneste.getKlageInstans());
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
@@ -196,8 +199,8 @@ class DokumentmottakerVedleggTest {
      */
     @Test
     void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_hent_behandlende_enhet_fra_ikke_klagebehandling() {
-        final var førstegangssøknadEnhetsId = "0450";
-        final var klageEnhetsId = "5000";
+        final var førstegangssøknadEnhetsId = "4833";
+        final var klageEnhetsId = "4292";
 
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
@@ -246,8 +249,8 @@ class DokumentmottakerVedleggTest {
 
     @Test
     void skal_opprette_task_for_å_vurdere_dokument_når_dokumenttype_er_udefinert() {
-        final var førstegangssøknadEnhetsId = "0450";
-        final var klageEnhetsId = "5000";
+        final var førstegangssøknadEnhetsId = ENHET.enhetId();
+        final var klageEnhetsId = BehandlendeEnhetTjeneste.getKlageInstans().enhetId();
 
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(

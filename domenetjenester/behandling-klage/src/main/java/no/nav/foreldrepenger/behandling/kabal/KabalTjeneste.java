@@ -188,11 +188,7 @@ public class KabalTjeneste {
     }
 
     private String utledEnhet(Fagsak fagsak) {
-        var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .map(Behandling::getBehandlendeEnhet)
-            .map(e -> "4847".equals(e) ? "4817" : e) // Hardkoder den som treffer regelmessig nå
-            .orElseThrow();
-        return behandlendeEnhetTjeneste.gyldigEnhetNfpNk(enhet) ? enhet : behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak).enhetId();
+        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow()).enhetId();
     }
 
     private TilKabalDto.Klager utledKlager(Behandling behandling, Optional<KlageResultatEntitet> resultat) {

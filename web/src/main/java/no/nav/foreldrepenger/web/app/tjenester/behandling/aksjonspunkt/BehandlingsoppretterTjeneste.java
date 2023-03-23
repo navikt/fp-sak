@@ -146,8 +146,7 @@ public class BehandlingsoppretterTjeneste {
             throw kanIkkeOppretteRevurdering(fagsak.getSaksnummer());
         }
 
-        var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
-        return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, enhet);
+        return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
     }
 
     private boolean kanOppretteRevurdering(Long fagsakId) {

@@ -148,7 +148,6 @@ public class HåndterOpphørAvYtelser {
     }
 
     private OrganisasjonsEnhet utledEnhetFraBehandling(Behandling behandling) {
-        return behandlendeEnhetTjeneste.gyldigEnhetNfpNk(behandling.getBehandlendeEnhet()) ?
-            behandling.getBehandlendeOrganisasjonsEnhet() : behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
+        return behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(behandling);
     }
 }

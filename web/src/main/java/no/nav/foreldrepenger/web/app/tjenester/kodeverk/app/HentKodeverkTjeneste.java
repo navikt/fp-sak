@@ -3,16 +3,12 @@ package no.nav.foreldrepenger.web.app.tjenester.kodeverk.app;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
-import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -84,7 +80,6 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagAndeltype;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ApplicationScoped
 public class HentKodeverkTjeneste {
@@ -174,9 +169,7 @@ public class HentKodeverkTjeneste {
 
     }
 
-    private BehandlendeEnhetTjeneste enhetsTjeneste;
-
-    HentKodeverkTjeneste() {
+    public HentKodeverkTjeneste() {
         // for CDI proxy
     }
 
@@ -188,19 +181,9 @@ public class HentKodeverkTjeneste {
         return values.stream().filter(ArbeidType::erAnnenOpptjening).collect(Collectors.toSet());
     }
 
-    @Inject
-    public HentKodeverkTjeneste(BehandlendeEnhetTjeneste enhetsTjeneste) {
-        Objects.requireNonNull(enhetsTjeneste, "enhetsTjeneste");
-        this.enhetsTjeneste = enhetsTjeneste;
-    }
-
     public Map<String, Collection<? extends Kodeverdi>> hentGruppertKodeliste() {
 
         return new LinkedHashMap<>(KODEVERDIER_SOM_BRUKES_PÅ_KLIENT);
     }
 
-
-    public List<OrganisasjonsEnhet> hentBehandlendeEnheter() {
-        return enhetsTjeneste.hentEnhetListe();
-    }
 }

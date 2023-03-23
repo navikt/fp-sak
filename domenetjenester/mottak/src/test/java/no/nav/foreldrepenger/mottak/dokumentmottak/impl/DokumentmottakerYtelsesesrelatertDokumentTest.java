@@ -40,6 +40,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @CdiDbAwareTest
 class DokumentmottakerYtelsesesrelatertDokumentTest {
 
+    private static final OrganisasjonsEnhet ENHET = new OrganisasjonsEnhet("4833", "NFP");
+
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
@@ -66,7 +68,9 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
 
     @BeforeEach
     public void oppsett() {
-        lenient().when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
 
@@ -77,8 +81,6 @@ class DokumentmottakerYtelsesesrelatertDokumentTest {
 
         dokumentmottaker = Mockito.spy(dokumentmottaker);
 
-        var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        // when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
     }
 
     @Test

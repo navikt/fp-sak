@@ -34,8 +34,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
 
-    public static final String BEH_ENHET_ID_KEY = "enhetId";
-    public static final String BEH_ENHET_NAVN_KEY = "enhetNavn";
     public static final String FAGSAK_ID_KEY = "fagsakId";
 
     private static final Logger LOG = LoggerFactory.getLogger(SendInformasjonsbrevPåminnelseTask.class);
@@ -74,7 +72,6 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
         }
 
         var fagsak = fagsakRepository.finnEksaktFagsakReadOnly(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_KEY)));
-        var enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY), prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
         var brukEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
 
         var eksisterendeBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());

@@ -129,10 +129,6 @@ public class PersoninfoAdapter {
         return tilknytningTjeneste.hentGeografiskTilknytning(aktørId);
     }
 
-    public boolean harGeografiskTilknytningUtland(AktørId aktørId) {
-        return tilknytningTjeneste.harGeografiskTilknytningUtland(aktørId);
-    }
-
     public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {
         return tilknytningTjeneste.hentDiskresjonskode(aktørId);
     }

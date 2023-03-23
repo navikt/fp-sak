@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -68,6 +69,8 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ExtendWith(MockitoExtension.class)
 class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
+    private static final OrganisasjonsEnhet ENHET = new OrganisasjonsEnhet("4833", "NFP");
+
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -103,7 +106,9 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        lenient().when(enhetsTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
+        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
+        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
+        lenient().when(enhetsTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, enhetsTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));

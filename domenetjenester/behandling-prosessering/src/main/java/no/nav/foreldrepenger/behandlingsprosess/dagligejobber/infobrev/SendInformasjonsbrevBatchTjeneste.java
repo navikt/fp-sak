@@ -52,7 +52,6 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
             data.setProperty(OpprettInformasjonsFagsakTask.OPPRETTET_DATO_KEY, sak.getKildesakOpprettetDato().toString());
             data.setProperty(OpprettInformasjonsFagsakTask.FH_DATO_KEY, sak.getFamilieHndelseDato().toString());
             data.setProperty(OpprettInformasjonsFagsakTask.BEH_ENHET_ID_KEY, sak.getEnhet());
-            data.setProperty(OpprettInformasjonsFagsakTask.BEH_ENHET_NAVN_KEY, sak.getEnhetNavn());
             data.setProperty(OpprettInformasjonsFagsakTask.BEHANDLING_AARSAK, BehandlingÅrsakType.INFOBREV_BEHANDLING.getKode());
             data.setProperty(OpprettInformasjonsFagsakTask.FAGSAK_ID_MOR_KEY, sak.getKildeFagsakId().toString());
             taskTjeneste.lagre(data);

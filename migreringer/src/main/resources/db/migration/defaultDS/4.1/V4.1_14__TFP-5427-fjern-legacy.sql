@@ -1,0 +1,2 @@
+drop table GR_OPPTJ_UTLAND_DOK_VALG;
+drop sequence SEQ_GR_OPPTJ_UTLAND_DOK_VALG;

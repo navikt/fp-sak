@@ -107,8 +107,8 @@ public class OverstyrDekningsgradTjeneste {
     private Behandling hentÅpenBehandlingEllerOpprettRevurdering(Fagsak fagsak) {
         var ytelseBehandlingOpt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
             .stream().findFirst();
-        return ytelseBehandlingOpt.orElseGet(() -> revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
-            behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak)
+        return ytelseBehandlingOpt
+            .orElseGet(() -> revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak)
         ));
     }
 

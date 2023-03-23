@@ -1,11 +1,14 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -53,8 +56,7 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
         var beskrivelse = prosessTaskData.getPropertyValue(KEY_BESKRIVELSE);
         var prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);
 
-        var enhet = enhetTjeneste.gyldigEnhetNfpNk(behandlendeEnhet) ? behandlendeEnhet :
-            enhetTjeneste.finnBehandlendeEnhetForFagsakId(fagsakId).enhetId();
+        var enhet = Optional.ofNullable(enhetTjeneste.finnBehandlendeEnhetFor(fagsakId, behandlendeEnhet)).map(OrganisasjonsEnhet::enhetId).orElse(null);
 
         var høyPrioritet = PRIORITET_HØY.equals(prioritet);
 
