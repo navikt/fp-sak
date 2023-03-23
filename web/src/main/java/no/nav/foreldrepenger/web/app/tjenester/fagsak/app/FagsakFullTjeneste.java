@@ -98,11 +98,11 @@ public class FagsakFullTjeneste {
         var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper()).flatMap(Collection::stream)
             .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), bt)))
             .toList();
-        var utlandMarkering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId()).orElse(null);
+        var fagsakMarkering = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(null);
         var behandlinger = behandlingDtoTjeneste.lagBehandlingDtoer(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId()));
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         var historikk = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(saksnummer, dokumentPath);
-        var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, utlandMarkering, oppretting, behandlinger, historikk);
+        var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, fagsakMarkering, oppretting, behandlinger, historikk);
         return Optional.of(dto);
     }
 

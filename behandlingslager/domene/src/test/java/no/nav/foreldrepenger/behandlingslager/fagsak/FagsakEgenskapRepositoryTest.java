@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -31,15 +31,15 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
         var saksnummer  = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        fagsakEgenskapRepository.lagreEgenskapBeholdHistorikk(fagsak.getId(), UtlandMarkering.BOSATT_UTLAND);
+        fagsakEgenskapRepository.lagreEgenskapBeholdHistorikk(fagsak.getId(), FagsakMarkering.BOSATT_UTLAND);
         fagsakEgenskapRepository.lagreEgenskapBeholdHistorikk(fagsak.getId(), UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_IKKE_BLI_INNHENTET);
 
         var resultat = fagsakEgenskapRepository.finnEgenskaper(fagsak.getId());
         assertThat(resultat).hasSize(2);
         assertThat(resultat.stream().map(FagsakEgenskap::getEgenskapNøkkel).toList()).contains(EgenskapNøkkel.UTLAND_DOKUMENTASJON);
 
-        var markering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId());
-        assertThat(markering).hasValueSatisfying(m -> assertThat(m).isEqualTo(UtlandMarkering.BOSATT_UTLAND));
+        var markering = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId());
+        assertThat(markering).hasValueSatisfying(m -> assertThat(m).isEqualTo(FagsakMarkering.BOSATT_UTLAND));
     }
 
     @Test
@@ -48,14 +48,14 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
         var saksnummer  = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), UtlandMarkering.BOSATT_UTLAND);
+        fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), FagsakMarkering.BOSATT_UTLAND);
 
         var resultat = fagsakEgenskapRepository.finnEgenskaper(fagsak.getId());
         assertThat(resultat).hasSize(1);
 
-        fagsakEgenskapRepository.fjernEgenskapUtenHistorikk(fagsak.getId(), EgenskapNøkkel.UTLAND_MARKERING);
+        fagsakEgenskapRepository.fjernEgenskapUtenHistorikk(fagsak.getId(), EgenskapNøkkel.FAGSAK_MARKERING);
 
-        var markering = fagsakEgenskapRepository.finnUtlandMarkering(fagsak.getId());
+        var markering = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId());
         assertThat(markering).isEmpty();
     }
 

@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.impl.HendelseForBehandling;
 import no.nav.foreldrepenger.behandling.impl.PubliserBehandlingHendelseTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -21,20 +22,24 @@ class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
 
     private final ProsessTaskTjeneste taskTjeneste;
     private final BehandlingRepository behandlingRepository;
+    private final FagsakEgenskapRepository fagsakEgenskapRepository;
     private final InformasjonssakRepository informasjonssakRepository;
 
     @Inject
     public RefreshUtlandBehandlingHendelseTask(ProsessTaskTjeneste taskTjeneste,
                                                BehandlingRepository behandlingRepository,
+                                               FagsakEgenskapRepository fagsakEgenskapRepository,
                                                InformasjonssakRepository informasjonssakRepository) {
         this.taskTjeneste =taskTjeneste;
         this.informasjonssakRepository = informasjonssakRepository;
         this.behandlingRepository = behandlingRepository;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        informasjonssakRepository.finnEØSBehandlingerMedÅpentAksjonspunkt().forEach(this::opprettProsessTask);
+        informasjonssakRepository.finnSakerMedUtlandMarkering()
+            .forEach(fsid -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fsid, fagsakEgenskapRepository.finnFagsakMarkering(fsid).orElseThrow()));
     }
 
     private void opprettProsessTask(Long behandlingId) {

@@ -123,7 +123,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     VURDER_GRADERING_PÅ_ANDEL_UTEN_BG("VURDER_GRADERING_PÅ_ANDEL_UTEN_BG", "Vurder om søker har gradering på en andel uten beregningsgrunnlag"),
     DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad"),
     TILBAKETREKK("TILBAKETREKK", "Tilbaketrekk"),
-    UTLAND("UTLAND", "Utland"),
+    SAKSMARKERING("UTLAND", "Saksmarkering"),
     INNHENT_SED("INNHENT_SED", "Innhent dokumentasjon"),
     HEL_TILRETTELEGGING_FOM("HEL_TILRETTELEGGING_FOM", "Hel tilrettelegging FOM"),
     DELVIS_TILRETTELEGGING_FOM("DELVIS_TILRETTELEGGING_FOM", "Delvis tilrettelegging FOM"),

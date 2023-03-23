@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAg
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 
 @Dependent
@@ -30,10 +30,10 @@ public class RegistrerFagsakEgenskaper {
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
-    public UtlandMarkering registrerFagsakEgenskaper(Behandling behandling, boolean oppgittRelasjonTilEØS) {
+    public FagsakMarkering registrerFagsakEgenskaper(Behandling behandling, boolean oppgittRelasjonTilEØS) {
         if (!BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) ||
-            fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).isPresent()) {
-            return fagsakEgenskapRepository.finnUtlandMarkering(behandling.getFagsakId()).orElse(UtlandMarkering.NASJONAL);
+            fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).isPresent()) {
+            return fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
         }
         var geografiskTilknyttetUtlandEllerUkjent = personinfo.hentGeografiskTilknytning(behandling.getAktørId()) == null;
         var medlemskapFramtidigLangtOppholdUtlands = medlemskapRepository.hentMedlemskap(behandling.getId())
@@ -42,13 +42,13 @@ public class RegistrerFagsakEgenskaper {
             .filter(land -> !land.isTidligereOpphold())
             .anyMatch(land -> Math.abs(DAYS.between(land.getPeriodeFom(), land.getPeriodeTom())) > 350);
 
-        var utlandMarkering = UtlandMarkering.NASJONAL;
+        var utlandMarkering = FagsakMarkering.NASJONAL;
         if (geografiskTilknyttetUtlandEllerUkjent || medlemskapFramtidigLangtOppholdUtlands) {
-            utlandMarkering = UtlandMarkering.BOSATT_UTLAND;
+            utlandMarkering = FagsakMarkering.BOSATT_UTLAND;
         } else if (oppgittRelasjonTilEØS) {
-            utlandMarkering = UtlandMarkering.EØS_BOSATT_NORGE;
+            utlandMarkering = FagsakMarkering.EØS_BOSATT_NORGE;
         }
-        if (!UtlandMarkering.NASJONAL.equals(utlandMarkering)) {
+        if (!FagsakMarkering.NASJONAL.equals(utlandMarkering)) {
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), utlandMarkering);
         }
         return utlandMarkering;

@@ -72,6 +72,7 @@ public enum HistorikkEndretFeltVerdiType implements Kodeverdi {
     NASJONAL("NASJONAL", "Nasjonal"),
     EØS_BOSATT_NORGE("EØS_BOSATT_NORGE", "EØS bosatt Norge"),
     BOSATT_UTLAND("BOSATT_UTLAND", "Bosatt utland"),
+    SAMMENSATT_KONTROLL("SAMMENSATT_KONTROLL", "Sammensatt kontroll"),
     UTFØR_TILBAKETREKK("UTFØR_TILBAKETREKK", "Utfør tilbaketrekk"),
     HINDRE_TILBAKETREKK("HINDRE_TILBAKETREKK", "Hindre tilbaketrekk"),
     BENYTT("BENYTT", "Benytt"),

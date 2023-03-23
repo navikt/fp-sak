@@ -9,7 +9,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @Dependent
-@ProsessTask("oppgavebehandling.saner.utland")
+@ProsessTask("oppgavebehandling.utland.til.fagsak")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class MigrerUtlandMerkingTask implements ProsessTaskHandler {
 

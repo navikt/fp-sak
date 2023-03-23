@@ -10,8 +10,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 
 @ApplicationScoped
 public class FagsakEgenskapRepository {
@@ -38,11 +38,14 @@ public class FagsakEgenskapRepository {
         return finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_DOKUMENTASJON).map(FagsakEgenskap::getEgenskapVerdi).map(UtlandDokumentasjonStatus::valueOf);
     }
 
-    public Optional<UtlandMarkering> finnUtlandMarkering(long fagsakId) {
-        return finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_MARKERING).map(FagsakEgenskap::getEgenskapVerdi).map(UtlandMarkering::valueOf);
+    public Optional<FagsakMarkering> finnFagsakMarkering(long fagsakId) {
+        return finnEgenskap(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING)
+            .or(() -> finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_MARKERING))
+            .map(FagsakEgenskap::getEgenskapVerdi)
+            .map(FagsakMarkering::valueOf);
     }
 
-    public Optional<FagsakEgenskap> finnEgenskapMedVerdi(long fagsakId, EgenskapNøkkel nøkkel) {
+    private Optional<FagsakEgenskap> finnEgenskapMedVerdi(long fagsakId, EgenskapNøkkel nøkkel) {
         var query = entityManager.createQuery(
                 "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND egenskapVerdi is not null AND aktiv = true",
                 FagsakEgenskap.class)
@@ -51,7 +54,7 @@ public class FagsakEgenskapRepository {
         return hentUniktResultat(query);
     }
 
-    public Optional<FagsakEgenskap> finnEgenskap(long fagsakId, EgenskapNøkkel nøkkel) {
+    private Optional<FagsakEgenskap> finnEgenskap(long fagsakId, EgenskapNøkkel nøkkel) {
         var query = entityManager.createQuery(
                 "from FagsakEgenskap where fagsakId = :fagsak AND egenskapNøkkel = :nøkkel AND aktiv = true",
                 FagsakEgenskap.class)

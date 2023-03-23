@@ -6,7 +6,9 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandMarkering;
 
-public record EndreUtlandMarkeringDto(@JsonProperty("saksnummer") @NotNull @Digits(integer = 18, fraction = 0) String saksnummer, @NotNull@Valid UtlandMarkering utlandMarkering) {
+public record EndreUtlandMarkeringDto(@JsonProperty("saksnummer") @NotNull @Digits(integer = 18, fraction = 0) String saksnummer,
+                                      @Valid UtlandMarkering utlandMarkering, @Valid FagsakMarkering fagsakMarkering) {
 }
