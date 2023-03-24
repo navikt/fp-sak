@@ -28,6 +28,11 @@ jobs:
       push-image: ${{ github.ref_name == 'master' }} # default: false
     secrets: inherit
 
+  codeql:
+    name: CodeQl
+    uses: navikt/fp-gha-workflows/.github/workflows/codeql.yml@main
+    secrets: inherit
+
   create-issue:
     name: Issues
     if: github.ref_name == 'master'
@@ -46,12 +51,3 @@ jobs:
       build-version: ${{ needs.build-app.outputs.build-version }}
       issue-number: ${{ needs.create-issue.outputs.issue-number }}
     secrets: inherit
-
-  snyk:
-    name: Snyk
-    needs: build-app
-    uses: navikt/fp-gha-workflows/.github/workflows/snyk.yml@main
-    with:
-      build-version: ${{ needs.build-app.outputs.build-version }}
-    secrets: inherit
-
