@@ -6,7 +6,6 @@ import javax.persistence.Converter;
 public enum EgenskapNøkkel {
 
     UTLAND_DOKUMENTASJON,
-    UTLAND_MARKERING,
     FAGSAK_MARKERING;
 
 

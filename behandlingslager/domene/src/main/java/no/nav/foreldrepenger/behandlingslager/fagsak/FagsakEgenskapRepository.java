@@ -40,7 +40,6 @@ public class FagsakEgenskapRepository {
 
     public Optional<FagsakMarkering> finnFagsakMarkering(long fagsakId) {
         return finnEgenskap(fagsakId, EgenskapNøkkel.FAGSAK_MARKERING)
-            .or(() -> finnEgenskap(fagsakId, EgenskapNøkkel.UTLAND_MARKERING))
             .map(FagsakEgenskap::getEgenskapVerdi)
             .map(FagsakMarkering::valueOf);
     }
