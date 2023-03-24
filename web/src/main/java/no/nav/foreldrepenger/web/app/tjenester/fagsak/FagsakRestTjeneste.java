@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -199,23 +198,20 @@ public class FagsakRestTjeneste {
                                           @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
-            var fmFraDto = Optional.ofNullable(endreUtland.fagsakMarkering())
-                .or(() -> Optional.ofNullable(endreUtland.utlandMarkering()).map(um -> FagsakMarkering.valueOf(um.name())))
-                .orElseThrow();
             var eksisterendeOpt = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId());
             // Sjekk om unedret merking
-            if (eksisterendeOpt.filter(em -> Objects.equals(em, fmFraDto)).isPresent()) {
+            if (eksisterendeOpt.filter(em -> Objects.equals(em, endreUtland.fagsakMarkering())).isPresent()) {
                 return Response.ok().build();
             }
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), fmFraDto);
-            lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(FagsakMarkering.NASJONAL), fmFraDto);
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.fagsakMarkering());
+            lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(FagsakMarkering.NASJONAL), endreUtland.fagsakMarkering());
             // Bytt enhet ved utland for åpne behandlinger
-            if (FagsakMarkering.BOSATT_UTLAND.equals(fmFraDto)) {
+            if (FagsakMarkering.BOSATT_UTLAND.equals(endreUtland.fagsakMarkering())) {
                 fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
                     .filter(b -> !BehandlendeEnhetTjeneste.erUtlandsEnhet(b))
                     .forEach(this::opprettUtlandProsessTask);
             }
-            if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(fmFraDto)) {
+            if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(endreUtland.fagsakMarkering())) {
                 fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
                     .filter(b -> !BehandlendeEnhetTjeneste.erKontrollEnhet(b))
                     .forEach(this::opprettKontrollProsessTask);
