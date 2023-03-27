@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOp
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 
 @Dependent
@@ -40,7 +41,7 @@ public class RegistrerFagsakEgenskaper {
             .flatMap(MedlemskapAggregat::getOppgittTilknytning)
             .map(MedlemskapOppgittTilknytningEntitet::getOpphold).orElse(Set.of()).stream()
             .filter(land -> !land.isTidligereOpphold())
-            .anyMatch(land -> Math.abs(DAYS.between(land.getPeriodeFom(), land.getPeriodeTom())) > 350);
+            .anyMatch(land -> !Landkoder.NOR.equals(land.getLand()) && Math.abs(DAYS.between(land.getPeriodeFom(), land.getPeriodeTom())) > 350);
 
         var utlandMarkering = FagsakMarkering.NASJONAL;
         if (geografiskTilknyttetUtlandEllerUkjent || medlemskapFramtidigLangtOppholdUtlands) {
