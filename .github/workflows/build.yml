@@ -47,7 +47,7 @@ jobs:
   notify:
     name: Notify
     if: github.ref_name == 'master' && always() && !contains(fromJSON('["skipped", "cancelled"]'), needs.autotest.result)
-    needs: autotest
+    needs: [build-app, autotest]
     uses: navikt/fp-autotest/.github/workflows/report-and-notify.yml@autotester
     with:
       fpsak: ${{ needs.autotest.outputs.fpsak }}
