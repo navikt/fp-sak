@@ -32,7 +32,7 @@
         <revision>1.0-SNAPSHOT</revision>
 
         <fp-uttak.version>14.3.13</fp-uttak.version>
-        <fp-stonadskonto.version>1.0.0</fp-stonadskonto.version>
+        <fp-stonadskonto.version>1.0.1</fp-stonadskonto.version>
         <svp-uttak.version>2.3.8</svp-uttak.version>
 
         <felles.version>4.2.37</felles.version>
