@@ -52,6 +52,7 @@ jobs:
     with:
       fpsak: ${{ needs.autotest.outputs.fpsak }}
       verdikjede: ${{ needs.autotest.outputs.verdikjede }}
+      build-version: ${{ needs.build-app.outputs.build-version }}
     secrets: inherit
 
   deploy-dev:
