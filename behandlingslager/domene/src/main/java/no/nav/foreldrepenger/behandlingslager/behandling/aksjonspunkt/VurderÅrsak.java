@@ -13,8 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum VurderÅrsak implements Kodeverdi {
 
-    FEIL_FAKTA("FEIL_FAKTA", "Feil fakta"),
-    FEIL_LOV("FEIL_LOV", "Feil lov-/regelanvendelse"),
+    FEIL_FAKTA("FEIL_FAKTA", "Fakta"),
+    FEIL_LOV("FEIL_LOV", "Regel-/lovanvendelse"),
     FEIL_REGEL("FEIL_REGEL", "Feil regelforståelse"), // UTGÅTT, beholdes pga historikk
     SKJØNN("SKJØNN", "Skjønn"),
     UTREDNING("UTREDNING", "Utredning"),
