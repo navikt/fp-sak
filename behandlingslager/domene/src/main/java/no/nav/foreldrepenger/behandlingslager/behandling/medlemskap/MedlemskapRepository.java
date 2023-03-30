@@ -255,9 +255,7 @@ public class MedlemskapRepository {
 
     private void lagreVurdertLøpendeMedlemskap(VurdertMedlemskapPeriodeEntitet ny) {
         entityManager.persist(ny);
-        ny.getPerioder().forEach(vurdertLøpendeMedlemskap -> {
-            entityManager.persist(vurdertLøpendeMedlemskap);
-        });
+        ny.getPerioder().forEach(vurdertLøpendeMedlemskap -> entityManager.persist(vurdertLøpendeMedlemskap));
     }
 
     private DiffEntity medlemskapAggregatDiffer(boolean medOnlyCheckTrackedFields) {

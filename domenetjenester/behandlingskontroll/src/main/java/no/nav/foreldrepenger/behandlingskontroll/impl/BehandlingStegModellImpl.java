@@ -89,12 +89,10 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
         if (steg == null) {
             steg = BehandlingStegRef.Lookup
                     .find(BehandlingSteg.class, stegInstances, behandlingModell.getFagsakYtelseType(), behandlingModell.getBehandlingType(), behandlingStegType)
-                    .orElseThrow(() -> {
-                        return new IllegalStateException(
-                                "Mangler steg definert for stegKode=" + behandlingStegType + " [behandlingType="
-                                        + behandlingModell.getBehandlingType() + ", fagsakYtelseType=" + behandlingModell.getFagsakYtelseType()
-                                        + "]");
-                    });
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Mangler steg definert for stegKode=" + behandlingStegType + " [behandlingType="
+                                    + behandlingModell.getBehandlingType() + ", fagsakYtelseType=" + behandlingModell.getFagsakYtelseType()
+                                    + "]"));
         }
     }
 

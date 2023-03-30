@@ -37,9 +37,7 @@ class SatsTest {
         final var verdi = -100;
         Exception thrown = assertThrows(
             IllegalArgumentException.class,
-            () -> {
-                Sats.på(verdi);
-            }
+            () -> Sats.på(verdi)
         );
         assertTrue(thrown.getMessage().contains("Sats er utenfor lovlig intervall"));
     }

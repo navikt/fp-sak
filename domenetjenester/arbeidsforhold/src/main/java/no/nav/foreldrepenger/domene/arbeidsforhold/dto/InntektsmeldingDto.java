@@ -29,9 +29,7 @@ public class InntektsmeldingDto {
         this.arbeidsgiverReferanse = inntektsmelding.getArbeidsgiver().getIdentifikator();
         var arb = inntektsmelding.getArbeidsgiver();
         this.arbeidsgiver = arb.getErVirksomhet()
-                ? virksomhet.orElseThrow(() -> {
-                    return new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + arb.getOrgnr());
-                }).getNavn()
+                ? virksomhet.orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + arb.getOrgnr())).getNavn()
                 : "Privatperson"; // TODO skal navn på privatperson som arbeidsgiver hentes fra et register?
         this.arbeidsgiverOrgnr = arb.getIdentifikator();
         this.arbeidsgiverStartdato = inntektsmelding.getStartDatoPermisjon().orElse(null);

@@ -204,9 +204,7 @@ public class DokumentRestTjeneste {
             dokumentForJP.add(mapFraArkivDokument(arkivJournalPost, arkivJournalPost.getHovedDokument(), mottatteIMDokument, inntektsMeldinger));
         }
         if (arkivJournalPost.getAndreDokument() != null) {
-            arkivJournalPost.getAndreDokument().forEach(dok -> {
-                dokumentForJP.add(mapFraArkivDokument(arkivJournalPost, dok, mottatteIMDokument, inntektsMeldinger));
-            });
+            arkivJournalPost.getAndreDokument().forEach(dok -> dokumentForJP.add(mapFraArkivDokument(arkivJournalPost, dok, mottatteIMDokument, inntektsMeldinger)));
         }
         return dokumentForJP;
     }

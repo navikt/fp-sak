@@ -103,10 +103,8 @@ public class OpptjeningsvilkårMellomregning {
 
         return aktiviteter
             .entrySet().stream()
-            .map(e -> {
-                return (Map.Entry<Aktivitet, LocalDateTimeline<Boolean>>) new AbstractMap.SimpleEntry<>(e.getKey(),
-                    new LocalDateTimeline<>(e.getValue().stream().sorted(Comparator.comparing(LocalDateSegment::getLocalDateInterval)).toList(), aktivitetOverlappDuplikatCombinator));
-            })
+            .map(e -> (Map.Entry<Aktivitet, LocalDateTimeline<Boolean>>) new AbstractMap.SimpleEntry<>(e.getKey(),
+                new LocalDateTimeline<>(e.getValue().stream().sorted(Comparator.comparing(LocalDateSegment::getLocalDateInterval)).toList(), aktivitetOverlappDuplikatCombinator)))
             .filter(e -> !e.getValue().isEmpty());
     }
 

@@ -63,9 +63,7 @@ class FinnOmSøkerHarArbeidsforholdOgInntekt {
     private static boolean sjekkOmGjelderRelevantArbeidsgiverOgNærSkjæringstidspunktet(InntektFilter filter, LocalDate skjæringstidspunkt,
                                                                                        List<Arbeidsgiver> aktørArbeid) {
         var iDag = LocalDate.now();
-        return filter.anyMatchFilter((inntekt, inntektspost) -> {
-            return aktørArbeid.contains(inntekt.getArbeidsgiver())
-                && ErInntektNærSkjæringstidspunkt.erNær(inntektspost, skjæringstidspunkt, iDag);
-        });
+        return filter.anyMatchFilter((inntekt, inntektspost) -> aktørArbeid.contains(inntekt.getArbeidsgiver())
+            && ErInntektNærSkjæringstidspunkt.erNær(inntektspost, skjæringstidspunkt, iDag));
     }
 }

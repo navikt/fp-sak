@@ -61,9 +61,7 @@ public class BeregningsresultatPeriode extends BaseEntitet {
 
     public BeregningsresultatPeriode(BeregningsresultatPeriode kopi) {
         this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(kopi.periode.getFomDato(), kopi.periode.getTomDato());
-        kopi.getBeregningsresultatAndelList().forEach(andelKopi -> {
-            this.beregningsresultatAndelList.add(new BeregningsresultatAndel(andelKopi));
-        });
+        kopi.getBeregningsresultatAndelList().forEach(andelKopi -> this.beregningsresultatAndelList.add(new BeregningsresultatAndel(andelKopi)));
     }
 
     public BeregningsresultatPeriode() {

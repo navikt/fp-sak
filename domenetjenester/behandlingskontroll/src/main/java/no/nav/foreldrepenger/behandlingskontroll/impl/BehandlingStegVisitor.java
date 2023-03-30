@@ -365,9 +365,7 @@ class BehandlingStegVisitor {
 
         // TODO (FC): Denne bør håndteres med event ved overgang
         behandlingModell.hvertStegFraOgMed(aktivtBehandlingSteg)
-                .forEach(bsm -> {
-                    filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt);
-                });
+                .forEach(bsm -> filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt));
 
         if (!gjenværendeÅpneAksjonspunkt.isEmpty()) {
             /*

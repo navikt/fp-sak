@@ -173,9 +173,7 @@ class MedlemDtoTjenesteTest {
             medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
-        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
-            assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1);
-        });
+        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1));
     }
 
     @Test
@@ -204,9 +202,7 @@ class MedlemDtoTjenesteTest {
             personopplysningTjenesteMock, personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
-        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
-            assertThat(medlemDto.getMedlemskapPerioder()).isEmpty();
-        });
+        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> assertThat(medlemDto.getMedlemskapPerioder()).isEmpty());
     }
 
 }

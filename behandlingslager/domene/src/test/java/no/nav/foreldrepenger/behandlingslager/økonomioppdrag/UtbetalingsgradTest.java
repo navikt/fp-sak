@@ -37,9 +37,7 @@ class UtbetalingsgradTest {
         final var verdi = -100;
         Exception thrown = assertThrows(
             IllegalArgumentException.class,
-            () -> {
-                Utbetalingsgrad.prosent(verdi);
-            }
+            () -> Utbetalingsgrad.prosent(verdi)
         );
         assertTrue(thrown.getMessage().contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi));
     }
@@ -49,9 +47,7 @@ class UtbetalingsgradTest {
         final var verdi = 110;
         Exception thrown = assertThrows(
             IllegalArgumentException.class,
-            () -> {
-                Utbetalingsgrad.prosent(verdi);
-            }
+            () -> Utbetalingsgrad.prosent(verdi)
         );
         assertTrue(thrown.getMessage().contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi));
     }

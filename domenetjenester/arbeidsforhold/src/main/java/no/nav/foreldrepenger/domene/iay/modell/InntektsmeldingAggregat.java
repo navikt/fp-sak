@@ -33,9 +33,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
     }
 
     public InntektsmeldingAggregat(Collection<Inntektsmelding> inntektsmeldinger) {
-        this.inntektsmeldinger.addAll(inntektsmeldinger.stream().map(i -> {
-            return new Inntektsmelding(i);
-        }).toList());
+        this.inntektsmeldinger.addAll(inntektsmeldinger.stream().map(i -> new Inntektsmelding(i)).toList());
     }
 
     /**

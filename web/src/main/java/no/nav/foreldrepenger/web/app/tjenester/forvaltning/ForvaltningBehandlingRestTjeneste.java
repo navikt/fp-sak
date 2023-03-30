@@ -165,9 +165,7 @@ public class ForvaltningBehandlingRestTjeneste {
         mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId).stream()
                 .filter(md -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(md.getDokumentType().getKode()))
                 .filter(md -> journalpostId.equals(md.getJournalpostId()))
-                .forEach(im -> {
-                    opprettMottaDokumentTask(fagsakId, im);
-                });
+                .forEach(im -> opprettMottaDokumentTask(fagsakId, im));
         return Response.ok().build();
     }
 

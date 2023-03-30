@@ -53,9 +53,7 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
         this.navnArbeidsgiverUtland = yrkesaktivitet.getNavnArbeidsgiverUtland();
 
         // NB må aksessere felt her heller en getter siden getter filtrerer
-        this.aktivitetsAvtale = yrkesaktivitet.aktivitetsAvtale.stream().map(aa -> {
-            return new AktivitetsAvtale(aa);
-        }).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.aktivitetsAvtale = yrkesaktivitet.aktivitetsAvtale.stream().map(aa -> new AktivitetsAvtale(aa)).collect(Collectors.toCollection(LinkedHashSet::new));
 
         this.permisjon = yrkesaktivitet.permisjon.stream().map(p -> {
             var permisjonEntitet = new Permisjon(p);
