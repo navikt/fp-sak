@@ -58,12 +58,11 @@ public class YtelserSammeBarnTjeneste {
             return false;
         }
 
-        var sakForSammeFamilieHendelse = fagsakRepository.hentForBruker(aktørId).stream()
+        return fagsakRepository.hentForBruker(aktørId).stream()
             .filter(sak -> !saksnummer.equals(sak.getSaksnummer()) && SAKSTYPER.contains(sak.getYtelseType()))
             .map(this::gjeldendeFamilieHendelse)
             .flatMap(Optional::stream)
             .anyMatch(fh -> familieHendelseTjeneste.matcherGrunnlagene(aktuellFamilieHendelse, fh));
-        return sakForSammeFamilieHendelse;
     }
 
     private Optional<FamilieHendelseGrunnlagEntitet> gjeldendeFamilieHendelse(Fagsak fagsak) {

@@ -80,8 +80,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
         var skjæringstidspunkt = data.getGrunnlag().sisteDatoForOpptjening();
 
         // first er 5 i måned etter skjæringstidspunktet
-        var frist = skjæringstidspunkt.plusMonths(1).withDayOfMonth(INNTEKT_RAPPORTERING_SENEST);
-        return frist;
+        return skjæringstidspunkt.plusMonths(1).withDayOfMonth(INNTEKT_RAPPORTERING_SENEST);
     }
 
     private void loggAntattOpptjeningPeriode(OpptjeningsvilkårMellomregning data, Evaluation ev) {

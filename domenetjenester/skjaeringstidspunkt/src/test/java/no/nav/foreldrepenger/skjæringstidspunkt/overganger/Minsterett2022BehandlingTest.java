@@ -38,8 +38,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_minsterett_hvis_bekreftet_hendelse_etter_dato() {
         // Arrange
         var ikraftredelse = LocalDate.of(2022, 8, 2);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -56,8 +55,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_minsterett_hvis_bekreftet_termin_20_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(20);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -75,8 +73,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_minsterett_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -94,8 +91,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_uten_minsterett_uttak_hvis_bekreftet_termin_2_dager_før() {
         // Arrange
         var ikraftredelse = LocalDate.now().plusDays(2);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -113,8 +109,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_minsterett_hvis_søkt_adopsjon_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -132,8 +127,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_minsterett_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(10);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -150,8 +144,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_minsterett_hvis_søkt_termin_30_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(30);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -200,8 +193,7 @@ class Minsterett2022BehandlingTest {
     void skal_returnere_minsterett_pga_medforelder() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(30);
-        var skjæringsdato = ikraftredelse;
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+        var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);

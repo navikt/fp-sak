@@ -30,8 +30,7 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
         this.aktørId = aktørArbeid.getAktørId();
 
         this.yrkesaktiviter = aktørArbeid.yrkesaktiviter.stream().map(yrkesaktivitet -> {
-            var yr = new Yrkesaktivitet(yrkesaktivitet);
-            return yr;
+            return new Yrkesaktivitet(yrkesaktivitet);
         }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

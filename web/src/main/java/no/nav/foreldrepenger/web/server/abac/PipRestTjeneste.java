@@ -60,8 +60,7 @@ public class PipRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP)
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        var aktører = pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
-        return aktører;
+        return pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
     }
 
     /**

@@ -238,8 +238,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                     .medErEktefellesBarn(ektefellesBarn)
                     .medAdoptererAlene(adoptererAlene))
                 .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
-            var behandling = scenario.lagre(repositoryProvider);
-            return behandling;
+            return scenario.lagre(repositoryProvider);
         }
         var scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon();
         scenario.medSøknadHendelse()
@@ -256,8 +255,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                 .medErEktefellesBarn(ektefellesBarn)
                 .medAdoptererAlene(adoptererAlene))
             .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
-        var behandling = scenario.lagre(repositoryProvider);
-        return behandling;
+        return scenario.lagre(repositoryProvider);
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

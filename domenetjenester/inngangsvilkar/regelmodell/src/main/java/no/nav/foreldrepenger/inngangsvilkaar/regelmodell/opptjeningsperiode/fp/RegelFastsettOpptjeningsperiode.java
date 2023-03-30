@@ -89,10 +89,8 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
             rs.hvisRegel(SjekkFødsel.ID, SjekkFødsel.BESKRIVELSE).hvis(new SjekkFødsel(), fødselsNode).ellers(adopsjonOmsorgNode);
 
         // FP_VK_21: Start
-        var startFastsettOpptjeningsperiode =
-            rs.regel(ID, BESKRIVELSE, omhandlerFødselNode);
 
         // Start fastsett opptjeningsperiode
-        return startFastsettOpptjeningsperiode;
+        return rs.regel(ID, BESKRIVELSE, omhandlerFødselNode);
     }
 }

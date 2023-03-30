@@ -110,12 +110,11 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
                 NavigableSet<LocalDateSegment<Boolean>> påfølgendeSegmenter) {
             var suvInterval = segmentUnderVurdering.getLocalDateInterval();
 
-            var erMellomliggendeSegment = (segmentUnderVurdering.getValue() == null
+            return (segmentUnderVurdering.getValue() == null
                     && !foregåendeSegmenter.isEmpty()
                     && !påfølgendeSegmenter.isEmpty()) && påfølgendeSegmentErIPerioden(påfølgendeSegmenter)
                     && (suvInterval.abuts(foregåendeSegmenter.last().getLocalDateInterval())
                             || suvInterval.abuts(påfølgendeSegmenter.first().getLocalDateInterval()));
-            return erMellomliggendeSegment;
         }
 
         private boolean påfølgendeSegmentErIPerioden(NavigableSet<LocalDateSegment<Boolean>> påfølgendeSegmenter) {

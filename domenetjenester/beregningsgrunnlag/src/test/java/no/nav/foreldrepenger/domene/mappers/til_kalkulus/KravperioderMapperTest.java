@@ -236,12 +236,11 @@ class KravperioderMapperTest {
     private KravperioderPrArbeidsforholdDto finnrettKrav(List<KravperioderPrArbeidsforholdDto> resultat,
                                                                                Arbeidsgiver ag,
                                                                                InternArbeidsforholdRef ref) {
-        var mappetKrav = resultat.stream()
+        return resultat.stream()
             .filter(krav -> krav.getArbeidsgiver().getIdentifikator().equals(ag.getIdentifikator())
                 && Objects.equals(krav.getArbeidsforholdRef().getReferanse(), ref.getReferanse()))
             .findFirst()
             .orElseThrow();
-        return mappetKrav;
     }
 
     private LocalDate førStp(int dagerFør) {

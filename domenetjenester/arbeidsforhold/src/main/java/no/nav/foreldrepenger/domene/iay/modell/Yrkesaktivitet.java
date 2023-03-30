@@ -47,19 +47,17 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     }
 
     public Yrkesaktivitet(Yrkesaktivitet yrkesaktivitet) {
-        var kopierFra = yrkesaktivitet;
-        this.arbeidType = kopierFra.getArbeidType();
-        this.arbeidsgiver = kopierFra.getArbeidsgiver();
-        this.arbeidsforholdRef = kopierFra.arbeidsforholdRef;
-        this.navnArbeidsgiverUtland = kopierFra.getNavnArbeidsgiverUtland();
+        this.arbeidType = yrkesaktivitet.getArbeidType();
+        this.arbeidsgiver = yrkesaktivitet.getArbeidsgiver();
+        this.arbeidsforholdRef = yrkesaktivitet.arbeidsforholdRef;
+        this.navnArbeidsgiverUtland = yrkesaktivitet.getNavnArbeidsgiverUtland();
 
         // NB må aksessere felt her heller en getter siden getter filtrerer
-        this.aktivitetsAvtale = kopierFra.aktivitetsAvtale.stream().map(aa -> {
-            var aktivitetsAvtaleEntitet = new AktivitetsAvtale(aa);
-            return aktivitetsAvtaleEntitet;
+        this.aktivitetsAvtale = yrkesaktivitet.aktivitetsAvtale.stream().map(aa -> {
+            return new AktivitetsAvtale(aa);
         }).collect(Collectors.toCollection(LinkedHashSet::new));
 
-        this.permisjon = kopierFra.permisjon.stream().map(p -> {
+        this.permisjon = yrkesaktivitet.permisjon.stream().map(p -> {
             var permisjonEntitet = new Permisjon(p);
             permisjonEntitet.setYrkesaktivitet(this);
             return permisjonEntitet;
@@ -126,8 +124,7 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
 
     public boolean gjelderFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
         var gjelderForArbeidsgiver = Objects.equals(getArbeidsgiver(), arbeidsgiver);
-        var gjelderFor = gjelderForArbeidsgiver && getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
-        return gjelderFor;
+        return gjelderForArbeidsgiver && getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
     }
 
     /**

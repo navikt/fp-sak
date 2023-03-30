@@ -110,7 +110,6 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     void skal_kontrollere_fakta_for_løpende_medlemskap() {
         // Arrange
         var termin = LocalDate.now().plusDays(40); // Default oppsett
-        var datoMedEndring = termin;
         var ettÅrSiden = termin.minusYears(1);
         var start = termin.minusWeeks(3);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -137,7 +136,7 @@ class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(revudering));
         behandlingsresultatRepository.lagre(revudering.getId(), behandlingsresultat);
-        oppdaterMedlem(datoMedEndring, periode, revudering.getId());
+        oppdaterMedlem(termin, periode, revudering.getId());
 
         // Act
         var lås = behandlingRepository.taSkriveLås(revudering);

@@ -64,12 +64,10 @@ public class Ytelse extends BaseEntitet implements IndexKey {
         this.temaUnderkategori = ytelse.getBehandlingsTema();
         this.kilde = ytelse.getKilde();
         ytelse.getYtelseGrunnlag().ifPresent(yg -> {
-            var ygn = new YtelseGrunnlag(yg);
-            this.ytelseGrunnlag = ygn;
+            this.ytelseGrunnlag = new YtelseGrunnlag(yg);
         });
         this.ytelseAnvist = ytelse.getYtelseAnvist().stream().map(ya -> {
-            var ytelseAnvist = new YtelseAnvist(ya);
-            return ytelseAnvist;
+            return new YtelseAnvist(ya);
         }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

@@ -109,7 +109,6 @@ class BehandlingsprosessTjenesteTest {
         data.put(gruppe, taskData);
 
         when(tjeneste.sjekkProsessTaskPågårForBehandling(Mockito.any(), Mockito.any())).thenReturn(data);
-        var sut = new BehandlingsprosessTjeneste(tjeneste);
-        return sut;
+        return new BehandlingsprosessTjeneste(tjeneste);
     }
 }

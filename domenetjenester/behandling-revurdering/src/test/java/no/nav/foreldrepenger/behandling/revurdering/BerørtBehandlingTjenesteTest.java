@@ -578,7 +578,6 @@ class BerørtBehandlingTjenesteTest {
     @Test
     void ikke_berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
-        var startDatoFar = startDatoMor;
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
@@ -591,13 +590,13 @@ class BerørtBehandlingTjenesteTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
             .build();
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar, startDatoFar.plusWeeks(1).minusDays(1))
+            .medTidsperiode(startDatoMor, startDatoMor.plusWeeks(1).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .medSamtidigUttak(true)
             .build();
         var farsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar.plusWeeks(15), startDatoFar.plusWeeks(17).minusDays(1))
+            .medTidsperiode(startDatoMor.plusWeeks(15), startDatoMor.plusWeeks(17).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .build();
@@ -614,7 +613,6 @@ class BerørtBehandlingTjenesteTest {
     @Test
     void berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel_men_ikke_samtidig_uttak() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
-        var startDatoFar = startDatoMor;
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
@@ -627,12 +625,12 @@ class BerørtBehandlingTjenesteTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
             .build();
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar, startDatoFar.plusWeeks(1).minusDays(1))
+            .medTidsperiode(startDatoMor, startDatoMor.plusWeeks(1).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .build();
         var farsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar.plusWeeks(15), startDatoFar.plusWeeks(17).minusDays(1))
+            .medTidsperiode(startDatoMor.plusWeeks(15), startDatoMor.plusWeeks(17).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .build();
@@ -649,7 +647,6 @@ class BerørtBehandlingTjenesteTest {
     @Test
     void berørt_behandling_dersom_overlapp_kun_i_forbindelse_med_fødsel_men_ikke_FAB() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.of(2021, 11, 1));
-        var startDatoFar = startDatoMor;
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
@@ -662,13 +659,13 @@ class BerørtBehandlingTjenesteTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
             .build();
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar, startDatoFar.plusWeeks(1).minusDays(1))
+            .medTidsperiode(startDatoMor, startDatoMor.plusWeeks(1).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .medSamtidigUttak(true)
             .build();
         var farsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar.plusWeeks(15), startDatoFar.plusWeeks(17).minusDays(1))
+            .medTidsperiode(startDatoMor.plusWeeks(15), startDatoMor.plusWeeks(17).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .build();
@@ -685,7 +682,6 @@ class BerørtBehandlingTjenesteTest {
     @Test
     void berørt_behandling_dersom_overlapp_i_forbindelse_med_fødsel_og_senere() {
         var startDatoMor = VirkedagUtil.fomVirkedag(LocalDate.now());
-        var startDatoFar = startDatoMor;
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
         var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(startDatoMor).lagre(repositoryProvider);
@@ -698,13 +694,13 @@ class BerørtBehandlingTjenesteTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
             .build();
         var farsFørstePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar, startDatoFar.plusWeeks(1).minusDays(1))
+            .medTidsperiode(startDatoMor, startDatoMor.plusWeeks(1).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .medSamtidigUttak(true)
             .build();
         var farsAndrePeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(startDatoFar.plusWeeks(14), startDatoFar.plusWeeks(17).minusDays(1))
+            .medTidsperiode(startDatoMor.plusWeeks(14), startDatoMor.plusWeeks(17).minusDays(1))
             .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
             .build();

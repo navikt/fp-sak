@@ -85,9 +85,8 @@ public class AnkeRestTjeneste {
         var ankeUnderBehandlingKabal = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE);
         var ankeUnderBehandlingKabalTR = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN);
         var ankeBehandletAvKabal = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat).map(AnkeResultatEntitet::erBehandletAvKabal);
-        var ankeDto = new AnkebehandlingDto(resultat.orElse(null), ankeUnderBehandlingKabal, ankeUnderBehandlingKabalTR, ankeBehandletAvKabal.orElse(false));
 
-        return ankeDto;
+        return new AnkebehandlingDto(resultat.orElse(null), ankeUnderBehandlingKabal, ankeUnderBehandlingKabalTR, ankeBehandletAvKabal.orElse(false));
     }
 
     private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat,

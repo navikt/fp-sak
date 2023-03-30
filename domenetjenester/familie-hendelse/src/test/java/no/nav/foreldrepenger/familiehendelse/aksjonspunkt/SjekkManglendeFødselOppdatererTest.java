@@ -330,7 +330,6 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     @Test
     void skal_oppdatere_antall_barn_basert_på_tps_dersom_flagg_satt() {
         // Arrange
-        var fødselsdatoFraSøknad = now;
         var fødselsdatoFraTps = now.minusDays(1);
 
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
@@ -338,7 +337,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             .medSøknadsdato(now);
         scenario.medSøknadHendelse()
             .medAntallBarn(2)
-            .medFødselsDato(fødselsdatoFraSøknad,2);
+            .medFødselsDato(now,2);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
         scenario.medBekreftetHendelse()
@@ -368,14 +367,13 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     @Test
     void skal_hive_exception_når_dokumentasjon_foreligger_og_fødselsdato_er_tom() {
         // Arrange
-        var fødselsdatoFraSøknad = now;
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
             .medSøknadsdato(now);
         scenario.medSøknadHendelse()
             .medAntallBarn(1)
-            .medFødselsDato(fødselsdatoFraSøknad);
+            .medFødselsDato(now);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
         var behandling = scenario.lagre(repositoryProvider);

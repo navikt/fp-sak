@@ -266,10 +266,9 @@ class RegelFastsettOpptjeningsperiodeTest {
 
 
     private OpptjeningsperiodeGrunnlag opprettOpptjeningsperiodeGrunnlagForMorFødsel(LocalDate terminDato, LocalDate hendelsesDato, LocalDate uttaksDato) {
-        var regelmodell = OpptjeningsperiodeGrunnlag.grunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.MORA, LovVersjoner.KLASSISK)
+        return OpptjeningsperiodeGrunnlag.grunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.MORA, LovVersjoner.KLASSISK)
             .medFørsteUttaksDato(uttaksDato)
             .medHendelsesDato(hendelsesDato)
             .medTerminDato(terminDato);
-        return regelmodell;
     }
 }

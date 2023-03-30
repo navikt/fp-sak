@@ -45,11 +45,8 @@ public class AdopsjonsvilkårForeldrepenger implements RuleService<Adopsjonsvilk
                 .hvis(new SjekkEktefellesEllerSamboersBarn(SjekkEktefellesEllerSamboersBarn.ID_FP), stønadsPeriodeBruktOppNode)
                 .ellers(new Oppfylt());
 
-        Specification<AdopsjonsvilkårGrunnlag> barnUnder15ÅrNode =
-            rs.hvisRegel(SjekkBarnUnder15År.ID_FP, "Hvis barn under 15 år ved omsorgsovertakelsen ...")
-                .hvis(new SjekkBarnUnder15År(SjekkBarnUnder15År.ID_FP), ektefelleEllerSamboersBarnNode)
-                .ellers(new IkkeOppfylt(SjekkBarnUnder15År.INGEN_BARN_UNDER_15));
-
-        return barnUnder15ÅrNode;
+        return (Specification<AdopsjonsvilkårGrunnlag>) rs.hvisRegel(SjekkBarnUnder15År.ID_FP, "Hvis barn under 15 år ved omsorgsovertakelsen ...")
+            .hvis(new SjekkBarnUnder15År(SjekkBarnUnder15År.ID_FP), ektefelleEllerSamboersBarnNode)
+            .ellers(new IkkeOppfylt(SjekkBarnUnder15År.INGEN_BARN_UNDER_15));
     }
 }

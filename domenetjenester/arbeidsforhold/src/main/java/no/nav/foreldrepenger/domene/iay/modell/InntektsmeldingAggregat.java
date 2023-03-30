@@ -34,8 +34,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
 
     public InntektsmeldingAggregat(Collection<Inntektsmelding> inntektsmeldinger) {
         this.inntektsmeldinger.addAll(inntektsmeldinger.stream().map(i -> {
-            final var inntektsmelding = new Inntektsmelding(i);
-            return inntektsmelding;
+            return new Inntektsmelding(i);
         }).toList());
     }
 
@@ -87,8 +86,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         var fjernet = inntektsmeldinger.removeIf(it -> skalFjerneInntektsmelding(it, inntektsmelding));
 
         if (fjernet || inntektsmeldinger.stream().noneMatch(it -> it.gjelderSammeArbeidsforhold(inntektsmelding))) {
-            final var entitet = inntektsmelding;
-            inntektsmeldinger.add(entitet);
+            inntektsmeldinger.add(inntektsmelding);
         }
 
         inntektsmeldinger.stream().filter(it -> it.gjelderSammeArbeidsforhold(inntektsmelding) && !fjernet).findFirst().ifPresent(

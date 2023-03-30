@@ -107,11 +107,10 @@ class MapOppgittOpptjening {
 
             var frilansoppdrag = frilans.getFrilansoppdrag().stream().map(MapTilDto::mapFrilansoppdrag).sorted(COMP_FRILANSOPPDRAG)
                     .toList();
-            var frilansDto = new OppgittFrilansDto(frilansoppdrag)
+            return new OppgittFrilansDto(frilansoppdrag)
                     .medErNyoppstartet(frilans.getErNyoppstartet())
                     .medHarInntektFraFosterhjem(frilans.getHarInntektFraFosterhjem())
                     .medHarNærRelasjon(frilans.getHarNærRelasjon());
-            return frilansDto;
         }
 
         private static OppgittArbeidsforholdDto mapArbeidsforhold(OppgittArbeidsforhold arbeidsforhold) {
@@ -296,13 +295,12 @@ class MapOppgittOpptjening {
 
             var dto1 = dto.getPeriode();
             var virksomhet = tilUtenlandskVirksomhet(dto);
-            var builder = OppgittArbeidsforholdBuilder.ny()
+
+            return OppgittArbeidsforholdBuilder.ny()
                     .medArbeidType(KodeverkMapper.mapArbeidType(dto.getArbeidTypeDto()))
                     .medErUtenlandskInntekt(dto.isErUtenlandskInntekt())
                     .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(dto1.getFom(), dto1.getTom()))
                     .medUtenlandskVirksomhet(virksomhet);
-
-            return builder;
         }
 
         private static OppgittUtenlandskVirksomhet tilUtenlandskVirksomhet(OppgittArbeidsforholdDto dto) {

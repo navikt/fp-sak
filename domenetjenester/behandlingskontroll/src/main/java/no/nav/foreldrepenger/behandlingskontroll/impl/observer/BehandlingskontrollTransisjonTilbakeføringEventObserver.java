@@ -150,8 +150,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         var erManueltOpprettet = a.erManueltOpprettet();
         var erOpprettetIFørsteSteg = erOpprettetIFørsteSteg(a, førsteSteg);
         var hensyntaÅpneOpprettetIFørste = erOpprettetIFørsteSteg && tilInngangFørsteSteg && a.erÅpentAksjonspunkt();
-        var avbryt = !erManueltOpprettet && erFunnetIFørsteStegEllerSenere && (hensyntaÅpneOpprettetIFørste || !erOpprettetIFørsteSteg);
-        return avbryt;
+        return !erManueltOpprettet && erFunnetIFørsteStegEllerSenere && (hensyntaÅpneOpprettetIFørste || !erOpprettetIFørsteSteg);
     }
 
     private boolean erOpprettetIFørsteSteg(Aksjonspunkt ap, BehandlingStegType førsteSteg) {

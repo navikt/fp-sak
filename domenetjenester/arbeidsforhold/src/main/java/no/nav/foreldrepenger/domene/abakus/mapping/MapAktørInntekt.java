@@ -57,13 +57,11 @@ class MapAktørInntekt {
                 return Collections.emptyList();
             }
 
-            var builders = dtos.stream().map(idto -> {
+            return dtos.stream().map(idto -> {
                 var builder = aggregatBuilder.getAktørInntektBuilder(tilAktørId(idto.getPerson()));
                 idto.getUtbetalinger().forEach(utbetalingDto -> builder.leggTilInntekt(mapUtbetaling(utbetalingDto)));
                 return builder;
             }).toList();
-
-            return builders;
         }
 
         /**
@@ -154,12 +152,10 @@ class MapAktørInntekt {
             var ytelseType = KodeverkMapper.mapYtelseTypeTilDto(inntektspost.getYtelseType());
             var skattOgAvgiftType = KodeverkMapper.mapSkatteOgAvgiftsregelTilDto(inntektspost.getSkatteOgAvgiftsregelType());
 
-            var dto = new UtbetalingsPostDto(periode, inntektspostType)
+            return new UtbetalingsPostDto(periode, inntektspostType)
                     .medUtbetaltYtelseType(ytelseType)
                     .medSkattAvgiftType(skattOgAvgiftType)
                     .medBeløp(inntektspost.getBeløp().getVerdi());
-
-            return dto;
         }
 
     }

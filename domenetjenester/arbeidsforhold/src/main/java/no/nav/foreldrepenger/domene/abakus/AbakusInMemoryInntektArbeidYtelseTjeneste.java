@@ -335,14 +335,13 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     private void lagreGrunnlag(InntektArbeidYtelseGrunnlag nyttGrunnlag, Long behandlingId) {
-        var entitet = nyttGrunnlag;
 
         var behGrunnlag = indeksBehandlingTilGrunnlag.computeIfAbsent(behandlingId, k -> new LinkedList<>());
 
-        setField(entitet, "behandlingId", behandlingId);
+        setField(nyttGrunnlag, "behandlingId", behandlingId);
 
-        behGrunnlag.push(entitet.getEksternReferanse());
-        grunnlag.add(entitet);
+        behGrunnlag.push(nyttGrunnlag.getEksternReferanse());
+        grunnlag.add(nyttGrunnlag);
     }
 
     private void lagreOgFlush(Long behandlingId, InntektArbeidYtelseGrunnlag nyttGrunnlag) {

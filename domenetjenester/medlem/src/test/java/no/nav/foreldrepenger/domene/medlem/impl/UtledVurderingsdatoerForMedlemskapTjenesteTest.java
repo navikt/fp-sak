@@ -413,14 +413,13 @@ class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     }
 
     private MedlemskapPerioderEntitet opprettPeriode(LocalDate fom, LocalDate tom, MedlemskapDekningType dekningType) {
-        var periode = new MedlemskapPerioderBuilder()
+        return new MedlemskapPerioderBuilder()
                 .medDekningType(dekningType)
                 .medMedlemskapType(MedlemskapType.FORELOPIG)
                 .medPeriode(fom, tom)
                 .medKildeType(MedlemskapKildeType.MEDL)
                 .medMedlId(1L)
                 .build();
-        return periode;
     }
 
     private UttakResultatPerioderEntitet lagUttaksPeriode() {

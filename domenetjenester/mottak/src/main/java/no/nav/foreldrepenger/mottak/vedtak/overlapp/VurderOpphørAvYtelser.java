@@ -160,13 +160,12 @@ public class VurderOpphørAvYtelser {
     }
 
     private List<Fagsak> løpendeSakerSomOverlapperUttakPåNyIkkeKobletSak(AktørId aktørId, Fagsak fagsakIVB, LocalDate startdatoIVB) {
-        var saker = fagsakRepository.hentForBruker(aktørId)
+        return fagsakRepository.hentForBruker(aktørId)
             .stream()
             .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
             .filter(f -> !erSammeEllerKobletSak(fagsakIVB, f))
             .filter(f -> erMaxDatoPåLøpendeSakEtterStartDatoNysak(f, startdatoIVB))
             .toList();
-        return saker;
     }
 
     private boolean erSammeEllerKobletSak(Fagsak iverksatt, Fagsak sjekk) {
@@ -181,13 +180,12 @@ public class VurderOpphørAvYtelser {
 
     private List<FagsakPar> løpendeSakerSomOverlapperUttakNySakSVP(Behandling behandlingIVB,
                                                                 LocalDateInterval stønadsperiodeIVB) {
-        var saker = fagsakRepository.hentForBruker(behandlingIVB.getAktørId())
+        return fagsakRepository.hentForBruker(behandlingIVB.getAktørId())
             .stream()
             .filter(f -> VURDER_OVERLAPP.contains(f.getYtelseType()))
             .filter(f -> !behandlingIVB.getFagsak().getSaksnummer().equals(f.getSaksnummer()))
             .flatMap(f -> sjekkOverlappMotIverksattSvangerskapspenger(f, behandlingIVB, stønadsperiodeIVB).stream())
             .toList();
-        return saker;
     }
 
     private Optional<FagsakPar> sjekkOverlappMotIverksattSvangerskapspenger(Fagsak sjekkFagsak, Behandling behandlingIVB,

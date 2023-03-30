@@ -46,8 +46,7 @@ public class YtelseGrunnlag extends BaseEntitet {
         this.inntektProsent = ytelseGrunnlag.getInntektsgrunnlagProsent().orElse(null);
         this.opprinneligIdentdato = ytelseGrunnlag.getOpprinneligIdentdato().orElse(null);
         this.ytelseStørrelse = ytelseGrunnlag.getYtelseStørrelse().stream().map(ys -> {
-            var ytelseStørrelse = new YtelseStørrelse(ys);
-            return ytelseStørrelse;
+            return new YtelseStørrelse(ys);
         }).toList();
         this.vedtaksDagsats = ytelseGrunnlag.getVedtaksDagsats().orElse(null);
     }

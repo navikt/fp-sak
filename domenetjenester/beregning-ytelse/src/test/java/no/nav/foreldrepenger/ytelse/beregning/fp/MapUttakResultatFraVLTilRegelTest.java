@@ -342,11 +342,10 @@ class MapUttakResultatFraVLTilRegelTest {
             .medSøktGraderingForAktivitetIPeriode(true)
             .build();
         aktiviteter.add(periodeAktivitet);
-        var periode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(fom, tom)
+        return new ForeldrepengerUttakPeriode.Builder().medTidsperiode(fom, tom)
             .medResultatType(periodeResultatType)
             .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
             .medAktiviteter(aktiviteter)
             .build();
-        return periode;
     }
 }

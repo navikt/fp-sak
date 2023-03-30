@@ -209,8 +209,7 @@ class DatavarehusEventObserverTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, BehandlingStegType.VURDER_UTTAK);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD, BehandlingStegType.VURDER_UTTAK);
 
-        var behandling = scenario.lagMocked();
-        return behandling;
+        return scenario.lagMocked();
     }
 
 }

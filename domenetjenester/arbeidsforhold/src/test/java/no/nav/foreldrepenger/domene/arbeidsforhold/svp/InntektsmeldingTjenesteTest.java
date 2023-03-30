@@ -150,11 +150,10 @@ class InntektsmeldingTjenesteTest {
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medKopiertFraTidligereBehandling(false)
                 .build();
-        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+        return new SvpGrunnlagEntitet.Builder()
                 .medBehandlingId(behandling.getId())
                 .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
                 .build();
-        return svpGrunnlag;
     }
 
     private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
@@ -235,10 +234,8 @@ class InntektsmeldingTjenesteTest {
                 .leggTilAktivitetsAvtale(aktivitetsAvtale)
                 .leggTilAktivitetsAvtale(ansettelsesPeriode);
 
-        var aktørArbeid = builder
+        return builder
                 .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-
-        return aktørArbeid;
     }
 
     private InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder leggTilInntekt(InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder builder,
@@ -256,10 +253,8 @@ class InntektsmeldingTjenesteTest {
                 .medArbeidsgiver(arbeidsgiver)
                 .leggTilInntektspost(inntektspostBuilder);
 
-        var aktørInntekt = builder
+        return builder
                 .leggTilInntekt(inntektBuilder);
-
-        return aktørInntekt;
     }
 
     private Virksomhet lagVirksomhet() {

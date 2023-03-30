@@ -69,7 +69,8 @@ public class ProsesseringAsynkTjeneste {
 
     private Map<String, ProsessTaskData> nesteProsessTaskPerGruppe(Map<String, List<ProsessTaskData>> tasks) {
         // velg top task per gruppe
-        var topTaskPerGruppe = tasks.entrySet().stream()
+
+        return tasks.entrySet().stream()
                 .filter(e -> !e.getValue().isEmpty())
                 .map(e -> e.getValue()
                         .stream()
@@ -80,8 +81,6 @@ public class ProsesseringAsynkTjeneste {
                                                                                                                      */)
                         .findFirst().get())
                 .collect(Collectors.toMap(ProsessTaskData::getGruppe, Function.identity()));
-
-        return topTaskPerGruppe;
     }
 
     private boolean angittGruppeErFerdig(String gruppe, Map<String, ProsessTaskData> nestePerGruppe) {

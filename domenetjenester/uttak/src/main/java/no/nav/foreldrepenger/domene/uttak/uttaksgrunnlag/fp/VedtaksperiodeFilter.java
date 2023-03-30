@@ -122,8 +122,7 @@ public final class VedtaksperiodeFilter {
             .filterValue(v -> v);
 
         // Første segment med ulikhet
-        var førsteNyhet = ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
-        return førsteNyhet;
+        return ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
     }
 
     private static List<OppgittPeriodeEntitet> opprettOppgittePerioderKunInnvilget(UttakResultatEntitet uttakResultatFraForrigeBehandling, LocalDate perioderFom) {

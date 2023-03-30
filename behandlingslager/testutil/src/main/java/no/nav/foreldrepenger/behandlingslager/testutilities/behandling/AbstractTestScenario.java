@@ -455,9 +455,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 final var familieHendelseAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
                 final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
 
-                var id = nyBehandlingId;
-                familieHendelseAggregatMap.remove(id);
-                familieHendelseAggregatMap.put(id, oppdatere.build());
+                familieHendelseAggregatMap.remove(nyBehandlingId);
+                familieHendelseAggregatMap.put(nyBehandlingId, oppdatere.build());
             }
 
             @Override
@@ -467,9 +466,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 oppdatere.medOverstyrtVersjon(null);
                 oppdatere.medBekreftetVersjon(null);
 
-                var id = nyBehandlingId;
-                familieHendelseAggregatMap.remove(id);
-                familieHendelseAggregatMap.put(id, oppdatere.build());
+                familieHendelseAggregatMap.remove(nyBehandlingId);
+                familieHendelseAggregatMap.put(nyBehandlingId, oppdatere.build());
             }
 
             @Override

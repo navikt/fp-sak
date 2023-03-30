@@ -99,9 +99,7 @@ class KompletthetssjekkerSøknadKomplettTest {
         var scenario = lagScenario(gjelderFødsel, elektroniskRegistrert);
         leggVedRegisteropplysninger(fødselsdatoBarn, bekreftetViaTps, scenario);
 
-        var behandling = lagBehandling(manglerVedlegg, scenario);
-
-        return behandling;
+        return lagBehandling(manglerVedlegg, scenario);
     }
 
     private void leggVedRegisteropplysninger(LocalDate fødselsdatoBarn, boolean bekreftetViaTps, AbstractTestScenario<?> scenario) {

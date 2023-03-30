@@ -131,15 +131,13 @@ public class OpptjeningsvilkårMellomregning {
      */
     public Map<Aktivitet, LocalDateTimeline<Boolean>> getAktivitetTidslinjer(boolean medAntattGodkjentePerioder, boolean medIkkebekreftedeGodkjentePerioder) {
 
-        var resultat = mellomregning
+        return mellomregning
             .entrySet().stream()
             .map(
                 e -> new AbstractMap.SimpleEntry<>(e.getKey(),
                     e.getValue().getAktivitetTidslinje(medAntattGodkjentePerioder, medIkkebekreftedeGodkjentePerioder)))
             .filter(e -> !e.getValue().isEmpty())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        return resultat;
 
     }
 

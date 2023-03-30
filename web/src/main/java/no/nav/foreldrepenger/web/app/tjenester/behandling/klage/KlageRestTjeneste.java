@@ -156,8 +156,7 @@ public class KlageRestTjeneste {
     }
 
     private static MottattKlagedokumentDto mapMottattKlagedokumentDto(Optional<MottattDokument> mottattDokument) {
-        var mottattKlagedokumentDto = new MottattKlagedokumentDto(mottattDokument.map(MottattDokument::getMottattDato).orElse(null));
-        return mottattKlagedokumentDto;
+        return new MottattKlagedokumentDto(mottattDokument.map(MottattDokument::getMottattDato).orElse(null));
     }
 
     private KlagebehandlingDto mapFra(Behandling behandling) {
@@ -210,7 +209,7 @@ public class KlageRestTjeneste {
         var behandlingId = påklagdBehandling.map(Behandling::getId).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::id).orElse(null));
         var behandlingUuid = påklagdBehandling.map(Behandling::getUuid).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::uuid).orElse(null));
         var behandlingType = påklagdBehandling.map(Behandling::getType).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::type).orElse(null));
-        var dto = new KlageFormkravResultatDto(behandlingId,
+        return new KlageFormkravResultatDto(behandlingId,
             behandlingUuid,
             behandlingType,
             klageFormkrav.hentBegrunnelse(),
@@ -219,7 +218,6 @@ public class KlageRestTjeneste {
             klageFormkrav.erFristOverholdt(),
             klageFormkrav.erSignert(),
             klageFormkrav.hentAvvistÅrsaker());
-        return dto;
     }
 
     private static Optional<TilbakeBehandlingDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid,

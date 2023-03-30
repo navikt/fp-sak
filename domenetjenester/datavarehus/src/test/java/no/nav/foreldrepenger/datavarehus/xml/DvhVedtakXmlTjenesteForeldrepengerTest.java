@@ -224,7 +224,6 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private Behandling byggBehandlingMedVedtak() {
-        var selvstendigNæringsdrivendeOrgnr = KUNSTIG_ORG;
 
         var ytelseHjelper = new YtelseHjelperTester();
         ytelseHjelper.medArbeidsForhold("55L")
@@ -245,7 +244,7 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
         var behandling = lagre(scenario);
         var behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(behandling);
 
-        byggYtelse(behandling, RelatertYtelseType.SYKEPENGER, new BigDecimal(90), Arbeidskategori.ARBEIDSTAKER, selvstendigNæringsdrivendeOrgnr);
+        byggYtelse(behandling, RelatertYtelseType.SYKEPENGER, new BigDecimal(90), Arbeidskategori.ARBEIDSTAKER, KUNSTIG_ORG);
 
         var uttaksperiodegrense = new Uttaksperiodegrense(LocalDate.now());
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrense);

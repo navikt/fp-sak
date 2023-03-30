@@ -62,12 +62,10 @@ class VurderSøknadsfristStegTest {
     @Test
     void ingen_aksjonspunkt_når_søkt_i_tide(EntityManager em) {
         var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
-        var tidligstMottattDato = behovFraDato;
-        var mottatdato = behovFraDato;
         var termindato = LocalDate.of(2019, Month.JULY, 1);
         svpHelper.lagreTerminbekreftelse(behandling, termindato);
-        svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, tidligstMottattDato);
-        var søknad = opprettSøknad(behandling, behovFraDato, mottatdato);
+        svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, behovFraDato);
+        var søknad = opprettSøknad(behandling, behovFraDato, behovFraDato);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -87,7 +85,7 @@ class VurderSøknadsfristStegTest {
             .hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
-            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(upg.getMottattDato()).isEqualTo(behovFraDato);
             assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         });
     }
@@ -130,11 +128,10 @@ class VurderSøknadsfristStegTest {
     @Test
     void ingen_aksjonspunkt_revurdering_søkt_i_tide(EntityManager em) {
         var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
-        var mottatdato = jordsmorsdato;
         var termindato = LocalDate.of(2019, Month.DECEMBER, 1);
         svpHelper.lagreTerminbekreftelse(behandling, termindato);
         svpHelper.lagreDelvisTilrettelegging(behandling, jordsmorsdato, jordsmorsdato, new BigDecimal(60));
-        var søknad = opprettSøknad(behandling, termindato, mottatdato);
+        var søknad = opprettSøknad(behandling, termindato, jordsmorsdato);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -154,7 +151,7 @@ class VurderSøknadsfristStegTest {
             .hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
-            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(upg.getMottattDato()).isEqualTo(jordsmorsdato);
             assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         });
         behandling.avsluttBehandling();
@@ -162,7 +159,7 @@ class VurderSøknadsfristStegTest {
         var revurdering = svpHelper.lagreRevurdering(behandling);
         svpHelper.lagreTerminbekreftelse(revurdering, LocalDate.of(2019, Month.DECEMBER, 1));
         svpHelper.lagreDelvisTilrettelegging(revurdering, jordsmorsdato, jordsmorsdato.plusMonths(4), new BigDecimal(20));
-        var søknadRevurder = opprettSøknad(revurdering, termindato, mottatdato.plusMonths(4));
+        var søknadRevurder = opprettSøknad(revurdering, termindato, jordsmorsdato.plusMonths(4));
         repositoryProvider.getSøknadRepository().lagreOgFlush(revurdering, søknadRevurder);
         em.flush();
         em.clear();
@@ -180,7 +177,7 @@ class VurderSøknadsfristStegTest {
             .hentHvisEksisterer(revurdering.getId());
         assertThat(gjeldendeUttaksperiodegrense).hasValueSatisfying(upg -> {
             assertThat(upg).isNotNull();
-            assertThat(upg.getMottattDato()).isEqualTo(mottatdato);
+            assertThat(upg.getMottattDato()).isEqualTo(jordsmorsdato);
             assertThat(Søknadsfrister.tidligsteDatoDagytelse(upg.getMottattDato())).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         });
 

@@ -90,8 +90,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public List<ManglendeVedlegg> utledAlleManglendeVedleggForForsendelse(BehandlingReferanse ref) {
-        var manglendeVedlegg = kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref);
-        return manglendeVedlegg;
+        return kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(ref);
     }
 
     @Override
