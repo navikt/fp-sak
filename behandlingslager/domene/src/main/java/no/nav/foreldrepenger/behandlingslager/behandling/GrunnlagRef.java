@@ -69,8 +69,7 @@ public @interface GrunnlagRef {
         }
 
         private static String getName(Class<?> aggregat) {
-            var aggrNavn = aggregat.isAnnotationPresent(Entity.class) ? aggregat.getAnnotation(Entity.class).name()  : aggregat.getSimpleName();
-            return aggrNavn;
+            return aggregat.isAnnotationPresent(Entity.class) ? aggregat.getAnnotation(Entity.class).name()  : aggregat.getSimpleName();
         }
 
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, Class<?> aggregatClass) {

@@ -47,9 +47,8 @@ public class FaktaOmsorgRettTjeneste {
         var erEndretBekreftetVersjon = harAvklartUdefinertEllerEndretBekreftet(harAnnenForeldreRettBekreftetVersjon, annenforelderHarRett);
 
         // Totrinns er sett hvis saksbehandler avkreftet først gang eller endret etter han bekreftet
-        var totrinn = endretVurderingAvMorsUføretrygd || endretVurderingAvRettEØS || avkreftetBrukersOpplysinger ||
+        return endretVurderingAvMorsUføretrygd || endretVurderingAvRettEØS || avkreftetBrukersOpplysinger ||
             (harAnnenForeldreRettBekreftetVersjon != null && erEndretBekreftetVersjon);
-        return totrinn;
     }
 
     public boolean totrinnForAleneomsorg(AksjonspunktOppdaterParameter param,

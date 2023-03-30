@@ -58,8 +58,7 @@ class DummySteg implements BehandlingSteg {
             resolver.put(key, konfig.getSteg());
         }
 
-        TriFunction<BehandlingStegType, BehandlingType, FagsakYtelseType, BehandlingSteg> func = (t, u, r) -> resolver.get(Arrays.asList(t, u, r));
-        return func;
+        return (t, u, r) -> resolver.get(Arrays.asList(t, u, r));
     }
 
 }

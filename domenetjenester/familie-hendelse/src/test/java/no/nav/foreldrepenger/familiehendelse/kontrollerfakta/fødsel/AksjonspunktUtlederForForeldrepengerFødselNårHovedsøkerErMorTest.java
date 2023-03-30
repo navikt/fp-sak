@@ -214,8 +214,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
             .medTermindato(termindato)
             .medNavnPå("LEGEN MIN"));
 
-        var behandling = scenario.lagre(repositoryProvider);
-        return behandling;
+        return scenario.lagre(repositoryProvider);
     }
 
     private void lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String orgNr, LocalDate tilOgMed) {

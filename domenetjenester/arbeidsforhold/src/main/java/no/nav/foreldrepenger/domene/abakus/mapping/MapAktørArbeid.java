@@ -185,9 +185,8 @@ public class MapAktørArbeid {
 
             var aktiviteter = yrkesaktiviteter.stream().filter(this::erGyldigYrkesaktivitet).sorted(COMP_YRKESAKTIVITET).toList();
 
-            var dto = new ArbeidDto(new AktørIdPersonident(arb.getAktørId().getId()))
+            return new ArbeidDto(new AktørIdPersonident(arb.getAktørId().getId()))
                     .medYrkesaktiviteter(aktiviteter);
-            return dto;
         }
 
         private boolean erGyldigYrkesaktivitet(YrkesaktivitetDto yrkesaktivitet) {
@@ -201,11 +200,10 @@ public class MapAktørArbeid {
         private AktivitetsAvtaleDto map(AktivitetsAvtale aa) {
             var fomDato = aa.getPeriodeUtenOverstyring().getFomDato();
             var tomDato = aa.getPeriodeUtenOverstyring().getTomDato();
-            var avtale = new AktivitetsAvtaleDto(fomDato, tomDato)
+            return new AktivitetsAvtaleDto(fomDato, tomDato)
                     .medBeskrivelse(aa.getBeskrivelse())
                     .medSistLønnsendring(aa.getSisteLønnsendringsdato())
                     .medStillingsprosent(aa.getProsentsats() == null ? null : aa.getProsentsats().getVerdi());
-            return avtale;
         }
 
         private PermisjonDto map(Permisjon p) {
@@ -213,10 +211,9 @@ public class MapAktørArbeid {
             var maxPermisjonProsentsats = new BigDecimal(100); // enig med Cecilie H. om å transformere dårlige data (eks. 800% permisjon).
                                                                       // Bare første 100% som gir utslag.
 
-            var permisjon = new PermisjonDto(new Periode(p.getFraOgMed(), p.getTilOgMed()), permisjonsbeskrivelseType)
+            return new PermisjonDto(new Periode(p.getFraOgMed(), p.getTilOgMed()), permisjonsbeskrivelseType)
                     .medProsentsats(
                             minMax(p.getProsentsats() != null ? p.getProsentsats().getVerdi() : null, BigDecimal.ZERO, maxPermisjonProsentsats));
-            return permisjon;
         }
 
         private YrkesaktivitetDto mapYrkesaktivitet(Yrkesaktivitet a) {
@@ -226,14 +223,13 @@ public class MapAktørArbeid {
             var arbeidsforholdId = mapArbeidsforholdsId(a.getArbeidsgiver(), a);
 
             var arbeidType = KodeverkMapper.mapArbeidTypeTilDto(a.getArbeidType());
-            var dto = new YrkesaktivitetDto(arbeidType)
+
+            return new YrkesaktivitetDto(arbeidType)
                     .medArbeidsgiver(mapAktør(a.getArbeidsgiver()))
                     .medAktivitetsAvtaler(aktivitetsAvtaler)
                     .medPermisjoner(permisjoner)
                     .medArbeidsforholdId(arbeidsforholdId)
                     .medNavnArbeidsgiverUtland(a.getNavnArbeidsgiverUtland());
-
-            return dto;
         }
 
         private ArbeidsforholdRefDto mapArbeidsforholdsId(Arbeidsgiver arbeidsgiver, Yrkesaktivitet yrkesaktivitet) {

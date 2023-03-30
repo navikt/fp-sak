@@ -201,10 +201,9 @@ class TraverseEntityGraphTest {
     }
 
     private ScenarioMorSøkerEngangsstønad lagTestScenario() {
-        var scenario = ScenarioMorSøkerEngangsstønad
+        return ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .medTilleggsopplysninger("hello");
-        return scenario;
     }
 
     @Entity

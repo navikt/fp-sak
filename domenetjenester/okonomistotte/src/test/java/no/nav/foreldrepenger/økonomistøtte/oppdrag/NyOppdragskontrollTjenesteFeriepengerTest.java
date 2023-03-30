@@ -58,9 +58,8 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
     }
 
     private BeregningsresultatEntitet oppsettBeregningsresultatForFeriepenger(boolean erOpptjentOverFlereÅr, Long årsbeløp1, Long årsbeløp2) {
-        var beregningsresultatRevurderingFP = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1,
+        return buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1,
             årsbeløp2);
-        return beregningsresultatRevurderingFP;
     }
 
     /**

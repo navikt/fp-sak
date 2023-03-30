@@ -302,8 +302,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         scenarioMor.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        var behandling = scenarioMor.lagre(repositoryProvider);
-        return behandling;
+        return scenarioMor.lagre(repositoryProvider);
     }
 
 
@@ -322,8 +321,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         scenarioFar.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        var behandling = scenarioFar.lagre(repositoryProvider);
-        return behandling;
+        return scenarioFar.lagre(repositoryProvider);
     }
 
     private Behandling lagBehandlingFPAdopsjonMor(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
@@ -387,8 +385,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         scenarioSVP.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(1))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        var behandlingSVP = scenarioSVP.lagre(repositoryProvider);
-        return behandlingSVP;
+        return scenarioSVP.lagre(repositoryProvider);
     }
 
     private void avsluttBehandling(Behandling behandling) {

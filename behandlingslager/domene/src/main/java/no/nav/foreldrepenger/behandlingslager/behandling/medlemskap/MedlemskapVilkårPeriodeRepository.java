@@ -166,8 +166,7 @@ public class MedlemskapVilkårPeriodeRepository {
 
         entityManager.persist(grunnlag.getMedlemskapsvilkårPeriode());
         grunnlag.getMedlemskapsvilkårPeriode().getPerioder().forEach(periode -> {
-            var periodeEntitet = periode;
-            periodeEntitet.setRot(grunnlag.getMedlemskapsvilkårPeriode());
+            periode.setRot(grunnlag.getMedlemskapsvilkårPeriode());
             entityManager.persist(periode);
         });
         entityManager.persist(grunnlag);

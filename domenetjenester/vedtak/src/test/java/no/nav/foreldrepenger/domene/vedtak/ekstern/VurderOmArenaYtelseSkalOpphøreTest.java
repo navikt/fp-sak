@@ -90,10 +90,9 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
     void skal_teste_arena_ytelser_finnes_ikke() {
         // Arrange
         var vedtaksDato = SKJÆRINGSTIDSPUNKT.minusDays(7);
-        var startDatoFP = SKJÆRINGSTIDSPUNKT;
         byggScenarioUtenYtelseIArena();
         // Act
-        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
+        var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), SKJÆRINGSTIDSPUNKT, vedtaksDato);
         // Assert
         assertThat(resultat).isFalse();
     }
@@ -201,12 +200,11 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
     void skal_teste_startdato_er_like_T1_og_T2_er_null() {
         // Arrange
         // Arena ytelser før vedtaksdato og mellom startdato FP og sluttdato FP.
-        var meldekortT1 = SKJÆRINGSTIDSPUNKT;
         var ytelseVedtakFOM = SKJÆRINGSTIDSPUNKT.minusDays(MELDEKORTPERIODE * 2);
         var ytelseVedtakTOM = SKJÆRINGSTIDSPUNKT.minusDays(1);
         var vedtaksDato = SKJÆRINGSTIDSPUNKT.plusDays(47);
         var startDatoFP = SKJÆRINGSTIDSPUNKT.minusDays(1);
-        byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, meldekortT1, vedtaksDato, startDatoFP, Fagsystem.ARENA);
+        byggScenario(ytelseVedtakFOM, ytelseVedtakTOM, SKJÆRINGSTIDSPUNKT, vedtaksDato, startDatoFP, Fagsystem.ARENA);
         // Act
         var resultat = vurdereOmArenaYtelseSkalOpphør.vurderArenaYtelserOpphøres(behandling.getId(), behandling.getAktørId(), startDatoFP, vedtaksDato);
         // Assert

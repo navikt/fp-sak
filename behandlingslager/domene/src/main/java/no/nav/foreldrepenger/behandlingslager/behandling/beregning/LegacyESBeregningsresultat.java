@@ -69,10 +69,9 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
                 .thenComparing(LegacyESBeregning::getBeregnetTidspunkt)
                 .reversed()
                 ;
-        var first = beregninger.stream()
+        return beregninger.stream()
             .sorted(comparator)
             .findFirst();
-        return first;
     }
 
     @Override

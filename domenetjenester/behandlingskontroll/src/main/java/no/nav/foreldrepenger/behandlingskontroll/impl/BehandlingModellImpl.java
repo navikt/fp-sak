@@ -326,8 +326,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
                 return Collections.emptyList();
             }
         }
-        var subList = steg.subList(idx + 1, steg.size());
-        return subList;
+        return steg.subList(idx + 1, steg.size());
     }
 
     /**

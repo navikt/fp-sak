@@ -854,7 +854,6 @@ class UtbetalingsgradBeregnerTest {
         // Arrange
         var terminDato = LocalDate.of(2019, 7, 1);
         var jordmorsdato = LocalDate.of(2019, 5, 28);
-        var delvisTilretteleggingFom = jordmorsdato;
         var test123 = Arbeidsgiver.virksomhet("Test123");
 
         var overstyrtUtbetalingsgrad = BigDecimal.valueOf(10);
@@ -863,7 +862,7 @@ class UtbetalingsgradBeregnerTest {
                 .medTilretteleggingFom(new TilretteleggingFOM.Builder()
                         .medStillingsprosent(BigDecimal.valueOf(60))
                         .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
-                        .medFomDato(delvisTilretteleggingFom)
+                        .medFomDato(jordmorsdato)
                         .medOverstyrtUtbetalingsgrad(overstyrtUtbetalingsgrad)
                         .build())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -871,7 +870,7 @@ class UtbetalingsgradBeregnerTest {
                 .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
-        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilretteleggingFom, delvisTilretteleggingFom));
+        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato));
         aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(100));
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
         // Act
@@ -881,7 +880,7 @@ class UtbetalingsgradBeregnerTest {
         var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
                 .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
-        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilretteleggingFom, terminDato.minusWeeks(3).minusDays(1));
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato.minusWeeks(3).minusDays(1));
 
         // Assert
         assertThat(resultat.get(periode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(overstyrtUtbetalingsgrad);
@@ -895,7 +894,6 @@ class UtbetalingsgradBeregnerTest {
         // Arrange
         var terminDato = LocalDate.of(2020, 10, 1);
         var jordmorsdato = LocalDate.of(2020, 2, 3);
-        var delvisTilretteleggingFom = jordmorsdato;
         var aktørId = AktørId.dummy();
         var test123 = Arbeidsgiver.person(aktørId);
 
@@ -903,7 +901,7 @@ class UtbetalingsgradBeregnerTest {
                 .medBehovForTilretteleggingFom(jordmorsdato)
                 .medTilretteleggingFom(new TilretteleggingFOM.Builder()
                         .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
-                        .medFomDato(delvisTilretteleggingFom)
+                        .medFomDato(jordmorsdato)
                         .build())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(test123)
@@ -919,7 +917,7 @@ class UtbetalingsgradBeregnerTest {
         var resultat = tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().stream()
                 .collect(Collectors.groupingBy(PeriodeMedUtbetalingsgrad::getPeriode));
 
-        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilretteleggingFom, terminDato.minusWeeks(3).minusDays(1));
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, terminDato.minusWeeks(3).minusDays(1));
 
         // Assert
         assertThat(resultat.get(periode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));

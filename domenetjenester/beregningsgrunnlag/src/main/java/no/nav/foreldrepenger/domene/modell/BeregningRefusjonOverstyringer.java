@@ -24,8 +24,7 @@ public class BeregningRefusjonOverstyringer {
         }
 
         public Builder leggTilOverstyring(BeregningRefusjonOverstyring beregningRefusjonOverstyring) {
-            var entitet = beregningRefusjonOverstyring;
-            kladd.overstyringer.add(entitet);
+            kladd.overstyringer.add(beregningRefusjonOverstyring);
             return this;
         }
 

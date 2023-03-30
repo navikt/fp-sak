@@ -89,8 +89,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
      * på samme fagsak i samme millisek.
      */
     protected Long getGruppeSekvensNr() {
-        Long gruppeSekvensNr = Instant.now().toEpochMilli();
-        return gruppeSekvensNr;
+        return Instant.now().toEpochMilli();
     }
 
     private Long getBehandlingId(ProsessTaskData data) {

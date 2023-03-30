@@ -461,10 +461,8 @@ class InntektsmeldingTjenesteTest {
                 .leggTilAktivitetsAvtale(aktivitetsAvtale)
                 .leggTilAktivitetsAvtale(ansettelsesPeriode);
 
-        var aktørArbeid = builder
+        return builder
                 .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-
-        return aktørArbeid;
     }
 
     private InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder leggTilInntekt(InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder builder,
@@ -482,10 +480,8 @@ class InntektsmeldingTjenesteTest {
                 .medArbeidsgiver(arbeidsgiver)
                 .leggTilInntektspost(inntektspostBuilder);
 
-        var aktørInntekt = builder
+        return builder
                 .leggTilInntekt(inntektBuilder);
-
-        return aktørInntekt;
     }
 
     private Virksomhet lagVirksomhet() {

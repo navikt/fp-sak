@@ -70,11 +70,10 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
         // skal også med som antatt selv om ingen inntekter er rapportert
         var førsteArbeidsdagSmallCorp = dt3.withDayOfMonth(1);
-        var sisteArbeidsdagSmallCorp = dt4;
         var aktiviteter = List.of(
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp)
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(førsteArbeidsdagSmallCorp, dt4), smallCorp)
         );
         // inntekt
         var inntekter = List.of(
@@ -92,7 +91,7 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
                 .containsEntry(bigCorp,
                         new LocalDateTimeline<>(dt3.plusDays(1), dt4, Boolean.TRUE))
                 .containsEntry(smallCorp,
-                        new LocalDateTimeline<>(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp, Boolean.TRUE));
+                        new LocalDateTimeline<>(førsteArbeidsdagSmallCorp, dt4, Boolean.TRUE));
 
     }
 
@@ -107,12 +106,10 @@ class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
 
         // skal også med som antatt selv om ingen inntekter er rapportert
-        var førsteArbeidsdagSmallCorp = dt2;
-        var sisteArbeidsdagSmallCorp = dt4;
         var aktiviteter = List.of(
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
             AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
-            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp)
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt2, dt4), smallCorp)
         );
 
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, List.of());

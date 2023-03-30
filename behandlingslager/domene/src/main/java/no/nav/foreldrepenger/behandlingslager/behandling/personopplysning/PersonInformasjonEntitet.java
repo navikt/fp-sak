@@ -118,39 +118,33 @@ public class PersonInformasjonEntitet extends BaseEntitet {
     }
 
     void leggTilAdresse(PersonAdresseEntitet adresse) {
-        final var adresse1 = adresse;
-        adresse1.setPersonopplysningInformasjon(this);
-        adresser.add(adresse1);
+        adresse.setPersonopplysningInformasjon(this);
+        adresser.add(adresse);
     }
 
     void leggTilStatsborgerskap(StatsborgerskapEntitet statsborgerskap) {
-        final var statsborgerskap1 = statsborgerskap;
-        statsborgerskap1.setPersonopplysningInformasjon(this);
-        this.statsborgerskap.add(statsborgerskap1);
+        statsborgerskap.setPersonopplysningInformasjon(this);
+        this.statsborgerskap.add(statsborgerskap);
     }
 
     void leggTilPersonstatus(PersonstatusEntitet personstatus) {
-        final var personstatus1 = personstatus;
-        personstatus1.setPersonInformasjon(this);
-        this.personstatuser.add(personstatus1);
+        personstatus.setPersonInformasjon(this);
+        this.personstatuser.add(personstatus);
     }
 
     void leggTilOppholdstillatelse(OppholdstillatelseEntitet oppholdstillatelse) {
-        final var oppholdstillatelse1 = oppholdstillatelse;
-        oppholdstillatelse1.setPersonInformasjon(this);
-        this.oppholdstillatelser.add(oppholdstillatelse1);
+        oppholdstillatelse.setPersonInformasjon(this);
+        this.oppholdstillatelser.add(oppholdstillatelse);
     }
 
     void leggTilPersonrelasjon(PersonRelasjonEntitet relasjon) {
-        final var relasjon1 = relasjon;
-        relasjon1.setPersonopplysningInformasjon(this);
-        this.relasjoner.add(relasjon1);
+        relasjon.setPersonopplysningInformasjon(this);
+        this.relasjoner.add(relasjon);
     }
 
     void leggTilPersonopplysning(PersonopplysningEntitet personopplysning) {
-        final var personopplysning1 = personopplysning;
-        personopplysning1.setPersonopplysningInformasjon(this);
-        this.personopplysninger.add(personopplysning1);
+        personopplysning.setPersonopplysningInformasjon(this);
+        this.personopplysninger.add(personopplysning);
     }
 
     void fjernPersonopplysning(AktørId aktørId) {

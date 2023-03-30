@@ -573,8 +573,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
                 .medUtstedtDato(terminDato.minusDays(40)))
             .medAntallBarn(1));
 
-        var behandling = scenario.lagre(repositoryProvider);
-        return behandling;
+        return scenario.lagre(repositoryProvider);
     }
 
     private Aksjonspunkt opprettAksjonspunkt(Behandling behandling,

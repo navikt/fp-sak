@@ -39,8 +39,7 @@ public class HtmlTransformerProvider {
         var classLoader = Thread.currentThread().getContextClassLoader();
         // FIXME (ToreEndestad): Denne kan caches statisk og gjenbrukes (template)
         try(var inputStream = classLoader.getResourceAsStream(xslTransformerFilename)) {
-            var template = factory.newTemplates(new StreamSource(inputStream));
-            return template;
+            return factory.newTemplates(new StreamSource(inputStream));
         } catch (TransformerConfigurationException | IOException e) {
             throw new IllegalStateException("Kunne ikke lese template: " + xslTransformerFilename , e);
         }

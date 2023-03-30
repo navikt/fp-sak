@@ -55,9 +55,7 @@ public class RegelBeregnFeriepenger implements RuleService<BeregningsresultatFer
             rs.beregningHvisRegel(new SjekkOmBrukerHarFåttUtbetaltForeldrepenger(), sjekkOmBrukerHarDagerIgjenAvFeriekvote, new BeregnetFeriepenger());
 
         // FP_BR 8.1 Er brukers inntektskategori arbeidstaker eller sjømann?
-        var sjekkInntektskatoriATellerSjømann =
-            rs.beregningHvisRegel(new SjekkOmBrukerHarInntektkategoriATellerSjømann(), sjekkOmBrukerHarFåttUtbetaltFP, new BeregnetFeriepenger());
 
-        return sjekkInntektskatoriATellerSjømann;
+        return rs.beregningHvisRegel(new SjekkOmBrukerHarInntektkategoriATellerSjømann(), sjekkOmBrukerHarFåttUtbetaltFP, new BeregnetFeriepenger());
     }
 }

@@ -55,9 +55,7 @@ public class BeregningsresultatEntitet extends BaseEntitet {
     public BeregningsresultatEntitet(BeregningsresultatEntitet kopi) {
         this.regelInput = kopi.regelInput;
         this.regelSporing = kopi.regelSporing;
-        kopi.getBeregningsresultatPerioder().forEach(periodeKopi -> {
-            this.beregningsresultatPerioder.add(new BeregningsresultatPeriode(periodeKopi));
-        });
+        kopi.getBeregningsresultatPerioder().forEach(periodeKopi -> this.beregningsresultatPerioder.add(new BeregningsresultatPeriode(periodeKopi)));
     }
 
     public BeregningsresultatEntitet() {

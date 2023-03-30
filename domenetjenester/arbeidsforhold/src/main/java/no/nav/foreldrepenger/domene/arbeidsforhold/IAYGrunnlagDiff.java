@@ -130,9 +130,8 @@ public class IAYGrunnlagDiff {
 
         var førYtelserEkstern = hentYtelserForAktørEtterStp(grunnlag1, skjæringstidspunkt, aktørId, predikatPleiepenger);
         var nåYtelserEkstern = hentYtelserForAktørEtterStp(grunnlag2, skjæringstidspunkt, aktørId, predikatPleiepenger);
-        var erPleiepengerEndret = !new IAYDiffsjekker().getDiffEntity().diff(førYtelserEkstern, nåYtelserEkstern).isEmpty();
 
-        return erPleiepengerEndret;
+        return !new IAYDiffsjekker().getDiffEntity().diff(førYtelserEkstern, nåYtelserEkstern).isEmpty();
     }
 
     private List<Ytelse> hentYtelserForAktørEtterStp(InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt, AktørId aktørId,

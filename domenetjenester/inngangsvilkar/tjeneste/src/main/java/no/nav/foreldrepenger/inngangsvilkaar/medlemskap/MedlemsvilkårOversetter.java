@@ -79,7 +79,7 @@ public class MedlemsvilkårOversetter {
         var harOppholdstillatelse = personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall());
         var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.aktørId());
 
-        var grunnlag = new MedlemskapsvilkårGrunnlag(
+        return new MedlemskapsvilkårGrunnlag(
             tilPersonStatusType(personopplysninger), // FP VK 2.1
             brukerNorskNordisk(personopplysninger), // FP VK 2.11
             brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger), // FP VIK 2.12
@@ -90,8 +90,6 @@ public class MedlemsvilkårOversetter {
             vurdertBosatt,
             vurdertLovligOpphold,
             vurdertOppholdsrett);
-
-        return grunnlag;
     }
 
     /**

@@ -54,9 +54,8 @@ class FødselsvilkårOversetterTest {
     @Test
     void skal_mappe_fra_domenefødsel_til_regelfødsel() {
         var now = LocalDate.now();
-        var søknadsdato = now;
         var fødselFødselsdato = now.plusDays(7);
-        var behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.MORA);
+        var behandling = opprettBehandlingForFødsel(now, now, fødselFødselsdato, RelasjonsRolleType.MORA);
 
         var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling));
 
@@ -66,16 +65,15 @@ class FødselsvilkårOversetterTest {
         assertThat(grunnlag.antallBarn()).isEqualTo(1);
         assertThat(grunnlag.terminbekreftelseTermindato()).isNull();
         assertThat(grunnlag.søkerRolle()).isEqualTo(RegelSøkerRolle.MORA);
-        assertThat(grunnlag.behandlingsdato()).isEqualTo(søknadsdato);
+        assertThat(grunnlag.behandlingsdato()).isEqualTo(now);
         assertThat(grunnlag.erSøktOmTermin()).isFalse();
     }
 
     @Test
     void skal_mappe_fra_domenefødsel_til_regelfødsel_dersom_søker_er_medmor() {
         var now = LocalDate.now();
-        var søknadsdato = now;
         var fødselFødselsdato = now.plusDays(7);
-        var behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.FARA);
+        var behandling = opprettBehandlingForFødsel(now, now, fødselFødselsdato, RelasjonsRolleType.FARA);
 
         var grunnlag = fødselsoversetter.oversettTilRegelModellFødsel(lagRef(behandling));
 
@@ -84,7 +82,7 @@ class FødselsvilkårOversetterTest {
         assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(fødselFødselsdato);
         assertThat(grunnlag.terminbekreftelseTermindato()).isNull();
         assertThat(grunnlag.søkerRolle()).isEqualTo(RegelSøkerRolle.FARA);
-        assertThat(grunnlag.behandlingsdato()).isEqualTo(søknadsdato);
+        assertThat(grunnlag.behandlingsdato()).isEqualTo(now);
         assertThat(grunnlag.erSøktOmTermin()).isFalse();
     }
 

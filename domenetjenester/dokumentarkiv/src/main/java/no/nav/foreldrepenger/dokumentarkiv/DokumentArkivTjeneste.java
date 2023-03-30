@@ -149,14 +149,12 @@ public class DokumentArkivTjeneste {
 
         var resultat = safKlient.dokumentoversiktFagsak(query, projection);
 
-        var journalposter = resultat.getJournalposter().stream()
+        return resultat.getJournalposter().stream()
             .filter(j -> j.getJournalstatus() == null || !EKSKLUDER_STATUS.contains(j.getJournalstatus()))
             .filter(j -> Journalposttype.U.equals(j.getJournalposttype()))
             .map(DokumentArkivTjeneste::mapTilArkivDokumentUtgående)
             .flatMap(Collection::stream)
             .toList();
-
-        return journalposter;
     }
 
     public Optional<ArkivDokumentUtgående> hentUtgåendeJournalpostForSak(JournalpostId journalpostId) {

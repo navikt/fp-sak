@@ -46,7 +46,7 @@ public class ØkonomioppdragRepository {
             throw new IllegalArgumentException("Datointervall for økonomioppdrag må inneholde minst 1 dag");
         }
 
-        var resultList = entityManager
+        return entityManager
             .createQuery("""
                 select o110 from Oppdrag110 as o110
                 where o110.opprettetTidspunkt >= :fomTidspunkt
@@ -59,8 +59,6 @@ public class ØkonomioppdragRepository {
             .setParameter("tilTidspunkt", tomDato.plusDays(1).atStartOfDay())
             .setParameter("fagomrade", fagområde)
             .getResultList();
-
-        return resultList;
     }
 
     public Oppdrag110 hentOppdragUtenKvittering(long fagsystemId, long behandlingId) {

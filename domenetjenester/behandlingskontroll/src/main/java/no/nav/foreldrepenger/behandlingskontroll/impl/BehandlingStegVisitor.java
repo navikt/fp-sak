@@ -75,13 +75,11 @@ class BehandlingStegVisitor {
     }
 
     protected StegProsesseringResultat prosesser() {
-        var resultat = prosesserSteg(stegModell, false);
-        return resultat;
+        return prosesserSteg(stegModell, false);
     }
 
     protected StegProsesseringResultat gjenoppta() {
-        var resultat = prosesserSteg(stegModell, true);
-        return resultat;
+        return prosesserSteg(stegModell, true);
     }
 
     private StegProsesseringResultat prosesserSteg(BehandlingStegModell stegModell, boolean gjenoppta) {
@@ -238,10 +236,8 @@ class BehandlingStegVisitor {
         var måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter().stream()
                 .anyMatch(ap -> skalHåndteresHer(stegType, ap, VurderingspunktType.INN));
 
-        var nyStatus = måHåndereAksjonspunktHer ? behandlingStegKonfigurasjon.getInngang()
+        return måHåndereAksjonspunktHer ? behandlingStegKonfigurasjon.getInngang()
                 : behandlingStegKonfigurasjon.getStartet();
-
-        return nyStatus;
     }
 
     private boolean skalHåndteresHer(BehandlingStegType stegType, Aksjonspunkt ap, VurderingspunktType vurderingspunktType) {
@@ -302,11 +298,10 @@ class BehandlingStegVisitor {
     }
 
     private boolean harÅpneAksjonspunkter(Behandling behandling, BehandlingStegType behandlingStegType) {
-        var måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter()
+
+        return behandling.getÅpneAksjonspunkter()
                 .stream()
                 .anyMatch(ap -> skalHåndteresHer(behandlingStegType, ap, VurderingspunktType.UT));
-
-        return måHåndereAksjonspunktHer;
     }
 
     private BehandlingStegStatus håndterTilbakeføringTilTidligereSteg(Behandling behandling, BehandlingStegType inneværendeBehandlingStegType) {
@@ -370,9 +365,7 @@ class BehandlingStegVisitor {
 
         // TODO (FC): Denne bør håndteres med event ved overgang
         behandlingModell.hvertStegFraOgMed(aktivtBehandlingSteg)
-                .forEach(bsm -> {
-                    filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt);
-                });
+                .forEach(bsm -> filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt));
 
         if (!gjenværendeÅpneAksjonspunkt.isEmpty()) {
             /*

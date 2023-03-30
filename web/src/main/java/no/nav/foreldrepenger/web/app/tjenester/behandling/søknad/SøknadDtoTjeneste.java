@@ -185,9 +185,7 @@ public class SøknadDtoTjeneste {
         ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .ifPresent(of -> soknadAdopsjonDto.setOppgittFordeling(OppgittFordelingDto.mapFra(of.getOppgittFordeling(), hentOppgittStartdatoForPermisjon(ref.behandlingId(), null))));
 
-        medlemTjeneste.hentMedlemskap(behandlingId).ifPresent(ma -> {
-            soknadAdopsjonDto.setOppgittTilknytning(OppgittTilknytningDto.mapFra(ma.getOppgittTilknytning().orElse(null)));
-        });
+        medlemTjeneste.hentMedlemskap(behandlingId).ifPresent(ma -> soknadAdopsjonDto.setOppgittTilknytning(OppgittTilknytningDto.mapFra(ma.getOppgittTilknytning().orElse(null))));
 
         soknadAdopsjonDto.setManglendeVedlegg(genererManglendeVedlegg(ref));
         return soknadAdopsjonDto;

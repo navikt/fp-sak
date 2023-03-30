@@ -157,24 +157,22 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private void setVerge(Long behandlingId, PersonopplysningerEngangsstoenad personopplysninger) {
-        vergeRepository.hentAggregat(behandlingId).ifPresent(vergeAggregat -> {
-            vergeAggregat.getVerge().ifPresent(vergeFraBehandling -> {
-                var verge = personopplysningObjectFactory.createVerge();
-                if( vergeFraBehandling.getVergeOrganisasjon().isPresent()){
-                    verge.setNavn(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getNavn()));
-                    verge.setOrganisasjonsnummer(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getOrganisasjonsnummer()));
+        vergeRepository.hentAggregat(behandlingId).ifPresent(vergeAggregat -> vergeAggregat.getVerge().ifPresent(vergeFraBehandling -> {
+            var verge = personopplysningObjectFactory.createVerge();
+            if( vergeFraBehandling.getVergeOrganisasjon().isPresent()){
+                verge.setNavn(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getNavn()));
+                verge.setOrganisasjonsnummer(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getOrganisasjonsnummer()));
+            }
+            else {
+                var aktørId = vergeAggregat.getAktørId();
+                if (aktørId.isPresent()) {
+                    verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(aktørId.get())));
                 }
-                else {
-                    var aktørId = vergeAggregat.getAktørId();
-                    if (aktørId.isPresent()) {
-                        verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(aktørId.get())));
-                    }
-                }
-                verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));
-                verge.setGyldighetsperiode(VedtakXmlUtil.lagPeriodeOpplysning(vergeFraBehandling.getGyldigFom(), vergeFraBehandling.getGyldigTom()));
-                personopplysninger.setVerge(verge);
-            });
-        });
+            }
+            verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));
+            verge.setGyldighetsperiode(VedtakXmlUtil.lagPeriodeOpplysning(vergeFraBehandling.getGyldigFom(), vergeFraBehandling.getGyldigTom()));
+            personopplysninger.setVerge(verge);
+        }));
     }
 
     private void setFoedsel(PersonopplysningerEngangsstoenad personopplysninger, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
@@ -231,19 +229,17 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private List<Inntekt> lagInntekt(AktørId aktørId, InntektFilter filter) {
         List<Inntekt> inntektList = new ArrayList<>();
-        filter.forFilter((inntekt, inntektsposter) -> {
-            inntektsposter.forEach(ip -> {
-                var inntektXML = personopplysningObjectFactory.createInntekt();
-                if (inntekt.getArbeidsgiver() != null) {
-                    inntektXML.setArbeidsgiver(VedtakXmlUtil.lagStringOpplysning(inntekt.getArbeidsgiver().getIdentifikator()));
-                }
-                inntektXML.setBeloep(VedtakXmlUtil.lagDoubleOpplysning(ip.getBeløp().getVerdi().doubleValue()));
-                inntektXML.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(ip.getPeriode().getFomDato(), ip.getPeriode().getTomDato()));
-                inntektXML.setMottakerAktoerId(VedtakXmlUtil.lagStringOpplysning(aktørId.getId()));
-                inntektXML.setYtelse(VedtakXmlUtil.lagBooleanOpplysning(ip.getInntektspostType().equals(InntektspostType.YTELSE)));
-                inntektList.add(inntektXML);
-            });
-        });
+        filter.forFilter((inntekt, inntektsposter) -> inntektsposter.forEach(ip -> {
+            var inntektXML = personopplysningObjectFactory.createInntekt();
+            if (inntekt.getArbeidsgiver() != null) {
+                inntektXML.setArbeidsgiver(VedtakXmlUtil.lagStringOpplysning(inntekt.getArbeidsgiver().getIdentifikator()));
+            }
+            inntektXML.setBeloep(VedtakXmlUtil.lagDoubleOpplysning(ip.getBeløp().getVerdi().doubleValue()));
+            inntektXML.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(ip.getPeriode().getFomDato(), ip.getPeriode().getTomDato()));
+            inntektXML.setMottakerAktoerId(VedtakXmlUtil.lagStringOpplysning(aktørId.getId()));
+            inntektXML.setYtelse(VedtakXmlUtil.lagBooleanOpplysning(ip.getInntektspostType().equals(InntektspostType.YTELSE)));
+            inntektList.add(inntektXML);
+        }));
         return inntektList;
     }
 

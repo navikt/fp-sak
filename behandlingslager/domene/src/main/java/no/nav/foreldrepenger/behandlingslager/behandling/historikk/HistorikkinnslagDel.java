@@ -138,14 +138,13 @@ public class HistorikkinnslagDel extends BaseEntitet {
             .filter(felt -> aksjonspunktFeltTypeKoder.contains(felt.getFeltType()))
             .toList();
 
-        var totrinnsvurderinger = alleAksjonspunktFelt.stream()
+        return alleAksjonspunktFelt.stream()
             .collect(Collectors.groupingBy(HistorikkinnslagFelt::getSekvensNr))
             .entrySet()
             .stream()
             .map(entry -> lagHistorikkinnslagAksjonspunkt(entry.getKey(), entry.getValue()))
             .sorted(Comparator.comparing(HistorikkinnslagTotrinnsvurdering::getSekvensNr))
             .toList();
-        return totrinnsvurderinger;
     }
 
     private HistorikkinnslagTotrinnsvurdering lagHistorikkinnslagAksjonspunkt(Integer sekvensNr, List<HistorikkinnslagFelt> aksjonspunktFeltListe) {

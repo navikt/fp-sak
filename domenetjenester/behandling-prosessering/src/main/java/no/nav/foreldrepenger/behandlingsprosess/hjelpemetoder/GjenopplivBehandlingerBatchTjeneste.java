@@ -27,8 +27,7 @@ public class GjenopplivBehandlingerBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        var executionId = BATCHNAME + automatiskGjenopptagelseTjeneste.gjenopplivBehandlinger();
-        return executionId;
+        return BATCHNAME + automatiskGjenopptagelseTjeneste.gjenopplivBehandlinger();
     }
 
     @Override

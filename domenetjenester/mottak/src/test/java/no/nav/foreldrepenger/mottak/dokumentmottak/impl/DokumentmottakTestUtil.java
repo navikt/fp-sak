@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class DokumentmottakTestUtil {
 
     public static BehandlingskontrollTjeneste lagBehandlingskontrollTjenesteMock(BehandlingskontrollServiceProvider serviceProvider) {
-        BehandlingskontrollTjeneste behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider) {
+        return new BehandlingskontrollTjenesteImpl(serviceProvider) {
             @Override
             protected void fireEventBehandlingStegOvergang(BehandlingskontrollKontekst kontekst, Behandling behandling,
                                                            BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand) {
@@ -41,7 +41,6 @@ public class DokumentmottakTestUtil {
                 // NOOP
             }
         };
-        return behandlingskontrollTjeneste;
     }
 
     static MottattDokument byggMottattDokument(DokumentTypeId dokumentTypeId, Long fagsakId, String xml, LocalDate mottattDato, boolean elektroniskRegistrert,
@@ -88,13 +87,12 @@ public class DokumentmottakTestUtil {
     }
 
     public static BehandlingVedtak oppdaterVedtaksresultat(Behandling origBehandling, VedtakResultatType vedtakResultatType) {
-        var vedtak = BehandlingVedtak.builder()
+
+        return BehandlingVedtak.builder()
             .medVedtakResultatType(vedtakResultatType)
             .medVedtakstidspunkt(LocalDateTime.now())
             .medBehandlingsresultat(origBehandling.getBehandlingsresultat())
             .medAnsvarligSaksbehandler("Severin Saksbehandler")
             .build();
-
-        return vedtak;
     }
 }

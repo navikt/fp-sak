@@ -129,17 +129,15 @@ public class FagsakProsessTaskRepository {
         var nyeTasks = gruppe.getTasks();
         var eksisterendeTasks = sjekkStatusProsessTasks(fagsakId, behandlingId, null);
 
-        var matchedTasks = eksisterendeTasks;
-
         gruppe.setCallIdFraEksisterende();
 
-        if (matchedTasks.isEmpty()) {
+        if (eksisterendeTasks.isEmpty()) {
             // legg inn nye
             return taskTjeneste.lagre(gruppe);
         }
 
         // hvis noen er FEILET så oppretter vi ikke ny
-        var feilet = matchedTasks.stream().filter(t -> t.getStatus().equals(ProsessTaskStatus.FEILET)).findFirst();
+        var feilet = eksisterendeTasks.stream().filter(t -> t.getStatus().equals(ProsessTaskStatus.FEILET)).findFirst();
 
         var nyeTaskTyper = nyeTasks.stream().map(t -> t.task().taskType()).collect(Collectors.toSet());
         var eksisterendeTaskTyper = eksisterendeTasks.stream().map(ProsessTaskData::taskType).collect(Collectors.toSet());

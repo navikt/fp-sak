@@ -304,21 +304,19 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         });
     }
     private void setVerge(Long behandlingId, PersonopplysningerSvangerskapspenger personopplysninger) {
-        vergeRepository.hentAggregat(behandlingId).ifPresent(vergeAggregat -> {
-            vergeAggregat.getVerge().ifPresent(vergeFraBehandling -> {
-                var verge = personopplysningObjectFactory.createVerge();
-                if( vergeFraBehandling.getVergeOrganisasjon().isPresent()){
-                    verge.setNavn(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getNavn()));
-                    verge.setOrganisasjonsnummer(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getOrganisasjonsnummer()));
-                }
-                else {
-                    var aktørId = vergeAggregat.getAktørId();
-                    aktørId.ifPresent(id -> verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(id))));
-                }
-                verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));
-                verge.setGyldighetsperiode(VedtakXmlUtil.lagPeriodeOpplysning(vergeFraBehandling.getGyldigFom(), vergeFraBehandling.getGyldigTom()));
-                personopplysninger.setVerge(verge);
-            });
-        });
+        vergeRepository.hentAggregat(behandlingId).ifPresent(vergeAggregat -> vergeAggregat.getVerge().ifPresent(vergeFraBehandling -> {
+            var verge = personopplysningObjectFactory.createVerge();
+            if( vergeFraBehandling.getVergeOrganisasjon().isPresent()){
+                verge.setNavn(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getNavn()));
+                verge.setOrganisasjonsnummer(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getOrganisasjonsnummer()));
+            }
+            else {
+                var aktørId = vergeAggregat.getAktørId();
+                aktørId.ifPresent(id -> verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(id))));
+            }
+            verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));
+            verge.setGyldighetsperiode(VedtakXmlUtil.lagPeriodeOpplysning(vergeFraBehandling.getGyldigFom(), vergeFraBehandling.getGyldigTom()));
+            personopplysninger.setVerge(verge);
+        }));
     }
 }

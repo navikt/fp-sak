@@ -113,9 +113,8 @@ public class InntektsmeldingTjeneste {
 
     public Optional<Inntektsmelding> hentInntektsMeldingFor(Long behandlingId, JournalpostId journalpostId) {
         var grunnlag = iayTjeneste.hentGrunnlag(behandlingId);
-        var inntektsmelding = grunnlag.getInntektsmeldinger().stream().flatMap(imagg -> imagg.getAlleInntektsmeldinger().stream())
+        return grunnlag.getInntektsmeldinger().stream().flatMap(imagg -> imagg.getAlleInntektsmeldinger().stream())
                 .filter(im -> Objects.equals(im.getJournalpostId(), journalpostId)).findFirst();
-        return inntektsmelding;
     }
 
     /**

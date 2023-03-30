@@ -189,8 +189,7 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private Behandling mockPapirSøknad(LocalDate mottattDag, LocalDate omsorgDato) {
-        var behandling = mockBehandling(false, mottattDag, omsorgDato);
-        return behandling;
+        return mockBehandling(false, mottattDag, omsorgDato);
     }
 
     private void assertOppfylt(Behandling behandling) {

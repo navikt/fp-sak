@@ -99,7 +99,6 @@ class VurderLøpendeMedlemskapStegTest {
     void skal_gi_avslag() {
         // Arrange
         var termin = LocalDate.now().plusDays(40); // Default i test
-        var datoMedEndring = termin;
         var ettÅrSiden = termin.minusYears(1);
         var start = termin.minusWeeks(3);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -137,11 +136,11 @@ class VurderLøpendeMedlemskapStegTest {
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(revudering));
         entityManager.persist(behandlingsresultat);
-        oppdaterMedlem(datoMedEndring, periode, revudering.getId());
+        oppdaterMedlem(termin, periode, revudering.getId());
 
         var builder = new VurdertMedlemskapPeriodeEntitet.Builder();
 
-        var builderIkkeOk = builder.getBuilderFor(datoMedEndring);
+        var builderIkkeOk = builder.getBuilderFor(termin);
         builderIkkeOk.medBosattVurdering(false);
         builderIkkeOk.medOppholdsrettVurdering(false);
         builderIkkeOk.medLovligOppholdVurdering(false);
@@ -194,14 +193,13 @@ class VurderLøpendeMedlemskapStegTest {
     }
 
     private MedlemskapPerioderEntitet opprettPeriode(LocalDate fom, LocalDate tom, MedlemskapDekningType dekningType) {
-        var periode = new MedlemskapPerioderBuilder()
+        return new MedlemskapPerioderBuilder()
                 .medDekningType(dekningType)
                 .medMedlemskapType(MedlemskapType.FORELOPIG)
                 .medKildeType(MedlemskapKildeType.MEDL)
                 .medPeriode(fom, tom)
                 .medMedlId(1L)
                 .build();
-        return periode;
     }
 
     private void avslutterBehandlingOgFagsak(Behandling behandling, LocalDate startdato) {

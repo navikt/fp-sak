@@ -33,14 +33,13 @@ public class DatoerGrunnlagBygger {
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
         var gjeldendeFamilieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var ref = input.getBehandlingReferanse();
-        var db = new Datoer.Builder()
+
+        return new Datoer.Builder()
             .fødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
             .termin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
             .omsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null))
             .dødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref))
             .startdatoNesteStønadsperiode(nesteStønadsperiode(ytelsespesifiktGrunnlag).orElse(null));
-
-        return db;
     }
 
     private Dødsdatoer.Builder byggDødsdatoer(ForeldrepengerGrunnlag foreldrepengerGrunnlag, BehandlingReferanse ref) {

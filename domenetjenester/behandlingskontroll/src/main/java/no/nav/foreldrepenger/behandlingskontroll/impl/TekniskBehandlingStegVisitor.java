@@ -72,8 +72,7 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
             }
         }
 
-        var resultat = serviceProvider.getTekniskRepository().doWorkInSavepoint(new DoInSavepoint());
-        return resultat;
+        return serviceProvider.getTekniskRepository().doWorkInSavepoint(new DoInSavepoint());
     }
 
     protected StegProsesseringResultat prosesserSteg(BehandlingStegVisitor stegVisitor) {

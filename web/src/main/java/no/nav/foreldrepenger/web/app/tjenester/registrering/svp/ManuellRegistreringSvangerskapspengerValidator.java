@@ -30,22 +30,20 @@ public class ManuellRegistreringSvangerskapspengerValidator {
     }
 
     public static List<FeltFeilDto> validerOpplysninger(ManuellRegistreringSvangerskapspengerDto registreringDto) {
-        var funnetFeil =
-            Stream.concat(
-                Stream.of(
-                    validerEgenVirksomhet(registreringDto.getEgenVirksomhet()))
-                    .flatMap(Collection::stream),
-                Stream.of(
-                    validerTidligereUtenlandsopphold(registreringDto),
-                    validerFremtidigUtenlandsopphold(registreringDto),
-                    validerTermindato(registreringDto),
-                    validerMottattDato(registreringDto),
-                    validerFrilans(registreringDto.getFrilans()))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-            ).toList();
 
-        return funnetFeil;
+        return Stream.concat(
+            Stream.of(
+                validerEgenVirksomhet(registreringDto.getEgenVirksomhet()))
+                .flatMap(Collection::stream),
+            Stream.of(
+                validerTidligereUtenlandsopphold(registreringDto),
+                validerFremtidigUtenlandsopphold(registreringDto),
+                validerTermindato(registreringDto),
+                validerMottattDato(registreringDto),
+                validerFrilans(registreringDto.getFrilans()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+        ).toList();
     }
 
 

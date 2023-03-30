@@ -1,5 +1,19 @@
 package no.nav.foreldrepenger.domene.opptjening;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -17,18 +31,6 @@ import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class FrilansAvvikLoggTjeneste {
@@ -68,10 +70,8 @@ public class FrilansAvvikLoggTjeneste {
             .toList();
 
         if (relevantOppgittFrilans.isEmpty()) {
-            frilansaktiviteterPåSTPMedInntektSiste3Mnd.forEach(fl -> {
-                LOG.info("FP-654895: Saksnr {}. Ikke oppgitt frilans i søknad, men arbeidsgiver {} har gitt utbetaling som frilans siste 3 mnd",
-                    ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString());
-            });
+            frilansaktiviteterPåSTPMedInntektSiste3Mnd.forEach(fl -> LOG.info("FP-654895: Saksnr {}. Ikke oppgitt frilans i søknad, men arbeidsgiver {} har gitt utbetaling som frilans siste 3 mnd",
+                ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString()));
         }
         else if (frilansaktiviteterPåSTPMedInntektSiste3Mnd.isEmpty()){
             LOG.info("FP-654896: Saksnr {}. Oppgitt frilans i søknad, men ingen utbetalinger som frilans siste 3 mnd",
@@ -80,11 +80,9 @@ public class FrilansAvvikLoggTjeneste {
             // Ingen aktiv inntekt på stp, logg alder på frilansforholdene som er åpne på stp
             frilansPåSTP.forEach(fl -> {
                 var startdato = finnStartdato(fl, stpBG);
-                startdato.ifPresent(dato -> {
-                    LOG.info("FP-654897: Saksnr {}. Oppgitt frilans i søknad uten inntekt siste periode før stp. " +
-                            "Åpent frilansforhold hos {} som er {} måneder gammelt (startet {})",
-                        ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString(), alderIMnd(dato), dato);
-                });
+                startdato.ifPresent(dato -> LOG.info("FP-654897: Saksnr {}. Oppgitt frilans i søknad uten inntekt siste periode før stp. " +
+                        "Åpent frilansforhold hos {} som er {} måneder gammelt (startet {})",
+                    ref.saksnummer().getVerdi(), fl.getArbeidsgiver().toString(), alderIMnd(dato), dato));
             });
         }
     }

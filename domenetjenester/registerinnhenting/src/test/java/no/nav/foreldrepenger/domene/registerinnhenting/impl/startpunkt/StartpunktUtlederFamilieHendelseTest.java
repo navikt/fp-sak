@@ -62,12 +62,11 @@ class StartpunktUtlederFamilieHendelseTest {
     void skal_returnere_startpunkt_opplysningsplikt_dersom_familiehendelse_flyttes_til_tidligere_dato() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
-        var origBekreftetfødselsdato = origSkjæringsdato;
         var nyBekreftetfødselsdato = origSkjæringsdato.minusDays(1); // fødselsdato før skjæringstidspunkt
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        førstegangScenario.medBekreftetHendelse().medFødselsDato(origBekreftetfødselsdato);
+        førstegangScenario.medBekreftetHendelse().medFødselsDato(origSkjæringsdato);
         var repositoryProvider = førstegangScenario.mockBehandlingRepositoryProvider();
         var originalBehandling = førstegangScenario.lagre(repositoryProvider);
 

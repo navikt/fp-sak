@@ -96,22 +96,10 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         this.kanalreferanse = inntektsmelding.getKanalreferanse();
         this.kildesystem = inntektsmelding.getKildesystem();
         this.mottattDato = inntektsmelding.getMottattDato();
-        this.graderinger = inntektsmelding.getGraderinger().stream().map(g -> {
-            final var gradering = new Gradering(g);
-            return gradering;
-        }).toList();
-        this.naturalYtelser = inntektsmelding.getNaturalYtelser().stream().map(n -> {
-            final var naturalYtelse = new NaturalYtelse(n);
-            return naturalYtelse;
-        }).toList();
-        this.utsettelsePerioder = inntektsmelding.getUtsettelsePerioder().stream().map(u -> {
-            final var utsettelsePeriode = new UtsettelsePeriode(u);
-            return utsettelsePeriode;
-        }).toList();
-        this.endringerRefusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> {
-            final var refusjon = new Refusjon(r);
-            return refusjon;
-        }).toList();
+        this.graderinger = inntektsmelding.getGraderinger().stream().map(g -> new Gradering(g)).toList();
+        this.naturalYtelser = inntektsmelding.getNaturalYtelser().stream().map(n -> new NaturalYtelse(n)).toList();
+        this.utsettelsePerioder = inntektsmelding.getUtsettelsePerioder().stream().map(u -> new UtsettelsePeriode(u)).toList();
+        this.endringerRefusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> new Refusjon(r)).toList();
         this.ytelseType = inntektsmelding.getFagsakYtelseType();
     }
 

@@ -31,8 +31,7 @@ public class BehandlingLåsRepository {
     public BehandlingLås taLås(final Long behandlingId) {
         if (behandlingId != null) {
             låsBehandling(behandlingId);
-            var lås = new BehandlingLås(behandlingId);
-            return lås;
+            return new BehandlingLås(behandlingId);
         }
         return new BehandlingLås(null);
 
@@ -41,8 +40,7 @@ public class BehandlingLåsRepository {
     public BehandlingLås taLås(final UUID eksternBehandlingRef) {
         if (eksternBehandlingRef != null) {
             var behandlingId = låsBehandling(eksternBehandlingRef);
-            var lås = new BehandlingLås(behandlingId);
-            return lås;
+            return new BehandlingLås(behandlingId);
         }
         return new BehandlingLås(null);
     }
