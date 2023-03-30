@@ -205,10 +205,9 @@ public class BeregningsresultatAndel extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsresultatAndel)) {
+        if (!(obj instanceof BeregningsresultatAndel other)) {
             return false;
         }
-        var other = (BeregningsresultatAndel) obj;
         return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
             && Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef())
             && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType())

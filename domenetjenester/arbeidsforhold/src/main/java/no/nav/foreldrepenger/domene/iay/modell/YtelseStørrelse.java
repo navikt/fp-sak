@@ -90,10 +90,9 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof YtelseStørrelse)) {
+        if ((o == null) || !(o instanceof YtelseStørrelse that)) {
             return false;
         }
-        var that = (YtelseStørrelse) o;
         return Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
                 Objects.equals(beløp, that.beløp) &&
                 Objects.equals(hyppighet, that.hyppighet);

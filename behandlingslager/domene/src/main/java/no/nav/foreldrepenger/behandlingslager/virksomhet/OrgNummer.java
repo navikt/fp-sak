@@ -59,10 +59,9 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof OrgNummer)) {
+        if (!(obj instanceof OrgNummer other)) {
             return false;
         }
-        var other = (OrgNummer) obj;
         return Objects.equals(orgNummer, other.orgNummer);
     }
 

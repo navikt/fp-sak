@@ -76,10 +76,9 @@ public class FagsakProsessTask extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj instanceof FagsakProsessTask)) {
+        if (obj == null || !(obj instanceof FagsakProsessTask other)) {
             return false;
         }
-        var other = (FagsakProsessTask) obj;
         return Objects.equals(prosessTaskId, other.prosessTaskId)
             && Objects.equals(fagsakId, other.fagsakId)
             && Objects.equals(behandlingId, other.behandlingId);

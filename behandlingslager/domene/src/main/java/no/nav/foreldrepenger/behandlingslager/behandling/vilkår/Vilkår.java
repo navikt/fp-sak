@@ -93,10 +93,9 @@ public class Vilkår extends BaseEntitet implements IndexKey {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Vilkår)) {
+        if (!(object instanceof Vilkår other)) {
             return false;
         }
-        var other = (Vilkår) object;
         return Objects.equals(getVilkårType(), other.getVilkårType());
     }
 

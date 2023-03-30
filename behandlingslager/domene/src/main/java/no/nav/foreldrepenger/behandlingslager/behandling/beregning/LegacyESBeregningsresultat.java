@@ -47,10 +47,9 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof LegacyESBeregningsresultat)) {
+        if (!(obj instanceof LegacyESBeregningsresultat other)) {
             return false;
         }
-        var other = (LegacyESBeregningsresultat) obj;
         return Objects.equals(beregninger, other.beregninger);
     }
 

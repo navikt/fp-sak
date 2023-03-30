@@ -127,10 +127,9 @@ public class UidentifisertBarnEntitet extends BaseEntitet implements Uidentifise
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof UidentifisertBarnEntitet)) {
+        if (!(obj instanceof UidentifisertBarnEntitet other)) {
             return false;
         }
-        var other = (UidentifisertBarnEntitet) obj;
         return Objects.equals(this.fødselsdato, other.getFødselsdato())
                 && Objects.equals(this.barnNummer, other.getBarnNummer());
     }

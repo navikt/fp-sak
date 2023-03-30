@@ -136,10 +136,9 @@ public class HistorikkinnslagFelt extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof HistorikkinnslagFelt)) {
+        if (!(o instanceof HistorikkinnslagFelt that)) {
             return false;
         }
-        var that = (HistorikkinnslagFelt) o;
         return Objects.equals(feltType, that.feltType)
                 && Objects.equals(navn, that.navn)
                 && Objects.equals(navnVerdi, that.navnVerdi)

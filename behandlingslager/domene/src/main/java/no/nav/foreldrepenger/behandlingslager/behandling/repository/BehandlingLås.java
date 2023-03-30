@@ -49,10 +49,9 @@ public class BehandlingLås {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj instanceof BehandlingLås)) {
+        if (obj == null || !(obj instanceof BehandlingLås other)) {
             return false;
         }
-        var other = (BehandlingLås) obj;
         return Objects.equals(getBehandlingId(), other.getBehandlingId());
     }
 

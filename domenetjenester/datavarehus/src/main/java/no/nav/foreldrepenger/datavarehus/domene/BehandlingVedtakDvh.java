@@ -96,13 +96,12 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof BehandlingVedtakDvh)) {
+        if (!(other instanceof BehandlingVedtakDvh castOther)) {
             return false;
         }
         if (!super.equals(other)) {
             return false;
         }
-        var castOther = (BehandlingVedtakDvh) other;
         return Objects.equals(vedtakId, castOther.vedtakId)
             && Objects.equals(behandlingId, castOther.behandlingId)
                 && Objects.equals(opprettetDato, castOther.opprettetDato)

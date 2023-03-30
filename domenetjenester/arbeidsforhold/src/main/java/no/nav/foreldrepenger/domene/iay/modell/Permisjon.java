@@ -90,10 +90,9 @@ public class Permisjon extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Permisjon)) {
+        if (!(obj instanceof Permisjon other)) {
             return false;
         }
-        var other = (Permisjon) obj;
         return Objects.equals(this.permisjonsbeskrivelseType, other.permisjonsbeskrivelseType)
                 && Objects.equals(this.prosentsats, other.prosentsats)
                 && Objects.equals(this.periode, other.periode);

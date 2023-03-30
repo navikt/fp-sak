@@ -20,8 +20,7 @@ public class RegelFastsettBeregningsresultat implements RuleService<Beregningsre
 
     @Override
     public Evaluation evaluer(BeregningsresultatGrunnlag input, Object outputContainer) {
-        if (outputContainer instanceof Beregningsresultat) {
-            var beregningsresultat = (Beregningsresultat) outputContainer;
+        if (outputContainer instanceof Beregningsresultat beregningsresultat) {
             var mellomregning = new BeregningsresultatRegelmodellMellomregning(input, beregningsresultat);
             return getSpecification().evaluate(mellomregning);
         }

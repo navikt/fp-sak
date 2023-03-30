@@ -39,14 +39,13 @@ public class Dekningsgrad {
 
     @Override
     public boolean equals(Object arg0) {
-        if (!(arg0 instanceof Dekningsgrad)) {
+        if (!(arg0 instanceof Dekningsgrad other)) {
             return false;
         }
         if (arg0 == this) {
             return true;
         }
 
-        var other = (Dekningsgrad) arg0;
         return Objects.equals(verdi, other.verdi);
     }
 

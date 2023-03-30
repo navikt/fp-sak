@@ -57,11 +57,10 @@ public class VergeGrunnlagEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof VergeGrunnlagEntitet)) {
+        if (!(obj instanceof VergeGrunnlagEntitet that)) {
             return false;
         }
 
-        var that = (VergeGrunnlagEntitet) obj;
         return Objects.equals(this.behandlingId, that.behandlingId)
             && Objects.equals(this.verge, that.verge);
     }

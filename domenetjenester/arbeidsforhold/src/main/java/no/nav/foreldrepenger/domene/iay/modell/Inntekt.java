@@ -55,10 +55,9 @@ public class Inntekt extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if ((obj == null) || !(obj instanceof Inntekt)) {
+        if ((obj == null) || !(obj instanceof Inntekt other)) {
             return false;
         }
-        var other = (Inntekt) obj;
         return Objects.equals(this.getInntektsKilde(), other.getInntektsKilde())
                 && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
     }

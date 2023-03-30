@@ -150,10 +150,9 @@ public class AdopsjonEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof AdopsjonEntitet)) {
+        if (!(obj instanceof AdopsjonEntitet other)) {
             return false;
         }
-        var other = (AdopsjonEntitet) obj;
         return Objects.equals(this.getOmsorgsovertakelseDato(), other.getOmsorgsovertakelseDato())
                 && Objects.equals(this.getAnkomstNorgeDato(), other.getAnkomstNorgeDato())
                 && Objects.equals(this.getErEktefellesBarn(), other.getErEktefellesBarn())

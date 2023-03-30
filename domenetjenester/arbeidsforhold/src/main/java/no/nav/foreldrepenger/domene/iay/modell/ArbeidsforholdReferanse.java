@@ -57,10 +57,9 @@ public class ArbeidsforholdReferanse extends BaseEntitet implements IndexKey, Tr
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof ArbeidsforholdReferanse)) {
+        if ((o == null) || !(o instanceof ArbeidsforholdReferanse that)) {
             return false;
         }
-        var that = (ArbeidsforholdReferanse) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
                 Objects.equals(internReferanse, that.internReferanse) &&
                 Objects.equals(eksternReferanse, that.eksternReferanse);

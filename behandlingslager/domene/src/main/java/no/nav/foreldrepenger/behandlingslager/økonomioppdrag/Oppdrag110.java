@@ -167,10 +167,9 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Oppdrag110)) {
+        if (!(object instanceof Oppdrag110 oppdr110)) {
             return false;
         }
-        var oppdr110 = (Oppdrag110) object;
         return Objects.equals(kodeEndring, oppdr110.getKodeEndring())
             && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade())
             && Objects.equals(fagsystemId, oppdr110.getFagsystemId())

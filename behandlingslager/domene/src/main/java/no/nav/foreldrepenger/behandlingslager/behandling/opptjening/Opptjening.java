@@ -95,10 +95,9 @@ public class Opptjening extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Opptjening)) {
+        if (!(obj instanceof Opptjening other)) {
             return false;
         }
-        var other = (Opptjening) obj;
         return Objects.equals(this.getFom(), other.getFom())
                 && Objects.equals(this.getTom(), other.getTom());
     }

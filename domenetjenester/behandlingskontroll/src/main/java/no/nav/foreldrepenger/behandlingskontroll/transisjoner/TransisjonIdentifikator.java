@@ -30,11 +30,10 @@ public final class TransisjonIdentifikator {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof TransisjonIdentifikator)) {
+        if (!(o instanceof TransisjonIdentifikator that)) {
             return false;
         }
 
-        var that = (TransisjonIdentifikator) o;
         return Objects.equals(id, that.id);
     }
 

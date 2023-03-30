@@ -113,10 +113,9 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof AktørArbeid)) {
+        if (!(obj instanceof AktørArbeid other)) {
             return false;
         }
-        var other = (AktørArbeid) obj;
         return Objects.equals(this.getAktørId(), other.getAktørId());
     }
 

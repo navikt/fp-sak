@@ -52,10 +52,9 @@ public class DvhBaseEntitet implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof DvhBaseEntitet)) {
+        if (!(obj instanceof DvhBaseEntitet other)) {
             return false;
         }
-        var other = (DvhBaseEntitet) obj;
         return Objects.equals(transTid, other.transTid)
                 && Objects.equals(funksjonellTid, other.funksjonellTid)
                 && Objects.equals(endretAv, other.endretAv);

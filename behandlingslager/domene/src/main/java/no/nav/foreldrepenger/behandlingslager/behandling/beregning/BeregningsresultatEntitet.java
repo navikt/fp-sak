@@ -98,10 +98,9 @@ public class BeregningsresultatEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsresultatEntitet)) {
+        if (!(obj instanceof BeregningsresultatEntitet other)) {
             return false;
         }
-        var other = (BeregningsresultatEntitet) obj;
         return Objects.equals(this.getId(), other.getId());
     }
 

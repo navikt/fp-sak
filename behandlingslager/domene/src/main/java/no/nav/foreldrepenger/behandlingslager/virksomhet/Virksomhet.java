@@ -50,10 +50,9 @@ public class Virksomhet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Virksomhet)) {
+        if (!(obj instanceof Virksomhet other)) {
             return false;
         }
-        var other = (Virksomhet) obj;
         return Objects.equals(this.getOrgnr(), other.getOrgnr());
     }
 

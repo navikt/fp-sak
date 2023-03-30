@@ -103,10 +103,9 @@ public class SøknadVedleggEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof SøknadVedleggEntitet)) {
+        if (!(obj instanceof SøknadVedleggEntitet other)) {
             return false;
         }
-        var other = (SøknadVedleggEntitet) obj;
         return Objects.equals(this.isErPåkrevdISøknadsdialog(), other.isErPåkrevdISøknadsdialog())
             && Objects.equals(this.getInnsendingsvalg(), other.getInnsendingsvalg())
             && Objects.equals(this.getSkjemanummer(), other.getSkjemanummer())

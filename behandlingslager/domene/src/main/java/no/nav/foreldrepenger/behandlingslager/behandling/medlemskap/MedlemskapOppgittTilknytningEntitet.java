@@ -110,10 +110,9 @@ public class MedlemskapOppgittTilknytningEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof MedlemskapOppgittTilknytningEntitet)) {
+        if (!(obj instanceof MedlemskapOppgittTilknytningEntitet other)) {
             return false;
         }
-        var other = (MedlemskapOppgittTilknytningEntitet) obj;
         return Objects.equals(this.oppholdNå, other.oppholdNå)
                 && Objects.equals(this.opphold, other.opphold);
     }

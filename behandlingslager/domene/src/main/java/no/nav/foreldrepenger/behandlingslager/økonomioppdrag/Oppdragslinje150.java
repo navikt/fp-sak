@@ -191,10 +191,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Oppdragslinje150)) {
+        if (!(object instanceof Oppdragslinje150 oppdrlinje150)) {
             return false;
         }
-        var oppdrlinje150 = (Oppdragslinje150) object;
         return Objects.equals(kodeEndringLinje, oppdrlinje150.getKodeEndringLinje()) && Objects.equals(kodeStatusLinje,
             oppdrlinje150.getKodeStatusLinje()) && Objects.equals(datoStatusFom, oppdrlinje150.getDatoStatusFom()) && Objects.equals(vedtakId,
             oppdrlinje150.getVedtakId()) && Objects.equals(delytelseId, oppdrlinje150.getDelytelseId()) && Objects.equals(kodeKlassifik,

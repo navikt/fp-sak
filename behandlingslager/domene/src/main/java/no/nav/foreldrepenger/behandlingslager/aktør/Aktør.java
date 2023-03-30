@@ -36,11 +36,10 @@ public abstract class Aktør extends BaseEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Aktør)
+        if (!(object instanceof Aktør other)
                 || !(getClass().isAssignableFrom(object.getClass()) || object.getClass().isAssignableFrom(getClass()))) {
             return false;
         }
-        var other = (Aktør) object;
         return Objects.equals(other.aktørId, this.aktørId);
     }
 

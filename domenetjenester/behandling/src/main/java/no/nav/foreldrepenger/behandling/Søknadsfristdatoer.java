@@ -35,9 +35,8 @@ public class Søknadsfristdatoer {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof Søknadsfristdatoer))
+        if (!(o instanceof Søknadsfristdatoer that))
             return false;
-        var that = (Søknadsfristdatoer) o;
         return Objects.equals(søknadGjelderPeriode, that.søknadGjelderPeriode)
             && Objects.equals(søknadMottattDato, that.søknadMottattDato);
     }

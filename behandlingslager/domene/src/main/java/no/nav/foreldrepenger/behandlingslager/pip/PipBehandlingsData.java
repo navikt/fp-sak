@@ -50,10 +50,9 @@ public class PipBehandlingsData {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof PipBehandlingsData)) {
+        if (!(object instanceof PipBehandlingsData other)) {
             return false;
         }
-        var other = (PipBehandlingsData) object;
         return Objects.equals(getBehandligStatus(), other.getBehandligStatus())
             && Objects.equals(getFagsakStatus(), other.getFagsakStatus())
             && Objects.equals(getAnsvarligSaksbehandler(), other.getAnsvarligSaksbehandler());

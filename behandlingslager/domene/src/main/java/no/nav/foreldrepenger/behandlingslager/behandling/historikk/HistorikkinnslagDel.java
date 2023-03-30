@@ -228,10 +228,9 @@ public class HistorikkinnslagDel extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof HistorikkinnslagDel)) {
+        if (!(o instanceof HistorikkinnslagDel that)) {
             return false;
         }
-        var that = (HistorikkinnslagDel) o;
         return Objects.equals(getId(), that.getId());
     }
 

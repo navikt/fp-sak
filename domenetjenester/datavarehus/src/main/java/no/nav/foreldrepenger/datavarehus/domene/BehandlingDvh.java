@@ -196,13 +196,12 @@ public class BehandlingDvh extends DvhBaseEntitet {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BehandlingDvh)) {
+        if (!(obj instanceof BehandlingDvh other)) {
             return false;
         }
         if (!super.equals(obj)) {
             return false;
         }
-        var other = (BehandlingDvh) obj;
         return Objects.equals(behandlingId, other.behandlingId)
                 && Objects.equals(fagsakId, other.fagsakId)
                 && Objects.equals(vedtakId, other.vedtakId)

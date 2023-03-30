@@ -46,10 +46,9 @@ public class BehandlingskontrollKontekst {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BehandlingskontrollKontekst)) {
+        if (!(obj instanceof BehandlingskontrollKontekst other)) {
             return false;
         }
-        var other = (BehandlingskontrollKontekst) obj;
         return Objects.equals(fagsakId, other.fagsakId)
                 && Objects.equals(aktørId, other.aktørId)
                 && Objects.equals(getBehandlingId(), other.getBehandlingId());

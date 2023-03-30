@@ -209,10 +209,9 @@ public class Behandlingsresultat extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Behandlingsresultat)) {
+        if (!(o instanceof Behandlingsresultat that)) {
             return false;
         }
-        var that = (Behandlingsresultat) o;
         // Behandlingsresultat skal p.t. kun eksisterere dersom parent Behandling allerede er persistert.
         // Det syntaktisk korrekte vil derfor være at subaggregat Behandlingsresultat med 1:1-forhold til parent
         // Behandling har også sin id knyttet opp mot Behandling alene.

@@ -69,10 +69,9 @@ public class Journalpost extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Journalpost)) {
+        if (!(obj instanceof Journalpost other)) {
             return false;
         }
-        var other = (Journalpost) obj;
 
         return Objects.equals(this.journalpostId, other.journalpostId)
                 && Objects.equals(this.fagsak, other.fagsak);

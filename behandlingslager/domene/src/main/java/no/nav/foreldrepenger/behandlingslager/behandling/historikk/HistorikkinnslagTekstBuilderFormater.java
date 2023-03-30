@@ -17,12 +17,10 @@ public final class HistorikkinnslagTekstBuilderFormater {
         if (verdi == null) {
             return null;
         }
-        if (verdi instanceof LocalDate) {
-            var localDate = (LocalDate) verdi;
+        if (verdi instanceof LocalDate localDate) {
             return formatDate(localDate);
         }
-        if (verdi instanceof LocalDateInterval) {
-            var interval = (LocalDateInterval) verdi;
+        if (verdi instanceof LocalDateInterval interval) {
             return formatDate(interval.getFomDato()) + " - " + formatDate(interval.getTomDato());
         }
         return verdi.toString();

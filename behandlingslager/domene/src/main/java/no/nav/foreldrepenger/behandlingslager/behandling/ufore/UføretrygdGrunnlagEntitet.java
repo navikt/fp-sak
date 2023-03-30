@@ -111,8 +111,7 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof UføretrygdGrunnlagEntitet)) return false;
-        var that = (UføretrygdGrunnlagEntitet) o;
+        if (!(o instanceof UføretrygdGrunnlagEntitet that)) return false;
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(aktørId, that.aktørId) &&
             Objects.equals(uføretrygdRegister, that.uføretrygdRegister) &&

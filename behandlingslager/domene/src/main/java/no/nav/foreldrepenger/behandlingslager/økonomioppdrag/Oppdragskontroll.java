@@ -111,10 +111,9 @@ public class Oppdragskontroll extends BaseEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Oppdragskontroll)) {
+        if (!(object instanceof Oppdragskontroll oppdragskontroll)) {
             return false;
         }
-        var oppdragskontroll = (Oppdragskontroll) object;
         return Objects.equals(behandlingId, oppdragskontroll.getBehandlingId())
             && Objects.equals(saksnummer, oppdragskontroll.getSaksnummer())
             && Objects.equals(venterKvittering, oppdragskontroll.getVenterKvittering())

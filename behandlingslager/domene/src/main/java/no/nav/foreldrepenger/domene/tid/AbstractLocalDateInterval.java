@@ -157,10 +157,9 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         if (object == this) {
             return true;
         }
-        if (!(object instanceof AbstractLocalDateInterval)) {
+        if (!(object instanceof AbstractLocalDateInterval annen)) {
             return false;
         }
-        var annen = (AbstractLocalDateInterval) object;
         return likFom(annen) && likTom(annen);
     }
 

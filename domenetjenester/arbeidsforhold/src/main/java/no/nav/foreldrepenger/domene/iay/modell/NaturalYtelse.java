@@ -64,10 +64,9 @@ public class NaturalYtelse extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof NaturalYtelse)) {
+        if ((o == null) || !(o instanceof NaturalYtelse that)) {
             return false;
         }
-        var that = (NaturalYtelse) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(type, that.type);
     }

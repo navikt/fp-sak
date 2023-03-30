@@ -222,10 +222,9 @@ public class ArbeidsforholdInformasjon extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof ArbeidsforholdInformasjon)) {
+        if ((o == null) || !(o instanceof ArbeidsforholdInformasjon that)) {
             return false;
         }
-        var that = (ArbeidsforholdInformasjon) o;
         return Objects.equals(referanser, that.referanser) &&
                 Objects.equals(overstyringer, that.overstyringer);
     }

@@ -162,10 +162,9 @@ public class Ytelse extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof Ytelse)) {
+        if ((o == null) || !(o instanceof Ytelse that)) {
             return false;
         }
-        var that = (Ytelse) o;
         return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&
                 Objects.equals(temaUnderkategori, that.temaUnderkategori) &&
                 Objects.equals(periode, that.periode) &&

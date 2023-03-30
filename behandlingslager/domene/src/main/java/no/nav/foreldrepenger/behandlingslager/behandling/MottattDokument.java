@@ -296,10 +296,9 @@ public class MottattDokument extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof MottattDokument)) {
+        if (!(obj instanceof MottattDokument other)) {
             return false;
         }
-        var other = (MottattDokument) obj;
         return Objects.equals(this.dokumentTypeId, other.dokumentTypeId)
             && Objects.equals(this.dokumentKategori, other.dokumentKategori)
             && Objects.equals(this.journalpostId, other.journalpostId)

@@ -60,13 +60,12 @@ public class BehandlingStegDvh extends DvhBaseEntitet {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof BehandlingStegDvh)) {
+        if (!(other instanceof BehandlingStegDvh castOther)) {
             return false;
         }
         if (!super.equals(other)) {
             return false;
         }
-        var castOther = (BehandlingStegDvh) other;
         return Objects.equals(behandlingStegId, castOther.behandlingStegId)
                 && Objects.equals(behandlingId, castOther.behandlingId)
                 && Objects.equals(behandlingStegType, castOther.behandlingStegType)

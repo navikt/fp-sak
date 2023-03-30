@@ -128,10 +128,9 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof InntektsmeldingAggregat)) {
+        if ((o == null) || !(o instanceof InntektsmeldingAggregat that)) {
             return false;
         }
-        var that = (InntektsmeldingAggregat) o;
         return Objects.equals(inntektsmeldinger, that.inntektsmeldinger);
     }
 
