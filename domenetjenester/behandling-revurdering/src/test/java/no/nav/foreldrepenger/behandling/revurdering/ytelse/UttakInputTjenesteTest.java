@@ -1,56 +1,28 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
-import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
-import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
-import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseBehandling2021;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
-@ExtendWith(JpaExtension.class)
+@CdiDbAwareTest
 class UttakInputTjenesteTest {
 
+    @Inject
     private UttakInputTjeneste tjeneste;
+    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-        var andelGraderingTjeneste = new BeregningUttakTjeneste(
-                new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager)), ytelsesFordelingRepository);
-        var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)), new SkjæringstidspunktUtils(),
-            mock(UtsettelseBehandling2021.class), mock(MinsterettBehandling2022.class));
-        tjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
-                new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste,
-                mock(MedlemTjeneste.class), andelGraderingTjeneste);
-    }
 
     @Test
     void skal_hente_behandlingsårsaker_fra_behandling() {

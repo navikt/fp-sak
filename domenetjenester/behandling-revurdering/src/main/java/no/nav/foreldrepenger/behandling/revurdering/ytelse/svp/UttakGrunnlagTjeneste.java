@@ -6,22 +6,18 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.YtelsesesspesifiktGrunnlagTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
-public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste {
+public class UttakGrunnlagTjeneste {
 
     private FamilieHendelseRepository familieHendelseRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
@@ -37,20 +33,14 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     UttakGrunnlagTjeneste() {
-        // CDI
+        //CDI
     }
 
-    @Override
-    public Optional<SvangerskapspengerGrunnlag> grunnlag(BehandlingReferanse ref) {
+    public SvangerskapspengerGrunnlag grunnlag(BehandlingReferanse ref) {
         var familieHendelse = familieHendelse(ref);
-        if (familieHendelse.isEmpty()) {
-            return Optional.empty();
-        }
-        var grunnlag = new SvangerskapspengerGrunnlag()
-                .medFamilieHendelse(familieHendelse.get())
-                .medNesteSakEntitet(nesteSakGrunnlag(ref).orElse(null))
-                .medSvpGrunnlagEntitet(svpGrunnEntitet(ref).orElse(null));
-        return Optional.of(grunnlag);
+        return familieHendelse.map(hendelse -> new SvangerskapspengerGrunnlag().medFamilieHendelse(hendelse)
+            .medNesteSakEntitet(nesteSakGrunnlag(ref).orElse(null))
+            .medSvpGrunnlagEntitet(svpGrunnEntitet(ref).orElse(null))).orElse(null);
     }
 
     private Optional<SvpGrunnlagEntitet> svpGrunnEntitet(BehandlingReferanse ref) {
