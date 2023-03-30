@@ -8,8 +8,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.YtelsesesspesifiktGrunnlagTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -45,8 +43,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
-@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste {
+public class UttakGrunnlagTjeneste {
 
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
 
@@ -79,11 +76,10 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     UttakGrunnlagTjeneste() {
-        // for CDI proxy
+        //CDI
     }
 
-    @Override
-    public Optional<ForeldrepengerGrunnlag> grunnlag(BehandlingReferanse ref) {
+    public ForeldrepengerGrunnlag grunnlag(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
         var saksnummer = ref.saksnummer();
 
@@ -91,7 +87,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
         var fhaOpt = familieHendelseTjeneste.finnAggregat(behandlingId);
         if (fhaOpt.isEmpty()) {
-            return Optional.empty();
+            return null;
         }
         var familiehendelser = familieHendelser(fhaOpt.get());
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -115,7 +111,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
         }
-        return Optional.of(grunnlag);
+        return grunnlag;
     }
 
     private Optional<PleiepengerGrunnlagEntitet> pleiepengerGrunnlag(BehandlingReferanse ref) {

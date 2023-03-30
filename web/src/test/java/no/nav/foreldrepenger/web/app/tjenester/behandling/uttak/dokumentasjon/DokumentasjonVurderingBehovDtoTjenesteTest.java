@@ -1,30 +1,31 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAksjonspunktUtleder;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import org.junit.jupiter.api.Test;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDto.Vurdering.GODKJENT;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDto.Vurdering.GODKJENT;
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.inject.Inject;
+
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAksjonspunktUtleder;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
 @CdiDbAwareTest
 class DokumentasjonVurderingBehovDtoTjenesteTest {
@@ -34,11 +35,7 @@ class DokumentasjonVurderingBehovDtoTjenesteTest {
     @Inject
     private VurderUttakDokumentasjonAksjonspunktUtleder vurderUttakDokumentasjonAksjonspunktUtleder;
     @Inject
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    @Inject
-    private MedlemTjeneste medlemTjeneste;
-    @Inject
-    private BeregningUttakTjeneste beregningUttakTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
 
     @Test
     void skal_lage_dtos() {
@@ -64,11 +61,6 @@ class DokumentasjonVurderingBehovDtoTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(mødrekvoteUtenBehov, overføringMedVurdering, overføringUtenVurdering), true))
             .medBekreftetHendelse(FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.BEKREFTET).medFødselsDato(LocalDate.now()));
         var behandling = scenario.lagre(repositoryProvider);
-
-        var entityManager = repositoryProvider.getEntityManager();
-        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
-            new HentOgLagreBeregningsgrunnlagTjeneste(entityManager), new AbakusInMemoryInntektArbeidYtelseTjeneste(),
-            skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste);
 
         var tjeneste = new DokumentasjonVurderingBehovDtoTjeneste(repositoryProvider.getBehandlingRepository(), uttakInputTjeneste,
             vurderUttakDokumentasjonAksjonspunktUtleder);

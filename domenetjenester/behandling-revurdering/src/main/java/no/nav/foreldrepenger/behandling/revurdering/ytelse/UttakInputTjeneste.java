@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import no.nav.folketrygdloven.kalkulator.guitjenester.GraderingUtenBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -47,6 +46,8 @@ public class UttakInputTjeneste {
     private SøknadRepository søknadRepository;
     private PersonopplysningRepository personopplysningRepository;
     private BeregningUttakTjeneste beregningUttakTjeneste;
+    private no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakGrunnlagTjeneste fpUttakGrunnlagTjeneste;
+    private no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UttakGrunnlagTjeneste svpUttakGrunnlagTjeneste;
 
     @Inject
     public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -54,7 +55,9 @@ public class UttakInputTjeneste {
                               InntektArbeidYtelseTjeneste iayTjeneste,
                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                               MedlemTjeneste medlemTjeneste,
-                              BeregningUttakTjeneste beregningUttakTjeneste) {
+                              BeregningUttakTjeneste beregningUttakTjeneste,
+                              no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakGrunnlagTjeneste fpUttakGrunnlagTjeneste,
+                              no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UttakGrunnlagTjeneste svpUttakGrunnlagTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.medlemTjeneste = Objects.requireNonNull(medlemTjeneste, "medlemTjeneste");
@@ -63,6 +66,8 @@ public class UttakInputTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.beregningUttakTjeneste = beregningUttakTjeneste;
+        this.fpUttakGrunnlagTjeneste = fpUttakGrunnlagTjeneste;
+        this.svpUttakGrunnlagTjeneste = svpUttakGrunnlagTjeneste;
     }
 
     UttakInputTjeneste() {
@@ -145,11 +150,11 @@ public class UttakInputTjeneste {
     private YtelsespesifiktGrunnlag lagYtelsesspesifiktGrunnlag(BehandlingReferanse ref) {
         var ytelseType = ref.fagsakYtelseType();
 
-        var yfGrunnlagTjeneste = FagsakYtelseTypeRef.Lookup.find(YtelsesesspesifiktGrunnlagTjeneste.class, ref.fagsakYtelseType())
-                .orElseThrow(
-                        () -> new IllegalStateException("Finner ikke tjeneste for å lage ytelsesspesifikt grunnlag for ytelsetype " + ytelseType));
-
-        return yfGrunnlagTjeneste.grunnlag(ref).orElse(null);
+        return switch (ytelseType) {
+            case FORELDREPENGER -> fpUttakGrunnlagTjeneste.grunnlag(ref);
+            case SVANGERSKAPSPENGER -> svpUttakGrunnlagTjeneste.grunnlag(ref);
+            default -> throw new IllegalStateException("Finner ikke tjeneste for å lage ytelsesspesifikt grunnlag for ytelsetype " + ytelseType);
+        };
     }
 
     private boolean erOpplysningerOmDødEndret(BehandlingReferanse ref) {
