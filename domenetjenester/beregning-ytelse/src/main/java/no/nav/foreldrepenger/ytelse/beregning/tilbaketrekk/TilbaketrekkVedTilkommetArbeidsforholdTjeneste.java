@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +17,7 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.konfig.Tid;
 
 class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
 
@@ -132,7 +131,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
             var harPeriodeSomSlutterFørStartdato = matchendeAktiviteter.stream()
                 .anyMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(skjæringstidspunkt, startdatoArbeid));
             var harIkkePeriodeSomSlutterEtterStartdato = matchendeAktiviteter.stream()
-                .noneMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(startdatoArbeid, TIDENES_ENDE));
+                .noneMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(startdatoArbeid, Tid.TIDENES_ENDE));
             return harPeriodeSomSlutterFørStartdato && harIkkePeriodeSomSlutterEtterStartdato;
         };
     }

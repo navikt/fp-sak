@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner.harRelevantPermisjonSomOverlapperTilretteleggingFom;
-import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +32,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class SvangerskapspengerTjeneste {
@@ -174,7 +174,7 @@ public class SvangerskapspengerTjeneste {
 
     private VelferdspermisjonDto mapPermisjon(Permisjon p, YrkesaktivitetFilter yrkesfilter) {
         return new VelferdspermisjonDto(p.getFraOgMed(),
-            p.getTilOgMed() == null || p.getTilOgMed().isEqual(TIDENES_ENDE) ? null : p.getTilOgMed(),
+            p.getTilOgMed() == null || p.getTilOgMed().isEqual(Tid.TIDENES_ENDE) ? null : p.getTilOgMed(),
             p.getProsentsats().getVerdi(),
             p.getPermisjonsbeskrivelseType(),
             erGyldig(p, yrkesfilter));

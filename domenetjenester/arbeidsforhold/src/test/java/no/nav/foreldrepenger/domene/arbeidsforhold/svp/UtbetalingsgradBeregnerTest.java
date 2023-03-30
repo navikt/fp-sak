@@ -18,9 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
-import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.konfig.Tid;
 
 class UtbetalingsgradBeregnerTest {
 
@@ -52,7 +52,7 @@ class UtbetalingsgradBeregnerTest {
         var aktivitetsAvtale2 = aktivitetsAvtaleBuilder2.build();
 
         var aktivitetsAvtaleBuilder3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
-        aktivitetsAvtaleBuilder3.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 8, 1), AbstractLocalDateInterval.TIDENES_ENDE));
+        aktivitetsAvtaleBuilder3.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 8, 1), Tid.TIDENES_ENDE));
         aktivitetsAvtaleBuilder3.medProsentsats(BigDecimal.valueOf(100));
         var aktivitetsAvtale3 = aktivitetsAvtaleBuilder3.build();
 
@@ -704,7 +704,7 @@ class UtbetalingsgradBeregnerTest {
                 .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
-        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1), AbstractLocalDateInterval.TIDENES_ENDE));
+        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1), Tid.TIDENES_ENDE));
         aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(0));
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 

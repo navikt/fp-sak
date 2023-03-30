@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
-import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,6 +28,7 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.Kont
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Spesialkontotype;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
@@ -154,7 +153,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
             .map(UttakResultatEntitet::getGjeldendePerioder).map(UttakResultatPerioderEntitet::getPerioder).orElse(List.of());
         var min = uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getFom).min(Comparator.naturalOrder());
         var max = uttakPerioder.stream().map(UttakResultatPeriodeEntitet::getTom).max(Comparator.naturalOrder());
-        return min.map(fom -> DatoIntervallEntitet.fraOgMedTilOgMed(fom, max.orElse(TIDENES_ENDE)));
+        return min.map(fom -> DatoIntervallEntitet.fraOgMedTilOgMed(fom, max.orElse(Tid.TIDENES_ENDE)));
     }
 
 }

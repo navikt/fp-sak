@@ -33,10 +33,10 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYR
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
-import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(JpaExtension.class)
 class BeregnTilrettleggingsperioderTjenesteTest {
@@ -269,7 +269,7 @@ class BeregnTilrettleggingsperioderTjenesteTest {
         var aktivitetsAvtale1 = aktivitetsAvtaleBuilder1.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(førsteFom, førsteTom));
 
         var prosent1 = yrkesaktivitetBuilder1
-                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(førsteFom, AbstractLocalDateInterval.TIDENES_ENDE), false);
+                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(førsteFom, Tid.TIDENES_ENDE), false);
         prosent1.medProsentsats(BigDecimal.valueOf(75));
 
         yrkesaktivitetBuilder1
@@ -287,7 +287,7 @@ class BeregnTilrettleggingsperioderTjenesteTest {
         var aktivitetsAvtale2 = aktivitetsAvtaleBuilder2.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(andreFom, andreTom));
 
         var prosent2 = yrkesaktivitetBuilder2
-                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(andreFom, AbstractLocalDateInterval.TIDENES_ENDE), false);
+                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(andreFom, Tid.TIDENES_ENDE), false);
         prosent2.medProsentsats(BigDecimal.valueOf(80));
 
         yrkesaktivitetBuilder2

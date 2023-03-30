@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
-import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.vedtak.konfig.Tid;
 
 public class KravperioderMapper {
 
@@ -162,15 +161,15 @@ public class KravperioderMapper {
             return Collections.emptyList();
         }
         if (!(im.getRefusjonBeløpPerMnd() == null || im.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) == 0)) {
-            alleSegmenter.add(new LocalDateSegment<>(startdatoRefusjon, TIDENES_ENDE, im.getRefusjonBeløpPerMnd().getVerdi()));
+            alleSegmenter.add(new LocalDateSegment<>(startdatoRefusjon, Tid.TIDENES_ENDE, im.getRefusjonBeløpPerMnd().getVerdi()));
         }
 
         alleSegmenter.addAll(im.getEndringerRefusjon().stream().map(e ->
-            new LocalDateSegment<>(e.getFom(), TIDENES_ENDE, e.getRefusjonsbeløp().getVerdi())
+            new LocalDateSegment<>(e.getFom(), Tid.TIDENES_ENDE, e.getRefusjonsbeløp().getVerdi())
         ).toList());
 
-        if (im.getRefusjonOpphører() != null && !im.getRefusjonOpphører().equals(TIDENES_ENDE)) {
-            alleSegmenter.add(new LocalDateSegment<>(im.getRefusjonOpphører().plusDays(1), TIDENES_ENDE, BigDecimal.ZERO));
+        if (im.getRefusjonOpphører() != null && !im.getRefusjonOpphører().equals(Tid.TIDENES_ENDE)) {
+            alleSegmenter.add(new LocalDateSegment<>(im.getRefusjonOpphører().plusDays(1), Tid.TIDENES_ENDE, BigDecimal.ZERO));
         }
 
         var refusjonTidslinje = new LocalDateTimeline<>(alleSegmenter, (interval, lhs, rhs) -> {
