@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.vedtak.konfig.Tid;
 
 /**
  * Mapper som mapper saksbehandlers vurdering om til domeneobjekter og validerer valg som er tatt
@@ -52,7 +52,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
             .filter(mangel -> mangel.arbeidsgiver().equals(arbeidsgiver) && mangel.ref().gjelderFor(referanse))
             .filter(mangel -> gyldigeÅrsaker.contains(mangel.årsak()))
             .toList();
-        if (manglerSomAvklares.size() < 1) {
+        if (manglerSomAvklares.isEmpty()) {
             throw new IllegalStateException("Feil: Finnes ingen åpne mangler på arbeidsforhold hos "
                 + arbeidsgiver + " med arbeidsforholdId " + referanse);
         }
@@ -126,7 +126,7 @@ public class ArbeidsforholdInntektsmeldingMangelMapper {
             && saksbehandlersVurdering.getVurdering().equals(ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER)) {
             builder.medAngittArbeidsgiverNavn(saksbehandlersVurdering.getArbeidsgiverNavn());
         }
-        var tom = saksbehandlersVurdering.getTom() == null ? DatoIntervallEntitet.TIDENES_ENDE : saksbehandlersVurdering.getTom();
+        var tom = saksbehandlersVurdering.getTom() == null ? Tid.TIDENES_ENDE : saksbehandlersVurdering.getTom();
         builder.leggTilOverstyrtPeriode(saksbehandlersVurdering.getFom(), tom);
         informasjonBuilder.leggTil(builder);
     }

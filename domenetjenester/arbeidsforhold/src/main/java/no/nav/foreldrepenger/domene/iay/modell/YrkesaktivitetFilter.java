@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.konfig.Tid;
 
 /**
  * Brukt til å filtrere registrerte yrkesaktiviteter, overstyrte arbeidsforhold
@@ -258,7 +258,7 @@ public class YrkesaktivitetFilter {
             Set<AktivitetsAvtale> avtaler = new LinkedHashSet<>();
             overstyrtePerioder.forEach(overstyrtPeriode -> yaAvtaler.stream()
                     .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-                    .filter(aa -> AbstractLocalDateInterval.TIDENES_ENDE.equals(aa.getPeriodeUtenOverstyring().getTomDato()))
+                    .filter(aa -> Tid.TIDENES_ENDE.equals(aa.getPeriodeUtenOverstyring().getTomDato()))
                     .filter(aa -> overstyrtPeriode.getOverstyrtePeriode().getFomDato().isEqual(aa.getPeriodeUtenOverstyring().getFomDato()))
                     .forEach(avtale -> avtaler.add(new AktivitetsAvtale(avtale, overstyrtPeriode.getOverstyrtePeriode()))));
 

@@ -19,9 +19,6 @@ import no.nav.vedtak.konfig.Tid;
  */
 public abstract class AbstractLocalDateInterval implements Comparable<AbstractLocalDateInterval>, Serializable {
 
-    private static final LocalDate TIDENES_BEGYNNELSE = Tid.TIDENES_BEGYNNELSE;
-    public static final LocalDate TIDENES_ENDE = Tid.TIDENES_ENDE;
-
     static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     public abstract LocalDate getFomDato();
@@ -83,7 +80,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public static LocalDate forrigeArbeidsdag(LocalDate dato) {
-        if (dato == TIDENES_BEGYNNELSE || dato == TIDENES_ENDE) return dato;
+        if (dato == Tid.TIDENES_BEGYNNELSE || dato == Tid.TIDENES_ENDE) return dato;
 
         return switch (dato.getDayOfWeek()) {
             case SATURDAY -> dato.minusDays(1);
@@ -93,7 +90,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public static LocalDate nesteArbeidsdag(LocalDate dato) {
-        if (dato == TIDENES_BEGYNNELSE || dato == TIDENES_ENDE) return dato;
+        if (dato == Tid.TIDENES_BEGYNNELSE || dato == Tid.TIDENES_ENDE) return dato;
         return switch (dato.getDayOfWeek()) {
             case SATURDAY -> dato.plusDays(2);
             case SUNDAY -> dato.plusDays(1);
@@ -117,7 +114,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public int antallArbeidsdager() {
-        if (getTomDato().isEqual(TIDENES_ENDE)) {
+        if (getTomDato().isEqual(Tid.TIDENES_ENDE)) {
             throw new IllegalStateException("Både fra og med og til og med dato må være satt for å regne ut arbeidsdager.");
         }
         return arbeidsdager().size();

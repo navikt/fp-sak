@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.tid;
 
+import no.nav.vedtak.konfig.Tid;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -16,7 +18,7 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
     }
 
     public static SimpleLocalDateInterval fraOgMedTomNotNull(LocalDate fomDato, LocalDate tomDato) {
-        return tomDato != null ? new SimpleLocalDateInterval(fomDato, tomDato) : new SimpleLocalDateInterval(fomDato, TIDENES_ENDE);
+        return tomDato != null ? new SimpleLocalDateInterval(fomDato, tomDato) : new SimpleLocalDateInterval(fomDato, Tid.TIDENES_ENDE);
     }
 
     @Override

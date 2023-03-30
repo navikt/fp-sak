@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -17,14 +16,17 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 public class Beregningsgrunnlag {
 
     private LocalDate skjæringstidspunkt;
-    private List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser = new ArrayList<>();
+    private final List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser = new ArrayList<>();
     private List<BeregningsgrunnlagPeriode> beregningsgrunnlagPerioder = new ArrayList<>();
     private Sammenligningsgrunnlag sammenligningsgrunnlag;
-    private List<SammenligningsgrunnlagPrStatus> sammenligningsgrunnlagPrStatusListe = new ArrayList<>();
+    private final List<SammenligningsgrunnlagPrStatus> sammenligningsgrunnlagPrStatusListe = new ArrayList<>();
     private Beløp grunnbeløp;
-    private List<BeregningsgrunnlagFaktaOmBeregningTilfelle> faktaOmBeregningTilfeller = new ArrayList<>();
+    private final List<BeregningsgrunnlagFaktaOmBeregningTilfelle> faktaOmBeregningTilfeller = new ArrayList<>();
     private BesteberegningGrunnlag besteberegningGrunnlag;
     private boolean overstyrt = false;
+
+    private Beregningsgrunnlag() {
+    }
 
     public LocalDate getSkjæringstidspunkt() {
         return skjæringstidspunkt;
@@ -135,7 +137,7 @@ public class Beregningsgrunnlag {
 
     public static class Builder {
         private boolean built;
-        private Beregningsgrunnlag kladd;
+        private final Beregningsgrunnlag kladd;
 
         private Builder() {
             kladd = new Beregningsgrunnlag();
@@ -175,22 +177,6 @@ public class Beregningsgrunnlag {
             return this;
         }
 
-        public Builder fjernAllePerioder() {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPerioder = new ArrayList<>();
-            return this;
-        }
-
-        public Builder fjernAktivitetstatus(AktivitetStatus status) {
-            verifiserKanModifisere();
-            var statuserSomSkalFjernes = kladd.aktivitetStatuser.stream().filter(a -> Objects.equals(a.getAktivitetStatus(), status)).toList();
-            if (statuserSomSkalFjernes.size() != 1) {
-                throw new IllegalStateException("Ikke entydig hvilken status som skal fjernes fra beregningsgrunnlaget.");
-            }
-            kladd.aktivitetStatuser.remove(statuserSomSkalFjernes.get(0));
-            return this;
-        }
-
         public Builder leggTilFaktaOmBeregningTilfeller(List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
             verifiserKanModifisere();
             faktaOmBeregningTilfeller.forEach(this::leggTilFaktaOmBeregningTilfeller);
@@ -212,11 +198,6 @@ public class Beregningsgrunnlag {
         public Builder medBesteberegningsgrunnlag(BesteberegningGrunnlag besteberegningGrunnlag) {
             verifiserKanModifisere();
             kladd.besteberegningGrunnlag = besteberegningGrunnlag;
-            return this;
-        }
-
-        public Builder leggTilSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusBuilder) {
-            kladd.sammenligningsgrunnlagPrStatusListe.add(sammenligningsgrunnlagPrStatusBuilder.medBeregningsgrunnlag(kladd).build());
             return this;
         }
 

@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.tid;
 
+import no.nav.vedtak.konfig.Tid;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -41,7 +43,7 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
     }
 
     public static DatoIntervallEntitet fraOgMed(LocalDate fomDato) {
-        return new DatoIntervallEntitet(fomDato, TIDENES_ENDE);
+        return new DatoIntervallEntitet(fomDato, Tid.TIDENES_ENDE);
     }
 
     public static DatoIntervallEntitet fraOgMedPlusArbeidsdager(LocalDate fom, int antallArbeidsdager) {
