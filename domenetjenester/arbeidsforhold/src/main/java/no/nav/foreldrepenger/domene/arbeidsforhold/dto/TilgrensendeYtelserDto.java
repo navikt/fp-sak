@@ -72,10 +72,9 @@ public class TilgrensendeYtelserDto implements Comparable<TilgrensendeYtelserDto
         if (this == o) {
             return true;
         }
-        if (!(o instanceof TilgrensendeYtelserDto)) {
+        if (!(o instanceof TilgrensendeYtelserDto that)) {
             return false;
         }
-        var that = (TilgrensendeYtelserDto) o;
         return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&
                 Objects.equals(periodeFraDato, that.periodeFraDato) &&
                 Objects.equals(periodeTilDato, that.periodeTilDato) &&

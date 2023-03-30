@@ -26,12 +26,10 @@ public class Kopimaskin {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T, P> T deepCopy(T object, P parent) {
-        if (object instanceof Collection) {
-            var collection = (Collection) object;
+        if (object instanceof Collection collection) {
             return deepCopyCollection(collection, parent);
         }
-        if (object instanceof Map) {
-            var map = (Map) object;
+        if (object instanceof Map map) {
             return deepCopyMap(map, parent);
         }
         if (!(object instanceof BaseEntitet) || object instanceof Virksomhet) {

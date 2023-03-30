@@ -23,10 +23,8 @@ public class Pair {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof Pair))
+        if (!(o instanceof Pair tuple))
             return false;
-
-        var tuple = (Pair) o;
 
         return Objects.equals(elem1, tuple.elem1)
                 && Objects.equals(elem2, tuple.elem2);

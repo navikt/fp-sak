@@ -206,10 +206,9 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Yrkesaktivitet)) {
+        if (!(obj instanceof Yrkesaktivitet other)) {
             return false;
         }
-        var other = (Yrkesaktivitet) obj;
         return Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef()) &&
                 Objects.equals(this.getNavnArbeidsgiverUtland(), other.getNavnArbeidsgiverUtland()) &&
                 Objects.equals(this.getArbeidType(), other.getArbeidType()) &&

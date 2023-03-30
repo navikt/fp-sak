@@ -167,10 +167,9 @@ public class Aksjonspunkt extends BaseEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Aksjonspunkt)) {
+        if (!(object instanceof Aksjonspunkt kontrollpunkt)) {
             return false;
         }
-        var kontrollpunkt = (Aksjonspunkt) object;
         return Objects.equals(getAksjonspunktDefinisjon(), kontrollpunkt.getAksjonspunktDefinisjon())
                 && Objects.equals(behandling, kontrollpunkt.behandling)
                 && Objects.equals(getStatus(), kontrollpunkt.getStatus())

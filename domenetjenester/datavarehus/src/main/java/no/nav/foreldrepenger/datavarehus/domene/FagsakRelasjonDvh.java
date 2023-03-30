@@ -56,13 +56,12 @@ public class FagsakRelasjonDvh extends DvhBaseEntitet {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof FagsakRelasjonDvh)) {
+        if (!(other instanceof FagsakRelasjonDvh castOther)) {
             return false;
         }
         if (!super.equals(other)) {
             return false;
         }
-        var castOther = (FagsakRelasjonDvh) other;
         return Objects.equals(fagsakNrEn, castOther.fagsakNrEn)
             && Objects.equals(fagsakNrTo, castOther.fagsakNrTo)
             && Objects.equals(dekningsgrad, castOther.dekningsgrad)

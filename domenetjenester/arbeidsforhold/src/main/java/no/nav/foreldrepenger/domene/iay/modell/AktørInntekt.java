@@ -88,10 +88,9 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof AktørInntekt)) {
+        if (!(obj instanceof AktørInntekt other)) {
             return false;
         }
-        var other = (AktørInntekt) obj;
         return Objects.equals(this.getAktørId(), other.getAktørId());
     }
 

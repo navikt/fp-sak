@@ -152,10 +152,9 @@ public class VilkårResultat extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof VilkårResultat)) {
+        if (!(obj instanceof VilkårResultat other)) {
             return false;
         }
-        var other = (VilkårResultat) obj;
         return Objects.equals(getVilkårResultatType(), other.getVilkårResultatType()) &&
             Objects.equals(vilkårne, other.vilkårne);
     }

@@ -73,11 +73,9 @@ public class OppgittArbeidsforhold extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittArbeidsforhold)) {
+        if ((o == null) || !(o instanceof OppgittArbeidsforhold that)) {
             return false;
         }
-
-        var that = (OppgittArbeidsforhold) o;
 
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(arbeidType, that.arbeidType) &&

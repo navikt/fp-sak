@@ -45,10 +45,9 @@ public class ArbeidsforholdOverstyrtePerioder extends BaseEntitet implements Ind
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof ArbeidsforholdOverstyrtePerioder)) {
+        if ((o == null) || !(o instanceof ArbeidsforholdOverstyrtePerioder that)) {
             return false;
         }
-        var that = (ArbeidsforholdOverstyrtePerioder) o;
         return Objects.equals(periode, that.periode) && Objects.equals(arbeidsforholdOverstyring, that.arbeidsforholdOverstyring);
     }
 

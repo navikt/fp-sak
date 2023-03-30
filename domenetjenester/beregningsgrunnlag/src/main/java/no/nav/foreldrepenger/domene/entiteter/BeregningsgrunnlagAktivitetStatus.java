@@ -78,10 +78,9 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsgrunnlagAktivitetStatus)) {
+        if (!(obj instanceof BeregningsgrunnlagAktivitetStatus other)) {
             return false;
         }
-        var other = (BeregningsgrunnlagAktivitetStatus) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
                 && Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag());
     }

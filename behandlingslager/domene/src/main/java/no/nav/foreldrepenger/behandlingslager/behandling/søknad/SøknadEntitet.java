@@ -195,10 +195,9 @@ public class SøknadEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof SøknadEntitet)) {
+        if (!(obj instanceof SøknadEntitet other)) {
             return false;
         }
-        var other = (SøknadEntitet) obj;
         return Objects.equals(this.mottattDato, other.mottattDato)
                 && Objects.equals(this.søknadsdato, other.søknadsdato)
                 && Objects.equals(this.tilleggsopplysninger, other.tilleggsopplysninger)

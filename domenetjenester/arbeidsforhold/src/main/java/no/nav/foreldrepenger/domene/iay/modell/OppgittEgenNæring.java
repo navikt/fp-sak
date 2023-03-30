@@ -177,10 +177,9 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittEgenNæring)) {
+        if ((o == null) || !(o instanceof OppgittEgenNæring that)) {
             return false;
         }
-        var that = (OppgittEgenNæring) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
                 Objects.equals(nyoppstartet, that.nyoppstartet) &&

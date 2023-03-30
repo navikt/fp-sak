@@ -261,10 +261,9 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsgrunnlagEntitet)) {
+        if (!(obj instanceof BeregningsgrunnlagEntitet other)) {
             return false;
         }
-        var other = (BeregningsgrunnlagEntitet) obj;
         return Objects.equals(this.getSkjæringstidspunkt(), other.getSkjæringstidspunkt());
     }
 

@@ -473,12 +473,11 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsgrunnlagPrStatusOgAndel)) {
+        if (!(obj instanceof BeregningsgrunnlagPrStatusOgAndel other)) {
             return false;
         }
         // Endring av denne har store konsekvenser for matching av andeler
         // Resultat av endringer må testes manuelt
-        var other = (BeregningsgrunnlagPrStatusOgAndel) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
                 && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
                 && Objects.equals(this.getInntektskategoriAutomatiskFordeling(), other.getInntektskategoriAutomatiskFordeling())

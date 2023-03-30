@@ -486,10 +486,9 @@ public class Behandling extends BaseEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Behandling)) {
+        if (!(object instanceof Behandling other)) {
             return false;
         }
-        var other = (Behandling) object;
         return Objects.equals(getFagsak(), other.getFagsak())
                 && Objects.equals(getType(), other.getType())
                 && Objects.equals(getOpprettetTidspunkt(), other.getOpprettetTidspunkt());

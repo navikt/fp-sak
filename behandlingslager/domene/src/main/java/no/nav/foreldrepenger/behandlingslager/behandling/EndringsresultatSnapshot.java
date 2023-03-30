@@ -113,9 +113,7 @@ public class EndringsresultatSnapshot {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof EndringsresultatSnapshot)) return false;
-
-        var that = (EndringsresultatSnapshot) o;
+        if (o == null || !(o instanceof EndringsresultatSnapshot that)) return false;
 
         return Objects.equals(getGrunnlagRef(), that.getGrunnlagRef()) &&
             Objects.equals(grunnlagKlasse, that.grunnlagKlasse);

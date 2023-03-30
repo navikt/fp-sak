@@ -139,9 +139,7 @@ public class EndringsresultatDiff {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EndringsresultatDiff)) return false;
-
-        var that = (EndringsresultatDiff) o;
+        if (!(o instanceof EndringsresultatDiff that)) return false;
 
         return Objects.equals(grunnlagKlasse, that.grunnlagKlasse)
             && Objects.equals(grunnlagId1, that.grunnlagId1)

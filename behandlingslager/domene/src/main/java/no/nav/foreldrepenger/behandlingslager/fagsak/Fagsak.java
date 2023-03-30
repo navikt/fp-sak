@@ -169,10 +169,9 @@ public class Fagsak extends BaseEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Fagsak)) {
+        if (!(object instanceof Fagsak fagsak)) {
             return false;
         }
-        var fagsak = (Fagsak) object;
         return Objects.equals(saksnummer, fagsak.saksnummer)
                 && Objects.equals(ytelseType, fagsak.ytelseType)
                 && Objects.equals(navBruker, fagsak.navBruker)

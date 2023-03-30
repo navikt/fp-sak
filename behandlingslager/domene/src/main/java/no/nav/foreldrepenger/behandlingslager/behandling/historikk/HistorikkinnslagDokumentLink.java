@@ -110,10 +110,9 @@ public class HistorikkinnslagDokumentLink extends BaseEntitet implements IndexKe
         if (this == o) {
             return true;
         }
-        if (!(o instanceof HistorikkinnslagDokumentLink)) {
+        if (!(o instanceof HistorikkinnslagDokumentLink that)) {
             return false;
         }
-        var that = (HistorikkinnslagDokumentLink) o;
         return
             Objects.equals(getLinkTekst(), that.getLinkTekst()) &&
             Objects.equals(historikkinnslag, that.historikkinnslag) &&

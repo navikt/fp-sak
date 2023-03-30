@@ -24,10 +24,9 @@ public class StegTransisjon {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof StegTransisjon)) {
+        if (!(o instanceof StegTransisjon that)) {
             return false;
         }
-        var that = (StegTransisjon) o;
         return (transisjonType == that.transisjonType)
                 && Objects.equals(behandlingStegType, that.behandlingStegType);
     }

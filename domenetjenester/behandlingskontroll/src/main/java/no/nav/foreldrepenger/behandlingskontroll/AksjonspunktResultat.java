@@ -97,11 +97,9 @@ public class AksjonspunktResultat {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AksjonspunktResultat)) {
+        if (!(o instanceof AksjonspunktResultat that)) {
             return false;
         }
-
-        var that = (AksjonspunktResultat) o;
 
         return aksjonspunktDefinisjon.getKode().equals(that.aksjonspunktDefinisjon.getKode());
     }

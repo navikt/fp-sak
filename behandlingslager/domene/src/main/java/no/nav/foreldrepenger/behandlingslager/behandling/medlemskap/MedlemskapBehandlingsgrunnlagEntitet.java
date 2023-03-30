@@ -78,10 +78,9 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof MedlemskapBehandlingsgrunnlagEntitet)) {
+        if (!(obj instanceof MedlemskapBehandlingsgrunnlagEntitet that)) {
             return false;
         }
-        var that = (MedlemskapBehandlingsgrunnlagEntitet) obj;
 
         return Objects.equals(this.behandlingId, that.behandlingId)
                 && Objects.equals(this.registerMedlemskap, that.registerMedlemskap)

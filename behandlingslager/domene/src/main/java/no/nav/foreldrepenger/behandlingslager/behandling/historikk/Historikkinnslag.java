@@ -162,10 +162,9 @@ public class Historikkinnslag extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Historikkinnslag)) {
+        if (!(o instanceof Historikkinnslag that)) {
             return false;
         }
-        var that = (Historikkinnslag) o;
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(fagsakId, that.fagsakId) &&
             Objects.equals(getAktør(), that.getAktør()) &&

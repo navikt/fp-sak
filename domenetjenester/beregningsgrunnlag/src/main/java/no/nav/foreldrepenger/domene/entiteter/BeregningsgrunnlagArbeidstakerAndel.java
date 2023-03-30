@@ -72,10 +72,9 @@ public class BeregningsgrunnlagArbeidstakerAndel extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsgrunnlagArbeidstakerAndel)) {
+        if (!(obj instanceof BeregningsgrunnlagArbeidstakerAndel other)) {
             return false;
         }
-        var other = (BeregningsgrunnlagArbeidstakerAndel) obj;
         return Objects.equals(this.getMottarYtelse(), other.getMottarYtelse());
     }
 

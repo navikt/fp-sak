@@ -96,10 +96,9 @@ public class BehandlingVedtak extends BaseEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof BehandlingVedtak)) {
+        if (!(object instanceof BehandlingVedtak vedtak)) {
             return false;
         }
-        var vedtak = (BehandlingVedtak) object;
         return Objects.equals(vedtakstidspunkt, vedtak.getVedtakstidspunkt())
                 && Objects.equals(ansvarligSaksbehandler, vedtak.getAnsvarligSaksbehandler())
                 && Objects.equals(getVedtakResultatType(), vedtak.getVedtakResultatType());

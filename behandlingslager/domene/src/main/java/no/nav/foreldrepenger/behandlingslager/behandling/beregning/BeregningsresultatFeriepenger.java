@@ -85,10 +85,9 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsresultatFeriepenger)) {
+        if (!(obj instanceof BeregningsresultatFeriepenger other)) {
             return false;
         }
-        var other = (BeregningsresultatFeriepenger) obj;
         return Objects.equals(this.getId(), other.getId());
     }
 

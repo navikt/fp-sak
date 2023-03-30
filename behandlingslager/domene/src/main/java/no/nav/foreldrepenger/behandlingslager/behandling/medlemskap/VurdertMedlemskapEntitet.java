@@ -125,10 +125,9 @@ public class VurdertMedlemskapEntitet extends BaseEntitet implements VurdertMedl
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof VurdertMedlemskapEntitet)) {
+        if (!(obj instanceof VurdertMedlemskapEntitet other)) {
             return false;
         }
-        var other = (VurdertMedlemskapEntitet) obj;
         return Objects.equals(this.oppholdsrettVurdering, other.getOppholdsrettVurdering())
                 && Objects.equals(this.lovligOppholdVurdering, other.getLovligOppholdVurdering())
                 && Objects.equals(this.bosattVurdering, other.getBosattVurdering())

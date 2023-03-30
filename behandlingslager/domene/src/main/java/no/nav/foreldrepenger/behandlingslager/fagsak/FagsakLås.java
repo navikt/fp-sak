@@ -55,10 +55,9 @@ public class FagsakLås {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj instanceof FagsakLås)) {
+        if (obj == null || !(obj instanceof FagsakLås other)) {
             return false;
         }
-        var other = (FagsakLås) obj;
         return Objects.equals(getFagsakId(), other.getFagsakId());
     }
 

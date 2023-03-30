@@ -101,13 +101,12 @@ public class VedtakUtbetalingDvh extends DvhBaseEntitet {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof VedtakUtbetalingDvh)) {
+        if (!(other instanceof VedtakUtbetalingDvh castOther)) {
             return false;
         }
         if (!super.equals(other)) {
             return false;
         }
-        var castOther = (VedtakUtbetalingDvh) other;
         return Objects.equals(vedtakDato, castOther.vedtakDato)
             && Objects.equals(xmlClob, castOther.xmlClob)
             && Objects.equals(fagsakId, castOther.fagsakId)

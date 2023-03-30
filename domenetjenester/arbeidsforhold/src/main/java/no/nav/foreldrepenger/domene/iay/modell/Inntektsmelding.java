@@ -352,10 +352,9 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof Inntektsmelding)) {
+        if ((o == null) || !(o instanceof Inntektsmelding entitet)) {
             return false;
         }
-        var entitet = (Inntektsmelding) o;
         return Objects.equals(getArbeidsgiver(), entitet.getArbeidsgiver())
                 && Objects.equals(getArbeidsforholdRef(), entitet.getArbeidsforholdRef())
                 && Objects.equals(getJournalpostId(), entitet.getJournalpostId());

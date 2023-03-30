@@ -14,10 +14,9 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof BeregningsgrunnlagFaktaOmBeregningTilfelle)) {
+        if (!(o instanceof BeregningsgrunnlagFaktaOmBeregningTilfelle that)) {
             return false;
         }
-        var that = (BeregningsgrunnlagFaktaOmBeregningTilfelle) o;
         return Objects.equals(beregningsgrunnlag, that.beregningsgrunnlag) &&
                 Objects.equals(faktaOmBeregningTilfelle, that.faktaOmBeregningTilfelle);
     }

@@ -40,10 +40,9 @@ public class OppgittFrilans extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittFrilans)) {
+        if ((o == null) || !(o instanceof OppgittFrilans that)) {
             return false;
         }
-        var that = (OppgittFrilans) o;
         return (harInntektFraFosterhjem == that.harInntektFraFosterhjem) &&
                 (erNyoppstartet == that.erNyoppstartet) &&
                 (harNærRelasjon == that.harNærRelasjon) &&

@@ -190,10 +190,9 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BGAndelArbeidsforhold)) {
+        if (!(obj instanceof BGAndelArbeidsforhold other)) {
             return false;
         }
-        var other = (BGAndelArbeidsforhold) obj;
         return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
                 && Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef);
     }

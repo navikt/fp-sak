@@ -144,10 +144,9 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof OppgittAnnenPartEntitet)) {
+        if (!(obj instanceof OppgittAnnenPartEntitet other)) {
             return false;
         }
-        var other = (OppgittAnnenPartEntitet) obj;
         return Objects.equals(this.aktørId, other.getAktørId())
             && Objects.equals(this.begrunnelse, other.getBegrunnelse())
             && Objects.equals(this.getType(), other.getType())

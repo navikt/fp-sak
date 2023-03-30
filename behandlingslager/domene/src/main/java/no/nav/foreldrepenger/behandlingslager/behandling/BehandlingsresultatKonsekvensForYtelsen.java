@@ -50,10 +50,9 @@ public class BehandlingsresultatKonsekvensForYtelsen extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof BehandlingsresultatKonsekvensForYtelsen)) {
+        if (!(o instanceof BehandlingsresultatKonsekvensForYtelsen that)) {
             return false;
         }
-        var that = (BehandlingsresultatKonsekvensForYtelsen) o;
         return Objects.equals(behandlingsresultat, that.behandlingsresultat) &&
             Objects.equals(konsekvensForYtelsen, that.konsekvensForYtelsen);
     }

@@ -86,10 +86,9 @@ public class InnsynDokumentEntitet extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof InnsynDokumentEntitet)) {
+        if (!(o instanceof InnsynDokumentEntitet that)) {
             return false;
         }
-        var that = (InnsynDokumentEntitet) o;
         return Objects.equals(journalpostId, that.journalpostId) &&
             Objects.equals(dokumentId, that.dokumentId);
     }

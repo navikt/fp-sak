@@ -93,10 +93,9 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof BehandlingStegTilstand)) {
+        if (!(o instanceof BehandlingStegTilstand that)) {
             return false;
         }
-        var that = (BehandlingStegTilstand) o;
         return Objects.equals(getBehandlingSteg(), that.getBehandlingSteg()) &&
                 Objects.equals(getBehandlingStegStatus(), that.getBehandlingStegStatus());
     }

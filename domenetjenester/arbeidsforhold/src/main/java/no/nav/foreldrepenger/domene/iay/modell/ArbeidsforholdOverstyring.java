@@ -151,10 +151,9 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof ArbeidsforholdOverstyring)) {
+        if ((o == null) || !(o instanceof ArbeidsforholdOverstyring that)) {
             return false;
         }
-        var that = (ArbeidsforholdOverstyring) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
                 Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
     }

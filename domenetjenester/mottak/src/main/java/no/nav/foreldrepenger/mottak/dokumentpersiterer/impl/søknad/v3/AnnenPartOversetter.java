@@ -37,13 +37,11 @@ public class AnnenPartOversetter {
 
     Optional<OppgittAnnenPartEntitet> oversett(SøknadWrapper skjema, AktørId aktørIdSøker) {
         return extractAnnenForelder(skjema).map(annenForelder -> {
-            if (annenForelder instanceof AnnenForelderMedNorskIdent) {
-                var annenForelderMedNorskIdent = (AnnenForelderMedNorskIdent) annenForelder;
+            if (annenForelder instanceof AnnenForelderMedNorskIdent annenForelderMedNorskIdent) {
                 return map(annenForelderMedNorskIdent);
 
             }
-            if (annenForelder instanceof AnnenForelderUtenNorskIdent) {
-                var annenForelderUtenNorskIdent = (AnnenForelderUtenNorskIdent) annenForelder;
+            if (annenForelder instanceof AnnenForelderUtenNorskIdent annenForelderUtenNorskIdent) {
                 return map(annenForelderUtenNorskIdent, aktørIdSøker);
             }
             throw new IllegalStateException("Ukjent type AnnenForelder " + annenForelder.getClass());

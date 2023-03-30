@@ -96,10 +96,9 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof InntektArbeidYtelseAggregat)) {
+        if (!(obj instanceof InntektArbeidYtelseAggregat other)) {
             return false;
         }
-        var other = (InntektArbeidYtelseAggregat) obj;
         return Objects.equals(this.getAktørInntekt(), other.getAktørInntekt())
                 && Objects.equals(this.getAktørArbeid(), other.getAktørArbeid())
                 && Objects.equals(this.getAktørYtelse(), other.getAktørYtelse());

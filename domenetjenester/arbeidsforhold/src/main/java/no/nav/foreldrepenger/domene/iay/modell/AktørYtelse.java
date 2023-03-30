@@ -79,10 +79,9 @@ public class AktørYtelse extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof AktørYtelse)) {
+        if (!(obj instanceof AktørYtelse other)) {
             return false;
         }
-        var other = (AktørYtelse) obj;
         return Objects.equals(this.getAktørId(), other.getAktørId());
     }
 

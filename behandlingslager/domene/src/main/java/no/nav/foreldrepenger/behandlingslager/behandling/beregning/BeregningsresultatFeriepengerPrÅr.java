@@ -79,10 +79,9 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeregningsresultatFeriepengerPrÅr)) {
+        if (!(obj instanceof BeregningsresultatFeriepengerPrÅr other)) {
             return false;
         }
-        var other = (BeregningsresultatFeriepengerPrÅr) obj;
         return Objects.equals(this.getOpptjeningsår(), other.getOpptjeningsår())
             && Objects.equals(this.getÅrsbeløp(), other.getÅrsbeløp());
     }

@@ -85,10 +85,9 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof Refusjonsinfo156)) {
+        if (!(object instanceof Refusjonsinfo156 refusjonsinfo156)) {
             return false;
         }
-        var refusjonsinfo156 = (Refusjonsinfo156) object;
         return Objects.equals(maksDato, refusjonsinfo156.getMaksDato())
              && Objects.equals(refunderesId, refusjonsinfo156.getRefunderesId())
             && Objects.equals(datoFom, refusjonsinfo156.getDatoFom());

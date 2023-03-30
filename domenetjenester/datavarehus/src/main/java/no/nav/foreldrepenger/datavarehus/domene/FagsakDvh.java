@@ -92,13 +92,12 @@ public class FagsakDvh extends DvhBaseEntitet {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof FagsakDvh)) {
+        if (!(other instanceof FagsakDvh castOther)) {
             return false;
         }
         if (!super.equals(other)) {
             return false;
         }
-        var castOther = (FagsakDvh) other;
         return Objects.equals(fagsakId, castOther.fagsakId)
                 && Objects.equals(brukerId, castOther.brukerId)
                 && Objects.equals(brukerAktørId, castOther.brukerAktørId)

@@ -134,10 +134,9 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof AktivitetsAvtale)) {
+        if ((o == null) || !(o instanceof AktivitetsAvtale that)) {
             return false;
         }
-        var that = (AktivitetsAvtale) o;
         return Objects.equals(beskrivelse, that.beskrivelse) &&
                 Objects.equals(prosentsats, that.prosentsats) &&
                 Objects.equals(periode, that.periode) &&
