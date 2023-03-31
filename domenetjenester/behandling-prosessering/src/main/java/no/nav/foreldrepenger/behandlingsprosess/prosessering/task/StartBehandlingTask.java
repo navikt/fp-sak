@@ -16,10 +16,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @ProsessTask("behandlingskontroll.startBehandling")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class StartBehandlingTask implements ProsessTaskHandler {
-
-    public StartBehandlingTask() {
-    }
-
     @Override
     public void doTask(ProsessTaskData data) {
 

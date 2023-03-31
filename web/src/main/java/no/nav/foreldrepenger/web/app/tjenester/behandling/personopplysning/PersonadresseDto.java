@@ -12,9 +12,6 @@ public class PersonadresseDto {
     private String poststed;
     private String land;
 
-    public PersonadresseDto() {
-    }
-
     public AdresseType getAdresseType() {
         return adresseType;
     }

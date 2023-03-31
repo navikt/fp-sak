@@ -35,9 +35,6 @@ import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 @ApplicationScoped
 public class EndringssøknadSøknadMapper implements SøknadMapper {
 
-    public EndringssøknadSøknadMapper() {
-    }
-
     @Override
     public <V extends ManuellRegistreringDto> Soeknad mapSøknad(V registreringDto, NavBruker navBruker) {
         var søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);

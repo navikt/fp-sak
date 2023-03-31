@@ -11,11 +11,6 @@ public class Virksomhet {
     private String navn;
     private LocalDate registrert;
     private LocalDate avsluttet;
-    private LocalDate oppstart;
-    private Organisasjonstype organisasjonstype = Organisasjonstype.UDEFINERT;
-
-    public Virksomhet() {
-    }
 
     public String getOrgnr() {
         return orgnr;
@@ -29,20 +24,8 @@ public class Virksomhet {
         return registrert;
     }
 
-    public LocalDate getOppstart() {
-        return oppstart;
-    }
-
     public LocalDate getAvslutt() {
         return avsluttet;
-    }
-
-    public boolean erKunstig() {
-        return Organisasjonstype.KUNSTIG.equals(getOrganisasjonstype());
-    }
-
-    public Organisasjonstype getOrganisasjonstype() {
-        return organisasjonstype;
     }
 
     @Override
@@ -104,11 +87,6 @@ public class Virksomhet {
             return this;
         }
 
-        public Builder medOppstart(LocalDate oppstart) {
-            this.mal.oppstart = oppstart;
-            return this;
-        }
-
         public Builder medAvsluttet(LocalDate avsluttet) {
             this.mal.avsluttet = avsluttet;
             return this;
@@ -116,11 +94,6 @@ public class Virksomhet {
 
         public Builder medRegistrert(LocalDate registrert) {
             this.mal.registrert = registrert;
-            return this;
-        }
-
-        public Builder medOrganisasjonstype(Organisasjonstype organisasjonsType) {
-            this.mal.organisasjonstype = organisasjonsType;
             return this;
         }
 

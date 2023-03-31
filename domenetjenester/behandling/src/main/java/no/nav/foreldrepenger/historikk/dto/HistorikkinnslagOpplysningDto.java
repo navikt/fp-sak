@@ -10,9 +10,6 @@ public class HistorikkinnslagOpplysningDto {
     private HistorikkOpplysningType opplysningType;
     private String tilVerdi;
 
-    public HistorikkinnslagOpplysningDto() {
-    }
-
     public HistorikkOpplysningType getOpplysningType() {
         return opplysningType;
     }

@@ -48,9 +48,6 @@ public class AnkeVurderingResultatDto {
     @JsonProperty("sendtTilTrygderettenDato")
     private LocalDate sendtTilTrygderettenDato;
 
-    public AnkeVurderingResultatDto() {
-    }
-
     public AnkeVurdering getAnkeVurdering() {
         return ankeVurdering;
     }

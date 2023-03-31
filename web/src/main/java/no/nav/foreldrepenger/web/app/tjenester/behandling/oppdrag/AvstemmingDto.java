@@ -7,8 +7,6 @@ public class AvstemmingDto {
     private String nokkelAvstemming;
     private String tidspnktMelding;
 
-    public AvstemmingDto() {}
-
     public String getNokkelAvstemming() {
         return nokkelAvstemming;
     }

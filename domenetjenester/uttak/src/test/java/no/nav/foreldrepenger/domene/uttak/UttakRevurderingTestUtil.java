@@ -236,7 +236,6 @@ public class UttakRevurderingTestUtil {
         virksomhet = new Virksomhet.Builder().medOrgnr(ORGNR)
             .medNavn("Virksomhet")
             .medRegistrert(FØDSELSDATO.minusYears(10L))
-            .medOppstart(FØDSELSDATO.minusYears(10L))
             .build();
     }
 
@@ -254,7 +253,8 @@ public class UttakRevurderingTestUtil {
     }
 
     public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId,
-                                                                       List<UttakResultatPeriodeEntitet> perioder, YtelseFordelingAggregat aggregat) {
+                                                                       List<UttakResultatPeriodeEntitet> perioder,
+                                                                       YtelseFordelingAggregat aggregat) {
         return byggFørstegangsbehandlingForRevurderingBerørtSak(aktørId, perioder, aggregat, null);
     }
 

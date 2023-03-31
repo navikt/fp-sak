@@ -21,9 +21,6 @@ public class RegelFastsettOpptjeningsperiodeSVP implements RuleService<Opptjenin
     static final String ID = "FP_VK_21";
     static final String BESKRIVELSE = "Fastsett opptjeningsperiode";
 
-    public RegelFastsettOpptjeningsperiodeSVP() {
-    }
-
     @Override
     public Evaluation evaluer(OpptjeningsperiodeGrunnlag input, Object outputContainer) {
         var mellomregning = new OpptjeningsperiodeMellomregning(input, OpptjeningsperiodevilkårParametre.vilkårparametreSvangerskapspenger());

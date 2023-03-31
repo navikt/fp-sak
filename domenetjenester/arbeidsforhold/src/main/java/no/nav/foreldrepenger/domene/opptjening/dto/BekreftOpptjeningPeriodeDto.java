@@ -14,9 +14,6 @@ public class BekreftOpptjeningPeriodeDto {
     private Boolean erGodkjent;
     private String begrunnelse;
 
-    public BekreftOpptjeningPeriodeDto() {
-    }
-
     public OpptjeningAktivitetType getAktivitetType() {
         return aktivitetType;
     }

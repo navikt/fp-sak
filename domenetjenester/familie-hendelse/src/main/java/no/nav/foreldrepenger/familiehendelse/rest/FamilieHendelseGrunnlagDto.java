@@ -5,9 +5,6 @@ public class FamilieHendelseGrunnlagDto {
     private FamiliehendelseDto gjeldende;
     private FamiliehendelseDto register;
 
-    public FamilieHendelseGrunnlagDto() {
-    }
-
     public FamiliehendelseDto getGjeldende() {
         return gjeldende;
     }

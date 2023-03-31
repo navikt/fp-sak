@@ -107,9 +107,6 @@ public class HistorikkInnslagTekstBuilder {
     private int antallAksjonspunkter = 0;
     private int antallOpplysninger = 0;
 
-    public HistorikkInnslagTekstBuilder() {
-    }
-
     public List<HistorikkinnslagDel> getHistorikkinnslagDeler() {
         return historikkinnslagDeler;
     }

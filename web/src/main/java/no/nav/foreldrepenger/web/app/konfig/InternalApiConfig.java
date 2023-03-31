@@ -17,9 +17,6 @@ public class InternalApiConfig extends Application {
 
     public static final String INTERNAL_URI = "/internal";
 
-    public InternalApiConfig() {
-    }
-
     @Override
     public Set<Class<?>> getClasses() {
         return Set.of(HealthCheckRestService.class, PrometheusRestService.class);

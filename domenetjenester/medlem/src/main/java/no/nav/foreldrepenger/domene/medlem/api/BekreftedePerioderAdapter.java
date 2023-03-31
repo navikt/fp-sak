@@ -14,13 +14,9 @@ public class BekreftedePerioderAdapter {
     private Boolean erEosBorger;
     private Boolean oppholdsrettVurdering;
     private Boolean lovligOppholdVurdering;
-    private LocalDate fodselsdato;
     private MedlemskapManuellVurderingType medlemskapManuellVurderingType;
     private String omsorgsovertakelseDato;
     private String begrunnelse;
-
-    public BekreftedePerioderAdapter() {
-    }
 
     public LocalDate getVurderingsdato() {
         return vurderingsdato;
@@ -68,14 +64,6 @@ public class BekreftedePerioderAdapter {
 
     public void setLovligOppholdVurdering(Boolean lovligOppholdVurdering) {
         this.lovligOppholdVurdering = lovligOppholdVurdering;
-    }
-
-    public LocalDate getFodselsdato() {
-        return fodselsdato;
-    }
-
-    public void setFodselsdato(LocalDate fodselsdato) {
-        this.fodselsdato = fodselsdato;
     }
 
     public MedlemskapManuellVurderingType getMedlemskapManuellVurderingType() {

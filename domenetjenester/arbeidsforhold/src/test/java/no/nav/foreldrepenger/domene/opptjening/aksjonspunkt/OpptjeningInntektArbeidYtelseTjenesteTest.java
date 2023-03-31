@@ -86,7 +86,6 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
                 .medOrgnr(NAV_ORG_NUMMER)
                 .medNavn("Virksomheten")
                 .medRegistrert(LocalDate.now())
-                .medOppstart(LocalDate.now())
                 .build();
         when(virksomhetTjeneste.finnOrganisasjon(NAV_ORG_NUMMER)).thenReturn(Optional.of(virksomhet));
 

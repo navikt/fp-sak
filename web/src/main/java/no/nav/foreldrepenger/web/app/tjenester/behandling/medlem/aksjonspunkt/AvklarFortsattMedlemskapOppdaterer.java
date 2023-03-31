@@ -48,7 +48,6 @@ public class AvklarFortsattMedlemskapOppdaterer implements AksjonspunktOppdatere
             adapter.setAksjonspunkter(periode.getAksjonspunkter());
             adapter.setBosattVurdering(periode.getBosattVurdering());
             adapter.setErEosBorger(periode.getErEosBorger());
-            adapter.setFodselsdato(periode.getFodselsdato());
             adapter.setLovligOppholdVurdering(periode.getLovligOppholdVurdering());
             adapter.setVurderingsdato(periode.getVurderingsdato());
             adapter.setOmsorgsovertakelseDato(periode.getOmsorgsovertakelseDato());
