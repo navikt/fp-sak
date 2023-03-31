@@ -8,9 +8,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Opptjening;
 @ApplicationScoped
 public class OpptjeningGrunnlagBygger {
 
-    public OpptjeningGrunnlagBygger() {
-    }
-
     public Opptjening.Builder byggGrunnlag(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         return new Opptjening.Builder()

@@ -13,9 +13,6 @@ public class TilgrensendeYtelserDto implements Comparable<TilgrensendeYtelserDto
     private String status;
     private String saksNummer;
 
-    public TilgrensendeYtelserDto() {
-    }
-
     public String getRelatertYtelseType() {
         return relatertYtelseType;
     }

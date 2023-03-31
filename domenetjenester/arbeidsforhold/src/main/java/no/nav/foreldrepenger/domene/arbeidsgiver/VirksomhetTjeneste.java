@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonstypeEReg;
@@ -21,13 +20,10 @@ public class VirksomhetTjeneste {
 
     private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(24, TimeUnit.HOURS);
 
-    private static final Virksomhet KUNSTIG_VIRKSOMHET = new Virksomhet.Builder()
-            .medNavn("Kunstig virksomhet")
-            .medOrganisasjonstype(Organisasjonstype.KUNSTIG)
-            .medOrgnr(OrgNummer.KUNSTIG_ORG)
-            .medRegistrert(LocalDate.of(1978, 1, 1))
-            .medOppstart(LocalDate.of(1978, 1, 1))
-            .build();
+    private static final Virksomhet KUNSTIG_VIRKSOMHET = new Virksomhet.Builder().medNavn("Kunstig virksomhet")
+        .medOrgnr(OrgNummer.KUNSTIG_ORG)
+        .medRegistrert(LocalDate.of(1978, 1, 1))
+        .build();
 
     private static final LRUCache<String, Virksomhet> CACHE = new LRUCache<>(2500, CACHE_ELEMENT_LIVE_TIME_MS);
 
@@ -77,20 +73,12 @@ public class VirksomhetTjeneste {
     private Virksomhet hentOrganisasjonRest(String orgNummer) {
         Objects.requireNonNull(orgNummer, "orgNummer");
         var org = eregRestKlient.hentOrganisasjon(orgNummer);
-        var builder = Virksomhet.getBuilder()
-                .medNavn(org.getNavn())
-                .medRegistrert(org.getRegistreringsdato())
-                .medOrgnr(org.organisasjonsnummer());
-        if (OrganisasjonstypeEReg.VIRKSOMHET.equals(org.type())) {
-            builder.medOrganisasjonstype(Organisasjonstype.VIRKSOMHET)
-                    .medOppstart(org.getOppstartsdato())
-                    .medAvsluttet(org.getNedleggelsesdato());
-        } else if (OrganisasjonstypeEReg.JURIDISK_ENHET.equals(org.type())) {
-            builder.medOrganisasjonstype(Organisasjonstype.JURIDISK_ENHET);
-        } else if (OrganisasjonstypeEReg.ORGLEDD.equals(org.type())) {
-            builder.medOrganisasjonstype(Organisasjonstype.ORGLEDD);
-        }
-        return builder.build();
+        return Virksomhet.getBuilder()
+            .medNavn(org.getNavn())
+            .medRegistrert(org.getRegistreringsdato())
+            .medOrgnr(org.organisasjonsnummer())
+            .medAvsluttet(OrganisasjonstypeEReg.VIRKSOMHET.equals(org.type()) ? org.getNedleggelsesdato() : null)
+            .build();
     }
 
 }

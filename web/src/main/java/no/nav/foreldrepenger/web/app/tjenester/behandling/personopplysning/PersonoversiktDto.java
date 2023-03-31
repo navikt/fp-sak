@@ -9,9 +9,6 @@ public class PersonoversiktDto {
     private PersonopplysningBasisDto annenPart;
     private List<PersonopplysningBasisDto> barn = new ArrayList<>();
 
-    public PersonoversiktDto() {
-    }
-
     public PersonopplysningBasisDto getBruker() {
         return bruker;
     }

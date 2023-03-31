@@ -9,9 +9,6 @@ public class HistorikkinnslagSoeknadsperiodeDto {
     private String navnVerdi;
     private String tilVerdi;
 
-    public HistorikkinnslagSoeknadsperiodeDto() {
-    }
-
     public HistorikkAvklartSoeknadsperiodeType getSoeknadsperiodeType() {
         return soeknadsperiodeType;
     }

@@ -16,9 +16,6 @@ public class HistorikkinnslagEndretFeltDto {
     private String klFraVerdi;
     private String klTilVerdi;
 
-    public HistorikkinnslagEndretFeltDto() {
-    }
-
     public HistorikkEndretFeltType getEndretFeltNavn() {
         return endretFeltNavn;
     }

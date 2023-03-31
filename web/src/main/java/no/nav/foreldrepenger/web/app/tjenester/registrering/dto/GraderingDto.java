@@ -152,9 +152,6 @@ public class GraderingDto {
 
     public static class BigDecimalSerializer extends JsonDeserializer<BigDecimal> {
 
-        public BigDecimalSerializer() {
-        }
-
         @Override
         public BigDecimal deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
             var oc = jp.getCodec();

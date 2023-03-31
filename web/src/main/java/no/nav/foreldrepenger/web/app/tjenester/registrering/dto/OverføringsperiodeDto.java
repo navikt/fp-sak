@@ -19,9 +19,6 @@ public class OverføringsperiodeDto {
     @ValidKodeverk
     private OverføringÅrsak overforingArsak;
 
-    public OverføringsperiodeDto() {
-    }
-
     public LocalDate getPeriodeFom() {
         return periodeFom;
     }

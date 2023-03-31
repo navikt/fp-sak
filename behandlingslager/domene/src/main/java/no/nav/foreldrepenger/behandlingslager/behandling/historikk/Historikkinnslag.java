@@ -50,9 +50,6 @@ public class Historikkinnslag extends BaseEntitet {
     @Column(name="bruker_kjoenn", nullable = false, updatable = false)
     private NavBrukerKjønn kjoenn = NavBrukerKjønn.UDEFINERT;
 
-    public Historikkinnslag() {
-    }
-
     public Long getId() {
         return id;
     }

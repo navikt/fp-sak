@@ -55,8 +55,6 @@ public class ØkonomioppdragMapper {
 
     private final ObjectFactory objectFactory = new ObjectFactory();
 
-    public ØkonomioppdragMapper() {}
-
     Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final var oppdrag = objectFactory.createOppdrag();
         oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110, behandlingId));
@@ -78,7 +76,7 @@ public class ØkonomioppdragMapper {
             } catch (JAXBException | SAXException e) {
                 throw new TekniskException("FP-536167",
                     String.format("Kan ikke konvertere oppdrag med id %s. Problemer ved generering av xml",
-                        oppdrag.getOppdrag110().getOppdragsId(), e));
+                        oppdrag.getOppdrag110().getOppdragsId()), e);
             }
         }
         return oppdragXmlListe;

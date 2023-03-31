@@ -44,6 +44,7 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 @DtoTilServiceAdapter(dto = VurderUttakDokumentasjonDto.class, adapter = AksjonspunktOppdaterer.class)
 class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<VurderUttakDokumentasjonDto> {
 
+    private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private VurderUttakDokumentasjonAksjonspunktUtleder utleder;
     private UttakInputTjeneste uttakInputTjeneste;
@@ -123,7 +124,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 case GODKJENT -> TIDLIG_OPPSTART_FEDREKVOTE_GODKJENT;
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> TIDLIG_OPPSTART_FEDREKVOTE_IKKE_GODKJENT;
             };
-            default -> throw new IllegalStateException("Unexpected value: " + årsak);
+            default -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
         };
     }
 
@@ -150,7 +151,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 case GODKJENT -> ALENEOMSORG_GODKJENT;
                 case IKKE_GODKJENT, IKKE_DOKUMENTERT -> ALENEOMSORG_IKKE_GODKJENT;
             };
-            default -> throw new IllegalStateException("Unexpected value: " + årsak);
+            default -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
         };
     }
 
@@ -185,7 +186,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                     case IKKE_GODKJENT -> MORS_AKTIVITET_IKKE_GODKJENT;
                     case IKKE_DOKUMENTERT -> MORS_AKTIVITET_IKKE_DOKUMENTERT;
                 };
-            default -> throw new IllegalStateException("Unexpected value: " + årsak);
+            default -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
         };
     }
 }

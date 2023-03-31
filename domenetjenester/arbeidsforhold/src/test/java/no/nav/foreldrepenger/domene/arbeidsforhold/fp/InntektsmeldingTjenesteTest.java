@@ -489,7 +489,6 @@ class InntektsmeldingTjenesteTest {
                 .medOrgnr(KUNSTIG_ORG)
                 .medNavn("Virksomheten")
                 .medRegistrert(I_DAG.minusYears(2L))
-                .medOppstart(I_DAG.minusYears(1L))
                 .build();
     }
 
@@ -498,7 +497,6 @@ class InntektsmeldingTjenesteTest {
                 .medOrgnr("52")
                 .medNavn("OrgA")
                 .medRegistrert(I_DAG.minusYears(2L))
-                .medOppstart(I_DAG.minusYears(1L))
                 .build();
     }
 

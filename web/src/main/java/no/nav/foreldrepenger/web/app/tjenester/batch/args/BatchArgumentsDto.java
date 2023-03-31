@@ -29,9 +29,6 @@ public class BatchArgumentsDto implements AbacDto {
     @JsonIgnore
     private Map<String, String> arguments = new HashMap<>();
 
-    public BatchArgumentsDto() {
-    }
-
     private void parseJobParams(Map<String, String> arguments) {
         if (StringUtils.erIkkeTom(jobParameters)) {
 

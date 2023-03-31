@@ -18,9 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
-    public EtterkontrollTjenesteImpl() {
-    }
-
     @Override
     public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
             List<FødtBarnInfo> barnFraRegister) {

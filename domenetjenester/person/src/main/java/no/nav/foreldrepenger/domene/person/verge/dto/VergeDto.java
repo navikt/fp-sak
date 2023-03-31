@@ -13,9 +13,6 @@ public class VergeDto {
     private VergeType vergeType;
     private String organisasjonsnummer;
 
-    public VergeDto() {
-    }
-
     public void setNavn(String navn) {
         this.navn = navn;
     }

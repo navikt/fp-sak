@@ -25,9 +25,6 @@ public class AksjonspunktDto {
     private LocalDateTime endretTidspunkt;
     private String endretAv;
 
-    public AksjonspunktDto() {
-    }
-
     public void setDefinisjon(AksjonspunktDefinisjon definisjon) {
         this.definisjon = definisjon;
     }
