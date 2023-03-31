@@ -148,16 +148,14 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("""
-            select distinct b.id
-            from FPSAK.AKSJONSPUNKT ap
-            join fpsak.behandling b on ap.behandling_id = b.id
-            join fpsak.mottatt_dokument md on b.fagsak_id = md.fagsak_id
+            select distinct bh.id
+            from fagsak fs
+            join behandling bh on bh.fagsak_id = fs.id
+            join aksjonspunkt ap on ap.behandling_id = bh.id
             where aksjonspunkt_def in (:apdef)
             and aksjonspunkt_status = :status
-            and md.type like 'SØKNAD%'
-            and md.xml_payload like '%egenNaering%'
              """);
-        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING.getKode()));
+        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG.getKode()));
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
@@ -168,10 +166,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttTilbakeTilOmsorgRett(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.VURDER_OPPTJENINGSVILKÅR.equals(behandling.getAktivtBehandlingSteg())) {
-            return;
-        }
-        if (behandling.isBehandlingPåVent() && behandling.getFristDatoBehandlingPåVent().isAfter(LocalDate.of(2023, 4, 10))) {
+        if (!BehandlingStegType.KONTROLLER_FAKTA_UTTAK.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
