@@ -36,11 +36,11 @@ public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFe
     }
 
     @Override
-    protected List<OpptjeningAktivitet> mapTilOpptjeningsaktiviteter(MapTilOpptjeningAktiviteter mapper, OpptjeningsvilkårResultat oppResultat) {
+    protected List<OpptjeningAktivitet> mapTilOpptjeningsaktiviteter(OpptjeningsvilkårResultat oppResultat) {
         List<OpptjeningAktivitet> aktiviteter = new ArrayList<>();
-        aktiviteter.addAll(mapper.map(oppResultat.getBekreftetGodkjentePerioder(), OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT));
-        aktiviteter.addAll(mapper.map(oppResultat.getAntattGodkjentePerioder(), OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT));
-        aktiviteter.addAll(mapper.map(oppResultat.getUnderkjentePerioder(), OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST));
+        aktiviteter.addAll(MapTilOpptjeningAktiviteter.map(oppResultat.getBekreftetGodkjentePerioder(), OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT));
+        aktiviteter.addAll(MapTilOpptjeningAktiviteter.map(oppResultat.getAntattGodkjentePerioder(), OpptjeningAktivitetKlassifisering.ANTATT_GODKJENT));
+        aktiviteter.addAll(MapTilOpptjeningAktiviteter.map(oppResultat.getUnderkjentePerioder(), OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST));
         return aktiviteter;
     }
 

@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetVurdering {
 
-    private AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening;
-    private AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening;
+    private final AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening;
+    private final AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening;
 
     public OpptjeningAktivitetVurderingVilkår(AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
             AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening) {

@@ -13,10 +13,10 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class MapTilOpptjeningAktiviteter {
 
-    public MapTilOpptjeningAktiviteter() {
+    private MapTilOpptjeningAktiviteter() {
     }
 
-    public List<OpptjeningAktivitet> map(Map<Aktivitet, LocalDateTimeline<Boolean>> perioder,
+    public static List<OpptjeningAktivitet> map(Map<Aktivitet, LocalDateTimeline<Boolean>> perioder,
             OpptjeningAktivitetKlassifisering klassifisering) {
 
         List<OpptjeningAktivitet> opptjeningAktivitet = new ArrayList<>();
@@ -35,7 +35,7 @@ public class MapTilOpptjeningAktiviteter {
         return opptjeningAktivitet;
     }
 
-    private ReferanseType getAktivitetReferanseType(String aktivitetReferanse, Aktivitet key) {
+    private static ReferanseType getAktivitetReferanseType(String aktivitetReferanse, Aktivitet key) {
         if (aktivitetReferanse != null) {
             if (key.getReferanseType() == Aktivitet.ReferanseType.ORGNR) {
                 return ReferanseType.ORG_NR;

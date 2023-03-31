@@ -8,7 +8,10 @@ import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opp
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiPredicate;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -42,6 +45,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
 
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
     private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktutlederForVurderOppgittOpptjening.class);
+    private static final int FORVENTET_FERDIGLIGNET_MÅNED = 7; // Analyse viser økning i ferdiglignet næring i juli.
 
     private OpptjeningRepository opptjeningRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -91,8 +95,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
 
         if (harBrukerOppgittÅVæreSelvstendigNæringsdrivende(oppgittOpptjening, opptjeningPeriode) == JA) {
             var aktørId = param.getAktørId();
-            if (manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, inntektArbeidYtelseGrunnlagOptional.get(), opptjeningPeriode,
-                    param.getSkjæringstidspunkt()) == JA) {
+            if (manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, inntektArbeidYtelseGrunnlagOptional.get(), param.getSkjæringstidspunkt()) == JA) {
                 LOG.info("Utleder AP 5051 fra oppgitt næringsdrift");
                 return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
             }
@@ -150,14 +153,22 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
     }
 
     private Utfall manglerFerdiglignetNæringsinntekt(AktørId aktørId, OppgittOpptjening oppgittOpptjening,
-            InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, DatoIntervallEntitet opptjeningPeriode,
-            Skjæringstidspunkt skjæringstidspunkt) {
-        // Det siste ferdiglignede år vil alltid være året før behandlingstidspunktet
-        // Bruker LocalDate.now() her etter avklaring med funksjonell.
-        var sistFerdiglignetÅr = LocalDate.now().minusYears(1L).getYear();
-        if (inneholderSisteFerdiglignendeÅrNæringsinntekt(aktørId, inntektArbeidYtelseGrunnlag, sistFerdiglignetÅr, opptjeningPeriode,
-                skjæringstidspunkt) == NEI) {
-            if (erDetRegistrertNæringEtterSisteFerdiglignendeÅr(oppgittOpptjening, sistFerdiglignetÅr) == NEI) {
+            InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, Skjæringstidspunkt skjæringstidspunkt) {
+        // Før forventningsdato er kun et fåtall ferdiglignet og mans sjekker 2 år tilbake, deretter sjekker man kun fjoråret eller stp-året dersom lenge etter
+        var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
+        var stpFerdiglignetFrist = stp.plusYears(1).withMonth(FORVENTET_FERDIGLIGNET_MÅNED).withDayOfMonth(1).plusMonths(3);
+        Set<Integer> forventetFerdiglignet = new LinkedHashSet<>();
+        if (LocalDate.now().isAfter(stpFerdiglignetFrist)) {
+            forventetFerdiglignet.add(stp.getYear());
+        } else {
+            if (LocalDate.now().isBefore(stp.withMonth(FORVENTET_FERDIGLIGNET_MÅNED).withDayOfMonth(1))) {
+                forventetFerdiglignet.add(stp.minusYears(2).getYear());
+            }
+            forventetFerdiglignet.add(stp.minusYears(1).getYear());
+        }
+
+        if (inneholderSisteFerdiglignendeÅrNæringsinntekt(aktørId, inntektArbeidYtelseGrunnlag, forventetFerdiglignet, skjæringstidspunkt) == NEI) {
+            if (erDetRegistrertNæringEtterSisteFerdiglignendeÅr(oppgittOpptjening, forventetFerdiglignet) == NEI) {
                 return JA;
             }
         }
@@ -166,47 +177,41 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
 
     private Utfall inneholderSisteFerdiglignendeÅrNæringsinntekt(AktørId aktørId,
             InntektArbeidYtelseGrunnlag grunnlag,
-            int sistFerdiglignetÅr,
-            DatoIntervallEntitet opptjeningPeriode,
-            Skjæringstidspunkt skjæringstidspunkt) {
+            Set<Integer> forventetFerdiglignet, Skjæringstidspunkt skjæringstidspunkt) {
         var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId));
         if (filter.isEmpty()) {
             return NEI;
         }
 
-        var stpFilter = (opptjeningPeriode.getTomDato().getYear() >= sistFerdiglignetÅr) ? filter.før(stp) : filter.etter(stp);
-
-        return stpFilter.filterBeregnetSkatt().filter(InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE, InntektspostType.NÆRING_FISKE_FANGST_FAMBARNEHAGE)
-                .anyMatchFilter(harInntektI(sistFerdiglignetÅr)) ? JA : NEI;
+        return filter.før(stp).filterBeregnetSkatt().filter(InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE, InntektspostType.NÆRING_FISKE_FANGST_FAMBARNEHAGE)
+                .anyMatchFilter(harInntektI(forventetFerdiglignet)) ? JA : NEI;
     }
 
-    private BiPredicate<Inntekt, Inntektspost> harInntektI(int sistFerdiglignetÅr) {
-        return (inntekt, inntektspost) -> (inntektspost.getPeriode().getTomDato().getYear() == sistFerdiglignetÅr) &&
+    private BiPredicate<Inntekt, Inntektspost> harInntektI(Set<Integer> forventetFerdiglignet) {
+        return (inntekt, inntektspost) -> (forventetFerdiglignet.contains(inntektspost.getPeriode().getTomDato().getYear())) &&
                 (inntektspost.getBeløp().getVerdi().compareTo(BigDecimal.ZERO) != 0);
     }
 
-    private Utfall erDetRegistrertNæringEtterSisteFerdiglignendeÅr(OppgittOpptjening oppgittOpptjening, int sistFerdiglignetÅr) {
+    private Utfall erDetRegistrertNæringEtterSisteFerdiglignendeÅr(OppgittOpptjening oppgittOpptjening, Set<Integer> forventetFerdiglignet) {
         if (oppgittOpptjening == null) {
             return NEI;
         }
 
+        var registrertEtter = forventetFerdiglignet.stream().max(Comparator.naturalOrder()).orElseThrow();
         return oppgittOpptjening.getEgenNæring().stream()
-                .anyMatch(egenNæring -> erRegistrertNæring(egenNæring, sistFerdiglignetÅr)) ? JA : NEI;
+                .anyMatch(egenNæring -> erRegistrertNæring(egenNæring, registrertEtter)) ? JA : NEI;
     }
 
     private boolean erRegistrertNæring(OppgittEgenNæring eg, int sistFerdiglignetÅr) {
         if (eg.getOrgnr() == null) {
             return false;
         }
-        var lagretVirksomhet = virksomhetTjeneste.finnOrganisasjon(eg.getOrgnr());
-        if (lagretVirksomhet.isPresent()) {
-            return lagretVirksomhet.get().getRegistrert().getYear() > sistFerdiglignetÅr;
-        }
-        // Virksomhetsinformasjonen er ikke hentet, henter vi den fra ereg. Innført
-        // etter feil som oppstod i https://jira.adeo.no/browse/TFP-1484
-        var hentetVirksomhet = virksomhetTjeneste.hentOrganisasjon(eg.getOrgnr());
-        return hentetVirksomhet.getRegistrert().getYear() > sistFerdiglignetÅr;
+        // Virksomhetsinformasjonen er ikke hentet, henter vi den fra ereg.
+        // Innført etter feil som oppstod i https://jira.adeo.no/browse/TFP-1484
+        var virksomhet = virksomhetTjeneste.finnOrganisasjon(eg.getOrgnr())
+            .orElseGet(() -> virksomhetTjeneste.hentOrganisasjon(eg.getOrgnr()));
+        return virksomhet.getRegistrert().getYear() > sistFerdiglignetÅr;
     }
 
     boolean girAksjonspunktForOppgittNæring(Long behandlingId, AktørId aktørId, InntektArbeidYtelseGrunnlag iayg,
@@ -220,7 +225,6 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
                 fastsattOpptjeningOptional.get().getTom());
 
         return (harBrukerOppgittÅVæreSelvstendigNæringsdrivende(oppgittOpptjening, opptjeningPeriode) == JA) &&
-                (manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, iayg, opptjeningPeriode,
-                        skjæringstidspunkt) == JA);
+                (manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, iayg, skjæringstidspunkt) == JA);
     }
 }
