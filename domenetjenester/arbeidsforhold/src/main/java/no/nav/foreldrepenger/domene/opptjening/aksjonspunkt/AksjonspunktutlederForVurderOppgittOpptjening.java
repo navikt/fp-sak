@@ -160,9 +160,10 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         Set<Integer> forventetFerdiglignet = new LinkedHashSet<>();
         if (LocalDate.now().isAfter(stpFerdiglignetFrist)) {
             forventetFerdiglignet.add(stp.getYear());
-        } else if (LocalDate.now().isBefore(stp.withMonth(FORVENTET_FERDIGLIGNET_MÅNED).withDayOfMonth(1))) {
-            forventetFerdiglignet.add(stp.minusYears(2).getYear());
         } else {
+            if (LocalDate.now().isBefore(stp.withMonth(FORVENTET_FERDIGLIGNET_MÅNED).withDayOfMonth(1))) {
+                forventetFerdiglignet.add(stp.minusYears(2).getYear());
+            }
             forventetFerdiglignet.add(stp.minusYears(1).getYear());
         }
 
