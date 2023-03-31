@@ -7,7 +7,6 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårStegImpl;
-import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.MapTilOpptjeningAktiviteter;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.RyddOpptjening;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -43,8 +42,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
         var opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         if (vilkårErVurdert(regelResultat)) {
             var opres = getVilkårresultat(behandling, regelResultat);
-            var mapper = new MapTilOpptjeningAktiviteter();
-            var aktiviteter = mapTilOpptjeningsaktiviteter(mapper, opres);
+            var aktiviteter = mapTilOpptjeningsaktiviteter(opres);
             opptjeningRepository.lagreOpptjeningResultat(behandling, opres.getResultatOpptjent(), aktiviteter);
         } else {
             // rydd bort tidligere aktiviteter
@@ -52,8 +50,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
         }
     }
 
-    protected abstract List<OpptjeningAktivitet> mapTilOpptjeningsaktiviteter(MapTilOpptjeningAktiviteter mapper,
-            OpptjeningsvilkårResultat oppResultat);
+    protected abstract List<OpptjeningAktivitet> mapTilOpptjeningsaktiviteter(OpptjeningsvilkårResultat oppResultat);
 
     private OpptjeningsvilkårResultat getVilkårresultat(Behandling behandling, RegelResultat regelResultat) {
         var op = (OpptjeningsvilkårResultat) regelResultat.ekstraResultater()

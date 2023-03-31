@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opp
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.MonthDay;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -46,7 +45,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
 
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
     private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktutlederForVurderOppgittOpptjening.class);
-    private static final MonthDay FORVENTET_FERDIGLIGNET = MonthDay.of(7, 1); // Analyse viser økning i ferdiglignet næring i juli.
+    private static final int FORVENTET_FERDIGLIGNET_MÅNED = 7; // Analyse viser økning i ferdiglignet næring i juli.
 
     private OpptjeningRepository opptjeningRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -157,16 +156,14 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, Skjæringstidspunkt skjæringstidspunkt) {
         // Før forventningsdato er kun et fåtall ferdiglignet og mans sjekker 2 år tilbake, deretter sjekker man kun fjoråret eller stp-året dersom lenge etter
         var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-        var stpFerdiglignetFrist = stp.plusYears(1).withMonth(FORVENTET_FERDIGLIGNET.getMonthValue())
-            .withDayOfMonth(FORVENTET_FERDIGLIGNET.getDayOfMonth()).plusMonths(2);
+        var stpFerdiglignetFrist = stp.plusYears(1).withMonth(FORVENTET_FERDIGLIGNET_MÅNED).withDayOfMonth(1).plusMonths(3);
         Set<Integer> forventetFerdiglignet = new LinkedHashSet<>();
         if (LocalDate.now().isAfter(stpFerdiglignetFrist)) {
             forventetFerdiglignet.add(stp.getYear());
+        } else if (LocalDate.now().isBefore(stp.withMonth(FORVENTET_FERDIGLIGNET_MÅNED).withDayOfMonth(1))) {
+            forventetFerdiglignet.add(stp.minusYears(2).getYear());
         } else {
             forventetFerdiglignet.add(stp.minusYears(1).getYear());
-            if (LocalDate.now().isBefore(stp.withMonth(FORVENTET_FERDIGLIGNET.getMonthValue()).withDayOfMonth(FORVENTET_FERDIGLIGNET.getDayOfMonth()))) {
-                forventetFerdiglignet.add(stp.minusYears(2).getYear());
-            }
         }
 
         if (inneholderSisteFerdiglignendeÅrNæringsinntekt(aktørId, inntektArbeidYtelseGrunnlag, forventetFerdiglignet, skjæringstidspunkt) == NEI) {
@@ -200,22 +197,20 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             return NEI;
         }
 
+        var registrertEtter = forventetFerdiglignet.stream().max(Comparator.naturalOrder()).orElseThrow();
         return oppgittOpptjening.getEgenNæring().stream()
-                .anyMatch(egenNæring -> erRegistrertNæring(egenNæring, forventetFerdiglignet.stream().max(Comparator.naturalOrder()).orElseThrow())) ? JA : NEI;
+                .anyMatch(egenNæring -> erRegistrertNæring(egenNæring, registrertEtter)) ? JA : NEI;
     }
 
     private boolean erRegistrertNæring(OppgittEgenNæring eg, int sistFerdiglignetÅr) {
         if (eg.getOrgnr() == null) {
             return false;
         }
-        var lagretVirksomhet = virksomhetTjeneste.finnOrganisasjon(eg.getOrgnr());
-        if (lagretVirksomhet.isPresent()) {
-            return lagretVirksomhet.get().getRegistrert().getYear() > sistFerdiglignetÅr;
-        }
-        // Virksomhetsinformasjonen er ikke hentet, henter vi den fra ereg. Innført
-        // etter feil som oppstod i https://jira.adeo.no/browse/TFP-1484
-        var hentetVirksomhet = virksomhetTjeneste.hentOrganisasjon(eg.getOrgnr());
-        return hentetVirksomhet.getRegistrert().getYear() > sistFerdiglignetÅr;
+        // Virksomhetsinformasjonen er ikke hentet, henter vi den fra ereg.
+        // Innført etter feil som oppstod i https://jira.adeo.no/browse/TFP-1484
+        var virksomhet = virksomhetTjeneste.finnOrganisasjon(eg.getOrgnr())
+            .orElseGet(() -> virksomhetTjeneste.hentOrganisasjon(eg.getOrgnr()));
+        return virksomhet.getRegistrert().getYear() > sistFerdiglignetÅr;
     }
 
     boolean girAksjonspunktForOppgittNæring(Long behandlingId, AktørId aktørId, InntektArbeidYtelseGrunnlag iayg,
