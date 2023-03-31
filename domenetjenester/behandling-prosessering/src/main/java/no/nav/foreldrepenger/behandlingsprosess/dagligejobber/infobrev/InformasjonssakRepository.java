@@ -299,7 +299,7 @@ public class InformasjonssakRepository {
            where BEHANDLENDE_ENHET = :enhet
            and aksjonspunkt_status = 'OPPR'
            and aksjonspunkt_def in ('7008', '7003', '7013', '7030','7002', '7004')
-           and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'UTLAND_MARKERING' and egenskap_value is not null)
+           and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value is not null)
         """)
             .setParameter("enhet", enhetId);
         @SuppressWarnings("unchecked")
