@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -15,6 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -27,6 +30,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
 import no.nav.vedtak.hendelser.behandling.Aksjonspunktstatus;
 import no.nav.vedtak.hendelser.behandling.AktørId;
@@ -49,20 +53,20 @@ public class LosBehandlingDtoTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private RisikovurderingTjeneste risikovurderingTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
 
     @Inject
     public LosBehandlingDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                     RisikovurderingTjeneste risikovurderingTjeneste,
                                     InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                    FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
+                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                     FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
-        this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
@@ -166,15 +170,21 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private LosBehandlingDto.LosForeldrepengerDto mapForeldrepengerUttak(Behandling behandling) {
-        if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ||
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) ||
             ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()).isEmpty()) {
             return null;
         }
-        var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling).orElse(null);
-        var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()).orElseThrow();
-        var vurderSykdom = aggregat.getGjeldendeFordeling().getPerioder().stream()
-            .anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
-        var gradering = aggregat.getGjeldendeFordeling().getPerioder().stream().anyMatch(OppgittPeriodeEntitet::isGradert);
+        LocalDate førsteUttaksdato = null;
+        try {
+            førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
+        } catch (Exception e) {
+            // Intentionally ignored
+        }
+        var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
+        var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
+            .stream().anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
+        var gradering = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
+            .stream().anyMatch(OppgittPeriodeEntitet::isGradert);
         return new LosBehandlingDto.LosForeldrepengerDto(førsteUttaksdato, vurderSykdom, gradering);
     }
 
