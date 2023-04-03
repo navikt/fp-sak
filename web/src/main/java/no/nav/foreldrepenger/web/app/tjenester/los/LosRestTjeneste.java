@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -21,7 +19,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingVentestatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -47,6 +44,8 @@ public class LosRestTjeneste {
     private static final String LOS_BEHANDLING_PATH = "/los-behandling";
     private static final String LOS_FAGSAK_EGENSKAP_PATH = "/los-egenskap";
     public static final String LOS_NØKKELTALL_PATH = "/los-nokkeltall";
+
+    public static final String LOS_NØKKELTALL_BESLUTTERRETUR_PATH = "/los-nokkeltall-beslutterretur";
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -109,8 +108,19 @@ public class LosRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Tilbyr data over ikke-avsluttede behandlinger på vent vs ikke på vent", tags = "los-data")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
-    public List<NøkkeltallBehandlingVentestatus> innloggetBruker() {
-        return nøkkeltallBehandlingRepository.hentNøkkeltallBehandlingVentestatus();
+    public Response nøkkeltallBehandlingVentestatus() {
+        var behandlingVentestatusData = nøkkeltallBehandlingRepository.hentNøkkeltallBehandlingVentestatus();
+        return Response.ok(behandlingVentestatusData).build();
+    }
+
+    @Path(LOS_NØKKELTALL_BESLUTTERRETUR_PATH)
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Tilbyr data om årsaker for retur fra beslutter")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
+    public Response nøkkeltallBeslutterRetur(@NotNull @QueryParam("enhetsnummer") @Valid Enhetsnummer enhetsnummer) {
+        var beslutterReturData = nøkkeltallBehandlingRepository.hentNøkkeltallBeslutterRetur(enhetsnummer.getEnhetsnummer());
+        return Response.ok(beslutterReturData).build();
     }
 
 }

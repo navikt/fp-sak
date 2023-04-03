@@ -47,6 +47,13 @@ class NøkkeltallBehandlingRepositoryTest {
         assertThat(resultat).isGreaterThanOrEqualTo(1);
     }
 
+    @Test
+    void skalHenteNøkkeltallBeslutterRetur() {
+        // kjører spørring for å verifisere at nativequery treffer gyldige tabeller
+        var returData = nøkkeltallBehandlingRepository.hentNøkkeltallBeslutterRetur("ENHET");
+        assertThat(returData).isNotNull();
+    }
+
     private NøkkeltallBehandlingVentestatus forventet(ScenarioMorSøkerForeldrepenger søknad) {
         var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
         var forventetFørsteUttakMåned = finnFørsteUttakMånedDato(søknad);
