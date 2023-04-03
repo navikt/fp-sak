@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -31,7 +32,6 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.Risikovurderin
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
 import no.nav.vedtak.hendelser.behandling.Aksjonspunktstatus;
 import no.nav.vedtak.hendelser.behandling.AktørId;
 import no.nav.vedtak.hendelser.behandling.Behandlingsstatus;
@@ -170,16 +170,16 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private LosBehandlingDto.LosForeldrepengerDto mapForeldrepengerUttak(Behandling behandling) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) ||
-            ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()).isEmpty()) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()).isEmpty()) {
             return null;
         }
-        LocalDate førsteUttaksdato = null;
+        Skjæringstidspunkt stp = null;
         try {
-            førsteUttaksdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
+            stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         } catch (Exception e) {
             // Intentionally ignored
         }
+        var førsteUttaksdato = Optional.ofNullable(stp).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet).orElse(null);
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
         var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
             .stream().anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
