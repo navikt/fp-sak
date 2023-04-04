@@ -93,8 +93,9 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     @Override
     public Behandling opprettManuellRevurdering(Fagsak fagsak,
                                                 BehandlingÅrsakType revurderingsÅrsak,
-                                                OrganisasjonsEnhet enhet) {
-        var behandling = opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet);
+                                                OrganisasjonsEnhet enhet,
+                                                String opprettetAv) {
+        var behandling = opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet, opprettetAv);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst,
             List.of(AksjonspunktDefinisjon.KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING));
@@ -105,13 +106,13 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     public Behandling opprettAutomatiskRevurdering(Fagsak fagsak,
                                                    BehandlingÅrsakType revurderingsÅrsak,
                                                    OrganisasjonsEnhet enhet) {
-        return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet);
+        return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet, null);
     }
 
     private Behandling opprettRevurdering(Fagsak fagsak,
                                           BehandlingÅrsakType revurderingsÅrsak,
                                           boolean manueltOpprettet,
-                                          OrganisasjonsEnhet enhet) {
+                                          OrganisasjonsEnhet enhet, String opprettetAv) {
         var origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
             .orElseThrow(() -> RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()));
 
@@ -120,7 +121,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
         // deretter opprett revurdering
         var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling,
-            manueltOpprettet, enhet);
+            manueltOpprettet, enhet, opprettetAv);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
 

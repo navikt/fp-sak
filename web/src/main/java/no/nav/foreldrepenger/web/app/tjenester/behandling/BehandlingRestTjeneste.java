@@ -70,6 +70,8 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 @Transactional
@@ -297,7 +299,8 @@ public class BehandlingRestTjeneste {
         }
         if (BehandlingType.REVURDERING.equals(kode)) {
             var behandlingÅrsakType = dto.getBehandlingArsakType();
-            var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
+            var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType,
+                Optional.ofNullable(KontekstHolder.getKontekst()).map(Kontekst::getUid).orElse(null));
             var gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.of(gruppe));
 

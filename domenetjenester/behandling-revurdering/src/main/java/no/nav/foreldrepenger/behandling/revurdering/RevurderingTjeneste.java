@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -9,13 +7,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 public interface RevurderingTjeneste {
 
-    Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet);
+    default Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
+        return opprettManuellRevurdering(fagsak, revurderingsÅrsak, enhet, null);
+    }
+
+    Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet, String opprettetAv);
 
     Behandling opprettAutomatiskRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet);
-
-    default Behandling opprettAutomatiskRevurderingMultiÅrsak(Fagsak fagsak, List<BehandlingÅrsakType> revurderingsÅrsaker, OrganisasjonsEnhet enhet) {
-        throw new IllegalStateException("Skal ikke kalles for ytelse type " + fagsak.getYtelseType().getKode());
-    }
 
     void kopierAlleGrunnlagFraTidligereBehandling(Behandling original, Behandling ny);
 

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -127,11 +127,17 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private static Set<Behandlingsårsak> mapBehandlingsårsaker(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker().stream()
+        Set<Behandlingsårsak> årsaker = new HashSet<>();
+        behandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .map(LosBehandlingDtoTjeneste::mapBehandlingsårsak)
             .filter(behandlingsårsak -> !Behandlingsårsak.ANNET.equals(behandlingsårsak))
-            .collect(Collectors.toSet());
+            .forEach(årsaker::add);
+        if (BehandlingType.REVURDERING.equals(behandling.getType())
+            && behandling.getBehandlingÅrsaker().stream().anyMatch(BehandlingÅrsak::erManueltOpprettet)) {
+            årsaker.add(Behandlingsårsak.MANUELL);
+        }
+        return årsaker;
     }
 
     private static Behandlingsårsak mapBehandlingsårsak(BehandlingÅrsakType årsak) {

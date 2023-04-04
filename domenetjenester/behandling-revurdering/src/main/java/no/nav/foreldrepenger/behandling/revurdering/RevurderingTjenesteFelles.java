@@ -59,8 +59,7 @@ public class RevurderingTjenesteFelles {
     }
 
     public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingsÅrsak, Behandling opprinneligBehandling,
-            boolean manueltOpprettet,
-            OrganisasjonsEnhet enhet) {
+                                                    boolean manueltOpprettet, OrganisasjonsEnhet enhet, String opprettetAv) {
         var behandlingType = BehandlingType.REVURDERING;
         var revurderingÅrsak = BehandlingÅrsak.builder(revurderingsÅrsak)
                 .medOriginalBehandlingId(opprinneligBehandling.getId())
@@ -78,6 +77,9 @@ public class RevurderingTjenesteFelles {
                 .medBehandlendeEnhet(enhet)
                 .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
                 .medBehandlingÅrsak(revurderingÅrsak).build();
+        if (manueltOpprettet && opprettetAv != null) {
+            revurdering.setAnsvarligSaksbehandler(opprettetAv);
+        }
         revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
         return revurdering;
     }
