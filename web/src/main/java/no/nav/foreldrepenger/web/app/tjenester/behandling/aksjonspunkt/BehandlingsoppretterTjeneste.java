@@ -140,7 +140,7 @@ public class BehandlingsoppretterTjeneste {
         }
     }
 
-    public Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
+    public Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, String opprettetAv) {
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType())
             .orElseThrow();
         var kanRevurderingOpprettes = kanOppretteRevurdering(fagsak.getId());
@@ -148,7 +148,7 @@ public class BehandlingsoppretterTjeneste {
             throw kanIkkeOppretteRevurdering(fagsak.getSaksnummer());
         }
 
-        return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
+        return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak), opprettetAv);
     }
 
     private boolean kanOppretteRevurdering(Long fagsakId) {
