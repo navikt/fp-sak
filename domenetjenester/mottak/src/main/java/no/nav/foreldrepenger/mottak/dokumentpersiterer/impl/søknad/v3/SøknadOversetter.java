@@ -25,7 +25,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -248,6 +251,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                                  Behandling behandling) {
         var mottattDato = mottattDokument.getMottattDato();
         var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
+        var loggFør = loggFamilieHendelseForFørstegangPåRevurdering(behandling, mottattDokument, "FØR");
         final var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling);
         final var søknadBuilder = new SøknadEntitet.Builder();
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, Optional.empty());
@@ -280,6 +284,35 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         final var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         fagsakRepository.oppdaterRelasjonsRolle(behandling.getFagsakId(), søknad.getRelasjonsRolleType());
+        if (loggFør) {
+            loggFamilieHendelseForFørstegangPåRevurdering(behandling, mottattDokument, "ETTER");
+        }
+    }
+
+    private boolean loggFamilieHendelseForFørstegangPåRevurdering(Behandling behandling, MottattDokument mottattDokument, String infix) {
+        var aggregat = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        if (aggregat.isEmpty()) {
+            return false;
+        }
+        // Utforskende logging / analyse ved 1gang i revurdering
+        LOG.info("OversettFørstegang over eksisterende: behandlingId {} type {} ytelse {} journalpost{}", behandling.getId(), behandling.getType().getKode(),
+            behandling.getFagsakYtelseType().getKode(), mottattDokument.getJournalpostId().getVerdi());
+        var harBekreftetFamiliehendelse = aggregat.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon).isPresent();
+        var søknadFamilieHendelseType = aggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+        var gjeldendeFamilieHendelseType = aggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+        LocalDate søknadFamiliehendelseDato = null;
+        LocalDate gjeldendeFamiliehendelseDato = null;
+        try {
+            søknadFamiliehendelseDato = aggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
+            gjeldendeFamiliehendelseDato = aggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt).orElse(null);
+        } catch (Exception e) {
+            // Intentionally empty
+        }
+        LOG.info("OversettFørstegang over {} {}: søknad type {} dato {} gjeldende type {} dato {}", infix, (harBekreftetFamiliehendelse ? "bekreftet" : "søknad"),
+            søknadFamilieHendelseType.getKode(), søknadFamiliehendelseDato, gjeldendeFamilieHendelseType.getKode(), gjeldendeFamiliehendelseDato);
+        return true;
     }
 
     private void byggFamilieHendelseForSvangerskap(Svangerskapspenger omYtelse,
@@ -332,7 +365,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private void byggYtelsesSpesifikkeFelterForEndringssøknad(Endringssoeknad omYtelse,
                                                               Behandling behandling,
                                                               LocalDate mottattDato) {
-        LOG.info("Mottatt dato for endringsøknad for behandling {} {}", mottattDato, behandling.getId());
         var fordeling = omYtelse.getFordeling();
         var perioder = fordeling.getPerioder();
         var annenForelderErInformert = fordeling.isAnnenForelderErInformert();
