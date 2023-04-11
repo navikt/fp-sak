@@ -151,10 +151,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     MANUELL_VURDERING_AV_SØKNADSFRIST(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av søknadsfrist",
             BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.SOEKNADSFRIST, TOTRINN, EnumSet.of(FP, SVP)),
-    VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT(
-            AksjonspunktKodeDefinisjon.VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT_KODE, AksjonspunktType.MANUELL, "Vurder om vilkår for sykdom er oppfylt",
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            SkjermlenkeType.FAKTA_OM_FOEDSEL, TOTRINN, EnumSet.of(ES, FP)),
     FORDEL_BEREGNINGSGRUNNLAG(AksjonspunktKodeDefinisjon.FORDEL_BEREGNINGSGRUNNLAG_KODE,
             AksjonspunktType.MANUELL, "Fordel beregningsgrunnlag", BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.FAKTA_OM_FORDELING, TOTRINN, EnumSet.of(FP, SVP)),
@@ -392,6 +388,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5036("5036", AksjonspunktType.MANUELL, "Manuell vurdering av klage (NK)"),
     @Deprecated // Håndteres nå sammen med 5039
     UTGÅTT_5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
+    @Deprecated
+    UTGÅTT_5044("5044", AksjonspunktType.MANUELL, "Vurder om vilkår for sykdom er oppfylt"),
     @Deprecated
     UTGÅTT_5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden"),
     @Deprecated // Erstattet av aksjonspunkt 5062

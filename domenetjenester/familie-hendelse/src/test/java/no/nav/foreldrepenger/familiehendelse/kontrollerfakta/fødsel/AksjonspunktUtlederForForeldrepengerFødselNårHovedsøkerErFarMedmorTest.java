@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -97,9 +96,8 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDAT0_NÅ);
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
-        assertThat(utledeteAksjonspunkter).hasSize(2);
-        assertThat(utledeteAksjonspunkter.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);
-        assertThat(utledeteAksjonspunkter.get(1).getAksjonspunktDefinisjon()).isEqualTo(VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT);
+        assertThat(utledeteAksjonspunkter).hasSize(1);
+        assertThat(utledeteAksjonspunkter.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);;
     }
 
     @Test

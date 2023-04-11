@@ -17,7 +17,7 @@ public record FødselsvilkårGrunnlag(@JsonProperty("soekersKjonn") RegelKjønn 
                                     @JsonProperty("bekreftetTermindato") LocalDate terminbekreftelseTermindato,
                                     int antallBarn,
                                     boolean erFødselRegistreringFristUtløpt,
-                                    boolean erMorForSykVedFødsel,
+                                    boolean erMorForSykVedFødsel, // Legacy - tilfelle før WLB
                                     boolean erSøktOmTermin,
                                     boolean erBehandlingsdatoEtterTidligsteDato,
                                     @JsonProperty("erTerminBekreftelseUtstedtEtterXUker") boolean erTerminbekreftelseUtstedtEtterTidligsteDato,

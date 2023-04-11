@@ -84,8 +84,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String VURDERE_ANNEN_YTELSE_FØR_VEDTAK_KODE = "5033";
     public static final String VURDERE_DOKUMENT_FØR_VEDTAK_KODE = "5034";
 
-    public static final String VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT_KODE = "5044";
-
     public static final String MANUELL_VURDERING_AV_KLAGE_NFP_KODE = "5035";
     public static final String VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE = "5082";
 
@@ -158,7 +156,7 @@ public class AksjonspunktKodeDefinisjon {
     //  "5009",
     //  "5022"  "5024"
     //  "5036"
-    //  "5042"  "5045"  "5048"
+    //  "5042"  "5044"  "5045"  "5048"
     //  "5050"
     //  "5070"  "5078"  "5079"
     //  "5080"  "5081"  "5083"  "5088"
