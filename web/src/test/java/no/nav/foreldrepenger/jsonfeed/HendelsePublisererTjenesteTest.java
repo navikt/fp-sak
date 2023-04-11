@@ -1,9 +1,13 @@
 package no.nav.foreldrepenger.jsonfeed;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -12,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -33,8 +39,10 @@ import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerOpphoert;
@@ -42,7 +50,11 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(JpaExtension.class)
+@ExtendWith(MockitoExtension.class)
 class HendelsePublisererTjenesteTest {
+
+    @Mock
+    private PersoninfoAdapter personinfoAdapter;
 
     private static final LocalDate INNVILGET_PERIODE_FØRSTE_DAG = VirkedagUtil.fomVirkedag(LocalDate.now());
     private static final LocalDate INNVILGET_PERIODE_SISTE_DAG = VirkedagUtil.tomVirkedag(
@@ -53,6 +65,7 @@ class HendelsePublisererTjenesteTest {
     private static final LocalDate NY_PERIODE_SISTE_DAG = VirkedagUtil.tomVirkedag(LocalDate.now().plusMonths(4));
 
     private static final String VEDTAK_PREFIX = "VT";
+    private static final String FNR = "12345678901";
 
     private FeedRepository feedRepository;
     private HendelsePublisererTjeneste tjeneste;
@@ -62,8 +75,9 @@ class HendelsePublisererTjenesteTest {
     public void setUp(EntityManager entityManager) {
         feedRepository = new FeedRepository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(new PersonIdent(FNR)));
 
-        tjeneste = new HendelsePublisererTjeneste(repositoryProvider, feedRepository);
+        tjeneste = new HendelsePublisererTjeneste(repositoryProvider, feedRepository, personinfoAdapter);
     }
 
     @Test
@@ -83,6 +97,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
         var opphørt = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
         assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+        assertThat(opphørt.getFnr()).isEqualTo(FNR);
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
         assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
@@ -114,6 +129,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
         var innvilget = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerInnvilget.class);
         assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+        assertThat(innvilget.getFnr()).isEqualTo(FNR);
         assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
         assertThat(innvilget.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
@@ -153,6 +169,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
         var endret = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerEndret.class);
         assertThat(endret.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+        assertThat(endret.getFnr()).isEqualTo(FNR);
         assertThat(endret.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
         assertThat(endret.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
         assertThat(endret.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
@@ -177,6 +194,7 @@ class HendelsePublisererTjenesteTest {
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
         var opphørt = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
         assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
+        assertThat(opphørt.getFnr()).isEqualTo(FNR);
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
         assertThat(opphørt.getGsakId()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
