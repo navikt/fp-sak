@@ -1,10 +1,13 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
+/*
+ * Legacy-regel for tilfelle av fars uttak rundt fødsel før WLB august 2022
+ */
 public class SjekkMorForSykTilÅTaVarePåBarn extends LeafSpecification<FødselsvilkårGrunnlag> {
 
     static final String ID = SjekkMorForSykTilÅTaVarePåBarn.class.getSimpleName();

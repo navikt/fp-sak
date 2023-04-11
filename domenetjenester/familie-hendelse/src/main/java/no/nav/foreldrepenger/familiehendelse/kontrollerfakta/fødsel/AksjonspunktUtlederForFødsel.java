@@ -128,12 +128,12 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
                 .før(skjæringstidspunkt);
 
-        return !harIngenArbeidsforholdMedLøpendeAktivitetsavtale(filter, stp);
+        return harArbeidsforholdMedLøpendeAktivitetsavtale(filter, stp);
     }
 
-    private boolean harIngenArbeidsforholdMedLøpendeAktivitetsavtale(YrkesaktivitetFilter filter, DatoIntervallEntitet skjæringstidspunkt) {
+    private boolean harArbeidsforholdMedLøpendeAktivitetsavtale(YrkesaktivitetFilter filter, DatoIntervallEntitet skjæringstidspunkt) {
         return filter.getAnsettelsesPerioder().stream()
-            .noneMatch(aa -> aa.getErLøpende() || aa.getPeriode().overlapper(skjæringstidspunkt));
+            .anyMatch(aa -> aa.getErLøpende() || aa.getPeriode().overlapper(skjæringstidspunkt));
     }
 
     protected abstract List<AksjonspunktResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param);
