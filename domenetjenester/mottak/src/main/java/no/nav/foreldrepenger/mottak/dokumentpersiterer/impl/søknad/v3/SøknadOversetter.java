@@ -251,7 +251,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                                  Behandling behandling) {
         var mottattDato = mottattDokument.getMottattDato();
         var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
-        var loggFør = loggFamilieHendelseForFørstegangPåRevurdering(behandling, mottattDokument, "FØR");
+        var loggFør = loggFamilieHendelseForFørstegangPåRevurdering(behandling, "FØR");
         final var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling);
         final var søknadBuilder = new SøknadEntitet.Builder();
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, Optional.empty());
@@ -285,18 +285,15 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         søknadRepository.lagreOgFlush(behandling, søknad);
         fagsakRepository.oppdaterRelasjonsRolle(behandling.getFagsakId(), søknad.getRelasjonsRolleType());
         if (loggFør) {
-            loggFamilieHendelseForFørstegangPåRevurdering(behandling, mottattDokument, "ETTER");
+            loggFamilieHendelseForFørstegangPåRevurdering(behandling, "ETTER");
         }
     }
 
-    private boolean loggFamilieHendelseForFørstegangPåRevurdering(Behandling behandling, MottattDokument mottattDokument, String infix) {
+    private boolean loggFamilieHendelseForFørstegangPåRevurdering(Behandling behandling, String infix) {
         var aggregat = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (aggregat.isEmpty()) {
             return false;
         }
-        // Utforskende logging / analyse ved 1gang i revurdering
-        LOG.info("OversettFørstegang over eksisterende: behandlingId {} type {} ytelse {} journalpost{}", behandling.getId(), behandling.getType().getKode(),
-            behandling.getFagsakYtelseType().getKode(), mottattDokument.getJournalpostId().getVerdi());
         var harBekreftetFamiliehendelse = aggregat.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon).isPresent();
         var søknadFamilieHendelseType = aggregat.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
         var gjeldendeFamilieHendelseType = aggregat.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
@@ -310,8 +307,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         } catch (Exception e) {
             // Intentionally empty
         }
-        LOG.info("OversettFørstegang over {} {}: søknad type {} dato {} gjeldende type {} dato {}", infix, (harBekreftetFamiliehendelse ? "bekreftet" : "søknad"),
-            søknadFamilieHendelseType.getKode(), søknadFamiliehendelseDato, gjeldendeFamilieHendelseType.getKode(), gjeldendeFamiliehendelseDato);
+        LOG.info("OversettFørstegang {} {}: type {} dato {} gjeldende type {} dato {} for bId {} type {} yt {}", infix, (harBekreftetFamiliehendelse ? "bekreftet" : "søknad"),
+            søknadFamilieHendelseType.getKode(), søknadFamiliehendelseDato, gjeldendeFamilieHendelseType.getKode(), gjeldendeFamiliehendelseDato,
+            behandling.getId(), behandling.getType().getKode(), behandling.getFagsakYtelseType().getKode());
         return true;
     }
 
