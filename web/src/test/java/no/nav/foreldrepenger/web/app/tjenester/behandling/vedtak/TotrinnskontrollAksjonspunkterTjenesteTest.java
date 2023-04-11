@@ -321,7 +321,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     void skal_hente_en_skjermlenketype_og_ett_ikke_godkjent_totrinnskontrollaksjonspunkt_for_behandling_med_en_godkjent_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_har_samme_aksjonspunktdefinisjon(){
 
         var adFraAksjonspunkt = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        var adFraTotrinnvurdering = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
+        var adFraTotrinnvurdering = AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING;
         var ttvGodkjent = true;
         var apAvbrutt = false;
 

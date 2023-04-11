@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.medlem.impl;
 
 import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
 import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
-import static no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat.VENT_PÅ_FØDSEL;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -60,9 +59,6 @@ public class AvklarOmSøkerOppholderSegINorge {
         }
         if (harSøkerHattInntektINorgeDeSiste3Mnd(ref, vurderingstidspunkt) == JA) {
             return Optional.empty();
-        }
-        if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && harTermindatoPassertMed14Dager(behandlingId) == NEI) {
-            return Optional.of(VENT_PÅ_FØDSEL);
         }
         return Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
     }

@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 
@@ -27,7 +26,6 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
         mapMedlemResulatTilAkDef.put(MedlemResultat.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
         mapMedlemResulatTilAkDef.put(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD, AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD);
         mapMedlemResulatTilAkDef.put(MedlemResultat.AVKLAR_OPPHOLDSRETT, AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT);
-        mapMedlemResulatTilAkDef.put(MedlemResultat.VENT_PÅ_FØDSEL, AksjonspunktDefinisjon.VENT_PÅ_FØDSEL);
     }
 
     AksjonspunktutlederForMedlemskapSkjæringstidspunkt() {
@@ -52,10 +50,6 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
         var aksjonspunktDefinisjon = mapMedlemResulatTilAkDef.get(mr);
         if (aksjonspunktDefinisjon == null) {
             throw new IllegalStateException("Utvikler-feil: Mangler mapping til aksjonspunktDefinisjon for  " + mr.name());
-        }
-        if (AksjonspunktDefinisjon.VENT_PÅ_FØDSEL.equals(aksjonspunktDefinisjon)) {
-            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(aksjonspunktDefinisjon, Venteårsak.AVV_FODSEL,
-                tjeneste.beregnVentPåFødselFristTid(ref).atStartOfDay());
         }
         return AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon);
     }

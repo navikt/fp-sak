@@ -41,8 +41,6 @@ public class SendBrevForAutopunktEventObserver {
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling));
-        finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_FØDSEL)
-            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, ap));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING)
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForEtterkontroll(behandling));
     }
