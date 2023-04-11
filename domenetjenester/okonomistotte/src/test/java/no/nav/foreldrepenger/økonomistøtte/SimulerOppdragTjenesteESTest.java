@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -44,7 +44,7 @@ class SimulerOppdragTjenesteESTest {
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
 
     @Mock
-    private AktørTjeneste aktørTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
@@ -73,7 +73,7 @@ class SimulerOppdragTjenesteESTest {
             .medAnsvarligSaksbehandler("VL")
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .build()));
-        when(aktørTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PersonIdent.fra("0987654321")));
+        when(personinfoAdapter.hentFnrForAktør(any())).thenReturn(PersonIdent.fra("0987654321"));
         when(beregningRepository.getSisteBeregning(behandlingId)).thenReturn(
             Optional.of(new LegacyESBeregning(15000, 1, 15000, LocalDateTime.now())));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
@@ -83,7 +83,7 @@ class SimulerOppdragTjenesteESTest {
         when(familieHendelse.getGjelderAdopsjon()).thenReturn(false);
 
         var oppdragInputTjeneste = new OppdragInputTjeneste(behandlingRepository, null, behandlingVedtakRepository, familieHendelseRepository,
-            tilbakekrevingRepository, aktørTjeneste, økonomioppdragRepository, beregningRepository);
+            tilbakekrevingRepository, personinfoAdapter, økonomioppdragRepository, beregningRepository);
 
         simulerOppdragTjeneste = new SimulerOppdragTjeneste(new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), økonomioppdragRepository),
             oppdragInputTjeneste);

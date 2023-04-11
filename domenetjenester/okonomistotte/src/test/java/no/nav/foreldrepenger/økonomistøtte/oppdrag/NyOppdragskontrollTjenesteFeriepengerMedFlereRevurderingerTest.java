@@ -6,7 +6,11 @@ import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerT
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -673,6 +677,131 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
                         assertThat(opp150.getDelytelseId()).isEqualTo(opp150AndreRevurderingFeriepenger.getRefDelytelseId()));
                 }
             }
+        }
+    }
+
+    @Test
+    void skalLagesOppdragForFeriepengerPåFørsteRevurderingNårDetBlirEndringForBeggeToTidligDødsfall() {
+        //Arrange
+        //Førstegangsbehandling
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
+        //Revurdering #1
+        var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 3000L, 0L);
+
+        // Dødsdato umiddelbart
+        var baselinedato = LocalDate.now();
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL, baselinedato);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(builder2.build());
+
+        if (oppdragRevurdering.isPresent()) {
+            var oppdrag2 = oppdragRevurdering.get();
+            //Assert
+            assertThat(oppdrag2.getOppdrag110Liste()).hasSize(2);
+            var førstegangsopp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+            var opp150AndreRevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdrag2);
+            assertThat(opp150AndreRevurderingFeriepengerListe).hasSize(6);
+
+            // Feriepengene fra opprinnelig oppdrag skal opphøres
+            for (var førstegangsopp150 : førstegangsopp150FeriepengerListe) {
+                assertThat(opp150AndreRevurderingFeriepengerListe).anySatisfy(oppdragslinje150 ->
+                    assertThat(Objects.equals(oppdragslinje150.getDelytelseId(), førstegangsopp150.getDelytelseId()) && oppdragslinje150.gjelderOpphør()).isTrue());
+            }
+            var delytelserFørstegang = førstegangsopp150FeriepengerListe.stream().map(Oppdragslinje150::getDelytelseId).collect(Collectors.toSet());
+            // Nye oppdragslinjer for utbetaling i inneværende måned
+            assertThat(opp150AndreRevurderingFeriepengerListe).anySatisfy(oppdragslinje150 ->
+                assertThat(!delytelserFørstegang.contains(oppdragslinje150.getDelytelseId()) && !oppdragslinje150.gjelderOpphør()
+                    && oppdragslinje150.getDatoVedtakFom().equals(baselinedato.with(TemporalAdjusters.firstDayOfMonth()))
+                    && oppdragslinje150.getDatoVedtakTom().equals(baselinedato.with(TemporalAdjusters.lastDayOfMonth()))).isTrue());
+        } else {
+            fail();
+        }
+    }
+
+    @Test
+    void skalLagesOppdragForFeriepengerPåFørsteRevurderingNårDetBlirEndringForBeggeToDødsfallFørUtbetalingFørsteÅr() {
+        //Arrange
+        //Førstegangsbehandling
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
+        //Revurdering #1
+        var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 6000L, 1000L);
+
+        // Dødsdato neste år, men før feriepenger opptjent dette år er utbetalt
+        var baselinedato = LocalDate.now().plusYears(1).withMonth(3);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL, baselinedato);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(builder2.build());
+
+        if (oppdragRevurdering.isPresent()) {
+            var oppdrag2 = oppdragRevurdering.get();
+            //Assert
+            assertThat(oppdrag2.getOppdrag110Liste()).hasSize(2);
+            var førstegangsopp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+            var opp150AndreRevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdrag2);
+            assertThat(opp150AndreRevurderingFeriepengerListe).hasSize(6);
+
+            // Feriepengene fra opprinnelig oppdrag skal opphøres
+            for (var førstegangsopp150 : førstegangsopp150FeriepengerListe) {
+                assertThat(opp150AndreRevurderingFeriepengerListe).anySatisfy(oppdragslinje150 ->
+                    assertThat(Objects.equals(oppdragslinje150.getDelytelseId(), førstegangsopp150.getDelytelseId()) && oppdragslinje150.gjelderOpphør()).isTrue());
+            }
+            var delytelserFørstegang = førstegangsopp150FeriepengerListe.stream().map(Oppdragslinje150::getDelytelseId).collect(Collectors.toSet());
+            // Nye oppdragslinjer for utbetaling i inneværende måned
+            assertThat(opp150AndreRevurderingFeriepengerListe).anySatisfy(oppdragslinje150 ->
+                assertThat(!delytelserFørstegang.contains(oppdragslinje150.getDelytelseId()) && !oppdragslinje150.gjelderOpphør()
+                    && oppdragslinje150.getDatoVedtakFom().equals(baselinedato.with(TemporalAdjusters.firstDayOfMonth()))
+                    && oppdragslinje150.getDatoVedtakTom().equals(baselinedato.with(TemporalAdjusters.lastDayOfMonth()))).isTrue());
+        } else {
+            fail();
+        }
+    }
+
+    @Test
+    void skalLagesOppdragForFeriepengerPåFørsteRevurderingNårDetBlirEndringForBeggeToDødsfallEtterUtbetalingFørsteÅr() {
+        //Arrange
+        //Førstegangsbehandling
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
+        //Revurdering #1
+        var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 6000L, 1000L);
+
+        // Dødsdato etter at feriepenger opptjent dette år er utbetalt, mens de opptjent neste år ikke er utbetalt
+        var baselinedato = LocalDate.now().plusYears(1).withMonth(9);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL, baselinedato);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(builder2.build());
+
+        if (oppdragRevurdering.isPresent()) {
+            var oppdrag2 = oppdragRevurdering.get();
+            //Assert
+            assertThat(oppdrag2.getOppdrag110Liste()).hasSize(2);
+            var førstegangsopp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+            var opp150AndreRevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdrag2);
+            assertThat(opp150AndreRevurderingFeriepengerListe).hasSize(4);
+
+            // Feriepengene som ikke allerede er utbetalt fra opprinnelig oppdrag skal opphøres
+            for (var førstegangsopp150 : førstegangsopp150FeriepengerListe) {
+                if (førstegangsopp150.getDatoVedtakFom().isAfter(baselinedato)) {
+                    assertThat(opp150AndreRevurderingFeriepengerListe).anySatisfy(oppdragslinje150 -> assertThat(
+                        Objects.equals(oppdragslinje150.getDelytelseId(), førstegangsopp150.getDelytelseId()) && oppdragslinje150.gjelderOpphør()).isTrue());
+                } else {
+                    assertThat(opp150AndreRevurderingFeriepengerListe).noneSatisfy(oppdragslinje150 -> assertThat(
+                        Objects.equals(oppdragslinje150.getDelytelseId(), førstegangsopp150.getDelytelseId())).isTrue());
+                }
+            }
+            var delytelserFørstegang = førstegangsopp150FeriepengerListe.stream().map(Oppdragslinje150::getDelytelseId).collect(Collectors.toSet());
+            // Nye oppdragslinjer for utbetaling i inneværende måned
+            assertThat(opp150AndreRevurderingFeriepengerListe).anySatisfy(oppdragslinje150 ->
+                assertThat(!delytelserFørstegang.contains(oppdragslinje150.getDelytelseId()) && !oppdragslinje150.gjelderOpphør()
+                    && oppdragslinje150.getDatoVedtakFom().equals(baselinedato.with(TemporalAdjusters.firstDayOfMonth()))
+                    && oppdragslinje150.getDatoVedtakTom().equals(baselinedato.with(TemporalAdjusters.lastDayOfMonth()))).isTrue());
+        } else {
+            fail();
         }
     }
 

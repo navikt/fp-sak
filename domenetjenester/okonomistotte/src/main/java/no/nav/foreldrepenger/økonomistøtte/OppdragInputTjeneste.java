@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -28,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
@@ -54,7 +55,7 @@ public class OppdragInputTjeneste {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private TilbakekrevingRepository tilbakekrevingRepository;
-    private AktørTjeneste aktørTjeneste;
+    private PersoninfoAdapter personinfoAdapter;
     private ØkonomioppdragRepository økonomioppdragRepository;
 
     private OppdragInputTjeneste() {
@@ -67,7 +68,7 @@ public class OppdragInputTjeneste {
                                 BehandlingVedtakRepository behandlingVedtakRepository,
                                 FamilieHendelseRepository familieHendelseRepository,
                                 TilbakekrevingRepository tilbakekrevingRepository,
-                                AktørTjeneste aktørTjeneste,
+                                PersoninfoAdapter personinfoAdapter,
                                 ØkonomioppdragRepository økonomioppdragRepository,
                                 LegacyESBeregningRepository beregningRepository) {
         this.behandlingRepository = behandlingRepository;
@@ -75,7 +76,7 @@ public class OppdragInputTjeneste {
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
-        this.aktørTjeneste = aktørTjeneste;
+        this.personinfoAdapter = personinfoAdapter;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.beregningRepository = beregningRepository;
     }
@@ -120,8 +121,11 @@ public class OppdragInputTjeneste {
             inputBuilder
                 .medTilkjentYtelse(grupperYtelseEngangsstønad(behandlingId, vedtaksdato, tidligereOppdrag));
         } else {
+            var feriepengerDødsdato = personinfoAdapter.hentBrukerBasisForAktør(behandling.getAktørId())
+                .map(PersoninfoBasis::dødsdato)
+                .orElse(null);
             inputBuilder
-                .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak)))
+                .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak), feriepengerDødsdato))
                 .medBrukInntrekk(hentBrukInntrekk(behandlingId));
         }
 
@@ -165,7 +169,7 @@ public class OppdragInputTjeneste {
     }
 
     private String hentFnrBruker(Behandling behandling) {
-        return aktørTjeneste.hentPersonIdentForAktørId(behandling.getAktørId()).orElseThrow().getIdent();
+        return personinfoAdapter.hentFnrForAktør(behandling.getAktørId()).getIdent();
     }
 
     private List<Oppdragskontroll> hentTidligereOppdrag(Saksnummer saksnummer) {
@@ -187,8 +191,8 @@ public class OppdragInputTjeneste {
         return beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId).orElse(null);
     }
 
-    private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType) {
-        var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType);
+    private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType, LocalDate feriepengerVedDød) {
+        var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType, feriepengerVedDød);
         return tilkjentYtelseMapper.fordelPåNøkler(beregningsresultat);
     }
 

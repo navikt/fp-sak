@@ -87,7 +87,7 @@ public class OppdragMapper {
             var gjelderFeriepenger = kjedeNøkkel.getKlassekode().gjelderFeriepenger();
             refusjonsinfoBuilder = Refusjonsinfo156.builder()
                 .medDatoFom(vedtaksdato)
-                .medMaksDato(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 31) : hentSisteUtbetalingsdato(oppdrag))
+                .medMaksDato(gjelderFeriepenger ? kjedeNøkkel.getFeriepengeMaksdato() : hentSisteUtbetalingsdato(oppdrag))
                 .medRefunderesId(OppdragOrgnrUtil.endreTilElleveSiffer(mottaker.getOrgnr()));
         }
         return Optional.ofNullable(refusjonsinfoBuilder);

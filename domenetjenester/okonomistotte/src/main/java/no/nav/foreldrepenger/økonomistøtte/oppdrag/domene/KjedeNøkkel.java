@@ -1,15 +1,20 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
+import java.time.LocalDate;
+import java.time.MonthDay;
 import java.util.Objects;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.ØkonomiKodeKlassifikSortering;
 
 public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
+    public static final MonthDay SLUTT_FERIEPENGER = MonthDay.of(5, 31);
+
     private final KodeKlassifik klassekode;
     private final Betalingsmottaker betalingsmottaker;
-    private final Integer feriepengeÅr;
+    private final LocalDate feriepengeMaksdato;
     private final Integer knektKjedeDel;
 
     public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
@@ -27,15 +32,23 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
             .build();
     }
 
-    private KjedeNøkkel(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, Integer feriepengeÅr, Integer knektKjedeDel) {
+    public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, LocalDate feriepengerMaksdato) {
+        return KjedeNøkkel.builder()
+            .medKlassekode(klassekode)
+            .medBetalingsmottaker(betalingsmottaker)
+            .medFeriepengeMaksdato(feriepengerMaksdato)
+            .build();
+    }
+
+    private KjedeNøkkel(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, LocalDate feriepengeMaksdato, Integer knektKjedeDel) {
         this.klassekode = klassekode;
         this.betalingsmottaker = betalingsmottaker;
-        this.feriepengeÅr = feriepengeÅr;
+        this.feriepengeMaksdato = feriepengeMaksdato;
         this.knektKjedeDel = knektKjedeDel;
     }
 
     public KjedeNøkkel forNesteKnekteKjededel() {
-        return new KjedeNøkkel(klassekode, betalingsmottaker, feriepengeÅr, knektKjedeDel != null ? knektKjedeDel + 1 : 1);
+        return new KjedeNøkkel(klassekode, betalingsmottaker, feriepengeMaksdato, knektKjedeDel != null ? knektKjedeDel + 1 : 1);
     }
 
     public KodeKlassifik getKlassekode() {
@@ -50,8 +63,8 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         return knektKjedeDel;
     }
 
-    public Integer getFeriepengeÅr() {
-        return feriepengeÅr;
+    public LocalDate getFeriepengeMaksdato() {
+        return feriepengeMaksdato;
     }
 
     @Override
@@ -61,14 +74,14 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         var that = (KjedeNøkkel) o;
         return Objects.equals(klassekode, that.klassekode) &&
             Objects.equals(betalingsmottaker, that.betalingsmottaker) &&
-            Objects.equals(feriepengeÅr, that.feriepengeÅr) &&
+            Objects.equals(feriepengeMaksdato, that.feriepengeMaksdato) &&
             Objects.equals(knektKjedeDel, that.knektKjedeDel)
             ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(klassekode, betalingsmottaker, feriepengeÅr, knektKjedeDel);
+        return Objects.hash(klassekode, betalingsmottaker, feriepengeMaksdato, knektKjedeDel);
     }
 
     @Override
@@ -76,7 +89,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         return "KjedeNøkkel{" +
             "klassekode=" + klassekode +
             ", betalingsmottaker=" + betalingsmottaker +
-            (feriepengeÅr != null ? ", feriepengeår=" + feriepengeÅr : "") +
+            (feriepengeMaksdato != null ? ", feriepengemaksdato=" + feriepengeMaksdato : "") +
             (knektKjedeDel != null ? ", knektKjedeDel=" + knektKjedeDel : "") +
             '}';
     }
@@ -91,9 +104,10 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         if (klassekodeSammenligning != 0) {
             return klassekodeSammenligning;
         }
-        var feriepengeår = getFeriepengeÅr() != null ? getFeriepengeÅr() : 0;
-        var annenFeriepengeår = o.getFeriepengeÅr() != null ? o.getFeriepengeÅr() : 0;
-        var feriepengeSammenligning = Integer.compare(feriepengeår, annenFeriepengeår);
+        var idag = LocalDate.now();
+        var denneFeriepengeMaksdato = Optional.ofNullable(getFeriepengeMaksdato()).orElse(idag);
+        var annenFeriepengeMaksdato = Optional.ofNullable(o.getFeriepengeMaksdato()).orElse(idag);
+        var feriepengeSammenligning = denneFeriepengeMaksdato.compareTo(annenFeriepengeMaksdato);
         if (feriepengeSammenligning != 0) {
             return feriepengeSammenligning;
         }
@@ -117,7 +131,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
     public static class Builder {
         private KodeKlassifik klassekode;
         private Betalingsmottaker betalingsmottaker;
-        private Integer feriepengeÅr;
+        private LocalDate feriepengeMaksdato;
         private Integer knektKjedeDel;
 
         private Builder() {
@@ -139,7 +153,12 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         }
 
         public Builder medFeriepengeÅr(Integer feriepengeÅr) {
-            this.feriepengeÅr = feriepengeÅr;
+            this.feriepengeMaksdato = LocalDate.ofYearDay(feriepengeÅr + 1, 1).with(SLUTT_FERIEPENGER);
+            return this;
+        }
+
+        public Builder medFeriepengeMaksdato(LocalDate feriepengeMaksdato) {
+            this.feriepengeMaksdato = feriepengeMaksdato;
             return this;
         }
 
@@ -152,11 +171,11 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
             Objects.requireNonNull(klassekode, "klassekode mangler");
             Objects.requireNonNull(betalingsmottaker, "betalingsmottaker mangler");
             if (klassekode.gjelderFeriepenger()) {
-                Objects.requireNonNull(feriepengeÅr, "feriepengeår kreves når klassekode " + klassekode + " gjelder ferie");
-            } else if (feriepengeÅr != null) {
+                Objects.requireNonNull(feriepengeMaksdato, "feriepengeår kreves når klassekode " + klassekode + " gjelder ferie");
+            } else if (feriepengeMaksdato != null) {
                 throw new IllegalArgumentException("feriepengeår skal ikke benyttes når klassekode " + klassekode + " ikke gjelder ferie");
             }
-            return new KjedeNøkkel(klassekode, betalingsmottaker, feriepengeÅr, knektKjedeDel);
+            return new KjedeNøkkel(klassekode, betalingsmottaker, feriepengeMaksdato, knektKjedeDel);
         }
     }
 }
