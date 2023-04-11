@@ -139,7 +139,7 @@ public class TilkjentYtelseMapper {
 
     private Periode beregnFeriepengePeriode(int opptjeningsår) {
         var feriepengerMaksdato = LocalDate.ofYearDay(opptjeningsår + 1 ,1 ).with(KjedeNøkkel.SLUTT_FERIEPENGER);
-        if (feriepengerDødsdato != null && (opptjeningsår >= feriepengerDødsdato.getYear() || feriepengerMaksdato.isAfter(feriepengerDødsdato))) {
+        if (feriepengerDødsdato != null && feriepengerMaksdato.isAfter(feriepengerDødsdato)) {
             return new Periode(feriepengerDødsdato.with(TemporalAdjusters.firstDayOfMonth()), feriepengerDødsdato.with(TemporalAdjusters.lastDayOfMonth()));
         }
         return new Periode(feriepengerMaksdato.with(TemporalAdjusters.firstDayOfMonth()), feriepengerMaksdato);
