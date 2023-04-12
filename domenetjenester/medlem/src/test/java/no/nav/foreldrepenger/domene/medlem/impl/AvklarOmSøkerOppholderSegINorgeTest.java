@@ -365,7 +365,7 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
-        assertThat(medlemResultat).contains(MedlemResultat.VENT_PÅ_FØDSEL);
+        assertThat(medlemResultat).contains(MedlemResultat.AVKLAR_OPPHOLDSRETT);
     }
 
     @Test
@@ -392,7 +392,7 @@ class AvklarOmSøkerOppholderSegINorgeTest {
         var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
-        assertThat(medlemResultat).contains(MedlemResultat.VENT_PÅ_FØDSEL);
+        assertThat(medlemResultat).contains(MedlemResultat.AVKLAR_OPPHOLDSRETT);
     }
 
     @Test

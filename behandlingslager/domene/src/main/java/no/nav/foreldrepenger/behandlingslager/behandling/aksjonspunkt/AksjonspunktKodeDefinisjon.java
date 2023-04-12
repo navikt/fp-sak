@@ -76,7 +76,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String VEDTAK_UTEN_TOTRINNSKONTROLL_KODE = "5018";
 
-    public static final String VENT_PÅ_FØDSEL_KODE = "7004";
     public static final String VENT_PÅ_SCANNING_KODE = "7007";
     public static final String VENT_PGA_FOR_TIDLIG_SØKNAD_KODE = "7008";
     public static final String VENT_PÅ_SØKNAD_KODE = "7013";
@@ -164,7 +163,7 @@ public class AksjonspunktKodeDefinisjon {
 
     //  "6013"  "6068"  "6070"
 
-    //  "7006"  "7009"
+    //  "7004"  "7006"  "7009"
     //  "7015"  "7016"  "7017"  "7018"  "7019"
     //  "7021"  "7022"  "7023"  "7024"  "7025"  "7026"  "7027"  "7028"  "7029"
     //  "7032"  "7034"  "7035"  "7036"  "7038"  "7041"

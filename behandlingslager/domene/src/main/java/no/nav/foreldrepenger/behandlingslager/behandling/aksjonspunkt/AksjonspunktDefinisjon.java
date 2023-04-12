@@ -338,9 +338,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTO_VENTER_PÅ_KOMPLETT_SØKNAD(AksjonspunktKodeDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD_KODE, AksjonspunktType.AUTOPUNKT,
             "Venter på komplett søknad", BehandlingStegType.VURDER_KOMPLETTHET, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, FORBLI,
             Period.ofWeeks(4), SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
-    VENT_PÅ_FØDSEL(AksjonspunktKodeDefinisjon.VENT_PÅ_FØDSEL_KODE, AksjonspunktType.AUTOPUNKT,
-            "Vent på fødsel ved avklaring av medlemskap", BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR,
-            UTEN_SKJERMLENKE, ENTRINN, FORBLI, Period.ofWeeks(3), UTVID_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_SATT_PÅ_VENT_REVURDERING(AksjonspunktKodeDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING_KODE, AksjonspunktType.AUTOPUNKT,
             "Satt på vent etter varsel om revurdering", BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE,
             ENTRINN, FORBLI, Period.ofWeeks(4), SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
@@ -430,6 +427,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_6068("6068", AksjonspunktType.MANUELL, "Manuell markering av utenlandssak"),
     @Deprecated
     UTGÅTT_6070("6070", AksjonspunktType.OVERSTYRING, "Saksbehandler endret søknadsperioder uten aksjonspunkt"),
+    @Deprecated
+    UTGÅTT_7004("7004", AksjonspunktType.AUTOPUNKT, // TODO (jol, TFP-4403 - fjerne i september 2023 når alle åpne 7004 er utført)
+        "Vent på fødsel ved avklaring av medlemskap", BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR,
+        UTEN_SKJERMLENKE, ENTRINN, FORBLI, Period.ofWeeks(3), UTVID_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     @Deprecated
     UTGÅTT_7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated

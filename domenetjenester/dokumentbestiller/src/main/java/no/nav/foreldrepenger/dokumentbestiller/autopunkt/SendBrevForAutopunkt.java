@@ -3,15 +3,12 @@ package no.nav.foreldrepenger.dokumentbestiller.autopunkt;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.INFOBREV_OPPHOLD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.INFOBREV_PÅMINNELSE;
 
-import java.time.LocalDate;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -62,15 +59,6 @@ public class SendBrevForAutopunkt {
     private BestillBrevDto opprettBestillBrevDto(Behandling behandling,
                                                  DokumentMalType forlengetSaksbehandlingstidTidlig) {
         return new BestillBrevDto(behandling.getId(), behandling.getUuid(), forlengetSaksbehandlingstidTidlig);
-    }
-
-    public void sendBrevForVenterPåFødsel(Behandling behandling, Aksjonspunkt ap) {
-        var frist = ap.getFristTid().toLocalDate();
-        if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL)
-            && frist.isAfter(LocalDate.now().plusDays(1))) {
-            var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
-            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
-        }
     }
 
     public void sendBrevForEtterkontroll(Behandling behandling) {
