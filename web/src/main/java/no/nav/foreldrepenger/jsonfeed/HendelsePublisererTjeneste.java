@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerOpphoert;
@@ -40,6 +41,7 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 public class HendelsePublisererTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(HendelsePublisererTjeneste.class);
     private static final String VEDTAK_PREFIX = "VT";
+    private static final boolean ER_PROD = Environment.current().isProd();
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -89,7 +91,7 @@ public class HendelsePublisererTjeneste {
             return;
         }
 
-        var fnr = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
+        var fnr = personinfoAdapter.hentFnr(behandling.getAktørId()).orElseThrow();
 
         LOG.info("Utgående feed-hendelse vedtakId {} funnet perioder", vedtak.getId());
 
@@ -205,7 +207,9 @@ public class HendelsePublisererTjeneste {
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
         innhold.setAktoerId(behandling.getAktørId().getId());
         innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
-        Optional.ofNullable(fnr).map(PersonIdent::getIdent).ifPresent(innhold::setFnr);
+        if (!ER_PROD) {
+            Optional.ofNullable(fnr).map(PersonIdent::getIdent).ifPresent(innhold::setFnr);
+        }
 
         return innhold;
     }
@@ -225,7 +229,9 @@ public class HendelsePublisererTjeneste {
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
         innhold.setAktoerId(behandling.getAktørId().getId());
         innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
-        Optional.ofNullable(fnr).map(PersonIdent::getIdent).ifPresent(innhold::setFnr);
+        if (!ER_PROD) {
+            Optional.ofNullable(fnr).map(PersonIdent::getIdent).ifPresent(innhold::setFnr);
+        }
 
         return innhold;
     }
