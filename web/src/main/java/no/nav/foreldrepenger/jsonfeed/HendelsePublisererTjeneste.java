@@ -41,7 +41,6 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 public class HendelsePublisererTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(HendelsePublisererTjeneste.class);
     private static final String VEDTAK_PREFIX = "VT";
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -207,9 +206,7 @@ public class HendelsePublisererTjeneste {
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
         innhold.setAktoerId(behandling.getAktørId().getId());
         innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
-        if (!ER_PROD) {
-            Optional.ofNullable(fnr).map(PersonIdent::getIdent).ifPresent(innhold::setFnr);
-        }
+        innhold.setFnr(fnr.getIdent());
 
         return innhold;
     }
@@ -229,9 +226,7 @@ public class HendelsePublisererTjeneste {
         innhold.setSisteStoenadsdag(utbetPeriode.getTomDato());
         innhold.setAktoerId(behandling.getAktørId().getId());
         innhold.setGsakId(behandling.getFagsak().getSaksnummer().getVerdi());
-        if (!ER_PROD) {
-            Optional.ofNullable(fnr).map(PersonIdent::getIdent).ifPresent(innhold::setFnr);
-        }
+        innhold.setFnr(fnr.getIdent());
 
         return innhold;
     }
