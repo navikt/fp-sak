@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +41,7 @@ public class EnhetsTjeneste {
     private static final String UT_ENHET_ID = "4806"; // Utlandsenhet
     private static final String SK_ENHET_ID = "4817"; // Sammensatt kontroll
     private static final String NY_ENHET_ID = "4867"; // Nasjonal enhet
-    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID); // Ta med UT_ENHET_ID ved nasjonal kø
+    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, EA_ENHET_ID, SF_ENHET_ID);
 
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
     private static final OrganisasjonsEnhet SKJERMET_ENHET =  new OrganisasjonsEnhet(EA_ENHET_ID, "NAV Familie- og pensjonsytelser Egne ansatte");
@@ -60,23 +59,24 @@ public class EnhetsTjeneste {
 
     // Oppdateres etterhvert som flytteprosessen foregår
     private static final Map<String, OrganisasjonsEnhet> FLYTTE_MAP = Map.ofEntries(
+        Map.entry(NASJONAL_ENHET.enhetId(), NASJONAL_ENHET),
         Map.entry(KLAGE_ENHET.enhetId(), KLAGE_ENHET),
         Map.entry(SKJERMET_ENHET.enhetId(), SKJERMET_ENHET),
         Map.entry(KODE6_ENHET.enhetId(), KODE6_ENHET),
-        Map.entry(DRAMMEN.enhetId(), DRAMMEN),
+        Map.entry(DRAMMEN.enhetId(), NASJONAL_ENHET),
         Map.entry(BERGEN.enhetId(), BERGEN),
         Map.entry(STEINKJER.enhetId(), STEINKJER),
         Map.entry(OSLO.enhetId(), OSLO),
         Map.entry(STORD.enhetId(), STORD),
         Map.entry(TROMSØ.enhetId(), TROMSØ),
-        Map.entry("4802", OSLO),
-        Map.entry("4847", STEINKJER),
+        Map.entry("4802", NASJONAL_ENHET),
+        Map.entry("4847", NASJONAL_ENHET),
         Map.entry("4205", KLAGE_ENHET)
     );
 
-    private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(DRAMMEN, BERGEN, STEINKJER ,OSLO, STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
+    private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER ,OSLO, STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
 
-    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET);
+    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN);
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
@@ -112,7 +112,7 @@ public class EnhetsTjeneste {
         if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(markering)) {
             return KONTROLL_ENHET;
         }
-        return FLYTTE_MAP.get(enhetId);
+        return Optional.ofNullable(FLYTTE_MAP.get(enhetId)).orElse(NASJONAL_ENHET);
     }
 
     static List<OrganisasjonsEnhet> hentEnhetListe() {
@@ -130,7 +130,7 @@ public class EnhetsTjeneste {
                 return UTLAND_ENHET;
             }
             var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
-            return enheter.isEmpty() ? tilfeldigEnhet() : velgEnhet(enheter.get(0), null); // TODO nasjonal kø
+            return enheter.isEmpty() ? NASJONAL_ENHET : velgEnhet(enheter.get(0), null);
         }
     }
 
@@ -169,14 +169,6 @@ public class EnhetsTjeneste {
             .map(a -> personinfoAdapter.hentFnr(a))
             .flatMap(Optional::stream)
             .anyMatch(p -> skjermetPersonKlient.erSkjermet(p.getIdent()));
-    }
-
-    private static OrganisasjonsEnhet tilfeldigEnhet() {
-        var kanvelges = ALLEBEHANDLENDEENHETER.stream().filter(e -> !SPESIALENHETER.contains(e.enhetId())).toList();
-        if (kanvelges.isEmpty()) {
-            throw new IllegalStateException("Ingen enheter å velge mellom");
-        }
-        return FLYTTE_MAP.get(kanvelges.get(LocalDateTime.now().getNano() % kanvelges.size()).enhetId()); // TODO NASJONAL KØ
     }
 
     static OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {

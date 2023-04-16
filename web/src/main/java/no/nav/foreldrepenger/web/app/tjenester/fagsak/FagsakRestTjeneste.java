@@ -47,6 +47,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetKontrollTask;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetUtlandTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
@@ -210,11 +211,14 @@ public class FagsakRestTjeneste {
                 fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
                     .filter(b -> !BehandlendeEnhetTjeneste.erUtlandsEnhet(b))
                     .forEach(this::opprettUtlandProsessTask);
-            }
-            if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(endreUtland.fagsakMarkering())) {
+            } else if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(endreUtland.fagsakMarkering())) {
                 fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
                     .filter(b -> !BehandlendeEnhetTjeneste.erKontrollEnhet(b))
                     .forEach(this::opprettKontrollProsessTask);
+            } else {
+                fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
+                    .filter(BehandlendeEnhetTjeneste::erUtlandsEnhet)
+                    .forEach(this::opprettNasjonalTask);
             }
             // Oppdater LOS-oppgaver
             fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).forEach(this::opprettLosProsessTask);
@@ -241,6 +245,13 @@ public class FagsakRestTjeneste {
 
     private void opprettKontrollProsessTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetKontrollTask.class);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setCallIdFraEksisterende();
+        taskTjeneste.lagre(prosessTaskData);
+    }
+
+    private void opprettNasjonalTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);

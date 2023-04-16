@@ -173,18 +173,18 @@ public class BehandlendeEnhetTjeneste {
         }
         var relatertSak = relasjon.getRelatertFagsak(sak).get();  // NOSONAR sjekket over
         var relatertEnhet = finnEnhetFor(relatertSak);
-        var preferert = (sak.getOpprettetTidspunkt().isBefore(relatertSak.getOpprettetTidspunkt())) ?  EnhetsTjeneste.enhetsPresedens(flyttet, relatertEnhet) :
-            EnhetsTjeneste.enhetsPresedens(relatertEnhet, flyttet);
+        var preferert = EnhetsTjeneste.enhetsPresedens(flyttet, relatertEnhet);
         return EnhetsTjeneste.velgEnhet(preferert, merking);
     }
 
     // Brukes for å sjekke om behandling skal flyttes etter endringer i NORG2-oppsett
     public Optional<OrganisasjonsEnhet> sjekkOppdatertEnhetEtterReallokering(Behandling behandling) {
-        var enhet = finnBehandlendeEnhetFor(behandling.getFagsak());
+        var merking = finnSaksmerking(behandling.getFagsak());
+        var enhet = EnhetsTjeneste.velgEnhet(behandling.getBehandlendeOrganisasjonsEnhet(), merking);
         if (enhet.enhetId().equals(behandling.getBehandlendeEnhet())) {
             return Optional.empty();
         }
-        return Optional.of(getOrganisasjonsEnhetEtterEndring(behandling.getFagsak(), enhet, behandling.getAktørId(), new HashSet<>()).orElse(enhet));
+        return Optional.of(enhet);
     }
 
     // Returnerer enhetsnummer for NAV Klageinstans
