@@ -38,7 +38,7 @@ class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        informasjonssakRepository.finnVentendeSakerUtenUtlandMarkering("4806")
+        informasjonssakRepository.finnAktiveBehandlingerUtenUtlandMarkering("4806")
             .forEach(fsid -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fsid, fagsakEgenskapRepository.finnFagsakMarkering(fsid).orElseThrow()));
     }
 

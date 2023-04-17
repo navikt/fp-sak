@@ -292,13 +292,14 @@ public class InformasjonssakRepository {
 
 
 
-    public List<Long> finnVentendeSakerUtenUtlandMarkering(String enhetId) {
+    public List<Long> finnAktiveBehandlingerUtenUtlandMarkering(String enhetId) {
         var query =  entityManager.createNativeQuery("""
            select distinct b.id
            from FPSAK.behandling b join fpsak.aksjonspunkt ap on b.id = ap.behandling_id
            where BEHANDLENDE_ENHET = :enhet
            and aksjonspunkt_status = 'OPPR'
-           and aksjonspunkt_def in ('7008', '7003', '7013', '7030','7002', '7004')
+           and behandling_type='BT-002'
+           and aksjonspunkt_def not in ('7008', '7003', '7013', '7030','7002', '7004')
            and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value is not null)
         """)
             .setParameter("enhet", enhetId);
