@@ -33,32 +33,41 @@ jobs:
     uses: navikt/fp-gha-workflows/.github/workflows/codeql.yml@main
     secrets: inherit
 
-  autotest:
-    name: Autotest
+  fpsak-tester:
+    name: Fpsak tester
     if: github.ref_name == 'master'
     needs: build-app
-    uses: navikt/fp-autotest/.github/workflows/autotest.yml@autotester
+    uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
-      test-fpsak: true
-      test-verdikjede: true
       build-version: ${{ needs.build-app.outputs.build-version }}
+      test-suite: fpsak
+    secrets: inherit
+    
+  verdikjede-tester:
+    name: Verdikjedetester
+    if: github.ref_name == 'master'
+    needs: build-app
+    uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
+    with:
+      build-version: ${{ needs.build-app.outputs.build-version }}
+      test-suite: verdikjede
     secrets: inherit
 
   notify:
     name: Notify
-    if: github.ref_name == 'master' && always() && !contains(fromJSON('["skipped", "cancelled"]'), needs.autotest.result)
-    needs: [build-app, autotest]
+    if: github.ref_name == 'master' && (success() || failure())
+    needs: [build-app, fpsak-tester, verdikjede-tester]
     uses: navikt/fp-autotest/.github/workflows/report-and-notify.yml@autotester
     with:
-      fpsak: ${{ needs.autotest.outputs.fpsak }}
-      verdikjede: ${{ needs.autotest.outputs.verdikjede }}
+      fpsak: ${{ needs.fpsak-tester.outputs.resultat }}
+      verdikjede: ${{ needs.verdikjede-tester.outputs.resultat }}
       build-version: ${{ needs.build-app.outputs.build-version }}
     secrets: inherit
 
   deploy-dev:
     name: Deploy dev
     if: github.ref_name == 'master'
-    needs: [build-app, autotest]
+    needs: [build-app, fpsak-tester, verdikjede-tester]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@deploy
     with:
       image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
@@ -68,7 +77,7 @@ jobs:
   deploy-prod:
     name: Deploy prod
     if: github.ref_name == 'master'
-    needs: [build-app, autotest, deploy-dev]
+    needs: [build-app, fpsak-tester, verdikjede-tester, deploy-dev]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@deploy
     with:
       image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
