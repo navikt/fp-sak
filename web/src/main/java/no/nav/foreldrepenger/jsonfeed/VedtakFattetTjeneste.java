@@ -15,7 +15,9 @@ import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.UtgåendeHendelse;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.jsonfeed.dto.VedtakDto;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedElement;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
@@ -26,14 +28,16 @@ public class VedtakFattetTjeneste {
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/Oslo");
 
     private FeedRepository feedRepository;
+    private PersoninfoAdapter personinfoAdapter;
 
     public VedtakFattetTjeneste() {
         // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
     @Inject
-    public VedtakFattetTjeneste(FeedRepository feedRepository) {
+    public VedtakFattetTjeneste(FeedRepository feedRepository, PersoninfoAdapter personinfoAdapter) {
         this.feedRepository = feedRepository;
+        this.personinfoAdapter = personinfoAdapter;
     }
 
     public VedtakDto hentFpVedtak(Long sisteLestSekvensId, Long maxAntall, String hendelseType, Optional<AktørId> aktørId) {
@@ -75,6 +79,9 @@ public class VedtakFattetTjeneste {
         }
 
         var innhold = StandardJsonConfig.fromJson(hendelse.getPayload(), type.getMeldingsDto());
+        if (innhold.getAktoerId() != null && innhold.getFnr() == null) {
+            personinfoAdapter.hentFnr(new AktørId(innhold.getAktoerId())).map(PersonIdent::getIdent).ifPresent(innhold::setFnr);
+        }
         return new FeedElement.Builder()
                 .medSekvensId(hendelse.getSekvensnummer())
                 .medType(hendelse.getType())

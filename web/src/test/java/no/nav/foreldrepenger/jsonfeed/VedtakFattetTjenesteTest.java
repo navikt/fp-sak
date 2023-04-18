@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
@@ -37,10 +38,12 @@ class VedtakFattetTjenesteTest {
     private VedtakFattetTjeneste tjeneste;
     @Mock
     private FeedRepository feedRepository;
+    @Mock
+    private PersoninfoAdapter personinfoAdapter;
 
     @BeforeEach
     public void setUp() {
-        tjeneste = new VedtakFattetTjeneste(feedRepository);
+        tjeneste = new VedtakFattetTjeneste(feedRepository, personinfoAdapter);
     }
 
     @Test
