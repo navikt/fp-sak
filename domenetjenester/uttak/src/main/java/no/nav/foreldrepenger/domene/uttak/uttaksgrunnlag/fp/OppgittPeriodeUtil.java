@@ -96,6 +96,7 @@ public class OppgittPeriodeUtil {
             Objects.equals(periode1.getMorsAktivitet(), periode2.getMorsAktivitet()) &&
             Objects.equals(periode1.isVedtaksperiode(), periode2.isVedtaksperiode()) &&
             Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
+            Objects.equals(periode1.getDokumentasjonVurdering(), periode2.getDokumentasjonVurdering()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
             Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
             (ignorerTidligstMottattDato || Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato())) &&
