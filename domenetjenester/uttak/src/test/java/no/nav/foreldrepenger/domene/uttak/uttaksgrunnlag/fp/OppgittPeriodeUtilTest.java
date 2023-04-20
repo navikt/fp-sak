@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -152,6 +153,25 @@ class OppgittPeriodeUtilTest {
         var p2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(LocalDate.of(2021, 8, 31), LocalDate.of(2021, 9, 3))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(2);
+    }
+
+    @Test
+    void skal_ikke_slå_sammen_perioder_hvis_ulik_dok_vurdering() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medDokumentasjonVurdering(DokumentasjonVurdering.MORS_AKTIVITET_GODKJENT)
+            .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 25))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medDokumentasjonVurdering(null)
+            .medPeriode(LocalDate.of(2021, 8, 26), LocalDate.of(2021, 9, 3))
             .build();
 
         var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
