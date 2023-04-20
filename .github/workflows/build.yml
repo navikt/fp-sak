@@ -42,7 +42,7 @@ jobs:
       build-version: ${{ needs.build-app.outputs.build-version }}
       test-suite: fpsak
     secrets: inherit
-    
+
   verdikjede-tester:
     name: Verdikjedetester
     if: github.ref_name == 'master'
@@ -55,9 +55,9 @@ jobs:
 
   notify:
     name: Notify
-    if: github.ref_name == 'master' && (success() || failure())
+    if: github.ref_name == 'master' && (success() || failure()) && !contains(fromJSON(needs.*.result), 'skipped')
     needs: [build-app, fpsak-tester, verdikjede-tester]
-    uses: navikt/fp-autotest/.github/workflows/report-and-notify.yml@autotester
+    uses: navikt/fp-autotest/.github/workflows/report-and-notify.yml@master
     with:
       fpsak: ${{ needs.fpsak-tester.outputs.resultat }}
       verdikjede: ${{ needs.verdikjede-tester.outputs.resultat }}
@@ -68,7 +68,7 @@ jobs:
     name: Deploy dev
     if: github.ref_name == 'master'
     needs: [build-app, fpsak-tester, verdikjede-tester]
-    uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@deploy
+    uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
       image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
       cluster: dev-fss
@@ -78,7 +78,7 @@ jobs:
     name: Deploy prod
     if: github.ref_name == 'master'
     needs: [build-app, fpsak-tester, verdikjede-tester, deploy-dev]
-    uses: navikt/fp-gha-workflows/.github/workflows/deploy-app.yml@deploy
+    uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
       image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
       cluster: prod-fss
