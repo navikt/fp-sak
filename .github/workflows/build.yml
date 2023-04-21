@@ -28,11 +28,6 @@ jobs:
       push-image: ${{ github.ref_name == 'master' }} # default: false
     secrets: inherit
 
-  codeql:
-    name: CodeQl
-    uses: navikt/fp-gha-workflows/.github/workflows/codeql.yml@main
-    secrets: inherit
-
   fpsak-tester:
     name: Fpsak tester
     if: github.ref_name == 'master'
