@@ -19,7 +19,9 @@
   },
   "ingresses": [
     "https://fpsak-api.intern.nav.no",
-    "https://fpsak-api.prod-fss-pub.nais.io"
+    "https://fpsak-api.prod-fss-pub.nais.io",
+    "https://fpsak.intern.nav.no",
+    "https://fpsak.prod-fss-pub.nais.io"
   ],
   "env": {
     "APPD_ENABLED": "true"
