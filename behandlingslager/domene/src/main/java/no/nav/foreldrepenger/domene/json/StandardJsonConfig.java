@@ -53,7 +53,7 @@ public final class StandardJsonConfig {
         try {
             return OM.readerFor(clazz).readValue(json);
         } catch (IOException e) {
-            throw new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
+            throw deserialiseringException(e);
         }
     }
 
@@ -61,7 +61,7 @@ public final class StandardJsonConfig {
         try {
             return OM.readerFor(clazz).readValue(json);
         } catch (IOException e) {
-            throw new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
+            throw deserialiseringException(e);
         }
     }
 
@@ -69,8 +69,12 @@ public final class StandardJsonConfig {
         try {
             return OM.readTree(json);
         } catch (IOException e) {
-            throw new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
+            throw deserialiseringException(e);
         }
+    }
+
+    private static TekniskException deserialiseringException(IOException e) {
+        return new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
     }
 }
 
