@@ -73,7 +73,7 @@ public class HentMedlemskapFraRegister {
     private MedlemskapDekningType mapTilDekning(String trygdeDekning) {
         var dekningType = MedlemskapDekningType.UDEFINERT;
         if (trygdeDekning != null) {
-            dekningType = MedlemskapsperiodeKoder.getDekningMap().get(trygdeDekning);
+            dekningType = MedlemskapsperiodeKoder.DEKNING_TYPE_MAP.get(trygdeDekning);
             if (dekningType == null) {
                 dekningType = MedlemskapDekningType.UDEFINERT;
             }
