@@ -137,7 +137,7 @@ class FaktaUttakFellesTjeneste {
         var perioder = hentGjeldendeFordeling(behandlingId);
         var reutlededAp = utleder.utledAksjonspunkterFor(input, perioder);
         if (!reutlededAp.isEmpty()) {
-            throw new IllegalStateException("Lagrede perioder fører til at aksjonspunkt reutledes");
+            throw new IllegalStateException("Lagrede perioder fører til at aksjonspunkt reutledes " + reutlededAp + " - "  + behandlingId);
         }
     }
 
