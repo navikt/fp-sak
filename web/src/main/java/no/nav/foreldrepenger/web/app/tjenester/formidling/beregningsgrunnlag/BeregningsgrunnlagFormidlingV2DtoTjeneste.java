@@ -1,10 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
@@ -33,6 +37,7 @@ import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.kodeverk.Per
 public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
 
     private final BeregningsgrunnlagGrunnlag grunnlag;
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningsgrunnlagFormidlingV2DtoTjeneste.class);
 
     public BeregningsgrunnlagFormidlingV2DtoTjeneste(BeregningsgrunnlagGrunnlag grunnlag) {
         this.grunnlag = Objects.requireNonNull(grunnlag, "beregningsgrunnlaggrunnlag");
@@ -45,11 +50,13 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             .stream()
             .map(this::mapPeriode)
             .toList();
+        var erBesteberegnet = utledBesteberegning();
         return grunnlag.getBeregningsgrunnlag().map(bg -> new BeregningsgrunnlagDto(mapAktivitetstatuser(bg.getAktivitetStatuser()),
             mapHjemmelTilDto(bg.getHjemmel()),
             bg.getGrunnbeløp().getVerdi(),
             bgPerioder,
-            utledBesteberegning()));
+            erBesteberegnet,
+            erBesteberegnet && erSeksAvDeTiBeste()));
     }
 
     private HjemmelDto mapHjemmelTilDto(Hjemmel hjemmel) {
@@ -72,7 +79,6 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     private boolean utledBesteberegning() {
         // Automatisk besteberegnet
         var besteBeregningGrunnlag = grunnlag.getBeregningsgrunnlag().flatMap(Beregningsgrunnlag::getBesteberegningGrunnlag);
-
         // Manuelt besteberegnet
         var finnesBesteberegnetAndel = grunnlag.getBeregningsgrunnlag()
             .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
@@ -81,6 +87,33 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             .anyMatch(bgp -> finnesBesteberegnetAndel(bgp.getBeregningsgrunnlagPrStatusOgAndelList()));
 
         return besteBeregningGrunnlag.isPresent() || finnesBesteberegnetAndel;
+    }
+
+    private boolean erSeksAvDeTiBeste() {
+        var besteBeregningGrunnlag = grunnlag.getBeregningsgrunnlag().flatMap(Beregningsgrunnlag::getBesteberegningGrunnlag);
+        if (besteBeregningGrunnlag.isEmpty()){
+            //manuelt besteberegnet er alltid seks av de ti beste månedene
+            return true;
+        }
+
+        var besteBeregnetBeløp = grunnlag.getBeregningsgrunnlag()
+            .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+            .flatMap(Collection::stream)
+            .map(BeregningsgrunnlagPrStatusOgAndel::getBesteberegnetPrÅr)
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
+
+        List<BeregningsgrunnlagPeriode> beregningsGrunnlagPerioder = grunnlag.getBeregningsgrunnlag()
+            .map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
+            .orElse(Collections.emptyList());
+        var ordinærtBeregnetBeløp = beregningsGrunnlagPerioder.get(0).getBeregnetPrÅr();
+
+        LOG.info("BesteBeregnetBeløp fra getBesteberegnetPrÅr: {}  Ordinært beregnet beløp: {}",  besteBeregnetBeløp, ordinærtBeregnetBeløp );
+
+        return besteBeregnetBeløp.compareTo(ordinærtBeregnetBeløp) > 0;
     }
 
     private boolean finnesBesteberegnetAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
