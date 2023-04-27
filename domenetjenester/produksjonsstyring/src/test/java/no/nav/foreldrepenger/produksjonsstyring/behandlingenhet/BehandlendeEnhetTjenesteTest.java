@@ -31,7 +31,7 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
 
     private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
-    private static final OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4849", "NAV Tromsø");
+    private static final OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4867", "NAV Foreldrepenger");
     private static final OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
 
     private BehandlingRepositoryProvider repositoryProvider;
