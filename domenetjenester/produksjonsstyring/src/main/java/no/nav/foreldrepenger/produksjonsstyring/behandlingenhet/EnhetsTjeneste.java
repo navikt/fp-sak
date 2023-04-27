@@ -66,9 +66,9 @@ public class EnhetsTjeneste {
         Map.entry(DRAMMEN.enhetId(), NASJONAL_ENHET),
         Map.entry(BERGEN.enhetId(), BERGEN),
         Map.entry(STEINKJER.enhetId(), STEINKJER),
-        Map.entry(OSLO.enhetId(), OSLO),
+        Map.entry(OSLO.enhetId(), NASJONAL_ENHET),
         Map.entry(STORD.enhetId(), STORD),
-        Map.entry(TROMSØ.enhetId(), TROMSØ),
+        Map.entry(TROMSØ.enhetId(), NASJONAL_ENHET),
         Map.entry("4802", NASJONAL_ENHET),
         Map.entry("4847", NASJONAL_ENHET),
         Map.entry("4205", KLAGE_ENHET)
@@ -76,7 +76,7 @@ public class EnhetsTjeneste {
 
     private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER ,OSLO, STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
 
-    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN);
+    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, OSLO, TROMSØ);
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
