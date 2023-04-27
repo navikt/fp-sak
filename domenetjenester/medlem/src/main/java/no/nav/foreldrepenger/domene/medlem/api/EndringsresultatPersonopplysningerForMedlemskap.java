@@ -24,12 +24,8 @@ public class EndringsresultatPersonopplysningerForMedlemskap {
         return new Builder();
     }
 
-    public boolean harEndringer() {
-        return endringer.stream().anyMatch(Endring::isErEndret);
-    }
-
     public List<Endring> getEndredeAttributter() {
-        return endringer.stream().filter(Endring::isErEndret).toList();
+        return endringer.stream().filter(Endring::isEndret).toList();
     }
 
     /**
@@ -39,49 +35,24 @@ public class EndringsresultatPersonopplysningerForMedlemskap {
         return gjeldendeFra;
     }
 
-    public enum EndretAttributt {
-        Personstatus, StatsborgerskapRegion, Adresse;
-    }
+    private static final class Endring {
+        private final boolean endret;
+        private final DatoIntervallEntitet periode;
 
-    public static final class Endring {
-        private boolean erEndret;
-        private EndretAttributt endretAttributt;
-        String endretFra;
-        String endretTil;
-        private DatoIntervallEntitet periode;
-
-        private Endring(EndretAttributt endretAttributt, DatoIntervallEntitet periode, String endretFra, String endretTil) {
-            Objects.requireNonNull(endretAttributt);
+        private Endring(DatoIntervallEntitet periode, String endretFra, String endretTil) {
             Objects.requireNonNull(endretFra);
             Objects.requireNonNull(endretTil);
             Objects.requireNonNull(periode);
 
-            if (!endretFra.trim().equalsIgnoreCase(endretTil.trim())) {
-                this.erEndret = true;
-            }
-            this.endretAttributt = endretAttributt;
-            this.endretFra = endretFra;
-            this.endretTil = endretTil;
             this.periode = periode;
+            this.endret = !endretFra.trim().equalsIgnoreCase(endretTil.trim());
         }
 
-        public EndretAttributt getEndretAttributt() {
-            return endretAttributt;
+        private boolean isEndret() {
+            return endret;
         }
 
-        public String getEndretFra() {
-            return endretFra;
-        }
-
-        public String getEndretTil() {
-            return endretTil;
-        }
-
-        public boolean isErEndret() {
-            return erEndret;
-        }
-
-        public DatoIntervallEntitet getPeriode() {
+        private DatoIntervallEntitet getPeriode() {
             return periode;
         }
     }
@@ -99,8 +70,8 @@ public class EndringsresultatPersonopplysningerForMedlemskap {
             return kladd;
         }
 
-        public Builder leggTilEndring(EndretAttributt endretAttributt, DatoIntervallEntitet periode, String endretFra, String endretTil) {
-            var endring = new Endring(endretAttributt, periode, endretFra, endretTil);
+        public Builder leggTilEndring(DatoIntervallEntitet periode, String endretFra, String endretTil) {
+            var endring = new Endring(periode, endretFra, endretTil);
             kladd.endringer.add(endring);
             return this;
         }

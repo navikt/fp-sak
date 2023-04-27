@@ -112,8 +112,7 @@ class MedlemDtoTjenesteTest {
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
         var endringFraDato = LocalDate.now().minusDays(5);
         var endringsresultatPersonopplysningerForMedlemskap = EndringsresultatPersonopplysningerForMedlemskap.builder()
-                .leggTilEndring(EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt.Adresse,
-                        DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2")
+                .leggTilEndring(DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2")
                 .build();
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 

@@ -149,8 +149,8 @@ public class MedlemDtoTjeneste {
         for (var entrySet : vurderingspunkter.entrySet()) {
             var vurdertMedlemskap = finnVurderMedlemskap(perioder, entrySet);
             final var medlemPeriodeDto = mapTilPeriodeDto(ref,
-                vurdertMedlemskap, entrySet.getKey(), entrySet.getValue().getÅrsaker(), vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null));
-            medlemPeriodeDto.setAksjonspunkter(entrySet.getValue().getAksjonspunkter().stream().map(Kodeverdi::getKode).collect(Collectors.toSet()));
+                vurdertMedlemskap, entrySet.getKey(), entrySet.getValue().årsaker(), vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null));
+            medlemPeriodeDto.setAksjonspunkter(entrySet.getValue().aksjonspunkter().stream().map(Kodeverdi::getKode).collect(Collectors.toSet()));
             dtoPerioder.add(medlemPeriodeDto);
         }
     }
