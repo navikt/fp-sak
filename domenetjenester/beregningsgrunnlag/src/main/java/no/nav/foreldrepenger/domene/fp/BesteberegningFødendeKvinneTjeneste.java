@@ -112,7 +112,7 @@ public class BesteberegningFødendeKvinneTjeneste {
             return false;
         }
 
-        // Foreløpig besteberegner vi ikke saker med sykepenger, frilans eller næring automatisk.
+        // Foreløpig besteberegner vi ikke saker med frilans eller næring automatisk.
         return harAktiviteterSomErGodkjentForAutomatiskBeregning(behandlingReferanse);
     }
 

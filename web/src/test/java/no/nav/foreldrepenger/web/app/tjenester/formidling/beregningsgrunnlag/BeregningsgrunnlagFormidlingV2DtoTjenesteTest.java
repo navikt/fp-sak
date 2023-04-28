@@ -42,6 +42,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
         assertThat(dto).isNotNull();
         assertThat(dto.hjemmel().name()).isEqualTo(Hjemmel.F_14_7_8_28_8_30.getKode());
         assertThat(dto.erBesteberegnet()).isFalse();
+        assertThat(dto.seksAvDeTiBeste()).isFalse();
         assertThat(dto.grunnbeløp()).isEqualByComparingTo(BigDecimal.valueOf(100000));
         assertThat(dto.aktivitetstatusListe()).hasSize(1);
         assertThat(dto.beregningsgrunnlagperioder()).hasSize(1);
