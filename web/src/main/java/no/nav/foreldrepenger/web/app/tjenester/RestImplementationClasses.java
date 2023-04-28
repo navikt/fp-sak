@@ -57,6 +57,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRes
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpOversiktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.los.LosRestTjeneste;
@@ -114,6 +115,8 @@ public class RestImplementationClasses {
         // Formidlingstjenester
         classes.add(FormidlingRestTjeneste.class);
         classes.add(BeregningsgrunnlagFormidlingRestTjeneste.class);
+
+        classes.add(FpOversiktRestTjeneste.class);
         return Set.copyOf(classes);
     }
 
