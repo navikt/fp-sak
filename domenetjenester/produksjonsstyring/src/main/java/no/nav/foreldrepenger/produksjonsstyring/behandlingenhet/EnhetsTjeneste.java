@@ -57,17 +57,17 @@ public class EnhetsTjeneste {
     private static final OrganisasjonsEnhet STORD =  new OrganisasjonsEnhet("4842", "NAV Familie- og pensjonsytelser Stord");
     private static final OrganisasjonsEnhet TROMSØ =  new OrganisasjonsEnhet("4849", "NAV Familie- og pensjonsytelser Tromsø");
 
-    // Oppdateres etterhvert som flytteprosessen foregår
+    // Oppdateres etterhvert som flytteprosessen foregår. Behold så lenge evaluering av nasjonal enhet foregår
     private static final Map<String, OrganisasjonsEnhet> FLYTTE_MAP = Map.ofEntries(
         Map.entry(NASJONAL_ENHET.enhetId(), NASJONAL_ENHET),
         Map.entry(KLAGE_ENHET.enhetId(), KLAGE_ENHET),
         Map.entry(SKJERMET_ENHET.enhetId(), SKJERMET_ENHET),
         Map.entry(KODE6_ENHET.enhetId(), KODE6_ENHET),
         Map.entry(DRAMMEN.enhetId(), NASJONAL_ENHET),
-        Map.entry(BERGEN.enhetId(), BERGEN),
-        Map.entry(STEINKJER.enhetId(), STEINKJER),
+        Map.entry(BERGEN.enhetId(), NASJONAL_ENHET),
+        Map.entry(STEINKJER.enhetId(), NASJONAL_ENHET),
         Map.entry(OSLO.enhetId(), NASJONAL_ENHET),
-        Map.entry(STORD.enhetId(), STORD),
+        Map.entry(STORD.enhetId(), NASJONAL_ENHET),
         Map.entry(TROMSØ.enhetId(), NASJONAL_ENHET),
         Map.entry("4802", NASJONAL_ENHET),
         Map.entry("4847", NASJONAL_ENHET),
@@ -76,7 +76,7 @@ public class EnhetsTjeneste {
 
     private static final Set<OrganisasjonsEnhet> ALLEBEHANDLENDEENHETER = Set.of(NASJONAL_ENHET, DRAMMEN, BERGEN, STEINKJER ,OSLO, STORD, TROMSØ, KLAGE_ENHET, SKJERMET_ENHET, KODE6_ENHET);
 
-    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, OSLO, TROMSØ);
+    private static final Set<OrganisasjonsEnhet> IKKE_MENY = Set.of(KLAGE_ENHET, DRAMMEN, BERGEN, STEINKJER, OSLO, STORD, TROMSØ);
 
     private PersoninfoAdapter personinfoAdapter;
     private Arbeidsfordeling norgRest;
@@ -129,8 +129,10 @@ public class EnhetsTjeneste {
             if (geografiskTilknytning == null) {
                 return UTLAND_ENHET;
             }
-            var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
-            return enheter.isEmpty() ? NASJONAL_ENHET : velgEnhet(enheter.get(0), null);
+            return NASJONAL_ENHET;
+            // Beholde ut 2023
+            // var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
+            // return enheter.isEmpty() ? NASJONAL_ENHET : velgEnhet(enheter.get(0), null);
         }
     }
 
@@ -193,6 +195,7 @@ public class EnhetsTjeneste {
         return KONTROLL_ENHET;
     }
 
+    // Behold ut 2023
     private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, BehandlingTema behandlingTema) {
         var brukBTema = BehandlingTema.UDEFINERT.equals(behandlingTema) ? BehandlingTema.FORELDREPENGER : behandlingTema;
         List<ArbeidsfordelingResponse> restenhet;
