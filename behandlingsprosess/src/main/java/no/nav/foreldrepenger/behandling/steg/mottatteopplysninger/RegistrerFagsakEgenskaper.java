@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.mottatteopplysninger;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -16,6 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @Dependent
 public class RegistrerFagsakEgenskaper {
@@ -37,14 +41,10 @@ public class RegistrerFagsakEgenskaper {
             return fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
         }
         var geografiskTilknyttetUtlandEllerUkjent = personinfo.hentGeografiskTilknytning(behandling.getAktørId()) == null;
-        var medlemskapFramtidigLangtOppholdUtlands = medlemskapRepository.hentMedlemskap(behandling.getId())
-            .flatMap(MedlemskapAggregat::getOppgittTilknytning)
-            .map(MedlemskapOppgittTilknytningEntitet::getOpphold).orElse(Set.of()).stream()
-            .filter(land -> !land.isTidligereOpphold())
-            .anyMatch(land -> !Landkoder.NOR.equals(land.getLand()) && Math.abs(DAYS.between(land.getPeriodeFom(), land.getPeriodeTom())) > 350);
+        var medlemskapOppgittEttÅrUtlandsopphold = vurderOppgittUtlandsopphold(behandling.getId());
 
         var utlandMarkering = FagsakMarkering.NASJONAL;
-        if (geografiskTilknyttetUtlandEllerUkjent || medlemskapFramtidigLangtOppholdUtlands) {
+        if (geografiskTilknyttetUtlandEllerUkjent || medlemskapOppgittEttÅrUtlandsopphold) {
             utlandMarkering = FagsakMarkering.BOSATT_UTLAND;
         } else if (oppgittRelasjonTilEØS) {
             utlandMarkering = FagsakMarkering.EØS_BOSATT_NORGE;
@@ -59,5 +59,15 @@ public class RegistrerFagsakEgenskaper {
         return fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(behandling.getFagsakId()).isPresent();
     }
 
+    private boolean vurderOppgittUtlandsopphold(Long behandlingId) {
+        var utlandSegmenter = medlemskapRepository.hentMedlemskap(behandlingId)
+            .flatMap(MedlemskapAggregat::getOppgittTilknytning)
+            .map(MedlemskapOppgittTilknytningEntitet::getOpphold).orElse(Set.of()).stream()
+            .filter(opphold -> !Landkoder.NOR.equals(opphold.getLand()))
+            .map(opphold -> new LocalDateSegment<>(opphold.getPeriodeFom(), opphold.getPeriodeTom(), Boolean.TRUE))
+            .collect(Collectors.toSet());
+        return new LocalDateTimeline<>(utlandSegmenter, StandardCombinators::alwaysTrueForMatch).compress().stream()
+            .anyMatch(segment -> Math.abs(DAYS.between(segment.getFom(), segment.getTom())) > 365);
+    }
 
 }
