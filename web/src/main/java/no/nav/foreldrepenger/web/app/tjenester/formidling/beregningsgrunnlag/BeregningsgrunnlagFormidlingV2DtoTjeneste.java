@@ -102,7 +102,7 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             .stream()
             .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
             .flatMap(Collection::stream)
-            .map(BeregningsgrunnlagPrStatusOgAndel::getBesteberegnetPrÅr)
+            .map(andel -> andel.getBesteberegnetPrÅr() != null ? andel.getBesteberegnetPrÅr() : BigDecimal.ZERO)
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO);
 
