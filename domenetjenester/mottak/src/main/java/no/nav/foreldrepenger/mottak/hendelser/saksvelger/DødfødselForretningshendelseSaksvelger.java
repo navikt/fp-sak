@@ -48,7 +48,7 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
 
         var saker = forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
-            .filter(fagsak -> YTELSE_TYPER.contains(fagsak.getYtelseType()) && fagsak.erÅpen())
+            .filter(fagsak -> fagsakErRelevantForHendelse(fagsak, forretningshendelse))
             .filter(fagsak -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
                 || erFagsakPassendeForFamilieHendelse(forretningshendelse.dødfødselsdato(), fagsak))
             .toList();
@@ -59,6 +59,15 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
         }
 
         return Map.of(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL, saker);
+    }
+
+    private boolean fagsakErRelevantForHendelse(Fagsak fagsak, DødfødselForretningshendelse forretningshendelse) {
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType()) && Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())) {
+            // ANNULLERT-hendelser inneholder ikke fødselsdato og videre sjekk er derfor unødvendig
+            return false;
+        }
+        return YTELSE_TYPER.contains(fagsak.getYtelseType()) && fagsak.erÅpen();
+
     }
 
     private boolean erFagsakPassendeForFamilieHendelse(LocalDate fødsel, Fagsak fagsak) {

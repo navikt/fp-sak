@@ -77,7 +77,7 @@ public class HåndterOpphørAvYtelser {
                 oppdatereBehMedÅrsak(eksisterendeBehandling.getId(), årsakType);
             }
             opprettVurderKonsekvens(eksisterendeBehandling, beskrivelse);
-            kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling);
+            kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling, årsakType);
         } else {
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .ifPresent(b -> {

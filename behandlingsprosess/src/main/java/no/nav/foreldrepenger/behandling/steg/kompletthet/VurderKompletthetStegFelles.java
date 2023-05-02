@@ -2,10 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.kompletthet;
 
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -18,23 +14,16 @@ import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
  * <p>
  * Favor composition over inheritance
  */
-@Dependent
 public class VurderKompletthetStegFelles {
 
-    @Inject
-    public VurderKompletthetStegFelles() {
-        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
+    private VurderKompletthetStegFelles() {
     }
 
-    public AksjonspunktResultat byggAutopunkt(KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {
-        return opprettForAksjonspunktMedFrist(apDef, kompletthetResultat.venteårsak(), kompletthetResultat.ventefrist());
-    }
-
-    public BehandleStegResultat evaluerUoppfylt(KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {
+    public static BehandleStegResultat evaluerUoppfylt(KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {
         if (kompletthetResultat.erFristUtløpt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        var autopunkt = byggAutopunkt(kompletthetResultat, apDef);
+        var autopunkt = opprettForAksjonspunktMedFrist(apDef, kompletthetResultat.venteårsak(), kompletthetResultat.ventefrist());
         return BehandleStegResultat.utførtMedAksjonspunktResultat(autopunkt);
     }
 

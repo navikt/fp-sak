@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -32,9 +30,6 @@ import no.nav.vedtak.konfig.Tid;
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelseType.FØDSEL)
 public class FødselForretningshendelseSaksvelger implements ForretningshendelseSaksvelger<FødselForretningshendelse> {
-
-    private static final TemporalAmount UKER_FH_SAMME = Period.ofWeeks(5);
-    private static final TemporalAmount UKER_FH_ULIK = Period.ofWeeks(20);
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -75,7 +70,7 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
             if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())) {
                 // ANNULLERT-hendelser inneholder ikke fødselsdato og videre sjekk er derfor unødvendig
-                return true;
+                return false;
             }
             var tilkjentYtelseTom = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
                 .flatMap(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.kompletthet.svp;
 
-import static no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles.autopunktAlleredeUtført;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
 
@@ -29,7 +28,6 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
     private Kompletthetsjekker kompletthetsjekker;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private VurderKompletthetStegFelles vurderKompletthetStegFelles;
 
     public VurderKompletthetStegImpl() {
         // CDI
@@ -37,11 +35,10 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
 
     @Inject
     public VurderKompletthetStegImpl(@FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, VurderKompletthetStegFelles vurderKompletthetStegFelles) {
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.vurderKompletthetStegFelles = vurderKompletthetStegFelles;
     }
 
     @Override
@@ -51,14 +48,18 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
 
+        if (skalPassereKompletthet(behandling) || kanPassereKompletthet(behandling)) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
         var søknadMottatt = kompletthetsjekker.vurderSøknadMottattForTidlig(ref);
         if (!søknadMottatt.erOppfylt()) {
-            return vurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
+            return VurderKompletthetStegFelles.evaluerUoppfylt(søknadMottatt, VENT_PGA_FOR_TIDLIG_SØKNAD);
         }
 
         var forsendelseMottatt = kompletthetsjekker.vurderForsendelseKomplett(ref);
-        if (!forsendelseMottatt.erOppfylt() && !autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
-            return vurderKompletthetStegFelles.evaluerUoppfylt(forsendelseMottatt, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
+        if (!forsendelseMottatt.erOppfylt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
+            return VurderKompletthetStegFelles.evaluerUoppfylt(forsendelseMottatt, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
         }
 
         return BehandleStegResultat.utførtUtenAksjonspunkter();

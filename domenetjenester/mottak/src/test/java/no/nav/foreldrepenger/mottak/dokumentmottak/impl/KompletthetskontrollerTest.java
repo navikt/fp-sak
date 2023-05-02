@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
@@ -137,7 +138,7 @@ class KompletthetskontrollerTest {
     }
 
     @Test
-    void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
+    void skal_ikke_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
         // Arrange
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
@@ -148,15 +149,27 @@ class KompletthetskontrollerTest {
         verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForFortsettBehandling(behandling);
     }
 
-    public void skal_gjenoppta_behandling_ved_mottak_av_ny_forretningshendelse() {
+    @Test
+    void skal_gjenoppta_behandling_ved_mottak_av_ny_forretningshendelse() {
         // Arrange
-        when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.oppfylt());
-        var endringsresultatSnapshot = EndringsresultatSnapshot.opprett();
-        when(behandlingProsesseringTjeneste.taSnapshotAvBehandlingsgrunnlag(behandling)).thenReturn(endringsresultatSnapshot);
+        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
 
-        kompletthetskontroller.vurderNyForretningshendelse(behandling);
+        kompletthetskontroller.vurderNyForretningshendelse(behandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
 
         verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any());
+    }
+
+    @Test
+    void skal_fortsette_behandling_i_kompletthet_ved_mottak_av_ny_forretningshendelse() {
+        // Arrange
+        var scenario2 = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
+        var behandling2 = scenario2.lagMocked();
+        when(behandlingskontrollTjeneste.erStegPassert(behandling2.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
+
+        kompletthetskontroller.vurderNyForretningshendelse(behandling2, BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER);
+
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling2);
     }
 
     @Test

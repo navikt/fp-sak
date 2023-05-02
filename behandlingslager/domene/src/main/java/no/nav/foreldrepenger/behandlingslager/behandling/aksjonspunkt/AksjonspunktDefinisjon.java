@@ -428,9 +428,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_6070("6070", AksjonspunktType.OVERSTYRING, "Saksbehandler endret søknadsperioder uten aksjonspunkt"),
     @Deprecated
-    UTGÅTT_7004("7004", AksjonspunktType.AUTOPUNKT, // TODO (jol, TFP-4403 - fjerne i september 2023 når alle åpne 7004 er utført)
-        "Vent på fødsel ved avklaring av medlemskap", BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR,
-        UTEN_SKJERMLENKE, ENTRINN, FORBLI, Period.ofWeeks(3), UTVID_BEHFRIST, EnumSet.of(ES, FP, SVP)),
+    UTGÅTT_7004("7004", AksjonspunktType.AUTOPUNKT, "Vent på fødsel ved avklaring av medlemskap"),
     @Deprecated
     UTGÅTT_7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated
