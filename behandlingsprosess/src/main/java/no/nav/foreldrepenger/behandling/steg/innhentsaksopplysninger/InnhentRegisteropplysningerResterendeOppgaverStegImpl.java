@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,9 +38,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements BehandlingSteg {
-
-    private static Set<BehandlingÅrsakType> UNNGÅ_BREV_HENDELSER = Set.of(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL,
-        BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER, BehandlingÅrsakType.RE_HENDELSE_DØD_BARN);
 
     private BehandlingRepository behandlingRepository;
     private FagsakTjeneste fagsakTjeneste;
@@ -112,7 +108,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     private boolean skalPassereUtenBrev(Behandling behandling) {
         return behandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .anyMatch(UNNGÅ_BREV_HENDELSER::contains);
+            .anyMatch(BehandlingÅrsakType.årsakerRelatertTilDød()::contains);
     }
 
 }

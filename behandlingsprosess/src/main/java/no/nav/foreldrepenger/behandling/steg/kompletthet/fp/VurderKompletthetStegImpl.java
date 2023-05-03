@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,10 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.uttak.TidsperiodeFarRundtFødsel;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_KOMPLETTHET)
 @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -87,21 +87,20 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
             return false;
         }
         var søknadFHDato = stp.getFamiliehendelsedato();
+        var farRundtFødselTom = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(false, true, søknadFHDato, søknadFHDato)
+            .map(LocalDateInterval::getTomDato).orElse(søknadFHDato);
         var farØnskerJustert = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(YtelseFordelingAggregat::getGjeldendeFordeling)
             .filter(OppgittFordelingEntitet::ønskerJustertVedFødsel)
-            .filter(fordeling -> erFørsteUttaksdatoRundtFødsel(fordeling, søknadFHDato))
+            .filter(fordeling -> erFørsteUttaksdatoRundtFødsel(fordeling, farRundtFødselTom))
             .isPresent();
         return !farØnskerJustert;
     }
 
-    private boolean erFørsteUttaksdatoRundtFødsel(OppgittFordelingEntitet oppgittFordeling, LocalDate søknadFamilieHendelseDato) {
-        var tidligsteUttak = oppgittFordeling.getPerioder().stream()
+    private boolean erFørsteUttaksdatoRundtFødsel(OppgittFordelingEntitet oppgittFordeling, LocalDate fødselsperiodeTom) {
+        return fødselsperiodeTom != null && oppgittFordeling.getPerioder().stream()
             .filter(periode -> !(periode.isUtsettelse() || periode.isOpphold()))
-            .map(OppgittPeriodeEntitet::getFom)
-            .min(Comparator.naturalOrder());
-        return søknadFamilieHendelseDato != null && tidligsteUttak.isPresent() &&
-            tidligsteUttak.get().isBefore(søknadFamilieHendelseDato.plusWeeks(6));
+            .anyMatch(p -> p.getFom().isBefore(fødselsperiodeTom));
     }
 
 }
