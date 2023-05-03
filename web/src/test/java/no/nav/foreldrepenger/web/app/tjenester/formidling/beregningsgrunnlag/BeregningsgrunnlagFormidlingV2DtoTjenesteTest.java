@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.domene.modell.BesteberegningGrunnlag;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -41,7 +43,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
         // Assert
         assertThat(dto).isNotNull();
         assertThat(dto.hjemmel().name()).isEqualTo(Hjemmel.F_14_7_8_28_8_30.getKode());
-        assertThat(dto.erBesteberegnet()).isFalse();
+        assertThat(dto.erBesteberegnet()).isTrue();
         assertThat(dto.seksAvDeTiBeste()).isFalse();
         assertThat(dto.grunnbeløp()).isEqualByComparingTo(BigDecimal.valueOf(100000));
         assertThat(dto.aktivitetstatusListe()).hasSize(1);
@@ -111,7 +113,12 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
             .leggTilAktivitetStatus(buildBgAktivitetStatus())
             .leggTilBeregningsgrunnlagPeriode(buildBeregningsgrunnlagPeriode())
             .medGrunnbeløp(BigDecimal.valueOf(100000))
+            .medBesteberegningsgrunnlag(buildBesteberegning())
             .build();
+    }
+
+    private BesteberegningGrunnlag buildBesteberegning() {
+        return BesteberegningGrunnlag.ny().medAvvik(BigDecimal.TEN).build();
     }
 
     private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus() {
