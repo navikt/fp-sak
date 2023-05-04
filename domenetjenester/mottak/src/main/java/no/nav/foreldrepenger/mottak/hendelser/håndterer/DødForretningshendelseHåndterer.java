@@ -38,6 +38,10 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
 
     @Override
     public void håndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+        if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)
+            && forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(åpenBehandling)) {
+            return;
+        }
         forretningshendelseHåndtererFelles.håndterÅpenBehandling(åpenBehandling, behandlingÅrsakType);
     }
 
@@ -47,6 +51,9 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
         // Hvis det er barnet som har dødd må begge foreldrenes saker revurderes.
         // Revurderer forelderen med nærmest uttak først. Velges v.h.a ToForeldreBarnDødTjeneste
         if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)) {
+            if (forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(avsluttetBehandling)) {
+                return;
+            }
             var fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(avsluttetBehandling.getFagsak());
             Optional<Behandling> behandlingPåMedforelder = fagsakPåMedforelder.isPresent()?
                 behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakPåMedforelder.get().getId())
@@ -66,6 +73,10 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)
+            && køetBehandlingOpt.filter(forretningshendelseHåndtererFelles::barnFødselogDødAlleredeRegistrert).isPresent()) {
+            return;
+        }
         forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
     }
 

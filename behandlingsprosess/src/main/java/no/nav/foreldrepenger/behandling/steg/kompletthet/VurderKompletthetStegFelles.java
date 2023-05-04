@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.behandling.steg.kompletthet;
 
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -20,10 +22,14 @@ public class VurderKompletthetStegFelles {
     }
 
     public static BehandleStegResultat evaluerUoppfylt(KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {
+        return evaluerUoppfylt(kompletthetResultat, kompletthetResultat.ventefrist(), apDef);
+    }
+
+    public static BehandleStegResultat evaluerUoppfylt(KompletthetResultat kompletthetResultat, LocalDateTime ventefrist, AksjonspunktDefinisjon apDef) {
         if (kompletthetResultat.erFristUtløpt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        var autopunkt = opprettForAksjonspunktMedFrist(apDef, kompletthetResultat.venteårsak(), kompletthetResultat.ventefrist());
+        var autopunkt = opprettForAksjonspunktMedFrist(apDef, kompletthetResultat.venteårsak(), ventefrist);
         return BehandleStegResultat.utførtMedAksjonspunktResultat(autopunkt);
     }
 
