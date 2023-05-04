@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -70,7 +71,14 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
         var harIngenArbeidsforholdHosArbeidsgiver = !harArbeidsforholdIRegistreHosArbeidsgiver(aktørId, grunnlag, inntektsmelding.getArbeidsgiver());
         var erAmbasadeUtenArbeidsforhold = erAmbasade && harIngenArbeidsforholdHosArbeidsgiver;
         var finnesInntektUtenArbeidsforhold = harRapportertInntektHosArbeidsgiver && harIngenArbeidsforholdHosArbeidsgiver;
-        return finnesInntektUtenArbeidsforhold || erFiskerUtenAktivtArbeid(aktørId, utledetStp, grunnlag, inntektsmelding) || erAmbasadeUtenArbeidsforhold;
+        var krevesRefusjonUtenArbeidsforhold = harIngenArbeidsforholdHosArbeidsgiver && kreverRefusjon(inntektsmelding);
+        return finnesInntektUtenArbeidsforhold || erFiskerUtenAktivtArbeid(aktørId, utledetStp, grunnlag, inntektsmelding)
+            || erAmbasadeUtenArbeidsforhold || krevesRefusjonUtenArbeidsforhold;
+    }
+
+    private static boolean kreverRefusjon(Inntektsmelding inntektsmelding) {
+        return inntektsmelding.getRefusjonBeløpPerMnd() != null
+            && inntektsmelding.getRefusjonBeløpPerMnd().getVerdi().compareTo(BigDecimal.ZERO) > 0;
     }
 
     private static boolean erArbeidsgiverAmbasade(Arbeidsgiver arbeidsgiver) {
