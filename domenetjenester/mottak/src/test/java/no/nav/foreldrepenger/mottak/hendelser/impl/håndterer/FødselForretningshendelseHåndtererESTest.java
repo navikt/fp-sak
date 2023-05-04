@@ -87,7 +87,7 @@ class FødselForretningshendelseHåndtererESTest {
         håndterer.håndterÅpenBehandling(behandling, RE_HENDELSE_FØDSEL);
 
         // Assert
-        verify(kompletthetskontroller).vurderNyForretningshendelse(eq(behandling));
+        verify(kompletthetskontroller).vurderNyForretningshendelse(behandling, RE_HENDELSE_FØDSEL);
     }
 
     @Test

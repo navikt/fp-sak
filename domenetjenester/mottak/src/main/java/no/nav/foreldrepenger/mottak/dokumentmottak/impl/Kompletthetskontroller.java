@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -106,11 +107,18 @@ public class Kompletthetskontroller {
         }
     }
 
-    public void vurderNyForretningshendelse(Behandling behandling) {
+    public void vurderNyForretningshendelse(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
+        // Forbi kompletthet: Sikre oppdatering dersom behandling står i FatteVedtak eller registerdata er innhentet samme dag.
+        // Venter i kompletthet: Prøv på nytt i utvalgte tilfelle
         if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
-            // Sikre oppdatering dersom behandling står i FatteVedtak eller registerdata er innhentet samme dag.
             behandlingProsesseringTjeneste.tvingInnhentingRegisteropplysninger(behandling);
             behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+        } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+        } else if (BehandlingÅrsakType.årsakerRelatertTilDød().contains(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD)) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+        } else if (BehandlingÅrsakType.RE_HENDELSE_FØDSEL.equals(behandlingÅrsakType) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
     }
 

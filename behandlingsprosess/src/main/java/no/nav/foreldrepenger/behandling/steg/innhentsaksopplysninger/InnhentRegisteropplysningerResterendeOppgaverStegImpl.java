@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.innhentsaksopplysninger;
 
-import static no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles.autopunktAlleredeUtført;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VERGE;
@@ -13,13 +12,17 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -73,13 +76,14 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
 
-        var etterlysIM = kompletthetModell.vurderKompletthet(ref, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
-        if (!etterlysIM.erOppfylt()) {
+        if (!skalPassereUtenBrev(behandling)) {
+            var etterlysIM = kompletthetModell.vurderKompletthet(ref, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
             // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent).
             // Utført på/etter frist antas automatisk gjenopptak.
-            if (!etterlysIM.erFristUtløpt() && !autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
-                return BehandleStegResultat.utførtMedAksjonspunktResultat(opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING,
-                    Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist()));
+            if (!etterlysIM.erOppfylt() && !etterlysIM.erFristUtløpt() &&
+                !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
+                var ar = opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, etterlysIM.ventefrist());
+                return BehandleStegResultat.utførtMedAksjonspunktResultat(ar);
             }
         }
 
@@ -99,6 +103,12 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
         var søker = personopplysninger.getSøker();
         return søker.getFødselsdato().isAfter(LocalDate.now().minusYears(18));
+    }
+
+    private boolean skalPassereUtenBrev(Behandling behandling) {
+        return behandling.getBehandlingÅrsaker().stream()
+            .map(BehandlingÅrsak::getBehandlingÅrsakType)
+            .anyMatch(BehandlingÅrsakType.årsakerRelatertTilDød()::contains);
     }
 
 }

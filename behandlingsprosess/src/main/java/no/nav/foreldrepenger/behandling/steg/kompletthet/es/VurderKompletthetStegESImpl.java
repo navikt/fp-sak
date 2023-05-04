@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.kompletthet.es;
 
-import static no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles.autopunktAlleredeUtført;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -29,7 +28,6 @@ public class VurderKompletthetStegESImpl implements VurderKompletthetSteg {
 
     private Kompletthetsjekker vurderKompletthetTjeneste;
     private BehandlingRepository behandlingRepository;
-    private VurderKompletthetStegFelles vurderKompletthetStegFelles;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     VurderKompletthetStegESImpl() {
@@ -38,12 +36,10 @@ public class VurderKompletthetStegESImpl implements VurderKompletthetSteg {
     @Inject
     public VurderKompletthetStegESImpl(@FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) Kompletthetsjekker vurderKompletthetTjeneste,
             BehandlingRepositoryProvider provider,
-            VurderKompletthetStegFelles vurderKompletthetStegFelles,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.vurderKompletthetTjeneste = vurderKompletthetTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
-        this.vurderKompletthetStegFelles = vurderKompletthetStegFelles;
     }
 
     @Override
@@ -52,9 +48,13 @@ public class VurderKompletthetStegESImpl implements VurderKompletthetSteg {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
 
+        if (skalPassereKompletthet(behandling)) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
         var kompletthetResultat = vurderKompletthetTjeneste.vurderForsendelseKomplett(ref);
-        if (!kompletthetResultat.erOppfylt() && !autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
-            return vurderKompletthetStegFelles.evaluerUoppfylt(kompletthetResultat, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
+        if (!kompletthetResultat.erOppfylt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
+            return VurderKompletthetStegFelles.evaluerUoppfylt(kompletthetResultat, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
