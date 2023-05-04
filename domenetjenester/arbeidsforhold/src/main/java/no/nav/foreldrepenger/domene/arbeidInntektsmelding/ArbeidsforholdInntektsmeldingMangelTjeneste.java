@@ -1,9 +1,13 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +50,27 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     public void lagreManglendeOpplysningerVurdering(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
 
         var arbeidsforholdMedMangler = arbeidsforholdInntektsmeldingsMangelUtleder.finnManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse);
-        var entitet = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
-        entitet.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
+        var entiteter = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
+        sjekkUnikeReferanser(entiteter); // Skal kun være en avklaring pr referanse
+        entiteter.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
         var iaygrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         arbeidInntektHistorikkinnslagTjeneste.opprettHistorikkinnslag(behandlingReferanse, dto, iaygrunnlag);
 
         // Kall til abakus, gjøres til slutt
         ryddBortManuelleArbeidsforholdVedBehov(behandlingReferanse, dto);
+    }
+
+    private void sjekkUnikeReferanser(List<ArbeidsforholdValg> entiteter) {
+        var ag = entiteter.get(0).getArbeidsgiver();
+        Map<InternArbeidsforholdRef, List<ArbeidsforholdValg>> map = entiteter.stream()
+            .collect(Collectors.groupingBy(ArbeidsforholdValg::getArbeidsforholdRef));
+        map.forEach((key, value) -> {
+            if (value.size() != 1) {
+                var msg = String.format("Mer enn 1 avklaring for arbeidsforhold hos arbeidsgiver %s med arbeidsforholdref %s", ag, key);
+                LOG.warn(msg);
+            }
+        });
+
     }
 
     private void ryddBortManuelleArbeidsforholdVedBehov(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
