@@ -60,6 +60,35 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     }
 
     @Test
+    void skal_gi_utslag_hvis_det_mangler_arbeidsforhold_men_kreves_refusjon() {
+        // Arrange
+        var orgnr = "222222222";
+        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr, 5000));
+
+        // Act
+        var resultat = utled(lagAggregat(Collections.emptyList(), Collections.emptyList(), inntektsmeldinger));
+
+        // Assert
+        assertThat(resultat).hasSize(1);
+        var arbeidsgivere = resultat.keySet();
+        assertThat(arbeidsgivere).contains(Arbeidsgiver.virksomhet(orgnr));
+    }
+
+    @Test
+    void skal_ikke_gi_utslag_hvis_det_kreves_refusjon_og_finnes_arbeidsforhold() {
+        // Arrange
+        var orgnr = "222222222";
+        var ya = Arrays.asList(yrkesaktivitet(orgnr, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr, 5000));
+
+        // Act
+        var resultat = utled(lagAggregat(ya, Collections.emptyList(), inntektsmeldinger));
+
+        // Assert
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
     void skal_ikke_gi_utslag_ved_inntektsmelding_uten_arbeid_uten_inntekt() {
         // Arrange
         var orgnrIM = "222222222";
@@ -263,11 +292,19 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     }
 
     private Inntektsmelding inntektsmelding(String orgnr) {
-        return InntektsmeldingBuilder.builder()
+        return inntektsmelding(orgnr, null);
+    }
+
+    private Inntektsmelding inntektsmelding(String orgnr, Integer refusjonPrMnd) {
+        var builder = InntektsmeldingBuilder.builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .medBeløp(BigDecimal.valueOf(10000))
-            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
-            .build();
+            .medArbeidsforholdId(InternArbeidsforholdRef.nyRef());
+        if (refusjonPrMnd != null) {
+            builder.medRefusjon(BigDecimal.valueOf(refusjonPrMnd));
+        }
+        return builder.build();
     }
+
 
 }

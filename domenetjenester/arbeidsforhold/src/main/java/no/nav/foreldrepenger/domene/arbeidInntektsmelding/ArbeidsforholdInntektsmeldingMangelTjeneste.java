@@ -70,7 +70,6 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
                 LOG.warn(msg);
             }
         });
-
     }
 
     private void ryddBortManuelleArbeidsforholdVedBehov(BehandlingReferanse behandlingReferanse, ManglendeOpplysningerVurderingDto dto) {
