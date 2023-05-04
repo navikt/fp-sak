@@ -33,7 +33,7 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
 
     @Override
     public void håndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType) {
-        if (!forretningshendelseHåndtererFelles.fødselAlleredeRegistrert(åpenBehandling)) {
+        if (!forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(åpenBehandling)) {
             forretningshendelseHåndtererFelles.håndterÅpenBehandling(åpenBehandling, behandlingÅrsakType);
         }
     }
@@ -42,7 +42,7 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     public void håndterAvsluttetBehandling(Behandling avsluttetBehandling,
                                            ForretningshendelseType forretningshendelseType,
                                            BehandlingÅrsakType behandlingÅrsakType) {
-        if (!forretningshendelseHåndtererFelles.fødselAlleredeRegistrert(avsluttetBehandling)) {
+        if (!forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(avsluttetBehandling)) {
             forretningshendelseHåndtererFelles.opprettRevurderingLagStartTask(avsluttetBehandling.getFagsak(), behandlingÅrsakType);
         }
 
@@ -51,7 +51,7 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        if (køetBehandlingOpt.filter(forretningshendelseHåndtererFelles::fødselAlleredeRegistrert).isPresent()) {
+        if (køetBehandlingOpt.filter(forretningshendelseHåndtererFelles::barnFødselogDødAlleredeRegistrert).isPresent()) {
             return;
         }
         forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);

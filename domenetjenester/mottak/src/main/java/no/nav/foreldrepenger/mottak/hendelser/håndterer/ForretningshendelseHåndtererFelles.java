@@ -80,7 +80,7 @@ public class ForretningshendelseHåndtererFelles {
         køKontroller.enkøBehandling(køetBehandling);
     }
 
-    public boolean fødselAlleredeRegistrert(Behandling åpenEllerForrige) {
+    public boolean barnFødselogDødAlleredeRegistrert(Behandling åpenEllerForrige) {
         final var familieHendelseGrunnlag = familieHendelseTjeneste.finnAggregat(åpenEllerForrige.getId()).orElse(null);
         if (familieHendelseGrunnlag == null) {
             return false;
