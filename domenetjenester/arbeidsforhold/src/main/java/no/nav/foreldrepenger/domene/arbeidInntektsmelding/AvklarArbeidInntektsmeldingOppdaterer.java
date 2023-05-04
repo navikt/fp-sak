@@ -107,7 +107,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
             .toList();
 
         if (saksbehandlersValgOmManglendeIM.size() != alleArbeidsforholdSomManglerIM.size()) {
-            throw new IllegalStateException("Ikke like mange arbeidsforhold med manglende inntektsmelding mangler som avklarte arbeidsforhold." +
+            throw new IllegalStateException("Ikke like mange arbeidsforhold med manglende inntektsmelding som avklarte arbeidsforhold." +
                 "Arbeidsforhold uten inntektsmelding: " + alleArbeidsforholdSomManglerIM.size() + ". Valg som er bekreftet: " + alleSaksbehandlersValg.size());
         }
 
