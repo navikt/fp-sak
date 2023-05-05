@@ -53,4 +53,8 @@ public class Dekningsgrad {
     public int hashCode() {
         return Objects.hash(verdi);
     }
+
+    public boolean isÅtti() {
+        return this.equals(_80);
+    }
 }

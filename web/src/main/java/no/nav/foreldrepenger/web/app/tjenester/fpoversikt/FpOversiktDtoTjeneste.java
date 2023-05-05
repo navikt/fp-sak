@@ -1,0 +1,99 @@
+package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+
+@ApplicationScoped
+public class FpOversiktDtoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
+
+
+    private BehandlingRepository behandlingRepository;
+    private BehandlingVedtakRepository vedtakRepository;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+
+    @Inject
+    public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
+                                  BehandlingVedtakRepository vedtakRepository,
+                                  FagsakRelasjonRepository fagsakRelasjonRepository,
+                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+        this.behandlingRepository = behandlingRepository;
+        this.vedtakRepository = vedtakRepository;
+        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
+    }
+
+    FpOversiktDtoTjeneste() {
+        //CDI
+    }
+
+    public Sak hentSak(UUID behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        LOG.info("Henter saksnummer for behandling {}", behandling.getId());
+        var fagsak = behandling.getFagsak();
+        LOG.info("Returnerer sak med saksnummer {}", fagsak.getSaksnummer());
+
+        var saksnummer = fagsak.getSaksnummer().getVerdi();
+        var aktørId = behandling.getAktørId().getId();
+        return switch (fagsak.getYtelseType()) {
+            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId);
+            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, finnVedtakForForeldrepenger(fagsak));
+            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId);
+            case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
+        };
+    }
+
+    private Set<FpSak.Vedtak> finnVedtakForForeldrepenger(Fagsak fagsak) {
+        var behandlingerMedVedtak = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsak.getId());
+        return behandlingerMedVedtak.stream()
+            .map(b -> vedtakRepository.hentForBehandlingHvisEksisterer(b.getId()))
+            .filter(Optional::isPresent)
+            .map(v -> v.get())
+            .map(vedtak -> tilDto(vedtak, fagsak))
+            .collect(Collectors.toSet());
+    }
+
+    private FpSak.Vedtak tilDto(BehandlingVedtak vedtak, Fagsak fagsak) {
+        var dekningsgrad = finnDekningsgrad(fagsak);
+        var uttaksperioder = finnUttaksperioder(vedtak.getBehandlingsresultat().getBehandlingId());
+        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad);
+    }
+
+    private List<FpSak.Uttaksperiode> finnUttaksperioder(Long behandlingId) {
+        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId)
+            .map(uttak -> tilDto(uttak.getGjeldendePerioder()))
+            .orElse(List.of());
+    }
+
+    private List<FpSak.Uttaksperiode> tilDto(List<ForeldrepengerUttakPeriode> gjeldendePerioder) {
+        return gjeldendePerioder.stream().map(this::tilDto).toList();
+    }
+
+    private FpSak.Uttaksperiode tilDto(ForeldrepengerUttakPeriode periode) {
+        return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom());
+    }
+
+    private FpSak.Vedtak.Dekningsgrad finnDekningsgrad(Fagsak fagsak) {
+        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(fagsak).getGjeldendeDekningsgrad();
+        return dekningsgrad.isÅtti() ? FpSak.Vedtak.Dekningsgrad.ÅTTI : FpSak.Vedtak.Dekningsgrad.HUNDRE;
+    }
+}
