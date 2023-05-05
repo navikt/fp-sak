@@ -14,13 +14,13 @@ spec:
   {{/each}}
   liveness:
     path: /fpsak/internal/health/isAlive
-    initialDelay: 17
+    initialDelay: 10
     periodSeconds: 10
     failureThreshold: 20
     timeout: 3
   readiness:
     path: /fpsak/internal/health/isReady
-    initialDelay: 17
+    initialDelay: 10
     periodSeconds: 10
     failureThreshold: 20
     timeout: 3
