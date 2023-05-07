@@ -6,7 +6,6 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -47,20 +46,6 @@ public class BatchRestTjeneste {
         this.batchSupportTjeneste = batchSupportTjeneste;
     }
 
-    /**
-     * Kalles på for å logge brukeren inn i løsningen. Dette for å ha minimalt med
-     * innloggingslogikk i bash-scriptet
-     *
-     * @return alltid 200 - OK
-     */
-    @GET
-    @Path("/init")
-    @Operation(description = "Init", tags = "batch")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response init() {
-        return Response.ok().build();
-    }
-
     @POST
     @Path("/launch")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -70,7 +55,7 @@ public class BatchRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Ukjent batch forespurt"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.BATCH)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response startBatch(@NotNull @QueryParam("batchName") @Valid BatchNameDto batchName, @Valid BatchArgumentsDto args) {
         var name = batchName.getVerdi();
         final var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(name);
@@ -93,7 +78,7 @@ public class BatchRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Starter batch-scheduler"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.BATCH)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response autoRunBatch() {
         batchSupportTjeneste.startBatchSchedulerTask();
         return Response.ok().build();
