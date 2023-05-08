@@ -71,7 +71,9 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
     }
 
     private static Hendelse utledHendelse(Behandling behandling, HendelseForBehandling oppgittHendelse) {
-        if (HendelseForBehandling.ENHET.equals(oppgittHendelse)) {
+        if (HendelseForBehandling.BRUKEROPPGAVE.equals(oppgittHendelse)) {
+            return Hendelse.BRUKEROPPGAVE;
+        } else if (HendelseForBehandling.ENHET.equals(oppgittHendelse)) {
             return Hendelse.ENHET;
         } else if (behandling.isBehandlingPåVent()) {
             return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) ? Hendelse.MANGLERSØKNAD : Hendelse.VENTETILSTAND;
