@@ -67,7 +67,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         map.forEach((key, value) -> {
             if (value.size() != 1) {
                 var msg = String.format("Mer enn 1 avklaring for arbeidsforhold hos arbeidsgiver %s med arbeidsforholdref %s", ag, key);
-                LOG.warn(msg);
+                throw new IllegalStateException(msg);
             }
         });
     }

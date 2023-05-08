@@ -47,8 +47,39 @@ class ArbeidsforholdValgRepositoryTest {
         var notater = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
 
         // Assert
-        assertThat(notater).isNotNull();
-        assertThat(notater).hasSize(1);
+        assertThat(notater)
+            .isNotNull()
+            .hasSize(1);
+        var vurderingEntitet = notater.get(0);
+        assertThat(vurderingEntitet.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
+        assertThat(vurderingEntitet.getBegrunnelse()).isEqualTo("Dette er en begrunnelse");
+        assertThat(vurderingEntitet.getArbeidsgiver().getIdentifikator()).isEqualTo("999999999");
+    }
+
+    @Test
+    void lagre_to_like_vurderinger_uten_at_begge_er_aktive_og_like() {
+        // Arrange
+        var behandling = opprettBehandling();
+        var vurdering = ArbeidsforholdValg.builder()
+            .medVurdering(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)
+            .medArbeidsgiver("999999999")
+            .medBegrunnelse("Dette er en begrunnelse")
+            .build();
+
+
+        var kopi = ArbeidsforholdValg.kopier(vurdering).build();
+        vurdering.setBehandlingId(behandling.getId());
+        kopi.setBehandlingId(behandling.getId());
+
+        // Act
+        arbeidsforholdValgRepository.lagre(vurdering, behandling.getId());
+        arbeidsforholdValgRepository.lagre(kopi, behandling.getId());
+        var notater = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
+
+        // Assert
+        assertThat(notater)
+            .isNotNull()
+            .hasSize(1);
         var vurderingEntitet = notater.get(0);
         assertThat(vurderingEntitet.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
         assertThat(vurderingEntitet.getBegrunnelse()).isEqualTo("Dette er en begrunnelse");
@@ -70,8 +101,9 @@ class ArbeidsforholdValgRepositoryTest {
         var valg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
 
         // Assert
-        assertThat(valg).isNotNull();
-        assertThat(valg).hasSize(1);
+        assertThat(valg)
+            .isNotNull()
+            .hasSize(1);
         var vurderingEntitet = valg.get(0);
         assertThat(vurderingEntitet.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
         assertThat(vurderingEntitet.getBegrunnelse()).isEqualTo("Dette er en begrunnelse");
@@ -106,8 +138,9 @@ class ArbeidsforholdValgRepositoryTest {
         var notater = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
 
         // Assert
-        assertThat(notater).isNotNull();
-        assertThat(notater).hasSize(2);
+        assertThat(notater)
+            .isNotNull()
+            .hasSize(2);
         var entitet1 = finnVurderingFor(notater, "999999999");
         assertThat(entitet1).isNotNull();
         assertThat(entitet1.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
@@ -144,8 +177,9 @@ class ArbeidsforholdValgRepositoryTest {
         var notater = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
 
         // Assert
-        assertThat(notater).isNotNull();
-        assertThat(notater).hasSize(2);
+        assertThat(notater)
+            .isNotNull()
+            .hasSize(2);
         var entitet1 = finnVurderingFor(notater, "999999999", ref1);
         assertThat(entitet1).isNotNull();
         assertThat(entitet1.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
@@ -178,8 +212,9 @@ class ArbeidsforholdValgRepositoryTest {
         var vurderinger = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
 
         // Assert 1
-        assertThat(vurderinger).isNotNull();
-        assertThat(vurderinger).hasSize(2);
+        assertThat(vurderinger)
+            .isNotNull()
+            .hasSize(2);
         var entitet1 = finnVurderingFor(vurderinger, "999999999");
         assertThat(entitet1).isNotNull();
         assertThat(entitet1.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING);
@@ -202,8 +237,9 @@ class ArbeidsforholdValgRepositoryTest {
         var nyeVurderinger = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandling.getId());
 
         // Assert 2
-        assertThat(nyeVurderinger).isNotNull();
-        assertThat(nyeVurderinger).hasSize(2);
+        assertThat(nyeVurderinger)
+            .isNotNull()
+            .hasSize(2);
         var nyEntitet1 = finnVurderingFor(nyeVurderinger, "999999999");
         assertThat(nyEntitet1).isNotNull();
         assertThat(nyEntitet1.getVurdering()).isEqualTo(ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING);
