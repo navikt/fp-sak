@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import java.math.BigDecimal;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -27,33 +27,30 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-@ApplicationScoped
-@ProsessTask("behandlingsprosess.satsregulering")
+@Dependent
+@ProsessTask("behandlingsprosess.gregulering.reguler")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
+public class GrunnbeløpReguleringTask extends FagsakProsessTask {
 
     public static final String MANUELL_KEY = "manuell";
 
-    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringTask.class);
-    private BehandlingRepository behandlingRepository;
-    private FagsakRepository fagsakRepository;
-    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private BehandlendeEnhetTjeneste enhetTjeneste;
-    private BehandlingFlytkontroll flytkontroll;
+    private static final Logger LOG = LoggerFactory.getLogger(GrunnbeløpReguleringTask.class);
 
-    AutomatiskGrunnbelopReguleringTask() {
-        // for CDI proxy
-    }
+    private final BehandlingRepository behandlingRepository;
+    private final FagsakRepository fagsakRepository;
+    private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
+    private final BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private final BehandlendeEnhetTjeneste enhetTjeneste;
+    private final BehandlingFlytkontroll flytkontroll;
 
     @Inject
-    public AutomatiskGrunnbelopReguleringTask(BehandlingRepositoryProvider repositoryProvider,
-                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                              BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-            BehandlendeEnhetTjeneste enhetTjeneste,
-            BehandlingFlytkontroll flytkontroll) {
+    public GrunnbeløpReguleringTask(BehandlingRepositoryProvider repositoryProvider,
+                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                    BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                    BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                    BehandlendeEnhetTjeneste enhetTjeneste,
+                                    BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();

@@ -235,22 +235,23 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                     .stream()
                     .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
                     .max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
-            var multiplikator = BeregningsresultatRepository.avkortingMultiplikatorG(grunnbeløp.getPeriode().getFomDato().minusDays(1));
-            var grenseverdi = new BigDecimal(satsIBeregning * multiplikator);
-            var over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
-            var erMilitærUnder3G = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+            var avkortingOver = BeregningsresultatRepository.avkortingMultiplikatorG();
+            var grenseAvkorting = new BigDecimal(satsIBeregning * avkortingOver);
+            var militærUnder = BeregningsresultatRepository.militærMultiplikatorG();
+            var grenseMilitær = new BigDecimal(grunnbeløp.getVerdi() * militærUnder);
+            var over6G = bruttoPrÅr.compareTo(grenseAvkorting) >= 0;
+            var erMilitærUnderGrense = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
                     .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
                     .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
-                            && (a.getBeregningsgrunnlagPeriode().getBruttoPrÅr()
-                                    .compareTo(BigDecimal.valueOf(3).multiply(BigDecimal.valueOf(grunnbeløp.getVerdi()))) < 0));
+                            && (a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(grenseMilitær) < 0));
             var erNæringsdrivende = forrigeBeregning.stream().flatMap(bg -> bg.getAktivitetStatuser().stream())
                     .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
                     .anyMatch(SN_REGULERING::contains);
-            if (over6G || erMilitærUnder3G || erNæringsdrivende) {
+            if (over6G || erMilitærUnderGrense || erNæringsdrivende) {
                 LOG.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
                 return finnStartpunktForGRegulering(revurdering);
             }
-            LOG.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
+            LOG.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseAvkorting);
         }
         return StartpunktType.UDEFINERT;
     }

@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 @ApplicationScoped
 public class BeregningsresultatRepository {
     private static final long G_MULTIPLIKATOR = 6L;
+    private static final long MIL_MULTIPLIKATOR = 3L; // Egentlig 2G for SVP - men denne brukes bare til å plukke kandidater. Så OK med 3G.
     private EntityManager entityManager;
     private BehandlingLåsRepository behandlingLåsRepository;
 
@@ -163,7 +164,11 @@ public class BeregningsresultatRepository {
         entityManager.flush();
     }
 
-    public static long avkortingMultiplikatorG(@SuppressWarnings("unused") LocalDate dato) {
+    public static long avkortingMultiplikatorG() {
         return G_MULTIPLIKATOR;
+    }
+
+    public static long militærMultiplikatorG() {
+        return MIL_MULTIPLIKATOR;
     }
 }

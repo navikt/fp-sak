@@ -49,11 +49,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(JpaExtension.class)
 @ExtendWith(MockitoExtension.class)
-class AutomatiskGrunnbelopReguleringTaskTest {
+class GrunnbeløpReguleringTaskTest {
 
-    private static LocalDate TERMINDATO = LocalDate.now().plusWeeks(3);
-    private static Beløp EKSISTERENDE_G = new Beløp(100000);
-    private static LocalDate EKSISTERENDE_STP_B = TERMINDATO.minusMonths(1);
+    private static final LocalDate TERMINDATO = LocalDate.now().plusWeeks(3);
+    private static final Beløp EKSISTERENDE_G = new Beløp(100000);
+    private static final LocalDate EKSISTERENDE_STP_B = TERMINDATO.minusMonths(1);
 
     @Mock
     private BehandlingFlytkontroll flytkontroll;
@@ -87,7 +87,7 @@ class AutomatiskGrunnbelopReguleringTaskTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
-        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -115,8 +115,8 @@ class AutomatiskGrunnbelopReguleringTaskTest {
         assertThat(revurdering).as("Har revurdering: " + fagsak.getId()).isNotPresent();
     }
 
-    private AutomatiskGrunnbelopReguleringTask createTask() {
-        return new AutomatiskGrunnbelopReguleringTask(repositoryProvider,
+    private GrunnbeløpReguleringTask createTask() {
+        return new GrunnbeløpReguleringTask(repositoryProvider,
             skjæringstidspunktTjeneste, prosesseringTjeneste, beregningsgrunnlagRepository, enhetsTjeneste, flytkontroll);
 
     }
@@ -125,7 +125,7 @@ class AutomatiskGrunnbelopReguleringTaskTest {
     void skal_ikke_opprette_revurdering_dersom_åpen_behandling_på_fagsak() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
 
-        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -143,7 +143,7 @@ class AutomatiskGrunnbelopReguleringTaskTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(any()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
-        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -165,7 +165,7 @@ class AutomatiskGrunnbelopReguleringTaskTest {
             .thenReturn(new BeregningSats(BeregningSatsType.GRUNNBELØP, DatoIntervallEntitet.fraOgMedTilOgMed(EKSISTERENDE_STP_B.minusYears(1), EKSISTERENDE_STP_B),
                 EKSISTERENDE_G.getVerdi().longValue()));
 
-        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -180,9 +180,9 @@ class AutomatiskGrunnbelopReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
-        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
-        prosessTaskData.setProperty(AutomatiskGrunnbelopReguleringTask.MANUELL_KEY, "true");
+        prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
         prosessTaskData.setSekvens("1");
 
         var task = createTask();

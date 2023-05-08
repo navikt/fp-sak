@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskGrunnbelopReguleringTask;
+import no.nav.foreldrepenger.behandling.revurdering.satsregulering.GrunnbeløpReguleringTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -151,11 +151,11 @@ public class ForvaltningBeregningRestTjeneste {
         if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) || åpneBehandlinger) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(50);
-        prosessTaskData.setProperty(AutomatiskGrunnbelopReguleringTask.MANUELL_KEY, "true");
+        prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
         taskTjeneste.lagre(prosessTaskData);
         return Response.ok().build();
     }

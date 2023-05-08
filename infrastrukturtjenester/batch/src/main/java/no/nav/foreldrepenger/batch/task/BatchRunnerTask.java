@@ -30,7 +30,6 @@ public class BatchRunnerTask implements ProsessTaskHandler {
     static final String BATCH_NAME = "batch.runner.name";
     static final String BATCH_PARAMS = "batch.runner.params";
     static final String BATCH_RUN_DATE = "batch.runner.onlydate";
-    static final String BATCH_NAME_RETRY_TASKS = "RETRY_FAILED_TASKS";
 
     private BatchSupportTjeneste batchSupportTjeneste;
 
@@ -48,11 +47,6 @@ public class BatchRunnerTask implements ProsessTaskHandler {
         var batchName = prosessTaskData.getPropertyValue(BATCH_NAME);
         var batchParams = prosessTaskData.getPropertyValue(BATCH_PARAMS);
         var batchDate = prosessTaskData.getPropertyValue(BATCH_RUN_DATE);
-        // TODO (jol) slett if + BATCH_NAME_RETRY_TASKS etter hamar
-        if (BATCH_NAME_RETRY_TASKS.equals(batchName)) {
-            batchSupportTjeneste.retryAlleProsessTasksFeilet();
-            return;
-        }
         if (batchDate != null && !batchDate.equals(LocalDate.now().toString())) {
             var logMessage = batchName + " dato passert " + batchDate;
             LOG.warn("Kjører ikke batch {}", logMessage);

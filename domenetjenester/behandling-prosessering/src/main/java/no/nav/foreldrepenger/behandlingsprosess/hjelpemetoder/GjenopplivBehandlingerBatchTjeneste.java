@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak.Automat
 @ApplicationScoped
 public class GjenopplivBehandlingerBatchTjeneste implements BatchTjeneste {
 
-    static final String BATCHNAME = "BVL097";
+    static final String BATCHNAME = "BVL007";
 
     private AutomatiskGjenopptagelseTjeneste automatiskGjenopptagelseTjeneste;
 
