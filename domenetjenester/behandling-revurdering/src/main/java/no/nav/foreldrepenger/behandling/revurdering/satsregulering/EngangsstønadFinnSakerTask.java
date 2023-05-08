@@ -66,8 +66,7 @@ public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
 
     private LocalDate finnGjeldendeSatsFomDato() {
         var gjeldende = esBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now());
-        var forrige = esBeregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
-            gjeldende.getPeriode().getFomDato().minusDays(1));
+        var forrige = esBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, gjeldende.getPeriode().getFomDato().minusDays(1));
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             LOG.warn("ESregulering Samme sats i periodene: gammel {} ny {}", forrige, gjeldende);
             return null;
