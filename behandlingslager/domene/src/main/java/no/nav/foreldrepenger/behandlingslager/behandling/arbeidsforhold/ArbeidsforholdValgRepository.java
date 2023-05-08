@@ -35,7 +35,7 @@ public class ArbeidsforholdValgRepository {
 
     public void lagre(ArbeidsforholdValg nyttNotat, Long behandlingId) {
         var eksisterendeNotatOpt = hentEksaktValg(behandlingId, nyttNotat.getArbeidsgiver().getIdentifikator(), nyttNotat.getArbeidsforholdRef());
-        if (eksisterendeNotatOpt.isPresent() && !eksisterendeNotatOpt.get().equals(nyttNotat)) {
+        if (eksisterendeNotatOpt.isPresent()) {
             var eksisterendeNotat = eksisterendeNotatOpt.get();
             eksisterendeNotat.setBegrunnelse(nyttNotat.getBegrunnelse());
             eksisterendeNotat.setVurdering(nyttNotat.getVurdering());
