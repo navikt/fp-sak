@@ -391,7 +391,8 @@ public class BehandlingRestTjeneste {
         var saksnummer = new Saksnummer(s.getVerdi());
 
         return behandlingDtoTjeneste.hentAnnenPartsGjeldendeYtelsesBehandling(saksnummer)
-            .map(behandling -> new AnnenPartBehandlingDto(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid()))
+            .map(behandling -> new AnnenPartBehandlingDto(behandling.getFagsak().getSaksnummer().getVerdi(),
+                behandling.getFagsak().getRelasjonsRolleType(), behandling.getUuid()))
             .map(apDto -> Response.ok().entity(apDto).build()).orElseGet(() -> Response.ok().build());
     }
 
