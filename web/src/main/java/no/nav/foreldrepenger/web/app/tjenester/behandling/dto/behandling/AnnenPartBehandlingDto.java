@@ -2,5 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import java.util.UUID;
 
-public record AnnenPartBehandlingDto(String saksnummer, UUID behandlingUuid) {
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+
+public record AnnenPartBehandlingDto(String saksnummer, RelasjonsRolleType relasjonsRolleType, UUID behandlingUuid) {
 }
