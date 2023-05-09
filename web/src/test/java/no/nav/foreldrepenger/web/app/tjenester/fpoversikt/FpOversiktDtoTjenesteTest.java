@@ -59,6 +59,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(vedtak.uttaksperioder()).hasSize(1);
         assertThat(vedtak.uttaksperioder().get(0).fom()).isEqualTo(fom);
         assertThat(vedtak.uttaksperioder().get(0).tom()).isEqualTo(tom);
+        assertThat(vedtak.uttaksperioder().get(0).resultat().type()).isEqualTo(FpSak.Uttaksperiode.Resultat.Type.INNVILGET);
 
         assertThat(((FpSak) dto).oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
     }

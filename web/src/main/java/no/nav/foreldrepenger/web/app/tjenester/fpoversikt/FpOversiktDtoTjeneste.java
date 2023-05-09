@@ -106,7 +106,13 @@ public class FpOversiktDtoTjeneste {
     }
 
     private FpSak.Uttaksperiode tilDto(ForeldrepengerUttakPeriode periode) {
-        return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom());
+        var type = switch (periode.getResultatType()) {
+            case INNVILGET -> FpSak.Uttaksperiode.Resultat.Type.INNVILGET;
+            case AVSLÅTT -> FpSak.Uttaksperiode.Resultat.Type.AVSLÅTT;
+            case MANUELL_BEHANDLING -> throw new IllegalStateException("Forventer ikke perioder under manuell behandling");
+        };
+        var resultat = new FpSak.Uttaksperiode.Resultat(type);
+        return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), resultat);
     }
 
     private FpSak.Vedtak.Dekningsgrad finnDekningsgrad(Fagsak fagsak) {
