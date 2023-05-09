@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -12,6 +13,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -69,8 +71,12 @@ public class FpOversiktDtoTjeneste {
     }
 
     private Optional<AktørId> oppgittAnnenPart(Fagsak fagsak) {
-        var førstegangsbehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD);
-        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(førstegangsbehandling.orElseThrow().getId());
+        var førstegangsbehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD)
+            .orElseGet(() -> behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())
+                .stream()
+                .max(Comparator.comparing(Behandling::getOpprettetDato))
+                .orElseThrow());
+        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(førstegangsbehandling.getId());
     }
 
     private Set<FpSak.Vedtak> finnVedtakForForeldrepenger(Fagsak fagsak) {
