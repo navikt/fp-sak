@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 
@@ -43,9 +42,7 @@ class HistorikkinnslagTjenesteTest {
     public void before() {
         historikkRepository = mock(HistorikkRepository.class);
         dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
-        var personinfoAdapter = mock(PersoninfoAdapter.class);
-        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste,
-            personinfoAdapter);
+        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste);
     }
 
     @Test

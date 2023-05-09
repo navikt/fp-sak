@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 
@@ -28,7 +27,6 @@ class HistorikkFraBrevKvitteringMapperTest {
         assertEquals(behandlingId, historikkinnslag.getBehandlingId());
         assertEquals(fagsakId, historikkinnslag.getFagsakId());
         assertEquals(HistorikkAktør.VEDTAKSLØSNINGEN, historikkinnslag.getAktør());
-        assertEquals(NavBrukerKjønn.UDEFINERT, historikkinnslag.getKjoenn());
 
         assertNotNull(historikkinnslag.getDokumentLinker());
         assertEquals(journalpostId, historikkinnslag.getDokumentLinker().get(0).getJournalpostId().getVerdi());
