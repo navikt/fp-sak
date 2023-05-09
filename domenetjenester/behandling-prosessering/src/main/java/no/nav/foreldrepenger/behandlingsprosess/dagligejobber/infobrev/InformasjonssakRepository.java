@@ -290,19 +290,46 @@ public class InformasjonssakRepository {
         return toOverlappData(resultatList);
     }
 
+    public List<Long> finnSakerSomKanMerkesNæring() {
+        var query =  entityManager.createNativeQuery("""
+           select distinct b.fagsak_id
+           from FPSAK.behandling b join fpsak.aksjonspunkt ap on b.id = ap.behandling_id join fpsak.fagsak f on b.fagsak_id = f.id
+           where f.fagsak_status <> 'AVSLU'
+           and ap.aksjonspunkt_def in ('5039', '5049')
+           and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value is not null)
+        """);
+        @SuppressWarnings("unchecked")
+        List<BigDecimal> resultatList = query.getResultList();
+        return resultatList.stream().map(BigDecimal::longValue).toList();
+    }
+
+    public List<Long> finnSakerSomKanMerkesDød() {
+        var query =  entityManager.createNativeQuery("""
+           select distinct b.fagsak_id
+           from FPSAK.behandling b join fpsak.behandling_arsak ba on b.id = ba.behandling_id join fpsak.fagsak f on b.fagsak_id = f.id
+           where b.BEHANDLENDE_ENHET in ('4867')
+           and (ba.behandling_arsak_type = 'RE-DØD' or ba.behandling_arsak_type like 'RE-HENDELSE-D%')
+           and f.fagsak_status <> 'AVSLU'
+           and b.behandling_status  <> 'AVSLU'
+           and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value in ('BOSATT_UTLAND', 'SAMMENSATT_KONTROLL'))
+        """);
+        @SuppressWarnings("unchecked")
+        List<BigDecimal> resultatList = query.getResultList();
+        return resultatList.stream().map(BigDecimal::longValue).toList();
+    }
 
 
-    public List<Long> finnAktiveBehandlingerUtenUtlandMarkering(String enhetId) {
+
+    public List<Long> finnAktiveBehandlingerSomSkalOppdateres() {
         var query =  entityManager.createNativeQuery("""
            select distinct b.id
            from FPSAK.behandling b join fpsak.aksjonspunkt ap on b.id = ap.behandling_id
-           where BEHANDLENDE_ENHET = :enhet
-           and aksjonspunkt_status = 'OPPR'
-           and behandling_type='BT-002'
-           and aksjonspunkt_def not in ('7008', '7003', '7013', '7030','7002', '7004')
-           and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value is not null)
-        """)
-            .setParameter("enhet", enhetId);
+           where b.BEHANDLING_TYPE in ('BT-002', 'BT-004', 'BT-003')
+           and ap.aksjonspunkt_status = 'OPPR'
+           and ap.aksjonspunkt_def < '7000'
+           and b.id not in (select vap.BEHANDLING_ID from fpsak.AKSJONSPUNKT vap where vap.AKSJONSPUNKT_STATUS = 'OPPR' and vap.AKSJONSPUNKT_DEF > '7000')
+           and b.fagsak_id in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value in ('DØD_DØDFØDSEL', 'SELVSTENDIG_NÆRING'))
+        """);
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
         return resultatList.stream().map(BigDecimal::longValue).toList();

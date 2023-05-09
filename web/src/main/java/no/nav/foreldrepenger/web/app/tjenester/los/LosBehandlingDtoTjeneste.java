@@ -222,6 +222,8 @@ public class LosBehandlingDtoTjeneste {
             case EØS_BOSATT_NORGE -> LosFagsakEgenskaperDto.FagsakMarkering.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> LosFagsakEgenskaperDto.FagsakMarkering.BOSATT_UTLAND;
             case SAMMENSATT_KONTROLL -> LosFagsakEgenskaperDto.FagsakMarkering.SAMMENSATT_KONTROLL;
+            case DØD_DØDFØDSEL -> LosFagsakEgenskaperDto.FagsakMarkering.DØD;
+            case SELVSTENDIG_NÆRING -> LosFagsakEgenskaperDto.FagsakMarkering.NÆRING;
         };
     }
 

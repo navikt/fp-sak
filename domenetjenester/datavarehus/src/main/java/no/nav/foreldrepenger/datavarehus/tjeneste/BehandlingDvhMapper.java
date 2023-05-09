@@ -57,7 +57,7 @@ public class BehandlingDvhMapper {
             .fagsakId(behandling.getFagsakId())
             .funksjonellTid(LocalDateTime.now())
             .opprettetDato(behandling.getOpprettetDato().toLocalDate())
-            .utlandstilsnitt(FagsakMarkering.SAMMENSATT_KONTROLL.equals(fagsakMarkering) ? FagsakMarkering.NASJONAL.name() : fagsakMarkering.name())
+            .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
             .toTrinnsBehandling(behandling.isToTrinnsBehandling())
             .vedtakId(vedtak.map(BehandlingVedtak::getId).orElse(null))
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
@@ -70,6 +70,11 @@ public class BehandlingDvhMapper {
             .medMottattTidspunkt(mottattTidspunkt)
             .medFoersteStoenadsdag(CommonDvhMapper.foersteStoenadsdag(uttak, skjæringstidspunkt))
             .build();
+    }
+
+    private static String getUtlandstilsnitt(FagsakMarkering fagsakMarkering) {
+        return FagsakMarkering.BOSATT_UTLAND.equals(fagsakMarkering) || FagsakMarkering.EØS_BOSATT_NORGE.equals(fagsakMarkering) ?
+            fagsakMarkering.name() : FagsakMarkering.NASJONAL.name();
     }
 
     /**

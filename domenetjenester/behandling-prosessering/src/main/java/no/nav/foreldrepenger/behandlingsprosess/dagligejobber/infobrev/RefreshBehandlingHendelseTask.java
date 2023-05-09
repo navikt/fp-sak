@@ -8,17 +8,16 @@ import no.nav.foreldrepenger.behandling.impl.PubliserBehandlingHendelseTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask("oppgavebehandling.oppdater.utland")
+@ProsessTask("oppgavebehandling.oppdater.markertsak")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
-
-    public static final String HENDELSE_TYPE = "hendelseType";
+class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
 
     private final ProsessTaskTjeneste taskTjeneste;
     private final BehandlingRepository behandlingRepository;
@@ -26,10 +25,10 @@ class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
     private final InformasjonssakRepository informasjonssakRepository;
 
     @Inject
-    public RefreshUtlandBehandlingHendelseTask(ProsessTaskTjeneste taskTjeneste,
-                                               BehandlingRepository behandlingRepository,
-                                               FagsakEgenskapRepository fagsakEgenskapRepository,
-                                               InformasjonssakRepository informasjonssakRepository) {
+    public RefreshBehandlingHendelseTask(ProsessTaskTjeneste taskTjeneste,
+                                         BehandlingRepository behandlingRepository,
+                                         FagsakEgenskapRepository fagsakEgenskapRepository,
+                                         InformasjonssakRepository informasjonssakRepository) {
         this.taskTjeneste =taskTjeneste;
         this.informasjonssakRepository = informasjonssakRepository;
         this.behandlingRepository = behandlingRepository;
@@ -38,8 +37,15 @@ class RefreshUtlandBehandlingHendelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        informasjonssakRepository.finnAktiveBehandlingerUtenUtlandMarkering("4806")
-            .forEach(fsid -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fsid, fagsakEgenskapRepository.finnFagsakMarkering(fsid).orElseThrow()));
+        // Fjernes etter initiell merking
+        var død = informasjonssakRepository.finnSakerSomKanMerkesDød();
+        informasjonssakRepository.finnSakerSomKanMerkesNæring().stream()
+            .filter(f -> !død.contains(f))
+            .forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.SELVSTENDIG_NÆRING));
+        død.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.DØD_DØDFØDSEL));
+
+        // Generell trigger for oppdatering
+        informasjonssakRepository.finnAktiveBehandlingerSomSkalOppdateres().forEach(this::opprettProsessTask);
     }
 
     private void opprettProsessTask(Long behandlingId) {

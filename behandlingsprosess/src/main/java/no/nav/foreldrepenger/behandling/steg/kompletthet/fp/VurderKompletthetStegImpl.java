@@ -77,8 +77,8 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
         if (!forsendelseMottatt.erOppfylt() && !VurderKompletthetStegFelles.autopunktAlleredeUtført(AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, behandling)) {
             // kompletthetsresultat kan være langt fram i tid dersom tidlig fødsel
             var brukfrist = kanPassereKompletthet(behandling) && !forsendelseMottatt.erFristUtløpt()
-                && forsendelseMottatt.ventefrist().isAfter(LocalDateTime.now().plusDays(3)) ?
-                LocalDate.now().plusDays(3).atStartOfDay() : forsendelseMottatt.ventefrist();
+                && forsendelseMottatt.ventefrist().isAfter(LocalDateTime.now().plusWeeks(1)) ?
+                LocalDate.now().plusWeeks(1).atStartOfDay() : forsendelseMottatt.ventefrist();
             return VurderKompletthetStegFelles.evaluerUoppfylt(forsendelseMottatt, brukfrist, AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
