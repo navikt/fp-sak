@@ -14,7 +14,13 @@ record FpSak(String saksnummer, String aktørId, Set<Vedtak> vedtakene, String o
         }
     }
 
-    record Uttaksperiode(LocalDate fom, LocalDate tom) {
+    record Uttaksperiode(LocalDate fom, LocalDate tom, Resultat resultat) {
+        record Resultat(Type type) {
+            enum Type {
+                INNVILGET,
+                AVSLÅTT
+            }
+        }
     }
 
     @Override
