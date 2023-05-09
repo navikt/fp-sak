@@ -8,7 +8,9 @@ public enum FagsakMarkering implements EgenskapVerdi {
     NASJONAL,
     EØS_BOSATT_NORGE,
     BOSATT_UTLAND,
-    SAMMENSATT_KONTROLL;
+    SAMMENSATT_KONTROLL,
+    DØD_DØDFØDSEL,
+    SELVSTENDIG_NÆRING;
 
     @Override
     public String getVerdi() {

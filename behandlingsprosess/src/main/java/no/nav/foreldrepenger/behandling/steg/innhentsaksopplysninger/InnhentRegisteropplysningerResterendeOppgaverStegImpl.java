@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,7 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
@@ -39,6 +41,9 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements BehandlingSteg {
 
+    private static final Set<FagsakMarkering> PRIORITERT = Set.of(FagsakMarkering.BOSATT_UTLAND, FagsakMarkering.SAMMENSATT_KONTROLL,
+        FagsakMarkering.DØD_DØDFØDSEL);
+
     private BehandlingRepository behandlingRepository;
     private FagsakTjeneste fagsakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -46,27 +51,29 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private KompletthetModell kompletthetModell;
     private BehandlendeEnhetTjeneste enhetTjeneste;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     InnhentRegisteropplysningerResterendeOppgaverStegImpl() {
         // for CDI proxy
     }
 
     @Inject
-    public InnhentRegisteropplysningerResterendeOppgaverStegImpl(BehandlingRepositoryProvider repositoryProvider,
+    public InnhentRegisteropplysningerResterendeOppgaverStegImpl(BehandlingRepository behandlingRepository,
             FagsakTjeneste fagsakTjeneste,
             PersonopplysningTjeneste personopplysningTjeneste,
             FamilieHendelseTjeneste familieHendelseTjeneste,
             BehandlendeEnhetTjeneste enhetTjeneste,
             KompletthetModell kompletthetModell,
+            FagsakEgenskapRepository fagsakEgenskapRepository,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
         this.fagsakTjeneste = fagsakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.kompletthetModell = kompletthetModell;
         this.enhetTjeneste = enhetTjeneste;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     @Override
@@ -75,6 +82,8 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+
+        oppdaterFagsakEgenskaper(behandling);
 
         if (!skalPassereUtenBrev(behandling)) {
             var etterlysIM = kompletthetModell.vurderKompletthet(ref, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
@@ -109,6 +118,18 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         return behandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(BehandlingÅrsakType.årsakerRelatertTilDød()::contains);
+    }
+
+    private void oppdaterFagsakEgenskaper(Behandling behandling) {
+        var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
+        if (eksisterende.filter(PRIORITERT::contains).isPresent()) {
+            return;
+        }
+        var dødsrelatert = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType)
+            .anyMatch(bat -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(bat));
+        if (dødsrelatert) {
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), FagsakMarkering.DØD_DØDFØDSEL);
+        }
     }
 
 }
