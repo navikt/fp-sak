@@ -12,11 +12,14 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
@@ -25,21 +28,23 @@ public class FpOversiktDtoTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
 
-
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository vedtakRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
 
     @Inject
     public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
-                                  BehandlingVedtakRepository vedtakRepository,
-                                  FagsakRelasjonRepository fagsakRelasjonRepository,
-                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                 BehandlingVedtakRepository vedtakRepository,
+                                 FagsakRelasjonRepository fagsakRelasjonRepository,
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                 PersonopplysningTjeneste personopplysningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.vedtakRepository = vedtakRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
+        this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
     FpOversiktDtoTjeneste() {
@@ -56,10 +61,16 @@ public class FpOversiktDtoTjeneste {
         var aktørId = behandling.getAktørId().getId();
         return switch (fagsak.getYtelseType()) {
             case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId);
-            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, finnVedtakForForeldrepenger(fagsak));
+            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, finnVedtakForForeldrepenger(fagsak),
+                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null));
             case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId);
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
         };
+    }
+
+    private Optional<AktørId> oppgittAnnenPart(Fagsak fagsak) {
+        var førstegangsbehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD);
+        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(førstegangsbehandling.orElseThrow().getId());
     }
 
     private Set<FpSak.Vedtak> finnVedtakForForeldrepenger(Fagsak fagsak) {

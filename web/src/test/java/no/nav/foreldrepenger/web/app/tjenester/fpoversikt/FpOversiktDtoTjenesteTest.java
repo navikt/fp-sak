@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @CdiDbAwareTest
 class FpOversiktDtoTjenesteTest {
@@ -34,6 +36,9 @@ class FpOversiktDtoTjenesteTest {
     void henter_sak_med_foreldrepenger() {
         var vedtakstidspunkt = LocalDateTime.now();
         var behandling = opprettAvsluttetBehandling(vedtakstidspunkt, Dekningsgrad._80);
+        var annenPartAktørId = AktørId.dummy();
+        repositoryProvider.getPersonopplysningRepository().lagre(behandling.getId(),
+            new OppgittAnnenPartBuilder().medAktørId(annenPartAktørId).build());
 
         var uttak = new UttakResultatPerioderEntitet();
         var fom = LocalDate.of(2023, 3, 5);
@@ -54,6 +59,8 @@ class FpOversiktDtoTjenesteTest {
         assertThat(vedtak.uttaksperioder()).hasSize(1);
         assertThat(vedtak.uttaksperioder().get(0).fom()).isEqualTo(fom);
         assertThat(vedtak.uttaksperioder().get(0).tom()).isEqualTo(tom);
+
+        assertThat(((FpSak) dto).oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
     }
 
     private Behandling opprettAvsluttetBehandling(LocalDateTime vedtakstidspunkt, Dekningsgrad dekningsgrad) {
