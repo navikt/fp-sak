@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -89,6 +90,7 @@ public class HentKodeverkTjeneste {
         Map<String, Collection<? extends Kodeverdi>> map = new LinkedHashMap<>();
 
         map.put(RelatertYtelseTilstand.class.getSimpleName(), RelatertYtelseTilstand.kodeMap().values());
+        map.put(RelasjonsRolleType.class.getSimpleName(), RelasjonsRolleType.kodeMap().values());
         map.put(FagsakStatus.class.getSimpleName(), FagsakStatus.kodeMap().values());
         map.put(RelatertYtelseType.class.getSimpleName(), RelatertYtelseType.kodeMap().values());
         map.put(BehandlingÅrsakType.class.getSimpleName(), BehandlingÅrsakType.kodeMap().values());

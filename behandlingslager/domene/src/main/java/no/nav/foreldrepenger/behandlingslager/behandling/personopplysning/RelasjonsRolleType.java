@@ -15,11 +15,11 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum RelasjonsRolleType implements Kodeverdi {
 
-    EKTE("EKTE", "Ektefelle til"),
-    BARN("BARN", "Barn av"),
-    FARA("FARA", "Far til"),
-    MORA("MORA", "Mor til"),
-    REGISTRERT_PARTNER("REPA", "Registrert partner med"),
+    EKTE("EKTE", "Ektefelle"),
+    BARN("BARN", "Barn"),
+    FARA("FARA", "Far"),
+    MORA("MORA", "Mor"),
+    REGISTRERT_PARTNER("REPA", "Registrert partner"),
     MEDMOR("MMOR", "Medmor"),
 
     // Mulig verdi i PO_RELASJON
