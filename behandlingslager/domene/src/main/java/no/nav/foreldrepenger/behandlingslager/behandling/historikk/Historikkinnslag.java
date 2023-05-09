@@ -15,7 +15,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 
 @Entity(name = "Historikkinnslag")
@@ -45,10 +44,6 @@ public class Historikkinnslag extends BaseEntitet {
 
     @OneToMany(mappedBy = "historikkinnslag")
     private List<HistorikkinnslagDel> historikkinnslagDeler = new ArrayList<>();
-
-    @Convert(converter = NavBrukerKjønn.KodeverdiConverter.class)
-    @Column(name="bruker_kjoenn", nullable = false, updatable = false)
-    private NavBrukerKjønn kjoenn = NavBrukerKjønn.UDEFINERT;
 
     public Long getId() {
         return id;
@@ -90,14 +85,6 @@ public class Historikkinnslag extends BaseEntitet {
 
     public void setDokumentLinker(List<HistorikkinnslagDokumentLink> dokumentLinker) {
         this.dokumentLinker = dokumentLinker;
-    }
-
-    public NavBrukerKjønn getKjoenn() {
-        return kjoenn;
-    }
-
-    public void setKjoenn(NavBrukerKjønn kjoenn) {
-        this.kjoenn = kjoenn;
     }
 
     public Long getFagsakId() {
@@ -144,11 +131,6 @@ public class Historikkinnslag extends BaseEntitet {
             return this;
         }
 
-        public Builder medKjoenn(NavBrukerKjønn kjoenn) {
-            historikkinnslag.kjoenn = kjoenn;
-            return this;
-        }
-
         public Historikkinnslag build() {
             return historikkinnslag;
         }
@@ -166,12 +148,11 @@ public class Historikkinnslag extends BaseEntitet {
             Objects.equals(fagsakId, that.fagsakId) &&
             Objects.equals(getAktør(), that.getAktør()) &&
             Objects.equals(type, that.type) &&
-            Objects.equals(getDokumentLinker(), that.getDokumentLinker()) &&
-            Objects.equals(kjoenn, that.kjoenn);
+            Objects.equals(getDokumentLinker(), that.getDokumentLinker());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingId, fagsakId, getAktør(), type, getDokumentLinker(), kjoenn);
+        return Objects.hash(behandlingId, fagsakId, getAktør(), type, getDokumentLinker());
     }
 }

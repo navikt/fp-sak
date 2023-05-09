@@ -7,7 +7,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -19,11 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
@@ -38,7 +35,6 @@ public class HistorikkinnslagTjeneste {
     private static final String ETTERSENDELSE = "Ettersendelse";
     private HistorikkRepository historikkRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
-    private PersoninfoAdapter personinfoAdapter;
 
     HistorikkinnslagTjeneste() {
         // for CDI proxy
@@ -46,11 +42,9 @@ public class HistorikkinnslagTjeneste {
 
     @Inject
     public HistorikkinnslagTjeneste(HistorikkRepository historikkRepository,
-                                    DokumentArkivTjeneste dokumentArkivTjeneste,
-                                    PersoninfoAdapter personinfoAdapter) {
+                                    DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.historikkRepository = historikkRepository;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
-        this.personinfoAdapter = personinfoAdapter;
     }
 
     public void opprettHistorikkinnslag(Behandling behandling, JournalpostId journalpostId, Boolean selvOmLoggetTidligere, boolean elektronisk, boolean erIM) {
@@ -60,7 +54,6 @@ public class HistorikkinnslagTjeneste {
 
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
-        historikkinnslag.setKjoenn(setKjønn(behandling));
         historikkinnslag.setType(HistorikkinnslagType.BEH_STARTET);
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());
@@ -72,16 +65,6 @@ public class HistorikkinnslagTjeneste {
         builder.build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
-    }
-
-    private NavBrukerKjønn setKjønn(Behandling behandling) {
-        if (RelasjonsRolleType.UDEFINERT.equals(behandling.getFagsak().getRelasjonsRolleType())) {
-            var personinfo = personinfoAdapter.hentBrukerKjønnForAktør(behandling.getAktørId()).orElse(null);
-            if (personinfo != null) {
-                return personinfo.getKjønn();
-            }
-        }
-        return NavBrukerKjønn.UDEFINERT;
     }
 
     private boolean historikkinnslagForBehandlingStartetErLoggetTidligere(Long behandlingId, HistorikkinnslagType historikkinnslagType) {

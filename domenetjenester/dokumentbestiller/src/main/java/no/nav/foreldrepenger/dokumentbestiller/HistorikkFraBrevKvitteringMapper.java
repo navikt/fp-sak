@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.dokumentbestiller;
 
 import java.util.List;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
@@ -19,7 +18,6 @@ public class HistorikkFraBrevKvitteringMapper {
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .medKjoenn(NavBrukerKjønn.UDEFINERT)
             .medType(HistorikkinnslagType.BREV_SENT)
             .build();
 

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 
@@ -14,7 +13,6 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
     private UUID behandlingUuid;
     private HistorikkinnslagType type;
     private HistorikkAktør aktoer;
-    private NavBrukerKjønn kjoenn;
     private String opprettetAv;
     private LocalDateTime opprettetTidspunkt;
     private List<HistorikkInnslagDokumentLinkDto> dokumentLinks;
@@ -76,14 +74,6 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
         this.aktoer = aktoer;
     }
 
-    public NavBrukerKjønn getKjoenn() {
-        return kjoenn;
-    }
-
-    public void setKjoenn(NavBrukerKjønn kjoenn) {
-        this.kjoenn = kjoenn;
-    }
-
     public List<HistorikkinnslagDelDto> getHistorikkinnslagDeler() {
         return historikkinnslagDeler;
     }
@@ -113,7 +103,6 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
                 Objects.equals(getBehandlingUuid(), that.getBehandlingUuid()) &&
                 Objects.equals(getType(), that.getType()) &&
                 Objects.equals(getAktoer(), that.getAktoer()) &&
-                Objects.equals(getKjoenn(), that.getKjoenn()) &&
                 Objects.equals(getOpprettetAv(), that.getOpprettetAv()) &&
                 Objects.equals(getOpprettetTidspunkt(), that.getOpprettetTidspunkt()) &&
                 Objects.equals(getDokumentLinks(), that.getDokumentLinks());
@@ -122,6 +111,6 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
     @Override
     public int hashCode() {
         return Objects.hash(getBehandlingId(), getBehandlingUuid(), getType(), getAktoer(),
-            getKjoenn(), getOpprettetAv(), getOpprettetTidspunkt(), getDokumentLinks());
+            getOpprettetAv(), getOpprettetTidspunkt(), getDokumentLinks());
     }
 }
