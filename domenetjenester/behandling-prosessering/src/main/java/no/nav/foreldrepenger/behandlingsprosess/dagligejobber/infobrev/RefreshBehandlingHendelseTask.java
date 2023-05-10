@@ -38,11 +38,9 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         // Fjernes etter initiell merking
-        var død = informasjonssakRepository.finnSakerSomKanMerkesDød();
-        informasjonssakRepository.finnSakerSomKanMerkesNæring().stream()
-            .filter(f -> !død.contains(f))
+        informasjonssakRepository.finnSakerSomKanMerkesNæring()
             .forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.SELVSTENDIG_NÆRING));
-        død.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.DØD_DØDFØDSEL));
+
 
         // Generell trigger for oppdatering
         informasjonssakRepository.finnAktiveBehandlingerSomSkalOppdateres().forEach(this::opprettProsessTask);
