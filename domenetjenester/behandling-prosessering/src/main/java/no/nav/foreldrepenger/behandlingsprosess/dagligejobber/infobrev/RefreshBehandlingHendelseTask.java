@@ -40,8 +40,7 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
         // Fjernes etter initiell merking
         informasjonssakRepository.finnSakerSomKanMerkesNæring()
             .forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.SELVSTENDIG_NÆRING));
-
-
+        
         // Generell trigger for oppdatering
         informasjonssakRepository.finnAktiveBehandlingerSomSkalOppdateres().forEach(this::opprettProsessTask);
     }
