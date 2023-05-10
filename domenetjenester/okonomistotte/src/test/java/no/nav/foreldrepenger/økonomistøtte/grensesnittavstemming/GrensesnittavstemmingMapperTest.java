@@ -58,7 +58,7 @@ class GrensesnittavstemmingMapperTest {
         var oppdragskontroll = opprettOppdrag(null, kodeFagområde);
 
         oppdragsliste = Collections.singletonList(oppdragskontroll.getOppdrag110Liste().get(0));
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
     }
 
     private Oppdragskontroll opprettOppdrag(Alvorlighetsgrad status, KodeFagområde fagområde) {
@@ -117,7 +117,7 @@ class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
     }
 
     private void setupForStørreDatamengder(KodeFagområde kodeFagområde) {
@@ -136,7 +136,7 @@ class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
     }
 
     private void opprettOppdragMedFlereOppdrag110ForForskjelligeFagområder() {
@@ -150,7 +150,7 @@ class GrensesnittavstemmingMapperTest {
 
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
     }
 
     @Test
@@ -259,7 +259,7 @@ class GrensesnittavstemmingMapperTest {
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
         //Act
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.name());
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
 
         var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
 

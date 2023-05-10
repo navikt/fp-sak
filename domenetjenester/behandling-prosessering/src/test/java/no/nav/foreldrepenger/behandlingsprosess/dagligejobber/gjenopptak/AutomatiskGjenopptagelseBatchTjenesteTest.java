@@ -4,13 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
+import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.EmptyBatchArguments;
 
 class AutomatiskGjenopptagelseBatchTjenesteTest {
 
@@ -19,7 +16,6 @@ class AutomatiskGjenopptagelseBatchTjenesteTest {
     private AutomatiskGjenopptagelseTjeneste mockTjeneste;
 
     private static final String BATCHNAME = AutomatiskGjenopptagelseBatchTjeneste.BATCHNAME;
-    private static final BatchArguments ARGUMENTS = new EmptyBatchArguments(Map.of());
 
     @BeforeEach
     public void setup() {
@@ -34,7 +30,7 @@ class AutomatiskGjenopptagelseBatchTjenesteTest {
         when(mockTjeneste.gjenopptaBehandlinger()).thenReturn(response);
 
         // Act
-        var batchStatus = batchTjeneste.launch(ARGUMENTS);
+        var batchStatus = batchTjeneste.launch(new Properties());
 
         // Assert
         assertThat(batchStatus).isEqualTo(BATCHNAME + response);

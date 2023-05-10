@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.batch;
 
+import java.util.Properties;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
@@ -42,7 +43,7 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public String launch(BatchArguments arguments) {
+    public String launch(Properties properties) {
         // Etterkontrolltidspunkt er allerede satt 60D fram i EK-repo
         var kontrollKandidater = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 

@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Map;
+import java.time.Period;
+import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,7 +14,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -31,16 +33,13 @@ public class SendInformasjonsbrevPåminnelseBatchTjeneste implements BatchTjenes
     }
 
     @Override
-    public SendInformasjonsbrevBatchArguments createArguments(Map<String, String> jobArguments) {
-        return new SendInformasjonsbrevBatchArguments(jobArguments, -130); // Ser etter fødsler som skjedde 130 uker tilbake (ca 2.5 år)
-    }
-
-    @Override
-    public String launch(BatchArguments arguments) {
-        var batchArguments = (SendInformasjonsbrevBatchArguments) arguments;
-        LOG.info("Ser etter aktuelle saker med barn født mellom {} og {}", batchArguments.getFom(), batchArguments.getTom());
-        var saker = informasjonssakRepository.finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(
-            batchArguments.getFom(), batchArguments.getTom());
+    public String launch(Properties properties) {
+        var periode = lagPeriodeEvtOppTilIDag(properties, Period.ofWeeks(-130));
+        if (DAYS.between(periode.fom(), periode.tom()) > 366) {
+            throw new IllegalArgumentException("Informasjonsbrev påminnelse: For mange dager");
+        }
+        LOG.info("Ser etter aktuelle saker med barn født mellom {} og {}", periode.fom(), periode.tom());
+        var saker = informasjonssakRepository.finnSakerDerMedforelderIkkeHarSøktOgBarnetBleFødtInnenforIntervall(periode.fom(), periode.tom());
         var baseline = LocalTime.now();
         saker.forEach(sak -> {
             LOG.info("Oppretter informasjonsbrev-påminnelse task for {}", sak.getAktørId().getId());

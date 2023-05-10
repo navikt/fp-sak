@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,7 +12,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
@@ -24,8 +25,10 @@ import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.produce
 @ApplicationScoped
 public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
 
-    private static final String BATCHNAVN = "BVL001";
     private static final Logger LOG = LoggerFactory.getLogger(GrensesnittavstemmingBatchTjeneste.class);
+
+    private static final String BATCHNAVN = "BVL001";
+
     private ØkonomioppdragRepository økonomioppdragRepository;
     private GrensesnittavstemmingJmsProducer grensesnittavstemmingJmsProducer;
 
@@ -36,8 +39,8 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
         this.grensesnittavstemmingJmsProducer = grensesnittavstemmingJmsProducer;
     }
 
-    private void utførGrensesnittavstemming(LocalDate fomDato, LocalDate tomDato, String fagområde) {
-        var oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.valueOf(fagområde));
+    private void utførGrensesnittavstemming(LocalDate fomDato, LocalDate tomDato, KodeFagområde fagområde) {
+        var oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, fagområde);
         if (oppdragsliste.isEmpty()) {
             LOG.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde);
             return;
@@ -65,14 +68,13 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public GrensesnittavstemmingBatchArguments createArguments(Map<String, String> jobArguments) {
-        return new GrensesnittavstemmingBatchArguments(jobArguments);
-    }
-
-    @Override
-    public String launch(BatchArguments arguments) {
-        var batchArguments = (GrensesnittavstemmingBatchArguments) arguments;
-        utførGrensesnittavstemming(batchArguments.getFom(), batchArguments.getTom(), batchArguments.getFagområde());
+    public String launch(Properties properties) {
+        var fagområde = KodeFagområde.valueOf(properties.getProperty(FAGOMRÅDE_KEY));
+        var periode = lagPeriodeEvtOppTilIDag(properties);
+        if (DAYS.between(periode.fom(), periode.tom()) > 7) {
+            throw new IllegalArgumentException("Grensesnittavstemming: For mange dager");
+        }
+        utførGrensesnittavstemming(periode.fom(), periode.tom(), fagområde);
         return BATCHNAVN + "-" + UUID.randomUUID();
     }
 

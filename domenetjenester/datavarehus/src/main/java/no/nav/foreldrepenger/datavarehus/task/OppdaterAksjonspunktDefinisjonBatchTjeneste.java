@@ -2,11 +2,11 @@ package no.nav.foreldrepenger.datavarehus.task;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDefDvh;
@@ -31,7 +31,7 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
     }
 
     @Override
-    public String launch(BatchArguments arguments) {
+    public String launch(Properties properties) {
         oppdaterAksjonspunktDefinisjonDVH();
         return BATCHNAME + EXECUTION_ID_SEPARATOR + LocalDate.now().toString();
     }

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
+import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 
@@ -32,13 +33,28 @@ class BatchSchedulerTaskTest {
         task.doTask(taskData);
         var props = testsupport.getTaskDataList();
         var matches = props.stream()
-                .map(t -> t.getProperty(BatchRunnerTask.BATCH_PARAMS))
+                .map(t -> t.getProperty(BatchTjeneste.ANTALL_DAGER_KEY))
                 .filter(Objects::nonNull)
-                .filter(s -> s.matches("[a-zA-Z,= ]*antallDager=[1-7]"))
+                .filter(s -> s.matches("[1-7]"))
                 .toList();
         if (props.size() > 1) {
             System.out.println(matches);
             assertThat(matches).hasSize(7); // Antall dagsensitive batcher.
+        }
+    }
+
+    @Test
+    void normal_dag_skal_ha_5_tasks_med_fagomraade() {
+        // Arrange
+        task.doTask(taskData);
+        var props = testsupport.getTaskDataList();
+        var matches = props.stream()
+            .map(t -> t.getProperty(BatchTjeneste.FAGOMRÅDE_KEY))
+            .filter(Objects::nonNull)
+            .toList();
+        if (props.size() > 1) {
+            System.out.println(matches);
+            assertThat(matches).hasSize(5); // Antall avstemminger.
         }
     }
 

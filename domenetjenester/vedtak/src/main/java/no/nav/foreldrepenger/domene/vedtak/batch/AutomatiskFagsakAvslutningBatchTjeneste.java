@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
 import java.time.LocalDate;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 
 /**
@@ -30,7 +30,7 @@ public class AutomatiskFagsakAvslutningBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public String launch(BatchArguments arguments) {
+    public String launch(Properties properties) {
         final var avsluttFagsakGruppe = automatiskFagsakAvslutningTjeneste.avsluttFagsaker(BATCHNAME, LocalDate.now());
         return BATCHNAME + "-" + (avsluttFagsakGruppe != null ? avsluttFagsakGruppe : UUID.randomUUID().toString());
     }
