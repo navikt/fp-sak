@@ -35,7 +35,8 @@ class FpOversiktDtoTjenesteTest {
     @Test
     void henter_sak_med_foreldrepenger() {
         var vedtakstidspunkt = LocalDateTime.now();
-        var behandling = opprettAvsluttetBehandling(vedtakstidspunkt, Dekningsgrad._80);
+        var fødselsdato = LocalDate.now();
+        var behandling = opprettAvsluttetBehandling(vedtakstidspunkt, Dekningsgrad._80, fødselsdato);
         var annenPartAktørId = AktørId.dummy();
         repositoryProvider.getPersonopplysningRepository().lagre(behandling.getId(),
             new OppgittAnnenPartBuilder().medAktørId(annenPartAktørId).build());
@@ -48,12 +49,11 @@ class FpOversiktDtoTjenesteTest {
         uttak.leggTilPeriode(periode.build());
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
 
-        var dto = tjeneste.hentSak(behandling.getUuid());
-        assertThat(dto).isInstanceOf(FpSak.class);
-        assertThat(((FpSak) dto).saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
-        assertThat(((FpSak) dto).aktørId()).isEqualTo(behandling.getAktørId().getId());
-        assertThat(((FpSak) dto).vedtakene()).hasSize(1);
-        var vedtak = ((FpSak) dto).vedtakene().stream().findFirst().orElseThrow();
+        var dto = (FpSak) tjeneste.hentSak(behandling.getUuid());
+        assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
+        assertThat(dto.vedtakene()).hasSize(1);
+        var vedtak = dto.vedtakene().stream().findFirst().orElseThrow();
         assertThat(vedtak.dekningsgrad()).isEqualTo(FpSak.Vedtak.Dekningsgrad.ÅTTI);
         assertThat(vedtak.vedtakstidspunkt()).isEqualTo(vedtakstidspunkt);
         assertThat(vedtak.uttaksperioder()).hasSize(1);
@@ -61,11 +61,18 @@ class FpOversiktDtoTjenesteTest {
         assertThat(vedtak.uttaksperioder().get(0).tom()).isEqualTo(tom);
         assertThat(vedtak.uttaksperioder().get(0).resultat().type()).isEqualTo(FpSak.Uttaksperiode.Resultat.Type.INNVILGET);
 
-        assertThat(((FpSak) dto).oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
+        assertThat(dto.oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
+
+        var familieHendelse = dto.familieHendelse();
+        assertThat(familieHendelse.fødselsdato()).isEqualTo(fødselsdato);
+        assertThat(familieHendelse.antallBarn()).isEqualTo(1);
+        assertThat(familieHendelse.termindato()).isNull();
+        assertThat(familieHendelse.omsorgsovertakelse()).isNull();
     }
 
-    private Behandling opprettAvsluttetBehandling(LocalDateTime vedtakstidspunkt, Dekningsgrad dekningsgrad) {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+    private Behandling opprettAvsluttetBehandling(LocalDateTime vedtakstidspunkt, Dekningsgrad dekningsgrad, LocalDate fødselsdato) {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFødselAdopsjonsdato(fødselsdato);
 
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(vedtakstidspunkt);
         var behandling = scenario.medBehandlingsresultat(Behandlingsresultat.builder()

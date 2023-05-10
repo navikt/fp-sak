@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
@@ -35,18 +37,21 @@ public class FpOversiktDtoTjeneste {
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @Inject
     public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
                                  BehandlingVedtakRepository vedtakRepository,
                                  FagsakRelasjonRepository fagsakRelasjonRepository,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                 PersonopplysningTjeneste personopplysningTjeneste) {
+                                 PersonopplysningTjeneste personopplysningTjeneste,
+                                 FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.vedtakRepository = vedtakRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
     FpOversiktDtoTjeneste() {
@@ -61,17 +66,58 @@ public class FpOversiktDtoTjeneste {
 
         var saksnummer = fagsak.getSaksnummer().getVerdi();
         var aktørId = behandling.getAktørId().getId();
+
+        var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(fagsak);
+        var åpenYtelseBehandling = hentÅpenBehandling(fagsak);
+        var familieHendelse = finnFamilieHendelse(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
         return switch (fagsak.getYtelseType()) {
-            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId);
-            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, finnVedtakForForeldrepenger(fagsak),
+            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse);
+            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, finnVedtakForForeldrepenger(fagsak),
                 oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null));
-            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId);
+            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse);
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
         };
     }
 
+    private Sak.FamilieHendelse finnFamilieHendelse(Fagsak fagsak,
+                                                    Optional<BehandlingVedtak> gjeldendeVedtak,
+                                                    Optional<Behandling> åpenYtelseBehandling) {
+        if (gjeldendeVedtak.isPresent()) {
+            return finnGjeldendeFamilieHendelse(gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId());
+        }
+        if (åpenYtelseBehandling.isPresent()) {
+            return finnOppgittFamilieHendelse(åpenYtelseBehandling.get().getId()).orElse(null);
+        }
+        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        return sisteBehandling.flatMap(b -> finnOppgittFamilieHendelse(b.getId())).orElse(null);
+    }
+
+    private Optional<Behandling> hentÅpenBehandling(Fagsak fagsak) {
+        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
+            .stream()
+            .filter(b -> b.erYtelseBehandling())
+            .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
+    }
+
+    private Optional<Sak.FamilieHendelse> finnOppgittFamilieHendelse(Long behandling) {
+        return familieHendelseTjeneste.finnAggregat(behandling).map(agg -> tilDto(agg.getSøknadVersjon()));
+    }
+
+    private Sak.FamilieHendelse finnGjeldendeFamilieHendelse(Long behandling) {
+        var aggregat = familieHendelseTjeneste.hentAggregat(behandling);
+        return tilDto(aggregat.getGjeldendeVersjon());
+    }
+
+    private static Sak.FamilieHendelse tilDto(FamilieHendelseEntitet familieHendelse) {
+        return new Sak.FamilieHendelse(familieHendelse.getFødselsdato().orElse(null),
+            familieHendelse.getTerminbekreftelse().map(tb -> tb.getTermindato()).orElse(null),
+            familieHendelse.getAntallBarn() == null ? 0 : familieHendelse.getAntallBarn(),
+            familieHendelse.getAdopsjon().map(a -> a.getOmsorgsovertakelseDato()).orElse(null));
+    }
+
     private Optional<AktørId> oppgittAnnenPart(Fagsak fagsak) {
-        var førstegangsbehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD)
+        var førstegangsbehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
+                BehandlingType.FØRSTEGANGSSØKNAD)
             .orElseGet(() -> behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())
                 .stream()
                 .max(Comparator.comparing(Behandling::getOpprettetDato))
@@ -96,9 +142,7 @@ public class FpOversiktDtoTjeneste {
     }
 
     private List<FpSak.Uttaksperiode> finnUttaksperioder(Long behandlingId) {
-        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId)
-            .map(uttak -> tilDto(uttak.getGjeldendePerioder()))
-            .orElse(List.of());
+        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId).map(uttak -> tilDto(uttak.getGjeldendePerioder())).orElse(List.of());
     }
 
     private List<FpSak.Uttaksperiode> tilDto(List<ForeldrepengerUttakPeriode> gjeldendePerioder) {
