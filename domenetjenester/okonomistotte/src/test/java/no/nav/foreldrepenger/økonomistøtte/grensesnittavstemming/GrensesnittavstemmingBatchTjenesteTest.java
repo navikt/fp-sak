@@ -5,8 +5,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.batch.task.BatchRunnerTask;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvitteringTest;
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ExtendWith(MockitoExtension.class)
 class GrensesnittavstemmingBatchTjenesteTest {
@@ -52,14 +54,13 @@ class GrensesnittavstemmingBatchTjenesteTest {
     @Test
     void avstemmingUtenOppdragSkalIkkeSendeAvstemmingsmeldinger() {
         // Arrange
-        final var argMap = new HashMap<String, String>();
-        argMap.put("tom", "23-08-2017");
-        argMap.put("fom", "17-08-2017");
-        argMap.put("fagomrade", "FP");
+        final var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
+        argMap.setProperty("tom", LocalDate.of(2017, Month.AUGUST, 23).toString());
+        argMap.setProperty("fom", LocalDate.of(2017, Month.AUGUST, 17).toString());
+        argMap.setProperty("fagomrade", "FP");
 
         // Act
-        final var launch = grensesnittavstemmingApplikasjonTjeneste.launch(
-            new GrensesnittavstemmingBatchArguments(argMap));
+        final var launch = grensesnittavstemmingApplikasjonTjeneste.launch(argMap.getProperties());
         assertThat(launch).startsWith(grensesnittavstemmingApplikasjonTjeneste.getBatchName());
 
         // Assert
@@ -75,11 +76,11 @@ class GrensesnittavstemmingBatchTjenesteTest {
     void avstemmingSkalSendeAvstemmingsmeldingerUtenParametere() {
         // Arrange
         setupOppdragsliste();
-        final var argMap = new HashMap<String, String>();
-        argMap.put("fagomrade", "REFUTG");
+        final var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
+        argMap.setProperty("fagomrade", "REFUTG");
 
         // Act
-        grensesnittavstemmingApplikasjonTjeneste.launch(new GrensesnittavstemmingBatchArguments(argMap));
+        grensesnittavstemmingApplikasjonTjeneste.launch(argMap.getProperties());
 
         // Assert
         verify(grensesnittavstemmingJmsProducer, Mockito.times(3)).sendGrensesnittavstemming(Mockito.any());
@@ -89,13 +90,13 @@ class GrensesnittavstemmingBatchTjenesteTest {
     void avstemmingSkalSendeAvstemmingsmeldinger() {
         // Arrange
         setupOppdragsliste();
-        final var argMap = new HashMap<String, String>();
-        argMap.put("tom", "23-08-2017");
-        argMap.put("fom", "17-08-2017");
-        argMap.put("fagomrade", "REFUTG");
+        final var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
+        argMap.setProperty("tom", LocalDate.of(2017, Month.AUGUST, 23).toString());
+        argMap.setProperty("fom", LocalDate.of(2017, Month.AUGUST, 17).toString());
+        argMap.setProperty("fagomrade", "REFUTG");
 
         // Act
-        grensesnittavstemmingApplikasjonTjeneste.launch(new GrensesnittavstemmingBatchArguments(argMap));
+        grensesnittavstemmingApplikasjonTjeneste.launch(argMap.getProperties());
 
         // Assert
         verify(grensesnittavstemmingJmsProducer, Mockito.times(3)).sendGrensesnittavstemming(Mockito.any());

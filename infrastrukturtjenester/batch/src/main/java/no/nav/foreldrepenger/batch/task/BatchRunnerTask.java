@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.batch.task;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
-import no.nav.foreldrepenger.batch.feil.BatchFeil;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -45,7 +41,6 @@ public class BatchRunnerTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var batchName = prosessTaskData.getPropertyValue(BATCH_NAME);
-        var batchParams = prosessTaskData.getPropertyValue(BATCH_PARAMS);
         var batchDate = prosessTaskData.getPropertyValue(BATCH_RUN_DATE);
         if (batchDate != null && !batchDate.equals(LocalDate.now().toString())) {
             var logMessage = batchName + " dato passert " + batchDate;
@@ -56,29 +51,9 @@ public class BatchRunnerTask implements ProsessTaskHandler {
         if (batchTjeneste == null) {
             throw new TekniskException("FP-630260", "Ugyldig job-navn " + batchName);
         }
-        final var batchArguments = batchTjeneste.createArguments(parseJobParams(batchParams));
 
-        if (batchArguments.isValid()) {
-            var logMessage = batchName + " parametere " + (batchParams != null ? batchParams : "");
-            LOG.info("Starter batch {}", logMessage);
-            batchTjeneste.launch(batchArguments);
-        } else {
-            throw BatchFeil.ugyldigeJobParametere(batchArguments);
-        }
+        LOG.info("Starter batch {}", batchName);
+        batchTjeneste.launch(prosessTaskData.getProperties());
     }
 
-    private static Map<String, String> parseJobParams(String jobParameters) {
-        Map<String, String> resultat = new HashMap<>();
-        if (jobParameters != null && jobParameters.length() > 0) {
-            var tokenizer = new StringTokenizer(jobParameters, ",");
-            while (tokenizer.hasMoreTokens()) {
-                var keyValue = tokenizer.nextToken().trim();
-                var keyValArr = keyValue.split("=");
-                if (keyValArr.length == 2) {
-                    resultat.put(keyValArr[0], keyValArr[1]);
-                }
-            }
-        }
-        return resultat;
-    }
 }

@@ -40,22 +40,16 @@ public class GrensesnittavstemmingMapper {
     private String avstemmingId;
     protected static final String BRUKER_ID_FOR_VEDTAKSLØSNINGEN = "VL";
     private static final int DETALJER_PR_MELDING = 70;
-    private String fagområde;
+    private KodeFagområde fagområde;
 
-    public GrensesnittavstemmingMapper(List<Oppdrag110> oppdragsliste, String fagområde) {
+    public GrensesnittavstemmingMapper(List<Oppdrag110> oppdragsliste, KodeFagområde kodeFagområde) {
         if (oppdragsliste == null || oppdragsliste.isEmpty()) {
             throw new IllegalStateException("Grensesnittavstemming uten oppdragsliste er ikke mulig");
-        }
-        KodeFagområde kodeFagområde;
-        try {
-            kodeFagområde = KodeFagområde.valueOf(fagområde);
-        } catch (Exception e) {
-            throw new IllegalStateException("Grensesnittavstemming uten fagområde er ikke mulig");
         }
 
         this.objectFactory = new ObjectFactory();
         this.avstemmingId = encodeUUIDBase64(UUID.randomUUID());
-        this.fagområde = fagområde;
+        this.fagområde = kodeFagområde;
         this.oppdragsliste = oppdragsliste.stream().filter(opp -> opp.getKodeFagomrade().equals(kodeFagområde)).toList();
     }
 
@@ -248,7 +242,7 @@ public class GrensesnittavstemmingMapper {
         aksjonsdata.setAvstemmingType(AvstemmingType.GRSN);
         aksjonsdata.setAvleverendeKomponentKode(ØkonomiKodekomponent.VLFP.name());
         aksjonsdata.setMottakendeKomponentKode(ØkonomiKodekomponent.OS.name());
-        aksjonsdata.setUnderkomponentKode(fagområde);
+        aksjonsdata.setUnderkomponentKode(fagområde.name());
         aksjonsdata.setNokkelFom(finnAvstemmingMedLavestNokkelAvstemmingsDato(oppdragsliste).getNøkkel());
         var senestAvstemming = finnAvstemmingMedHøyestNokkelAvstemmingsDato(oppdragsliste);
         aksjonsdata.setNokkelTom(senestAvstemming.getNøkkel());

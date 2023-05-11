@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.poststed;
 
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 /**
  * Henter ned offisielle kodeverk fra NAV som brukes i løsningen og synker den til egen kodeverk-tabell.
@@ -27,7 +27,7 @@ public class PoststedBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public String launch(BatchArguments arguments) {
+    public String launch(Properties properties) {
         kodeverkSynkronisering.synkroniserPostnummer();
         return BATCHNAVN + "-" + UUID.randomUUID();
     }

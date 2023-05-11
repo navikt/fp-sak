@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
+import java.util.Properties;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 
 /**
@@ -25,7 +26,7 @@ public class AvslutteFagsakerEnkeltOpphørBatchTjeneste implements BatchTjeneste
     }
 
     @Override
-    public String launch(BatchArguments arguments) {
+    public String launch(Properties properties) {
         var antallSakerSomSkalAvluttes = avslutteFagsakerEnkeltOpphørTjeneste.avslutteSakerMedEnkeltOpphør();
 
         return BATCHNAME + "-" + antallSakerSomSkalAvluttes;

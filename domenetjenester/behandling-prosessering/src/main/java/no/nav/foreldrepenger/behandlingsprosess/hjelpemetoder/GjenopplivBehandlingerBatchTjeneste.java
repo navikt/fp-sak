@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.behandlingsprosess.hjelpemetoder;
 
+import java.util.Properties;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak.AutomatiskGjenopptagelseTjeneste;
 
@@ -26,7 +27,7 @@ public class GjenopplivBehandlingerBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public String launch(BatchArguments arguments) {
+    public String launch(Properties properties) {
         return BATCHNAME + automatiskGjenopptagelseTjeneste.gjenopplivBehandlinger();
     }
 

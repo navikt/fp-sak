@@ -1,13 +1,10 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
-import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.List.of;
-import static no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.SendInformasjonsbrevBatchArguments.DATE_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -15,6 +12,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -143,11 +141,11 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
         assertThat(resultat).isEqualTo(SendInformasjonsbrevPåminnelseBatchTjeneste.BATCHNAVN + "-0");
     }
 
-    private SendInformasjonsbrevBatchArguments settOppBatchArguments(LocalDate fom, LocalDate tom) {
-        Map<String, String> arguments = new HashMap<>();
-        arguments.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fom.format(ofPattern(DATE_PATTERN)));
-        arguments.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tom.format(ofPattern(DATE_PATTERN)));
-        return new SendInformasjonsbrevBatchArguments(arguments, -130);
+    private Properties settOppBatchArguments(LocalDate fom, LocalDate tom) {
+        var arguments = new Properties();
+        arguments.setProperty(BatchTjeneste.FOM_KEY, fom.toString());
+        arguments.setProperty(BatchTjeneste.TOM_KEY, tom.toString());
+        return arguments;
     }
 
     private MorOgFarBehandling opprettTestdata(EntityManager em, LocalDate fødselsdato) {

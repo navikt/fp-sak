@@ -1,13 +1,9 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.SendInformasjonsbrevBatchArguments.DATE_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -15,6 +11,8 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.batch.BatchTjeneste;
+import no.nav.foreldrepenger.batch.task.BatchRunnerTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -40,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
@@ -63,30 +62,28 @@ class SendInformasjonsbrevBatchTjenesteTest {
     private LocalDate tom = fom.plusDays(3);
     private LocalDate uttakFom = fom.minusWeeks(10);
 
-    SendInformasjonsbrevBatchArguments batchArgs;
+    ProsessTaskData taskData;
 
     @BeforeEach
     public void setUp() {
+        taskData = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
         tjeneste = new SendInformasjonsbrevBatchTjeneste(repository, taskTjenesteMock);
-        Map<String, String> arguments = new HashMap<>();
-        arguments.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fom.format(ofPattern(DATE_PATTERN)));
-        arguments.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tom.format(ofPattern(DATE_PATTERN)));
-        batchArgs = new SendInformasjonsbrevBatchArguments(arguments, 4);
-
+        taskData.setProperty(BatchTjeneste.FOM_KEY, fom.toString());
+        taskData.setProperty(BatchTjeneste.TOM_KEY, tom.toString());
    }
 
     @Test
     void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, uttakFom, false);
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), false);
-        var svar = tjeneste.launch(batchArgs);
+        var svar = tjeneste.launch(taskData.getProperties());
         assertThat(svar).isEqualTo(SendInformasjonsbrevBatchTjeneste.BATCHNAVN + "-0");
     }
 
     @Test
     void skal_finne_en_sak_til_revurdering(EntityManager em) {
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom, false);
-        var svar = tjeneste.launch(batchArgs);
+        var svar = tjeneste.launch(taskData.getProperties());
         assertThat(svar).isEqualTo(SendInformasjonsbrevBatchTjeneste.BATCHNAVN + "-1");
     }
 

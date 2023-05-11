@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Map;
+import java.time.Period;
+import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,7 +14,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -32,15 +34,12 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public SendInformasjonsbrevBatchArguments createArguments(Map<String, String> jobArguments) {
-        return new SendInformasjonsbrevBatchArguments(jobArguments, 4);
-    }
-
-    @Override
-    public String launch(BatchArguments arguments) {
-        var batchArguments = (SendInformasjonsbrevBatchArguments) arguments;
-        var saker = informasjonssakRepository.finnSakerMedInnvilgetMaksdatoInnenIntervall(batchArguments.getFom(),
-                batchArguments.getTom());
+    public String launch(Properties properties) {
+        var periode = lagPeriodeEvtOppTilIDag(properties, Period.ofWeeks(4));
+        if (DAYS.between(periode.fom(), periode.tom()) > 366) {
+            throw new IllegalArgumentException("Informasjonsbrev: For mange dager");
+        }
+        var saker = informasjonssakRepository.finnSakerMedInnvilgetMaksdatoInnenIntervall(periode.fom(), periode.tom());
         var baseline = LocalTime.now();
         saker.forEach(sak -> {
             LOG.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());

@@ -1,10 +1,15 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
-import java.util.HashMap;
+import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
+import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 
 class GrensesnittavstemmingBatchArgumentsTest {
 
@@ -13,123 +18,101 @@ class GrensesnittavstemmingBatchArgumentsTest {
     public static final String TOM = "tom";
     public static final String FOM = "fom";
 
+    private final GrensesnittavstemmingBatchTjeneste mock =
+        new GrensesnittavstemmingBatchTjeneste(mock(ØkonomioppdragRepository.class), mock(GrensesnittavstemmingJmsProducer.class));
+
     @Test
     void skal_parse_antall_dager() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(ANTALL_DAGER, "5");
-        argMap.put(FAGOMRÅDE, "FP");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isTrue();
-        assertThat(args.getFom()).isNotNull();
-        assertThat(args.getTom()).isNotNull();
+        final var argMap = new Properties();
+        argMap.setProperty(ANTALL_DAGER, "5");
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
     void skal_parse_antall_8_dager() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(ANTALL_DAGER, "8");
-        argMap.put(FAGOMRÅDE, "FP");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isTrue();
-        assertThat(args.getFom()).isNotNull();
-        assertThat(args.getTom()).isNotNull();
+        final var argMap = new Properties();
+        argMap.setProperty(ANTALL_DAGER, "8");
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
     void skal_parse_antall_9_dager_utover_max() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FAGOMRÅDE, "FP");
-        argMap.put(ANTALL_DAGER, "9");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isFalse();
-        assertThat(args.getFom()).isNotNull();
-        assertThat(args.getTom()).isNotNull();
+        final var argMap = new Properties();
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        argMap.setProperty(ANTALL_DAGER, "9");
+        assertThrows(IllegalArgumentException.class, () -> mock.launch(argMap));
     }
 
     @Test
     void skal_parse_dato() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FOM, "01-11-2014");
-        argMap.put(TOM, "07-11-2014");
-        argMap.put(FAGOMRÅDE, "FP");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isTrue();
-        assertThat(args.getFom()).isNotNull();
-        assertThat(args.getTom()).isNotNull();
+        final var argMap = new Properties();
+        argMap.setProperty(FOM, "2014-11-01");
+        argMap.setProperty(TOM, "2014-11-07");
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
     void skal_parse_dato_periode_utover_max() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FOM, "01-11-2014");
-        argMap.put(TOM, "09-11-2014");
-        argMap.put(FAGOMRÅDE, "FP");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isFalse();
-        assertThat(args.getFom()).isNotNull();
-        assertThat(args.getTom()).isNotNull();
+        final var argMap = new Properties();
+        argMap.setProperty(FOM, "2014-11-01");
+        argMap.setProperty(TOM, "2014-11-09");
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        assertThrows(IllegalArgumentException.class, () -> mock.launch(argMap));
     }
 
     @Test
     void skal_parse_dato_periode_7_dager() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FOM, "01-11-2014");
-        argMap.put(TOM, "08-11-2014");
-        argMap.put(FAGOMRÅDE, "FP");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isTrue();
-        assertThat(args.getFom()).isNotNull();
-        assertThat(args.getTom()).isNotNull();
+        final var argMap = new Properties();
+        argMap.setProperty(FOM, "2014-11-01");
+        argMap.setProperty(TOM, "2014-11-07");
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
-    void skal_ikke_feile_ved_satt_for_mange_properties() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FOM, "01-11-2014");
-        argMap.put(TOM, "20-11-2014");
-        argMap.put(ANTALL_DAGER, "5");
-        argMap.put(FAGOMRÅDE, "FP");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isFalse();
+    void skal_feile_ved_satt_for_mange_properties() {
+        final var argMap = new Properties();
+        argMap.setProperty(FOM, "2014-11-01");
+        argMap.setProperty(TOM, "2014-11-20");
+        argMap.setProperty(ANTALL_DAGER, "5");
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        assertThrows(IllegalArgumentException.class, () -> mock.launch(argMap));
     }
 
     @Test
     void skal_feile_fordi_satt_parametre_er_ikke_entydig() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FOM, "01-11-2014");
-        argMap.put(ANTALL_DAGER, "5");
-        argMap.put(FAGOMRÅDE, "FP");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isFalse();
+        final var argMap = new Properties();
+        argMap.setProperty(FOM, "2014-11-01");
+        argMap.setProperty(ANTALL_DAGER, "5");
+        argMap.setProperty(FAGOMRÅDE, "FP");
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
     void skal_feile_fordi_fagområde_er_ikke_satt() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FOM, "01-11-2014");
-        argMap.put(ANTALL_DAGER, "5");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isFalse();
+        final var argMap = new Properties();
+        argMap.setProperty(FOM, "2014-11-01");
+        argMap.setProperty(ANTALL_DAGER, "5");
+        assertThrows(NullPointerException.class, () -> mock.launch(argMap));
     }
 
     @Test
     void skal_feile_fordi_fagområde_er_feil() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(FOM, "01-11-2014");
-        argMap.put(ANTALL_DAGER, "5");
-        argMap.put(FAGOMRÅDE, "blabla");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isFalse();
+        final var argMap = new Properties();
+        argMap.setProperty(FOM, "2014-11-01");
+        argMap.setProperty(ANTALL_DAGER, "5");
+        argMap.setProperty(FAGOMRÅDE, "blabla");
+        assertThrows(IllegalArgumentException.class, () -> mock.launch(argMap));
     }
 
     @Test
     void skal_feile_fordi_fagområde_er_null() {
-        final var argMap = new HashMap<String, String>();
-        argMap.put(ANTALL_DAGER, "8");
-        var args = new GrensesnittavstemmingBatchArguments(argMap);
-        assertThat(args.isValid()).isFalse();
-        assertThat(args.getFom()).isNotNull();
-        assertThat(args.getTom()).isNotNull();
+        final var argMap = new Properties();
+        argMap.setProperty(ANTALL_DAGER, "8");
+        assertThrows(NullPointerException.class, () -> mock.launch(argMap));
     }
 
 }

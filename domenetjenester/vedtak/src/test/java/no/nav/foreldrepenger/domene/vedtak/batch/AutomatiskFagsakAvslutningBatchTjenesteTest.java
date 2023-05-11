@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.batch;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ class AutomatiskFagsakAvslutningBatchTjenesteTest {
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(1L)).thenReturn(Optional.empty());
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(2L)).thenReturn(Optional.of(behandling));
 
-        final var batchId = tjeneste.launch(null);
+        final var batchId = tjeneste.launch(new Properties());
 
         Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now());
         Assertions.assertThat(batchId.substring(0, 6)).isEqualTo("BVL006");

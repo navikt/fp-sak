@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.batch.task;
 
+import static no.nav.foreldrepenger.batch.BatchTjeneste.FAGOMRÅDE_KEY;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,6 +9,7 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
+import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -43,21 +47,21 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     // Her injiseres antallDager=N ut fra bereging gitt helg og helligdag ....
     private static final List<BatchConfig> BATCH_OPPSETT_ANTALL_DAGER = List.of(
-            new BatchConfig(6, 45, AVSTEMMING, "fagomrade=SVP, "),
-            new BatchConfig(6, 46, AVSTEMMING, "fagomrade=SVPREF, "),
-            new BatchConfig(6, 47, AVSTEMMING, "fagomrade=REFUTG, "),
-            new BatchConfig(6, 48, AVSTEMMING, "fagomrade=FP, "),
-            new BatchConfig(6, 49, AVSTEMMING, "fagomrade=FPREF, "),
-            new BatchConfig(7, 3, "BVL008", ""), // Infobrev far - 7min spread
-            new BatchConfig(7, 13, "BVL011", "") // Infobrev far påminnelse - 7min spread
+            new BatchConfig(6, 45, AVSTEMMING, FAGOMRÅDE_KEY, "SVP"),
+            new BatchConfig(6, 46, AVSTEMMING, FAGOMRÅDE_KEY, "SVPREF"),
+            new BatchConfig(6, 47, AVSTEMMING, FAGOMRÅDE_KEY, "REFUTG"),
+            new BatchConfig(6, 48, AVSTEMMING, FAGOMRÅDE_KEY, "FP"),
+            new BatchConfig(6, 49, AVSTEMMING, FAGOMRÅDE_KEY, "FPREF"),
+            new BatchConfig(7, 3, "BVL008"), // Infobrev far - 7min spread
+            new BatchConfig(7, 13, "BVL011") // Infobrev far påminnelse - 7min spread
     );
 
     // Skal kjøres hver ukedag
     private static final List<BatchConfig> BATCH_OPPSETT_VIRKEDAGER = List.of(
-            new BatchConfig(1, 58, "BVL010", null), // Oppdatering DVH. Bør kjøre før kl 03-04.
-            new BatchConfig(6, 5, "BVL004", null), // Gjenoppta - 24 min spread
-            new BatchConfig(7, 0, "BVL002", null), // Etterkontroll
-            new BatchConfig(7, 1, "BVL006", null) // Fagsakavslutning
+            new BatchConfig(1, 58, "BVL010"), // Oppdatering DVH. Bør kjøre før kl 03-04.
+            new BatchConfig(6, 5, "BVL004"), // Gjenoppta - 24 min spread
+            new BatchConfig(7, 0, "BVL002"), // Etterkontroll
+            new BatchConfig(7, 1, "BVL006") // Fagsakavslutning
             // new BatchConfig(7, 49, "BVL007", null) // Gjenoppliv åpne behandlinger uten åpent aksjonspunkt - enable etter sjekk av status
     );
 
@@ -68,8 +72,8 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     // Skal kjøres enkelte ukedager
     private static final Map<DayOfWeek, List<BatchConfig>> BATCH_OPPSETT_UKEDAG = Map.of(
-        DayOfWeek.WEDNESDAY, List.of(new BatchConfig(11, 30, "BVL005", null)), // Kodeverk
-        DayOfWeek.TUESDAY, List.of(new BatchConfig(11, 30, "BVL012", null) ) // Avslutter saker med kobling til annen part og enkeltopphør
+        DayOfWeek.WEDNESDAY, List.of(new BatchConfig(11, 30, "BVL005")), // Kodeverk
+        DayOfWeek.TUESDAY, List.of(new BatchConfig(11, 30, "BVL012") ) // Avslutter saker med kobling til annen part og enkeltopphør
     );
 
     private final Set<MonthDay> fasteStengteDager = Set.of(
@@ -97,7 +101,10 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var dagensDato = LocalDate.now();
+        doTaskForDato(prosessTaskData, LocalDate.now());
+    }
+
+    void doTaskForDato(ProsessTaskData prosessTaskData, LocalDate dagensDato) {
         var dagensUkedag = DayOfWeek.from(dagensDato);
 
         // Lagre neste instans av daglig scheduler straks over midnatt
@@ -112,10 +119,10 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             return;
         }
 
-        var antallDager = "antallDager=" + beregnAntallDager(dagensDato);
         List<BatchConfig> batchOppsett = new ArrayList<>(BATCH_OPPSETT_VIRKEDAGER);
         batchOppsett.addAll(BATCH_OPPSETT_UKEDAG.getOrDefault(dagensUkedag, List.of()));
-        BATCH_OPPSETT_ANTALL_DAGER.stream().map(b -> new BatchConfig(b, antallDager)).forEach(batchOppsett::add);
+        var antallDager = String.valueOf(beregnAntallDager(dagensDato));
+        BATCH_OPPSETT_ANTALL_DAGER.stream().map(b -> BatchConfig.appendAntallDager(b, antallDager)).forEach(batchOppsett::add);
 
         if (!batchOppsett.isEmpty()) {
             var parallelle = new ArrayList<>(TASKS_VIRKEDAGER.stream().map(tc -> mapDagligTaskConfigTilTask(tc, dagensDato)).toList());
@@ -140,7 +147,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         var batchRunnerTask = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
         batchRunnerTask.setProperty(BatchRunnerTask.BATCH_NAME, config.batchName());
         if (config.params() != null) {
-            batchRunnerTask.setProperty(BatchRunnerTask.BATCH_PARAMS, config.params());
+            config.params().forEach(batchRunnerTask::setProperty);
         }
         batchRunnerTask.setProperty(BatchRunnerTask.BATCH_RUN_DATE, dagensDato.toString());
         batchRunnerTask.setNesteKjøringEtter(LocalDateTime.of(dagensDato, config.getKjøreTidspunkt()));
@@ -162,10 +169,24 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         return fasteStengteDager.contains(MonthDay.from(dato)) || bevegeligeHelligdager.get(dato.getYear()).contains(dato);
     }
 
-    private record BatchConfig(int time, int minutt, String batchName, String params) {
+    private record BatchConfig(int time, int minutt, String batchName, Map<String, String> params) {
 
-        BatchConfig(BatchConfig config, String appendParams) {
-            this(config.time(), config.minutt(), config.batchName(), config.params() + appendParams);
+        BatchConfig(int time, int minutt, String batchName) {
+            this(time, minutt, batchName, Map.of());
+        }
+
+        BatchConfig(int time, int minutt, String batchName, String key, String value) {
+            this(time, minutt, batchName, Map.of(key, value));
+        }
+
+        BatchConfig(BatchConfig config, Map<String, String> params) {
+            this(config.time(), config.minutt(), config.batchName(), params);
+        }
+
+        static BatchConfig appendAntallDager(BatchConfig config, String value) {
+            var params = new LinkedHashMap<>(config.params() != null ? config.params : Map.of());
+            params.put(BatchTjeneste.ANTALL_DAGER_KEY, value);
+            return new BatchConfig(config, params);
         }
 
         LocalTime getKjøreTidspunkt() {
