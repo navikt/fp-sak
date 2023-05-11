@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.impl.HendelseForBehandling;
 import no.nav.foreldrepenger.behandling.impl.PubliserBehandlingHendelseTask;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -38,17 +39,19 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         // Fjernes etter initiell merking
-        informasjonssakRepository.finnSakerSomKanMerkesNæring()
-            .forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.SELVSTENDIG_NÆRING));
-        
+        var nynæring = informasjonssakRepository.finnSakerSomKanMerkesNæring();
+        nynæring.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.SELVSTENDIG_NÆRING));
+
         // Generell trigger for oppdatering
-        informasjonssakRepository.finnAktiveBehandlingerSomSkalOppdateres().forEach(this::opprettProsessTask);
+        informasjonssakRepository.finnAktiveBehandlingerSomSkalOppdateres().stream()
+            .map(behandlingRepository::hentBehandling)
+            .filter(b -> nynæring.contains(b.getFagsakId()))
+            .forEach(this::opprettProsessTask);
     }
 
-    private void opprettProsessTask(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+    private void opprettProsessTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandlingId);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(90);

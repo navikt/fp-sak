@@ -44,18 +44,18 @@ public interface BatchTjeneste {
         return lagPeriodeEvtOppTilIDag(properties, Period.ZERO);
     }
 
-    default Periode lagPeriodeEvtOppTilIDag(Properties properties, Period leggTilPeriode) {
+    default Periode lagPeriodeEvtOppTilIDag(Properties properties, Period tilleggKunAntallDager) {
         var fom = Optional.ofNullable(properties.getProperty(FOM_KEY)).map(LocalDate::parse).orElse(null);
         var tom = Optional.ofNullable(properties.getProperty(TOM_KEY)).map(LocalDate::parse).orElse(null);
         int antallDager = Optional.ofNullable(properties.getProperty(ANTALL_DAGER_KEY)).map(Integer::valueOf).orElse(1);
         if (fom != null && tom != null) {
             return new Periode(fom, tom);
         } else  if (fom != null) {
-            return new Periode(fom, fom.plusDays(antallDager).plus(leggTilPeriode));
+            return new Periode(fom, fom.plusDays(antallDager));
         } else  if (tom != null) {
-            return new Periode(tom.minusDays(antallDager).plus(leggTilPeriode), tom);
+            return new Periode(tom.minusDays(antallDager), tom);
         }
         var idag = LocalDate.now();
-        return new Periode(idag.minusDays(antallDager).plus(leggTilPeriode), idag.minusDays(1).plus(leggTilPeriode));
+        return new Periode(idag.minusDays(antallDager).plus(tilleggKunAntallDager), idag.minusDays(1).plus(tilleggKunAntallDager));
     }
 }
