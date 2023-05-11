@@ -2,7 +2,6 @@ Foreldrepenger Vedtaksløsning (FPSAK)
 ===============
 
 [![Bygg og deploy](https://github.com/navikt/fp-sak/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fp-sak/actions/workflows/build.yml)
-[![Promote](https://github.com/navikt/fp-sak/actions/workflows/promote.yml/badge.svg?branch=master)](https://github.com/navikt/fp-sak/actions/workflows/promote.yml)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fp-sak)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-sak&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fp-sak)
 
