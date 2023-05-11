@@ -104,8 +104,9 @@ public class FpOversiktDtoTjeneste {
     }
 
     private Sak.FamilieHendelse finnGjeldendeFamilieHendelse(Long behandling) {
-        var aggregat = familieHendelseTjeneste.hentAggregat(behandling);
-        return tilDto(aggregat.getGjeldendeVersjon());
+        return familieHendelseTjeneste.finnAggregat(behandling)
+            .map(fhg -> tilDto(fhg.getGjeldendeVersjon()))
+            .orElse(null);
     }
 
     private static Sak.FamilieHendelse tilDto(FamilieHendelseEntitet familieHendelse) {
