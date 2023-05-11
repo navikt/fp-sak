@@ -1,4 +1,4 @@
-name: Bygg og deploy
+name: "Bygg og deploy"
 on:
   push:
     branches:
