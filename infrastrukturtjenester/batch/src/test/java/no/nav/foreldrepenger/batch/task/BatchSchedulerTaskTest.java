@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.batch.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +21,10 @@ class BatchSchedulerTaskTest {
 
     private BatchSchedulerTask task;
     private BatchSupportTjenesteTest testsupport;
-    private ProsessTaskData taskData = ProsessTaskData.forProsessTask(BatchSchedulerTask.class);
+    private final ProsessTaskData taskData = ProsessTaskData.forProsessTask(BatchSchedulerTask.class);
+    private final LocalDate enVanligUkedag = LocalDate.of(2023, Month.MAY, 15);
+    private final LocalDate enHelgeDag = LocalDate.of(2023, Month.MAY, 13);
+    private final LocalDate enStengtDag = LocalDate.of(2023, Month.MAY, 17);
 
     @BeforeEach
     public void setup() {
@@ -30,36 +35,56 @@ class BatchSchedulerTaskTest {
     @Test
     void normal_dag_skal_ha_8_tasks_med_antalldager() {
         // Arrange
-        task.doTask(taskData);
+        task.doTaskForDato(taskData, enVanligUkedag);
         var props = testsupport.getTaskDataList();
         var matches = props.stream()
                 .map(t -> t.getProperty(BatchTjeneste.ANTALL_DAGER_KEY))
                 .filter(Objects::nonNull)
                 .filter(s -> s.matches("[1-7]"))
                 .toList();
-        if (props.size() > 1) {
-            System.out.println(matches);
-            assertThat(matches).hasSize(7); // Antall dagsensitive batcher.
-        }
+        assertThat(matches).hasSize(7); // Antall dagsensitive batcher.
     }
 
     @Test
     void normal_dag_skal_ha_5_tasks_med_fagomraade() {
         // Arrange
-        task.doTask(taskData);
+        task.doTaskForDato(taskData, enVanligUkedag);
         var props = testsupport.getTaskDataList();
         var matches = props.stream()
             .map(t -> t.getProperty(BatchTjeneste.FAGOMRÅDE_KEY))
             .filter(Objects::nonNull)
             .toList();
-        if (props.size() > 1) {
-            System.out.println(matches);
-            assertThat(matches).hasSize(5); // Antall avstemminger.
-        }
+        assertThat(matches).hasSize(5); // Antall avstemminger.
+    }
+
+    @Test
+    void helg_skal_ikke_ha_tasks_med_antalldager() {
+        // Arrange
+        task.doTaskForDato(taskData, enHelgeDag);
+        var props = testsupport.getTaskDataList();
+        var matches = props.stream()
+            .map(t -> t.getProperty(BatchTjeneste.ANTALL_DAGER_KEY))
+            .filter(Objects::nonNull)
+            .filter(s -> s.matches("[1-7]"))
+            .toList();
+        assertThat(matches).isEmpty();
+    }
+
+    @Test
+    void stengt_dag_skal_ikke_ha_tasks_med_antalldager() {
+        // Arrange
+        task.doTaskForDato(taskData, enStengtDag);
+        var props = testsupport.getTaskDataList();
+        var matches = props.stream()
+            .map(t -> t.getProperty(BatchTjeneste.ANTALL_DAGER_KEY))
+            .filter(Objects::nonNull)
+            .filter(s -> s.matches("[1-7]"))
+            .toList();
+        assertThat(matches).isEmpty();
     }
 
     private static class BatchSupportTjenesteTest extends BatchSupportTjeneste {
-        private List<Properties> taskDataList;
+        private final List<Properties> taskDataList;
 
         BatchSupportTjenesteTest() {
             super();

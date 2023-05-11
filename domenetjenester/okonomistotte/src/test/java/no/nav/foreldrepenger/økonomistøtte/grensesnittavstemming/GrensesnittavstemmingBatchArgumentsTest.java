@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -17,7 +18,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
     public static final String TOM = "tom";
     public static final String FOM = "fom";
 
-    private GrensesnittavstemmingBatchTjeneste mock =
+    private final GrensesnittavstemmingBatchTjeneste mock =
         new GrensesnittavstemmingBatchTjeneste(mock(ØkonomioppdragRepository.class), mock(GrensesnittavstemmingJmsProducer.class));
 
     @Test
@@ -25,7 +26,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
         final var argMap = new Properties();
         argMap.setProperty(ANTALL_DAGER, "5");
         argMap.setProperty(FAGOMRÅDE, "FP");
-        mock.launch(argMap);
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
@@ -33,7 +34,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
         final var argMap = new Properties();
         argMap.setProperty(ANTALL_DAGER, "8");
         argMap.setProperty(FAGOMRÅDE, "FP");
-        mock.launch(argMap);
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
@@ -50,7 +51,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(TOM, "2014-11-07");
         argMap.setProperty(FAGOMRÅDE, "FP");
-        mock.launch(argMap);
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
@@ -68,7 +69,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(TOM, "2014-11-07");
         argMap.setProperty(FAGOMRÅDE, "FP");
-        mock.launch(argMap);
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test
@@ -87,7 +88,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(ANTALL_DAGER, "5");
         argMap.setProperty(FAGOMRÅDE, "FP");
-        mock.launch(argMap);
+        assertDoesNotThrow(() -> mock.launch(argMap));
     }
 
     @Test

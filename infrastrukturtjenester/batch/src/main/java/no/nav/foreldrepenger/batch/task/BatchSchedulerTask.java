@@ -101,7 +101,10 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var dagensDato = LocalDate.now();
+        doTaskForDato(prosessTaskData, LocalDate.now());
+    }
+
+    void doTaskForDato(ProsessTaskData prosessTaskData, LocalDate dagensDato) {
         var dagensUkedag = DayOfWeek.from(dagensDato);
 
         // Lagre neste instans av daglig scheduler straks over midnatt

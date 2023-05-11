@@ -10,9 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
@@ -24,8 +21,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class BatchRestTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BatchRestTjeneste.class);
 
     private BatchSupportTjeneste batchSupportTjeneste;
 
