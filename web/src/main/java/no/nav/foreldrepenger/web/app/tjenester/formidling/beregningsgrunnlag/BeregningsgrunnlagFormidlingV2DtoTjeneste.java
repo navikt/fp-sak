@@ -111,13 +111,23 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
             .orElse(Collections.emptyList());
 
         var ordinærtBeregnetBeløp = beregningsGrunnlagPerioder.get(0).getBeregningsgrunnlagPrStatusOgAndelList().stream()
-            .map(andel -> andel.getOverstyrtPrÅr() != null ? andel.getOverstyrtPrÅr() : andel.getBeregnetPrÅr())
+            .map(this::hentOverstyrtEllerBeregnetHvisFinnes)
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO);
 
         LOG.info("BesteBeregnetBeløp fra getBesteberegnetPrÅr: {}  Ordinært eller overstyrt beregnet beløp: {}",  besteBeregnetBeløp, ordinærtBeregnetBeløp );
 
         return besteBeregnetBeløp.compareTo(ordinærtBeregnetBeløp) > 0;
+    }
+
+    private BigDecimal hentOverstyrtEllerBeregnetHvisFinnes(BeregningsgrunnlagPrStatusOgAndel andel) {
+        if (andel.getOverstyrtPrÅr() != null ) {
+            return andel.getOverstyrtPrÅr();
+        } else if (andel.getBeregnetPrÅr() != null) {
+            return andel.getBeregnetPrÅr();
+        } else {
+            return BigDecimal.ZERO;
+        }
     }
 
     private boolean finnesBesteberegnetAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
