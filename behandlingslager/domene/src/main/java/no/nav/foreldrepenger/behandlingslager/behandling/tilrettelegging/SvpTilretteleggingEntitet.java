@@ -82,6 +82,10 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
     @Embedded
     private InternArbeidsforholdRef internArbeidsforholdRef;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "SVP_TILRETTELEGGING_ID")
+    private List<SvpAvklartOpphold> avklarteOpphold = new ArrayList<>();
+
     public SvpTilretteleggingEntitet() {
         //jaja
     }
@@ -101,6 +105,9 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         this.mottattTidspunkt = svpTilrettelegging.getMottattTidspunkt();
         this.internArbeidsforholdRef = svpTilrettelegging.getInternArbeidsforholdRef().orElse(null);
         this.skalBrukes = svpTilrettelegging.getSkalBrukes();
+        svpTilrettelegging.getAvklarteOpphold().stream()
+            .map(avklartOpphold -> SvpAvklartOpphold.Builder.fraEksisterende(avklartOpphold).build())
+            .forEach(avklartOpphold -> this.avklarteOpphold.add(avklartOpphold));
     }
 
     @Override
@@ -176,6 +183,10 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         return tilretteleggingFOMListe;
     }
 
+    public List<SvpAvklartOpphold> getAvklarteOpphold() {
+        return avklarteOpphold;
+    }
+
     public static class Builder {
 
         private SvpTilretteleggingEntitet mal;
@@ -198,12 +209,16 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
                 .medOpplysningerOmTilretteleggingstiltak(tilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null))
                 .medSkalBrukes(tilrettelegging.getSkalBrukes())
                 .medMottattTidspunkt(tilrettelegging.getMottattTidspunkt())
-                .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe());
+                .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe())
+                .medAvklarteOpphold(tilrettelegging.getAvklarteOpphold());
         }
         public Builder(SvpTilretteleggingEntitet tilretteleggingEntitet) {
             mal = new SvpTilretteleggingEntitet(tilretteleggingEntitet, null);
             if (mal.tilretteleggingFOMListe == null) {
                 mal.tilretteleggingFOMListe = new ArrayList<>();
+            }
+            if (mal.avklarteOpphold == null) {
+                mal.avklarteOpphold = new ArrayList<>();
             }
         }
 
@@ -295,6 +310,15 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
 
         public Builder medSkalBrukes(boolean skalBrukes) {
             this.mal.skalBrukes = skalBrukes;
+            return this;
+        }
+        public Builder medAvklartOpphold(SvpAvklartOpphold avklarteOpphold) {
+            this.mal.avklarteOpphold.add(avklarteOpphold);
+            return this;
+        }
+
+        public Builder medAvklarteOpphold(List<SvpAvklartOpphold> avklarteOpphold) {
+            this.mal.avklarteOpphold = avklarteOpphold;
             return this;
         }
 
