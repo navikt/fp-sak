@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -21,8 +20,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -38,6 +39,7 @@ public class FpOversiktDtoTjeneste {
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private FagsakRepository fagsakRepository;
 
     @Inject
     public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
@@ -45,27 +47,24 @@ public class FpOversiktDtoTjeneste {
                                  FagsakRelasjonRepository fagsakRelasjonRepository,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  PersonopplysningTjeneste personopplysningTjeneste,
-                                 FamilieHendelseTjeneste familieHendelseTjeneste) {
+                                 FamilieHendelseTjeneste familieHendelseTjeneste,
+                                 FagsakRepository fagsakRepository) {
         this.behandlingRepository = behandlingRepository;
         this.vedtakRepository = vedtakRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.fagsakRepository = fagsakRepository;
     }
 
     FpOversiktDtoTjeneste() {
         //CDI
     }
 
-    public Sak hentSak(UUID behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        LOG.info("Henter saksnummer for behandling {}", behandling.getId());
-        var fagsak = behandling.getFagsak();
-        LOG.info("Returnerer sak med saksnummer {}", fagsak.getSaksnummer());
-
-        var saksnummer = fagsak.getSaksnummer().getVerdi();
-        var aktørId = behandling.getAktørId().getId();
+    public Sak hentSak(String saksnummer) {
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer)).orElseThrow();
+        var aktørId = fagsak.getAktørId().getId();
 
         var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(fagsak);
         var åpenYtelseBehandling = hentÅpenBehandling(fagsak);

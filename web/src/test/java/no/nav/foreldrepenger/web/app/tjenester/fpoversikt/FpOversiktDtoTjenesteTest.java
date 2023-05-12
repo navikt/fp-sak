@@ -49,7 +49,7 @@ class FpOversiktDtoTjenesteTest {
         uttak.leggTilPeriode(periode.build());
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
 
-        var dto = (FpSak) tjeneste.hentSak(behandling.getUuid());
+        var dto = (FpSak) tjeneste.hentSak(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.vedtakene()).hasSize(1);
