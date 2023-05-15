@@ -82,10 +82,20 @@ public class FpOversiktDtoTjeneste {
             case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnEsSøknader(åpenYtelseBehandling,
                 mottatteSøknader));
             case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
-                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader));
+                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader),
+                finnBrukerRolle(fagsak));
             case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
                 mottatteSøknader));
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
+        };
+    }
+
+    private FpSak.BrukerRolle finnBrukerRolle(Fagsak fagsak) {
+        return switch (fagsak.getRelasjonsRolleType()) {
+            case FARA -> FpSak.BrukerRolle.FAR;
+            case MORA -> FpSak.BrukerRolle.MOR;
+            case MEDMOR -> FpSak.BrukerRolle.MEDMOR;
+            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD, UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getRelasjonsRolleType());
         };
     }
 

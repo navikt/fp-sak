@@ -66,6 +66,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(vedtak.uttaksperioder().get(0).resultat().type()).isEqualTo(FpSak.Uttaksperiode.Resultat.Type.INNVILGET);
 
         assertThat(dto.oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
+        assertThat(dto.brukerRolle()).isEqualTo(FpSak.BrukerRolle.MOR);
 
         var familieHendelse = dto.familieHendelse();
         assertThat(familieHendelse.fødselsdato()).isEqualTo(fødselsdato);

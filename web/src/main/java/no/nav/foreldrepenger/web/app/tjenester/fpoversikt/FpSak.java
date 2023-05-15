@@ -12,7 +12,8 @@ record FpSak(String saksnummer,
              Set<Vedtak> vedtakene,
              String oppgittAnnenPart,
              Set<Aksjonspunkt> aksjonspunkt,
-             Set<Søknad> søknader) implements Sak {
+             Set<Søknad> søknader,
+             BrukerRolle brukerRolle) implements Sak {
 
     record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad) {
         enum Dekningsgrad {
@@ -36,9 +37,13 @@ record FpSak(String saksnummer,
         }
     }
 
+    enum BrukerRolle {
+        MOR, FAR, MEDMOR
+    }
+
     @Override
     public String toString() {
         return "FpSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", status=" + status + ", vedtakene="
-            + vedtakene + ", aksjonspunkt=" + aksjonspunkt + ", søknader=" + søknader + '}';
+            + vedtakene + ", aksjonspunkt=" + aksjonspunkt + ", søknader=" + søknader + ", brukerRolle=" + brukerRolle + '}';
     }
 }
