@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptj
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -28,8 +29,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
+import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
@@ -37,6 +40,7 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederForVurderBekreftetOpptjening;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederForVurderOppgittOpptjening;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYrkesaktivitetTilOpptjeningsperiodeTjeneste;
@@ -301,6 +305,22 @@ public class OpptjeningsperioderTjeneste {
 
     public Optional<Opptjening> hentOpptjeningHvisFinnes(Long behandlingId) {
         return opptjeningRepository.finnOpptjening(behandlingId);
+    }
+
+    public Collection<FerdiglignetNæring> hentFerdiglignetNæring(BehandlingReferanse behandlingReferanse) {
+        return inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())
+            .map(grunnlag -> grunnlag.getAktørInntektFraRegister(behandlingReferanse.aktørId()))
+            .map(InntektFilter::new)
+            .map(ai -> ai.før(behandlingReferanse.getUtledetSkjæringstidspunkt()))
+            .map(InntektFilter::filterBeregnetSkatt)
+            .map(f -> f.filter(InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE, InntektspostType.NÆRING_FISKE_FANGST_FAMBARNEHAGE))
+            .map(f -> f.mapInntektspost(OpptjeningsperioderTjeneste::mapInntektspost)).orElse(List.of());
+    }
+
+    private static FerdiglignetNæring mapInntektspost(Inntekt inntekt, Inntektspost inntektspost) {
+       return new FerdiglignetNæring(inntekt.getArbeidsgiver(),
+            String.valueOf(inntektspost.getPeriode().getFomDato().getYear()),
+           inntektspost.getBeløp().erNullEllerNulltall() ? 0L : inntektspost.getBeløp().getVerdi().longValue());
     }
 
     private void mapAnnenAktivitet(List<OpptjeningsperiodeForSaksbehandling> perioder,
