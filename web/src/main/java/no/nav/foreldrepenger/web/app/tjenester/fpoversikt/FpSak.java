@@ -5,7 +5,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-record FpSak(String saksnummer, String aktørId, FamilieHendelse familieHendelse, Set<Vedtak> vedtakene, String oppgittAnnenPart) implements Sak {
+record FpSak(String saksnummer,
+             String aktørId,
+             FamilieHendelse familieHendelse,
+             Status status,
+             Set<Vedtak> vedtakene,
+             String oppgittAnnenPart,
+             Set<Aksjonspunkt> aksjonspunkt,
+             Set<Søknad> søknader) implements Sak {
 
     record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad) {
         enum Dekningsgrad {
@@ -23,8 +30,15 @@ record FpSak(String saksnummer, String aktørId, FamilieHendelse familieHendelse
         }
     }
 
+    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder) {
+
+        record Periode(LocalDate fom, LocalDate tom) {
+        }
+    }
+
     @Override
     public String toString() {
-        return "FpSak{" + "saksnummer='" + saksnummer + '\'' + ", vedtakene=" + vedtakene + '}';
+        return "FpSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", status=" + status + ", vedtakene="
+            + vedtakene + ", aksjonspunkt=" + aksjonspunkt + ", søknader=" + søknader + '}';
     }
 }

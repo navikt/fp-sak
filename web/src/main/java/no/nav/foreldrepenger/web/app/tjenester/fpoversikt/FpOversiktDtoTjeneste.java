@@ -9,15 +9,16 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -26,12 +27,11 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository vedtakRepository;
@@ -40,6 +40,8 @@ public class FpOversiktDtoTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private FagsakRepository fagsakRepository;
+    private MottatteDokumentRepository dokumentRepository;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
@@ -48,7 +50,8 @@ public class FpOversiktDtoTjeneste {
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  PersonopplysningTjeneste personopplysningTjeneste,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
-                                 FagsakRepository fagsakRepository) {
+                                 FagsakRepository fagsakRepository,
+                                 MottatteDokumentRepository dokumentRepository, YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.vedtakRepository = vedtakRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
@@ -56,6 +59,8 @@ public class FpOversiktDtoTjeneste {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.fagsakRepository = fagsakRepository;
+        this.dokumentRepository = dokumentRepository;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
     FpOversiktDtoTjeneste() {
@@ -69,12 +74,90 @@ public class FpOversiktDtoTjeneste {
         var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(fagsak);
         var åpenYtelseBehandling = hentÅpenBehandling(fagsak);
         var familieHendelse = finnFamilieHendelse(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
+        var sakStatus = finnFagsakStatus(fagsak);
+        var ikkeHenlagteBehandlinger = finnIkkeHenlagteBehandlinger(fagsak);
+        var aksjonspunkt = finnAksjonspunkt(ikkeHenlagteBehandlinger);
+        var mottatteSøknader = finnRelevanteSøknadsdokumenter(fagsak);
         return switch (fagsak.getYtelseType()) {
-            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse);
-            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, finnVedtakForForeldrepenger(fagsak),
-                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null));
-            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse);
+            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnEsSøknader(åpenYtelseBehandling,
+                mottatteSøknader));
+            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
+                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader));
+            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
+                mottatteSøknader));
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
+        };
+    }
+
+    private List<MottattDokument> finnRelevanteSøknadsdokumenter(Fagsak fagsak) {
+        return dokumentRepository.hentMottatteDokumentMedFagsakId(fagsak.getId())
+            .stream()
+            .filter(md -> md.erSøknadsDokument())
+            .filter(md -> md.getJournalpostId() != null)
+            .filter(md -> md.getMottattTidspunkt() != null)
+            .toList();
+    }
+
+    private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+        return mottatteSøknader.stream()
+            .map(md -> {
+                var status = statusForSøknad(åpenYtelseBehandling, md);
+                var perioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(md.getBehandlingId()).map(ytelseFordelingAggregat -> {
+                    var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
+                    return oppgittFordeling.getPerioder().stream().map(p -> tilDto(p)).collect(Collectors.toSet());
+                }).orElse(Set.of());
+                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder);
+            })
+            .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
+            .collect(Collectors.toSet());
+    }
+
+    private static SøknadStatus statusForSøknad(Optional<Behandling> åpenYtelseBehandling, MottattDokument md) {
+        return åpenYtelseBehandling.filter(b -> b.getId().equals(md.getBehandlingId())).map(b -> SøknadStatus.MOTTATT).orElse(SøknadStatus.BEHANDLET);
+    }
+
+    private static FpSak.Søknad.Periode tilDto(OppgittPeriodeEntitet periode) {
+        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom());
+    }
+
+    private static Set<SvpSak.Søknad> finnSvpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+        return mottatteSøknader.stream()
+            .map(md -> {
+                var status = statusForSøknad(åpenYtelseBehandling, md);
+                return new SvpSak.Søknad(status, md.getMottattTidspunkt());
+            })
+            .collect(Collectors.toSet());
+    }
+
+    private static Set<EsSak.Søknad> finnEsSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+        return mottatteSøknader.stream()
+            .map(md -> {
+                var status = statusForSøknad(åpenYtelseBehandling, md);
+                return new EsSak.Søknad(status, md.getMottattTidspunkt());
+            })
+            .collect(Collectors.toSet());
+    }
+
+    private List<Behandling> finnIkkeHenlagteBehandlinger(Fagsak fagsak) {
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
+    }
+
+    private Set<Sak.Aksjonspunkt> finnAksjonspunkt(List<Behandling> ikkeHenlagteBehandlinger) {
+        return ikkeHenlagteBehandlinger.stream().flatMap(b -> b.getAksjonspunkter().stream())
+            .filter(a -> a.erOpprettet() || a.erUtført())
+            .map(a -> {
+                var status = a.erOpprettet() ? Sak.Aksjonspunkt.Status.OPPRETTET : Sak.Aksjonspunkt.Status.UTFØRT;
+                var venteÅrsak = Venteårsak.UDEFINERT.equals(a.getVenteårsak()) ? null : a.getVenteårsak().getKode();
+                return new Sak.Aksjonspunkt(a.getAksjonspunktDefinisjon().getKode(), status, venteÅrsak, a.getOpprettetTidspunkt());
+            }).collect(Collectors.toSet());
+    }
+
+    private Sak.Status finnFagsakStatus(Fagsak fagsak) {
+        return switch (fagsak.getStatus()) {
+            case OPPRETTET -> Sak.Status.OPPRETTET;
+            case UNDER_BEHANDLING -> Sak.Status.UNDER_BEHANDLING;
+            case LØPENDE -> Sak.Status.LØPENDE;
+            case AVSLUTTET -> Sak.Status.AVSLUTTET;
         };
     }
 
