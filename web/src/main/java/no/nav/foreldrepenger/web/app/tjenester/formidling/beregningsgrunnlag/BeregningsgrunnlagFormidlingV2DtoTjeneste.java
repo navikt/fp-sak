@@ -121,13 +121,9 @@ public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
     }
 
     private BigDecimal hentOverstyrtEllerBeregnetHvisFinnes(BeregningsgrunnlagPrStatusOgAndel andel) {
-        if (andel.getOverstyrtPrÅr() != null ) {
-            return andel.getOverstyrtPrÅr();
-        } else if (andel.getBeregnetPrÅr() != null) {
-            return andel.getBeregnetPrÅr();
-        } else {
-            return BigDecimal.ZERO;
-        }
+        return Optional.ofNullable(andel.getOverstyrtPrÅr())
+            .or(() -> Optional.ofNullable(andel.getBeregnetPrÅr()))
+            .orElse(BigDecimal.ZERO);
     }
 
     private boolean finnesBesteberegnetAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList) {
