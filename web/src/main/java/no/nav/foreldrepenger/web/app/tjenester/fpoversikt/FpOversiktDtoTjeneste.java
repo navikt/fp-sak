@@ -9,13 +9,12 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -31,8 +30,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
-
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository vedtakRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -40,6 +37,7 @@ public class FpOversiktDtoTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private FagsakRepository fagsakRepository;
+    private MottatteDokumentRepository dokumentRepository;
 
     @Inject
     public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
@@ -48,7 +46,8 @@ public class FpOversiktDtoTjeneste {
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  PersonopplysningTjeneste personopplysningTjeneste,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
-                                 FagsakRepository fagsakRepository) {
+                                 FagsakRepository fagsakRepository,
+                                 MottatteDokumentRepository dokumentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.vedtakRepository = vedtakRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
@@ -56,6 +55,7 @@ public class FpOversiktDtoTjeneste {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.fagsakRepository = fagsakRepository;
+        this.dokumentRepository = dokumentRepository;
     }
 
     FpOversiktDtoTjeneste() {
@@ -69,12 +69,50 @@ public class FpOversiktDtoTjeneste {
         var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(fagsak);
         var åpenYtelseBehandling = hentÅpenBehandling(fagsak);
         var familieHendelse = finnFamilieHendelse(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
+        var sakStatus = finnFagsakStatus(fagsak);
+        var ikkeHenlagteBehandlinger = finnIkkeHenlagteBehandlinger(fagsak);
+        var aksjonspunkt = finnAksjonspunkt(ikkeHenlagteBehandlinger);
+        var egenskaper = åpenYtelseBehandling.map(this::finnEgenskaper).orElse(Set.of());
         return switch (fagsak.getYtelseType()) {
-            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse);
-            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, finnVedtakForForeldrepenger(fagsak),
-                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null));
-            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse);
+            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, egenskaper);
+            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
+                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, egenskaper);
+            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, egenskaper);
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
+        };
+    }
+
+    private List<Behandling> finnIkkeHenlagteBehandlinger(Fagsak fagsak) {
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
+    }
+
+    private Set<Sak.Egenskap> finnEgenskaper(Behandling behandling) {
+        return harSøknadUnderBehandling(behandling) ? Set.of(Sak.Egenskap.SØKNAD_UNDER_BEHANDLING) : Set.of();
+    }
+
+    private boolean harSøknadUnderBehandling(Behandling behandling) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            return true;
+        }
+        return behandling.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD) && dokumentRepository.hentMottatteDokument(behandling.getId())
+            .stream().anyMatch(d -> d.erSøknadsDokument());
+    }
+
+    private Set<Sak.Aksjonspunkt> finnAksjonspunkt(List<Behandling> ikkeHenlagteBehandlinger) {
+        return ikkeHenlagteBehandlinger.stream().flatMap(b -> b.getAksjonspunkter().stream())
+            .filter(a -> a.erOpprettet() || a.erUtført())
+            .map(a -> {
+                var status = a.erOpprettet() ? Sak.Aksjonspunkt.Status.OPPRETTET : Sak.Aksjonspunkt.Status.UTFØRT;
+                return new Sak.Aksjonspunkt(a.getAksjonspunktDefinisjon().getKode(), status, a.getVenteårsak().getKode(), a.getOpprettetTidspunkt());
+            }).collect(Collectors.toSet());
+    }
+
+    private Sak.Status finnFagsakStatus(Fagsak fagsak) {
+        return switch (fagsak.getStatus()) {
+            case OPPRETTET -> Sak.Status.OPPRETTET;
+            case UNDER_BEHANDLING -> Sak.Status.UNDER_BEHANDLING;
+            case LØPENDE -> Sak.Status.LØPENDE;
+            case AVSLUTTET -> Sak.Status.AVSLUTTET;
         };
     }
 

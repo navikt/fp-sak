@@ -11,11 +11,14 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
@@ -36,7 +39,7 @@ class FpOversiktDtoTjenesteTest {
     void henter_sak_med_foreldrepenger() {
         var vedtakstidspunkt = LocalDateTime.now();
         var fødselsdato = LocalDate.now();
-        var behandling = opprettAvsluttetBehandling(vedtakstidspunkt, Dekningsgrad._80, fødselsdato);
+        var behandling = opprettAvsluttetFpBehandling(vedtakstidspunkt, Dekningsgrad._80, fødselsdato);
         var annenPartAktørId = AktørId.dummy();
         repositoryProvider.getPersonopplysningRepository().lagre(behandling.getId(),
             new OppgittAnnenPartBuilder().medAktørId(annenPartAktørId).build());
@@ -53,6 +56,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.vedtakene()).hasSize(1);
+        assertThat(dto.status()).isEqualTo(Sak.Status.OPPRETTET);
         var vedtak = dto.vedtakene().stream().findFirst().orElseThrow();
         assertThat(vedtak.dekningsgrad()).isEqualTo(FpSak.Vedtak.Dekningsgrad.ÅTTI);
         assertThat(vedtak.vedtakstidspunkt()).isEqualTo(vedtakstidspunkt);
@@ -70,7 +74,29 @@ class FpOversiktDtoTjenesteTest {
         assertThat(familieHendelse.omsorgsovertakelse()).isNull();
     }
 
-    private Behandling opprettAvsluttetBehandling(LocalDateTime vedtakstidspunkt, Dekningsgrad dekningsgrad, LocalDate fødselsdato) {
+    @Test
+    void henter_aksjonspunkt() {
+        var apDef = AksjonspunktDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST;
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .leggTilAksjonspunkt(apDef, BehandlingStegType.VURDER_KOMPLETTHET)
+            .lagre(repositoryProvider);
+
+        var dto = (EsSak) tjeneste.hentSak(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
+        assertThat(dto.aksjonspunkt()).hasSize(1);
+        var apDto = dto.aksjonspunkt().stream().findFirst().orElseThrow();
+        var opprettetAp = repositoryProvider.getBehandlingRepository()
+            .hentBehandling(behandling.getId())
+            .getAksjonspunktMedDefinisjonOptional(apDef)
+            .orElseThrow();
+        assertThat(apDto.kode()).isEqualTo(apDef.getKode());
+        assertThat(apDto.status()).isEqualTo(Sak.Aksjonspunkt.Status.OPPRETTET);
+        assertThat(apDto.venteÅrsak()).isEqualTo(opprettetAp.getVenteårsak().getKode());
+        assertThat(apDto.opprettetTidspunkt()).isEqualTo(opprettetAp.getOpprettetTidspunkt());
+    }
+
+    private Behandling opprettAvsluttetFpBehandling(LocalDateTime vedtakstidspunkt, Dekningsgrad dekningsgrad, LocalDate fødselsdato) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato);
 

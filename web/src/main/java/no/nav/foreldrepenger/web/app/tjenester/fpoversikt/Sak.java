@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -13,7 +14,27 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public interface Sak {
 
-    record FamilieHendelse(LocalDate fødselsdato, LocalDate termindato, int antallBarn, LocalDate omsorgsovertakelse){
+    Status status();
 
+    record FamilieHendelse(LocalDate fødselsdato, LocalDate termindato, int antallBarn, LocalDate omsorgsovertakelse) {
+    }
+
+    enum Status {
+        OPPRETTET,
+        UNDER_BEHANDLING,
+        LØPENDE,
+        AVSLUTTET,
+    }
+
+    record Aksjonspunkt(String kode, Status status, String venteÅrsak, LocalDateTime opprettetTidspunkt) {
+
+        public enum Status {
+            UTFØRT,
+            OPPRETTET
+        }
+    }
+
+    enum Egenskap {
+        SØKNAD_UNDER_BEHANDLING,
     }
 }
