@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -29,6 +30,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
@@ -42,6 +44,7 @@ public class FpOversiktDtoTjeneste {
     private FagsakRepository fagsakRepository;
     private MottatteDokumentRepository dokumentRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
     public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
@@ -51,7 +54,9 @@ public class FpOversiktDtoTjeneste {
                                  PersonopplysningTjeneste personopplysningTjeneste,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  FagsakRepository fagsakRepository,
-                                 MottatteDokumentRepository dokumentRepository, YtelseFordelingTjeneste ytelseFordelingTjeneste) {
+                                 MottatteDokumentRepository dokumentRepository,
+                                 YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.vedtakRepository = vedtakRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
@@ -61,6 +66,7 @@ public class FpOversiktDtoTjeneste {
         this.fagsakRepository = fagsakRepository;
         this.dokumentRepository = dokumentRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     FpOversiktDtoTjeneste() {
@@ -83,11 +89,34 @@ public class FpOversiktDtoTjeneste {
                 mottatteSøknader));
             case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
                 oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader),
-                finnBrukerRolle(fagsak));
+                finnBrukerRolle(fagsak), finnFødteBarn(fagsak, gjeldendeVedtak, åpenYtelseBehandling));
             case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
                 mottatteSøknader));
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
         };
+    }
+
+    private Set<String> finnFødteBarn(Fagsak fagsak,
+                                      Optional<BehandlingVedtak> gjeldendeVedtak,
+                                      Optional<Behandling> åpenYtelseBehandling) {
+        final Optional<Behandling> behandling;
+        if (gjeldendeVedtak.isPresent()) {
+            var behandlingId = gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId();
+            behandling = Optional.of(behandlingRepository.hentBehandling(behandlingId));
+        } else if (åpenYtelseBehandling.isPresent()) {
+            behandling = åpenYtelseBehandling;
+        } else {
+            behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        }
+        return behandling.map(this::finnFødteBarn).orElse(Set.of());
+    }
+
+    private Set<String> finnFødteBarn(Behandling behandling) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
+            .map(pi -> pi.getBarna().stream().map(barn -> barn.getAktørId().getId()).collect(Collectors.toSet()))
+            .orElse(Set.of());
     }
 
     private FpSak.BrukerRolle finnBrukerRolle(Fagsak fagsak) {
