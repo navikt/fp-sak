@@ -1,9 +1,8 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,12 +50,22 @@ public class OpptjeningDtoTjeneste {
                 mapFastsattOpptjening(fastsatt), MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(fastsatt.getOpptjeningAktivitet()))));
 
         if (fastsattOpptjening.isPresent()) {
-            var ferdiglignet = forSaksbehandlingTjeneste.hentFerdiglignetNæring(ref);
+
             resultat.setOpptjeningAktivitetList(
                     forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
                             .stream()
-                            .map(p -> lagDtoFraOAPeriode(p, ferdiglignet))
+                            .map(this::lagDtoFraOAPeriode)
                             .toList());
+            // Ta med ferdiglignete år dersom finnes aktivitet næring
+            if (resultat.getOpptjeningAktivitetList().stream().anyMatch(oa -> OpptjeningAktivitetType.NÆRING.equals(oa.getAktivitetType()))) {
+                var ferdiglignet = forSaksbehandlingTjeneste.hentFerdiglignetNæring(ref).stream()
+                    .collect(Collectors.groupingBy(FerdiglignetNæring::år, Collectors.reducing(0L, FerdiglignetNæring::beløp, Long::sum)))
+                    .entrySet().stream()
+                    .map(e -> new FerdiglignetNæringDto(e.getKey(), e.getValue()))
+                    .sorted(Comparator.comparing(FerdiglignetNæringDto::år))
+                    .toList();
+                resultat.setFerdiglignetNæring(ferdiglignet);
+            }
         } else {
             resultat.setOpptjeningAktivitetList(Collections.emptyList());
         }
@@ -72,7 +81,7 @@ public class OpptjeningDtoTjeneste {
                 fastsattOpptjening.getOpptjentPeriode().getDays()) : new OpptjeningPeriodeDto();
     }
 
-    private OpptjeningAktivitetDto lagDtoFraOAPeriode(OpptjeningsperiodeForSaksbehandling oap, Collection<FerdiglignetNæring> ferdiglignet) {
+    private OpptjeningAktivitetDto lagDtoFraOAPeriode(OpptjeningsperiodeForSaksbehandling oap) {
         var dto = new OpptjeningAktivitetDto(oap.getOpptjeningAktivitetType(),
                 oap.getPeriode().getFomDato(), oap.getPeriode().getTomDato());
 
@@ -80,9 +89,9 @@ public class OpptjeningDtoTjeneste {
         if ((arbeidsgiver != null) && arbeidsgiver.erAktørId()) {
             lagOpptjeningAktivitetDtoForPrivatArbeidsgiver(oap, dto);
         } else if ((arbeidsgiver != null) && OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr())) {
-            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, false, ferdiglignet);
+            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, false);
         } else if (erKunstig(oap)) {
-            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, true, List.of());
+            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, true);
         } else {
             lagOpptjeningAktivitetDtoForUtlandskOrganisasjon(oap, dto);
         }
@@ -110,15 +119,10 @@ public class OpptjeningDtoTjeneste {
                 .orElse(null));
     }
 
-    private void lagOpptjeningAktivitetDtoForArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto,
-                                                          boolean kunstig, Collection<FerdiglignetNæring> ferdiglignet) {
+    private void lagOpptjeningAktivitetDtoForArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto, boolean kunstig) {
         if (!kunstig && (oap.getArbeidsgiver() != null) && OpptjeningAktivitetType.NÆRING.equals(oap.getOpptjeningAktivitetType())) {
             var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(oap.getArbeidsgiver().getOrgnr());
             dto.setNaringRegistreringsdato(virksomhet.getRegistrert());
-            var lignetÅrMap = ferdiglignet.stream()
-                .filter(fl -> oap.getArbeidsgiver().equals(fl.arbeidsgiver()))
-                .collect(Collectors.groupingBy(FerdiglignetNæring::år, Collectors.reducing(0L, FerdiglignetNæring::beløp, Long::sum)));
-            dto.setFerdiglignetNæring(lignetÅrMap.entrySet().stream().map(e -> new FerdiglignetNæringDto(e.getKey(), e.getValue())).toList());
         }
         dto.setArbeidsgiverReferanse(oap.getArbeidsgiver() != null ? oap.getArbeidsgiver().getIdentifikator() : null);
         dto.setStillingsandel(Optional.ofNullable(oap.getStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO));

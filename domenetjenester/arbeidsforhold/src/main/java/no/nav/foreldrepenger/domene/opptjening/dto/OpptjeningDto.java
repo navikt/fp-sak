@@ -6,6 +6,8 @@ public class OpptjeningDto {
 
     private FastsattOpptjeningDto fastsattOpptjening;
     private List<OpptjeningAktivitetDto> opptjeningAktivitetList;
+    private List<FerdiglignetNæringDto> ferdiglignetNæring;
+
 
     public OpptjeningDto() {
         // trengs for deserialisering av JSON
@@ -29,5 +31,13 @@ public class OpptjeningDto {
 
     public void setOpptjeningAktivitetList(List<OpptjeningAktivitetDto> opptjeningAktivitetList) {
         this.opptjeningAktivitetList = opptjeningAktivitetList;
+    }
+
+    public List<FerdiglignetNæringDto> getFerdiglignetNæring() {
+        return ferdiglignetNæring;
+    }
+
+    public void setFerdiglignetNæring(List<FerdiglignetNæringDto> ferdiglignetNæring) {
+        this.ferdiglignetNæring = ferdiglignetNæring;
     }
 }

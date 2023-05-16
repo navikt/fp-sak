@@ -318,8 +318,7 @@ public class OpptjeningsperioderTjeneste {
     }
 
     private static FerdiglignetNæring mapInntektspost(Inntekt inntekt, Inntektspost inntektspost) {
-       return new FerdiglignetNæring(inntekt.getArbeidsgiver(),
-            String.valueOf(inntektspost.getPeriode().getFomDato().getYear()),
+       return new FerdiglignetNæring(String.valueOf(inntektspost.getPeriode().getFomDato().getYear()),
            inntektspost.getBeløp().erNullEllerNulltall() ? 0L : inntektspost.getBeløp().getVerdi().longValue());
     }
 
