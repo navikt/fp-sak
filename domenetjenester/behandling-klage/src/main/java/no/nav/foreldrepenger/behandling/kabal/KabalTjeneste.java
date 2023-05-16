@@ -172,14 +172,22 @@ public class KabalTjeneste {
     public Optional<Behandling> finnAnkeBehandling(Long behandlingId, String kabalReferanse) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
+            // Knoteri fra Kabal
+            // - AnkeOpprettet kommer med en kabalref og en direkte AnkeAvsluttet har samme kabalRef
+            // - AnkeOpprettet kommer med en kabalref og AnkeTrygderett vil komme med en ny kabalRef - som presumptivt kommer i AnkeAvsluttet
+            var alleAnker = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(behandling.getFagsakId()).stream()
                 .filter(b -> BehandlingType.ANKE.equals(b.getType()))
-                .filter(b -> {
-                    var resultatReferanse = ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse();
-                    return resultatReferanse == null || Objects.equals(kabalReferanse, ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse());
-                })
                 .filter(b -> !b.erSaksbehandlingAvsluttet())
-                .findFirst();
+                .toList();
+            return alleAnker.stream()
+                .filter(b -> ankeVurderingTjeneste.hentAnkeResultat(b).getPåAnketKlageBehandlingId().filter(k -> k.equals(behandlingId)).isPresent())
+                .findFirst()
+                .or(() -> alleAnker.stream()
+                    .filter(b -> {
+                        var resultatReferanse = ankeVurderingTjeneste.hentAnkeResultat(b).getKabalReferanse();
+                        return resultatReferanse == null || Objects.equals(kabalReferanse, resultatReferanse);
+                    })
+                    .findFirst());
         } else if (BehandlingType.ANKE.equals(behandling.getType())) {
             return Optional.of(behandling);
         } else {
