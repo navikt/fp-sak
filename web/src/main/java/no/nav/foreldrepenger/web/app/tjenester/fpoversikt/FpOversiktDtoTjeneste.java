@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -221,13 +220,46 @@ public class FpOversiktDtoTjeneste {
     }
 
     private Set<Sak.Aksjonspunkt> finnAksjonspunkt(List<Behandling> ikkeHenlagteBehandlinger) {
-        return ikkeHenlagteBehandlinger.stream().flatMap(b -> b.getAksjonspunkter().stream())
-            .filter(a -> a.erOpprettet() || a.erUtført())
+        return ikkeHenlagteBehandlinger.stream().flatMap(b -> b.getÅpneAksjonspunkter().stream())
             .map(a -> {
-                var status = a.erOpprettet() ? Sak.Aksjonspunkt.Status.OPPRETTET : Sak.Aksjonspunkt.Status.UTFØRT;
-                var venteÅrsak = Venteårsak.UDEFINERT.equals(a.getVenteårsak()) ? null : a.getVenteårsak().getKode();
-                return new Sak.Aksjonspunkt(a.getAksjonspunktDefinisjon().getKode(), status, venteÅrsak, a.getOpprettetTidspunkt());
-            }).collect(Collectors.toSet());
+                var type = switch (a.getAksjonspunktDefinisjon()) {
+                    case AUTO_MANUELT_SATT_PÅ_VENT -> Sak.Aksjonspunkt.Type.VENT_MANUELT_SATT;
+                    case AUTO_VENT_PÅ_FØDSELREGISTRERING -> Sak.Aksjonspunkt.Type.VENT_FØDSEL;
+                    case AUTO_VENTER_PÅ_KOMPLETT_SØKNAD -> Sak.Aksjonspunkt.Type.VENT_KOMPLETT_SØKNAD;
+                    case AUTO_SATT_PÅ_VENT_REVURDERING -> Sak.Aksjonspunkt.Type.VENT_REVURDERING;
+                    case VENT_PGA_FOR_TIDLIG_SØKNAD -> Sak.Aksjonspunkt.Type.VENT_TIDLIG_SØKNAD;
+                    case AUTO_KØET_BEHANDLING -> Sak.Aksjonspunkt.Type.VENT_KØET_BEHANDLING;
+                    case VENT_PÅ_SØKNAD -> Sak.Aksjonspunkt.Type.VENT_SØKNAD;
+                    case AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST -> Sak.Aksjonspunkt.Type.VENT_INNTEKT_RAPPORTERINGSFRIST;
+                    case AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT -> Sak.Aksjonspunkt.Type.VENT_SISTE_AAP_ELLER_DP_MELDEKORT;
+                    case AUTO_VENT_ETTERLYST_INNTEKTSMELDING -> Sak.Aksjonspunkt.Type.VENT_ETTERLYST_INNTEKTSMELDING;
+                    case AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN -> Sak.Aksjonspunkt.Type.VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN;
+                    case AUTO_VENT_PÅ_SYKEMELDING -> Sak.Aksjonspunkt.Type.VENT_SYKEMELDING;
+                    case AUTO_VENT_PÅ_KABAL_KLAGE -> Sak.Aksjonspunkt.Type.VENT_KABAL_KLAGE;
+                    case AUTO_VENT_PÅ_KABAL_ANKE -> Sak.Aksjonspunkt.Type.VENT_PÅ_KABAL_ANKE;
+                    default -> null;
+                };
+
+                var venteÅrsak = switch (a.getVenteårsak()) {
+                    case ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER -> Sak.Aksjonspunkt.Venteårsak.ANKE_VENTER_PÅ_MERKNADER_FRA_BRUKER;
+                    case AVV_DOK -> Sak.Aksjonspunkt.Venteårsak.AVVENT_DOKUMTANSJON;
+                    case AVV_FODSEL -> Sak.Aksjonspunkt.Venteårsak.AVVENT_FØDSEL;
+                    case AVV_RESPONS_REVURDERING -> Sak.Aksjonspunkt.Venteårsak.AVVENT_RESPONS_REVURDERING;
+                    case FOR_TIDLIG_SOKNAD -> Sak.Aksjonspunkt.Venteårsak.FOR_TIDLIG_SOKNAD;
+                    case UTV_FRIST -> Sak.Aksjonspunkt.Venteårsak.UTVIDET_FRIST;
+                    case VENT_INNTEKT_RAPPORTERINGSFRIST -> Sak.Aksjonspunkt.Venteårsak.INNTEKT_RAPPORTERINGSFRIST;
+                    case VENT_MANGLENDE_SYKEMELDING -> Sak.Aksjonspunkt.Venteårsak.MANGLENDE_SYKEMELDING;
+                    case VENT_OPDT_INNTEKTSMELDING -> Sak.Aksjonspunkt.Venteårsak.MANGLENDE_INNTEKTSMELDING;
+                    case VENT_OPPTJENING_OPPLYSNINGER -> Sak.Aksjonspunkt.Venteårsak.OPPTJENING_OPPLYSNINGER;
+                    case VENT_SØKNAD_SENDT_INFORMASJONSBREV -> Sak.Aksjonspunkt.Venteårsak.SENDT_INFORMASJONSBREV;
+                    case VENT_ÅPEN_BEHANDLING -> Sak.Aksjonspunkt.Venteårsak.ÅPEN_BEHANDLING;
+                    case VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT -> Sak.Aksjonspunkt.Venteårsak.SISTE_AAP_ELLER_DP_MELDEKORT;
+                    default -> null;
+                };
+                return new Sak.Aksjonspunkt(type, venteÅrsak, a.getFristTid());
+            })
+            .filter(a -> a.type() != null)
+            .collect(Collectors.toSet());
     }
 
     private Sak.Status finnFagsakStatus(Fagsak fagsak) {

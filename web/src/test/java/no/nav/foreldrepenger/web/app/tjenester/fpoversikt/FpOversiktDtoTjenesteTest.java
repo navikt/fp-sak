@@ -140,7 +140,7 @@ class FpOversiktDtoTjenesteTest {
 
     @Test
     void henter_aksjonspunkt() {
-        var apDef = AksjonspunktDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST;
+        var apDef = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
         var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
             .leggTilAksjonspunkt(apDef, BehandlingStegType.VURDER_KOMPLETTHET)
             .lagre(repositoryProvider);
@@ -150,20 +150,17 @@ class FpOversiktDtoTjenesteTest {
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.aksjonspunkt()).hasSize(1);
         var apDto = dto.aksjonspunkt().stream().findFirst().orElseThrow();
-        var opprettetAp = repositoryProvider.getBehandlingRepository()
-            .hentBehandling(behandling.getId())
-            .getAksjonspunktMedDefinisjonOptional(apDef)
-            .orElseThrow();
-        assertThat(apDto.kode()).isEqualTo(apDef.getKode());
-        assertThat(apDto.status()).isEqualTo(Sak.Aksjonspunkt.Status.OPPRETTET);
-        assertThat(apDto.venteÅrsak()).isNull();
-        assertThat(apDto.opprettetTidspunkt()).isEqualTo(opprettetAp.getOpprettetTidspunkt());
+        assertThat(apDto.type()).isEqualTo(Sak.Aksjonspunkt.Type.VENT_MANUELT_SATT);
+        assertThat(apDto.venteårsak()).isNull();
+        assertThat(apDto.tidsfrist()).isNotNull();
     }
 
-    private Behandling opprettAvsluttetFpBehandling(LocalDateTime vedtakstidspunkt, Dekningsgrad dekningsgrad, LocalDate fødselsdato,
-                                                    OppgittFordelingEntitet fordeling, OppgittRettighetEntitet oppgittRettighet) {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(oppgittRettighet)
+    private Behandling opprettAvsluttetFpBehandling(LocalDateTime vedtakstidspunkt,
+                                                    Dekningsgrad dekningsgrad,
+                                                    LocalDate fødselsdato,
+                                                    OppgittFordelingEntitet fordeling,
+                                                    OppgittRettighetEntitet oppgittRettighet) {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medOppgittRettighet(oppgittRettighet)
             .medFordeling(fordeling)
             .medFødselAdopsjonsdato(fødselsdato);
 
