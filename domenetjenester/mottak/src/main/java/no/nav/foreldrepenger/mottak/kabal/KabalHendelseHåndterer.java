@@ -58,7 +58,13 @@ public class KabalHendelseHåndterer {
     }
 
     void handleMessage(String key, String payload) {
-        var mottattHendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
+        KabalHendelse mottattHendelse;
+        try {
+            mottattHendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
+        } catch (Exception e) {
+            LOG.error("KABAL har endret kontrakt uten forvarsel melding {}", payload, e);
+            return;
+        }
         setCallIdForHendelse(mottattHendelse);
         LOG.info("KABAL mottatt hendelse key={} hendelse={}", key, mottattHendelse);
 
@@ -74,6 +80,13 @@ public class KabalHendelseHåndterer {
         var behandling = behandlingRepository.hentBehandling(UUID.fromString(mottattHendelse.kildeReferanse()));
         if (behandling == null) {
             LOG.warn("KABAL mottatt hendelse med ukjent referanse hendelse={}", mottattHendelse);
+            return;
+        }
+        if (KabalHendelse.BehandlingEventType.BEHANDLING_FEILREGISTRERT.equals(mottattHendelse.type())) {
+            var bType = behandling.getType().getNavn();
+            var sak = behandling.getFagsak().getSaksnummer().getVerdi();
+            LOG.error("KABAL avvikende bruk av feilregistrert, sjekk sak {} behandlingId {} uuid {} av type {}. Varsle + håndter behandling manuelt",
+                sak, behandling.getId(), behandling.getUuid(), bType);
             return;
         }
         if (BehandlingType.KLAGE.equals(behandling.getType()) && klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()).isEmpty()) {

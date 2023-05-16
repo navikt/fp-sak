@@ -40,7 +40,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     public static final String KABALREF_KEY = "kabalReferanse";
     public static final String OVERSENDTR_KEY = "oversendtTrygderett";
 
-    private static Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.RETUR);
+    private static final Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.RETUR);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -75,7 +75,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
 
         var hendelsetype = Optional.ofNullable(prosessTaskData.getPropertyValue(HENDELSETYPE_KEY))
-            .map(KabalHendelse.BehandlingEventType::valueOf).orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mottatt ikke-støtte kabalisme"));
+            .map(KabalHendelse.BehandlingEventType::valueOf)
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mottatt ikke-støtte kabalisme"));
         var ref = Optional.ofNullable(prosessTaskData.getPropertyValue(KABALREF_KEY))
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler kabalreferanse"));
         switch (hendelsetype) {
@@ -83,6 +84,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             case ANKEBEHANDLING_OPPRETTET -> ankeOpprettet(behandlingId, ref);
             case ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET -> ankeTrygdrett(prosessTaskData, behandlingId, ref);
             case ANKEBEHANDLING_AVSLUTTET -> ankeAvsluttet(prosessTaskData, behandlingId, ref);
+            case BEHANDLING_FEILREGISTRERT -> throw new IllegalArgumentException("Feilregistrert skal ikke propageres");
         }
     }
 
