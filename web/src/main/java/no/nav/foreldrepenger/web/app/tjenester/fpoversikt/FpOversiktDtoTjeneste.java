@@ -16,7 +16,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -28,6 +30,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -45,28 +48,27 @@ public class FpOversiktDtoTjeneste {
     private MottatteDokumentRepository dokumentRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private UføretrygdRepository uføretrygdRepository;
 
     @Inject
-    public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
-                                 BehandlingVedtakRepository vedtakRepository,
-                                 FagsakRelasjonRepository fagsakRelasjonRepository,
+    public FpOversiktDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  PersonopplysningTjeneste personopplysningTjeneste,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
-                                 FagsakRepository fagsakRepository,
-                                 MottatteDokumentRepository dokumentRepository,
                                  YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-        this.behandlingRepository = behandlingRepository;
-        this.vedtakRepository = vedtakRepository;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                 UføretrygdRepository uføretrygdRepository) {
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.vedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.fagsakRepository = fagsakRepository;
-        this.dokumentRepository = dokumentRepository;
+        this.fagsakRepository = repositoryProvider.getFagsakRepository();
+        this.dokumentRepository = repositoryProvider.getMottatteDokumentRepository();
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.uføretrygdRepository = uføretrygdRepository;
     }
 
     FpOversiktDtoTjeneste() {
@@ -89,11 +91,41 @@ public class FpOversiktDtoTjeneste {
                 mottatteSøknader));
             case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
                 oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader),
-                finnBrukerRolle(fagsak), finnFødteBarn(fagsak, gjeldendeVedtak, åpenYtelseBehandling));
+                finnBrukerRolle(fagsak), finnFødteBarn(fagsak, gjeldendeVedtak, åpenYtelseBehandling), finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling));
             case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
                 mottatteSøknader));
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
         };
+    }
+
+    private FpSak.Rettigheter finnRettigheter(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
+        if (gjeldendeVedtak.isPresent()) {
+            return finnGjeldendeRettigheter(gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId());
+        }
+        if (åpenYtelseBehandling.isPresent()) {
+            return finnOppgitteRettigheter(åpenYtelseBehandling.get().getId()).orElse(null);
+        }
+        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        return sisteBehandling.flatMap(b -> finnOppgitteRettigheter(b.getId())).orElse(null);
+    }
+
+    private Optional<FpSak.Rettigheter> finnOppgitteRettigheter(Long behandlingId) {
+       return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).map(ytelseFordelingAggregat -> {
+           var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
+           var aleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
+           var annenForelderRettEØS = oppgittRettighet.getAnnenForelderRettEØS();
+           var morUføretrygd = oppgittRettighet.getMorMottarUføretrygd();
+           return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
+       });
+    }
+
+    private FpSak.Rettigheter finnGjeldendeRettigheter(Long behandlingId) {
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
+        var annenForelderRettEØS = UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
+        var uføretrygdGrunnlagEntitet = uføretrygdRepository.hentGrunnlag(behandlingId);
+        var morUføretrygd = UttakOmsorgUtil.morMottarUføretrygd(ytelseFordelingAggregat, uføretrygdGrunnlagEntitet.orElse(null));
+        return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
     }
 
     private Set<String> finnFødteBarn(Fagsak fagsak,
@@ -156,7 +188,14 @@ public class FpOversiktDtoTjeneste {
     }
 
     private static FpSak.Søknad.Periode tilDto(OppgittPeriodeEntitet periode) {
-        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom());
+        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), switch (periode.getPeriodeType()) {
+            case FELLESPERIODE -> Konto.FELLESPERIODE;
+            case MØDREKVOTE -> Konto.MØDREKVOTE;
+            case FEDREKVOTE -> Konto.FEDREKVOTE;
+            case FORELDREPENGER -> Konto.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
+            case ANNET, UDEFINERT -> null;
+        });
     }
 
     private static Set<SvpSak.Søknad> finnSvpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
@@ -277,7 +316,28 @@ public class FpOversiktDtoTjeneste {
             case AVSLÅTT -> FpSak.Uttaksperiode.Resultat.Type.AVSLÅTT;
             case MANUELL_BEHANDLING -> throw new IllegalStateException("Forventer ikke perioder under manuell behandling");
         };
-        var resultat = new FpSak.Uttaksperiode.Resultat(type);
+        var aktiviteter = periode.getAktiviteter().stream().map(a -> {
+            var aktivitetType = switch (a.getUttakArbeidType()) {
+                case ORDINÆRT_ARBEID -> FpSak.Uttaksperiode.UttakAktivitet.Type.ORDINÆRT_ARBEID;
+                case SELVSTENDIG_NÆRINGSDRIVENDE -> FpSak.Uttaksperiode.UttakAktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
+                case FRILANS -> FpSak.Uttaksperiode.UttakAktivitet.Type.FRILANS;
+                case ANNET -> FpSak.Uttaksperiode.UttakAktivitet.Type.ANNET;
+            };
+            var arbeidsgiver = a.getArbeidsgiver().map(arb -> new FpSak.Uttaksperiode.UttakAktivitet.Arbeidsgiver(arb.getIdentifikator())).orElse(null);
+            var arbeidsforholdId = Optional.ofNullable(a.getArbeidsforholdRef()).map(ref -> ref.getReferanse()).orElse(null);
+            var trekkdager = a.getTrekkdager().decimalValue();
+            var konto = switch (a.getTrekkonto()) {
+                case FELLESPERIODE -> Konto.FELLESPERIODE;
+                case MØDREKVOTE -> Konto.MØDREKVOTE;
+                case FEDREKVOTE -> Konto.FEDREKVOTE;
+                case FORELDREPENGER -> Konto.FORELDREPENGER;
+                case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
+                case UDEFINERT, FLERBARNSDAGER -> null;
+            };
+            return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new FpSak.Uttaksperiode.UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId),
+                konto, trekkdager, a.getArbeidsprosent());
+        }).collect(Collectors.toSet());
+        var resultat = new FpSak.Uttaksperiode.Resultat(type, aktiviteter);
         return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), resultat);
     }
 
