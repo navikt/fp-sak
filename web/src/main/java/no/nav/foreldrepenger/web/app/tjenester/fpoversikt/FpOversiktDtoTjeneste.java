@@ -9,15 +9,18 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -26,12 +29,13 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository vedtakRepository;
@@ -40,22 +44,30 @@ public class FpOversiktDtoTjeneste {
     private PersonopplysningTjeneste personopplysningTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private FagsakRepository fagsakRepository;
+    private MottatteDokumentRepository dokumentRepository;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private UføretrygdRepository uføretrygdRepository;
 
     @Inject
-    public FpOversiktDtoTjeneste(BehandlingRepository behandlingRepository,
-                                 BehandlingVedtakRepository vedtakRepository,
-                                 FagsakRelasjonRepository fagsakRelasjonRepository,
+    public FpOversiktDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                  PersonopplysningTjeneste personopplysningTjeneste,
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
-                                 FagsakRepository fagsakRepository) {
-        this.behandlingRepository = behandlingRepository;
-        this.vedtakRepository = vedtakRepository;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+                                 YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                 UføretrygdRepository uføretrygdRepository) {
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.vedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.fagsakRepository = fagsakRepository;
+        this.fagsakRepository = repositoryProvider.getFagsakRepository();
+        this.dokumentRepository = repositoryProvider.getMottatteDokumentRepository();
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.uføretrygdRepository = uføretrygdRepository;
     }
 
     FpOversiktDtoTjeneste() {
@@ -69,12 +81,193 @@ public class FpOversiktDtoTjeneste {
         var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(fagsak);
         var åpenYtelseBehandling = hentÅpenBehandling(fagsak);
         var familieHendelse = finnFamilieHendelse(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
+        var sakStatus = finnFagsakStatus(fagsak);
+        var ikkeHenlagteBehandlinger = finnIkkeHenlagteBehandlinger(fagsak);
+        var aksjonspunkt = finnAksjonspunkt(ikkeHenlagteBehandlinger);
+        var mottatteSøknader = finnRelevanteSøknadsdokumenter(fagsak);
         return switch (fagsak.getYtelseType()) {
-            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse);
-            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, finnVedtakForForeldrepenger(fagsak),
-                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null));
-            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse);
+            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnEsSøknader(åpenYtelseBehandling,
+                mottatteSøknader));
+            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
+                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader),
+                finnBrukerRolle(fagsak), finnFødteBarn(fagsak, gjeldendeVedtak, åpenYtelseBehandling), finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling));
+            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
+                mottatteSøknader));
             case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
+        };
+    }
+
+    private FpSak.Rettigheter finnRettigheter(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
+        if (gjeldendeVedtak.isPresent()) {
+            return finnGjeldendeRettigheter(gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId());
+        }
+        if (åpenYtelseBehandling.isPresent()) {
+            return finnOppgitteRettigheter(åpenYtelseBehandling.get().getId()).orElse(null);
+        }
+        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        return sisteBehandling.flatMap(b -> finnOppgitteRettigheter(b.getId())).orElse(null);
+    }
+
+    private Optional<FpSak.Rettigheter> finnOppgitteRettigheter(Long behandlingId) {
+       return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).map(ytelseFordelingAggregat -> {
+           var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
+           var aleneomsorg = oppgittRettighet.getHarAleneomsorgForBarnet();
+           var annenForelderRettEØS = oppgittRettighet.getAnnenForelderRettEØS();
+           var morUføretrygd = oppgittRettighet.getMorMottarUføretrygd();
+           return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
+       });
+    }
+
+    private FpSak.Rettigheter finnGjeldendeRettigheter(Long behandlingId) {
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
+        var annenForelderRettEØS = UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
+        var uføretrygdGrunnlagEntitet = uføretrygdRepository.hentGrunnlag(behandlingId);
+        var morUføretrygd = UttakOmsorgUtil.morMottarUføretrygd(ytelseFordelingAggregat, uføretrygdGrunnlagEntitet.orElse(null));
+        return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
+    }
+
+    private Set<String> finnFødteBarn(Fagsak fagsak,
+                                      Optional<BehandlingVedtak> gjeldendeVedtak,
+                                      Optional<Behandling> åpenYtelseBehandling) {
+        final Optional<Behandling> behandling;
+        if (gjeldendeVedtak.isPresent()) {
+            var behandlingId = gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId();
+            behandling = Optional.of(behandlingRepository.hentBehandling(behandlingId));
+        } else if (åpenYtelseBehandling.isPresent()) {
+            behandling = åpenYtelseBehandling;
+        } else {
+            behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        }
+        return behandling.map(this::finnFødteBarn).orElse(Set.of());
+    }
+
+    private Set<String> finnFødteBarn(Behandling behandling) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
+            .map(pi -> pi.getBarna().stream().map(barn -> barn.getAktørId().getId()).collect(Collectors.toSet()))
+            .orElse(Set.of());
+    }
+
+    private FpSak.BrukerRolle finnBrukerRolle(Fagsak fagsak) {
+        return switch (fagsak.getRelasjonsRolleType()) {
+            case FARA -> FpSak.BrukerRolle.FAR;
+            case MORA -> FpSak.BrukerRolle.MOR;
+            case MEDMOR -> FpSak.BrukerRolle.MEDMOR;
+            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD, UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getRelasjonsRolleType());
+        };
+    }
+
+    private List<MottattDokument> finnRelevanteSøknadsdokumenter(Fagsak fagsak) {
+        return dokumentRepository.hentMottatteDokumentMedFagsakId(fagsak.getId())
+            .stream()
+            .filter(md -> md.erSøknadsDokument())
+            .filter(md -> md.getJournalpostId() != null)
+            .filter(md -> md.getMottattTidspunkt() != null)
+            .toList();
+    }
+
+    private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+        return mottatteSøknader.stream()
+            .map(md -> {
+                var status = statusForSøknad(åpenYtelseBehandling, md);
+                var perioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(md.getBehandlingId()).map(ytelseFordelingAggregat -> {
+                    var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
+                    return oppgittFordeling.getPerioder().stream().map(p -> tilDto(p)).collect(Collectors.toSet());
+                }).orElse(Set.of());
+                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder);
+            })
+            .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
+            .collect(Collectors.toSet());
+    }
+
+    private static SøknadStatus statusForSøknad(Optional<Behandling> åpenYtelseBehandling, MottattDokument md) {
+        return åpenYtelseBehandling.filter(b -> b.getId().equals(md.getBehandlingId())).map(b -> SøknadStatus.MOTTATT).orElse(SøknadStatus.BEHANDLET);
+    }
+
+    private static FpSak.Søknad.Periode tilDto(OppgittPeriodeEntitet periode) {
+        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), switch (periode.getPeriodeType()) {
+            case FELLESPERIODE -> Konto.FELLESPERIODE;
+            case MØDREKVOTE -> Konto.MØDREKVOTE;
+            case FEDREKVOTE -> Konto.FEDREKVOTE;
+            case FORELDREPENGER -> Konto.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
+            case ANNET, UDEFINERT -> null;
+        });
+    }
+
+    private static Set<SvpSak.Søknad> finnSvpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+        return mottatteSøknader.stream()
+            .map(md -> {
+                var status = statusForSøknad(åpenYtelseBehandling, md);
+                return new SvpSak.Søknad(status, md.getMottattTidspunkt());
+            })
+            .collect(Collectors.toSet());
+    }
+
+    private static Set<EsSak.Søknad> finnEsSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+        return mottatteSøknader.stream()
+            .map(md -> {
+                var status = statusForSøknad(åpenYtelseBehandling, md);
+                return new EsSak.Søknad(status, md.getMottattTidspunkt());
+            })
+            .collect(Collectors.toSet());
+    }
+
+    private List<Behandling> finnIkkeHenlagteBehandlinger(Fagsak fagsak) {
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
+    }
+
+    private Set<Sak.Aksjonspunkt> finnAksjonspunkt(List<Behandling> ikkeHenlagteBehandlinger) {
+        return ikkeHenlagteBehandlinger.stream().flatMap(b -> b.getÅpneAksjonspunkter().stream())
+            .map(a -> {
+                var type = switch (a.getAksjonspunktDefinisjon()) {
+                    case AUTO_MANUELT_SATT_PÅ_VENT -> Sak.Aksjonspunkt.Type.VENT_MANUELT_SATT;
+                    case AUTO_VENT_PÅ_FØDSELREGISTRERING -> Sak.Aksjonspunkt.Type.VENT_FØDSEL;
+                    case AUTO_VENTER_PÅ_KOMPLETT_SØKNAD -> Sak.Aksjonspunkt.Type.VENT_KOMPLETT_SØKNAD;
+                    case AUTO_SATT_PÅ_VENT_REVURDERING -> Sak.Aksjonspunkt.Type.VENT_REVURDERING;
+                    case VENT_PGA_FOR_TIDLIG_SØKNAD -> Sak.Aksjonspunkt.Type.VENT_TIDLIG_SØKNAD;
+                    case AUTO_KØET_BEHANDLING -> Sak.Aksjonspunkt.Type.VENT_KØET_BEHANDLING;
+                    case VENT_PÅ_SØKNAD -> Sak.Aksjonspunkt.Type.VENT_SØKNAD;
+                    case AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST -> Sak.Aksjonspunkt.Type.VENT_INNTEKT_RAPPORTERINGSFRIST;
+                    case AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT -> Sak.Aksjonspunkt.Type.VENT_SISTE_AAP_ELLER_DP_MELDEKORT;
+                    case AUTO_VENT_ETTERLYST_INNTEKTSMELDING -> Sak.Aksjonspunkt.Type.VENT_ETTERLYST_INNTEKTSMELDING;
+                    case AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN -> Sak.Aksjonspunkt.Type.VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN;
+                    case AUTO_VENT_PÅ_SYKEMELDING -> Sak.Aksjonspunkt.Type.VENT_SYKEMELDING;
+                    case AUTO_VENT_PÅ_KABAL_KLAGE -> Sak.Aksjonspunkt.Type.VENT_KABAL_KLAGE;
+                    case AUTO_VENT_PÅ_KABAL_ANKE -> Sak.Aksjonspunkt.Type.VENT_PÅ_KABAL_ANKE;
+                    default -> null;
+                };
+
+                var venteÅrsak = switch (a.getVenteårsak()) {
+                    case ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER -> Sak.Aksjonspunkt.Venteårsak.ANKE_VENTER_PÅ_MERKNADER_FRA_BRUKER;
+                    case AVV_DOK -> Sak.Aksjonspunkt.Venteårsak.AVVENT_DOKUMTANSJON;
+                    case AVV_FODSEL -> Sak.Aksjonspunkt.Venteårsak.AVVENT_FØDSEL;
+                    case AVV_RESPONS_REVURDERING -> Sak.Aksjonspunkt.Venteårsak.AVVENT_RESPONS_REVURDERING;
+                    case FOR_TIDLIG_SOKNAD -> Sak.Aksjonspunkt.Venteårsak.FOR_TIDLIG_SOKNAD;
+                    case UTV_FRIST -> Sak.Aksjonspunkt.Venteårsak.UTVIDET_FRIST;
+                    case VENT_INNTEKT_RAPPORTERINGSFRIST -> Sak.Aksjonspunkt.Venteårsak.INNTEKT_RAPPORTERINGSFRIST;
+                    case VENT_MANGLENDE_SYKEMELDING -> Sak.Aksjonspunkt.Venteårsak.MANGLENDE_SYKEMELDING;
+                    case VENT_OPDT_INNTEKTSMELDING -> Sak.Aksjonspunkt.Venteårsak.MANGLENDE_INNTEKTSMELDING;
+                    case VENT_OPPTJENING_OPPLYSNINGER -> Sak.Aksjonspunkt.Venteårsak.OPPTJENING_OPPLYSNINGER;
+                    case VENT_SØKNAD_SENDT_INFORMASJONSBREV -> Sak.Aksjonspunkt.Venteårsak.SENDT_INFORMASJONSBREV;
+                    case VENT_ÅPEN_BEHANDLING -> Sak.Aksjonspunkt.Venteårsak.ÅPEN_BEHANDLING;
+                    case VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT -> Sak.Aksjonspunkt.Venteårsak.SISTE_AAP_ELLER_DP_MELDEKORT;
+                    default -> null;
+                };
+                return new Sak.Aksjonspunkt(type, venteÅrsak, a.getFristTid());
+            })
+            .filter(a -> a.type() != null)
+            .collect(Collectors.toSet());
+    }
+
+    private Sak.Status finnFagsakStatus(Fagsak fagsak) {
+        return switch (fagsak.getStatus()) {
+            case OPPRETTET -> Sak.Status.OPPRETTET;
+            case UNDER_BEHANDLING -> Sak.Status.UNDER_BEHANDLING;
+            case LØPENDE -> Sak.Status.LØPENDE;
+            case AVSLUTTET -> Sak.Status.AVSLUTTET;
         };
     }
 
@@ -155,7 +348,28 @@ public class FpOversiktDtoTjeneste {
             case AVSLÅTT -> FpSak.Uttaksperiode.Resultat.Type.AVSLÅTT;
             case MANUELL_BEHANDLING -> throw new IllegalStateException("Forventer ikke perioder under manuell behandling");
         };
-        var resultat = new FpSak.Uttaksperiode.Resultat(type);
+        var aktiviteter = periode.getAktiviteter().stream().map(a -> {
+            var aktivitetType = switch (a.getUttakArbeidType()) {
+                case ORDINÆRT_ARBEID -> FpSak.Uttaksperiode.UttakAktivitet.Type.ORDINÆRT_ARBEID;
+                case SELVSTENDIG_NÆRINGSDRIVENDE -> FpSak.Uttaksperiode.UttakAktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
+                case FRILANS -> FpSak.Uttaksperiode.UttakAktivitet.Type.FRILANS;
+                case ANNET -> FpSak.Uttaksperiode.UttakAktivitet.Type.ANNET;
+            };
+            var arbeidsgiver = a.getArbeidsgiver().map(arb -> new FpSak.Uttaksperiode.UttakAktivitet.Arbeidsgiver(arb.getIdentifikator())).orElse(null);
+            var arbeidsforholdId = Optional.ofNullable(a.getArbeidsforholdRef()).map(ref -> ref.getReferanse()).orElse(null);
+            var trekkdager = a.getTrekkdager().decimalValue();
+            var konto = switch (a.getTrekkonto()) {
+                case FELLESPERIODE -> Konto.FELLESPERIODE;
+                case MØDREKVOTE -> Konto.MØDREKVOTE;
+                case FEDREKVOTE -> Konto.FEDREKVOTE;
+                case FORELDREPENGER -> Konto.FORELDREPENGER;
+                case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
+                case UDEFINERT, FLERBARNSDAGER -> null;
+            };
+            return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new FpSak.Uttaksperiode.UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId),
+                konto, trekkdager, a.getArbeidsprosent());
+        }).collect(Collectors.toSet());
+        var resultat = new FpSak.Uttaksperiode.Resultat(type, aktiviteter);
         return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), resultat);
     }
 
