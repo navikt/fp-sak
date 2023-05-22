@@ -21,6 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdReposi
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -187,14 +189,90 @@ public class FpOversiktDtoTjeneste {
     }
 
     private static FpSak.Søknad.Periode tilDto(OppgittPeriodeEntitet periode) {
-        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), switch (periode.getPeriodeType()) {
+        var konto = switch (periode.getPeriodeType()) {
             case FELLESPERIODE -> Konto.FELLESPERIODE;
             case MØDREKVOTE -> Konto.MØDREKVOTE;
             case FEDREKVOTE -> Konto.FEDREKVOTE;
             case FORELDREPENGER -> Konto.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
             case ANNET, UDEFINERT -> null;
-        });
+        };
+        var utsettelseÅrsak = finnUtsettelseÅrsak(periode.getÅrsak());
+        var oppholdÅrsak = finnOppholdÅrsak(periode.getÅrsak());
+        var overføringÅrsak = finnOverføringÅrsak(periode.getÅrsak());
+        var morsAktivitet = periode.getMorsAktivitet() == null ? null : switch (periode.getMorsAktivitet()) {
+            case UDEFINERT -> null;
+            case ARBEID -> MorsAktivitet.ARBEID;
+            case UTDANNING -> MorsAktivitet.UTDANNING;
+            case KVALPROG -> MorsAktivitet.KVALPROG;
+            case INTROPROG -> MorsAktivitet.INTROPROG;
+            case TRENGER_HJELP -> MorsAktivitet.TRENGER_HJELP;
+            case INNLAGT -> MorsAktivitet.INNLAGT;
+            case ARBEID_OG_UTDANNING -> MorsAktivitet.ARBEID_OG_UTDANNING;
+            case UFØRE -> MorsAktivitet.UFØRE;
+            case IKKE_OPPGITT -> MorsAktivitet.IKKE_OPPGITT;
+        };
+        var gradering = mapGradering(periode);
+        var samtidigUttak = periode.getSamtidigUttaksprosent() == null ? null : periode.getSamtidigUttaksprosent().decimalValue();
+        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), konto, utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
+            gradering, samtidigUttak, periode.isFlerbarnsdager(), morsAktivitet);
+    }
+
+    private static Gradering mapGradering(OppgittPeriodeEntitet periode) {
+        if (!periode.isGradert()) {
+            return null;
+        }
+        var type = switch (periode.getGraderingAktivitetType()) {
+            case ARBEID -> UttakAktivitet.Type.ORDINÆRT_ARBEID;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> UttakAktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case FRILANS -> UttakAktivitet.Type.FRILANS;
+        };
+        var arbeidsgiver = periode.getArbeidsgiver() == null ? null : new UttakAktivitet.Arbeidsgiver(periode.getArbeidsgiver().getIdentifikator());
+        var aktivitet = new UttakAktivitet(type, arbeidsgiver, null);
+        return new Gradering(periode.getArbeidsprosent(), aktivitet);
+    }
+
+    private static OverføringÅrsak finnOverføringÅrsak(Årsak årsak) {
+        if (årsak instanceof no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak overføringÅrsak) {
+            return switch (overføringÅrsak) {
+                case INSTITUSJONSOPPHOLD_ANNEN_FORELDER -> OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
+                case SYKDOM_ANNEN_FORELDER -> OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
+                case IKKE_RETT_ANNEN_FORELDER -> OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
+                case ALENEOMSORG -> OverføringÅrsak.ALENEOMSORG;
+                case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + årsak);
+            };
+        }
+        return null;
+    }
+
+    private static OppholdÅrsak finnOppholdÅrsak(Årsak årsak) {
+        if (årsak instanceof no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak oppholdÅrsak) {
+            return switch (oppholdÅrsak) {
+                case MØDREKVOTE_ANNEN_FORELDER -> OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
+                case FEDREKVOTE_ANNEN_FORELDER -> OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
+                case KVOTE_FELLESPERIODE_ANNEN_FORELDER -> OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
+                case KVOTE_FORELDREPENGER_ANNEN_FORELDER -> OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
+                case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + årsak);
+            };
+        }
+        return null;
+    }
+
+    private static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak finnUtsettelseÅrsak(Årsak årsak) {
+        if (årsak instanceof UtsettelseÅrsak utsettelseÅrsak) {
+            return switch (utsettelseÅrsak) {
+                case ARBEID -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.ARBEID;
+                case FERIE -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.LOVBESTEMT_FERIE;
+                case SYKDOM -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.SØKER_SYKDOM;
+                case INSTITUSJON_SØKER -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.SØKER_INNLAGT;
+                case INSTITUSJON_BARN -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.BARN_INNLAGT;
+                case HV_OVELSE -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.HV_ØVELSE;
+                case NAV_TILTAK -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.NAV_TILTAK;
+                case FRI -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.FRI;
+                case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + årsak);
+            };
+        }
+        return null;
     }
 
     private static Set<SvpSak.Søknad> finnSvpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
@@ -350,12 +428,12 @@ public class FpOversiktDtoTjeneste {
         };
         var aktiviteter = periode.getAktiviteter().stream().map(a -> {
             var aktivitetType = switch (a.getUttakArbeidType()) {
-                case ORDINÆRT_ARBEID -> FpSak.Uttaksperiode.UttakAktivitet.Type.ORDINÆRT_ARBEID;
-                case SELVSTENDIG_NÆRINGSDRIVENDE -> FpSak.Uttaksperiode.UttakAktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
-                case FRILANS -> FpSak.Uttaksperiode.UttakAktivitet.Type.FRILANS;
-                case ANNET -> FpSak.Uttaksperiode.UttakAktivitet.Type.ANNET;
+                case ORDINÆRT_ARBEID -> UttakAktivitet.Type.ORDINÆRT_ARBEID;
+                case SELVSTENDIG_NÆRINGSDRIVENDE -> UttakAktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
+                case FRILANS -> UttakAktivitet.Type.FRILANS;
+                case ANNET -> UttakAktivitet.Type.ANNET;
             };
-            var arbeidsgiver = a.getArbeidsgiver().map(arb -> new FpSak.Uttaksperiode.UttakAktivitet.Arbeidsgiver(arb.getIdentifikator())).orElse(null);
+            var arbeidsgiver = a.getArbeidsgiver().map(arb -> new UttakAktivitet.Arbeidsgiver(arb.getIdentifikator())).orElse(null);
             var arbeidsforholdId = Optional.ofNullable(a.getArbeidsforholdRef()).map(ref -> ref.getReferanse()).orElse(null);
             var trekkdager = a.getTrekkdager().decimalValue();
             var konto = switch (a.getTrekkonto()) {
@@ -366,7 +444,7 @@ public class FpOversiktDtoTjeneste {
                 case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
                 case UDEFINERT, FLERBARNSDAGER -> null;
             };
-            return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new FpSak.Uttaksperiode.UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId),
+            return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId),
                 konto, trekkdager, a.getArbeidsprosent());
         }).collect(Collectors.toSet());
         var resultat = new FpSak.Uttaksperiode.Resultat(type, aktiviteter);

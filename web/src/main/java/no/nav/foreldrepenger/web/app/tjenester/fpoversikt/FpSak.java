@@ -6,13 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 record FpSak(String saksnummer,
              String aktørId,
              FamilieHendelse familieHendelse,
              Status status,
-             Set<Vedtak> vedtakene,
+             Set<Vedtak> vedtak,
              String oppgittAnnenPart,
              Set<Aksjonspunkt> aksjonspunkt,
              Set<Søknad> søknader,
@@ -39,28 +37,13 @@ record FpSak(String saksnummer,
         public record UttaksperiodeAktivitet(UttakAktivitet aktivitet, Konto konto, BigDecimal trekkdager, BigDecimal arbeidstidsprosent) {
 
         }
-
-        public record UttakAktivitet(UttakAktivitet.Type type, Arbeidsgiver arbeidsgiver, String arbeidsforholdId) {
-            public enum Type {
-                ORDINÆRT_ARBEID,
-                SELVSTENDIG_NÆRINGSDRIVENDE,
-                FRILANS,
-                ANNET
-            }
-
-            public record Arbeidsgiver(@JsonValue String identifikator) {
-
-                @Override
-                public String toString() {
-                    return "Arbeidsgiver{" + "identifikator='***' + '}'";
-                }
-            }
-        }
     }
 
     record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder) {
 
-        record Periode(LocalDate fom, LocalDate tom, Konto konto) {
+        record Periode(LocalDate fom, LocalDate tom, Konto konto, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
+                       OverføringÅrsak overføringÅrsak, Gradering gradering, BigDecimal samtidigUttak, boolean flerbarnsdager,
+                       MorsAktivitet morsAktivitet) {
         }
     }
 
@@ -73,7 +56,7 @@ record FpSak(String saksnummer,
 
     @Override
     public String toString() {
-        return "FpSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", status=" + status + ", vedtakene="
-            + vedtakene + ", aksjonspunkt=" + aksjonspunkt + ", søknader=" + søknader + ", brukerRolle=" + brukerRolle + '}';
+        return "FpSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", status=" + status + ", vedtak="
+            + vedtak + ", aksjonspunkt=" + aksjonspunkt + ", søknader=" + søknader + ", brukerRolle=" + brukerRolle + '}';
     }
 }

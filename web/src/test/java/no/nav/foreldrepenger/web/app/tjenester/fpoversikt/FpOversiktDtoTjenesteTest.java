@@ -21,11 +21,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -33,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -61,6 +65,14 @@ class FpOversiktDtoTjenesteTest {
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.INNLAGT)
+            .medArbeidsprosent(BigDecimal.TEN)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("111"))
+            .medÅrsak(UtsettelseÅrsak.FRI)
+            .medSamtidigUttak(true)
+            .medSamtidigUttaksprosent(new SamtidigUttaksprosent(30))
+            .medFlerbarnsdager(true)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
         var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true);
         var behandling = opprettAvsluttetFpBehandling(vedtakstidspunkt, Dekningsgrad._80, fødselsdato, fordeling, oppgittRettighet);
@@ -98,9 +110,9 @@ class FpOversiktDtoTjenesteTest {
         var dto = (FpSak) tjeneste.hentSak(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
-        assertThat(dto.vedtakene()).hasSize(1);
+        assertThat(dto.vedtak()).hasSize(1);
         assertThat(dto.status()).isEqualTo(Sak.Status.OPPRETTET);
-        var vedtak = dto.vedtakene().stream().findFirst().orElseThrow();
+        var vedtak = dto.vedtak().stream().findFirst().orElseThrow();
         assertThat(vedtak.dekningsgrad()).isEqualTo(FpSak.Vedtak.Dekningsgrad.ÅTTI);
         assertThat(vedtak.vedtakstidspunkt()).isEqualTo(vedtakstidspunkt);
         assertThat(vedtak.uttaksperioder()).hasSize(1);
@@ -136,6 +148,16 @@ class FpOversiktDtoTjenesteTest {
         assertThat(søknadsperiode.fom()).isEqualTo(oppgittPeriode.getFom());
         assertThat(søknadsperiode.tom()).isEqualTo(oppgittPeriode.getTom());
         assertThat(søknadsperiode.konto()).isEqualTo(Konto.MØDREKVOTE);
+        assertThat(søknadsperiode.flerbarnsdager()).isTrue();
+        assertThat(søknadsperiode.gradering().prosent()).isEqualTo(oppgittPeriode.getArbeidsprosent());
+        assertThat(søknadsperiode.gradering().uttakAktivitet().type()).isEqualTo(UttakAktivitet.Type.ORDINÆRT_ARBEID);
+        assertThat(søknadsperiode.gradering().uttakAktivitet().arbeidsforholdId()).isNull();
+        assertThat(søknadsperiode.gradering().uttakAktivitet().arbeidsgiver().identifikator()).isEqualTo(oppgittPeriode.getArbeidsgiver().getIdentifikator());
+        assertThat(søknadsperiode.morsAktivitet()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.MorsAktivitet.INNLAGT);
+        assertThat(søknadsperiode.oppholdÅrsak()).isNull();
+        assertThat(søknadsperiode.utsettelseÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.FRI);
+        assertThat(søknadsperiode.overføringÅrsak()).isNull();
+        assertThat(søknadsperiode.samtidigUttak()).isEqualTo(oppgittPeriode.getSamtidigUttaksprosent().decimalValue());
     }
 
     @Test
