@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.opptjening.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 
@@ -17,7 +16,6 @@ public class OpptjeningAktivitetDto {
     private String arbeidsforholdRef;
     private BigDecimal stillingsandel;
     private LocalDate naringRegistreringsdato;
-    private List<FerdiglignetNæringDto> ferdiglignetNæring;
     private Boolean erManueltOpprettet;
     private Boolean erGodkjent;
     private Boolean erEndret;
@@ -81,14 +79,6 @@ public class OpptjeningAktivitetDto {
 
     public void setNaringRegistreringsdato(LocalDate naringRegistreringsdato) {
         this.naringRegistreringsdato = naringRegistreringsdato;
-    }
-
-    public List<FerdiglignetNæringDto> getFerdiglignetNæring() {
-        return ferdiglignetNæring;
-    }
-
-    public void setFerdiglignetNæring(List<FerdiglignetNæringDto> ferdiglignetNæring) {
-        this.ferdiglignetNæring = ferdiglignetNæring;
     }
 
     public BigDecimal getStillingsandel() {
