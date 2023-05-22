@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.hendelser;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,12 +15,17 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.impl.HendelseForBehandling;
+import no.nav.foreldrepenger.behandling.impl.PubliserBehandlingHendelseTask;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
@@ -37,7 +43,10 @@ import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererProvider;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
@@ -58,6 +67,7 @@ public class ForretningshendelseMottak {
     private ForretningshendelseHåndtererProvider håndtererProvider;
     private ForretningshendelseSaksvelgerProvider saksvelgerProvider;
     private FagsakRepository fagsakRepository;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingRevurderingRepository revurderingRepository;
     private ProsessTaskTjeneste taskTjeneste;
@@ -72,6 +82,7 @@ public class ForretningshendelseMottak {
     public ForretningshendelseMottak(ForretningshendelseHåndtererProvider håndtererProvider,
                                      ForretningshendelseSaksvelgerProvider saksvelgerProvider,
                                      BehandlingRepositoryProvider repositoryProvider,
+                                     FagsakEgenskapRepository fagsakEgenskapRepository,
                                      ProsessTaskTjeneste taskTjeneste,
                                      KøKontroller køKontroller) {
         this.håndtererProvider = håndtererProvider;
@@ -79,6 +90,7 @@ public class ForretningshendelseMottak {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.taskTjeneste = taskTjeneste;
         this.køKontroller = køKontroller;
         this.isProd = Environment.current().isProd();
@@ -92,8 +104,15 @@ public class ForretningshendelseMottak {
         var saksvelger = saksvelgerProvider.finnSaksvelger(hendelseType);
 
         var fagsaker = saksvelger.finnRelaterteFagsaker(forretningshendelse);
+        var taskGruppe = new ProsessTaskGruppe();
+        if (ForretningshendelseType.UTFLYTTING.equals(hendelseType) && Endringstype.OPPRETTET.equals(getEndringstype(dto))) {
+            merkUtlandsSakerFlyttBehandlinger(fagsaker.getOrDefault(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING, List.of()), taskGruppe);
+        }
         for (var entry : fagsaker.entrySet()) {
-            entry.getValue().forEach(fagsak -> opprettProsesstaskForFagsak(fagsak, hendelseType.getKode(), entry.getKey()));
+            entry.getValue().forEach(fagsak -> taskGruppe.addNesteSekvensiell(opprettProsesstaskForFagsak(fagsak, hendelseType, entry.getKey())));
+        }
+        if (!taskGruppe.getTasks().isEmpty()) {
+            taskTjeneste.lagre(taskGruppe);
         }
     }
 
@@ -140,9 +159,9 @@ public class ForretningshendelseMottak {
         håndterer.håndterAvsluttetBehandling(innvilgetBehandling, hendelseType, behandlingÅrsakType);
     }
 
-    private void opprettProsesstaskForFagsak(Fagsak fagsak, String hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
+    private ProsessTaskData opprettProsesstaskForFagsak(Fagsak fagsak, ForretningshendelseType hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
         var taskData = ProsessTaskData.forProsessTask(MottaHendelseFagsakTask.class);
-        taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType);
+        taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType.getKode());
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsakId(fagsak.getId());
         taskData.setCallIdFraEksisterende();
@@ -150,7 +169,7 @@ public class ForretningshendelseMottak {
             // Porsjoner utover neste 7 min
             taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739)));
         }
-        taskTjeneste.lagre(taskData);
+        return taskData;
     }
 
     private static List<AktørId> mapToAktørIds(HendelseDto hendelseDto) {
@@ -159,5 +178,36 @@ public class ForretningshendelseMottak {
 
     private static Endringstype getEndringstype(HendelseDto d) {
         return Endringstype.valueOf(d.getEndringstype().name());
+    }
+
+    private void merkUtlandsSakerFlyttBehandlinger(List<Fagsak> saker, ProsessTaskGruppe taskGruppe) {
+        var oppdaterEgenskap = saker.stream()
+            .filter(f -> !FagsakMarkering.erPrioritert(fagsakEgenskapRepository.finnFagsakMarkering(f.getId()).orElse(FagsakMarkering.NASJONAL)))
+            .toList();
+        oppdaterEgenskap.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f.getId(), FagsakMarkering.BOSATT_UTLAND));
+        var åpneBehandlingerFlyttes = oppdaterEgenskap.stream()
+            .map(f -> behandlingRepository.hentÅpneBehandlingerForFagsakId(f.getId()))
+            .flatMap(Collection::stream)
+            .filter(b -> BehandlendeEnhetTjeneste.getNasjonalEnhet().equals(b.getBehandlendeOrganisasjonsEnhet()))
+            .toList();
+        // Bytt enhet ved utland for åpne behandlinger - vil sørge for å oppdatere oppgaver
+        åpneBehandlingerFlyttes.stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
+        // Oppdater LOS-oppgaver (blir nødvendig ved sentralisering av spesialenheter)
+        //fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).stream().map(this::opprettLosProsessTask).forEach(taskGruppe::addNesteSekvensiell);
+    }
+
+    private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setCallIdFraEksisterende();
+        return prosessTaskData;
+    }
+
+    private ProsessTaskData opprettLosProsessTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
+        prosessTaskData.setCallIdFraEksisterende();
+        return prosessTaskData;
     }
 }

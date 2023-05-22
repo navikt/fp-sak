@@ -45,10 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetKontrollTask;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetUtlandTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
@@ -64,6 +61,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -206,55 +204,33 @@ public class FagsakRestTjeneste {
             }
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.fagsakMarkering());
             lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(FagsakMarkering.NASJONAL), endreUtland.fagsakMarkering());
-            // Bytt enhet ved utland for åpne behandlinger
-            if (FagsakMarkering.BOSATT_UTLAND.equals(endreUtland.fagsakMarkering())) {
-                fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
-                    .filter(b -> !BehandlendeEnhetTjeneste.erUtlandsEnhet(b))
-                    .forEach(this::opprettUtlandProsessTask);
-            } else if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(endreUtland.fagsakMarkering())) {
-                fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
-                    .filter(b -> !BehandlendeEnhetTjeneste.erKontrollEnhet(b))
-                    .forEach(this::opprettKontrollProsessTask);
-            } else {
-                fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
-                    .filter(BehandlendeEnhetTjeneste::erUtlandsEnhet)
-                    .forEach(this::opprettNasjonalTask);
+            var taskGruppe = new ProsessTaskGruppe();
+            // Bytt enhet ved utland for åpne behandlinger - vil sørge for å oppdatere oppgaver
+            fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream().map(this::opprettOppdaterEnhetTask).forEach(taskGruppe::addNesteSekvensiell);
+            // Oppdater LOS-oppgaver (blir nødvendig ved sentralisering av spesialenheter)
+            //fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).stream().map(this::opprettLosProsessTask).forEach(taskGruppe::addNesteSekvensiell);
+            if (!taskGruppe.getTasks().isEmpty()) {
+                taskTjeneste.lagre(taskGruppe);
             }
-            // Oppdater LOS-oppgaver
-            fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).forEach(this::opprettLosProsessTask);
             return Response.ok().build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
 
-    private void opprettLosProsessTask(Behandling behandling) {
+    private ProsessTaskData opprettLosProsessTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
         prosessTaskData.setCallIdFraEksisterende();
-        taskTjeneste.lagre(prosessTaskData);
+        return prosessTaskData;
     }
 
-    private void opprettUtlandProsessTask(Behandling behandling) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetUtlandTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        taskTjeneste.lagre(prosessTaskData);
-    }
-
-    private void opprettKontrollProsessTask(Behandling behandling) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetKontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        taskTjeneste.lagre(prosessTaskData);
-    }
-
-    private void opprettNasjonalTask(Behandling behandling) {
+    private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setCallIdFraEksisterende();
-        taskTjeneste.lagre(prosessTaskData);
+        return prosessTaskData;
     }
 
     public static class EndreUtlandAbacDataSupplier implements Function<Object, AbacDataAttributter> {

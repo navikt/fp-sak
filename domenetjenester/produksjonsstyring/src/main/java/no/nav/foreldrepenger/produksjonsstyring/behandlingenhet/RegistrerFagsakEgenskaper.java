@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.mottatteopplysninger;
+package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
@@ -28,40 +29,63 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 @Dependent
 public class RegistrerFagsakEgenskaper {
 
+    private final BehandlendeEnhetTjeneste enhetTjeneste;
     private final PersoninfoAdapter personinfo;
     private final MedlemskapRepository medlemskapRepository;
     private final FagsakEgenskapRepository fagsakEgenskapRepository;
     private final InntektArbeidYtelseTjeneste iayTjeneste;
 
     @Inject
-    public RegistrerFagsakEgenskaper(PersoninfoAdapter personinfo, MedlemskapRepository medlemskapRepository,
-                                     FagsakEgenskapRepository fagsakEgenskapRepository, InntektArbeidYtelseTjeneste iayTjeneste) {
+    public RegistrerFagsakEgenskaper(BehandlendeEnhetTjeneste enhetTjeneste,
+                                     PersoninfoAdapter personinfo,
+                                     MedlemskapRepository medlemskapRepository,
+                                     FagsakEgenskapRepository fagsakEgenskapRepository,
+                                     InntektArbeidYtelseTjeneste iayTjeneste) {
+        this.enhetTjeneste = enhetTjeneste;
         this.personinfo = personinfo;
         this.medlemskapRepository = medlemskapRepository;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.iayTjeneste = iayTjeneste;
     }
 
-    public FagsakMarkering registrerFagsakEgenskaper(Behandling behandling, boolean oppgittRelasjonTilEØS) {
-        if (!BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) ||
-            fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).isPresent()) {
-            return fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
-        }
-        var geografiskTilknyttetUtlandEllerUkjent = personinfo.hentGeografiskTilknytning(behandling.getAktørId()) == null;
-        var medlemskapOppgittEttÅrUtlandsopphold = vurderOppgittUtlandsopphold(behandling.getId());
+    public FagsakMarkering fagsakEgenskaperForBruker(Behandling behandling) {
+        var gjeldendeMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
 
-        var utlandMarkering = FagsakMarkering.NASJONAL;
-        if (geografiskTilknyttetUtlandEllerUkjent || medlemskapOppgittEttÅrUtlandsopphold) {
-            utlandMarkering = FagsakMarkering.BOSATT_UTLAND;
+        if (behandling.erManueltOpprettet() || gjeldendeMarkering.filter(FagsakMarkering::erPrioritert).isPresent()) {
+            return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
+        }
+
+        // Har registrert en tilknytning og ikke utflyttet
+        if (personinfo.hentGeografiskTilknytning(behandling.getAktørId()) != null) {
+            return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
+        }
+        fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);
+        enhetTjeneste.sjekkSkalOppdatereEnhet(behandling, FagsakMarkering.BOSATT_UTLAND)
+            .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
+        return FagsakMarkering.BOSATT_UTLAND;
+    }
+
+    public FagsakMarkering fagsakEgenskaperFraSøknad(Behandling behandling, boolean oppgittRelasjonTilEØS) {
+        var gjeldendeMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
+
+        if (!BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) || gjeldendeMarkering.isPresent()) {
+            return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
+        }
+
+        var saksmarkering = FagsakMarkering.NASJONAL;
+        if (vurderOppgittUtlandsopphold(behandling.getId())) {
+            saksmarkering = FagsakMarkering.BOSATT_UTLAND;
         } else if (oppgittRelasjonTilEØS) {
-            utlandMarkering = FagsakMarkering.EØS_BOSATT_NORGE;
+            saksmarkering = FagsakMarkering.EØS_BOSATT_NORGE;
         } else if (harOppgittEgenNæring(behandling.getId())) {
-            utlandMarkering = FagsakMarkering.SELVSTENDIG_NÆRING;
+            saksmarkering = FagsakMarkering.SELVSTENDIG_NÆRING;
         }
-        if (!FagsakMarkering.NASJONAL.equals(utlandMarkering)) {
-            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), utlandMarkering);
+        if (!FagsakMarkering.NASJONAL.equals(saksmarkering)) {
+            fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), saksmarkering);
+            enhetTjeneste.sjekkSkalOppdatereEnhet(behandling, saksmarkering)
+                .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysning"));
         }
-        return utlandMarkering;
+        return saksmarkering;
     }
 
     public boolean harVurdertInnhentingDokumentasjon(Behandling behandling) {

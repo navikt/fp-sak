@@ -126,7 +126,11 @@ public class PersoninfoAdapter {
     }
 
     public String hentGeografiskTilknytning(AktørId aktørId) {
-        return tilknytningTjeneste.hentGeografiskTilknytning(aktørId);
+        var tilknytning = tilknytningTjeneste.hentGeografiskTilknytning(aktørId);
+        if (tilknytning != null && tilknytningTjeneste.erIkkeBosattFreg(aktørId)) {
+            return null;
+        }
+        return tilknytning;
     }
 
     public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {

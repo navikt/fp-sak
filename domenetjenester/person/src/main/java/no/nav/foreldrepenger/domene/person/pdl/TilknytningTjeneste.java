@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
+import java.util.Set;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -11,6 +13,8 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
+import no.nav.pdl.Folkeregisterpersonstatus;
+import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
@@ -20,6 +24,8 @@ import no.nav.pdl.PersonResponseProjection;
 public class TilknytningTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(TilknytningTjeneste.class);
+
+    private static final Set<String> IKKE_BOSATT = Set.of("ikkeBosatt", "opphoert", "forsvunnet");
 
     private PdlKlientLogCause pdlKlient;
 
@@ -49,6 +55,20 @@ public class TilknytningTjeneste {
             case KOMMUNE -> geografiskTilknytning.getGtKommune();
             case UTLAND, UDEFINERT -> null;
         };
+    }
+
+    public boolean erIkkeBosattFreg(AktørId aktørId) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus());
+
+        var person = pdlKlient.hentPerson(query, projection);
+
+        var statusIkkeBosatt = person.getFolkeregisterpersonstatus().stream()
+            .map(Folkeregisterpersonstatus::getForenkletStatus)
+            .anyMatch(IKKE_BOSATT::contains);
+        return statusIkkeBosatt;
     }
 
     public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {

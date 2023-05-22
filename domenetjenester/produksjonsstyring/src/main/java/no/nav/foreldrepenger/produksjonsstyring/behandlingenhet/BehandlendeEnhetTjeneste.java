@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -177,14 +178,16 @@ public class BehandlendeEnhetTjeneste {
         return EnhetsTjeneste.velgEnhet(preferert, merking);
     }
 
-    // Brukes for å sjekke om behandling skal flyttes etter endringer i NORG2-oppsett
-    public Optional<OrganisasjonsEnhet> sjekkOppdatertEnhetEtterReallokering(Behandling behandling) {
+    // Brukes for å sjekke om behandling skal flyttes etter endringer i sak, behandling, eller allokering
+    public Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling) {
         var merking = finnSaksmerking(behandling.getFagsak());
+        return sjekkSkalOppdatereEnhet(behandling, merking);
+    }
+
+    public Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling, FagsakMarkering merking) {
         var enhet = EnhetsTjeneste.velgEnhet(behandling.getBehandlendeOrganisasjonsEnhet(), merking);
-        if (enhet.enhetId().equals(behandling.getBehandlendeEnhet())) {
-            return Optional.empty();
-        }
-        return Optional.of(enhet);
+        return Optional.ofNullable(enhet)
+            .filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));
     }
 
     // Returnerer enhetsnummer for NAV Klageinstans
@@ -192,45 +195,8 @@ public class BehandlendeEnhetTjeneste {
         return EnhetsTjeneste.getEnhetKlage();
     }
 
-    public static boolean erUtlandsEnhet(Behandling behandling) {
-        return EnhetsTjeneste.getEnhetUtland().enhetId().equals(behandling.getBehandlendeEnhet());
-    }
-
-    public static boolean erKontrollEnhet(Behandling behandling) {
-        return EnhetsTjeneste.getEnhetKontroll().enhetId().equals(behandling.getBehandlendeEnhet());
-    }
-
-
-    // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
-    public void oppdaterBehandlendeEnhetUtland(Behandling behandling, HistorikkAktør endretAv, String begrunnelse) {
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        if (erUtlandsEnhet(behandling)) {
-            return;
-        }
-        if (endretAv != null) {
-            lagHistorikkInnslagForByttBehandlendeEnhet(behandling, EnhetsTjeneste.getEnhetUtland(), begrunnelse, endretAv);
-        }
-        behandling.setBehandlendeEnhet(EnhetsTjeneste.getEnhetUtland());
-        behandling.setBehandlendeEnhetÅrsak(begrunnelse);
-
-        behandlingRepository.lagre(behandling, lås);
-        eventPubliserer.fireEvent(behandling);
-    }
-
-    // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
-    public void oppdaterBehandlendeEnhetKontroll(Behandling behandling, HistorikkAktør endretAv, String begrunnelse) {
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        if (erKontrollEnhet(behandling)) {
-            return;
-        }
-        if (endretAv != null) {
-            lagHistorikkInnslagForByttBehandlendeEnhet(behandling, EnhetsTjeneste.getEnhetKontroll(), begrunnelse, endretAv);
-        }
-        behandling.setBehandlendeEnhet(EnhetsTjeneste.getEnhetKontroll());
-        behandling.setBehandlendeEnhetÅrsak(begrunnelse);
-
-        behandlingRepository.lagre(behandling, lås);
-        eventPubliserer.fireEvent(behandling);
+    public static OrganisasjonsEnhet getNasjonalEnhet() {
+        return EnhetsTjeneste.getEnhetNasjonal();
     }
 
     // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)

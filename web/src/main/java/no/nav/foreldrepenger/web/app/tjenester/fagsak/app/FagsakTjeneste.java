@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -129,14 +130,12 @@ public class FagsakTjeneste {
 
     public List<Behandling> hentBehandlingerMedÅpentAksjonspunkt(Fagsak fagsak) {
         return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .filter(b -> b.getÅpneAksjonspunkter().stream().anyMatch(a -> !a.erAutopunkt()))
+            .filter(b -> !b.getÅpneAksjonspunkter().isEmpty() && b.getÅpneAksjonspunkter().stream().noneMatch(Aksjonspunkt::erAutopunkt))
             .toList();
     }
 
     public List<Behandling> hentÅpneBehandlinger(Fagsak fagsak) {
-        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .filter(b -> b.getÅpneAksjonspunkter().stream().anyMatch(a -> !a.erAutopunkt()))
-            .toList();
+        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
     }
 
     private Integer finnDekningsgrad(Saksnummer saksnummer) {
