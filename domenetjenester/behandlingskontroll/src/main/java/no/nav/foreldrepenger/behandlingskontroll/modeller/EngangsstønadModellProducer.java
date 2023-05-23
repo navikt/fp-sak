@@ -50,6 +50,8 @@ public class EngangsstønadModellProducer {
     @ApplicationScoped
     public BehandlingModell revurdering() {
         var modellBuilder = BehandlingModellImpl.builder(BehandlingType.REVURDERING, YTELSE_TYPE);
+        // Revurdering ES er mer klassisk revurdering av ytelse/vedtak, ikke endringsbehandling som for FP
+        // Ny søknad ES gir førstegangsbehandling. Derfor er ikke REGISTRER_SØKNAD og INNHENT_SØKNADOPP med (p.t.)
         modellBuilder.medSteg(
                 BehandlingStegType.VARSEL_REVURDERING,
                 BehandlingStegType.VURDER_KOMPLETTHET,
@@ -92,7 +94,6 @@ public class EngangsstønadModellProducer {
     public BehandlingModell klage() {
         var modellBuilder = BehandlingModellImpl.builder(BehandlingType.KLAGE, YTELSE_TYPE);
         modellBuilder.medSteg(
-                BehandlingStegType.REGISTRER_SØKNAD, // Engangsstønad har et ekstra steg i klagebehandlingen?
                 BehandlingStegType.KLAGE_VURDER_FORMKRAV_NFP,
                 BehandlingStegType.KLAGE_NFP,
                 BehandlingStegType.KLAGE_VURDER_FORMKRAV_NK,

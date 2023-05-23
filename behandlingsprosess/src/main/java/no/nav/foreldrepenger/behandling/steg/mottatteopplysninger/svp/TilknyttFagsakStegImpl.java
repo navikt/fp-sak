@@ -4,7 +4,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.RegistrerFagsakEgenskaper;
 import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.TilknyttFagsakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -16,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
 
 @BehandlingStegRef(BehandlingStegType.INNHENT_SØKNADOPP)
 @BehandlingTypeRef(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -46,7 +46,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         if (fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak()).isEmpty()) {
             fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         }
-        registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandling, false);
+        registrerFagsakEgenskaper.fagsakEgenskaperFraSøknad(behandling, false);
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 }

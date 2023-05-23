@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.registrersøknad;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
 
 class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
@@ -44,7 +46,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
         mottatteDokumentTjeneste = new MottatteDokumentTjeneste(Period.ofWeeks(6), null, mottatteDokumentRepository,
                 new BehandlingRepositoryProvider(getEntityManager()));
-        steg = new RegistrerSøknadSteg(behandlingRepository, mottatteDokumentTjeneste, null);
+        steg = new RegistrerSøknadSteg(behandlingRepository, mottatteDokumentTjeneste, mock(RegistrerFagsakEgenskaper.class), null);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,10 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
         if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
             || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
             saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om utflytting i Folkeregisteret"));
+        } else if (Endringstype.OPPRETTET.equals(forretningshendelse.endringstype())) {
+            var begrunnelse = String.format("Folkeregisteret har registrert utflyttingsdato %s",
+                forretningshendelse.utflyttingsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+            saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, begrunnelse));
         }
 
         return Map.of(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING, saker);

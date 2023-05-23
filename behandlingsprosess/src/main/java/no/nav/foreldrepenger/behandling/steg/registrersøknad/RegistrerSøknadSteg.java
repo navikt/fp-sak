@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
 
 @BehandlingStegRef(BehandlingStegType.REGISTRER_SØKNAD)
 @BehandlingTypeRef
@@ -49,6 +50,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
     private static final Period VENT_PÅ_SØKNAD_PERIODE = Period.parse("P4W");
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
+    private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
 
     RegistrerSøknadSteg() {
@@ -57,10 +59,12 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
 
     @Inject
     public RegistrerSøknadSteg(BehandlingRepository behandlingRepository,
-            MottatteDokumentTjeneste mottatteDokumentTjeneste,
-            HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
+                               MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                               RegistrerFagsakEgenskaper registrerFagsakEgenskaper,
+                               HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
+        this.registrerFagsakEgenskaper = registrerFagsakEgenskaper;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
     }
 
@@ -69,6 +73,8 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         var mottatteDokumenterBehandling = mottatteDokumentTjeneste.hentMottatteDokument(kontekst.getBehandlingId());
         var alleDokumentSak = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(kontekst.getFagsakId());
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+
+        registrerFagsakEgenskaper.fagsakEgenskaperForBruker(behandling);
 
         if (alleDokumentSak.isEmpty()) {
             // Behandlingen er startet uten noe dokument, f.eks. gjennom en

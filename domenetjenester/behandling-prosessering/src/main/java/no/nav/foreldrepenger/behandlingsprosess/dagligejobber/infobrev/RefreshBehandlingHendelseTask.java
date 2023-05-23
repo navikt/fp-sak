@@ -38,12 +38,20 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
+        // Utflytting
+        var utflytting = informasjonssakRepository.finnSakerMedÅpenUtflyttingshendelse();
+        utflytting.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.BOSATT_UTLAND));
+        informasjonssakRepository.finnAktiveUtlandBehandlingerSomSkalOppdateres().stream()
+            .map(behandlingRepository::hentBehandling)
+            .filter(b -> utflytting.contains(b.getFagsakId()))
+            .forEach(this::opprettProsessTask);
+
         // Fjernes etter initiell merking
         var nynæring = informasjonssakRepository.finnSakerSomKanMerkesNæring();
         nynæring.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.SELVSTENDIG_NÆRING));
 
         // Generell trigger for oppdatering
-        informasjonssakRepository.finnAktiveBehandlingerSomSkalOppdateres().stream()
+        informasjonssakRepository.finnAktiveNæringBehandlingerSomSkalOppdateres().stream()
             .map(behandlingRepository::hentBehandling)
             .filter(b -> nynæring.contains(b.getFagsakId()))
             .forEach(this::opprettProsessTask);

@@ -106,11 +106,11 @@ public class EnhetsTjeneste {
         if (SPESIALENHETER.contains(enhetId)) {
             return FLYTTE_MAP.get(enhetId);
         }
-        if (FagsakMarkering.BOSATT_UTLAND.equals(markering)) {
-            return UTLAND_ENHET;
-        }
         if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(markering)) {
             return KONTROLL_ENHET;
+        }
+        if (FagsakMarkering.BOSATT_UTLAND.equals(markering)) {
+            return UTLAND_ENHET;
         }
         return Optional.ofNullable(FLYTTE_MAP.get(enhetId)).orElse(NASJONAL_ENHET);
     }
@@ -125,11 +125,7 @@ public class EnhetsTjeneste {
         } else if (erNoenSkjermetPerson(Set.of(aktørId))) {
             return SKJERMET_ENHET;
         } else {
-            var geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
-            if (geografiskTilknytning == null) {
-                return UTLAND_ENHET;
-            }
-            return NASJONAL_ENHET;
+            return personinfoAdapter.hentGeografiskTilknytning(aktørId) == null ? UTLAND_ENHET : NASJONAL_ENHET;
             // Beholde ut 2023
             // var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
             // return enheter.isEmpty() ? NASJONAL_ENHET : velgEnhet(enheter.get(0), null);
@@ -148,11 +144,11 @@ public class EnhetsTjeneste {
             LOG.info("FPSAK enhettjeneste skjermet person funnet");
             return Optional.of(SKJERMET_ENHET);
         }
-        if (FagsakMarkering.BOSATT_UTLAND.equals(saksmarkering)) {
-            return !UTLAND_ENHET.enhetId().equals(enhetId) ? Optional.of(UTLAND_ENHET) : Optional.empty();
-        }
         if (FagsakMarkering.SAMMENSATT_KONTROLL.equals(saksmarkering)) {
             return !KONTROLL_ENHET.enhetId().equals(enhetId) ? Optional.of(KONTROLL_ENHET) : Optional.empty();
+        }
+        if (FagsakMarkering.BOSATT_UTLAND.equals(saksmarkering)) {
+            return !UTLAND_ENHET.enhetId().equals(enhetId) ? Optional.of(UTLAND_ENHET) : Optional.empty();
         }
         if (FLYTTE_MAP.get(enhetId) == null) {
             return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, behandlingTema));
@@ -187,12 +183,8 @@ public class EnhetsTjeneste {
         return KLAGE_ENHET;
     }
 
-    static OrganisasjonsEnhet getEnhetUtland() {
-        return UTLAND_ENHET;
-    }
-
-    static OrganisasjonsEnhet getEnhetKontroll() {
-        return KONTROLL_ENHET;
+    static OrganisasjonsEnhet getEnhetNasjonal() {
+        return NASJONAL_ENHET;
     }
 
     // Behold ut 2023

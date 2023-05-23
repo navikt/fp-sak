@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.es;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.RegistrerFagsakEgenskaper;
 import no.nav.foreldrepenger.behandling.steg.mottatteopplysninger.TilknyttFagsakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -13,6 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
 
 @BehandlingStegRef(BehandlingStegType.INNHENT_SØKNADOPP)
 @BehandlingTypeRef
@@ -36,7 +36,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        registrerFagsakEgenskaper.registrerFagsakEgenskaper(behandlingRepository.hentBehandling(kontekst.getBehandlingId()), false);
+        registrerFagsakEgenskaper.fagsakEgenskaperFraSøknad(behandlingRepository.hentBehandling(kontekst.getBehandlingId()), false);
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 

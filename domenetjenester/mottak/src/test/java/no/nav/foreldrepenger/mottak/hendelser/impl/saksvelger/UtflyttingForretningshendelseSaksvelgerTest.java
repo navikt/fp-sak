@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -50,9 +49,6 @@ class UtflyttingForretningshendelseSaksvelgerTest {
 
     @Mock
     private BehandlingRepository behandlingRepository;
-
-    @Mock
-    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Mock
     private BeregningsresultatRepository beregningsresultatRepository;
