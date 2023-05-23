@@ -7,11 +7,13 @@
 	<sequence-generator name="SEQ_SVP_TILRETTELEGGING" allocation-size="50" sequence-name="SEQ_SVP_TILRETTELEGGING" />
 	<sequence-generator name="SEQ_SVP_TILRETTELEGGINGER" allocation-size="50" sequence-name="SEQ_SVP_TILRETTELEGGINGER" />
 	<sequence-generator name="SEQ_TILRETTELEGGING_FOM" allocation-size="50" sequence-name="SEQ_TILRETTELEGGING_FOM" />
+    <sequence-generator name="SEQ_SVP_AVKLART_OPPHOLD" allocation-size="50" sequence-name="SEQ_SVP_AVKLART_OPPHOLD" />
 
 	<!-- SvpTilrettelegging -->
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold" />
 
 </entity-mappings>
