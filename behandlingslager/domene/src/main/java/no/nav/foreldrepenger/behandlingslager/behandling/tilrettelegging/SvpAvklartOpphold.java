@@ -4,29 +4,27 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 
 @Entity
 @Table(name = "SVP_AVKLART_OPPHOLD")
-public class SvpAvklartOpphold extends BaseEntitet implements IndexKey {
+public class SvpAvklartOpphold extends BaseCreateableEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_AVKLART_OPPHOLD")
     private Long id;
 
-    @Column(name = "fom", nullable = false)
-    private LocalDate fom;
-
-    @Column(name = "tom", nullable = false)
-    private LocalDate tom;
+    @Embedded
+    private DatoIntervallEntitet oppholdPeriode;
 
     @Column(name = "svp_opphold_arsak", nullable = false)
     private SvpOppholdÅrsak svpOppholdÅrsak;
@@ -40,19 +38,15 @@ public class SvpAvklartOpphold extends BaseEntitet implements IndexKey {
     }
 
     public LocalDate getFom() {
-        return fom;
+        return oppholdPeriode.getFomDato();
     }
 
     public LocalDate getTom() {
-        return tom;
+        return oppholdPeriode.getTomDato();
     }
 
     public SvpOppholdÅrsak getOppholdÅrsak() {
         return svpOppholdÅrsak;
-    }
-    @Override
-    public String getIndexKey() {
-        return IndexKey.createKey(id);
     }
 
     @Override
@@ -60,22 +54,22 @@ public class SvpAvklartOpphold extends BaseEntitet implements IndexKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         var that = (SvpAvklartOpphold) o;
-        return Objects.equals(fom, that.fom) &&
-            Objects.equals(tom, that.tom) &&
+        return Objects.equals(oppholdPeriode.getFomDato(), that.oppholdPeriode.getFomDato()) &&
+            Objects.equals(oppholdPeriode.getTomDato(), that.oppholdPeriode.getTomDato()) &&
             Objects.equals(svpOppholdÅrsak, that.svpOppholdÅrsak);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fom, tom, svpOppholdÅrsak);
+        return Objects.hash(oppholdPeriode.getFomDato(), oppholdPeriode.getTomDato(), svpOppholdÅrsak);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" +
             (id != null ? "id=" + id + ", " : "")
-            + "fom=" + fom + ", "
-            + "tom=" + tom + ", "
+            + "fom=" + oppholdPeriode.getFomDato() + ", "
+            + "tom=" + oppholdPeriode.getTomDato() + ", "
             + "svpOppholdÅrsak=" + svpOppholdÅrsak + ", "
             + ">";
     }
@@ -97,18 +91,12 @@ public class SvpAvklartOpphold extends BaseEntitet implements IndexKey {
 
     public static Builder fraEksisterende(SvpAvklartOpphold eksisterende) {
         return new Builder()
-            .medFom(eksisterende.fom)
-            .medTom(eksisterende.tom)
+            .medOppholdPeriode(eksisterende.oppholdPeriode.getFomDato(), eksisterende.oppholdPeriode.getTomDato())
             .medOppholdÅrsak(eksisterende.svpOppholdÅrsak);
     }
 
-    public SvpAvklartOpphold.Builder medFom(LocalDate fom) {
-            kladd.fom = Objects.requireNonNull(fom);
-            return this;
-        }
-
-        public SvpAvklartOpphold.Builder medTom(LocalDate tom) {
-            kladd.tom = Objects.requireNonNull(tom);
+    public SvpAvklartOpphold.Builder medOppholdPeriode(LocalDate fom, LocalDate tom) {
+            kladd.oppholdPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
             return this;
         }
 
@@ -118,8 +106,6 @@ public class SvpAvklartOpphold extends BaseEntitet implements IndexKey {
         }
 
         public SvpAvklartOpphold build() {
-            Objects.requireNonNull(this.kladd.fom,  "Utviklerfeil:fra dato skal være satt");
-            Objects.requireNonNull(this.kladd.tom, "Utviklerfeil:tom dato skal være satt");
             Objects.requireNonNull(this.kladd.svpOppholdÅrsak, "Utviklerfeil:oppholdsårsak  skal være satt");
             return kladd;
         }

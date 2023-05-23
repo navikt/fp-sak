@@ -8,9 +8,7 @@ create table SVP_AVKLART_OPPHOLD
     TOM                     DATE not null,
     SVP_OPPHOLD_ARSAK           VARCHAR2(25 char) not  null,
     OPPRETTET_AV            VARCHAR2(20 char) default 'VL' not null,
-    OPPRETTET_TID           TIMESTAMP(3) default systimestamp not null,
-    ENDRET_AV               VARCHAR2(20 char),
-    ENDRET_TID              TIMESTAMP(3)
+    OPPRETTET_TID           TIMESTAMP(3) default systimestamp not null
 );
 
 comment on table SVP_AVKLART_OPPHOLD is 'Avklarte oppholdsperioder for svangerskapspenger';
