@@ -47,7 +47,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
     private BehandlingRepositoryProvider repositoryProvider;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
     private final UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
 
     @BeforeEach
@@ -55,8 +55,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+        uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
     }
 
@@ -173,7 +172,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private YtelseFordelingDtoTjeneste tjeneste() {
         return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, repositoryProvider.getFagsakRelasjonRepository(),
-            uføretrygdRepository, førsteUttaksdatoTjeneste);
+            uføretrygdRepository, uttakTjeneste);
     }
 
     private Behandling opprettBehandling() {
