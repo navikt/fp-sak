@@ -43,7 +43,6 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
         utflytting.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.BOSATT_UTLAND));
         informasjonssakRepository.finnAktiveUtlandBehandlingerSomSkalOppdateres().stream()
             .map(behandlingRepository::hentBehandling)
-            .filter(b -> utflytting.contains(b.getFagsakId()))
             .forEach(this::opprettProsessTask);
 
         // Fjernes etter initiell merking
