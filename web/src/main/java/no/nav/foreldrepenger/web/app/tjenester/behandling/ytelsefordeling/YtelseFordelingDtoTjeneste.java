@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -8,8 +9,10 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
@@ -19,7 +22,7 @@ public class YtelseFordelingDtoTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private UføretrygdRepository uføretrygdRepository;
-    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     YtelseFordelingDtoTjeneste() {
         //CDI
@@ -29,11 +32,11 @@ public class YtelseFordelingDtoTjeneste {
     public YtelseFordelingDtoTjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                       FagsakRelasjonRepository fagsakRelasjonRepository,
                                       UføretrygdRepository uføretrygdRepository,
-                                      FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste) {
+                                      ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.uføretrygdRepository = uføretrygdRepository;
-        this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
+        this.uttakTjeneste = uttakTjeneste;
     }
 
     public Optional<YtelseFordelingDto> mapFra(Behandling behandling) {
@@ -43,18 +46,14 @@ public class YtelseFordelingDtoTjeneste {
             dtoBuilder.medBekreftetAleneomsorg(yfa.getAleneomsorgAvklaring());
             dtoBuilder.medOverstyrtOmsorg(yfa.getOverstyrtOmsorg());
             yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
-            leggTilFørsteUttaksdato(behandling, dtoBuilder);
+            var førsteUttaksdato = finnFørsteUttaksdato(behandling);
+            førsteUttaksdato.ifPresent(dtoBuilder::medFørsteUttaksdato);
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         fagsakRelasjon.ifPresent(fagsakRelasjon1 -> dtoBuilder.medGjeldendeDekningsgrad(fagsakRelasjon1.getGjeldendeDekningsgrad().getVerdi()));
         return Optional.of(dtoBuilder.build());
-    }
-
-    private void leggTilFørsteUttaksdato(Behandling behandling, YtelseFordelingDto.Builder dtoBuilder) {
-        var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling);
-        førsteUttaksdato.ifPresent(dtoBuilder::medFørsteUttaksdato);
     }
 
     private RettigheterAnnenforelderDto lagAnnenforelderRettDto(Behandling behandling, YtelseFordelingAggregat yfa) {
@@ -64,6 +63,34 @@ public class YtelseFordelingDtoTjeneste {
         return new RettigheterAnnenforelderDto(yfa.getAnnenForelderRettAvklaring(),
             yfa.getAnnenForelderRettEØSAvklaring(), avklareRettEØS,
             yfa.getMorUføretrygdAvklaring(), avklareUføretrygd);
+    }
+
+    public Optional<LocalDate> finnFørsteUttaksdato(Behandling behandling) {
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        var førsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer()
+            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
+        if (førsteUttaksdato.isPresent()) {
+            return førsteUttaksdato;
+        }
+        return behandling.erRevurdering() ? finnFørsteUttaksdatoRevurdering(
+            behandling) : finnFørsteUttaksdatoFørstegangsbehandling(behandling);
+    }
+
+    private Optional<LocalDate> finnFørsteUttaksdatoFørstegangsbehandling(Behandling behandling) {
+        var oppgittePerioder = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
+            .getGjeldendeFordeling()
+            .getPerioder();
+        return oppgittePerioder.stream().map(op -> op.getFom()).min(LocalDate::compareTo);
+    }
+
+    private Optional<LocalDate> finnFørsteUttaksdatoRevurdering(Behandling behandling) {
+        var revurderingId = behandling.getOriginalBehandlingId()
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
+        var uttak = uttakTjeneste.hentUttakHvisEksisterer(revurderingId);
+        if (uttak.isEmpty() || uttak.get().getGjeldendePerioder().isEmpty()) {
+            return finnFørsteUttaksdatoFørstegangsbehandling(behandling);
+        }
+        return uttak.get().finnFørsteUttaksdato();
     }
 
 }

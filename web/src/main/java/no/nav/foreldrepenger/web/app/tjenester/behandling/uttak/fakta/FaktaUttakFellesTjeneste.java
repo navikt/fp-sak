@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.uttak.fakta.uttak.FaktaUttakAksjonspunktUtle
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.TidligstMottattOppdaterer;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelseFordelingDtoTjeneste;
 
 @ApplicationScoped
 class FaktaUttakFellesTjeneste {
@@ -43,7 +43,7 @@ class FaktaUttakFellesTjeneste {
     private FaktaUttakAksjonspunktUtleder utleder;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste;
+    private YtelseFordelingDtoTjeneste ytelseFordelingDtoTjeneste;
     private FaktaUttakHistorikkinnslagTjeneste historikkinnslagTjeneste;
     private BehandlingRepository behandlingRepository;
     private FpUttakRepository fpUttakRepository;
@@ -57,7 +57,7 @@ class FaktaUttakFellesTjeneste {
                                     YtelsesFordelingRepository ytelsesFordelingRepository,
                                     FpUttakRepository fpUttakRepository,
                                     UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
-                                    FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste,
+                                    YtelseFordelingDtoTjeneste ytelseFordelingDtoTjeneste,
                                     FaktaUttakHistorikkinnslagTjeneste historikkinnslagTjeneste,
                                     BehandlingRepository behandlingRepository,
                                     FaktaUttakPeriodeDtoTjeneste dtoTjeneste) {
@@ -65,7 +65,7 @@ class FaktaUttakFellesTjeneste {
         this.utleder = utleder;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.førsteUttaksdatoTjeneste = førsteUttaksdatoTjeneste;
+        this.ytelseFordelingDtoTjeneste = ytelseFordelingDtoTjeneste;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fpUttakRepository = fpUttakRepository;
@@ -145,7 +145,7 @@ class FaktaUttakFellesTjeneste {
         //Burde overstyre første uttaksdag i Fakta om saken
         var førsteOverstyrt = overstyrtePerioder.stream().filter(p -> !p.isUtsettelse()).map(p -> p.getFom()).min(Comparator.naturalOrder());
         if (førsteOverstyrt.isPresent()) {
-            var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling).orElseThrow();
+            var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(behandling).orElseThrow();
             if (førsteOverstyrt.get().isBefore(førsteUttaksdato)) {
                 throw new IllegalArgumentException(
                     "første dag i overstyrte perioder kan ikke ligge før gyldig første uttaksdato " + førsteOverstyrt + " - " + førsteUttaksdato);
