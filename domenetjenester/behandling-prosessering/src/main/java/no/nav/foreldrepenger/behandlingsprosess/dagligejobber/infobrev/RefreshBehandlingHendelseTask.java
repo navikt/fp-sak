@@ -57,11 +57,11 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
             .forEach(this::opprettLosProsessTask);
     }
 
-    private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
+    private void opprettOppdaterEnhetTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setCallIdFraEksisterende();
-        return prosessTaskData;
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     private void opprettLosProsessTask(Behandling behandling) {
