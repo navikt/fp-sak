@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -43,7 +44,7 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
         utflytting.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.BOSATT_UTLAND));
         informasjonssakRepository.finnAktiveUtlandBehandlingerSomSkalOppdateres().stream()
             .map(behandlingRepository::hentBehandling)
-            .forEach(this::opprettProsessTask);
+            .forEach(this::opprettOppdaterEnhetTask);
 
         // Fjernes etter initiell merking
         var nynæring = informasjonssakRepository.finnSakerSomKanMerkesNæring();
@@ -53,10 +54,17 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
         informasjonssakRepository.finnAktiveNæringBehandlingerSomSkalOppdateres().stream()
             .map(behandlingRepository::hentBehandling)
             .filter(b -> nynæring.contains(b.getFagsakId()))
-            .forEach(this::opprettProsessTask);
+            .forEach(this::opprettLosProsessTask);
     }
 
-    private void opprettProsessTask(Behandling behandling) {
+    private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setCallIdFraEksisterende();
+        return prosessTaskData;
+    }
+
+    private void opprettLosProsessTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
