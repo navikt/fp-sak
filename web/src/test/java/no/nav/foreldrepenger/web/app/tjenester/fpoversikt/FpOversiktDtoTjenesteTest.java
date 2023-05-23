@@ -74,7 +74,7 @@ class FpOversiktDtoTjenesteTest {
             .medFlerbarnsdager(true)
             .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
-        var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true);
+        var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true, true);
         var behandling = opprettAvsluttetFpBehandling(vedtakstidspunkt, Dekningsgrad._80, fødselsdato, fordeling, oppgittRettighet);
         var annenPartAktørId = AktørId.dummy();
         repositoryProvider.getPersonopplysningRepository().lagre(behandling.getId(),
@@ -110,6 +110,7 @@ class FpOversiktDtoTjenesteTest {
         var dto = (FpSak) tjeneste.hentSak(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
+        assertThat(dto.ønskerJustertUttakVedFødsel()).isTrue();
         assertThat(dto.vedtak()).hasSize(1);
         assertThat(dto.status()).isEqualTo(Sak.Status.OPPRETTET);
         var vedtak = dto.vedtak().stream().findFirst().orElseThrow();

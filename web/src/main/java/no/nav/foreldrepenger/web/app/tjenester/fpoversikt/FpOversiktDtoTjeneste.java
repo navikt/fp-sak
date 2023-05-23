@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
 
+    private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository vedtakRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -90,12 +91,19 @@ public class FpOversiktDtoTjeneste {
         return switch (fagsak.getYtelseType()) {
             case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnEsSøknader(åpenYtelseBehandling,
                 mottatteSøknader));
-            case FORELDREPENGER -> new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
-                oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader),
-                finnBrukerRolle(fagsak), finnFødteBarn(fagsak, gjeldendeVedtak, åpenYtelseBehandling), finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling));
+            case FORELDREPENGER -> {
+                var gjeldendeBehandling = finnGjeldendeBehandling(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
+                var ytelseFordelingAggregat = gjeldendeBehandling.flatMap(b -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(b.getId()));
+                var fødteBarn = gjeldendeBehandling.map(this::finnFødteBarn).orElse(Set.of());
+                var ønskerJusteringVedFødsel = ytelseFordelingAggregat.map(yfa -> yfa.getGjeldendeFordeling().ønskerJustertVedFødsel())
+                    .orElse(false);
+                yield new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
+                    oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader),
+                    finnBrukerRolle(fagsak), fødteBarn, finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling), ønskerJusteringVedFødsel);
+            }
             case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
                 mottatteSøknader));
-            case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getYtelseType());
+            case UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getYtelseType());
         };
     }
 
@@ -129,9 +137,7 @@ public class FpOversiktDtoTjeneste {
         return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
     }
 
-    private Set<String> finnFødteBarn(Fagsak fagsak,
-                                      Optional<BehandlingVedtak> gjeldendeVedtak,
-                                      Optional<Behandling> åpenYtelseBehandling) {
+    private Optional<Behandling> finnGjeldendeBehandling(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
         final Optional<Behandling> behandling;
         if (gjeldendeVedtak.isPresent()) {
             var behandlingId = gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId();
@@ -141,7 +147,7 @@ public class FpOversiktDtoTjeneste {
         } else {
             behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
         }
-        return behandling.map(this::finnFødteBarn).orElse(Set.of());
+        return behandling;
     }
 
     private Set<String> finnFødteBarn(Behandling behandling) {
@@ -157,7 +163,7 @@ public class FpOversiktDtoTjeneste {
             case FARA -> FpSak.BrukerRolle.FAR;
             case MORA -> FpSak.BrukerRolle.MOR;
             case MEDMOR -> FpSak.BrukerRolle.MEDMOR;
-            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD, UDEFINERT -> throw new IllegalStateException("Unexpected value: " + fagsak.getRelasjonsRolleType());
+            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD, UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getRelasjonsRolleType());
         };
     }
 
@@ -239,7 +245,7 @@ public class FpOversiktDtoTjeneste {
                 case SYKDOM_ANNEN_FORELDER -> OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
                 case IKKE_RETT_ANNEN_FORELDER -> OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
                 case ALENEOMSORG -> OverføringÅrsak.ALENEOMSORG;
-                case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + årsak);
+                case UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
             };
         }
         return null;
@@ -252,7 +258,7 @@ public class FpOversiktDtoTjeneste {
                 case FEDREKVOTE_ANNEN_FORELDER -> OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
                 case KVOTE_FELLESPERIODE_ANNEN_FORELDER -> OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
                 case KVOTE_FORELDREPENGER_ANNEN_FORELDER -> OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
-                case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + årsak);
+                case UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
             };
         }
         return null;
@@ -269,7 +275,7 @@ public class FpOversiktDtoTjeneste {
                 case HV_OVELSE -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.HV_ØVELSE;
                 case NAV_TILTAK -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.NAV_TILTAK;
                 case FRI -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.FRI;
-                case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + årsak);
+                case UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + årsak);
             };
         }
         return null;
