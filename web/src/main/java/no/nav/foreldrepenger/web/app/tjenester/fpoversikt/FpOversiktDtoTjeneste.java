@@ -23,11 +23,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -98,7 +100,7 @@ public class FpOversiktDtoTjeneste {
                 var ønskerJusteringVedFødsel = ytelseFordelingAggregat.map(yfa -> yfa.getGjeldendeFordeling().ønskerJustertVedFødsel())
                     .orElse(false);
                 yield new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
-                    oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader),
+                    oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader, fagsak),
                     finnBrukerRolle(fagsak), fødteBarn, finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling), ønskerJusteringVedFødsel);
             }
             case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
@@ -176,18 +178,23 @@ public class FpOversiktDtoTjeneste {
             .toList();
     }
 
-    private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+    private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader, Fagsak fagsak) {
         return mottatteSøknader.stream()
             .map(md -> {
                 var status = statusForSøknad(åpenYtelseBehandling, md);
                 var perioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(md.getBehandlingId()).map(ytelseFordelingAggregat -> {
                     var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
-                    return oppgittFordeling.getPerioder().stream().map(p -> tilDto(p)).collect(Collectors.toSet());
+                    return oppgittFordeling.getPerioder().stream().map(FpOversiktDtoTjeneste::tilDto).collect(Collectors.toSet());
                 }).orElse(Set.of());
-                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder);
+                var oppgittDekingsgrad = fagsakRelasjonRepository.finnRelasjonFor(fagsak).getDekningsgrad();
+                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, tilDekningsgradDto(oppgittDekingsgrad));
             })
             .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
             .collect(Collectors.toSet());
+    }
+
+    private static FpSak.Dekningsgrad tilDekningsgradDto(Dekningsgrad dekningsgrad) {
+        return dekningsgrad.isÅtti() ? FpSak.Dekningsgrad.ÅTTI : FpSak.Dekningsgrad.HUNDRE;
     }
 
     private static SøknadStatus statusForSøknad(Optional<Behandling> åpenYtelseBehandling, MottattDokument md) {
@@ -413,9 +420,9 @@ public class FpOversiktDtoTjeneste {
     }
 
     private FpSak.Vedtak tilDto(BehandlingVedtak vedtak, Fagsak fagsak) {
-        var dekningsgrad = finnDekningsgrad(fagsak);
         var uttaksperioder = finnUttaksperioder(vedtak.getBehandlingsresultat().getBehandlingId());
-        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad);
+        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(fagsak).getGjeldendeDekningsgrad();
+        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, tilDekningsgradDto(dekningsgrad));
     }
 
     private List<FpSak.Uttaksperiode> finnUttaksperioder(Long behandlingId) {
@@ -440,7 +447,7 @@ public class FpOversiktDtoTjeneste {
                 case ANNET -> UttakAktivitet.Type.ANNET;
             };
             var arbeidsgiver = a.getArbeidsgiver().map(arb -> new UttakAktivitet.Arbeidsgiver(arb.getIdentifikator())).orElse(null);
-            var arbeidsforholdId = Optional.ofNullable(a.getArbeidsforholdRef()).map(ref -> ref.getReferanse()).orElse(null);
+            var arbeidsforholdId = Optional.ofNullable(a.getArbeidsforholdRef()).map(InternArbeidsforholdRef::getReferanse).orElse(null);
             var trekkdager = a.getTrekkdager().decimalValue();
             var konto = switch (a.getTrekkonto()) {
                 case FELLESPERIODE -> Konto.FELLESPERIODE;
@@ -455,10 +462,5 @@ public class FpOversiktDtoTjeneste {
         }).collect(Collectors.toSet());
         var resultat = new FpSak.Uttaksperiode.Resultat(type, aktiviteter);
         return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), resultat);
-    }
-
-    private FpSak.Vedtak.Dekningsgrad finnDekningsgrad(Fagsak fagsak) {
-        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(fagsak).getGjeldendeDekningsgrad();
-        return dekningsgrad.isÅtti() ? FpSak.Vedtak.Dekningsgrad.ÅTTI : FpSak.Vedtak.Dekningsgrad.HUNDRE;
     }
 }

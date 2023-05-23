@@ -114,7 +114,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(dto.vedtak()).hasSize(1);
         assertThat(dto.status()).isEqualTo(Sak.Status.OPPRETTET);
         var vedtak = dto.vedtak().stream().findFirst().orElseThrow();
-        assertThat(vedtak.dekningsgrad()).isEqualTo(FpSak.Vedtak.Dekningsgrad.ÅTTI);
+        assertThat(vedtak.dekningsgrad()).isEqualTo(FpSak.Dekningsgrad.ÅTTI);
         assertThat(vedtak.vedtakstidspunkt()).isEqualTo(vedtakstidspunkt);
         assertThat(vedtak.uttaksperioder()).hasSize(1);
         var vedtaksperiode = vedtak.uttaksperioder().get(0);
@@ -144,6 +144,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(dto.søknader()).hasSize(1);
         var søknad = dto.søknader().stream().findFirst().get();
         assertThat(søknad.mottattTidspunkt()).isEqualTo(mottattDokument.getMottattTidspunkt());
+        assertThat(søknad.dekningsgrad()).isEqualTo(vedtak.dekningsgrad());
         assertThat(søknad.perioder()).hasSize(1);
         var søknadsperiode = søknad.perioder().stream().findFirst().get();
         assertThat(søknadsperiode.fom()).isEqualTo(oppgittPeriode.getFom());

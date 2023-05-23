@@ -19,11 +19,12 @@ record FpSak(String saksnummer,
              Rettigheter rettigheter,
              boolean ønskerJustertUttakVedFødsel) implements Sak {
 
+    enum Dekningsgrad {
+        ÅTTI,
+        HUNDRE
+    }
+
     record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad) {
-        enum Dekningsgrad {
-            ÅTTI,
-            HUNDRE
-        }
     }
 
     record Uttaksperiode(LocalDate fom, LocalDate tom, Resultat resultat) {
@@ -40,7 +41,7 @@ record FpSak(String saksnummer,
         }
     }
 
-    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder) {
+    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder, Dekningsgrad dekningsgrad) {
 
         record Periode(LocalDate fom, LocalDate tom, Konto konto, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
                        OverføringÅrsak overføringÅrsak, Gradering gradering, BigDecimal samtidigUttak, boolean flerbarnsdager,
