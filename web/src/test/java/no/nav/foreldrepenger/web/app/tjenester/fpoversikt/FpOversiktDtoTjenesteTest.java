@@ -28,6 +28,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -42,6 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -93,6 +96,11 @@ class FpOversiktDtoTjenesteTest {
         var tom = LocalDate.of(2023, 10, 5);
         var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medFlerbarnsdager(true)
+            .medGraderingInnvilget(true)
+            .medOppholdÅrsak(OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER)
+            .medUtsettelseType(UttakUtsettelseType.ARBEID)
+            .medOverføringÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
             .build();
         uttak.leggTilPeriode(periode);
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
@@ -126,7 +134,11 @@ class FpOversiktDtoTjenesteTest {
         assertThat(vedtaksAktivitet.trekkdager()).isEqualTo(uttakAktivitet.getTrekkdager().decimalValue());
         assertThat(vedtaksAktivitet.aktivitet().arbeidsforholdId()).isEqualTo(arbeidsforholdRef.getReferanse());
         assertThat(vedtaksAktivitet.aktivitet().arbeidsgiver().identifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
-        assertThat(vedtaksperiode.resultat().type()).isEqualTo(FpSak.Uttaksperiode.Resultat.Type.INNVILGET);
+        assertThat(vedtaksperiode.resultat().type()).isEqualTo(FpSak.Uttaksperiode.Resultat.Type.INNVILGET_GRADERING);
+        assertThat(vedtaksperiode.flerbarnsdager()).isTrue();
+        assertThat(vedtaksperiode.oppholdÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER);
+        assertThat(vedtaksperiode.utsettelseÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.ARBEID);
+        assertThat(vedtaksperiode.overføringÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OverføringÅrsak.SYKDOM_ANNEN_FORELDER);
 
         assertThat(dto.oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
         assertThat(dto.brukerRolle()).isEqualTo(FpSak.BrukerRolle.MOR);

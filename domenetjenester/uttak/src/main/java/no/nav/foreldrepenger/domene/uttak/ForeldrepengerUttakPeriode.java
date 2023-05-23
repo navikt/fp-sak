@@ -195,7 +195,7 @@ public class ForeldrepengerUttakPeriode {
         return !isInnvilget() && isSøktOverføring();
     }
 
-    private boolean isSøktOverføring() {
+    public boolean isSøktOverføring() {
         return getOverføringÅrsak() != null && !OverføringÅrsak.UDEFINERT.equals(getOverføringÅrsak());
     }
 

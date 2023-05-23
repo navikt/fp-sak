@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -37,6 +39,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpSak.Uttaksperiode.Resultat;
 
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
@@ -213,7 +216,15 @@ public class FpOversiktDtoTjeneste {
         var utsettelseÅrsak = finnUtsettelseÅrsak(periode.getÅrsak());
         var oppholdÅrsak = finnOppholdÅrsak(periode.getÅrsak());
         var overføringÅrsak = finnOverføringÅrsak(periode.getÅrsak());
-        var morsAktivitet = periode.getMorsAktivitet() == null ? null : switch (periode.getMorsAktivitet()) {
+        var morsAktivitet = map(periode.getMorsAktivitet());
+        var gradering = mapGradering(periode);
+        var samtidigUttak = periode.getSamtidigUttaksprosent() == null ? null : periode.getSamtidigUttaksprosent().decimalValue();
+        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), konto, utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
+            gradering, samtidigUttak, periode.isFlerbarnsdager(), morsAktivitet);
+    }
+
+    private static MorsAktivitet map(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet morsAktivitet) {
+        return morsAktivitet == null ? null : switch (morsAktivitet) {
             case UDEFINERT -> null;
             case ARBEID -> MorsAktivitet.ARBEID;
             case UTDANNING -> MorsAktivitet.UTDANNING;
@@ -225,10 +236,6 @@ public class FpOversiktDtoTjeneste {
             case UFØRE -> MorsAktivitet.UFØRE;
             case IKKE_OPPGITT -> MorsAktivitet.IKKE_OPPGITT;
         };
-        var gradering = mapGradering(periode);
-        var samtidigUttak = periode.getSamtidigUttaksprosent() == null ? null : periode.getSamtidigUttaksprosent().decimalValue();
-        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), konto, utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
-            gradering, samtidigUttak, periode.isFlerbarnsdager(), morsAktivitet);
     }
 
     private static Gradering mapGradering(OppgittPeriodeEntitet periode) {
@@ -434,11 +441,7 @@ public class FpOversiktDtoTjeneste {
     }
 
     private FpSak.Uttaksperiode tilDto(ForeldrepengerUttakPeriode periode) {
-        var type = switch (periode.getResultatType()) {
-            case INNVILGET -> FpSak.Uttaksperiode.Resultat.Type.INNVILGET;
-            case AVSLÅTT -> FpSak.Uttaksperiode.Resultat.Type.AVSLÅTT;
-            case MANUELL_BEHANDLING -> throw new IllegalStateException("Forventer ikke perioder under manuell behandling");
-        };
+        var type = utledResultatType(periode);
         var aktiviteter = periode.getAktiviteter().stream().map(a -> {
             var aktivitetType = switch (a.getUttakArbeidType()) {
                 case ORDINÆRT_ARBEID -> UttakAktivitet.Type.ORDINÆRT_ARBEID;
@@ -457,10 +460,60 @@ public class FpOversiktDtoTjeneste {
                 case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
                 case UDEFINERT, FLERBARNSDAGER -> null;
             };
-            return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId),
-                konto, trekkdager, a.getArbeidsprosent());
+            var arbeidstidsprosent = a.isSøktGraderingForAktivitetIPeriode() ? a.getArbeidsprosent() : BigDecimal.ZERO;
+            return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId), konto,
+                trekkdager, arbeidstidsprosent);
         }).collect(Collectors.toSet());
-        var resultat = new FpSak.Uttaksperiode.Resultat(type, aktiviteter);
-        return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), resultat);
+        var årsak = switch (periode.getResultatÅrsak()) {
+            case HULL_MELLOM_FORELDRENES_PERIODER, BARE_FAR_RETT_IKKE_SØKT -> Resultat.Årsak.AVSLAG_HULL_I_UTTAKSPLAN;
+            default -> Resultat.Årsak.ANNET;
+        };
+        var trekkerMinsterett = trekkerMinsterett(periode);
+        var resultat = new Resultat(type, årsak, aktiviteter, trekkerMinsterett);
+        var utsettelseÅrsak = switch (periode.getUtsettelseType()) {
+            case ARBEID -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.ARBEID;
+            case FERIE -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.LOVBESTEMT_FERIE;
+            case SYKDOM_SKADE -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.SØKER_SYKDOM;
+            case SØKER_INNLAGT -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.SØKER_INNLAGT;
+            case BARN_INNLAGT -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.BARN_INNLAGT;
+            case HV_OVELSE -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.HV_ØVELSE;
+            case NAV_TILTAK -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.NAV_TILTAK;
+            case FRI -> no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.FRI;
+            case UDEFINERT -> null;
+        };
+        var oppholdÅrsak = switch (periode.getOppholdÅrsak()) {
+            case UDEFINERT -> null;
+            case MØDREKVOTE_ANNEN_FORELDER -> OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
+            case FEDREKVOTE_ANNEN_FORELDER -> OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
+            case KVOTE_FELLESPERIODE_ANNEN_FORELDER -> OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
+            case KVOTE_FORELDREPENGER_ANNEN_FORELDER -> OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
+        };
+        var overføringÅrsak = periode.isSøktOverføring() && !periode.isOverføringAvslått() ? switch (periode.getOverføringÅrsak()) {
+            case INSTITUSJONSOPPHOLD_ANNEN_FORELDER -> OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
+            case SYKDOM_ANNEN_FORELDER -> OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
+            case IKKE_RETT_ANNEN_FORELDER -> OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
+            case ALENEOMSORG -> OverføringÅrsak.ALENEOMSORG;
+            case UDEFINERT -> null;
+        } : null;
+        var samtidigUttaksprosent = periode.getSamtidigUttaksprosent();
+        return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
+            samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue(), periode.isFlerbarnsdager(),
+            map(periode.getMorsAktivitet()), resultat);
+    }
+
+    private boolean trekkerMinsterett(ForeldrepengerUttakPeriode periode) {
+        return periode.harTrekkdager() && !Set.of(PeriodeResultatÅrsak.FORELDREPENGER_KUN_FAR_HAR_RETT,
+            PeriodeResultatÅrsak.GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT).contains(periode.getResultatÅrsak());
+    }
+
+    private static Resultat.Type utledResultatType(ForeldrepengerUttakPeriode periode) {
+        if (periode.isInnvilget() && periode.isGraderingInnvilget()) {
+            return Resultat.Type.INNVILGET_GRADERING;
+        }
+        return switch (periode.getResultatType()) {
+            case INNVILGET -> Resultat.Type.INNVILGET;
+            case AVSLÅTT -> Resultat.Type.AVSLÅTT;
+            case MANUELL_BEHANDLING -> throw new IllegalStateException("Forventer ikke perioder under manuell behandling");
+        };
     }
 }

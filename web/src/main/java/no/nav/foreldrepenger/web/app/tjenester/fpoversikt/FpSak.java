@@ -27,16 +27,24 @@ record FpSak(String saksnummer,
     record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad) {
     }
 
-    record Uttaksperiode(LocalDate fom, LocalDate tom, Resultat resultat) {
-        public record Resultat(Type type, Set<UttaksperiodeAktivitet> aktiviteter) {
+    record Uttaksperiode(LocalDate fom, LocalDate tom, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
+                         OverføringÅrsak overføringÅrsak, BigDecimal samtidigUttak, Boolean flerbarnsdager,
+                         MorsAktivitet morsAktivitet, Resultat resultat) {
+        record Resultat(Type type, Årsak årsak, Set<UttaksperiodeAktivitet> aktiviteter, boolean trekkerMinsterett) {
 
-            public enum Type {
+            enum Type {
                 INNVILGET,
+                INNVILGET_GRADERING,
                 AVSLÅTT
+            }
+
+            enum Årsak {
+                ANNET,
+                AVSLAG_HULL_I_UTTAKSPLAN
             }
         }
 
-        public record UttaksperiodeAktivitet(UttakAktivitet aktivitet, Konto konto, BigDecimal trekkdager, BigDecimal arbeidstidsprosent) {
+        record UttaksperiodeAktivitet(UttakAktivitet aktivitet, Konto konto, BigDecimal trekkdager, BigDecimal arbeidstidsprosent) {
 
         }
     }
