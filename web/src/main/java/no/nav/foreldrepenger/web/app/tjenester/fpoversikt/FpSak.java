@@ -58,7 +58,7 @@ record FpSak(String saksnummer,
     }
 
     enum BrukerRolle {
-        MOR, FAR, MEDMOR
+        MOR, FAR, MEDMOR, UKJENT
     }
 
     record Rettigheter(boolean aleneomsorg, boolean morUføretrygd, boolean annenForelderTilsvarendeRettEØS) {

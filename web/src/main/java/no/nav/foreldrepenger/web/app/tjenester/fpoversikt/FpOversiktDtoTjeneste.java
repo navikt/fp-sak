@@ -168,7 +168,8 @@ public class FpOversiktDtoTjeneste {
             case FARA -> FpSak.BrukerRolle.FAR;
             case MORA -> FpSak.BrukerRolle.MOR;
             case MEDMOR -> FpSak.BrukerRolle.MEDMOR;
-            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD, UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getRelasjonsRolleType());
+            case UDEFINERT -> FpSak.BrukerRolle.UKJENT;
+            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getRelasjonsRolleType());
         };
     }
 
