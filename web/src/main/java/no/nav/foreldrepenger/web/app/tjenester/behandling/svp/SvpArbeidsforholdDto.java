@@ -28,6 +28,7 @@ public class SvpArbeidsforholdDto {
     private boolean skalBrukes = true;
     private boolean kanTilrettelegges = true;
     private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
+    private List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -109,6 +110,10 @@ public class SvpArbeidsforholdDto {
         return skalBrukes;
     }
 
+    public List<SvpAvklartOppholdPeriodeDto> getAvklarteOppholdPerioder() {
+        return avklarteOppholdPerioder;
+    }
+
     public void setSkalBrukes(boolean skalBrukes) {
         this.skalBrukes = skalBrukes;
     }
@@ -135,6 +140,10 @@ public class SvpArbeidsforholdDto {
 
     public void setVelferdspermisjoner(List<VelferdspermisjonDto> velferdspermisjoner) {
         this.velferdspermisjoner = velferdspermisjoner;
+    }
+
+    public void setAvklarteOppholdPerioder(List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder) {
+        this.avklarteOppholdPerioder = avklarteOppholdPerioder;
     }
 
     public String getArbeidsgiverReferanse() {

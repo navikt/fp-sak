@@ -134,6 +134,7 @@ public class SvangerskapspengerTjeneste {
         dto.setTilretteleggingId(svpTilrettelegging.getId());
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
         dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging));
+        dto.setAvklarteOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
         dto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
         dto.setOpplysningerOmTilrettelegging(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null));
         dto.setBegrunnelse(svpTilrettelegging.getBegrunnelse().orElse(null));
@@ -205,6 +206,11 @@ public class SvangerskapspengerTjeneste {
     private List<SvpTilretteleggingDatoDto> utledTilretteleggingDatoer(SvpTilretteleggingEntitet svpTilrettelegging) {
         return svpTilrettelegging.getTilretteleggingFOMListe().stream()
             .map(fom -> new SvpTilretteleggingDatoDto(fom.getFomDato(), fom.getType(), fom.getStillingsprosent(), fom.getOverstyrtUtbetalingsgrad()))
+            .toList();
+    }
+    private List<SvpAvklartOppholdPeriodeDto> mapAvklartOppholdPeriode(SvpTilretteleggingEntitet svpTilrettelegging) {
+        return svpTilrettelegging.getAvklarteOpphold().stream()
+            .map(avklartOpphold -> new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak()))
             .toList();
     }
 }
