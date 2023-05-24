@@ -179,6 +179,7 @@ public class FpOversiktDtoTjeneste {
             .filter(md -> md.erSøknadsDokument())
             .filter(md -> md.getJournalpostId() != null)
             .filter(md -> md.getMottattTidspunkt() != null)
+            .filter(md -> md.getBehandlingId() != null)
             .toList();
     }
 
