@@ -235,8 +235,9 @@ public class BehandlingRestTjeneste {
         // precondition - sjekk behandling versjon/lås
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
 
-        // gjenoppta behandling ( sparkes i gang asynkront, derav redirect til status
-        // url under )
+        behandlingsutredningTjeneste.setAnsvarligSaksbehandlerFraKontekst(behandling);
+
+        // gjenoppta behandling ( sparkes i gang asynkront, derav redirect til status url under )
         var gruppeOpt = behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
         return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), gruppeOpt);
     }

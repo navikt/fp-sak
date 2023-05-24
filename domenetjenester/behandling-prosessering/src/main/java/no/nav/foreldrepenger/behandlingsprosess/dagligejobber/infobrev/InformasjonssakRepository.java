@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 
@@ -304,20 +303,6 @@ public class InformasjonssakRepository {
         return resultatList.stream().map(BigDecimal::longValue).toList();
     }
 
-    public List<Long> finnSakerMedÅpenUtflyttingshendelse() {
-        var query =  entityManager.createNativeQuery("""
-           select distinct b.FAGSAK_ID
-           from FPSAK.behandling b join fpsak.behandling_arsak ba on b.id = ba.behandling_id
-           where b.BEHANDLING_STATUS <> 'AVSLU'
-           and ba.BEHANDLING_ARSAK_TYPE = 'RE-HENDELSE-UTFLYTTING'
-           and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value in (:markering))
-        """)
-            .setParameter("markering", List.of(FagsakMarkering.DØD_DØDFØDSEL.name(), FagsakMarkering.SAMMENSATT_KONTROLL.name(), FagsakMarkering.BOSATT_UTLAND.name()));
-        @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        return resultatList.stream().map(BigDecimal::longValue).toList();
-    }
-
     public List<Long> finnAktiveNæringBehandlingerSomSkalOppdateres() {
         var query =  entityManager.createNativeQuery("""
            select distinct b.id
@@ -346,6 +331,16 @@ public class InformasjonssakRepository {
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
         return resultatList.stream().map(BigDecimal::longValue).toList();
+    }
+
+    public void fjernSaksbehandlerDersomPåVent() {
+        entityManager.createNativeQuery("""
+           update fpsak.behandling b
+           set b.ansvarlig_saksbehandler = null
+           where b.behandling_status <> 'AVSLU' and b.ansvarlig_saksbehandler is not null
+           and b.id in (select behandling_id from fpsak.aksjonspunkt ap where aksjonspunkt_def > 7000 and aksjonspunkt_status = 'OPPR')
+        """).executeUpdate();
+
     }
 
 }
