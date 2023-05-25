@@ -73,7 +73,7 @@ class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
     private void pushKafkaHendelse(Long fagsakId) {
         var behandlingOpt = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsakId);
         if (behandlingOpt.isEmpty()) {
-            LOG.info("Publiser migreringshendelse, ingen behandlig for fagsak {}", fagsakId);
+            LOG.info("Publiser migreringshendelse, ingen behandling for fagsak {}", fagsakId);
             return;
         }
         var behandling = behandlingOpt.get();
