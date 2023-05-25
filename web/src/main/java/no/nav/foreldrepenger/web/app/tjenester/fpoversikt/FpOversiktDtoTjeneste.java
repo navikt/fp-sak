@@ -490,7 +490,7 @@ public class FpOversiktDtoTjeneste {
             case KVOTE_FELLESPERIODE_ANNEN_FORELDER -> OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
             case KVOTE_FORELDREPENGER_ANNEN_FORELDER -> OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
         };
-        var overføringÅrsak = periode.isSøktOverføring() && !periode.isOverføringAvslått() ? switch (periode.getOverføringÅrsak()) {
+        var overføringÅrsak = periode.isSøktOverføring() ? switch (periode.getOverføringÅrsak()) {
             case INSTITUSJONSOPPHOLD_ANNEN_FORELDER -> OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
             case SYKDOM_ANNEN_FORELDER -> OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
             case IKKE_RETT_ANNEN_FORELDER -> OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
