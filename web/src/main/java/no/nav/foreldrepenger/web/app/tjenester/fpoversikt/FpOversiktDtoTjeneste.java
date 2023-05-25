@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -43,6 +46,8 @@ import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpSak.Uttaksperiode.Re
 
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private BehandlingRepository behandlingRepository;
@@ -84,9 +89,10 @@ public class FpOversiktDtoTjeneste {
 
     public Sak hentSak(String saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer)).orElseThrow();
+        LOG.info("Henter sak {}", fagsak.getSaksnummer());
         var aktørId = fagsak.getAktørId().getId();
 
-        var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(fagsak);
+        var gjeldendeVedtak = finnGjeldendeVedtak(fagsak);
         var åpenYtelseBehandling = hentÅpenBehandling(fagsak);
         var familieHendelse = finnFamilieHendelse(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
         var sakStatus = finnFagsakStatus(fagsak);
@@ -94,22 +100,33 @@ public class FpOversiktDtoTjeneste {
         var aksjonspunkt = finnAksjonspunkt(ikkeHenlagteBehandlinger);
         var mottatteSøknader = finnRelevanteSøknadsdokumenter(fagsak);
         return switch (fagsak.getYtelseType()) {
-            case ENGANGSTØNAD -> new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnEsSøknader(åpenYtelseBehandling,
-                mottatteSøknader));
+            case ENGANGSTØNAD ->
+                new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnEsSøknader(åpenYtelseBehandling, mottatteSøknader));
             case FORELDREPENGER -> {
+                var vedtak = finnVedtakForForeldrepenger(fagsak);
+                var oppgittAnnenPart = oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null);
+                var søknader = finnFpSøknader(åpenYtelseBehandling, mottatteSøknader, fagsak);
                 var gjeldendeBehandling = finnGjeldendeBehandling(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
-                var ytelseFordelingAggregat = gjeldendeBehandling.flatMap(b -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(b.getId()));
                 var fødteBarn = gjeldendeBehandling.map(this::finnFødteBarn).orElse(Set.of());
-                var ønskerJusteringVedFødsel = ytelseFordelingAggregat.map(yfa -> yfa.getGjeldendeFordeling().ønskerJustertVedFødsel())
+                var rettigheter = finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
+                var ønskerJustertUttakVedFødsel = gjeldendeBehandling.flatMap(b -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(b.getId()))
+                    .map(yfa -> yfa.getGjeldendeFordeling().ønskerJustertVedFødsel())
                     .orElse(false);
-                yield new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, finnVedtakForForeldrepenger(fagsak),
-                    oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null), aksjonspunkt, finnFpSøknader(åpenYtelseBehandling, mottatteSøknader, fagsak),
-                    finnBrukerRolle(fagsak), fødteBarn, finnRettigheter(fagsak, gjeldendeVedtak, åpenYtelseBehandling), ønskerJusteringVedFødsel);
+                var brukerRolle = finnBrukerRolle(fagsak);
+                yield new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, vedtak, oppgittAnnenPart, aksjonspunkt, søknader, brukerRolle,
+                    fødteBarn, rettigheter, ønskerJustertUttakVedFødsel);
             }
-            case SVANGERSKAPSPENGER -> new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling,
-                mottatteSøknader));
+            case SVANGERSKAPSPENGER ->
+                new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling, mottatteSøknader));
             case UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getYtelseType());
         };
+    }
+
+    private Optional<BehandlingVedtak> finnGjeldendeVedtak(Fagsak fagsak) {
+        var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(fagsak);
+        gjeldendeVedtak.ifPresentOrElse(v -> LOG.info("Fant gjeldende vedtak for sak {} {}", fagsak.getSaksnummer(), v.getId()),
+            () -> LOG.info("Fant ikke et vedtak for sak {}", fagsak.getSaksnummer()));
+        return gjeldendeVedtak;
     }
 
     private FpSak.Rettigheter finnRettigheter(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
@@ -191,8 +208,8 @@ public class FpOversiktDtoTjeneste {
                     var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
                     return oppgittFordeling.getPerioder().stream().map(FpOversiktDtoTjeneste::tilDto).collect(Collectors.toSet());
                 }).orElse(Set.of());
-                var oppgittDekingsgrad = fagsakRelasjonRepository.finnRelasjonFor(fagsak).getDekningsgrad();
-                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, tilDekningsgradDto(oppgittDekingsgrad));
+                var oppgittDekingsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(fr -> fr.getDekningsgrad());
+                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekingsgrad.map(d -> tilDekningsgradDto(d)).orElse(null));
             })
             .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
             .collect(Collectors.toSet());
@@ -385,10 +402,14 @@ public class FpOversiktDtoTjeneste {
     }
 
     private Optional<Behandling> hentÅpenBehandling(Fagsak fagsak) {
-        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
+        var åpenYtelseBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
             .stream()
             .filter(b -> b.erYtelseBehandling())
             .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
+        åpenYtelseBehandling.ifPresentOrElse(b -> {
+            LOG.info("Fant åpen ytelsebehandling for sak {} {}", fagsak.getSaksnummer(), b.getId());
+        }, () -> LOG.info("Ingen åpen ytelsebehandling for sak {}", fagsak.getSaksnummer()));
+        return åpenYtelseBehandling;
     }
 
     private Optional<Sak.FamilieHendelse> finnOppgittFamilieHendelse(Long behandling) {
