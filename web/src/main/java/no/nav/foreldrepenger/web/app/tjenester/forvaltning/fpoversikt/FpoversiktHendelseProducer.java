@@ -26,7 +26,7 @@ public class FpoversiktHendelseProducer {
     }
 
     @Inject
-    public FpoversiktHendelseProducer(@KonfigVerdi(value = "kafka.fpoversikt.migrering.topic", defaultVerdi = "fpoversikt-migrering-v1") String topic) {
+    public FpoversiktHendelseProducer(@KonfigVerdi(value = "kafka.fpoversikt.migrering.topic", defaultVerdi = "teamforeldrepenger.fpoversikt-migrering-v1") String topic) {
         this.topic = topic;
         this.producer = new KafkaProducer<>(KafkaProperties.forProducer());
     }
