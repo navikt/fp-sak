@@ -107,10 +107,10 @@ public class ForvaltningBeregningRestTjeneste {
         var type = dto.getSatsType();
         var brukTom = dto.getSatsTom() != null ? dto.getSatsTom() : LocalDate.now().plusYears(99);
         var gjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
+        var eksisterende = new BeregningSatsDto(gjeldende);
 
         if (Objects.equals(gjeldende.getPeriode().getFomDato(), dto.getSatsFom())) {
             // Ved behov for å oppdatere gjeldende sats verdi eller tom
-            var eksisterende = new BeregningSatsDto(gjeldende);
             if (!Objects.equals(gjeldende.getVerdi(), dto.getSatsVerdi()) && brukTom.isAfter(gjeldende.getPeriode().getFomDato())) {
                 LOG.warn("SATSJUSTERTING oppdatering: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
                 gjeldende.setVerdi(dto.getSatsVerdi());
@@ -119,7 +119,6 @@ public class ForvaltningBeregningRestTjeneste {
             } else {
                 throw new ForvaltningException("Ulovlige verdier " + dto);
             }
-            return List.of(eksisterende, new BeregningSatsDto(gjeldende));
         } else {
             // Nytt innslag. Sett sluttdato på gjeldende og legg til ny
             if (!sjekkVerdierOK(dto, gjeldende, brukTom))
@@ -129,9 +128,9 @@ public class ForvaltningBeregningRestTjeneste {
             beregningsresultatRepository.lagreSats(gjeldende);
             var nysats = new BeregningSats(type, DatoIntervallEntitet.fraOgMedTilOgMed(dto.getSatsFom(), brukTom), dto.getSatsVerdi());
             beregningsresultatRepository.lagreSats(nysats);
-            var nygjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
-            return Set.of(gjeldende, nygjeldende).stream().map(BeregningSatsDto::new).toList();
         }
+        var nygjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
+        return List.of(eksisterende, new BeregningSatsDto(nygjeldende));
     }
 
     private boolean sjekkVerdierOK(BeregningSatsDto dto, BeregningSats gjeldende, LocalDate brukTom) {
