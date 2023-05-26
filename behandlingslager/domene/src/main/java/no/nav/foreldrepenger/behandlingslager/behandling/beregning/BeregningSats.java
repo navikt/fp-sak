@@ -69,6 +69,10 @@ public class BeregningSats extends BaseEntitet {
         periode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getFomDato(), tom);
     }
 
+    public void setVerdi(long nySatsVerdi) {
+        verdi = nySatsVerdi;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
