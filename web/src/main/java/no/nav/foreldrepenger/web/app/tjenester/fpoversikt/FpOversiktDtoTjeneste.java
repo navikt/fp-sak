@@ -114,7 +114,7 @@ public class FpOversiktDtoTjeneste {
                     .orElse(false);
                 var brukerRolle = finnBrukerRolle(fagsak);
                 yield new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, vedtak, oppgittAnnenPart, aksjonspunkt, søknader, brukerRolle,
-                    fødteBarn, rettigheter, ønskerJustertUttakVedFødsel);
+                    fødteBarn, rettigheter.orElse(null), ønskerJustertUttakVedFødsel);
             }
             case SVANGERSKAPSPENGER ->
                 new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling, mottatteSøknader));
@@ -129,15 +129,15 @@ public class FpOversiktDtoTjeneste {
         return gjeldendeVedtak;
     }
 
-    private FpSak.Rettigheter finnRettigheter(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
+    private Optional<FpSak.Rettigheter> finnRettigheter(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
         if (gjeldendeVedtak.isPresent()) {
             return finnGjeldendeRettigheter(gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId());
         }
         if (åpenYtelseBehandling.isPresent()) {
-            return finnOppgitteRettigheter(åpenYtelseBehandling.get().getId()).orElse(null);
+            return finnOppgitteRettigheter(åpenYtelseBehandling.get().getId());
         }
         var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
-        return sisteBehandling.flatMap(b -> finnOppgitteRettigheter(b.getId())).orElse(null);
+        return sisteBehandling.flatMap(b -> finnOppgitteRettigheter(b.getId()));
     }
 
     private Optional<FpSak.Rettigheter> finnOppgitteRettigheter(Long behandlingId) {
@@ -150,13 +150,14 @@ public class FpOversiktDtoTjeneste {
        });
     }
 
-    private FpSak.Rettigheter finnGjeldendeRettigheter(Long behandlingId) {
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
-        var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
-        var annenForelderRettEØS = UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
-        var uføretrygdGrunnlagEntitet = uføretrygdRepository.hentGrunnlag(behandlingId);
-        var morUføretrygd = UttakOmsorgUtil.morMottarUføretrygd(ytelseFordelingAggregat, uføretrygdGrunnlagEntitet.orElse(null));
-        return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
+    private Optional<FpSak.Rettigheter> finnGjeldendeRettigheter(Long behandlingId) {
+        return ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).map(ytelseFordelingAggregat -> {
+            var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
+            var annenForelderRettEØS = UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(ytelseFordelingAggregat);
+            var uføretrygdGrunnlagEntitet = uføretrygdRepository.hentGrunnlag(behandlingId);
+            var morUføretrygd = UttakOmsorgUtil.morMottarUføretrygd(ytelseFordelingAggregat, uføretrygdGrunnlagEntitet.orElse(null));
+            return new FpSak.Rettigheter(aleneomsorg, morUføretrygd, annenForelderRettEØS);
+        });
     }
 
     private Optional<Behandling> finnGjeldendeBehandling(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
@@ -455,8 +456,8 @@ public class FpOversiktDtoTjeneste {
 
     private FpSak.Vedtak tilDto(BehandlingVedtak vedtak, Fagsak fagsak) {
         var uttaksperioder = finnUttaksperioder(vedtak.getBehandlingsresultat().getBehandlingId());
-        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(fagsak).getGjeldendeDekningsgrad();
-        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, tilDekningsgradDto(dekningsgrad));
+        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(fr -> fr.getGjeldendeDekningsgrad());
+        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(d -> tilDekningsgradDto(d)).orElse(null));
     }
 
     private List<FpSak.Uttaksperiode> finnUttaksperioder(Long behandlingId) {
