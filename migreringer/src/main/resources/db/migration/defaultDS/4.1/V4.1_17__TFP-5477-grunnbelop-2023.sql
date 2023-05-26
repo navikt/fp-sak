@@ -1,3 +1,7 @@
+-- Baseline oppretter som 1000000 mens det gjøres DML som inserter
+DROP SEQUENCE SEQ_BR_SATS;
+create sequence SEQ_BR_SATS minvalue 1010000 increment by 50 nocache;
+
 UPDATE BR_SATS SET TOM = to_date('2022-04-30', 'YYYY-MM-DD')
 where SATS_TYPE = 'GRUNNBELØP' and FOM = to_date('2021-05-01', 'YYYY-MM-DD');
 
