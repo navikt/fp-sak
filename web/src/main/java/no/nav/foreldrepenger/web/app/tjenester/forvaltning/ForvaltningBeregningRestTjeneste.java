@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -106,15 +107,31 @@ public class ForvaltningBeregningRestTjeneste {
         var type = dto.getSatsType();
         var brukTom = dto.getSatsTom() != null ? dto.getSatsTom() : LocalDate.now().plusYears(99);
         var gjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
-        if (!sjekkVerdierOK(dto, gjeldende, brukTom))
-            throw new ForvaltningException("Ulovlige verdier " + dto);
-        LOG.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
-        gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
-        beregningsresultatRepository.lagreSats(gjeldende);
-        var nysats = new BeregningSats(type, DatoIntervallEntitet.fraOgMedTilOgMed(dto.getSatsFom(), brukTom), dto.getSatsVerdi());
-        beregningsresultatRepository.lagreSats(nysats);
-        var nygjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
-        return Set.of(gjeldende, nygjeldende).stream().map(BeregningSatsDto::new).toList();
+
+        if (Objects.equals(gjeldende.getPeriode().getFomDato(), dto.getSatsFom())) {
+            // Ved behov for å oppdatere gjeldende sats verdi eller tom
+            var eksisterende = new BeregningSatsDto(gjeldende);
+            if (!Objects.equals(gjeldende.getVerdi(), dto.getSatsVerdi()) && brukTom.isAfter(gjeldende.getPeriode().getFomDato())) {
+                LOG.warn("SATSJUSTERTING oppdatering: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
+                gjeldende.setVerdi(dto.getSatsVerdi());
+                gjeldende.setTomDato(brukTom);
+                beregningsresultatRepository.lagreSats(gjeldende);
+            } else {
+                throw new ForvaltningException("Ulovlige verdier " + dto);
+            }
+            return List.of(eksisterende, new BeregningSatsDto(gjeldende));
+        } else {
+            // Nytt innslag. Sett sluttdato på gjeldende og legg til ny
+            if (!sjekkVerdierOK(dto, gjeldende, brukTom))
+                throw new ForvaltningException("Ulovlige verdier " + dto);
+            LOG.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
+            gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
+            beregningsresultatRepository.lagreSats(gjeldende);
+            var nysats = new BeregningSats(type, DatoIntervallEntitet.fraOgMedTilOgMed(dto.getSatsFom(), brukTom), dto.getSatsVerdi());
+            beregningsresultatRepository.lagreSats(nysats);
+            var nygjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
+            return Set.of(gjeldende, nygjeldende).stream().map(BeregningSatsDto::new).toList();
+        }
     }
 
     private boolean sjekkVerdierOK(BeregningSatsDto dto, BeregningSats gjeldende, LocalDate brukTom) {
