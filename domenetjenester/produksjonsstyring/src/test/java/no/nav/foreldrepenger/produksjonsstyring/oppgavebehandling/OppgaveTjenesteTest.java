@@ -39,7 +39,7 @@ class OppgaveTjenesteTest extends EntityManagerAwareTest {
     private static final String FNR = "00000000000";
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
             Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
-            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse");
+            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
 
     private OppgaveTjeneste tjeneste;
     private PersoninfoAdapter personinfoAdapter;
