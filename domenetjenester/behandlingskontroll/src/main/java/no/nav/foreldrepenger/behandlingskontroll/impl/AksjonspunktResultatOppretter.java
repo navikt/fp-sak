@@ -14,6 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 
 /**
  * Håndterer aksjonspunktresultat og oppretter/reaktiverer aksjonspunkt Brukes
@@ -69,6 +71,10 @@ class AksjonspunktResultatOppretter {
     }
 
     private Aksjonspunkt oppdaterAksjonspunktMedResultat(BehandlingStegType behandlingStegType, AksjonspunktResultat resultat) {
+        if (AksjonspunktType.AUTOPUNKT.equals(resultat.getAksjonspunktDefinisjon().getAksjonspunktType())
+            && AksjonspunktStatus.OPPRETTET.equals(resultat.getMålStatus())) {
+            aksjonspunktKontrollRepository.forberedSettPåVentMedAutopunkt(behandling, resultat.getAksjonspunktDefinisjon());
+        }
         var oppdatert = eksisterende.get(resultat.getAksjonspunktDefinisjon());
         if (oppdatert == null) {
             oppdatert = aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, resultat.getAksjonspunktDefinisjon(), behandlingStegType);

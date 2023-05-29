@@ -288,6 +288,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, List<AksjonspunktDefinisjon> aksjonspunkter) {
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         List<Aksjonspunkt> nyeAksjonspunkt = new ArrayList<>();
+        forberedeOpprettAutopunkt(behandling, aksjonspunkter);
         aksjonspunkter.forEach(apdef -> nyeAksjonspunkt.add(aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, apdef)));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         aksjonspunkterEndretStatus(kontekst, null, nyeAksjonspunkt);
@@ -298,12 +299,19 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public List<Aksjonspunkt> lagreAksjonspunkterFunnet(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
             List<AksjonspunktDefinisjon> aksjonspunkter) {
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
+        forberedeOpprettAutopunkt(behandling, aksjonspunkter);
         List<Aksjonspunkt> nyeAksjonspunkt = new ArrayList<>();
-        aksjonspunkter
-                .forEach(apdef -> nyeAksjonspunkt.add(aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, apdef, behandlingStegType)));
+        aksjonspunkter.forEach(apdef -> nyeAksjonspunkt.add(aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, apdef, behandlingStegType)));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         aksjonspunkterEndretStatus(kontekst, behandlingStegType, nyeAksjonspunkt);
         return nyeAksjonspunkt;
+    }
+
+    private void forberedeOpprettAutopunkt(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
+        aksjonspunktDefinisjoner.stream()
+            .filter(apd -> AksjonspunktType.AUTOPUNKT.equals(apd.getAksjonspunktType()))
+            .findFirst()
+            .ifPresent(apd -> aksjonspunktKontrollRepository.forberedSettPåVentMedAutopunkt(behandling, apd));
     }
 
     @Override
@@ -438,7 +446,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public Aksjonspunkt settBehandlingPåVent(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjonIn,
             BehandlingStegType stegType, LocalDateTime fristTid, Venteårsak venteårsak) {
         var kontekst = initBehandlingskontroll(behandling);
-        behandling.setAnsvarligSaksbehandler(null);
+        aksjonspunktKontrollRepository.forberedSettPåVentMedAutopunkt(behandling, aksjonspunktDefinisjonIn);
         var aksjonspunkt = aksjonspunktKontrollRepository.settBehandlingPåVent(behandling, aksjonspunktDefinisjonIn, stegType, fristTid,
                 venteårsak);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
