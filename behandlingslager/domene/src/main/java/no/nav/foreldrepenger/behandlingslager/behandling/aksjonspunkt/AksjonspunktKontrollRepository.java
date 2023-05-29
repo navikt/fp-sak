@@ -116,6 +116,12 @@ public class AksjonspunktKontrollRepository {
         oppdaterSaksbehandlerBehandlingsfristVedBehov(behandling, ap);
     }
 
+    public void forberedSettPåVentMedAutopunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        if (AksjonspunktType.AUTOPUNKT.equals(aksjonspunktDefinisjon.getAksjonspunktType())) {
+            behandling.setAnsvarligSaksbehandler(null);
+        }
+    }
+
     private void oppdaterSaksbehandlerBehandlingsfristVedBehov(Behandling behandling, Aksjonspunkt aksjonspunkt) {
         // Sett tom saksbehandler dersom settes på vent
         if (aksjonspunkt.erAutopunkt() && aksjonspunkt.erOpprettet() && behandling.getAnsvarligSaksbehandler() != null) {
