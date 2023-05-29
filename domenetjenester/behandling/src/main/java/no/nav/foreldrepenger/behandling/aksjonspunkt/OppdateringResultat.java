@@ -248,15 +248,6 @@ public class OppdateringResultat {
             return this;
         }
 
-        /*
-         * Brukes dersom man absolutt må sette på vent. NB: Vil legge til dersom ikke
-         * finnes fra før. Bruk helst andre mekanismer.
-         */
-        public Builder medEkstraAksjonspunktResultat(AksjonspunktResultat ar, AksjonspunktStatus nyStatus) {
-            resultat.ekstraAksjonspunktResultat.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(ar.getAksjonspunktDefinisjon(), ar.getVenteårsak(), ar.getFrist(), nyStatus));
-            return this;
-        }
-
         public OppdateringResultat build() {
             if (resultat.vilkårUtfallSomSkalLeggesTil.stream().map(VilkårOppdateringResultat::getVilkårUtfallType).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)) {
                 resultat.vilkårResultatType = VilkårResultatType.AVSLÅTT;

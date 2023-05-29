@@ -67,7 +67,7 @@ public class AksjonspunktKontrollRepository {
         adBuilder.medVenteårsak(venteÅrsak != null ? venteÅrsak : Venteårsak.UDEFINERT);
 
         var aksjonspunkt = adBuilder.buildFor(behandling);
-        utvidBehandlingsfristVedBehov(behandling, aksjonspunkt);
+        oppdaterSaksbehandlerBehandlingsfristVedBehov(behandling, aksjonspunkt);
         LOG.info("Legger til aksjonspunkt: {}", aksjonspunktDefinisjon);
         return aksjonspunkt;
     }
@@ -113,11 +113,21 @@ public class AksjonspunktKontrollRepository {
     public void setFrist(Behandling behandling, Aksjonspunkt ap, LocalDateTime fristTid, Venteårsak venteårsak) {
         ap.setFristTid(fristTid);
         ap.setVenteårsak(venteårsak);
-        utvidBehandlingsfristVedBehov(behandling, ap);
+        oppdaterSaksbehandlerBehandlingsfristVedBehov(behandling, ap);
     }
 
-    private void utvidBehandlingsfristVedBehov(Behandling behandling, Aksjonspunkt aksjonspunkt) {
-        if (aksjonspunkt.getFristTid() != null && aksjonspunkt.getAksjonspunktDefinisjon().utviderBehandlingsfrist()) {
+    private void oppdaterSaksbehandlerBehandlingsfristVedBehov(Behandling behandling, Aksjonspunkt aksjonspunkt) {
+        // Sett tom saksbehandler dersom settes på vent
+        if (aksjonspunkt.erAutopunkt() && aksjonspunkt.erOpprettet() && behandling.getAnsvarligSaksbehandler() != null) {
+            try {
+                throw new IllegalStateException("Sett på vent");
+            } catch (Exception e) {
+                LOG.info("SETTPÅVENT med saksbehandler - hvorfor kom vi hit???", e);
+                behandling.setAnsvarligSaksbehandler(null);
+            }
+        }
+        // Oppdater behandlingens tidsfrist for enkelte autopunkt
+        if (aksjonspunkt.getFristTid() != null && aksjonspunkt.erOpprettet() && aksjonspunkt.getAksjonspunktDefinisjon().utviderBehandlingsfrist()) {
             var eksisterendeFrist = behandling.getBehandlingstidFrist();
             var fristFraAksjonspunkt = aksjonspunkt.getFristTid().toLocalDate().plusWeeks(behandling.getType().getBehandlingstidFristUker());
             if (eksisterendeFrist == null || fristFraAksjonspunkt.isAfter(eksisterendeFrist)) {

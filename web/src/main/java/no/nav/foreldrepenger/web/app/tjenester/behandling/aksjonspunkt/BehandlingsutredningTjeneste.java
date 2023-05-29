@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class BehandlingsutredningTjeneste {
@@ -98,6 +99,20 @@ public class BehandlingsutredningTjeneste {
     public void byttBehandlendeEnhet(Long behandlingId, OrganisasjonsEnhet enhet, String begrunnelse, HistorikkAktør aktør) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, aktør, begrunnelse);
+    }
+
+    public void setAnsvarligSaksbehandlerFraKontekst(Behandling behandling) {
+        var bruker = getCurrentUserId();
+        if (bruker != null) {
+            var lås = behandlingRepository.taSkriveLås(behandling);
+            behandling.setAnsvarligSaksbehandler(bruker);
+            behandlingRepository.lagre(behandling, lås);
+        }
+    }
+
+    private String getCurrentUserId() {
+        var kontekst = KontekstHolder.getKontekst();
+        return kontekst.getIdentType().erSystem() ? null : kontekst.getUid();
     }
 
     public void kanEndreBehandling(Behandling behandling, Long versjon) {
