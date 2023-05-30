@@ -28,7 +28,11 @@ public class ForeldrepengerUttakTjeneste {
     }
 
     public Optional<ForeldrepengerUttak> hentUttakHvisEksisterer(long behandlingId) {
-        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(entitet -> map(entitet));
+        return hentUttakHvisEksisterer(behandlingId, false);
+    }
+
+    public Optional<ForeldrepengerUttak> hentUttakHvisEksisterer(long behandlingId, boolean ignoreDok) {
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId).map(entitet -> map(entitet, ignoreDok));
     }
 
     public ForeldrepengerUttak hentUttak(long behandlingId) {
@@ -36,17 +40,21 @@ public class ForeldrepengerUttakTjeneste {
     }
 
     public static ForeldrepengerUttak map(UttakResultatEntitet entitet) {
+        return map(entitet, false);
+    }
+
+    private static ForeldrepengerUttak map(UttakResultatEntitet entitet, boolean ignoreDok) {
         var opprinneligPerioder = entitet.getOpprinneligPerioder().getPerioder().stream()
-            .map(p -> map(p))
+            .map(p -> map(p, ignoreDok))
             .toList();
         var overstyrtPerioder = entitet.getOverstyrtPerioder() == null ? null : entitet.getOverstyrtPerioder().getPerioder().stream()
-            .map(p -> map(p))
+            .map(p -> map(p, ignoreDok))
             .toList();
 
         return new ForeldrepengerUttak(opprinneligPerioder, overstyrtPerioder);
     }
 
-    private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet) {
+    private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet, boolean ignoreDok) {
         var aktiviteter = entitet.getAktiviteter().stream()
             .map(a -> map(a))
             .toList();
@@ -65,11 +73,11 @@ public class ForeldrepengerUttakTjeneste {
             .medGraderingInnvilget(entitet.isGraderingInnvilget())
             .medGraderingAvslagÅrsak(entitet.getGraderingAvslagÅrsak())
             .medSamtidigUttaksprosent(entitet.getSamtidigUttaksprosent())
-            .medManuellBehandlingÅrsak(entitet.getManuellBehandlingÅrsak())
+            .medManuellBehandlingÅrsak(ignoreDok ? null : entitet.getManuellBehandlingÅrsak())
             .medSøktKonto(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getUttakPeriodeType).orElse(null))
             .medMottattDato(mottattDato)
             .medMorsAktivitet(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet).orElse(MorsAktivitet.UDEFINERT))
-            .medOpprinneligSendtTilManuellBehandling(entitet.opprinneligSendtTilManuellBehandling())
+            .medOpprinneligSendtTilManuellBehandling(!ignoreDok && entitet.opprinneligSendtTilManuellBehandling())
             .medErFraSøknad(entitet.getPeriodeSøknad().isPresent())
             .medDokumentasjonVurdering(entitet.getPeriodeSøknad().map(s -> s.getDokumentasjonVurdering()).orElse(null))
             .medManueltBehandlet(entitet.isManueltBehandlet());
