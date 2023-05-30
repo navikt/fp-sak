@@ -1318,6 +1318,35 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
     }
 
+    @Test
+    void periode_overlapper_med_termindato_fødsel_før_termin() {
+        //Saksnummer 152234475
+        var termindato = LocalDate.of(2023, 5, 24);
+        var fp = lagPeriode(FORELDREPENGER, LocalDate.of(2023, 5, 3), LocalDate.of(2024, 4, 10));
+        var fødselsdato = LocalDate.of(2023, 5, 3);
+        var oppgittePerioder = List.of(fp);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fp.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+    }
+
+    @Test
+    void periode_overlapper_med_termindato_fødsel_etter_termin() {
+        var termindato = LocalDate.of(2023, 5, 24);
+        var fp = lagPeriode(FORELDREPENGER, LocalDate.of(2023, 5, 3), LocalDate.of(2024, 4, 10));
+        var fødselsdato = LocalDate.of(2023, 6, 10);
+        var oppgittePerioder = List.of(fp);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(1);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fp.getFom());
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+    }
+
     static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
     }

@@ -9,6 +9,7 @@ import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriod
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +67,25 @@ final class JusterFordelingTjeneste {
                                                               RelasjonsRolleType relasjonsRolleType,
                                                               boolean ønskerJustertVedFødsel) {
         var fjernetHelgerFraStartOgSluttAvPerioder = fjernHelgerFraStartOgSlutt(oppgittePerioder);
+        var splitetPåFødsel = splitPåDato(gammelFamiliehendelse, fjernetHelgerFraStartOgSluttAvPerioder);
         var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ? new MorsJustering(gammelFamiliehendelse,
             nyFamiliehendelse) : new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
         if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
-            return justering.justerVedFødselEtterTermin(fjernetHelgerFraStartOgSluttAvPerioder);
+            return justering.justerVedFødselEtterTermin(splitetPåFødsel);
         }
-        return justering.justerVedFødselFørTermin(fjernetHelgerFraStartOgSluttAvPerioder);
+        return justering.justerVedFødselFørTermin(splitetPåFødsel);
+    }
+
+    private static List<OppgittPeriodeEntitet> splitPåDato(LocalDate dato,
+                                                           List<OppgittPeriodeEntitet> perioder) {
+        return perioder.stream().flatMap(p -> {
+            if (p.getTidsperiode().inkluderer(dato) && p.getFom().isBefore(dato)) {
+                var p1 = kopier(p, p.getFom(), dato.minusDays(1));
+                var p2 = kopier(p, dato, p.getTom());
+                return Stream.of(p1, p2);
+            }
+            return Stream.of(p);
+        }).toList();
     }
 
     private static List<OppgittPeriodeEntitet> fjernHelgerFraStartOgSlutt(List<OppgittPeriodeEntitet> oppgittePerioder) {
