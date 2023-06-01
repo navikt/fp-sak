@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -57,7 +57,7 @@ class OppdragInputTjenesteTest {
 
     private static final int TILKJENT_YTELSE = 15000;
     @Mock
-    private AktørTjeneste aktørTjeneste;
+    private PersoninfoAdapter personInfoAdapter;
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
@@ -88,7 +88,7 @@ class OppdragInputTjenesteTest {
             .medAnsvarligSaksbehandler("VL")
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .build()));
-        when(aktørTjeneste.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(PersonIdent.fra("0987654321")));
+        when(personInfoAdapter.hentFnrForAktør(any())).thenReturn(PersonIdent.fra("0987654321"));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)).thenReturn(Optional.of(familieHendelseGrunnlag));
         var familieHendelse = mock(FamilieHendelseEntitet.class);
@@ -96,7 +96,7 @@ class OppdragInputTjenesteTest {
         when(familieHendelse.getGjelderAdopsjon()).thenReturn(false);
 
         oppdragInputTjeneste = new OppdragInputTjeneste(behandlingRepository, null, behandlingVedtakRepository, familieHendelseRepository,
-            tilbakekrevingRepository, aktørTjeneste, økonomioppdragRepository, beregningRepository);
+            tilbakekrevingRepository, personInfoAdapter, økonomioppdragRepository, beregningRepository);
 
     }
 

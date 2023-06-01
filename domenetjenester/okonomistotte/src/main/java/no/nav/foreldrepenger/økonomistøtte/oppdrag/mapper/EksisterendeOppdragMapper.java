@@ -171,7 +171,7 @@ public class EksisterendeOppdragMapper {
             refusjonsinfo == null ? Betalingsmottaker.BRUKER : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
         var builder = KjedeNøkkel.builder(linje.getKodeKlassifik(), mottaker);
         if (linje.getKodeKlassifik().gjelderFeriepenger()) {
-            builder.medFeriepengeÅr(linje.getDatoVedtakFom().getYear() - 1);
+            builder.medOpptjeningsÅr(linje.getDatoVedtakFom().getYear() - 1);
         }
         return builder.build();
     }

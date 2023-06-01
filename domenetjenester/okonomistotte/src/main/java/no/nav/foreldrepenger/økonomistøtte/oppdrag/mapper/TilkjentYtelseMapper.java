@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,13 +28,23 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYt
 public class TilkjentYtelseMapper {
 
     private final FamilieYtelseType ytelseType;
+    private final LocalDate feriepengerDødsdato; // Feriepenger utbetales umiddelbart dersom bruker dør
 
     public TilkjentYtelseMapper(FamilieYtelseType ytelseType) {
+        this(ytelseType, null);
+    }
+
+    public TilkjentYtelseMapper(FamilieYtelseType ytelseType, LocalDate feriepengerDødsdato) {
         this.ytelseType = ytelseType;
+        this.feriepengerDødsdato = feriepengerDødsdato;
     }
 
     public static TilkjentYtelseMapper lagFor(FamilieYtelseType familieYtelseType) {
-        return new TilkjentYtelseMapper(familieYtelseType);
+        return new TilkjentYtelseMapper(familieYtelseType, null);
+    }
+
+    public static TilkjentYtelseMapper lagFor(FamilieYtelseType familieYtelseType, LocalDate feriepengerDødsdato) {
+        return new TilkjentYtelseMapper(familieYtelseType, feriepengerDødsdato);
     }
 
     public GruppertYtelse fordelPåNøkler(BeregningsresultatEntitet tilkjentYtelse) {
@@ -93,9 +105,7 @@ public class TilkjentYtelseMapper {
     }
 
     private YtelsePeriode lagYtelsePeriodeForFeriepenger(BeregningsresultatFeriepengerPrÅr feriepenger) {
-        var utbetalingsår = feriepenger.getOpptjeningsåret() + 1;
-        var utbetalingsperiode = Periode.of(LocalDate.of(utbetalingsår, 5, 1), LocalDate.of(utbetalingsår, 5, 31));
-        return new YtelsePeriode(utbetalingsperiode, Satsen.engang(feriepenger.getÅrsbeløp().getVerdi().intValueExact()));
+        return new YtelsePeriode(beregnFeriepengePeriode(feriepenger.getOpptjeningsåret()), Satsen.engang(feriepenger.getÅrsbeløp().getVerdi().intValueExact()));
     }
 
     private YtelsePeriodeMedNøkkel tilYtelsePeriodeMedNøkkel(BeregningsresultatPeriode periode, BeregningsresultatAndel andel) {
@@ -116,15 +126,26 @@ public class TilkjentYtelseMapper {
 
     private KjedeNøkkel tilNøkkel(BeregningsresultatAndel andel) {
         var tilBruker = andel.skalTilBrukerEllerPrivatperson();
-        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER) : KjedeNøkkel.lag(
-            KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()));
+        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER) :
+            KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()));
     }
 
     private KjedeNøkkel tilNøkkelFeriepenger(BeregningsresultatAndel andel, int opptjeningsår) {
+        var brukferiepengerMaksdato = beregnFeriepengePeriode(opptjeningsår).getTom();
         var tilBruker = andel.skalTilBrukerEllerPrivatperson();
-        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepenger(), Betalingsmottaker.BRUKER, opptjeningsår) : KjedeNøkkel.lag(
-            KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType),
-            Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), opptjeningsår);
+        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepenger(), Betalingsmottaker.BRUKER, brukferiepengerMaksdato) :
+            KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType),
+                Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), brukferiepengerMaksdato);
+    }
+
+    private Periode beregnFeriepengePeriode(int opptjeningsår) {
+        var feriepengerMaksdato = LocalDate.ofYearDay(opptjeningsår + 1 ,1 ).with(KjedeNøkkel.SLUTT_FERIEPENGER);
+        if (feriepengerDødsdato != null && !feriepengerDødsdato.isAfter(feriepengerMaksdato)) {
+            // For å sikre korrekt opphør og lage riktige oppdrag ved oppstart okt-des og dødsfall påfølgende mai.
+            var brukMåned = Month.MAY.equals(feriepengerDødsdato.getMonth()) ? feriepengerDødsdato.minusMonths(1) : feriepengerDødsdato;
+            return new Periode(brukMåned.with(TemporalAdjusters.firstDayOfMonth()), brukMåned.with(TemporalAdjusters.lastDayOfMonth()));
+        }
+        return new Periode(feriepengerMaksdato.with(TemporalAdjusters.firstDayOfMonth()), feriepengerMaksdato);
     }
 
     private Map<KjedeNøkkel, Ytelse> build(Map<KjedeNøkkel, Ytelse.Builder> buildere) {
