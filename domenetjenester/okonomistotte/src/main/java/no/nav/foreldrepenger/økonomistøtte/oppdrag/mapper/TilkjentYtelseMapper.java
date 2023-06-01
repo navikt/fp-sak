@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -139,8 +140,10 @@ public class TilkjentYtelseMapper {
 
     private Periode beregnFeriepengePeriode(int opptjeningsår) {
         var feriepengerMaksdato = LocalDate.ofYearDay(opptjeningsår + 1 ,1 ).with(KjedeNøkkel.SLUTT_FERIEPENGER);
-        if (feriepengerDødsdato != null && feriepengerMaksdato.isAfter(feriepengerDødsdato)) {
-            return new Periode(feriepengerDødsdato.with(TemporalAdjusters.firstDayOfMonth()), feriepengerDødsdato.with(TemporalAdjusters.lastDayOfMonth()));
+        if (feriepengerDødsdato != null && !feriepengerDødsdato.isAfter(feriepengerMaksdato)) {
+            // For å sikre korrekt opphør og lage riktige oppdrag ved oppstart okt-des og dødsfall påfølgende mai.
+            var brukMåned = Month.MAY.equals(feriepengerDødsdato.getMonth()) ? feriepengerDødsdato.minusMonths(1) : feriepengerDødsdato;
+            return new Periode(brukMåned.with(TemporalAdjusters.firstDayOfMonth()), brukMåned.with(TemporalAdjusters.lastDayOfMonth()));
         }
         return new Periode(feriepengerMaksdato.with(TemporalAdjusters.firstDayOfMonth()), feriepengerMaksdato);
     }
