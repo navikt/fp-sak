@@ -29,6 +29,7 @@ class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FpoversiktMigeringBehandlingHendelseTask.class);
     static final String DATO_KEY = "fom";
+    static final String YTELSE_TYPE_KEY = "ytelse";
 
     private final BehandlingRepository behandlingRepository;
     private final EntityManager entityManager;
@@ -46,19 +47,27 @@ class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fom = LocalDate.parse(prosessTaskData.getPropertyValue(DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-        LOG.info("Publiser migreringshendelse for saker opprettet {}", fom);
+        var ytelseType = prosessTaskData.getPropertyValue(YTELSE_TYPE_KEY);
+        LOG.info("Publiser migreringshendelse for saker opprettet {} {}", fom, ytelseType);
 
-        var saker = finnSakerOpprettetPåDato(fom);
+        var saker = finnSakerOpprettetPåDato(fom, ytelseType);
         LOG.info("Publiser migreringshendelse for {} saker", saker.size());
         saker.forEach(this::pushKafkaHendelse);
     }
 
-    private List<Long> finnSakerOpprettetPåDato(LocalDate fom) {
-        return entityManager.createNativeQuery("""
+    private List<Long> finnSakerOpprettetPåDato(LocalDate fom, String ytelseType) {
+        var sql = """
             select f.id from fagsak f
             where trunc(opprettet_tid) =:fom
-            """)
-            .setParameter("fom", fom)
+            """;
+        if (ytelseType != null) {
+            sql += " and f.ytelse_type=:ytelseType";
+        }
+        var query = entityManager.createNativeQuery(sql).setParameter("fom", fom);
+        if (ytelseType != null) {
+            query.setParameter("ytelseType", ytelseType);
+        }
+        return query
             .getResultList()
             .stream()
             .map(bd -> ((BigDecimal)bd).longValue())

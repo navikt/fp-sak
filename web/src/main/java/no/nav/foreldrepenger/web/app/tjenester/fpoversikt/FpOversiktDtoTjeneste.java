@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -99,11 +100,15 @@ public class FpOversiktDtoTjeneste {
         var ikkeHenlagteBehandlinger = finnIkkeHenlagteBehandlinger(fagsak);
         var aksjonspunkt = finnAksjonspunkt(ikkeHenlagteBehandlinger);
         var mottatteSøknader = finnRelevanteSøknadsdokumenter(fagsak);
+        var alleVedtak = finnVedtakForFagsak(fagsak);
         return switch (fagsak.getYtelseType()) {
-            case ENGANGSTØNAD ->
-                new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnEsSøknader(åpenYtelseBehandling, mottatteSøknader));
+            case ENGANGSTØNAD -> {
+                var søknader = finnEsSøknader(åpenYtelseBehandling, mottatteSøknader);
+                var vedtak = finnEsVedtak(alleVedtak);
+                yield new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, søknader, vedtak);
+            }
             case FORELDREPENGER -> {
-                var vedtak = finnVedtakForForeldrepenger(fagsak);
+                var vedtak = finnFpVedtak(fagsak, alleVedtak);
                 var oppgittAnnenPart = oppgittAnnenPart(fagsak).map(AktørId::getId).orElse(null);
                 var søknader = finnFpSøknader(åpenYtelseBehandling, mottatteSøknader, fagsak);
                 var gjeldendeBehandling = finnGjeldendeBehandling(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
@@ -116,10 +121,21 @@ public class FpOversiktDtoTjeneste {
                 yield new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, vedtak, oppgittAnnenPart, aksjonspunkt, søknader, brukerRolle,
                     fødteBarn, rettigheter.orElse(null), ønskerJustertUttakVedFødsel);
             }
-            case SVANGERSKAPSPENGER ->
-                new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, finnSvpSøknader(åpenYtelseBehandling, mottatteSøknader));
+            case SVANGERSKAPSPENGER -> {
+                var søknader = finnSvpSøknader(åpenYtelseBehandling, mottatteSøknader);
+                var vedtak = finnSvpVedtak(alleVedtak);
+                yield new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, søknader, vedtak);
+            }
             case UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getYtelseType());
         };
+    }
+
+    private Set<EsSak.Vedtak> finnEsVedtak(Stream<BehandlingVedtak> vedtak) {
+        return vedtak.map(v -> new EsSak.Vedtak(v.getVedtakstidspunkt())).collect(Collectors.toSet());
+    }
+
+    private Set<SvpSak.Vedtak> finnSvpVedtak(Stream<BehandlingVedtak> vedtak) {
+        return vedtak.map(v -> new SvpSak.Vedtak(v.getVedtakstidspunkt())).collect(Collectors.toSet());
     }
 
     private Optional<BehandlingVedtak> finnGjeldendeVedtak(Fagsak fagsak) {
@@ -444,14 +460,16 @@ public class FpOversiktDtoTjeneste {
         return personopplysningTjeneste.hentOppgittAnnenPartAktørId(førstegangsbehandling.getId());
     }
 
-    private Set<FpSak.Vedtak> finnVedtakForForeldrepenger(Fagsak fagsak) {
+    private Set<FpSak.Vedtak> finnFpVedtak(Fagsak fagsak, Stream<BehandlingVedtak> vedtak) {
+        return vedtak.map(v -> tilDto(v, fagsak)).collect(Collectors.toSet());
+    }
+
+    private Stream<BehandlingVedtak> finnVedtakForFagsak(Fagsak fagsak) {
         var behandlingerMedVedtak = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsak.getId());
         return behandlingerMedVedtak.stream()
             .map(b -> vedtakRepository.hentForBehandlingHvisEksisterer(b.getId()))
             .filter(Optional::isPresent)
-            .map(v -> v.get())
-            .map(vedtak -> tilDto(vedtak, fagsak))
-            .collect(Collectors.toSet());
+            .map(v -> v.get());
     }
 
     private FpSak.Vedtak tilDto(BehandlingVedtak vedtak, Fagsak fagsak) {
