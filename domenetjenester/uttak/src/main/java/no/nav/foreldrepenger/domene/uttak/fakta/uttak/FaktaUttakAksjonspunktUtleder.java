@@ -58,22 +58,21 @@ public class FaktaUttakAksjonspunktUtleder {
         if (graderingPåUkjentAktivitet(input.getBeregningsgrunnlagStatuser(), perioder)) {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
-        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId());
-        if (!avklartStartdatLikFørsteDagIPerioder(perioder,
-            ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato))) {
-            list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO);
-        }
+        ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId()).getAvklarteDatoer()
+            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
+            .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak(), fud))
+            .ifPresent(fud -> list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO));
         return list;
     }
 
-    private static boolean avklartStartdatLikFørsteDagIPerioder(List<OppgittPeriodeEntitet> perioder, Optional<LocalDate> avklartFUD) {
-        return avklartFUD.map(localDate -> førsteSøkteDag(perioder).map(
-            oppgittPeriode -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriode.getFom(), localDate)).orElse(true)).orElse(true);
+    private static boolean avklartStartdatLikFørsteDagIPerioder(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeUttak, LocalDate avklartFUD) {
+        return førsteSøkteDag(perioder, sammenhengendeUttak).map(
+            oppgittPeriodeEntitet -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriodeEntitet.getFom(), avklartFUD)).orElse(true);
     }
 
-    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder) {
-        return perioder
-            .stream()
+    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeUttak) {
+        return perioder.stream()
+            .filter(p -> sammenhengendeUttak || !(p.isUtsettelse() || p.isOpphold()))
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 
