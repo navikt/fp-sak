@@ -8,14 +8,18 @@ record EsSak(String saksnummer,
              FamilieHendelse familieHendelse,
              Status status,
              Set<Aksjonspunkt> aksjonspunkt,
-             Set<Søknad> søknader) implements Sak {
+             Set<Søknad> søknader,
+             Set<Vedtak> vedtak) implements Sak {
 
     record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt) {
+    }
+
+    record Vedtak(LocalDateTime vedtakstidspunkt) {
     }
 
     @Override
     public String toString() {
         return "EsSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", status=" + status + ", aksjonspunkt="
-            + aksjonspunkt + ", søknader=" + søknader + '}';
+            + aksjonspunkt + ", søknader=" + søknader + ", vedtak=" + vedtak + '}';
     }
 }
