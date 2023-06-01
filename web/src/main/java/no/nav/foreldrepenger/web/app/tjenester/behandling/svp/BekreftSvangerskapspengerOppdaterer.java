@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
@@ -254,19 +255,29 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
     private boolean erTilretteleggingEndret(SvpTilretteleggingEntitet eksisterendeTilrettelegging, SvpTilretteleggingEntitet nyTilrettelegging) {
-        var nyFomsSortert = sortertPåFradato(nyTilrettelegging.getTilretteleggingFOMListe());
-        var eksFomsSortert = sortertPåFradato(eksisterendeTilrettelegging.getTilretteleggingFOMListe());
+        var nyFomsSortert = sorterFoms(nyTilrettelegging.getTilretteleggingFOMListe());
+        var eksFomsSortert = sorterFoms(eksisterendeTilrettelegging.getTilretteleggingFOMListe());
+        var nyOppholdSortert = sorterOpphold(nyTilrettelegging.getAvklarteOpphold());
+        var eksOppholdSortert = sorterOpphold(eksisterendeTilrettelegging.getAvklarteOpphold());
 
        return nyTilrettelegging.getSkalBrukes() != eksisterendeTilrettelegging.getSkalBrukes()
             || !nyFomsSortert.equals(eksFomsSortert)
-            || !Objects.equals(eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), nyTilrettelegging.getBehovForTilretteleggingFom());
+            || !Objects.equals(eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), nyTilrettelegging.getBehovForTilretteleggingFom())
+            || !nyOppholdSortert.equals(eksOppholdSortert);
     }
 
-    private List<TilretteleggingFOM> sortertPåFradato(List<TilretteleggingFOM> tilretteleggingFOM) {
+    private List<TilretteleggingFOM> sorterFoms(List<TilretteleggingFOM> tilretteleggingFOM) {
         return tilretteleggingFOM.stream()
             .sorted(Comparator.comparing(TilretteleggingFOM::getFomDato))
             .toList();
     }
+
+    private List<SvpAvklartOpphold> sorterOpphold(List<SvpAvklartOpphold> tilretteleggingFOM) {
+        return tilretteleggingFOM.stream()
+            .sorted(Comparator.comparing(SvpAvklartOpphold::getFom))
+            .toList();
+    }
+
 
     private SvpTilretteleggingEntitet mapTilretteleggingOgLagHistorikk(SvpArbeidsforholdDto arbeidsforholdDto,
                                                                        List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
@@ -323,6 +334,16 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 .build();
             nyTilretteleggingEntitetBuilder.medTilretteleggingFom(tilretteleggingFOM);
         }
+
+        if (arbeidsforholdDto.getAvklarteOppholdPerioder() != null) {
+            arbeidsforholdDto.getAvklarteOppholdPerioder().forEach( avklartOpphold -> {
+                var nyttOpphold = SvpAvklartOpphold.Builder.nytt()
+                    .medOppholdPeriode(avklartOpphold.fom(), avklartOpphold.tom())
+                    .medOppholdÅrsak(avklartOpphold.oppholdÅrsak())
+                    .build();
+                nyTilretteleggingEntitetBuilder.medAvklartOpphold(nyttOpphold);
+            });
+        }
         return nyTilretteleggingEntitetBuilder.build();
     }
 
@@ -353,22 +374,28 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private void opprettHistorikkInnslagForEndringer(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
                                                      SvpTilretteleggingEntitet nyTilrettelegging) {
+        String fjernet = "fjernet";
 
         historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG);
 
-        var fjernet = eksisterendeTilrettelegging.getTilretteleggingFOMListe().stream()
-            .filter(fom -> !nyTilrettelegging.getTilretteleggingFOMListe().contains(fom))
-            .toList();
-        var lagtTil = nyTilrettelegging.getTilretteleggingFOMListe().stream()
-            .filter(fom -> !eksisterendeTilrettelegging.getTilretteleggingFOMListe().contains(fom))
-            .toList();
+        //Tilrettelegging fra datoer
+        var eksisterendeFoms = eksisterendeTilrettelegging.getTilretteleggingFOMListe();
+        var nyeFoms = nyTilrettelegging.getTilretteleggingFOMListe();
+        var fjernetListe = eksisterendeFoms.stream().filter(fom -> !nyeFoms.contains(fom)).toList();
+        var lagtTilListe = nyeFoms.stream().filter(fom -> !eksisterendeFoms.contains(fom)).toList();
 
-        for (var fomFjernet : fjernet) {
-            historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomFjernet.getType()), formaterForHistorikk(fomFjernet), "fjernet");
-        }
-        for (var fomLagtTil : lagtTil) {
-            historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomLagtTil.getType()), null, formaterForHistorikk(fomLagtTil));
-        }
+        fjernetListe.forEach(fomFjernet -> historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomFjernet.getType()), formaterForHistorikk(fomFjernet), fjernet));
+        lagtTilListe.forEach(fomLagtTil -> historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomLagtTil.getType()), null, formaterForHistorikk(fomLagtTil)));
+
+        //Oppholdsperioder
+        var eksisterendeOpphold = eksisterendeTilrettelegging.getAvklarteOpphold();
+        var nyeOpphold = nyTilrettelegging.getAvklarteOpphold();
+
+        var fjernetOppholdListe = eksisterendeOpphold.stream().filter(eksOpphold-> !nyeOpphold.contains(eksOpphold)).toList();
+        var lagtTilOppholdListe = nyeOpphold.stream().filter(nyttOpphold -> !eksisterendeOpphold.contains(nyttOpphold)).toList();
+
+        lagtTilOppholdListe.forEach(lagtTilOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.OPPHOLD_PERIODE, null, String.format("Lagt til opphold med fra dato:%s, tildato:%s, årsak: %s", lagtTilOpphold.getFom(),lagtTilOpphold.getTom(), lagtTilOpphold.getOppholdÅrsak())));
+        fjernetOppholdListe.forEach(fjernetOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.OPPHOLD_PERIODE, String.format("fra dato:%s, tildato:%s, årsak: %s", fjernetOpphold.getFom(),fjernetOpphold.getTom(), fjernetOpphold.getOppholdÅrsak()), fjernet));
 
         var erEndretBehovFom =  !Objects.equals(eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), nyTilrettelegging.getBehovForTilretteleggingFom());
         if (erEndretBehovFom) {
