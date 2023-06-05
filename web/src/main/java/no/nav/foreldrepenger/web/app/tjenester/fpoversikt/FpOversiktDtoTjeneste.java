@@ -416,10 +416,10 @@ public class FpOversiktDtoTjeneste {
             return finnGjeldendeFamilieHendelse(gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId());
         }
         if (åpenYtelseBehandling.isPresent()) {
-            return finnOppgittFamilieHendelse(åpenYtelseBehandling.get().getId()).orElse(null);
+            return finnBekreftetSøknadFamilieHendelse(åpenYtelseBehandling.get().getId()).orElse(null);
         }
         var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
-        return sisteBehandling.flatMap(b -> finnOppgittFamilieHendelse(b.getId())).orElse(null);
+        return sisteBehandling.flatMap(b -> finnBekreftetSøknadFamilieHendelse(b.getId())).orElse(null);
     }
 
     private Optional<Behandling> hentÅpenBehandling(Fagsak fagsak) {
@@ -433,8 +433,11 @@ public class FpOversiktDtoTjeneste {
         return åpenYtelseBehandling;
     }
 
-    private Optional<Sak.FamilieHendelse> finnOppgittFamilieHendelse(Long behandling) {
-        return familieHendelseTjeneste.finnAggregat(behandling).map(agg -> tilDto(agg.getSøknadVersjon()));
+    private Optional<Sak.FamilieHendelse> finnBekreftetSøknadFamilieHendelse(Long behandling) {
+        return familieHendelseTjeneste.finnAggregat(behandling).map(agg -> {
+            var versjon = agg.getBekreftetVersjon().orElseGet(agg::getSøknadVersjon);
+            return tilDto(versjon);
+        });
     }
 
     private Sak.FamilieHendelse finnGjeldendeFamilieHendelse(Long behandling) {
