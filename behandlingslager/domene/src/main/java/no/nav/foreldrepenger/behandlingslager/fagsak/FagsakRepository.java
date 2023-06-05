@@ -247,7 +247,7 @@ public class FagsakRepository {
     }
 
     public List<FagsakNotat> hentFagsakNotater(Long fagsakId) {
-        var query = entityManager.createQuery("from FagsakNotat where fagsakId=:fagsakId order by opprettetTidspunkt desc", FagsakNotat.class)
+        var query = entityManager.createQuery("from FagsakNotat where fagsakId=:fagsakId AND aktiv = true order by opprettetTidspunkt desc", FagsakNotat.class)
             .setParameter("fagsakId", fagsakId);
         return query.getResultList();
     }
