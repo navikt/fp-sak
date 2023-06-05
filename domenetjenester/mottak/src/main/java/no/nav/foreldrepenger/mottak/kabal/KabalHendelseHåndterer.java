@@ -82,13 +82,6 @@ public class KabalHendelseHåndterer {
             LOG.warn("KABAL mottatt hendelse med ukjent referanse hendelse={}", mottattHendelse);
             return;
         }
-        if (KabalHendelse.BehandlingEventType.BEHANDLING_FEILREGISTRERT.equals(mottattHendelse.type())) {
-            var bType = behandling.getType().getNavn();
-            var sak = behandling.getFagsak().getSaksnummer().getVerdi();
-            LOG.error("KABAL avvikende bruk av feilregistrert, sjekk sak {} behandlingId {} uuid {} av type {}. Varsle + håndter behandling manuelt",
-                sak, behandling.getId(), behandling.getUuid(), bType);
-            return;
-        }
         if (BehandlingType.KLAGE.equals(behandling.getType()) && klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()).isEmpty()) {
             LOG.warn("KABAL mottatt hendelse for klage uten klageresultat hendelse={}", mottattHendelse);
             return;
@@ -118,6 +111,8 @@ public class KabalHendelseHåndterer {
             task.setProperty(MottaFraKabalTask.UTFALL_KEY, mottattHendelse.detaljer().ankebehandlingAvsluttet().utfall().name());
             mottattHendelse.detaljer().ankebehandlingAvsluttet().journalpostReferanser().stream()
                 .findFirst().ifPresent(journalpost -> task.setProperty(MottaFraKabalTask.JOURNALPOST_KEY, journalpost));
+        } else if (KabalHendelse.BehandlingEventType.BEHANDLING_FEILREGISTRERT.equals(mottattHendelse.type())) {
+            task.setProperty(MottaFraKabalTask.FEILOPPRETTET_TYPE_KEY, mottattHendelse.detaljer().behandlingFeilregistrert().type().name());
         }
         taskTjeneste.lagre(task);
     }

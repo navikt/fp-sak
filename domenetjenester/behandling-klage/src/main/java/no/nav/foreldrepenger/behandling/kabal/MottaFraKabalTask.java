@@ -39,6 +39,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     public static final String JOURNALPOST_KEY = "journalpostId";
     public static final String KABALREF_KEY = "kabalReferanse";
     public static final String OVERSENDTR_KEY = "oversendtTrygderett";
+    public static final String FEILOPPRETTET_TYPE_KEY = "feilopprettetType";
 
     private static final Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.RETUR);
 
@@ -84,7 +85,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             case ANKEBEHANDLING_OPPRETTET -> ankeOpprettet(behandlingId, ref);
             case ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET -> ankeTrygdrett(prosessTaskData, behandlingId, ref);
             case ANKEBEHANDLING_AVSLUTTET -> ankeAvsluttet(prosessTaskData, behandlingId, ref);
-            case BEHANDLING_FEILREGISTRERT -> throw new IllegalArgumentException("Feilregistrert skal ikke propageres");
+            case BEHANDLING_FEILREGISTRERT -> henleggFeilopprettet(prosessTaskData, behandlingId, ref);
         }
     }
 
@@ -101,7 +102,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             if (klageBehandling.isBehandlingPåVent()) {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(klageBehandling, kontekst);
             }
-            if (!erHenlagt(klageBehandling)) {
+            if (erIkkeHenlagt(klageBehandling)) {
                 behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
                 kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
             }
@@ -155,10 +156,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
 
     private void håndterAnkeAvsluttetEllerTrygderett(ProsessTaskData prosessTaskData, Long behandlingId, String ref, LocalDate sendtTrygderetten) {
         var utfall = Optional.ofNullable(prosessTaskData.getPropertyValue(UTFALL_KEY))
-            .map(KabalUtfall::valueOf).orElse(null);
-        if (utfall == null) {
-            throw new IllegalStateException("Utviklerfeil: Kabal-klage avsluttet men mangler utfall");
-        }
+            .map(KabalUtfall::valueOf)
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal-anke avsluttet men mangler utfall"));
         var ankeBehandling = kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(ankeBehandling.getId());
@@ -167,7 +166,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             if (ankeBehandling.isBehandlingPåVent()) {
                 behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(ankeBehandling, kontekst);
             }
-            if (!erHenlagt(ankeBehandling)) {
+            if (erIkkeHenlagt(ankeBehandling)) {
                 behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
                 kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
             }
@@ -185,6 +184,25 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .ifPresent(j -> kabalTjeneste.lagHistorikkinnslagForBrevSendt(ankeBehandling, j));
     }
 
+    private void henleggFeilopprettet(ProsessTaskData prosessTaskData, Long behandlingId, String ref) {
+        var kabalBehandlingType = Optional.ofNullable(prosessTaskData.getPropertyValue(FEILOPPRETTET_TYPE_KEY))
+            .map(KabalHendelse.BehandlingType::valueOf)
+            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Kabal feilregistrert men mangler type behandling"));
+        var behandling = KabalHendelse.BehandlingType.KLAGE.equals(kabalBehandlingType) ? behandlingRepository.hentBehandling(behandlingId) :
+            kabalTjeneste.finnAnkeBehandling(behandlingId, ref)
+                .orElseThrow(() -> new IllegalStateException("Finner ike ankebehandling for behandling " + behandlingId));
+        kabalTjeneste.settKabalReferanse(behandling, ref);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        kabalTjeneste.settKabalReferanse(behandling, ref);
+        if (behandling.isBehandlingPåVent()) {
+            behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
+        }
+        if (erIkkeHenlagt(behandling)) {
+            behandlingskontrollTjeneste.henleggBehandling(kontekst, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
+            kabalTjeneste.lagHistorikkinnslagForHenleggelse(behandlingId, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
+        }
+    }
+
     private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(Behandling behandling) {
         if ((behandling.getBehandlendeEnhet() != null)
             && !BehandlendeEnhetTjeneste.getKlageInstans().enhetId().equals(behandling.getBehandlendeEnhet())) {
@@ -194,7 +212,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, tilEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "");
     }
 
-    private boolean erHenlagt(Behandling behandling) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).filter(Behandlingsresultat::isBehandlingHenlagt).isPresent();
+    private boolean erIkkeHenlagt(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).filter(Behandlingsresultat::isBehandlingHenlagt).isEmpty();
     }
 }
