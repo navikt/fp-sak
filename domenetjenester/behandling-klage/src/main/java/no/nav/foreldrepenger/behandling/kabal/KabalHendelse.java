@@ -30,7 +30,11 @@ public record KabalHendelse(UUID eventId,
 
     public record AnkebehandlingAvsluttetDetaljer(LocalDateTime avsluttet, KabalUtfall utfall, List<String> journalpostReferanser) {}
 
-    public record BehandlingFeilregistrertDetaljer(String navIdent, String reason) {}
+    public record BehandlingFeilregistrertDetaljer(LocalDateTime feilregistrert, BehandlingType type, String navIdent, String reason) {}
+
+    public enum BehandlingType {
+        KLAGE, ANKE, ANKE_I_TRYGDERETTEN
+    }
 }
 
 
