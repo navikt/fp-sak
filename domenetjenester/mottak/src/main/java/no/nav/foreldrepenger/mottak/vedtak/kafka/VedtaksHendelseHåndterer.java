@@ -151,8 +151,9 @@ public class VedtaksHendelseHåndterer {
     }
 
     private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
-        var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)), LocalTime.of(7,29))
-            .plusSeconds(Math.abs(System.nanoTime()) % 899);
+        // Kjøretidspunkt tidlig neste virkedag slik at OS har fordøyd oppdrag fra K9Sak men ikke utbetalt ennå
+        var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)),
+            LocalTime.of(7,35, 1));
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
         prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
         // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
