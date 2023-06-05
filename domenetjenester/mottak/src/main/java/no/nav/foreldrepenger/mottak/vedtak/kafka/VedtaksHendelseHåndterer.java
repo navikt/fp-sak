@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.MottattVedtak;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
@@ -41,8 +45,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
-
-import static java.util.stream.Collectors.toList;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -149,10 +151,13 @@ public class VedtaksHendelseHåndterer {
     }
 
     private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, UUID callID) {
+        // Kjøretidspunkt tidlig neste virkedag slik at OS har fordøyd oppdrag fra K9Sak men ikke utbetalt ennå
+        var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)),
+            LocalTime.of(7,35, 1));
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
         prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
         // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
-        prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusMinutes(10));
+        prosessTaskData.setNesteKjøringEtter(nesteFormiddag);
         prosessTaskData.setCallId(callID.toString());
         taskTjeneste.lagre(prosessTaskData);
     }
