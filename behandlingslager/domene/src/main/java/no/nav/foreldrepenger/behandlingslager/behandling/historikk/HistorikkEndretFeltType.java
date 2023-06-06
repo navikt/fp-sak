@@ -142,6 +142,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     AKTIVITETSKRAV_AVKLARING("AKTIVITETSKRAV_AVKLARING", "Avklaring om mor er i aktivitet"),
     UTTAKPERIODE_DOK_AVKLARING("UTTAKPERIODE_DOK_AVKLARING", "Avklart dokumentasjon for periode"),
     FAKTA_UTTAK_PERIODE("FAKTA_UTTAK_PERIODE", "Periode endret"),
+    SVP_OPPHOLD_PERIODE("SVP_OPPHOLD_PERIODE", "Opphold periode")
     ;
 
     private static final Map<String, HistorikkEndretFeltType> KODER = new LinkedHashMap<>();
@@ -161,10 +162,6 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
 
     @JsonValue
     private String kode;
-
-    HistorikkEndretFeltType(String kode) {
-        this.kode = kode;
-    }
 
     HistorikkEndretFeltType(String kode, String navn) {
         this.kode = kode;
