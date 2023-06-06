@@ -2,8 +2,8 @@ create sequence SEQ_FAGSAK_NOTAT minvalue 1000000 increment by 50;
 
 create table FAGSAK_NOTAT
 (
-    ID            NUMBER(19) not null constraint PK_FAGSAK_EGENSKAP primary key,
-    FAGSAK_ID     NUMBER(19) not null constraint FK_FAGSAK_EGENSKAP references FAGSAK,
+    ID            NUMBER(19) not null constraint PK_FAGSAK_NOTAT primary key,
+    FAGSAK_ID     NUMBER(19) not null constraint FK_FAGSAK_NOTAT references FAGSAK,
     OPPRETTET_AV  VARCHAR2(20 char) default 'VL' not null,
     OPPRETTET_TID TIMESTAMP(3) default systimestamp not null,
     AKTIV         VARCHAR2(1 char) default 'J' not null,
