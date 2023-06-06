@@ -394,8 +394,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var fjernetOppholdListe = eksisterendeOpphold.stream().filter(eksOpphold-> !nyeOpphold.contains(eksOpphold)).toList();
         var lagtTilOppholdListe = nyeOpphold.stream().filter(nyttOpphold -> !eksisterendeOpphold.contains(nyttOpphold)).toList();
 
-        lagtTilOppholdListe.forEach(lagtTilOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.OPPHOLD_PERIODE, null, String.format("Lagt til opphold med fra dato:%s, tildato:%s, årsak: %s", lagtTilOpphold.getFom(),lagtTilOpphold.getTom(), lagtTilOpphold.getOppholdÅrsak())));
-        fjernetOppholdListe.forEach(fjernetOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.OPPHOLD_PERIODE, String.format("fra dato:%s, tildato:%s, årsak: %s", fjernetOpphold.getFom(),fjernetOpphold.getTom(), fjernetOpphold.getOppholdÅrsak()), fjernet));
+        lagtTilOppholdListe.forEach(lagtTilOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.SVP_OPPHOLD_PERIODE, null, String.format("Lagt til opphold med fra dato:%s, tildato:%s, årsak: %s", lagtTilOpphold.getFom(),lagtTilOpphold.getTom(), lagtTilOpphold.getOppholdÅrsak())));
+        fjernetOppholdListe.forEach(fjernetOpphold -> historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.SVP_OPPHOLD_PERIODE, String.format("fra dato:%s, tildato:%s, årsak: %s", fjernetOpphold.getFom(),fjernetOpphold.getTom(), fjernetOpphold.getOppholdÅrsak()), fjernet));
 
         var erEndretBehovFom =  !Objects.equals(eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), nyTilrettelegging.getBehovForTilretteleggingFom());
         if (erEndretBehovFom) {
