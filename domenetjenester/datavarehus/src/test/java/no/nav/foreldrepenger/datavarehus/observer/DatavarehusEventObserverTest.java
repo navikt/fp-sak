@@ -109,7 +109,7 @@ class DatavarehusEventObserverTest {
         var behandling = byggBehandling();
         var fagsak = behandling.getFagsak();
 
-        var event = new FagsakStatusEvent(fagsak.getId(), fagsak.getAktørId(), FagsakStatus.OPPRETTET, fagsak.getStatus());
+        var event = new FagsakStatusEvent(fagsak.getId(), behandling.getId(), fagsak.getAktørId(), FagsakStatus.OPPRETTET, fagsak.getStatus());
 
         datavarehusEventObserver.observerFagsakStatus(event);
 

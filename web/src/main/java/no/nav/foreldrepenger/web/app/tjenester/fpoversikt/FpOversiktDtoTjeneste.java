@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,8 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +99,8 @@ public class FpOversiktDtoTjeneste {
         var gjeldendeVedtak = finnGjeldendeVedtak(fagsak);
         var åpenYtelseBehandling = hentÅpenBehandling(fagsak);
         var familieHendelse = finnFamilieHendelse(fagsak, gjeldendeVedtak, åpenYtelseBehandling);
-        var sakStatus = finnFagsakStatus(fagsak);
+        var sakStatus = finnFagsakStatus(fagsak); // Deprecated: Brukes til å utlede 'sakAvsluttet'. Fjernes etter endring i fpoversikt.
+        var erSakAvsluttet = sakErAvsluttet(fagsak);
         var ikkeHenlagteBehandlinger = finnIkkeHenlagteBehandlinger(fagsak);
         var aksjonspunkt = finnAksjonspunkt(ikkeHenlagteBehandlinger);
         var mottatteSøknader = finnRelevanteSøknadsdokumenter(fagsak);
@@ -105,7 +109,7 @@ public class FpOversiktDtoTjeneste {
             case ENGANGSTØNAD -> {
                 var søknader = finnEsSøknader(åpenYtelseBehandling, mottatteSøknader);
                 var vedtak = finnEsVedtak(alleVedtak);
-                yield new EsSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, søknader, vedtak);
+                yield new EsSak(saksnummer, aktørId, familieHendelse, erSakAvsluttet, sakStatus, aksjonspunkt, søknader, vedtak);
             }
             case FORELDREPENGER -> {
                 var vedtak = finnFpVedtak(fagsak, alleVedtak);
@@ -118,13 +122,13 @@ public class FpOversiktDtoTjeneste {
                     .map(yfa -> yfa.getGjeldendeFordeling().ønskerJustertVedFødsel())
                     .orElse(false);
                 var brukerRolle = finnBrukerRolle(fagsak);
-                yield new FpSak(saksnummer, aktørId, familieHendelse, sakStatus, vedtak, oppgittAnnenPart, aksjonspunkt, søknader, brukerRolle,
+                yield new FpSak(saksnummer, aktørId, familieHendelse, erSakAvsluttet, sakStatus, vedtak, oppgittAnnenPart, aksjonspunkt, søknader, brukerRolle,
                     fødteBarn, rettigheter.orElse(null), ønskerJustertUttakVedFødsel);
             }
             case SVANGERSKAPSPENGER -> {
                 var søknader = finnSvpSøknader(åpenYtelseBehandling, mottatteSøknader);
                 var vedtak = finnSvpVedtak(alleVedtak);
-                yield new SvpSak(saksnummer, aktørId, familieHendelse, sakStatus, aksjonspunkt, søknader, vedtak);
+                yield new SvpSak(saksnummer, aktørId, familieHendelse, erSakAvsluttet, sakStatus, aksjonspunkt, søknader, vedtak);
             }
             case UDEFINERT -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getYtelseType());
         };
@@ -398,6 +402,13 @@ public class FpOversiktDtoTjeneste {
             })
             .filter(a -> a.type() != null)
             .collect(Collectors.toSet());
+    }
+
+    private boolean sakErAvsluttet(Fagsak fagsak) {
+        return switch (fagsak.getStatus()) {
+            case OPPRETTET, UNDER_BEHANDLING, LØPENDE -> false;
+            case AVSLUTTET -> true;
+        };
     }
 
     private Sak.Status finnFagsakStatus(Fagsak fagsak) {

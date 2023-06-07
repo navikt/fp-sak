@@ -6,6 +6,7 @@ import java.util.Set;
 record EsSak(String saksnummer,
              String aktørId,
              FamilieHendelse familieHendelse,
+             boolean avsluttet,
              Status status,
              Set<Aksjonspunkt> aksjonspunkt,
              Set<Søknad> søknader,
@@ -19,7 +20,7 @@ record EsSak(String saksnummer,
 
     @Override
     public String toString() {
-        return "EsSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", status=" + status + ", aksjonspunkt="
+        return "EsSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", avsluttet=" + avsluttet + ", status=" + status + ", aksjonspunkt="
             + aksjonspunkt + ", søknader=" + søknader + ", vedtak=" + vedtak + '}';
     }
 }
