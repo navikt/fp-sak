@@ -134,6 +134,10 @@ public class FagsakTjeneste {
             .toList();
     }
 
+    public void lagreFagsakNotat(Fagsak fagsak, String notat) {
+        fagsakRepository.lagreFagsakNotat(fagsak.getId(), notat);
+    }
+
     public List<Behandling> hentÅpneBehandlinger(Fagsak fagsak) {
         return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
     }

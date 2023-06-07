@@ -236,4 +236,20 @@ public class FagsakRepository {
 
        return query.getResultList();
     }
+
+    public void lagreFagsakNotat(Long fagsakId, String notat) {
+        if (notat == null || notat.isEmpty()) {
+            return;
+        }
+        var nyttnotat = new FagsakNotat(fagsakId, notat);
+        entityManager.persist(nyttnotat);
+        entityManager.flush();
+    }
+
+    public List<FagsakNotat> hentFagsakNotater(Long fagsakId) {
+        var query = entityManager.createQuery("from FagsakNotat where fagsakId=:fagsakId AND aktiv = true order by opprettetTidspunkt asc", FagsakNotat.class)
+            .setParameter("fagsakId", fagsakId);
+        return query.getResultList();
+    }
+
 }

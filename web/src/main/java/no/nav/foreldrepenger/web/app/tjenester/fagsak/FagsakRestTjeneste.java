@@ -56,6 +56,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.EndreUtlandMarkeringDt
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.LagreFagsakNotatDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
@@ -87,6 +88,8 @@ public class FagsakRestTjeneste {
     public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH;
     private static final String ENDRE_UTLAND_PART_PATH = "/endre-utland";
     public static final String ENDRE_UTLAND_PATH = BASE_PATH + ENDRE_UTLAND_PART_PATH;
+    private static final String NOTAT_PART_PATH = "/notat";
+    public static final String NOTAT_PATH = BASE_PATH + NOTAT_PART_PATH;
 
     private FagsakTjeneste fagsakTjeneste;
     private FagsakFullTjeneste fagsakFullTjeneste;
@@ -189,12 +192,30 @@ public class FagsakRestTjeneste {
     }
 
     @POST
+    @Path(NOTAT_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagre nytt notat for sak", tags = "fagsak", summary = ("Lagre nytt notat."))
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public Response lagreFagsakNotat(@TilpassetAbacAttributt(supplierClass = LagreFagsakNotatAbacSupplier.class)
+                                     @Parameter(description = "Saksnummer og nytt notat") @Valid LagreFagsakNotatDto notatDto) {
+        var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(notatDto.saksnummer())).orElse(null);
+        if (fagsak != null && !notatDto.notat().isEmpty()) {
+            fagsakTjeneste.lagreFagsakNotat(fagsak, notatDto.notat());
+            return Response.ok().build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+
+
+    @POST
     @Path(ENDRE_UTLAND_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Endre utlandsmerking av sak", tags = "fagsak", summary = ("Endre merking fra tidligere verdi."))
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response endreUtlandMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class)
-                                          @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid EndreUtlandMarkeringDto endreUtland) {
+                                          @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
             var eksisterendeOpt = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId());
@@ -238,6 +259,15 @@ public class FagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (EndreUtlandMarkeringDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
+        }
+    }
+
+    public static class LagreFagsakNotatAbacSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (LagreFagsakNotatDto) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
         }
     }
