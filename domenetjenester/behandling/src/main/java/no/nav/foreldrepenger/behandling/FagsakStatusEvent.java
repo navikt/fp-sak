@@ -10,13 +10,15 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class FagsakStatusEvent implements FagsakEvent {
 
     private Long fagsakId;
+    private Long behandlingId;
     private FagsakStatus forrigeStatus;
     private FagsakStatus nyStatus;
     private AktørId aktørId;
 
-    public FagsakStatusEvent(Long fagsakId, AktørId aktørId, FagsakStatus forrigeStatus, FagsakStatus nyStatus) {
+    public FagsakStatusEvent(Long fagsakId, Long behandlingId, AktørId aktørId, FagsakStatus forrigeStatus, FagsakStatus nyStatus) {
         super();
         this.fagsakId = fagsakId;
+        this.behandlingId = behandlingId;
         this.aktørId = aktørId;
         this.forrigeStatus = forrigeStatus;
         this.nyStatus = nyStatus;
@@ -30,6 +32,10 @@ public class FagsakStatusEvent implements FagsakEvent {
     @Override
     public Long getFagsakId() {
         return fagsakId;
+    }
+
+    public Long getBehandlingId() {
+        return behandlingId;
     }
 
     public FagsakStatus getForrigeStatus() {
