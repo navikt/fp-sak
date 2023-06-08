@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Støn
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype.FELLESPERIODE;
 import static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype.FORELDREPENGER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -136,6 +137,35 @@ class SaldoValideringTest {
 
         assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
         assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> validering.utfør(List.of()));
+    }
+
+    @Test
+    void kunne_gå_negativ_på_dager_uten_aktivitetskrav_hvis_mindre_enn_1() {
+        var saldoUtregning = mock(SaldoUtregning.class);
+        when(saldoUtregning.negativSaldo(FORELDREPENGER)).thenReturn(false);
+        when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(10));
+        when(saldoUtregning.getMaxDagerMinsterett()).thenReturn(Trekkdager.ZERO);
+        when(saldoUtregning.restSaldoDagerUtenAktivitetskrav()).thenReturn(new Trekkdager(-0.1));
+        when(saldoUtregning.getMaxDagerFlerbarnsdager()).thenReturn(Trekkdager.ZERO);
+
+        var validering = new SaldoValidering(saldoUtregning, false, false);
+
+        assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
+        assertThatCode(() -> validering.utfør(List.of())).doesNotThrowAnyException();
+    }
+
+    @Test
+    void ikke_kunne_gå_negativ_på_minsterett_hvis_mindre_enn_1() {
+        var saldoUtregning = mock(SaldoUtregning.class);
+        when(saldoUtregning.negativSaldo(FORELDREPENGER)).thenReturn(false);
+        when(saldoUtregning.getMaxDagerUtenAktivitetskrav()).thenReturn(Trekkdager.ZERO);
+        when(saldoUtregning.getMaxDagerMinsterett()).thenReturn(new Trekkdager(10));
+        when(saldoUtregning.restSaldoMinsterett()).thenReturn(new Trekkdager(-0.9));
+        when(saldoUtregning.getMaxDagerFlerbarnsdager()).thenReturn(Trekkdager.ZERO);
+        var validering = new SaldoValidering(saldoUtregning, false, false);
+
+        assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
+        assertThatCode(() -> validering.utfør(List.of())).doesNotThrowAnyException();
     }
 }
 

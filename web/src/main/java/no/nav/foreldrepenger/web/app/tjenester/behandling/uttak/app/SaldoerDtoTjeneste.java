@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
-import java.math.RoundingMode;
+import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoValidering.round;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoVali
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
@@ -153,8 +153,8 @@ public class SaldoerDtoTjeneste {
     private StønadskontoDto foreldrepengerUtenAktKravDto(SaldoUtregning saldoUtregning) {
         var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
             var restSaldoDagerUtenAktivitetskrav = saldoUtregning.restSaldoDagerUtenAktivitetskrav(a);
-            var totalSaldo = saldoUtregning.saldoITrekkdager(Stønadskontotype.FORELDREPENGER, a);
-            return new AktivitetSaldoDto(mapToDto(a), Math.min(round(restSaldoDagerUtenAktivitetskrav), totalSaldo.rundOpp()));
+            var totalSaldo = saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER, a);
+            return new AktivitetSaldoDto(mapToDto(a), Math.min(round(restSaldoDagerUtenAktivitetskrav), totalSaldo));
         }).toList();
         int restSaldoDagerUtenAktivitetskrav = aktivitetSaldoList.stream()
             .map(aktivitetSaldoDto -> aktivitetSaldoDto.saldo())
@@ -169,8 +169,8 @@ public class SaldoerDtoTjeneste {
     private StønadskontoDto foreldrepengerMinsterettDto(SaldoUtregning saldoUtregning) {
         var aktivitetSaldoList = saldoUtregning.aktiviteterForSøker().stream().map(a -> {
             var restSaldoMinsterettDager = saldoUtregning.restSaldoMinsterett(a);
-            var totalSaldo = saldoUtregning.saldoITrekkdager(Stønadskontotype.FORELDREPENGER, a);
-            return new AktivitetSaldoDto(mapToDto(a), Math.min(round(restSaldoMinsterettDager), totalSaldo.rundOpp()));
+            var totalSaldo = saldoUtregning.saldo(Stønadskontotype.FORELDREPENGER, a);
+            return new AktivitetSaldoDto(mapToDto(a), Math.min(round(restSaldoMinsterettDager), totalSaldo));
         }).toList();
         int restSaldoMinsterett = aktivitetSaldoList.stream()
             .map(AktivitetSaldoDto::saldo)
@@ -194,13 +194,6 @@ public class SaldoerDtoTjeneste {
         var gyldigForbruk = restSaldo >= 0;
         return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT_NESTE_STØNADSPERIODE,
             saldoUtregning.getMaxDagerEtterNesteStønadsperiode().rundOpp(), restSaldo, aktivitetSaldoList, gyldigForbruk, null);
-    }
-
-    private static int round(Trekkdager trekkdager) {
-        //Ved gradering kan saldo med desimal være feks -0.2. Dette skal tolkes som 0. Man skal ikke bikke over til -1 så lenge trekkdager er mellom -1 og 0
-        return trekkdager.mindreEnn0() ? trekkdager.decimalValue()
-            .setScale(0, RoundingMode.DOWN)
-            .intValue() : trekkdager.rundOpp();
     }
 
     private int finnTapteDagerFpff(UttakInput input) {
