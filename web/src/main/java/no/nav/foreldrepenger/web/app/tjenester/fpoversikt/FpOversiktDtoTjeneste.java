@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -11,8 +10,6 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
