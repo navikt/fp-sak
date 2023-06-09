@@ -72,7 +72,7 @@ public class FaktaUttakAksjonspunktUtleder {
 
     private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeUttak) {
         return perioder.stream()
-            .filter(p -> sammenhengendeUttak || !(p.isUtsettelse() || p.isOpphold()))
+            .filter(p -> sammenhengendeUttak || !(p.isFriUtsettelse() || p.isOpphold()))
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 
