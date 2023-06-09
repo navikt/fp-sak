@@ -14,16 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public interface Sak {
 
-    Status status();
-
     record FamilieHendelse(LocalDate fødselsdato, LocalDate termindato, int antallBarn, LocalDate omsorgsovertakelse) {
-    }
-
-    enum Status {
-        OPPRETTET,
-        UNDER_BEHANDLING,
-        LØPENDE,
-        AVSLUTTET,
     }
 
     record Aksjonspunkt(Type type, Venteårsak venteårsak, LocalDateTime tidsfrist) {

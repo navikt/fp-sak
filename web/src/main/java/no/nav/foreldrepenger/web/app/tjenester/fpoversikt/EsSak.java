@@ -7,7 +7,6 @@ record EsSak(String saksnummer,
              String aktørId,
              FamilieHendelse familieHendelse,
              boolean avsluttet,
-             Status status,
              Set<Aksjonspunkt> aksjonspunkt,
              Set<Søknad> søknader,
              Set<Vedtak> vedtak) implements Sak {
@@ -20,7 +19,7 @@ record EsSak(String saksnummer,
 
     @Override
     public String toString() {
-        return "EsSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", avsluttet=" + avsluttet + ", status=" + status + ", aksjonspunkt="
+        return "EsSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", avsluttet=" + avsluttet + ", aksjonspunkt="
             + aksjonspunkt + ", søknader=" + søknader + ", vedtak=" + vedtak + '}';
     }
 }
