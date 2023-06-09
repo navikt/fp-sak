@@ -61,7 +61,7 @@ public class FaktaUttakAksjonspunktUtleder {
         }
         var sammenhengendeEllerMor = input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() ||
             RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle());
-            ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId()).getAvklarteDatoer()
+        ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId()).getAvklarteDatoer()
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
             .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, sammenhengendeEllerMor, fud))
             .ifPresent(fud -> list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO));
