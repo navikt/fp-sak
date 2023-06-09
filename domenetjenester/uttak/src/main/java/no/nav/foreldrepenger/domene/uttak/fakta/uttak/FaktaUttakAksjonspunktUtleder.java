@@ -19,6 +19,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -58,21 +59,23 @@ public class FaktaUttakAksjonspunktUtleder {
         if (graderingPåUkjentAktivitet(input.getBeregningsgrunnlagStatuser(), perioder)) {
             list.add(FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET);
         }
+        var sammenhengendeEllerMor = input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak() ||
+            RelasjonsRolleType.erMor(input.getBehandlingReferanse().relasjonRolle());
         ytelseFordelingTjeneste.hentAggregat(input.getBehandlingReferanse().behandlingId()).getAvklarteDatoer()
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
-            .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, input.getBehandlingReferanse().getSkjæringstidspunkt().kreverSammenhengendeUttak(), fud))
+            .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, sammenhengendeEllerMor, fud))
             .ifPresent(fud -> list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO));
         return list;
     }
 
-    private static boolean avklartStartdatLikFørsteDagIPerioder(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeUttak, LocalDate avklartFUD) {
-        return førsteSøkteDag(perioder, sammenhengendeUttak).map(
+    private static boolean avklartStartdatLikFørsteDagIPerioder(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeEllerMor, LocalDate avklartFUD) {
+        return førsteSøkteDag(perioder, sammenhengendeEllerMor).map(
             oppgittPeriodeEntitet -> PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres(oppgittPeriodeEntitet.getFom(), avklartFUD)).orElse(true);
     }
 
-    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeUttak) {
+    private static Optional<OppgittPeriodeEntitet> førsteSøkteDag(List<OppgittPeriodeEntitet> perioder, boolean sammenhengendeEllerMor) {
         return perioder.stream()
-            .filter(p -> sammenhengendeUttak || !(p.isUtsettelse() || p.isOpphold()))
+            .filter(p -> sammenhengendeEllerMor || !(p.isUtsettelse() || p.isOpphold()))
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom));
     }
 

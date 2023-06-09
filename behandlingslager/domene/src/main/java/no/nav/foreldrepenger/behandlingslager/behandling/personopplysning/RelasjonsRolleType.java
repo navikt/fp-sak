@@ -77,7 +77,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
     }
 
     public static boolean erFar(RelasjonsRolleType relasjon) {
-        return FARA.getKode().equals(relasjon.getKode());
+        return FARA.equals(relasjon);
     }
 
     public static boolean erMedmor(RelasjonsRolleType relasjon) {
@@ -89,7 +89,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
     }
 
     public static boolean erMor(RelasjonsRolleType relasjon) {
-        return MORA.getKode().equals(relasjon.getKode());
+        return MORA.equals(relasjon);
     }
 
     public static boolean erRegistrertForeldre(RelasjonsRolleType type) {
