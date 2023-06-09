@@ -124,7 +124,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.ønskerJustertUttakVedFødsel()).isTrue();
         assertThat(dto.vedtak()).hasSize(1);
-        assertThat(dto.status()).isEqualTo(Sak.Status.OPPRETTET);
+        assertThat(dto.avsluttet()).isFalse();
         var vedtak = dto.vedtak().stream().findFirst().orElseThrow();
         assertThat(vedtak.dekningsgrad()).isEqualTo(FpSak.Dekningsgrad.ÅTTI);
         assertThat(vedtak.vedtakstidspunkt()).isEqualTo(vedtakstidspunkt);
@@ -218,7 +218,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.vedtak()).hasSize(1);
-        assertThat(dto.status()).isEqualTo(Sak.Status.OPPRETTET);
+        assertThat(dto.avsluttet()).isFalse();
         var vedtak = dto.vedtak().stream().findFirst().orElseThrow();
         assertThat(vedtak.vedtakstidspunkt()).isEqualTo(vedtakstidspunkt);
 
@@ -256,7 +256,7 @@ class FpOversiktDtoTjenesteTest {
         assertThat(dto.saksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
         assertThat(dto.vedtak()).hasSize(1);
-        assertThat(dto.status()).isEqualTo(Sak.Status.OPPRETTET);
+        assertThat(dto.avsluttet()).isFalse();
         var vedtak = dto.vedtak().stream().findFirst().orElseThrow();
         assertThat(vedtak.vedtakstidspunkt()).isEqualTo(vedtakstidspunkt);
 

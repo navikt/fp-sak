@@ -10,7 +10,6 @@ record FpSak(String saksnummer,
              String aktørId,
              FamilieHendelse familieHendelse,
              boolean avsluttet,
-             Status status,
              Set<Vedtak> vedtak,
              String oppgittAnnenPart,
              Set<Aksjonspunkt> aksjonspunkt,
@@ -67,7 +66,8 @@ record FpSak(String saksnummer,
 
     @Override
     public String toString() {
-        return "FpSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", avsluttet=" + avsluttet + ", status=" + status + ", vedtak="
-            + vedtak + ", aksjonspunkt=" + aksjonspunkt + ", søknader=" + søknader + ", brukerRolle=" + brukerRolle + '}';
+        return "FpSak{" + "saksnummer='" + saksnummer + '\'' + ", familieHendelse=" + familieHendelse + ", avsluttet=" + avsluttet + ", vedtak="
+            + vedtak + ", aksjonspunkt=" + aksjonspunkt + ", søknader=" + søknader + ", brukerRolle=" + brukerRolle + ", rettigheter=" + rettigheter
+            + ", ønskerJustertUttakVedFødsel=" + ønskerJustertUttakVedFødsel + '}';
     }
 }
