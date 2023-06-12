@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
 
 class StartpunktTjenesteImplTest {
 
@@ -48,7 +49,7 @@ class StartpunktTjenesteImplTest {
         var endringsresultat = EndringsresultatDiff.opprett();
         var diffResult = mock(DiffResult.class);
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
-        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(Object.class, grunnlagId1, grunnlagId2), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseAggregat.class, grunnlagId1, grunnlagId2), () -> diffResult);
         return endringsresultat;
     }
 }

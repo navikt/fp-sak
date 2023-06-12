@@ -82,4 +82,9 @@ public class SvangerskapspengerRepository {
             }
         }
 
+    public void fjernOverstyrtGrunnlag(Behandling behandling) {
+        hentGrunnlag(behandling.getId())
+            .ifPresent(grunnlag -> lagreOgFlush(new SvpGrunnlagEntitet.Builder(grunnlag).medOverstyrteTilrettelegginger(null).build()));
+
+    }
 }

@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
@@ -21,6 +22,7 @@ public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingsprosessTjeneste prosesseringTjeneste;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
     public MigrerTilOmsorgRettTask() {
         // For CDI
@@ -29,11 +31,13 @@ public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
     @Inject
     public MigrerTilOmsorgRettTask(BehandlingRepositoryProvider repositoryProvider,
                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   BehandlingsprosessTjeneste prosesseringTjeneste) {
+                                   BehandlingsprosessTjeneste prosesseringTjeneste,
+                                   SvangerskapspengerRepository svangerskapspengerRepository) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.prosesseringTjeneste = prosesseringTjeneste;
+        this.svangerskapspengerRepository = svangerskapspengerRepository;
     }
 
 
@@ -43,10 +47,11 @@ public class MigrerTilOmsorgRettTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
-        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.GRUNNLAG_UTTAK);
+        behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.INNHENT_REGISTEROPP);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
+        svangerskapspengerRepository.fjernOverstyrtGrunnlag(behandling);
         prosesseringTjeneste.asynkKjørProsess(behandling);
     }
 }

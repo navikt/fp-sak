@@ -23,13 +23,13 @@ class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTest {
 
     private SvangerskapspengerRepository svangerskapspengerRepository;
 
-    private LagreNyeTilretteleggingerTjeneste lagreNyeTilretteleggingerTjeneste;
+    private NyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         svangerskapspengerRepository = new SvangerskapspengerRepository(getEntityManager());
-        lagreNyeTilretteleggingerTjeneste = new LagreNyeTilretteleggingerTjeneste(svangerskapspengerRepository);
+        utledNyeTilretteleggingerTjeneste = new NyeTilretteleggingerTjeneste(svangerskapspengerRepository, null);
     }
 
     @Test
@@ -54,7 +54,7 @@ class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTest {
                 .build();
 
         // Act
-        lagreNyeTilretteleggingerTjeneste.lagre(behandling, List.of(overstyrtTilrettelegging));
+        utledNyeTilretteleggingerTjeneste.lagre(behandling, List.of(overstyrtTilrettelegging));
 
         // Assert
         var nyttGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId()).orElseThrow();

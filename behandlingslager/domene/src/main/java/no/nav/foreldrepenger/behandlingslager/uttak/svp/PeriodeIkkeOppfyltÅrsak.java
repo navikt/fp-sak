@@ -108,6 +108,10 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     }
 
     public static Set<PeriodeIkkeOppfyltÅrsak> opphørsAvslagÅrsaker() {
-        return Set.of(_8304, _8305, _8306, _8309, _8314);
+        return Set.of(_8304, _8305, _8306, _8309, _8314, SVANGERSKAPSVILKÅRET_IKKE_OPPFYLT, OPPTJENINGSVILKÅRET_IKKE_OPPFYLT);
+    }
+
+    public static Set<PeriodeIkkeOppfyltÅrsak> avslagÅrsakerRelatertTilDød() {
+        return Set.of(_8304, _8305);
     }
 }

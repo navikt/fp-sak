@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -120,14 +121,16 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         }
         var that = (SvpTilretteleggingEntitet) o;
         return Objects.equals(behovForTilretteleggingFom, that.behovForTilretteleggingFom) &&
+            Objects.equals(arbeidType, that.arbeidType) &&
             Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
             Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef) &&
-            Objects.equals(tilretteleggingFOMListe, that.tilretteleggingFOMListe);
+            tilretteleggingFOMListe.size() == that.tilretteleggingFOMListe.size() &&
+            new HashSet<>(tilretteleggingFOMListe).containsAll(that.tilretteleggingFOMListe);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behovForTilretteleggingFom, tilretteleggingFOMListe, arbeidsgiver);
+        return Objects.hash(behovForTilretteleggingFom, tilretteleggingFOMListe, arbeidType, arbeidsgiver, internArbeidsforholdRef);
     }
 
     public Long getId() {

@@ -23,7 +23,7 @@ class UtledTilretteleggingerUtenArbeidsgiverTjenesteTest {
         var tilrettelegginger = List.of(tilrettelegging_1, tilrettelegging_2, tilrettelegging_3, tilrettelegging_4);
 
         // Act
-        var result = UtledNyeTilretteleggingerTjeneste.utled(tilrettelegginger);
+        var result = NyeTilretteleggingerTjeneste.utledUtenArbeidsgiver(tilrettelegginger);
 
         // Assert
         assertThat(result).hasSize(2);

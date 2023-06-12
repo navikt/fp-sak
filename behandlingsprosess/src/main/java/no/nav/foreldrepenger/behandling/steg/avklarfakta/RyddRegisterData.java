@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
 public class RyddRegisterData {
     private final BehandlingRepository behandlingRepository;
@@ -30,6 +31,12 @@ public class RyddRegisterData {
     public void ryddRegisterdata() {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         nullstillRegisterdata(behandling);
+    }
+
+    public void ryddRegisterdataStartpunktRevurdering() {
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        nullstillRegisterdata(behandling);
+        behandling.setStartpunkt(StartpunktType.UDEFINERT);
     }
 
     private void nullstillRegisterdata(Behandling behandling) {
