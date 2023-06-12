@@ -10,15 +10,25 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
+import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
+import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 class StartpunktTjenesteImplTest {
 
     private StartpunktTjenesteImpl startpunktTjenesteSvp;
+    private EndringsresultatSjekker endringsresultatSjekker;
 
     @BeforeEach
     public void before() {
-        startpunktTjenesteSvp = new StartpunktTjenesteImpl();
+        endringsresultatSjekker = mock(EndringsresultatSjekker.class);
+
+        // Mock startpunktutlederprovider
+        var utledere = new UnitTestLookupInstanceImpl<StartpunktUtleder>(
+            (behandling, grunnlagId1, grunnlagId2) -> StartpunktType.BEREGNING);
+
+        startpunktTjenesteSvp = new StartpunktTjenesteImpl(utledere, endringsresultatSjekker);
     }
 
     @Test
@@ -30,7 +40,7 @@ class StartpunktTjenesteImplTest {
         var startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, endringsresultatDiff);
 
         // Assert
-        assertThat(startpunktType).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+        assertThat(startpunktType).isEqualTo(StartpunktType.BEREGNING);
     }
 
     @Test
@@ -46,10 +56,12 @@ class StartpunktTjenesteImplTest {
     }
 
     private EndringsresultatDiff opprettEndringsresultat(Long grunnlagId1, Long grunnlagId2) {
+
         var endringsresultat = EndringsresultatDiff.opprett();
         var diffResult = mock(DiffResult.class);
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
-        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseAggregat.class, grunnlagId1, grunnlagId2), () -> diffResult);
+        endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(InntektArbeidYtelseGrunnlag.class, grunnlagId1, grunnlagId2), () -> diffResult);
+
         return endringsresultat;
     }
 }
