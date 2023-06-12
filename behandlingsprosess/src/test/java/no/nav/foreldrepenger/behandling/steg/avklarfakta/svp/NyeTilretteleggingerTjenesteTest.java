@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,8 +42,7 @@ class NyeTilretteleggingerTjenesteTest {
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123")).medInternArbeidsforholdRef(InternArbeidsforholdRef.nyRef()).build();
         var tilretteleggingFrilans = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.FRILANSER).build();
 
-        var tilretteleggingEntiteter = new ArrayList<SvpTilretteleggingEntitet>();
-        tilretteleggingEntiteter.add(new SvpTilretteleggingEntitet.Builder().medArbeidsgiver(Arbeidsgiver.virksomhet("123")).build());
+        var tilretteleggingEntiteter = List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans);
         when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyList()))
                 .thenReturn(List.of(tilretteleggingArbeidMedInternId));
 
@@ -75,8 +73,7 @@ class NyeTilretteleggingerTjenesteTest {
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123")).build();
         var tilretteleggingFrilans = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.FRILANSER).build();
 
-        var tilretteleggingEntiteter = new ArrayList<SvpTilretteleggingEntitet>();
-        tilretteleggingEntiteter.add(new SvpTilretteleggingEntitet.Builder().medArbeidsgiver(Arbeidsgiver.virksomhet("123")).build());
+        var tilretteleggingEntiteter = List.of(tilretteleggingArbeidUtenInternId, tilretteleggingFrilans);
         when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyList()))
             .thenReturn(List.of(tilretteleggingArbeidUtenInternId));
 
