@@ -39,9 +39,6 @@ class RefreshBehandlingHendelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        // Fjern saksbehandler dersom på vent
-        informasjonssakRepository.fjernSaksbehandlerDersomPåVent();
-
         // Fjernes etter initiell merking
         var nynæring = informasjonssakRepository.finnSakerSomKanMerkesNæring();
         nynæring.forEach(f -> fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(f, FagsakMarkering.SELVSTENDIG_NÆRING));
