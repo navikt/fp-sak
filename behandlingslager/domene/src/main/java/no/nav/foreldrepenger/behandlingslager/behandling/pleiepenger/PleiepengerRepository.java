@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
@@ -36,7 +37,8 @@ public class PleiepengerRepository {
     }
 
     private void lagreGrunnlag(Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag, PleiepengerGrunnlagEntitet nyttGrunnlag) {
-        if (!Objects.equals(aktivtGrunnlag.orElse(null), nyttGrunnlag)) {
+        var differ = new RegisterdataDiffsjekker(true).getDiffEntity();
+        if (aktivtGrunnlag.isEmpty() || !differ.diff(aktivtGrunnlag.orElse(null), nyttGrunnlag).isEmpty()) {
             aktivtGrunnlag.ifPresent(eksisterendeGrunnlag -> {
                 eksisterendeGrunnlag.deaktiver();
                 entityManager.persist(eksisterendeGrunnlag);

@@ -113,6 +113,23 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
+        return erLikUtenomTilrettelegginger(o) && o instanceof SvpTilretteleggingEntitet that &&
+            Objects.equals(tilretteleggingFOMListe, that.tilretteleggingFOMListe);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(behovForTilretteleggingFom, tilretteleggingFOMListe, arbeidType, arbeidsgiver, internArbeidsforholdRef);
+    }
+
+    public boolean erLik(Object o) {
+        return erLikUtenomTilrettelegginger(o) && o instanceof SvpTilretteleggingEntitet that &&
+            tilretteleggingFOMListe.size() == that.tilretteleggingFOMListe.size() &&
+            new HashSet<>(tilretteleggingFOMListe).containsAll(that.tilretteleggingFOMListe);
+    }
+
+
+    private boolean erLikUtenomTilrettelegginger(Object o) {
         if (this == o) {
             return true;
         }
@@ -123,14 +140,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         return Objects.equals(behovForTilretteleggingFom, that.behovForTilretteleggingFom) &&
             Objects.equals(arbeidType, that.arbeidType) &&
             Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-            Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef) &&
-            tilretteleggingFOMListe.size() == that.tilretteleggingFOMListe.size() &&
-            new HashSet<>(tilretteleggingFOMListe).containsAll(that.tilretteleggingFOMListe);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(behovForTilretteleggingFom, tilretteleggingFOMListe, arbeidType, arbeidsgiver, internArbeidsforholdRef);
+            Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef);
     }
 
     public Long getId() {

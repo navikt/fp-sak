@@ -36,14 +36,13 @@ class NyeTilretteleggingerTjeneste {
             .orElseThrow(() -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()))
             .getOpprinneligeTilrettelegginger().getTilretteleggingListe();
         var justerteTilrettelegginger = utledJusterte(behandling, skjæringstidspunkt);
-        if (likeTilrettelegginger(justerteTilrettelegginger, opprinneligeTilrettelegginger)) {
-            return;
+        if (!likeTilrettelegginger(justerteTilrettelegginger, opprinneligeTilrettelegginger)) {
+            lagre(behandling, justerteTilrettelegginger);
         }
-        lagre(behandling, justerteTilrettelegginger);
     }
 
     static boolean likeTilrettelegginger(List<SvpTilretteleggingEntitet> ene, List<SvpTilretteleggingEntitet> andre) {
-        return ene.size() == andre.size() && new HashSet<>(ene).containsAll(andre);
+        return ene.size() == andre.size() && ene.stream().allMatch(tlre -> andre.stream().anyMatch(tlre::erLik));
     }
 
 

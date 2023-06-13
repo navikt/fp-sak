@@ -75,7 +75,7 @@ public class PleiepengerPerioderEntitet extends BaseEntitet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         var that = (PleiepengerPerioderEntitet) o;
-        return innleggelser.size() == that.innleggelser.size() && innleggelser.containsAll(that.innleggelser);
+        return Objects.equals(innleggelser,  that.innleggelser);
     }
 
     @Override
