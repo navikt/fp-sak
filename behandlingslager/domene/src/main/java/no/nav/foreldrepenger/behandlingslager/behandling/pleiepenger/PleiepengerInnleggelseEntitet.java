@@ -39,6 +39,7 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
     private DatoIntervallEntitet periode;
 
     @Embedded
+    @ChangeTracked
     @AttributeOverrides(@AttributeOverride(name = "saksnummer", column = @Column(name = "psb_saksnummer")))
     private Saksnummer pleiepengerSaksnummer;
 
@@ -86,7 +87,7 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
 
     @Override
     public String getIndexKey() {
-        return IndexKey.createKey(id);
+        return IndexKey.createKey(periode, pleiepengerSaksnummer, pleietrengendeAktørId);
     }
 
     @Override

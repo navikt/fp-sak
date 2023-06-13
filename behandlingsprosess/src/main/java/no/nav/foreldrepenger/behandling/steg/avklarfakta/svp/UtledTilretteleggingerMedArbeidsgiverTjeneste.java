@@ -38,7 +38,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
-    public ArrayList<SvpTilretteleggingEntitet> utled(Behandling behandling,
+    public List<SvpTilretteleggingEntitet> utled(Behandling behandling,
             Skjæringstidspunkt skjæringstidspunkt,
             List<SvpTilretteleggingEntitet> opprinneligeTilrettelegginger) {
 

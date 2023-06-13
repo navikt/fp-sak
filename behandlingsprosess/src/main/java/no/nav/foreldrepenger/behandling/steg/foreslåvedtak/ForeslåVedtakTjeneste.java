@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -94,8 +93,15 @@ class ForeslåVedtakTjeneste {
     }
 
     private boolean skalOppretteForeslåVedtakManuelt(Behandling behandling) {
-        return BehandlingType.REVURDERING.equals(behandling.getType()) &&
-                !erRevurderingEtterFødselHendelseES(behandling) && behandling.erManueltOpprettet() || FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType());
+        if (behandling.erRevurdering() && behandling.erManueltOpprettet()) {
+            return true;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilDød())) {
+            return true;
+        }
+        return FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling();
+        // TODO (jol) ta med dette leddet når brev / SVP er gjennomgått.
+        //  && behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING).filter(Aksjonspunkt::erUtført).isPresent();
     }
 
     private boolean skalUtføreTotrinnsbehandling(Behandling behandling) {
@@ -103,8 +109,4 @@ class ForeslåVedtakTjeneste {
                 behandling.harAksjonspunktMedTotrinnskontroll();
     }
 
-    private boolean erRevurderingEtterFødselHendelseES(Behandling behandling) {
-        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) &&
-                behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-    }
 }

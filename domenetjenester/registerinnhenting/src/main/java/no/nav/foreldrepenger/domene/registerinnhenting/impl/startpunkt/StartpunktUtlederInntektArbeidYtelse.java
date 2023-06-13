@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner;
@@ -113,6 +114,16 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
                 ryddOppAksjonspunktForPermisjonUtenSluttdatoHvisEksisterer(ref);
             }
         }
+        if (erInntektsmeldingEndret) {
+            var startpunktIM = startpunktUtlederInntektsmelding.utledStartpunkt(ref, grunnlag1, grunnlag2);
+            if (StartpunktType.KONTROLLER_ARBEIDSFORHOLD.equals(startpunktIM)) {
+                arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(ref.behandlingId());
+            }
+            leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, startpunktIM, "inntektsmelding");
+        }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType())) {
+            return startpunkter;
+        }
         if (erAktørArbeidEndretForSøker) {
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, defaultStartpunktForRegisterEndringer, "aktørarbeid");
         }
@@ -127,13 +138,6 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         }
         if (erAktørInntektEndretForSøker) {
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, defaultStartpunktForRegisterEndringer, "aktør inntekt");
-        }
-        if (erInntektsmeldingEndret) {
-            var startpunktIM = startpunktUtlederInntektsmelding.utledStartpunkt(ref, grunnlag1, grunnlag2);
-            if (StartpunktType.KONTROLLER_ARBEIDSFORHOLD.equals(startpunktIM)) {
-                arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(ref.behandlingId());
-            }
-            leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, startpunktIM, "inntektsmelding");
         }
 
         return startpunkter;

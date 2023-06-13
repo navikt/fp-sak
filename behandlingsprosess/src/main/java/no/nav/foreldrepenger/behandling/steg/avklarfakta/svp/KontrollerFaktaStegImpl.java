@@ -39,8 +39,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private UtledNyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste;
-    private LagreNyeTilretteleggingerTjeneste lagreNyeTilretteleggingerTjeneste;
+    private NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste;
 
     KontrollerFaktaStegImpl() {
         // for CDI proxy
@@ -50,15 +49,13 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     KontrollerFaktaStegImpl(BehandlingRepositoryProvider repositoryProvider,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KontrollerFaktaTjeneste tjeneste,
-            UtledNyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste,
-            LagreNyeTilretteleggingerTjeneste lagreNyeTilretteleggingerTjeneste) {
+            NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.tjeneste = tjeneste;
-        this.utledNyeTilretteleggingerTjeneste = utledNyeTilretteleggingerTjeneste;
-        this.lagreNyeTilretteleggingerTjeneste = lagreNyeTilretteleggingerTjeneste;
+        this.nyeTilretteleggingerTjeneste = nyeTilretteleggingerTjeneste;
     }
 
     @Override
@@ -70,8 +67,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
         var aksjonspunktResultater = tjeneste.utledAksjonspunkter(ref);
         utledVilkår(kontekst);
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT); // Settes til første steg i Inngangsvilkår.
-        var nyeTilrettelegginger = utledNyeTilretteleggingerTjeneste.utled(behandling, skjæringstidspunkter);
-        lagreNyeTilretteleggingerTjeneste.lagre(behandling, nyeTilrettelegginger);
+        nyeTilretteleggingerTjeneste.utledNyeTilretteleggingerLagreJustert(behandling, skjæringstidspunkter);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunktResultater);
     }
 
@@ -84,8 +80,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg)
-                || (BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) && BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg))) {
+        if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) || BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg)) {
             var rydder = new RyddRegisterData(repositoryProvider, kontekst);
             rydder.ryddRegisterdata();
         }

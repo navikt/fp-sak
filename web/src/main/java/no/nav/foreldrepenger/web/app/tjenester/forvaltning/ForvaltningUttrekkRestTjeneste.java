@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,7 +34,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
@@ -143,30 +141,29 @@ public class ForvaltningUttrekkRestTjeneste {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Flytt tilbake til uttak grunnlag", tags = "FORVALTNING-uttrekk")
-    @Path("/flyttTilStartUttak")
+    @Operation(description = "Flytt svp revurdering tilbake til start", tags = "FORVALTNING-uttrekk")
+    @Path("/flyttSvpRevurderTilRegister")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("""
-            select distinct bh.id
-            from fagsak fs
-            join behandling bh on bh.fagsak_id = fs.id
-            join aksjonspunkt ap on ap.behandling_id = bh.id
-            where aksjonspunkt_def in (:apdef)
-            and aksjonspunkt_status = :status
+            select b.id from fpsak.behandling b join fpsak.fagsak f on fagsak_id = f.id
+            where ytelse_type = 'SVP' and behandling_type = 'BT-004' and behandling_status <> 'AVSLU'
+            and not exists (select * from fpsak.behandling_arsak ba where ba.behandling_id = b.id and manuelt_opprettet = 'J')
+            and not exists (select * from fpsak.behandling_arsak ba where ba.behandling_id = b.id and behandling_arsak_type = 'RE-END-FRA-BRUKER')
+            and not exists (select * from fpsak.behandling_arsak ba where ba.behandling_id = b.id and behandling_arsak_type like 'RE-HENDELSE-D%')
+            and exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def = '5091' and aksjonspunkt_status = 'OPPR')
+            and not exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def <> '5091' )
              """);
-        query.setParameter("apdef", Set.of(AksjonspunktDefinisjon.AVKLAR_LØPENDE_OMSORG.getKode()));
-        query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
         var åpneAksjonspunkt =  resultatList.stream().map(BigDecimal::longValue).toList();
-        åpneAksjonspunkt.forEach(this::flyttTilbakeTilOmsorgRett);
+        åpneAksjonspunkt.forEach(this::flyttTilbakeTilStart);
         return Response.ok().build();
     }
 
-    private void flyttTilbakeTilOmsorgRett(Long behandlingId) {
+    private void flyttTilbakeTilStart(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.KONTROLLER_FAKTA_UTTAK.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.KONTROLLER_FAKTA.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);

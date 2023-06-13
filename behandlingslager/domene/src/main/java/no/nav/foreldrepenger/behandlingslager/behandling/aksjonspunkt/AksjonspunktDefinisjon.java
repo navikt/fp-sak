@@ -266,7 +266,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         ENTRINN, EnumSet.of(FP)),
     VURDER_SVP_TILRETTELEGGING(
             AksjonspunktKodeDefinisjon.VURDER_SVP_TILRETTELEGGING_KODE, AksjonspunktType.MANUELL, "Vurder tilrettelegging svangerskapspenger",
-            BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.PUNKT_FOR_SVP_INNGANG, ENTRINN, EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.PUNKT_FOR_SVP_INNGANG, ENTRINN, EnumSet.of(ES, FP, SVP)),
     MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET_KODE, AksjonspunktType.MANUELL, "Avklar svangerskapspengervilkåret",
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR, VurderingspunktType.UT, VilkårType.SVANGERSKAPSPENGERVILKÅR,
