@@ -25,8 +25,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.BatchSize;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -34,7 +32,7 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "SvpTilretteleggingEntitet")
 @Table(name = "SVP_TILRETTELEGGING")
-public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
+public class SvpTilretteleggingEntitet extends BaseEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_TILRETTELEGGING")
@@ -54,7 +52,6 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
 
     @Convert(converter = ArbeidType.KodeverdiConverter.class)
     @Column(name="arbeid_type", nullable = false)
-    @ChangeTracked
     private ArbeidType arbeidType = ArbeidType.UDEFINERT;
 
     @Embedded
@@ -185,11 +182,6 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
 
     public boolean getSkalBrukes() {
         return skalBrukes;
-    }
-
-    @Override
-    public String getIndexKey() {
-        return IndexKey.createKey(id);
     }
 
     public List<TilretteleggingFOM> getTilretteleggingFOMListe() {

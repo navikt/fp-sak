@@ -13,11 +13,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 @Entity
 @Table(name = "TILRETTELEGGING_FOM")
-public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
+public class TilretteleggingFOM extends BaseEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TILRETTELEGGING_FOM")
@@ -61,10 +60,6 @@ public class TilretteleggingFOM extends BaseEntitet implements IndexKey {
 
     public LocalDate getTidligstMotattDato() {
         return tidligstMotattDato;
-    }
-    @Override
-    public String getIndexKey() {
-        return IndexKey.createKey(id);
     }
 
     @Override

@@ -87,7 +87,7 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
 
     @Override
     public String getIndexKey() {
-        return IndexKey.createKey(id);
+        return IndexKey.createKey(periode, pleiepengerSaksnummer, pleietrengendeAktørId);
     }
 
     @Override

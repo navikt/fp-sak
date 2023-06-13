@@ -142,8 +142,8 @@ public class TraverseGraph {
     private void traverseCollection(Node newPath, Collection<?> value, TraverseResult result) {
         for (Object v : value) {
             String collectionKey;
-            if (v instanceof IndexKey) {
-                collectionKey = ((IndexKey) v).getIndexKey();
+            if (v instanceof IndexKey indexKey) {
+                collectionKey = indexKey.getIndexKey();
             } else {
                 collectionKey = String.valueOf(listPositionEq.getKey(newPath, v));
             }

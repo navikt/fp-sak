@@ -38,7 +38,7 @@ public class PleiepengerRepository {
 
     private void lagreGrunnlag(Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag, PleiepengerGrunnlagEntitet nyttGrunnlag) {
         var differ = new RegisterdataDiffsjekker(true).getDiffEntity();
-        if (aktivtGrunnlag.isEmpty() || !differ.diff(aktivtGrunnlag.orElse(null), nyttGrunnlag).isEmpty()) {
+        if (aktivtGrunnlag.isEmpty() || differ.areDifferent(aktivtGrunnlag.orElse(null), nyttGrunnlag)) {
             aktivtGrunnlag.ifPresent(eksisterendeGrunnlag -> {
                 eksisterendeGrunnlag.deaktiver();
                 entityManager.persist(eksisterendeGrunnlag);
