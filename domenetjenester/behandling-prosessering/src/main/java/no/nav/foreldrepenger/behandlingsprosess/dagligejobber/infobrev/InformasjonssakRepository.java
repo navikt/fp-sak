@@ -332,15 +332,4 @@ public class InformasjonssakRepository {
         List<BigDecimal> resultatList = query.getResultList();
         return resultatList.stream().map(BigDecimal::longValue).toList();
     }
-
-    public void fjernSaksbehandlerDersomPåVent() {
-        entityManager.createNativeQuery("""
-           update fpsak.behandling b
-           set b.ansvarlig_saksbehandler = null
-           where b.behandling_status <> 'AVSLU' and b.ansvarlig_saksbehandler is not null
-           and b.id in (select behandling_id from fpsak.aksjonspunkt ap where aksjonspunkt_def > 7000 and aksjonspunkt_status = 'OPPR')
-        """).executeUpdate();
-
-    }
-
 }
