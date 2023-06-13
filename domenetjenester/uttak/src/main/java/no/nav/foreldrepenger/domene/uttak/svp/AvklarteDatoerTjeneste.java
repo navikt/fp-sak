@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.svp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,8 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
@@ -20,7 +23,8 @@ import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.svangerskapspenger.domene.søknad.AvklarteDatoer;
-import no.nav.svangerskapspenger.domene.søknad.Ferie;
+import no.nav.svangerskapspenger.domene.søknad.Opphold;
+import no.nav.svangerskapspenger.tjeneste.fastsettuttak.SvpOppholdÅrsak;
 
 @ApplicationScoped
 class AvklarteDatoerTjeneste {
@@ -65,7 +69,7 @@ class AvklarteDatoerTjeneste {
         startdatoNesteSak.ifPresent(avklarteDatoerBuilder::medStartdatoNesteSak);
 
         uttaksgrense.map(Uttaksperiodegrense::getMottattDato).map(Søknadsfrister::tidligsteDatoDagytelse)
-            .ifPresent(uttakTidligst -> avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttakTidligst).medFerie(finnFerier(ref, uttakTidligst)));
+            .ifPresent(uttakTidligst -> avklarteDatoerBuilder.medFørsteLovligeUttaksdato(uttakTidligst).medOpphold(finnOpphold(ref, uttakTidligst, svpGrunnlag.getGrunnlagEntitet().orElse(null) )));
 
         return avklarteDatoerBuilder.build();
     }
@@ -74,23 +78,39 @@ class AvklarteDatoerTjeneste {
         var levendeBarn = barna.stream().filter(barn -> barn.getDødsdato().isEmpty()).toList();
         if (levendeBarn.isEmpty()) {
             return barna.stream()
-                .map(barn -> barn.getDødsdato())
+                .map(Barn::getDødsdato)
                 .filter(Optional::isPresent)
-                .map(optionalDødsdato -> optionalDødsdato.get())
+                .map(Optional::get)
                 .max(LocalDate::compareTo);
         }
         return Optional.empty();
     }
 
-    private List<Ferie> finnFerier(BehandlingReferanse behandlingRef, LocalDate utledetSkjæringstidspunkt) {
+    private List<Opphold> finnOpphold(BehandlingReferanse behandlingRef, LocalDate utledetSkjæringstidspunkt, SvpGrunnlagEntitet svpGrunnlag) {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, utledetSkjæringstidspunkt);
-        var ferier = new ArrayList<Ferie>();
+        var opphold = new ArrayList<Opphold>();
+
+        //henter ferier fra inntektsmelding meldt av arbeidsgiver
         inntektsmeldinger
             .stream()
             .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
-            .forEach(utsettelse -> ferier.addAll(Ferie.opprett(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato())));
-        return ferier;
+            .forEach(utsettelse -> opphold.addAll(Opphold.opprett(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE)));
+
+        if( svpGrunnlag != null) {
+            //henter ferier- eller sykepenger-opphold registrert av saksbehandler
+            svpGrunnlag.getGjeldendeVersjon().getTilretteleggingListe().stream()
+                .map(SvpTilretteleggingEntitet::getAvklarteOpphold)
+                .flatMap(Collection::stream)
+                .forEach(avklartOpphold -> opphold.addAll(Opphold.opprett(avklartOpphold.getFom(), avklartOpphold.getTom(), mapOppholdÅrsak(avklartOpphold.getOppholdÅrsak()))));
+        }
+        return opphold;
     }
 
+    private SvpOppholdÅrsak mapOppholdÅrsak(no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak oppholdÅrsak) {
+        return switch (oppholdÅrsak) {
+            case FERIE -> SvpOppholdÅrsak.FERIE;
+            case SYKEPENGER -> SvpOppholdÅrsak.SYKEPENGER;
+        };
+    }
 }
