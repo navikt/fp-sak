@@ -124,11 +124,11 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
                 entitet.opprinneligeTilrettelegginger = opprinneligeTrlgBuilder.build();
             }
 
-            if  (!overstyrteTilretteleggingerListe.isEmpty()) {
+            if  (overstyrteTilretteleggingerListe != null && !overstyrteTilretteleggingerListe.isEmpty()) {
                 var overstyrteTrlgBuilder = new SvpTilretteleggingerEntitet.Builder();
                 overstyrteTrlgBuilder.medTilretteleggingListe(this.overstyrteTilretteleggingerListe);
                 entitet.overstyrteTilrettelegginger = overstyrteTrlgBuilder.build();
-            } else if (this.overstyrteTilrettelegginger != null) {
+            } else if (overstyrteTilretteleggingerListe != null && this.overstyrteTilrettelegginger != null) {
                 entitet.overstyrteTilrettelegginger = overstyrteTilrettelegginger;
             }
 
