@@ -33,7 +33,7 @@
 
         <fp-uttak.version>14.3.14</fp-uttak.version>
         <fp-stonadskonto.version>1.0.1</fp-stonadskonto.version>
-        <svp-uttak.version>2.3.9</svp-uttak.version>
+        <svp-uttak.version>2.3.8</svp-uttak.version>
 
         <felles.version>4.2.47</felles.version>
         <prosesstask.version>3.1.29</prosesstask.version>
