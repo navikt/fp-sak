@@ -79,8 +79,7 @@ class AvklarteDatoerTjeneste {
         if (levendeBarn.isEmpty()) {
             return barna.stream()
                 .map(Barn::getDødsdato)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .max(LocalDate::compareTo);
         }
         return Optional.empty();
