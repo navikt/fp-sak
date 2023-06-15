@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,21 +59,15 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
         var revurdering = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var orginalBehandling = getOriginalBehandling(revurdering);
 
-        var behandleStegResultat = foreslåVedtakTjeneste.foreslåVedtak(revurdering);
-
+        List<AksjonspunktDefinisjon> aksjonspunkter = new ArrayList<>();
+        // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn orginal
         var revurderingBG = hentBeregningsgrunnlag(revurdering.getId());
-        if (revurderingBG.isEmpty() || isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling)) {
-            return behandleStegResultat;
+        if (revurderingBG.isPresent() && !isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling) &&
+            ErEndringIBeregning.vurderUgunst(revurderingBG, hentBeregningsgrunnlag(orginalBehandling.getId()))) {
+            aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
         }
 
-        // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn
-        // orginal
-        if (ErEndringIBeregning.vurderUgunst(revurderingBG, hentBeregningsgrunnlag(orginalBehandling.getId()))) {
-            var aksjonspunkter = behandleStegResultat.getAksjonspunktResultater().stream()
-                    .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
-            aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
-            return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunkter);
-        }
+        var behandleStegResultat = foreslåVedtakTjeneste.foreslåVedtak(revurdering, aksjonspunkter);
         return behandleStegResultat;
     }
 

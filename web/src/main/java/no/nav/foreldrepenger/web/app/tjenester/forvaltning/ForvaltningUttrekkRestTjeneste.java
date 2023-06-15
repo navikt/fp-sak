@@ -151,8 +151,9 @@ public class ForvaltningUttrekkRestTjeneste {
             and not exists (select * from fpsak.behandling_arsak ba where ba.behandling_id = b.id and manuelt_opprettet = 'J')
             and not exists (select * from fpsak.behandling_arsak ba where ba.behandling_id = b.id and behandling_arsak_type = 'RE-END-FRA-BRUKER')
             and not exists (select * from fpsak.behandling_arsak ba where ba.behandling_id = b.id and behandling_arsak_type like 'RE-HENDELSE-D%')
-            and exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def = '5091' and aksjonspunkt_status = 'OPPR')
-            and not exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def <> '5091' )
+            and exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def = '5028' and aksjonspunkt_status = 'OPPR')
+            and exists (select * from fpsak.behandling_resultat ba where ba.behandling_id = b.id and behandling_resultat_type in ('OPPHØR', 'INGEN_ENDRING'))
+            and not exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_status <> 'AVBR' and aksjonspunkt_def not in ('5028') )
              """);
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
@@ -163,7 +164,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttTilbakeTilStart(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.KONTROLLER_FAKTA.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.FORESLÅ_VEDTAK.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);

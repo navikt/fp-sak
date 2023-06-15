@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -52,13 +53,13 @@ class ForeslåVedtakTjenesteTest {
     private FagsakRepository fagsakRepository;
 
     @Inject
+    BehandlingsresultatRepository behandlingsresultatRepository;
+
+    @Inject
     private KlageRepository klageRepository;
 
     @Inject
     private AnkeRepository ankeRepository;
-
-    @Inject
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     @Mock
     private OppgaveTjeneste oppgaveTjeneste;
@@ -67,7 +68,6 @@ class ForeslåVedtakTjenesteTest {
     private HistorikkRepository historikkRepository;
     @Mock
     private Behandling behandling;
-    private BehandlingskontrollKontekst kontekst;
 
     private ForeslåVedtakTjeneste tjeneste;
 
@@ -76,16 +76,15 @@ class ForeslåVedtakTjenesteTest {
         historikkRepository = spy(repositoryProvider.getHistorikkRepository());
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
         em.persist(behandling.getBehandlingsresultat());
-        kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
 
         lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
         lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.FALSE);
         lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
-        var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository,
-                oppgaveTjeneste);
+        var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
         var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, klageAnke, sjekkMotEksisterendeOppgaverTjeneste, dokumentBehandlingTjeneste);
+        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, behandlingsresultatRepository,
+            klageAnke, sjekkMotEksisterendeOppgaverTjeneste, dokumentBehandlingTjeneste);
     }
 
     @Test
