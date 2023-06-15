@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -11,10 +13,79 @@ record SvpSak(String saksnummer,
               Set<Søknad> søknader,
               Set<Vedtak> vedtak) implements Sak {
 
-    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt) {
+    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Tilrettelegging> tilrettelegginger) {
+
+        public record Tilrettelegging(Aktivitet aktivitet,
+                                      LocalDate behovFom,
+                                      String risikoFaktorer,
+                                      String tiltak,
+                                      Set<Periode> perioder,
+                                      Set<OppholdPeriode> oppholdsperioder
+        ) {
+            public record Periode(LocalDate fom, TilretteleggingType type, BigDecimal arbeidstidprosent) {
+            }
+        }
+    }
+    public record OppholdPeriode(LocalDate fom, LocalDate tom, Årsak årsak) {
+
+        public enum Årsak {
+            FERIE,
+            SYKEPENGER
+        }
+    }
+    public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold) {
+
+
+
+        public record ArbeidsforholdUttak(Aktivitet aktivitet,
+                                          LocalDate behovFom,
+                                          String risikoFaktorer,
+                                          String tiltak,
+                                          Set<SvpPeriode> svpPerioder,
+                                          Set<OppholdPeriode> oppholdsperioder,
+                                          ArbeidsforholdIkkeOppfyltÅrsak ikkeOppfyltÅrsak
+        ) {
+            public record SvpPeriode(LocalDate fom,
+                                     LocalDate tom,
+                                     TilretteleggingType tilretteleggingType,
+                                     BigDecimal arbeidstidprosent,
+                                     BigDecimal utbetalingsgrad,
+                                     ResultatÅrsak resultatÅrsak) {
+
+                public enum ResultatÅrsak {
+                    INNVILGET,
+                    AVSLAG_SØKNADSFRIST,
+                    AVSLAG_ANNET,
+                    AVSLAG_INNGANGSVILKÅR,
+                    OPPHØR_OVERGANG_FORELDREPENGER,
+                    OPPHØR_FØDSEL,
+                    OPPHØR_TIDSPERIODE_FØR_TERMIN,
+                    OPPHØR_OPPHOLD_I_YTELSEN,
+                    OPPHØR_ANNET
+                }
+            }
+
+            public enum ArbeidsforholdIkkeOppfyltÅrsak {
+                ARBEIDSGIVER_KAN_TILRETTELEGGE,
+                ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN,
+                ANNET
+            }
+        }
     }
 
-    record Vedtak(LocalDateTime vedtakstidspunkt) {
+    public record Aktivitet(Type type, Arbeidsgiver arbeidsgiver, String arbeidsforholdId) {
+
+        public enum Type {
+            ORDINÆRT_ARBEID,
+            SELVSTENDIG_NÆRINGSDRIVENDE,
+            FRILANS
+        }
+    }
+
+    public enum TilretteleggingType {
+        HEL,
+        DELVIS,
+        INGEN
     }
 
     @Override
