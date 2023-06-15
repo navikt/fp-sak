@@ -46,6 +46,7 @@ class ForeslåVedtakTjeneste {
                           DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.sjekkMotEksisterendeOppgaverTjeneste = sjekkMotEksisterendeOppgaverTjeneste;
         this.fagsakRepository = fagsakRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
