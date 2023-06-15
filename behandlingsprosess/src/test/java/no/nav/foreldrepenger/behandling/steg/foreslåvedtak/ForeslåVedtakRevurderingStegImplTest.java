@@ -1,13 +1,17 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -95,7 +100,7 @@ class ForeslåVedtakRevurderingStegImplTest {
 
         foreslåVedtakRevurderingStegForeldrepenger = new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningTjeneste,
                 repositoryProvider);
-        when(foreslåVedtakTjeneste.foreslåVedtak(revurdering)).thenReturn(behandleStegResultat);
+        when(foreslåVedtakTjeneste.foreslåVedtak(eq(revurdering), any())).thenReturn(behandleStegResultat);
         when(behandleStegResultat.getAksjonspunktResultater()).thenReturn(Collections.emptyList());
     }
 
@@ -124,8 +129,8 @@ class ForeslåVedtakRevurderingStegImplTest {
                 .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
-        assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe().get(0))
-                .isEqualTo(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
+        foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering);
+        verify(foreslåVedtakTjeneste).foreslåVedtak(revurdering, List.of(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST));
     }
 
     @Test
