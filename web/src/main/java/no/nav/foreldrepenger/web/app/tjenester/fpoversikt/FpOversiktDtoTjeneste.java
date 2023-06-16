@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import static no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef.nullRef;
+import static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode.ResultatÅrsak;
+
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -32,7 +39,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -42,13 +53,17 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpSak.Uttaksperiode.Resultat;
 
 @ApplicationScoped
 public class FpOversiktDtoTjeneste {
 
+    //TODO denne trenger oppdeling
+
     private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
+    private static final Environment ENV = Environment.current();
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private BehandlingRepository behandlingRepository;
@@ -62,6 +77,8 @@ public class FpOversiktDtoTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private UføretrygdRepository uføretrygdRepository;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
+    private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
 
     @Inject
     public FpOversiktDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -70,7 +87,9 @@ public class FpOversiktDtoTjeneste {
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                 UføretrygdRepository uføretrygdRepository) {
+                                 UføretrygdRepository uføretrygdRepository,
+                                 SvangerskapspengerRepository svangerskapspengerRepository,
+                                 SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.vedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
@@ -82,6 +101,8 @@ public class FpOversiktDtoTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
+        this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
     }
 
     FpOversiktDtoTjeneste() {
@@ -135,7 +156,90 @@ public class FpOversiktDtoTjeneste {
     }
 
     private Set<SvpSak.Vedtak> finnSvpVedtak(Stream<BehandlingVedtak> vedtak) {
-        return vedtak.map(v -> new SvpSak.Vedtak(v.getVedtakstidspunkt())).collect(Collectors.toSet());
+        //TODO Finnnes 12 saker i prod med br resultat opphør, men alle uttaksperioder er innvilget. Må håndtere disse
+        return vedtak.map(v -> new SvpSak.Vedtak(v.getVedtakstidspunkt(), finnArbeidsforhold(v))).collect(Collectors.toSet());
+    }
+
+    private Set<SvpSak.Vedtak.ArbeidsforholdUttak> finnArbeidsforhold(BehandlingVedtak vedtak) {
+        if (isProd()) {
+            return Set.of();
+        }
+        var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
+        return svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandlingId)
+            .map(uttak -> {
+                var tilretteleggingListe = svangerskapspengerRepository.hentGrunnlag(behandlingId).orElseThrow()
+                    .getGjeldendeVersjon().getTilretteleggingListe();
+                var uttaksResultatArbeidsforhold = uttak.getUttaksResultatArbeidsforhold();
+                return uttaksResultatArbeidsforhold.stream()
+                    .map(ua -> {
+                        var type = mapTilAktivitetType(ua.getUttakArbeidType());
+                        var arbeidsgiver = ua.getArbeidsgiver() == null ? null : new Arbeidsgiver(ua.getArbeidsgiver().getIdentifikator());
+                        var arbeidsforholdId = ua.getArbeidsforholdRef() == null ? null : ua.getArbeidsforholdRef().getReferanse();
+                        var ikkeOppfyltÅrsak = switch (ua.getArbeidsforholdIkkeOppfyltÅrsak()) {
+                            case INGEN -> null;
+                            case HELE_UTTAKET_ER_ETTER_3_UKER_FØR_TERMINDATO, UTTAK_KUN_PÅ_HELG -> SvpSak.Vedtak.ArbeidsforholdUttak.ArbeidsforholdIkkeOppfyltÅrsak.ANNET;
+                            case ARBEIDSGIVER_KAN_TILRETTELEGGE -> SvpSak.Vedtak.ArbeidsforholdUttak.ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
+                            case ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN -> SvpSak.Vedtak.ArbeidsforholdUttak.ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN;
+                        };
+                        var matchendeTilrettelegging = tilretteleggingListe.stream().filter(tl -> matcher(tl, ua)).findFirst().orElseThrow();
+                        var svpPerioder = ua.getPerioder().stream()
+                            .map(p -> {
+                                var matchendeTilretteleggingFOM = matchendeTilrettelegging.getTilretteleggingFOMListe().stream()
+                                    .sorted((o1, o2) -> o2.getFomDato().compareTo(o1.getFomDato()))
+                                    .filter(tfom -> !tfom.getFomDato().isAfter(p.getFom()))
+                                    .findFirst().orElseThrow();
+                                var tilretteleggingType = mapTilretteleggingType(matchendeTilretteleggingFOM.getType());
+                                var resultatÅrsak = switch (p.getPeriodeIkkeOppfyltÅrsak()) {
+                                    case INGEN -> ResultatÅrsak.INNVILGET;
+                                    case _8304, _8305, _8306 -> ResultatÅrsak.OPPHØR_ANNET;
+                                    case _8308_SØKT_FOR_SENT -> ResultatÅrsak.AVSLAG_SØKNADSFRIST;
+                                    case _8309 -> ResultatÅrsak.OPPHØR_FØDSEL;
+                                    case _8310 -> ResultatÅrsak.OPPHØR_TIDSPERIODE_FØR_TERMIN;
+                                    case _8314 -> ResultatÅrsak.OPPHØR_OVERGANG_FORELDREPENGER;
+                                    case _8311, PERIODEN_ER_SAMTIDIG_SOM_SYKEPENGER -> ResultatÅrsak.AVSLAG_ANNET;
+                                    case _8313 -> ResultatÅrsak.OPPHØR_OPPHOLD_I_YTELSEN;
+                                    case SVANGERSKAPSVILKÅRET_IKKE_OPPFYLT, OPPTJENINGSVILKÅRET_IKKE_OPPFYLT -> ResultatÅrsak.AVSLAG_INNGANGSVILKÅR;
+                                };
+                                var arbeidstidprosent = matchendeTilretteleggingFOM.getStillingsprosent();
+                                return new SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode(p.getFom(), p.getTom(), tilretteleggingType, arbeidstidprosent, p.getUtbetalingsgrad().decimalValue(), resultatÅrsak);
+                            })
+                            .collect(Collectors.toSet());
+                        var oppholdsperioder = oppholdsperioderFraTilrettelegging(matchendeTilrettelegging);
+                        return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId),
+                            matchendeTilrettelegging.getBehovForTilretteleggingFom(),
+                            matchendeTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null),
+                            matchendeTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null),
+                            svpPerioder, oppholdsperioder, ikkeOppfyltÅrsak);
+                    }).collect(Collectors.toSet());
+            })
+            .orElse(Set.of());
+    }
+
+    private static Set<SvpSak.OppholdPeriode> oppholdsperioderFraTilrettelegging(SvpTilretteleggingEntitet matchendeTilrettelegging) {
+        return matchendeTilrettelegging.getAvklarteOpphold()
+            .stream()
+            .map(o -> new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), switch (o.getOppholdÅrsak()) {
+                case SYKEPENGER -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER;
+                case FERIE -> SvpSak.OppholdPeriode.Årsak.FERIE;
+            })).collect(Collectors.toSet());
+    }
+
+    private static SvpSak.Aktivitet.Type mapTilAktivitetType(UttakArbeidType uttakArbeidType) {
+        return switch (uttakArbeidType) {
+            case ORDINÆRT_ARBEID -> SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> SvpSak.Aktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case FRILANS -> SvpSak.Aktivitet.Type.FRILANS;
+            case ANNET -> throw new IllegalStateException(UNEXPECTED_VALUE + uttakArbeidType);
+        };
+    }
+
+    private boolean matcher(SvpTilretteleggingEntitet tl, SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
+        var aktivitetType1 = mapTilAktivitetType(tl.getArbeidType());
+        var aktivitetType2 = mapTilAktivitetType(arbeidsforhold.getUttakArbeidType());
+
+        return aktivitetType1 == aktivitetType2 &&
+            Objects.equals(arbeidsforhold.getArbeidsgiver(), tl.getArbeidsgiver().orElse(null)) &&
+            Objects.equals(arbeidsforhold.getArbeidsforholdRef(), tl.getInternArbeidsforholdRef().orElse(nullRef()));
     }
 
     private Optional<BehandlingVedtak> finnGjeldendeVedtak(Fagsak fagsak) {
@@ -220,7 +324,7 @@ public class FpOversiktDtoTjeneste {
     private Set<FpSak.Søknad> finnFpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader, Fagsak fagsak) {
         return mottatteSøknader.stream()
             .map(md -> {
-                var status = statusForSøknad(åpenYtelseBehandling, md);
+                var status = statusForSøknad(åpenYtelseBehandling, md.getBehandlingId());
                 var perioder = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(md.getBehandlingId()).map(ytelseFordelingAggregat -> {
                     var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
                     return oppgittFordeling.getPerioder().stream().map(FpOversiktDtoTjeneste::tilDto).collect(Collectors.toSet());
@@ -236,8 +340,8 @@ public class FpOversiktDtoTjeneste {
         return dekningsgrad.isÅtti() ? FpSak.Dekningsgrad.ÅTTI : FpSak.Dekningsgrad.HUNDRE;
     }
 
-    private static SøknadStatus statusForSøknad(Optional<Behandling> åpenYtelseBehandling, MottattDokument md) {
-        return åpenYtelseBehandling.filter(b -> b.getId().equals(md.getBehandlingId())).map(b -> SøknadStatus.MOTTATT).orElse(SøknadStatus.BEHANDLET);
+    private static SøknadStatus statusForSøknad(Optional<Behandling> åpenYtelseBehandling, Long behandlingId) {
+        return åpenYtelseBehandling.filter(b -> b.getId().equals(behandlingId)).map(b -> SøknadStatus.MOTTATT).orElse(SøknadStatus.BEHANDLET);
     }
 
     private static FpSak.Søknad.Periode tilDto(OppgittPeriodeEntitet periode) {
@@ -283,7 +387,7 @@ public class FpOversiktDtoTjeneste {
             case SELVSTENDIG_NÆRINGSDRIVENDE -> UttakAktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
             case FRILANS -> UttakAktivitet.Type.FRILANS;
         };
-        var arbeidsgiver = periode.getArbeidsgiver() == null ? null : new UttakAktivitet.Arbeidsgiver(periode.getArbeidsgiver().getIdentifikator());
+        var arbeidsgiver = periode.getArbeidsgiver() == null ? null : new Arbeidsgiver(periode.getArbeidsgiver().getIdentifikator());
         var aktivitet = new UttakAktivitet(type, arbeidsgiver, null);
         return new Gradering(periode.getArbeidsprosent(), aktivitet);
     }
@@ -335,19 +439,69 @@ public class FpOversiktDtoTjeneste {
         return null;
     }
 
-    private static Set<SvpSak.Søknad> finnSvpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
-        return mottatteSøknader.stream()
-            .map(md -> {
-                var status = statusForSøknad(åpenYtelseBehandling, md);
-                return new SvpSak.Søknad(status, md.getMottattTidspunkt());
+    private Set<SvpSak.Søknad> finnSvpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
+        return mottatteSøknader.stream().map(md -> {
+                var behandlingId = md.getBehandlingId();
+                var status = statusForSøknad(åpenYtelseBehandling, behandlingId);
+                var tilrettelegginger = finnTilrettelegginger(behandlingId);
+                return new SvpSak.Søknad(status, md.getMottattTidspunkt(), tilrettelegginger);
             })
             .collect(Collectors.toSet());
+    }
+
+    private Set<SvpSak.Søknad.Tilrettelegging> finnTilrettelegginger(Long behandlingId) {
+        if (isProd()) {
+            return Set.of();
+        }
+        return svangerskapspengerRepository.hentGrunnlag(behandlingId)
+            .map(svpGrunnlag -> svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe()
+                .stream()
+                .map(tl -> map(tl)).collect(Collectors.toSet()))
+            .orElse(Set.of());
+    }
+
+    private static boolean isProd() {
+        return ENV.isProd();
+    }
+
+    private static SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl) {
+        var aktivitet = utledAktivitet(tl);
+        var perioder = tl.getTilretteleggingFOMListe().stream().map(tFom -> {
+            SvpSak.TilretteleggingType tilretteleggingType = mapTilretteleggingType(tFom.getType());
+            return new SvpSak.Søknad.Tilrettelegging.Periode(tFom.getFomDato(), tilretteleggingType, tFom.getStillingsprosent());
+        }).collect(Collectors.toSet());
+        Set<SvpSak.OppholdPeriode> oppholdsperioder = oppholdsperioderFraTilrettelegging(tl);
+        return new SvpSak.Søknad.Tilrettelegging(aktivitet, tl.getBehovForTilretteleggingFom(), tl.getOpplysningerOmRisikofaktorer().orElse(null),
+            tl.getOpplysningerOmTilretteleggingstiltak().orElse(null), perioder, oppholdsperioder);
+    }
+
+    private static SvpSak.TilretteleggingType mapTilretteleggingType(TilretteleggingType type) {
+        return switch (type) {
+            case HEL_TILRETTELEGGING -> SvpSak.TilretteleggingType.HEL;
+            case DELVIS_TILRETTELEGGING -> SvpSak.TilretteleggingType.DELVIS;
+            case INGEN_TILRETTELEGGING -> SvpSak.TilretteleggingType.INGEN;
+        };
+    }
+
+    private static SvpSak.Aktivitet utledAktivitet(SvpTilretteleggingEntitet tl) {
+        var aktivitetType = mapTilAktivitetType(tl.getArbeidType());
+        var arbeidsgiver = tl.getArbeidsgiver().map(a -> new Arbeidsgiver(a.getIdentifikator())).orElse(null);
+        return new SvpSak.Aktivitet(aktivitetType, arbeidsgiver, null);
+    }
+
+    private static SvpSak.Aktivitet.Type mapTilAktivitetType(ArbeidType arbeidType) {
+        return switch (arbeidType) {
+            case FRILANSER -> SvpSak.Aktivitet.Type.FRILANS;
+            case ORDINÆRT_ARBEIDSFORHOLD -> SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> SvpSak.Aktivitet.Type.SELVSTENDIG_NÆRINGSDRIVENDE;
+            default -> throw new IllegalStateException(UNEXPECTED_VALUE + arbeidType);
+        };
     }
 
     private static Set<EsSak.Søknad> finnEsSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
         return mottatteSøknader.stream()
             .map(md -> {
-                var status = statusForSøknad(åpenYtelseBehandling, md);
+                var status = statusForSøknad(åpenYtelseBehandling, md.getBehandlingId());
                 return new EsSak.Søknad(status, md.getMottattTidspunkt());
             })
             .collect(Collectors.toSet());
@@ -493,7 +647,7 @@ public class FpOversiktDtoTjeneste {
                 case FRILANS -> UttakAktivitet.Type.FRILANS;
                 case ANNET -> UttakAktivitet.Type.ANNET;
             };
-            var arbeidsgiver = a.getArbeidsgiver().map(arb -> new UttakAktivitet.Arbeidsgiver(arb.getIdentifikator())).orElse(null);
+            var arbeidsgiver = a.getArbeidsgiver().map(arb -> new Arbeidsgiver(arb.getIdentifikator())).orElse(null);
             var arbeidsforholdId = Optional.ofNullable(a.getArbeidsforholdRef()).map(InternArbeidsforholdRef::getReferanse).orElse(null);
             var trekkdager = a.getTrekkdager().decimalValue();
             var konto = switch (a.getTrekkonto()) {
