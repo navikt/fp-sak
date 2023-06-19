@@ -187,8 +187,13 @@ public class FpOversiktDtoTjeneste {
                                 var matchendeTilretteleggingFOM = matchendeTilrettelegging.getTilretteleggingFOMListe().stream()
                                     .sorted((o1, o2) -> o2.getFomDato().compareTo(o1.getFomDato()))
                                     .filter(tfom -> !tfom.getFomDato().isAfter(p.getFom()))
-                                    .findFirst().orElseThrow();
-                                var tilretteleggingType = mapTilretteleggingType(matchendeTilretteleggingFOM.getType());
+                                    .findFirst();
+                                if (matchendeTilretteleggingFOM.isEmpty() && !p.getUtbetalingsgrad().harUtbetaling()) {
+                                    //Uttaksperioder opprettet i fpsak. Ligger innvilget med og uten utbetaling i prdo
+                                    return null;
+                                }
+                                var tilretteleggingType = matchendeTilretteleggingFOM.map(mt ->  mapTilretteleggingType(mt.getType()))
+                                    .orElse(SvpSak.TilretteleggingType.INGEN);
                                 var resultatÅrsak = switch (p.getPeriodeIkkeOppfyltÅrsak()) {
                                     case INGEN -> ResultatÅrsak.INNVILGET;
                                     case _8304, _8305, _8306 -> ResultatÅrsak.OPPHØR_ANNET;
@@ -200,9 +205,11 @@ public class FpOversiktDtoTjeneste {
                                     case _8313 -> ResultatÅrsak.OPPHØR_OPPHOLD_I_YTELSEN;
                                     case SVANGERSKAPSVILKÅRET_IKKE_OPPFYLT, OPPTJENINGSVILKÅRET_IKKE_OPPFYLT -> ResultatÅrsak.AVSLAG_INNGANGSVILKÅR;
                                 };
-                                var arbeidstidprosent = matchendeTilretteleggingFOM.getStillingsprosent();
+                                var arbeidstidprosent = matchendeTilretteleggingFOM.map(mt -> mt.getStillingsprosent())
+                                    .orElse(BigDecimal.ZERO);
                                 return new SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode(p.getFom(), p.getTom(), tilretteleggingType, arbeidstidprosent, p.getUtbetalingsgrad().decimalValue(), resultatÅrsak);
                             })
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toSet());
                         var oppholdsperioder = oppholdsperioderFraTilrettelegging(matchendeTilrettelegging);
                         return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId),
