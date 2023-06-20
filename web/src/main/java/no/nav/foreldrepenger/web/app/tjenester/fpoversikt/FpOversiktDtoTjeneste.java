@@ -181,10 +181,10 @@ public class FpOversiktDtoTjeneste {
                             case ARBEIDSGIVER_KAN_TILRETTELEGGE -> SvpSak.Vedtak.ArbeidsforholdUttak.ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
                             case ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN -> SvpSak.Vedtak.ArbeidsforholdUttak.ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN;
                         };
-                        var matchendeTilrettelegging = tilretteleggingListe.stream().filter(tl -> matcher(tl, ua)).findFirst().orElseThrow();
+                        var matchendeTilrettelegging = tilretteleggingListe.stream().filter(tl -> matcher(tl, ua)).findFirst();
                         var svpPerioder = ua.getPerioder().stream()
                             .map(p -> {
-                                var matchendeTilretteleggingFOM = matchendeTilrettelegging.getTilretteleggingFOMListe().stream()
+                                var matchendeTilretteleggingFOM = matchendeTilrettelegging.map(mt -> mt.getTilretteleggingFOMListe()).orElse(List.of()).stream()
                                     .sorted((o1, o2) -> o2.getFomDato().compareTo(o1.getFomDato()))
                                     .filter(tfom -> !tfom.getFomDato().isAfter(p.getFom()))
                                     .findFirst();
@@ -211,11 +211,11 @@ public class FpOversiktDtoTjeneste {
                             })
                             .filter(Objects::nonNull)
                             .collect(Collectors.toSet());
-                        var oppholdsperioder = oppholdsperioderFraTilrettelegging(matchendeTilrettelegging);
+                        var oppholdsperioder = matchendeTilrettelegging.map(mt -> oppholdsperioderFraTilrettelegging(mt)).orElse(Set.of());
                         return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId),
-                            matchendeTilrettelegging.getBehovForTilretteleggingFom(),
-                            matchendeTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null),
-                            matchendeTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null),
+                            matchendeTilrettelegging.map(mt -> mt.getBehovForTilretteleggingFom()).orElse(null),
+                            matchendeTilrettelegging.flatMap(SvpTilretteleggingEntitet::getOpplysningerOmRisikofaktorer).orElse(null),
+                            matchendeTilrettelegging.flatMap(SvpTilretteleggingEntitet::getOpplysningerOmTilretteleggingstiltak).orElse(null),
                             svpPerioder, oppholdsperioder, ikkeOppfyltÅrsak);
                     }).collect(Collectors.toSet());
             })
