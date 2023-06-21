@@ -99,6 +99,7 @@ public class RegisterdataInnhenter {
     private PleiepengerRepository pleiepengerRepository;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private AbakusTjeneste abakusTjeneste;
+    private StønadsperioderInnhenter stønadsperioderInnhenter;
 
     RegisterdataInnhenter() {
         // for CDI proxy
@@ -112,7 +113,8 @@ public class RegisterdataInnhenter {
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  MedlemskapRepository medlemskapRepository,
                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
-                                 AbakusTjeneste abakusTjeneste) {
+                                 AbakusTjeneste abakusTjeneste,
+                                 StønadsperioderInnhenter stønadsperioderInnhenter) {
         this.personopplysningInnhenter = personopplysningInnhenter;
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
@@ -122,6 +124,7 @@ public class RegisterdataInnhenter {
         this.pleiepengerRepository = grunnlagRepositoryProvider.getPleiepengerRepository();
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.abakusTjeneste = abakusTjeneste;
+        this.stønadsperioderInnhenter = stønadsperioderInnhenter;
     }
 
     private Optional<AktørId> finnAnnenPart(Long behandlingId) {
@@ -135,6 +138,8 @@ public class RegisterdataInnhenter {
         innhentPersoninformasjon(behandling, filtrertFødselFREG);
         innhentFamiliehendelse(behandling, filtrertFødselFREG);
         innhentPleiepenger(behandling, filtrertFødselFREG);
+        // Logikk avhengig av familiehendelse som bør være innhentet
+        stønadsperioderInnhenter.innhentNesteSak(behandling);
     }
 
     private void innhentPersoninformasjon(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
@@ -189,7 +194,7 @@ public class RegisterdataInnhenter {
     private List<MedlemskapPerioderEntitet> innhentMedlemskapsopplysninger(Behandling behandling) {
         final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
 
-        return medlemTjeneste.finnMedlemskapPerioder(behandling.getAktørId(), opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()).stream()
+        return medlemTjeneste.finnMedlemsk  apPerioder(behandling.getAktørId(), opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()).stream()
             .map(this::lagMedlemskapPeriode)
             .toList();
     }
