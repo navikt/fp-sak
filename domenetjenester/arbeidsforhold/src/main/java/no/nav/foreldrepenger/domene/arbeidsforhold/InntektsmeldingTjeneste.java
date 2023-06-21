@@ -17,6 +17,10 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,6 +194,10 @@ public class InntektsmeldingTjeneste {
         kladd.forEach(im -> {
             var arbeidsgiverHarVærtRegistrertIOpplysningsperioden = yrkesaktiviteter.stream()
                     .anyMatch(y -> y.gjelderFor(im.getArbeidsgiver(), InternArbeidsforholdRef.nullRef()));
+
+            // Hvis det er opprettet et arbeidsforhold basert på inntektsmeldingen skal aldri dette gjøre at inntektsmeldingen filtreres ut
+            var finnesManueltArbeidsforholdTilknyttetIM = finnesManueltOpprettetArbeidsforholdForIM(filter.getArbeidsforholdOverstyringer(), im);
+
             var skalFjernes = yrkesaktiviteter.stream()
                     .noneMatch(y -> {
                         var gjelderFor = y.gjelderFor(im.getArbeidsgiver(), im.getArbeidsforholdRef());
@@ -198,12 +206,18 @@ public class InntektsmeldingTjeneste {
                                 .anyMatch(ap -> ap.getPeriode().inkluderer(skjæringstidspunktet)
                                         || ap.getPeriode().getTomDato().isAfter(skjæringstidspunktet));
                     });
-            if (skalFjernes && !erAmbasade(im) && !harOppgittFiske(oppgittOpptjening) && arbeidsgiverHarVærtRegistrertIOpplysningsperioden) {
+            if (skalFjernes && !erAmbasade(im) && !harOppgittFiske(oppgittOpptjening) && arbeidsgiverHarVærtRegistrertIOpplysningsperioden && !finnesManueltArbeidsforholdTilknyttetIM) {
                 fjernes.add(im);
             }
         });
         kladd.removeAll(fjernes);
         return List.copyOf(kladd);
+    }
+
+    private static boolean finnesManueltOpprettetArbeidsforholdForIM(Collection<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer, Inntektsmelding im) {
+        return arbeidsforholdOverstyringer.stream()
+            .anyMatch(os -> ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING.equals(os.getHandling())
+                && os.getArbeidsgiver() != null && os.getArbeidsgiver().equals(im.getArbeidsgiver()) && os.getArbeidsforholdRef().gjelderFor(im.getArbeidsforholdRef()));
     }
 
     /**
