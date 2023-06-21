@@ -44,7 +44,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     @AttributeOverrides(@AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", updatable = false, nullable=false)))
     private Saksnummer saksnummer;
 
-    @Column(name = "startdato")
+    @Column(name = "startdato", nullable = false)
     @ChangeTracked
     private LocalDate startdato;
 
