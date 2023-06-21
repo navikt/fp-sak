@@ -86,6 +86,8 @@ public class BrevRestTjeneste {
             settBehandlingPåVent(Venteårsak.AVV_RESPONS_REVURDERING, behandlingId);
         } else if (DokumentMalType.INNHENTE_OPPLYSNINGER.equals(brevmalkode)) {
             settBehandlingPåVent(Venteårsak.AVV_DOK, behandlingId);
+        } else if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(brevmalkode)) {
+            settBehandlingPåVent(Venteårsak.VENT_OPDT_INNTEKTSMELDING, behandlingId);
         } else if (DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.equals(brevmalkode)) {
             dokumentBehandlingTjeneste.utvidBehandlingsfristManuelt(behandlingId);
         } else if (DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL.equals(brevmalkode)) {
