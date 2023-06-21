@@ -194,7 +194,7 @@ public class RegisterdataInnhenter {
     private List<MedlemskapPerioderEntitet> innhentMedlemskapsopplysninger(Behandling behandling) {
         final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
 
-        return medlemTjeneste.finnMedlemsk  apPerioder(behandling.getAktørId(), opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()).stream()
+        return medlemTjeneste.finnMedlemskapPerioder(behandling.getAktørId(), opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()).stream()
             .map(this::lagMedlemskapPeriode)
             .toList();
     }
