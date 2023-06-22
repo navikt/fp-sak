@@ -32,10 +32,15 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class RedirectToRegisterRestTjeneste {
     public static final String BASE_PATH = "/register/redirect-to";
 
+    private static final String PGI = "PensjonsgivendeA-Inntekt";
+    private static final String SAMMENLIGN = "8-30";
+
     private static final String AAREG_REG_POSTFIX = "/aa-reg";
     private static final String AINNTEKT_REG_POSTFIX = "/a-inntekt";
+    private static final String AINNTEKT_PGI_REG_POSTFIX = "/a-inntekt-pgi";
     public static final String AAREG_REG_PATH = BASE_PATH + AAREG_REG_POSTFIX;
     public static final String AINNTEKT_REG_PATH = BASE_PATH + AINNTEKT_REG_POSTFIX;
+    public static final String AINNTEKT_PGI_REG_PATH = BASE_PATH + AINNTEKT_PGI_REG_POSTFIX;
 
     private PersoninfoAdapter personinfoAdapter;
     private FagsakRepository fagsakRepository;
@@ -69,7 +74,7 @@ public class RedirectToRegisterRestTjeneste {
     }
 
     @GET
-    @Operation(description = "Redirecter til a-inntekt for arbeidstakeren", tags = "aktoer", responses = {
+    @Operation(description = "Redirecter til a-inntekt 8-30 for arbeidstakeren", tags = "aktoer", responses = {
         @ApiResponse(responseCode = "307", description = "Redirecter til a-inntekt for arbeidstakeren")
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
@@ -78,7 +83,22 @@ public class RedirectToRegisterRestTjeneste {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
         var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
 
-        var respons = registerPathTjeneste.hentAinntektPath(personIdent);
+        var respons = registerPathTjeneste.hentAinntektPath(personIdent, SAMMENLIGN);
+        var redirectUri = URI.create(respons);
+        return Response.temporaryRedirect(redirectUri).build();
+    }
+
+    @GET
+    @Operation(description = "Redirecter til a-inntekt PGI  for arbeidstakeren", tags = "aktoer", responses = {
+        @ApiResponse(responseCode = "307", description = "Redirecter til a-inntekt for arbeidstakeren")
+    })
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @Path(AINNTEKT_PGI_REG_POSTFIX)
+    public Response getAInntektPGIUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
+        var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
+
+        var respons = registerPathTjeneste.hentAinntektPath(personIdent, PGI);
         var redirectUri = URI.create(respons);
         return Response.temporaryRedirect(redirectUri).build();
     }
