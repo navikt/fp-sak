@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -24,6 +25,10 @@ public class RegisterPathTjeneste {
     private static final String AINNTEKT_PATH = "/api/v2/redirect/sok/a-inntekt";
 
     private static final String HEADER_INNTEKT_FILTER = "Nav-A-inntekt-Filter";
+    private static final String HEADER_ENHET_FILTER = "Nav-Enhet";
+    private static final String HEADER_SAKSNUMMER_FILTER = "Nav-FagsakId";
+
+    private static final String NASJONAL_ENHET = BehandlendeEnhetTjeneste.getNasjonalEnhet().enhetId();
 
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -44,11 +49,13 @@ public class RegisterPathTjeneste {
         return path;
     }
 
-    public String hentAinntektPath(PersonIdent ident, String filter) {
+    public String hentAinntektPath(PersonIdent ident, String saksnummer, String filter) {
         var uri = UriBuilder.fromUri(restConfig.endpoint()).path(AINNTEKT_PATH).build();
         var request = RestRequest.newGET(uri, restConfig)
             .header(NavHeaders.HEADER_NAV_PERSONIDENT, ident.getIdent())
-            .header(HEADER_INNTEKT_FILTER, filter);
+            .header(HEADER_INNTEKT_FILTER, filter)
+            .header(HEADER_SAKSNUMMER_FILTER, saksnummer)
+            .header(HEADER_ENHET_FILTER, NASJONAL_ENHET);
         var path = restClient.send(request, String.class);
         LOG.info("ARBEIDOGINNTEKT ainntekt respons {}", path);
         return path;

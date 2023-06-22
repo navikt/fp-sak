@@ -33,14 +33,17 @@ public class RedirectToRegisterRestTjeneste {
     public static final String BASE_PATH = "/register/redirect-to";
 
     private static final String PGI = "PensjonsgivendeA-Inntekt";
-    private static final String SAMMENLIGN = "8-30";
+    private static final String BEREGNING = "8-28Foreldrepenger";
+    private static final String SAMMENLIGN = "8-30Foreldrepenger";
 
     private static final String AAREG_REG_POSTFIX = "/aa-reg";
     private static final String AINNTEKT_REG_POSTFIX = "/a-inntekt";
     private static final String AINNTEKT_PGI_REG_POSTFIX = "/a-inntekt-pgi";
+    private static final String AINNTEKT_BEREGNING_REG_POSTFIX = "/a-inntekt-beregn";
     public static final String AAREG_REG_PATH = BASE_PATH + AAREG_REG_POSTFIX;
     public static final String AINNTEKT_REG_PATH = BASE_PATH + AINNTEKT_REG_POSTFIX;
     public static final String AINNTEKT_PGI_REG_PATH = BASE_PATH + AINNTEKT_PGI_REG_POSTFIX;
+    public static final String AINNTEKT_BEREGNING_REG_PATH = BASE_PATH + AINNTEKT_BEREGNING_REG_POSTFIX;
 
     private PersoninfoAdapter personinfoAdapter;
     private FagsakRepository fagsakRepository;
@@ -79,11 +82,26 @@ public class RedirectToRegisterRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(AINNTEKT_REG_POSTFIX)
-    public Response getAInntektUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response getAInntektSammenligningUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
         var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
 
-        var respons = registerPathTjeneste.hentAinntektPath(personIdent, SAMMENLIGN);
+        var respons = registerPathTjeneste.hentAinntektPath(personIdent, saksnummerDto.getVerdi(), SAMMENLIGN);
+        var redirectUri = URI.create(respons);
+        return Response.temporaryRedirect(redirectUri).build();
+    }
+
+    @GET
+    @Operation(description = "Redirecter til a-inntekt 8-28 for arbeidstakeren", tags = "aktoer", responses = {
+        @ApiResponse(responseCode = "307", description = "Redirecter til a-inntekt for arbeidstakeren")
+    })
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    @Path(AINNTEKT_BEREGNING_REG_POSTFIX)
+    public Response getAInntektBeregningUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
+        var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
+
+        var respons = registerPathTjeneste.hentAinntektPath(personIdent, saksnummerDto.getVerdi(), BEREGNING);
         var redirectUri = URI.create(respons);
         return Response.temporaryRedirect(redirectUri).build();
     }
@@ -98,7 +116,7 @@ public class RedirectToRegisterRestTjeneste {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
         var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
 
-        var respons = registerPathTjeneste.hentAinntektPath(personIdent, PGI);
+        var respons = registerPathTjeneste.hentAinntektPath(personIdent, saksnummerDto.getVerdi(), PGI);
         var redirectUri = URI.create(respons);
         return Response.temporaryRedirect(redirectUri).build();
     }
