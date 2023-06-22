@@ -59,7 +59,7 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste"));
         saklenker.add(post(FagsakRestTjeneste.ENDRE_UTLAND_PATH, "endre-utland-markering"));
         saklenker.add(post(FagsakRestTjeneste.NOTAT_PATH, "lagre-notat"));
-        saklenker.add(get(RedirectToRegisterRestTjeneste.AAREG_REG_PATH, "aareg-redirect"));
+        saklenker.add(get(RedirectToRegisterRestTjeneste.AAREG_REG_PATH, "arbeidstaker-redirect"));
         saklenker.add(get(RedirectToRegisterRestTjeneste.AINNTEKT_REG_PATH, "ainntekt-redirect"));
         return new InitLinksDto(tilgangerTjeneste.innloggetBruker(), BehandlendeEnhetTjeneste.hentEnhetListe(), lenkene, saklenker);
     }
