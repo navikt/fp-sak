@@ -35,6 +35,11 @@ public class FastsettOpptjeningsperiodeSteg extends FastsettOpptjeningsperiodeSt
                                    BehandlingStegModell modell,
                                    BehandlingStegType førsteSteg,
                                    BehandlingStegType sisteSteg) {
+        // TODO: Gjennomgå tankeganger her i VK21 + FP + begge VK23-steg
+        // Både super sin vedHoppOverBakover og ryddOpp vil antagelig rydde vilkår+vilkårresultat med nullstillVilkår + leggTilIkkeVurdert
+        // Behov for å nullstille Opptjening (evt opptjeningAktivtiteter i equals/hc)
+        // Scenario a) Tilbakehop pga overstyring eller retur beslutter vil gå gjennom steg på nytt
+        // Scenario b) Tilbakehopp til startpunkt KOARB (fx pga IM) - behov for at KofakRevurdering kopierer opptjening før spolfram-til-startpunkt
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
             super.vedHoppOverBakover(kontekst, modell, førsteSteg, sisteSteg);
             new RyddOpptjening(repositoryProvider, kontekst).ryddOpp();
