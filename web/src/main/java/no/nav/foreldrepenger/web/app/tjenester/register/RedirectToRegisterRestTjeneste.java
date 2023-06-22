@@ -59,7 +59,7 @@ public class RedirectToRegisterRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(AAREG_REG_POSTFIX)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response getAktoerInfo(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response getAaregUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
         var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
 
