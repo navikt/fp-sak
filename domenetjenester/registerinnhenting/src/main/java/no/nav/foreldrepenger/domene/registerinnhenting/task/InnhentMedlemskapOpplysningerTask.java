@@ -25,7 +25,6 @@ public class InnhentMedlemskapOpplysningerTask extends BehandlingProsessTask {
     private BehandlingRepository behandlingRepository;
     private RegisterdataInnhenter registerdataInnhenter;
     private UføreInnhenter uføreInnhenter;
-    private StønadsperioderInnhenter stønadsperioderInnhenter;
 
     InnhentMedlemskapOpplysningerTask() {
         // for CDI proxy
@@ -40,14 +39,12 @@ public class InnhentMedlemskapOpplysningerTask extends BehandlingProsessTask {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.registerdataInnhenter = registerdataInnhenter;
         this.uføreInnhenter = uføreInnhenter;
-        this.stønadsperioderInnhenter = stønadsperioderInnhenter;
     }
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         LOG.info("Innhenter medlemskapsopplysninger for behandling: {}", behandling.getId());
-        stønadsperioderInnhenter.innhentNesteSak(behandling);
         registerdataInnhenter.innhentMedlemskapsOpplysning(behandling);
         uføreInnhenter.innhentUføretrygd(behandling);
     }

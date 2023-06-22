@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.StønadsperiodeTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.konfig.Tid;
 
 /*
  * Finner og logger fagsaker som representerer en ny stønadsperiodeFP og dermed setter grenser for aktuell behandling.
@@ -127,7 +126,7 @@ public class StønadsperioderInnhenter {
             forrigeInnvilgetFom.get() : aktuellAntattFørstedag;
         var fhDato = finnFamilieHendelseDato(behandling);
         var egenSak = new MuligSak(behandling.getFagsakYtelseType(), behandling.getFagsak().getSaksnummer(),
-            SaksForhold.EGEN_SAK, brukStartdato, fhDato.orElse(Tid.TIDENES_BEGYNNELSE));
+            SaksForhold.EGEN_SAK, brukStartdato, fhDato.orElse(null));
 
         var egneMuligeSaker = utledEgneMuligeSaker(behandling, egenSak);
 
@@ -145,7 +144,9 @@ public class StønadsperioderInnhenter {
         // Sak med senere starttidspunkt eller tilfelle der Mor begynner Barn2 før Far begynner Barn1.
         // Men skal ikke slå til på koblet sak eller andre saker for samme barn eller saker for tidligere barn.
         // Krever at mulig sak har FamilieHendelse 12 uker etter sak det sjekkes mot - kan justeres
-        return muligSak.startdato().isAfter(egenSak.startdato()) || muligSak.fhdato().minusWeeks(6).isAfter(egenSak.fhdato().plusWeeks(6));
+        return muligSak.startdato().isAfter(egenSak.startdato()) ||
+            (egenSak.fhdato() != null && muligSak.fhdato() != null &&
+                muligSak.fhdato().minusWeeks(6).isAfter(egenSak.fhdato().plusWeeks(6)));
     }
 
     private Set<MuligSak> utledEgneMuligeSaker(Behandling behandling, MuligSak egenSak) {
@@ -202,7 +203,7 @@ public class StønadsperioderInnhenter {
             stønadsperiodeTjeneste.utbetalingsperiodeEnkeltSak(fagsak).map(LocalDateInterval::getFomDato) :
             stønadsperiodeTjeneste.stønadsperiodeStartdato(fagsak);
 
-        return  startDato.map(d -> new MuligSak(fagsak.getYtelseType(), fagsak.getSaksnummer(), type, d, fhDato.orElse(Tid.TIDENES_ENDE)));
+        return  startDato.map(d -> new MuligSak(fagsak.getYtelseType(), fagsak.getSaksnummer(), type, d, fhDato.orElse(null)));
     }
 
     private Optional<LocalDate> finnFamilieHendelseDato(Behandling behandling) {

@@ -190,6 +190,17 @@ public class FamilieHendelseEntitet extends BaseEntitet {
     }
 
     /**
+     * Henter ut termindato fra eventuell terminbekreftelse
+     * @return termindatoen
+     */
+    public Optional<LocalDate> getTermindato() {
+        if (FamilieHendelseType.gjelderFødsel(type)) {
+            return getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Sjekker om det er født et barn med dødsdato på samme dag som det er født.
      * @return boolean
      */
@@ -237,7 +248,8 @@ public class FamilieHendelseEntitet extends BaseEntitet {
             return terminbekreftelse.getTermindato();
         }
         if (FamilieHendelseType.FØDSEL.equals(type)) {
-            return getFødselsdato().orElse(null);
+            // Dersom antall barn satt til 0 så brukes eventuell termindato
+            return getFødselsdato().or(this::getTermindato).orElse(null);
         }
         if (FamilieHendelseType.ADOPSJON.equals(type) || FamilieHendelseType.OMSORG.equals(type)) {
             return adopsjon.getOmsorgsovertakelseDato();
