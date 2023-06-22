@@ -29,6 +29,7 @@ public class RegisterPathTjeneste {
     private static final String HEADER_SAKSNUMMER_FILTER = "Nav-FagsakId";
 
     private static final String NASJONAL_ENHET = BehandlendeEnhetTjeneste.getNasjonalEnhet().enhetId();
+    private static final String SAMMENLIGNING_FILTER = "8-30Foreldrepenger";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -49,11 +50,11 @@ public class RegisterPathTjeneste {
         return path;
     }
 
-    public String hentAinntektPath(PersonIdent ident, String saksnummer, String filter) {
+    public String hentAinntektPath(PersonIdent ident, String saksnummer) {
         var uri = UriBuilder.fromUri(restConfig.endpoint()).path(AINNTEKT_PATH).build();
         var request = RestRequest.newGET(uri, restConfig)
             .header(NavHeaders.HEADER_NAV_PERSONIDENT, ident.getIdent())
-            .header(HEADER_INNTEKT_FILTER, filter)
+            .header(HEADER_INNTEKT_FILTER, SAMMENLIGNING_FILTER)
             .header(HEADER_SAKSNUMMER_FILTER, saksnummer)
             .header(HEADER_ENHET_FILTER, NASJONAL_ENHET);
         var path = restClient.send(request, String.class);
