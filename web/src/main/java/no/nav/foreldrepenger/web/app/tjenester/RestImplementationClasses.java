@@ -62,6 +62,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpOversiktRestTjeneste
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.los.LosRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.register.RedirectToRegisterRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.VedtakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.VedtakJsonFeedRestTjeneste;
@@ -112,6 +113,7 @@ public class RestImplementationClasses {
         classes.add(VergeRestTjeneste.class);
         classes.add(BrevRestTjeneste.class);
         classes.add(LosRestTjeneste.class);
+        classes.add(RedirectToRegisterRestTjeneste.class);
 
         // Formidlingstjenester
         classes.add(FormidlingRestTjeneste.class);
