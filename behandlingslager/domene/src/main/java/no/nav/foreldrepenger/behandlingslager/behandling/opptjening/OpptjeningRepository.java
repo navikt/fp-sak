@@ -68,18 +68,9 @@ public class OpptjeningRepository {
      * Finn gjeldende opptjening for denne behandlingen.
      */
     public Optional<Opptjening> finnOpptjening(Long behandlingId) {
-        var behandlingsresultat = getBehandlingsresultat(behandlingId);
-
-        if (behandlingsresultat == null) {
-            return Optional.empty();
-        }
-
-        var vilkårResultat = behandlingsresultat.getVilkårResultat();
-        if (vilkårResultat == null) {
-            return Optional.empty();
-        }
-
-        return finnOpptjening(vilkårResultat);
+        return Optional.ofNullable(getBehandlingsresultat(behandlingId))
+            .map(Behandlingsresultat::getVilkårResultat)
+            .flatMap(this::finnOpptjening);
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -83,6 +84,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste;
+    private OpptjeningRepository opptjeningRepository;
 
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
@@ -113,6 +115,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.nyeTilretteleggingerTjeneste = nyeTilretteleggingerTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
     }
 
     @Override
@@ -217,6 +220,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         revurdering = kopierVilkårFørStartpunkt(origBehandling, revurdering, kontekst);
+        // Skal være kopiert ved opprettelse av revurdering for å få tak i riktig STP.
+        // Kan ha blitt nullstilt i denne revurderingen ved tilbakehopp til KOARB (fx pga IM).
+        kopierOpptjeningVedBehov(origBehandling, revurdering);
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(origBehandling.getId(), revurdering.getId());
@@ -251,6 +257,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         behandlingRepository.lagre(revurderingBehandlingsresultat.getVilkårResultat(), kontekst.getSkriveLås());
         behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
         return behandlingRepository.hentBehandling(revurdering.getId());
+    }
+
+    private void kopierOpptjeningVedBehov(Behandling origBehandling, Behandling revurdering) {
+        if (opptjeningRepository.finnOpptjening(origBehandling.getId()).isPresent() && opptjeningRepository.finnOpptjening(revurdering.getId()).isEmpty()) {
+            opptjeningRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
+        }
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

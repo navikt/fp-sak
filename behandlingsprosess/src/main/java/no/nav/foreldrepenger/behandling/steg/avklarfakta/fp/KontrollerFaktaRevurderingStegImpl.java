@@ -39,12 +39,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
@@ -87,6 +89,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
+    private OpptjeningRepository opptjeningRepository;
 
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
@@ -117,6 +120,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
+        this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
     }
 
     @Override
@@ -194,17 +198,22 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return startpunkt;
     }
 
-    private boolean inneholderEndringssøknadPerioderFørSkjæringstidspunkt(Behandling revurdering, BehandlingReferanse behandlingReferanse) {
+    private boolean inneholderEndringssøknadPerioderFørSkjæringstidspunkt(Behandling revurdering, BehandlingReferanse ref) {
         if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
             var oppgittPerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId())
                     .map(YtelseFordelingAggregat::getOppgittFordeling)
                     .map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList());
-            var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+            var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
             return oppgittPerioder.stream()
-                    .anyMatch(oppgittPeriode -> oppgittPeriode.getFom().isBefore(skjæringstidspunkt));
+                .filter(p -> ref.getSkjæringstidspunkt().kreverSammenhengendeUttak() || frittUttakErPeriodeMedUttak(p))
+                .anyMatch(oppgittPeriode -> oppgittPeriode.getFom().isBefore(skjæringstidspunkt));
         }
         return false;
+    }
+
+    private static boolean frittUttakErPeriodeMedUttak(OppgittPeriodeEntitet periode) {
+        return !(periode.isUtsettelse() || periode.isOpphold());
     }
 
     private boolean erEtterkontrollRevurdering(Behandling revurdering) {
@@ -300,6 +309,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         revurdering = kopierVilkårFørStartpunkt(origBehandling, revurdering, kontekst);
+        // TODO (jol): Enable etter validering med SVP
+        // kopierOpptjeningVedBehov(origBehandling, revurdering);
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(finnBehandlingSomHarKjørtBeregning(origBehandling).getId(),
@@ -380,6 +391,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         behandlingRepository.lagre(revurderingBehandlingsresultat.getVilkårResultat(), kontekst.getSkriveLås());
         behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
         return behandlingRepository.hentBehandling(revurdering.getId());
+    }
+
+    private void kopierOpptjeningVedBehov(Behandling origBehandling, Behandling revurdering) {
+        if (opptjeningRepository.finnOpptjening(origBehandling.getId()).isPresent() && opptjeningRepository.finnOpptjening(revurdering.getId()).isEmpty()) {
+            opptjeningRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
+        }
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

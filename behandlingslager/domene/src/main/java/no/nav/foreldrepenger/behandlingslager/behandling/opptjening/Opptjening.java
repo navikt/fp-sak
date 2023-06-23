@@ -98,7 +98,7 @@ public class Opptjening extends BaseEntitet {
         if (!(obj instanceof Opptjening other)) {
             return false;
         }
-        return Objects.equals(this.getFom(), other.getFom())
+        return aktiv == other.aktiv && Objects.equals(this.getFom(), other.getFom())
                 && Objects.equals(this.getTom(), other.getTom());
     }
 
@@ -146,7 +146,7 @@ public class Opptjening extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(opptjeningPeriode);
+        return Objects.hash(opptjeningPeriode, aktiv);
     }
 
     public void setInaktiv() {
