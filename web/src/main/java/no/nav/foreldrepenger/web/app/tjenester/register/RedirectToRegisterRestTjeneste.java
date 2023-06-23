@@ -61,7 +61,14 @@ public class RedirectToRegisterRestTjeneste {
     @Path(AAREG_REG_POSTFIX)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response getAaregUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
+        if (saksnummerDto == null || saksnummerDto.getVerdi() == null) {
+            return Response.temporaryRedirect(registerPathTjeneste.hentTomPath()).build();
+        }
+        var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi()));
+        if (fagsakOpt.isEmpty()) {
+            return Response.temporaryRedirect(registerPathTjeneste.hentTomPath()).build();
+        }
+        var fagsak = fagsakOpt.orElseThrow();
         var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
 
         var respons = registerPathTjeneste.hentAaregPath(personIdent);
@@ -76,7 +83,14 @@ public class RedirectToRegisterRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(AINNTEKT_REG_POSTFIX)
     public Response getAInntektSammenligningUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi())).orElseThrow();
+        if (saksnummerDto == null || saksnummerDto.getVerdi() == null) {
+            return Response.temporaryRedirect(registerPathTjeneste.hentTomPath()).build();
+        }
+        var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummerDto.getVerdi()));
+        if (fagsakOpt.isEmpty()) {
+            return Response.temporaryRedirect(registerPathTjeneste.hentTomPath()).build();
+        }
+        var fagsak = fagsakOpt.orElseThrow();
         var personIdent = personinfoAdapter.hentFnrForAktør(fagsak.getAktørId());
 
         var respons = registerPathTjeneste.hentAinntektPath(personIdent, saksnummerDto.getVerdi());
