@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner.harRelevantPermisjonSomOverlapperTilretteleggingFom;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +17,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -26,6 +29,8 @@ import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -89,8 +94,10 @@ public class SvangerskapspengerTjeneste {
         var registerFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId()));
         var gjeldendeFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(behandling.getAktørId(), iayGrunnlag));
 
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(Collections.emptyList());
+
         gjeldendeTilrettelegginger.forEach(tilr -> {
-            var tilretteleggingDto = mapTilretteleggingsinfo(tilr);
+            var tilretteleggingDto = mapTilretteleggingsinfo(tilr, inntektsmeldinger);
             tilretteleggingDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(tilr, registerFilter, gjeldendeFilter));
             finnEksternRef(tilr, arbeidsforholdInformasjon).ifPresent(tilretteleggingDto::setEksternArbeidsforholdReferanse);
             tilretteleggingDto.setKanTilrettelegges(erTilgjengeligForBeregning(tilr, registerFilter));
@@ -129,12 +136,14 @@ public class SvangerskapspengerTjeneste {
         return aksjonspunkt.isPresent() && aksjonspunkt.get().erUtført();
     }
 
-    private SvpArbeidsforholdDto mapTilretteleggingsinfo(SvpTilretteleggingEntitet svpTilrettelegging) {
+    private SvpArbeidsforholdDto mapTilretteleggingsinfo(SvpTilretteleggingEntitet svpTilrettelegging, List<Inntektsmelding> inntektsmeldinger) {
         var dto = new SvpArbeidsforholdDto();
         dto.setTilretteleggingId(svpTilrettelegging.getId());
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
         dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging));
         dto.setAvklarteOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
+        //kun for visning til saksbehandler
+        dto.leggTilOppholdPerioder(hentFerieFraIM(inntektsmeldinger));
         dto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
         dto.setOpplysningerOmTilrettelegging(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null));
         dto.setBegrunnelse(svpTilrettelegging.getBegrunnelse().orElse(null));
@@ -210,7 +219,16 @@ public class SvangerskapspengerTjeneste {
     }
     private List<SvpAvklartOppholdPeriodeDto> mapAvklartOppholdPeriode(SvpTilretteleggingEntitet svpTilrettelegging) {
         return svpTilrettelegging.getAvklarteOpphold().stream()
-            .map(avklartOpphold -> new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak()))
+            .map(avklartOpphold -> new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak(), false))
             .toList();
+    }
+
+    private List<SvpAvklartOppholdPeriodeDto> hentFerieFraIM(List<Inntektsmelding> inntektsmeldinger) {
+        List<SvpAvklartOppholdPeriodeDto> ferieListe = new ArrayList<>();
+        inntektsmeldinger.stream()
+            .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
+            .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
+            .forEach(utsettelse -> ferieListe.add(new SvpAvklartOppholdPeriodeDto(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE, true)));
+        return ferieListe;
     }
 }

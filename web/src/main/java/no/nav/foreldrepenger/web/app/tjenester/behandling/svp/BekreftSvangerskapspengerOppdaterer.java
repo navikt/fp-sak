@@ -336,12 +336,14 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
 
         if (arbeidsforholdDto.getAvklarteOppholdPerioder() != null) {
-            arbeidsforholdDto.getAvklarteOppholdPerioder().forEach( avklartOpphold -> {
-                var nyttOpphold = SvpAvklartOpphold.Builder.nytt()
-                    .medOppholdPeriode(avklartOpphold.fom(), avklartOpphold.tom())
-                    .medOppholdÅrsak(avklartOpphold.oppholdÅrsak())
-                    .build();
-                nyTilretteleggingEntitetBuilder.medAvklartOpphold(nyttOpphold);
+            arbeidsforholdDto.getAvklarteOppholdPerioder().stream()
+                .filter(oppholdDto -> !oppholdDto.forVisning()) //Vi viser opphold fra IM - disse skal ikke lagres i grunnlaget
+                .forEach( oppholdDto -> {
+                    var nyttAvklartOpphold = SvpAvklartOpphold.Builder.nytt()
+                        .medOppholdPeriode(oppholdDto.fom(), oppholdDto.tom())
+                        .medOppholdÅrsak(oppholdDto.oppholdÅrsak())
+                        .build();
+                    nyTilretteleggingEntitetBuilder.medAvklartOpphold(nyttAvklartOpphold);
             });
         }
         return nyTilretteleggingEntitetBuilder.build();

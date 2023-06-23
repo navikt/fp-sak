@@ -6,5 +6,5 @@ import javax.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record SvpAvklartOppholdPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull SvpOppholdÅrsak oppholdÅrsak) {
+public record SvpAvklartOppholdPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull SvpOppholdÅrsak oppholdÅrsak, boolean forVisning) {
 }

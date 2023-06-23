@@ -224,8 +224,8 @@ class BekreftSvangerskapspengerOppdatererTest {
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50), null)),
-            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO,BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER ),
-                new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(3), SvpOppholdÅrsak.FERIE)));
+            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO,BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, false ),
+                new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(3), SvpOppholdÅrsak.FERIE, false)));
 
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
@@ -247,8 +247,8 @@ class BekreftSvangerskapspengerOppdatererTest {
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
             new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
-            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO, BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER),
-            new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(4), SvpOppholdÅrsak.FERIE)));
+            List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO, BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, false),
+            new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(4), SvpOppholdÅrsak.FERIE, false)));
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
         var resultat = oppdaterer.oppdater(dto, param);
