@@ -2,12 +2,12 @@ package no.nav.foreldrepenger.web.app.tjenester.register;
 
 
 import java.net.URI;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -18,8 +18,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -60,7 +61,7 @@ public class RedirectToRegisterRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(AAREG_REG_POSTFIX)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response getAaregUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response getAaregUrl(@TilpassetAbacAttributt(supplierClass = NullableSaksnummerAbacSupplier.class) @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         if (saksnummerDto == null || saksnummerDto.getVerdi() == null) {
             return Response.temporaryRedirect(registerPathTjeneste.hentTomPath()).build();
         }
@@ -82,7 +83,7 @@ public class RedirectToRegisterRestTjeneste {
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(AINNTEKT_REG_POSTFIX)
-    public Response getAInntektSammenligningUrl(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response getAInntektSammenligningUrl(@TilpassetAbacAttributt(supplierClass = NullableSaksnummerAbacSupplier.class) @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         if (saksnummerDto == null || saksnummerDto.getVerdi() == null) {
             return Response.temporaryRedirect(registerPathTjeneste.hentTomPath()).build();
         }
@@ -96,5 +97,17 @@ public class RedirectToRegisterRestTjeneste {
         var respons = registerPathTjeneste.hentAinntektPath(personIdent, saksnummerDto.getVerdi());
         var redirectUri = URI.create(respons);
         return Response.temporaryRedirect(redirectUri).build();
+    }
+
+    private static class NullableSaksnummerAbacSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            if (obj == null) {
+                return AbacDataAttributter.opprett();
+            }
+            var req = (SaksnummerDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getVerdi());
+        }
     }
 }
