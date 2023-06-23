@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.register;
 
+import java.net.URI;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.core.UriBuilder;
 
@@ -60,6 +62,10 @@ public class RegisterPathTjeneste {
         var path = restClient.send(request, String.class);
         LOG.info("ARBEIDOGINNTEKT ainntekt respons {}", path);
         return path;
+    }
+
+    public URI hentTomPath() {
+        return restConfig.endpoint();
     }
 
 }
