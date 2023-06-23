@@ -218,9 +218,10 @@ public class SvangerskapspengerTjeneste {
             .toList();
     }
     private List<SvpAvklartOppholdPeriodeDto> mapAvklartOppholdPeriode(SvpTilretteleggingEntitet svpTilrettelegging) {
-        return svpTilrettelegging.getAvklarteOpphold().stream()
+        var liste = svpTilrettelegging.getAvklarteOpphold().stream()
             .map(avklartOpphold -> new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak(), false))
             .toList();
+        return new ArrayList<>(liste);
     }
 
     private List<SvpAvklartOppholdPeriodeDto> hentFerieFraIM(List<Inntektsmelding> inntektsmeldinger) {
