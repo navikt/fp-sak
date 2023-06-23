@@ -142,10 +142,6 @@ public class SvpArbeidsforholdDto {
         this.velferdspermisjoner = velferdspermisjoner;
     }
 
-    public void setAvklarteOppholdPerioder(List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder) {
-        this.avklarteOppholdPerioder = avklarteOppholdPerioder;
-    }
-
     public void leggTilOppholdPerioder(List<SvpAvklartOppholdPeriodeDto> oppholdPerioder) {
         this.avklarteOppholdPerioder.addAll(oppholdPerioder);
     }

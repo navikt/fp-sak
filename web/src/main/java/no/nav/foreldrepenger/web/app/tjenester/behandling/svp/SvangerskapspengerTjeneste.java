@@ -141,7 +141,7 @@ public class SvangerskapspengerTjeneste {
         dto.setTilretteleggingId(svpTilrettelegging.getId());
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
         dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging));
-        dto.setAvklarteOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
+        dto.leggTilOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
         //kun for visning til saksbehandler
         dto.leggTilOppholdPerioder(hentFerieFraIM(inntektsmeldinger));
         dto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
@@ -218,10 +218,9 @@ public class SvangerskapspengerTjeneste {
             .toList();
     }
     private List<SvpAvklartOppholdPeriodeDto> mapAvklartOppholdPeriode(SvpTilretteleggingEntitet svpTilrettelegging) {
-        var liste = svpTilrettelegging.getAvklarteOpphold().stream()
+        return svpTilrettelegging.getAvklarteOpphold().stream()
             .map(avklartOpphold -> new SvpAvklartOppholdPeriodeDto(avklartOpphold.getFom(), avklartOpphold.getTom(), avklartOpphold.getOppholdÅrsak(), false))
             .toList();
-        return new ArrayList<>(liste);
     }
 
     private List<SvpAvklartOppholdPeriodeDto> hentFerieFraIM(List<Inntektsmelding> inntektsmeldinger) {

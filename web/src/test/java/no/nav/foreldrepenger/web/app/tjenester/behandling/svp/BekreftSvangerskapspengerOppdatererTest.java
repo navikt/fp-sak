@@ -468,7 +468,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         arbeidsforholdDto.setTilretteleggingBehovFom(behovDato);
 
         arbeidsforholdDto.setTilretteleggingDatoer(tilretteleggingDatoer);
-        arbeidsforholdDto.setAvklarteOppholdPerioder(avklarteOppholdPerioder);
+        arbeidsforholdDto.leggTilOppholdPerioder(avklarteOppholdPerioder);
         arbeidsforholdDto.setArbeidsgiverReferanse(ARBEIDSGIVER_IDENT);
         arbeidsforholdDto.setInternArbeidsforholdReferanse(
             internArbeidsforholdRef == null ? null : internArbeidsforholdRef.getReferanse());
