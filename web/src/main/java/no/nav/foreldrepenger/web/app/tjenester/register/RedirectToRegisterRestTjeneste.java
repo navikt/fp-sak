@@ -99,7 +99,7 @@ public class RedirectToRegisterRestTjeneste {
         return Response.temporaryRedirect(redirectUri).build();
     }
 
-    private static class NullableSaksnummerAbacSupplier implements Function<Object, AbacDataAttributter> {
+    public static class NullableSaksnummerAbacSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
