@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak;
 
-import java.util.Collections;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,6 +19,6 @@ class BehandlingÅrsakUtlederMedlemskap implements BehandlingÅrsakUtleder {
 
     @Override
     public Set<EndringResultatType> utledEndringsResultat(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        return Collections.singleton(EndringResultatType.REGISTEROPPLYSNING);
+        return Set.of();
     }
 }
