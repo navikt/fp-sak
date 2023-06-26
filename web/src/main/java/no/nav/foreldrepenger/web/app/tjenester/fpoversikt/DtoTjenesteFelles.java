@@ -10,15 +10,15 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -155,7 +155,8 @@ class DtoTjenesteFelles {
     }
 
     static Sak.FamilieHendelse tilDto(FamilieHendelseEntitet familieHendelse) {
-        return new Sak.FamilieHendelse(familieHendelse.getFødselsdato().orElse(null),
+        var fødselsdato = familieHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElse(null);
+        return new Sak.FamilieHendelse(fødselsdato,
             familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null),
             familieHendelse.getAntallBarn() == null ? 0 : familieHendelse.getAntallBarn(),
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
