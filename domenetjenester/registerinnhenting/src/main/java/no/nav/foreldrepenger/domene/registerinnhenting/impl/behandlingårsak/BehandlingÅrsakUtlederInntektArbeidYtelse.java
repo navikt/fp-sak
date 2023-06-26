@@ -43,7 +43,6 @@ class BehandlingÅrsakUtlederInntektArbeidYtelse implements BehandlingÅrsakUtle
             endringResultatTyper.add(EndringResultatType.REGISTEROPPLYSNING);
         }
         if (aktørYtelseEndring.erEndret()) {
-            endringResultatTyper.add(EndringResultatType.REGISTEROPPLYSNING);
             endringResultatTyper.add(EndringResultatType.OPPLYSNING_OM_YTELSER);
         }
         if (erInntektsmeldingEndret) {

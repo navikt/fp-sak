@@ -122,11 +122,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandling.harSattStartpunkt()) {
-            // Startpunkt kan bare initieres én gang, og det gjøres i dette steget.
-            // Suksessive eksekveringer av stegets aksjonspunktsutledere skjer utenfor steget
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);

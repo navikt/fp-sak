@@ -127,11 +127,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandling.harSattStartpunkt()) {
-            // Startpunkt kan bare initieres én gang, og det gjøres i dette steget.
-            // Suksessive eksekveringer av stegets aksjonspunktsutledere skjer utenfor steget
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
@@ -181,19 +176,19 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private StartpunktType initieltStartPunkt(BehandlingReferanse ref, Behandling revurdering) {
-        var startpunkt = DEFAULT_STARTPUNKT; // Gjennomgå hele prosessen - for manuelle, etterkontroller og tidl.avslag
-        if (!revurdering.erManueltOpprettet() && !erEtterkontrollRevurdering(revurdering)) {
-            // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er revurdering av avslåtte behandlinger
-            var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().orElseThrow());
-            if ((orgBehandlingsresultat != null) && !orgBehandlingsresultat.isVilkårAvslått()) {
-                // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate re-evalueres
-                startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
-                if (startpunkt.equals(StartpunktType.UDEFINERT)) {
-                    startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref)
-                            ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP
-                            : StartpunktType.UTTAKSVILKÅR;
-                }
-            }
+        if (revurdering.erManueltOpprettet() || erEtterkontrollRevurdering(revurdering)) {
+            return DEFAULT_STARTPUNKT;
+        }
+        // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er revurdering av avslåtte behandlinger
+        var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().orElseThrow());
+        if (orgBehandlingsresultat == null || orgBehandlingsresultat.isVilkårAvslått()) {
+            return DEFAULT_STARTPUNKT;
+        }
+        // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate re-evalueres
+        var startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
+        if (startpunkt.equals(StartpunktType.UDEFINERT)) {
+            startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref)
+                ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP : StartpunktType.UTTAKSVILKÅR;
         }
         return startpunkt;
     }
@@ -269,7 +264,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
         var rydder = new RyddRegisterData(repositoryProvider, kontekst);
-        rydder.ryddRegisterdata();
+        rydder.ryddRegisterdataStartpunktRevurdering();
     }
 
     /**
@@ -309,8 +304,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         revurdering = kopierVilkårFørStartpunkt(origBehandling, revurdering, kontekst);
-        // TODO (jol): Enable etter validering med SVP
-        // kopierOpptjeningVedBehov(origBehandling, revurdering);
+        // Skal være kopiert ved opprettelse av revurdering for å få tak i riktig STP.
+        // Kan ha blitt nullstilt i denne revurderingen ved tilbakehopp til KOARB (fx pga IM).
+        kopierOpptjeningVedBehov(origBehandling, revurdering);
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(finnBehandlingSomHarKjørtBeregning(origBehandling).getId(),

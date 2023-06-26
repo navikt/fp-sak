@@ -58,22 +58,6 @@ class KontrollerFaktaRevurderingStegImplTest {
     private KontrollerFaktaRevurderingStegImpl steg;
 
     @Test
-    void skal_fjerne_aksjonspunkter_som_er_utledet_før_startpunktet() {
-        var behandling = opprettRevurdering();
-        var fagsak = behandling.getFagsak();
-        // Arrange
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
-        behandling.setStartpunkt(StartpunktType.UTTAKSVILKÅR);
-
-        // Act
-        var aksjonspunkter = steg.utførSteg(kontekst).getAksjonspunktListe();
-
-        // Assert
-        assertThat(aksjonspunkter).isEmpty();
-    }
-
-    @Test
     void skal_ikke_fjerne_aksjonspunkter_som_er_utledet_etter_startpunktet() {
         var behandling = opprettRevurdering();
         var fagsak = behandling.getFagsak();

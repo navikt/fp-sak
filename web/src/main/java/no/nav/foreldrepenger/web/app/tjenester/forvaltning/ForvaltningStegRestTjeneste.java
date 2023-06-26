@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktÃ
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -49,7 +48,6 @@ public class ForvaltningStegRestTjeneste {
     private HistorikkRepository historikkRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
-    private OpptjeningRepository opptjeningRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
     @Inject
@@ -64,7 +62,6 @@ public class ForvaltningStegRestTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
     }
 
@@ -125,13 +122,6 @@ public class ForvaltningStegRestTjeneste {
 
     private void resetStartpunkt(Behandling behandling) {
         if (behandling.erRevurdering() && behandling.harSattStartpunkt()) {
-            behandling.getOriginalBehandlingId()
-                .filter(id -> opptjeningRepository.finnOpptjening(id).isPresent())
-                .ifPresent(originalId -> {
-                    var origBehandling = behandlingRepository.hentBehandling(originalId);
-                    opptjeningRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, behandling);
-
-            });
             behandling.setStartpunkt(StartpunktType.UDEFINERT);
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLÃ¥s(behandling.getId()));
         }
