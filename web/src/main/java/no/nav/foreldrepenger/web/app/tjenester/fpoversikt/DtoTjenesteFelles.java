@@ -10,6 +10,9 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +60,7 @@ class DtoTjenesteFelles {
     List<MottattDokument> finnRelevanteSøknadsdokumenter(Fagsak fagsak) {
         return dokumentRepository.hentMottatteDokumentMedFagsakId(fagsak.getId())
             .stream()
-            .filter(md -> md.erSøknadsDokument())
+            .filter(MottattDokument::erSøknadsDokument)
             .filter(md -> md.getJournalpostId() != null)
             .filter(md -> md.getMottattTidspunkt() != null)
             .filter(md -> md.getBehandlingId() != null)
@@ -70,6 +73,10 @@ class DtoTjenesteFelles {
 
     List<Behandling> finnIkkeHenlagteBehandlinger(Fagsak fagsak) {
         return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
+    }
+
+    Behandling finnBehandling(Long behandlingId) {
+        return behandlingRepository.hentBehandling(behandlingId);
     }
 
     Set<Sak.Aksjonspunkt> finnAksjonspunkt(List<Behandling> ikkeHenlagteBehandlinger) {
@@ -130,11 +137,9 @@ class DtoTjenesteFelles {
     Optional<Behandling> hentÅpenBehandling(Fagsak fagsak) {
         var åpenYtelseBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
             .stream()
-            .filter(b -> b.erYtelseBehandling())
+            .filter(Behandling::erYtelseBehandling)
             .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
-        åpenYtelseBehandling.ifPresentOrElse(b -> {
-            LOG.info("Fant åpen ytelsebehandling for sak {} {}", fagsak.getSaksnummer(), b.getId());
-        }, () -> LOG.info("Ingen åpen ytelsebehandling for sak {}", fagsak.getSaksnummer()));
+        åpenYtelseBehandling.ifPresentOrElse(b -> LOG.info("Fant åpen ytelsebehandling for sak {} {}", fagsak.getSaksnummer(), b.getId()), () -> LOG.info("Ingen åpen ytelsebehandling for sak {}", fagsak.getSaksnummer()));
         return åpenYtelseBehandling;
     }
 
@@ -151,9 +156,9 @@ class DtoTjenesteFelles {
 
     static Sak.FamilieHendelse tilDto(FamilieHendelseEntitet familieHendelse) {
         return new Sak.FamilieHendelse(familieHendelse.getFødselsdato().orElse(null),
-            familieHendelse.getTerminbekreftelse().map(tb -> tb.getTermindato()).orElse(null),
+            familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null),
             familieHendelse.getAntallBarn() == null ? 0 : familieHendelse.getAntallBarn(),
-            familieHendelse.getAdopsjon().map(a -> a.getOmsorgsovertakelseDato()).orElse(null));
+            familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
     }
 
     Stream<BehandlingVedtak> finnVedtakForFagsak(Fagsak fagsak) {
@@ -161,6 +166,6 @@ class DtoTjenesteFelles {
         return behandlingerMedVedtak.stream()
             .map(b -> vedtakRepository.hentForBehandlingHvisEksisterer(b.getId()))
             .filter(Optional::isPresent)
-            .map(v -> v.get());
+            .map(Optional::get);
     }
 }
