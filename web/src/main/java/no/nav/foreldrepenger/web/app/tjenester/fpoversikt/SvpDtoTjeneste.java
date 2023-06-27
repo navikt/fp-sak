@@ -19,6 +19,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
@@ -30,6 +31,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -80,7 +83,6 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.Vedtak> finnSvpVedtak(Stream<BehandlingVedtak> vedtak) {
-        //TODO Finnnes 12 saker i prod med br resultat opphør, men alle uttaksperioder er innvilget. Må håndtere disse
         return vedtak.map(v -> new SvpSak.Vedtak(v.getVedtakstidspunkt(), finnArbeidsforhold(v))).collect(Collectors.toSet());
     }
 
@@ -88,14 +90,20 @@ public class SvpDtoTjeneste {
         if (isProd()) {
             return Set.of();
         }
-        var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
+        var behandlingsresultat = vedtak.getBehandlingsresultat();
+        var behandlingId = behandlingsresultat.getBehandlingId();
+        var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandlingId);
+        if (uttak.map(this::bareFinnesInnvilgetPerioder).orElse(false) && behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()) {
+            return Set.of();
+        }
+
         var behandling = felles.finnBehandling(behandlingId);
-        return svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandlingId).map(uttak -> {
+        return uttak.map(u -> {
             var tilretteleggingListe = svangerskapspengerRepository.hentGrunnlag(behandlingId)
                 .orElseThrow()
                 .getGjeldendeVersjon()
                 .getTilretteleggingListe();
-            var uttaksResultatArbeidsforhold = uttak.getUttaksResultatArbeidsforhold();
+            var uttaksResultatArbeidsforhold = u.getUttaksResultatArbeidsforhold();
             return uttaksResultatArbeidsforhold.stream().map(ua -> {
                 var type = mapTilAktivitetType(ua.getUttakArbeidType());
                 var arbeidsgiver = ua.getArbeidsgiver() == null ? null : new Arbeidsgiver(ua.getArbeidsgiver().getIdentifikator());
@@ -150,6 +158,18 @@ public class SvpDtoTjeneste {
                     oppholdsperioder, ikkeOppfyltÅrsak);
             }).collect(Collectors.toSet());
         }).orElse(Set.of());
+    }
+
+    private boolean bareFinnesInnvilgetPerioder(SvangerskapspengerUttakResultatEntitet uttak) {
+        var perioder = uttak.getUttaksResultatArbeidsforhold()
+            .stream()
+            .flatMap(ua -> ua.getPerioder().stream())
+            .toList();
+        if (perioder.isEmpty()) {
+            return false;
+        }
+        return perioder.stream()
+            .allMatch(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget);
     }
 
     private LocalDate finnFørsteStartDato(List<SvpTilretteleggingEntitet> tilretteleggingListe) {
