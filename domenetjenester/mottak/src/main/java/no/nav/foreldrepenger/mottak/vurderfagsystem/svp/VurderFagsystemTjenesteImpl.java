@@ -76,7 +76,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
         // Har har vi kun 1 relevant sak. Sjekker om åpen eller basert på inntektsmelding og så henlagt før søknad kommer.
         if (relevanteFagsaker.get(0).erÅpen()) {
-            new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer());
         }
         if (fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(relevanteFagsaker.get(0))) {
             return fellesUtils.fagsakBasertPåInntektsmeldingKanBrukesFor(vurderFagsystem, relevanteFagsaker.get(0)) ?
