@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -264,6 +266,52 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
         assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.UDEFINERT);
     }
 
+    @Test
+    void skal_returnere_opplysningsplikt_dersom_svp_og_nytt_arbforhold_i_samme_virksomhet_ved_revurdering() {
+        // Arrange - opprette avsluttet førstegangsbehandling
+        var behandlingSvp = opprettFørstegangsbehandlingSvp();
+
+        var førsteUttaksdato = LocalDate.now();
+
+        var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato,
+            ARBEIDSID_DEFAULT);
+        lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
+
+        // Arrange - opprette revurderingsbehandling
+        var revurdering = opprettRevurdering(behandlingSvp);
+
+        var inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, INNTEKTBELØP_DEFAULT,
+            førsteUttaksdato, ARBEIDSID_EKSTRA);
+        var ref = lagReferanse(revurdering, førsteUttaksdato);
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingSvp.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
+        lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
+
+        // Act/Assert
+        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+    }
+
+    @Test
+    void skal_returnere_opplysningsplikt_dersom_svp_og_nytt_arbforhold_i_samme_virksomhet_ved_førstegangsbehandling() {
+        // Arrange - opprette avsluttet førstegangsbehandling
+        var behandlingSvp = opprettFørstegangsbehandlingSvp();
+
+        var førsteUttaksdato = LocalDate.now();
+
+        var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato,
+            ARBEIDSID_DEFAULT);
+        lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
+
+        var inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, INNTEKTBELØP_DEFAULT,
+            førsteUttaksdato, ARBEIDSID_EKSTRA);
+        var ref = lagReferanse(behandlingSvp, førsteUttaksdato);
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingSvp.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
+        lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
+
+        // Act/Assert
+        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+    }
+
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
@@ -273,6 +321,15 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
 
     private Behandling opprettFørstegangsbehandling() {
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førstegangsbehandling = førstegangScenario.lagre(repositoryProvider);
+        førstegangsbehandling.avsluttBehandling();
+        var behandlingLås = behandlingRepository.taSkriveLås(førstegangsbehandling);
+        behandlingRepository.lagre(førstegangsbehandling, behandlingLås);
+        return førstegangsbehandling;
+    }
+
+    private Behandling opprettFørstegangsbehandlingSvp() {
+        var førstegangScenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         var førstegangsbehandling = førstegangScenario.lagre(repositoryProvider);
         førstegangsbehandling.avsluttBehandling();
         var behandlingLås = behandlingRepository.taSkriveLås(førstegangsbehandling);
