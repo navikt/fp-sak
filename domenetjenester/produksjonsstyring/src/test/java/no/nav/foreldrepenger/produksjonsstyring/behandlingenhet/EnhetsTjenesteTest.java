@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Objects;
@@ -134,7 +135,7 @@ class EnhetsTjenesteTest {
     void finn_enhet_utvidet_annenpart_skjermet_fordeling() {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
-
+        when(skjermetPersonKlient.erNoenSkjermet(List.of(MOR_PID.getIdent()))).thenReturn(false);
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
         var enhet1 = enhetsTjeneste
             .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
@@ -230,8 +231,7 @@ class EnhetsTjenesteTest {
         lenient().when(personinfoAdapter.hentFnr(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PID));
         lenient().when(personinfoAdapter.hentFnr(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PID));
 
-        lenient().when(skjermetPersonKlient.erSkjermet(MOR_PID.getIdent())).thenReturn(morSkjermet);
-        lenient().when(skjermetPersonKlient.erSkjermet(FAR_PID.getIdent())).thenReturn(annenPartSkjermet);
+        lenient().when(skjermetPersonKlient.erNoenSkjermet(any())).thenReturn(morSkjermet || annenPartSkjermet);
 
         lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> List.of(respNormal)).when(arbeidsfordelingTjeneste).finnEnhet(any(ArbeidsfordelingRequest.class));
     }
