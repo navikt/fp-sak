@@ -74,6 +74,8 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         if (relevanteFagsaker.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
+        // Tidslinje: IM 13/4. Henlagt tidlig mai og sak lukket. Søknad 16/5 -> relevanteFagsaker.get(0) er avsluttet.
+        // Sjekk om sak basert på IM. og bruk den.
         return relevanteFagsaker.get(0).erÅpen() ? new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()):
             new BehandlendeFagsystem(MANUELL_VURDERING);
     }

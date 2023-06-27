@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskre
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPersonKlient;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
@@ -163,10 +164,12 @@ public class EnhetsTjeneste {
     }
 
     private boolean erNoenSkjermetPerson(Set<AktørId> aktører) {
-        return aktører.stream()
+        var identer = aktører.stream()
             .map(a -> personinfoAdapter.hentFnr(a))
             .flatMap(Optional::stream)
-            .anyMatch(p -> skjermetPersonKlient.erSkjermet(p.getIdent()));
+            .map(PersonIdent::getIdent)
+            .toList();
+        return skjermetPersonKlient.erNoenSkjermet(identer);
     }
 
     static OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {
