@@ -74,10 +74,15 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         if (relevanteFagsaker.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
-        // Tidslinje: IM 13/4. Henlagt tidlig mai og sak lukket. Søknad 16/5 -> relevanteFagsaker.get(0) er avsluttet.
-        // Sjekk om sak basert på IM. og bruk den.
-        return relevanteFagsaker.get(0).erÅpen() ? new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()):
-            new BehandlendeFagsystem(MANUELL_VURDERING);
+        // Har har vi kun 1 relevant sak. Sjekker om åpen eller basert på inntektsmelding og så henlagt før søknad kommer.
+        if (relevanteFagsaker.get(0).erÅpen()) {
+            new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer());
+        }
+        if (fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(relevanteFagsaker.get(0))) {
+            return fellesUtils.fagsakBasertPåInntektsmeldingKanBrukesFor(vurderFagsystem, relevanteFagsaker.get(0)) ?
+                new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
+        }
+        return new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 
     @Override

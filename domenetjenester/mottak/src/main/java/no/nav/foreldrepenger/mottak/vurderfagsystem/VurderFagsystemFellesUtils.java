@@ -208,8 +208,8 @@ public class VurderFagsystemFellesUtils {
             .orElseGet(() -> kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, behandling.get()));
     }
 
-    public boolean fagsakBasertPåInntektsmeldingMedSenestMottatt(Fagsak fagsak) {
-        // Sjekk om sak er basert på innsendt inntektsmelding, ikke har søknader/familiehendelse. Returnere senest ankomne IM sin dato
+    public boolean erFagsakBasertPåInntektsmeldingUtenSøknad(Fagsak fagsak) {
+        // Sjekk om sak er basert på innsendt inntektsmelding, ikke har søknader/familiehendelse.
         var harSøknad = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsak.getId()).stream().anyMatch(MottattDokument::erSøknadsDokument);
         var harFamilieHendelse = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .flatMap(this::hentAktuellFamilieHendelse)
@@ -220,14 +220,9 @@ public class VurderFagsystemFellesUtils {
         return !harSøknad && !harFamilieHendelse && harMottattInntektsmelding;
     }
 
-    public boolean inntektsmeldingMottattFireUkerFørStartUttak(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
-        // Akseptabel tidsramme der inntektsmelding kan brukes i sak uavhengig av startdato
-        var referansedato = getReferanseDatoFraInnkommendeForVurdering(vurderFagsystem).minusDays(28).minusDays(1);
-        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsak.getId()).stream()
-            .filter(d -> DokumentTypeId.INNTEKTSMELDING.equals(d.getDokumentType()))
-            .map(MottattDokument::getMottattTidspunkt)
-            .map(LocalDateTime::toLocalDate)
-            .anyMatch(d -> d.isAfter(referansedato));
+    public boolean fagsakBasertPåInntektsmeldingKanBrukesFor(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
+        return behandling.map(b -> kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, b)).orElse(true);
     }
 
     private boolean erGrunnlagPassendeFor(FamilieHendelseGrunnlagEntitet grunnlag, FagsakYtelseType ytelseType, VurderFagsystem vurderFagsystem) {
