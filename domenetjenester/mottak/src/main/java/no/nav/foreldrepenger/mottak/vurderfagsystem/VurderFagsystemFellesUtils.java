@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -205,6 +206,28 @@ public class VurderFagsystemFellesUtils {
             // Her har vi en sak m/behandling uten FH - 3 hovedtilfelle uregistrert papirsøknad, im før søknad.
             // Innkommende kan være søknad, IM, eller ustrukturert For ES godtar man alt.
             .orElseGet(() -> kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, behandling.get()));
+    }
+
+    public boolean fagsakBasertPåInntektsmeldingMedSenestMottatt(Fagsak fagsak) {
+        // Sjekk om sak er basert på innsendt inntektsmelding, ikke har søknader/familiehendelse. Returnere senest ankomne IM sin dato
+        var harSøknad = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsak.getId()).stream().anyMatch(MottattDokument::erSøknadsDokument);
+        var harFamilieHendelse = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .flatMap(this::hentAktuellFamilieHendelse)
+            .or(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId()).flatMap(this::hentAktuellFamilieHendelse))
+            .isPresent();
+        var harMottattInntektsmelding = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsak.getId()).stream()
+            .anyMatch(d -> DokumentTypeId.INNTEKTSMELDING.equals(d.getDokumentType()));
+        return !harSøknad && !harFamilieHendelse && harMottattInntektsmelding;
+    }
+
+    public boolean inntektsmeldingMottattFireUkerFørStartUttak(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+        // Akseptabel tidsramme der inntektsmelding kan brukes i sak uavhengig av startdato
+        var referansedato = getReferanseDatoFraInnkommendeForVurdering(vurderFagsystem).minusDays(28).minusDays(1);
+        return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsak.getId()).stream()
+            .filter(d -> DokumentTypeId.INNTEKTSMELDING.equals(d.getDokumentType()))
+            .map(MottattDokument::getMottattTidspunkt)
+            .map(LocalDateTime::toLocalDate)
+            .anyMatch(d -> d.isAfter(referansedato));
     }
 
     private boolean erGrunnlagPassendeFor(FamilieHendelseGrunnlagEntitet grunnlag, FagsakYtelseType ytelseType, VurderFagsystem vurderFagsystem) {

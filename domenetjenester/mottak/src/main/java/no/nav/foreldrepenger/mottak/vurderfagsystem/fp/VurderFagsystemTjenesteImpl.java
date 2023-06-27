@@ -74,6 +74,12 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType).stream()
             .filter(s -> !fellesUtils.erFagsakMedAnnenFamilieHendelseEnnSøknadFamilieHendelse(vurderFagsystem, s))
             .toList();
+        // Mønster av 1 sak basert på inntektsmelding som blir henlagt ila siste 10 mnd. Bruk saken hvis fersk nok IM.
+        var potensiellImSak = sakOpprettetInnenIntervall.size() == 1 ? sakOpprettetInnenIntervall.get(0) : null;
+        if (potensiellImSak != null && fellesUtils.fagsakBasertPåInntektsmeldingMedSenestMottatt(potensiellImSak)) {
+            return fellesUtils.inntektsmeldingMottattFireUkerFørStartUttak(vurderFagsystem, potensiellImSak) ?
+                new BehandlendeFagsystem(VEDTAKSLØSNING, potensiellImSak.getSaksnummer()) :  new BehandlendeFagsystem(VEDTAKSLØSNING);
+        }
         if (!sakOpprettetInnenIntervall.isEmpty()) {
             LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
