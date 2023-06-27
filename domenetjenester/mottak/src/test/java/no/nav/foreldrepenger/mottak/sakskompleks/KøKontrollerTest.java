@@ -59,7 +59,6 @@ class KøKontrollerTest {
 
     @BeforeEach
     public void oppsett() {
-        Mockito.spy(behandlingProsesseringTjeneste);
         when(behandlingRepositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(behandlingRepositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
