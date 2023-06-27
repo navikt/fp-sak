@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -57,14 +58,14 @@ class StartpunktUtlederInntektsmelding {
             .filter(im -> !gamle.contains(im))
             .toList();
 
-        var saksbehandlersArbeidsforholdvalg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(ref);
-        if (ref.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
-            return finnStartpunktFørstegang(ref, fersktGrunnlag, deltaIM, saksbehandlersArbeidsforholdvalg);
-        }
-
         var origIm = gamle.stream()
             .sorted(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
             .toList();
+
+        var saksbehandlersArbeidsforholdvalg = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(ref);
+        if (ref.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            return finnStartpunktFørstegang(ref, fersktGrunnlag, deltaIM, origIm, saksbehandlersArbeidsforholdvalg);
+        }
 
         return deltaIM.stream()
             .map(nyIm -> finnStartpunktForNyIm(ref, fersktGrunnlag, nyIm, origIm, saksbehandlersArbeidsforholdvalg))
@@ -81,6 +82,7 @@ class StartpunktUtlederInntektsmelding {
     private StartpunktType finnStartpunktFørstegang(BehandlingReferanse ref,
                                                     Optional<InntektArbeidYtelseGrunnlag> grunnlag,
                                                     List<Inntektsmelding> nyeIm,
+                                                    List<Inntektsmelding> gamleIm,
                                                     List<ArbeidsforholdValg> saksbehandlersArbeidsforholdvalg) {
         var erImForOverstyrtUtenIM =  nyeIm.stream()
             .anyMatch(i -> erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(grunnlag, i, saksbehandlersArbeidsforholdvalg));
@@ -88,6 +90,11 @@ class StartpunktUtlederInntektsmelding {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.behandlingId(), "en av arbeidsgivere");
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
+
+        if ( FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && nyeIm.stream().anyMatch(nyIm -> nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm))) {
+            return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
+        }
+
         return StartpunktType.BEREGNING;
     }
 
@@ -99,6 +106,10 @@ class StartpunktUtlederInntektsmelding {
         if (erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(grunnlag, nyIm, saksbehandlersArbeidsforholdvalg)) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.behandlingId(), nyIm.getKanalreferanse());
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
+        }
+
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && nyttArbForholdForEksisterendeArbgiver(nyIm, origIm)) {
+            return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erStartpunktForNyImBeregning(nyIm, origIm, ref)) {
             return StartpunktType.BEREGNING;
@@ -166,6 +177,12 @@ class StartpunktUtlederInntektsmelding {
         return origIM.stream()
             .filter(ny::gjelderSammeArbeidsforhold)
             .findFirst();
+    }
+
+    private boolean nyttArbForholdForEksisterendeArbgiver(Inntektsmelding ny, List<Inntektsmelding> origIM) {
+        var arbeidsgiverFinnesFraFør = origIM.stream().anyMatch(im -> Objects.equals(im.getArbeidsgiver(), ny.getArbeidsgiver()));
+        return arbeidsgiverFinnesFraFør && origIM.stream()
+            .noneMatch(ny::gjelderSammeArbeidsforhold);
     }
 
     private boolean erEndringPåNaturalYtelser(Inntektsmelding nyInntektsmelding, Inntektsmelding opprinneligInntektsmelding) {
