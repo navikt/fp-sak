@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.BehandlingStatusDto;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.PersonoversiktHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -43,11 +44,13 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class SakOgBehandlingTask extends GenerellProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(SakOgBehandlingTask.class);
+    private static final Cluster CLUSTER = Environment.current().getCluster();
 
     private SakOgBehandlingHendelseProducer producer;
+    private PersonoversiktHendelseProducer aivenProducer;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private boolean erProd;
+
 
     SakOgBehandlingTask() {
         //for CDI proxy
@@ -55,12 +58,13 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
 
     @Inject
     public SakOgBehandlingTask(SakOgBehandlingHendelseProducer producer,
+                               PersonoversiktHendelseProducer aivenProducer,
                                BehandlingRepositoryProvider repositoryProvider) {
         super();
         this.producer = producer;
+        this.aivenProducer = aivenProducer;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.erProd = Cluster.PROD_FSS.equals(Environment.current().getCluster());
     }
 
     @Override
@@ -89,7 +93,7 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
             behandlingStatusEndret(dto);
         } catch (Exception e) {
             LOG.info("SOBKAFKA noe gikk feil for behandling {}", behandlingId, e);
-            if (erProd)
+            if (Cluster.PROD_FSS.equals(CLUSTER))
                 throw e;
         }
     }
@@ -117,7 +121,16 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
 
         LOG.info("SOBKAFKA sender behandlingsstatus {}", dto);
 
+        if (Cluster.DEV_FSS.equals(CLUSTER)) {
+            try {
+                aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
+            } catch (Exception e) {
+                LOG.info("SOBKAFKA AIVEN ga feil for {}", dto, e);
+            }
+
+        }
         producer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
+
     }
 
     private String createUniqueBehandlingsId(String behandlingsId) {
