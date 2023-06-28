@@ -208,6 +208,9 @@ public class VurderFagsystemFellesUtils {
             .orElseGet(() -> kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, behandling.get()));
     }
 
+    /*
+     * Har fagsak en inntektsmelding, men ingen søknad eller familiehendelse?
+     */
     public boolean erFagsakBasertPåInntektsmeldingUtenSøknad(Fagsak fagsak) {
         // Sjekk om sak er basert på innsendt inntektsmelding, ikke har søknader/familiehendelse.
         var harSøknad = mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsak.getId()).stream().anyMatch(MottattDokument::erSøknadsDokument);
@@ -220,9 +223,18 @@ public class VurderFagsystemFellesUtils {
         return !harSøknad && !harFamilieHendelse && harMottattInntektsmelding;
     }
 
-    public boolean fagsakBasertPåInntektsmeldingKanBrukesFor(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
-        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
-        return behandling.map(b -> kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, b)).orElse(true);
+    /**
+     * Scenario: Det finnes en henlagt sak opprettet basert på innsent inntektsmelding - uten søknad i saken
+     * Logikk: bruk saken dersom IM er innsendt mindre enn 3 siden (vanlig slingringsmonn) - legg på 3 ekstra måneder søknadsfrist ift startdato
+     */
+    public boolean kanFagsakBasertPåInntektsmeldingBrukesForSøknad(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+        var idagMinusSøknadsfrist = LocalDate.now().minus(MAKS_AVVIK_DAGER_IM_INPUT);
+        var referansedato = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding()
+            .filter(sd -> sd.isBefore(idagMinusSøknadsfrist)).orElse(idagMinusSøknadsfrist)
+            .minus(MAKS_AVVIK_DAGER_IM_INPUT);
+        return inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(fagsak.getSaksnummer()).values().stream()
+            .flatMap(Collection::stream)
+            .anyMatch(i -> i.getInnsendingstidspunkt().toLocalDate().isAfter(referansedato));
     }
 
     private boolean erGrunnlagPassendeFor(FamilieHendelseGrunnlagEntitet grunnlag, FagsakYtelseType ytelseType, VurderFagsystem vurderFagsystem) {
@@ -366,7 +378,8 @@ public class VurderFagsystemFellesUtils {
         var startdato = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding();
         if (startdato.isPresent()) {
             var oppgittFørsteDag = startdato.get();
-            return alleInntektsmeldinger.values().stream().flatMap(Collection::stream).map(Inntektsmelding::getStartDatoPermisjon).flatMap(Optional::stream)
+            return alleInntektsmeldinger.values().stream().flatMap(Collection::stream)
+                .map(im -> im.getStartDatoPermisjon().orElseGet(() -> im.getInnsendingstidspunkt().toLocalDate()))
                 .anyMatch(d -> oppgittFørsteDag.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(d) && oppgittFørsteDag.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(d));
         } else {
             return alleInntektsmeldinger.values().stream()
@@ -376,6 +389,7 @@ public class VurderFagsystemFellesUtils {
     }
 
     private LocalDate getReferanseDatoFraInnkommendeForVurdering(VurderFagsystem vurderFagsystem) {
+        // getStartDatoForeldrepengerInntektsmelding er satt for innkommende IM og Søknad/FP. Ikke for Søknad/SVP (ennå)
         var startdato = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding();
         if (startdato.isPresent()) {
             return startdato.get();

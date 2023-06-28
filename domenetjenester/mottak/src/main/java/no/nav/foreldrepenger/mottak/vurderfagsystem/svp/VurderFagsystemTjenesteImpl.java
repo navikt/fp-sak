@@ -79,7 +79,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer());
         }
         if (fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(relevanteFagsaker.get(0))) {
-            return fellesUtils.fagsakBasertPåInntektsmeldingKanBrukesFor(vurderFagsystem, relevanteFagsaker.get(0)) ?
+            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, relevanteFagsaker.get(0)) ?
                 new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
         return new BehandlendeFagsystem(MANUELL_VURDERING);
