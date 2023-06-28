@@ -4,8 +4,6 @@ import static no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef.nullRef
 import static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.DtoTjenesteFelles.statusForSøknad;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -18,8 +16,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
@@ -37,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class SvpDtoTjeneste {
@@ -47,16 +47,19 @@ public class SvpDtoTjeneste {
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private DtoTjenesteFelles felles;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
     public SvpDtoTjeneste(SvangerskapspengerRepository svangerskapspengerRepository,
                           SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
                           DtoTjenesteFelles felles,
-                          InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+                          InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                          @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.felles = felles;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     SvpDtoTjeneste() {
@@ -148,8 +151,7 @@ public class SvpDtoTjeneste {
                         p.getUtbetalingsgrad().decimalValue(), resultatÅrsak);
                 }).filter(Objects::nonNull).collect(Collectors.toSet());
                 //utlede oppholdsperioder
-                var startDato = finnFørsteStartDato(tilretteleggingListe);
-                var oppholdsperioder = matchendeTilrettelegging.map(mt -> finnAlleOppholdsperioder(mt, behandling, startDato)).orElse(Set.of());
+                var oppholdsperioder = matchendeTilrettelegging.map(mt -> finnAlleOppholdsperioder(mt, behandling)).orElse(Set.of());
 
                 return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId),
                     matchendeTilrettelegging.map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom).orElse(null),
@@ -172,18 +174,10 @@ public class SvpDtoTjeneste {
             .allMatch(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget);
     }
 
-    private LocalDate finnFørsteStartDato(List<SvpTilretteleggingEntitet> tilretteleggingListe) {
-        return tilretteleggingListe.stream().filter(SvpTilretteleggingEntitet::getSkalBrukes)
-            .map(SvpTilretteleggingEntitet::getTilretteleggingFOMListe)
-            .flatMap(Collection::stream)
-            .map(TilretteleggingFOM::getFomDato)
-            .min(LocalDate::compareTo).orElseThrow(() -> new IllegalStateException("Utviklerfeil: Tilretteleggingsliste mangler fra dato"));
-    }
-
-    private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioder(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling, LocalDate startDato) {
+    private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioder(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling) {
         var oppholdspFraSaksbehandler = oppholdsperioderFraTilrettelegging(tilrettelegging);
         Set<SvpSak.OppholdPeriode> oppholdListe = new HashSet<>(oppholdspFraSaksbehandler);
-        var oppholdFraIM = oppholdsperioderFraIM(behandling, startDato);
+        var oppholdFraIM = oppholdsperioderFraIM(behandling);
         oppholdListe.addAll(oppholdFraIM);
         return oppholdListe;
     }
@@ -198,9 +192,10 @@ public class SvpDtoTjeneste {
             .collect(Collectors.toSet());
     }
 
-    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling, LocalDate startdato) {
+    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling) {
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
-        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, startdato ).stream()
+        return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getSkjæringstidspunktOpptjening()).stream()
             .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .map(utsettelse ->
