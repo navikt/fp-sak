@@ -142,8 +142,9 @@ public class SvangerskapspengerTjeneste {
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
         dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging));
         dto.setAvklarteOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
-        //kun for visning til saksbehandler
-        dto.leggTilOppholdPerioder(hentFerieFraIM(inntektsmeldinger));
+        // Ferie fra inntektsmelding vises hvis finnes
+        svpTilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> dto.leggTilOppholdPerioder(hentFerieFraIM(finnIMForArbeidsforhold(inntektsmeldinger, arbeidsgiver, svpTilrettelegging.getInternArbeidsforholdRef().orElse(null)))));
+
         dto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
         dto.setOpplysningerOmTilrettelegging(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null));
         dto.setBegrunnelse(svpTilrettelegging.getBegrunnelse().orElse(null));
@@ -154,6 +155,12 @@ public class SvangerskapspengerTjeneste {
         svpTilrettelegging.getArbeidsgiver().ifPresent(ag -> dto.setArbeidsgiverReferanse(ag.getIdentifikator()));
         svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> dto.setInternArbeidsforholdReferanse(ref.getReferanse()));
         return dto;
+    }
+
+    private List<Inntektsmelding> finnIMForArbeidsforhold(List<Inntektsmelding> inntektsmeldinger, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+        return inntektsmeldinger.stream()
+            .filter(im-> im.getArbeidsgiver().equals(arbeidsgiver) && internArbeidsforholdRef != null && im.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef))
+            .toList();
     }
 
     private Optional<String> finnEksternRef(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
@@ -224,9 +231,9 @@ public class SvangerskapspengerTjeneste {
         return new ArrayList<>(liste);
     }
 
-    private List<SvpAvklartOppholdPeriodeDto> hentFerieFraIM(List<Inntektsmelding> inntektsmeldinger) {
+    private List<SvpAvklartOppholdPeriodeDto> hentFerieFraIM(List<Inntektsmelding> inntektsmeldingForArbeidsforhold) {
         List<SvpAvklartOppholdPeriodeDto> ferieListe = new ArrayList<>();
-        inntektsmeldinger.stream()
+        inntektsmeldingForArbeidsforhold.stream()
             .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .forEach(utsettelse -> ferieListe.add(new SvpAvklartOppholdPeriodeDto(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE, true)));
