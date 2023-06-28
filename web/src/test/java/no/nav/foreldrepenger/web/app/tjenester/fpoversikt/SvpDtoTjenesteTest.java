@@ -12,6 +12,11 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -58,35 +63,39 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     @Inject
     private DtoTjenesteFelles felles;
+    @Inject
+    @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+
     @BeforeEach
     public void setUp() {
         var entityManager = getEntityManager();
         svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        tjeneste = new SvpDtoTjeneste(svangerskapspengerRepository, repositoryProvider.getSvangerskapspengerUttakResultatRepository(), felles, inntektsmeldingTjeneste);
+        tjeneste = new SvpDtoTjeneste(svangerskapspengerRepository, repositoryProvider.getSvangerskapspengerUttakResultatRepository(), felles,
+            inntektsmeldingTjeneste, skjæringstidspunktTjeneste);
     }
 
     @Test
     void henter_sak_med_svangerskapspenger() {
         var vedtakstidspunkt = LocalDateTime.now();
         var termindato = LocalDate.of(2023, 10, 19);
-        var behandling= lagAvsluttetSvpBehandling(termindato, vedtakstidspunkt);
+        var behandling = lagAvsluttetSvpBehandling(termindato, vedtakstidspunkt);
         var mottattDokument = lagDokument(behandling.getFagsakId(), behandling.getId());
         repositoryProvider.getMottatteDokumentRepository().lagre(mottattDokument);
 
         var tl = lagTilrettelegging(termindato);
-        svangerskapspengerRepository.lagreOgFlush(new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(behandling.getId())
-            .medOpprinneligeTilrettelegginger(List.of(tl))
-            .build());
+        svangerskapspengerRepository.lagreOgFlush(
+            new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId()).medOpprinneligeTilrettelegginger(List.of(tl)).build());
 
         var uttakPeriode = lagUttakPeriode(termindato);
         var uttak = lagUttakRes(behandling.getId(), uttakPeriode);
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttak);
 
         var inntektsmelding = lagInntektsmeldingMedferie();
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class),any(LocalDate.class))).thenReturn(List.of(inntektsmelding));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(BehandlingReferanse.class), any(LocalDate.class))).thenReturn(
+            List.of(inntektsmelding));
 
         var dto = (SvpSak) tjeneste.hentSak(behandling.getFagsak());
 
@@ -136,9 +145,11 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(svpPeriode.tilretteleggingType()).isEqualTo(SvpSak.TilretteleggingType.DELVIS);
         assertThat(arbeidsforholdUttak.oppholdsperioder()).hasSize(3);
         var oppholdsperiodeListe = arbeidsforholdUttak.oppholdsperioder();
-        var fraDatoNå = oppholdsperiodeListe.stream().anyMatch(op-> op.fom().equals(LocalDate.now()));
+        var fraDatoNå = oppholdsperiodeListe.stream().anyMatch(op -> op.fom().equals(LocalDate.now()));
         var frem25dager = oppholdsperiodeListe.stream().anyMatch(op -> op.tom().equals(LocalDate.now().plusDays(25)));
-        var antallKilde = oppholdsperiodeListe.stream().filter(op -> op.kilde().equals(SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER) || op.kilde().equals(SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING));
+        var antallKilde = oppholdsperiodeListe.stream()
+            .filter(op -> op.kilde().equals(SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER) || op.kilde()
+                .equals(SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING));
         assertThat(fraDatoNå).isTrue();
         assertThat(frem25dager).isTrue();
         assertThat(antallKilde).hasSize(3);
@@ -168,8 +179,8 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
 
     private SvangerskapspengerUttakResultatEntitet lagUttakRes(Long behandlingId, SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriode) {
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        return new SvangerskapspengerUttakResultatEntitet.Builder(behandlingsresultat)
-            .medUttakResultatArbeidsforhold(new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS)
+        return new SvangerskapspengerUttakResultatEntitet.Builder(behandlingsresultat).medUttakResultatArbeidsforhold(
+            new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS)
                 .medPeriode(uttakPeriode)
                 .build()).build();
     }
@@ -194,16 +205,20 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private SvpTilretteleggingEntitet lagTilrettelegging(LocalDate termindato) {
-        return new SvpTilretteleggingEntitet.Builder()
-            .medArbeidType(ArbeidType.FRILANSER)
+        return new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.FRILANSER)
             .medDelvisTilrettelegging(termindato.minusWeeks(10), BigDecimal.valueOf(50), termindato.minusWeeks(10))
             .medOpplysningerOmRisikofaktorer("risk!")
             .medOpplysningerOmTilretteleggingstiltak("gjort tiltak!")
             .medBehovForTilretteleggingFom(termindato.minusWeeks(12))
             .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
-            .medAvklarteOpphold(List.of(SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(LocalDate.now(), LocalDate.now().plusDays(4)).medOppholdÅrsak(SvpOppholdÅrsak.FERIE).build(),
-                SvpAvklartOpphold.Builder.nytt().medOppholdPeriode(LocalDate.now().plusDays(10), LocalDate.now().plusDays(15)).medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER).build()))
+            .medAvklarteOpphold(List.of(SvpAvklartOpphold.Builder.nytt()
+                .medOppholdPeriode(LocalDate.now(), LocalDate.now().plusDays(4))
+                .medOppholdÅrsak(SvpOppholdÅrsak.FERIE)
+                .build(), SvpAvklartOpphold.Builder.nytt()
+                .medOppholdPeriode(LocalDate.now().plusDays(10), LocalDate.now().plusDays(15))
+                .medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER)
+                .build()))
             .build();
     }
 
