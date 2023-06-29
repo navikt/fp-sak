@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.impl;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -65,6 +66,7 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
             .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
             .medBehandlingstype(mapBehandlingstype(behandling))
             .medYtelse(mapYtelse(behandling))
+            .medTidspunkt(LocalDateTime.now())
             .build();
         kafkaProducer.sendJsonMedNøkkel(behandling.getFagsak().getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(hendelse));
         LOG.info("Publiser behandlingshendelse på kafka for behandlingsId: {}", behandling.getId());
