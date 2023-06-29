@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermis
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -13,6 +12,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -26,18 +26,19 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -52,6 +53,8 @@ public class SvangerskapspengerTjeneste {
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     public SvangerskapspengerTjeneste() {
         //CDI greier
@@ -60,10 +63,14 @@ public class SvangerskapspengerTjeneste {
     @Inject
     public SvangerskapspengerTjeneste(SvangerskapspengerRepository svangerskapspengerRepository,
                                       FamilieHendelseRepository familieHendelseRepository,
-                                      InntektArbeidYtelseTjeneste iayTjeneste) {
+                                      InntektArbeidYtelseTjeneste iayTjeneste,
+                                      InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.iayTjeneste = iayTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     public SvpTilretteleggingDto hentTilrettelegging(Behandling behandling) {
@@ -95,7 +102,7 @@ public class SvangerskapspengerTjeneste {
         var registerFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId()));
         var gjeldendeFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(behandling.getAktørId(), iayGrunnlag));
 
-        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).orElse(Collections.emptyList());
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(BehandlingReferanse.fra(behandling), skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktOpptjening());
 
         gjeldendeTilrettelegginger.forEach(tilr -> {
             var tilretteleggingDto = mapTilretteleggingsinfo(tilr, inntektsmeldinger);
@@ -147,7 +154,6 @@ public class SvangerskapspengerTjeneste {
         svpTilrettelegging.getArbeidsgiver()
             .flatMap(arbeidsgiver -> finnIMForArbeidsforhold(inntektsmeldinger, arbeidsgiver, svpTilrettelegging.getInternArbeidsforholdRef().orElse(null)))
             .ifPresent(im -> dto.leggTilOppholdPerioder(hentFerieFraIM(im)));
-
         dto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
         dto.setOpplysningerOmTilrettelegging(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null));
         dto.setBegrunnelse(svpTilrettelegging.getBegrunnelse().orElse(null));
@@ -162,8 +168,8 @@ public class SvangerskapspengerTjeneste {
 
     private Optional<Inntektsmelding> finnIMForArbeidsforhold(List<Inntektsmelding> inntektsmeldinger, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
         return inntektsmeldinger.stream()
-            .filter(im -> im.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || im.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
-            .min(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.reverseOrder())));
+            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
+            .findFirst();
     }
 
     private Optional<String> finnEksternRef(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
