@@ -76,8 +76,8 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .toList();
         // Mønster av 1 sak basert på inntektsmelding som blir henlagt ila siste 10 mnd. Bruk saken hvis fersk nok IM.
         var potensiellImSak = sakOpprettetInnenIntervall.size() == 1 ? sakOpprettetInnenIntervall.get(0) : null;
-        if (potensiellImSak != null && fellesUtils.fagsakBasertPåInntektsmeldingMedSenestMottatt(potensiellImSak)) {
-            return fellesUtils.inntektsmeldingMottattFireUkerFørStartUttak(vurderFagsystem, potensiellImSak) ?
+        if (potensiellImSak != null && fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(potensiellImSak)) {
+            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, potensiellImSak) ?
                 new BehandlendeFagsystem(VEDTAKSLØSNING, potensiellImSak.getSaksnummer()) :  new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
         if (!sakOpprettetInnenIntervall.isEmpty()) {
