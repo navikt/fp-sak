@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermis
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -142,8 +143,10 @@ public class SvangerskapspengerTjeneste {
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
         dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging));
         dto.setAvklarteOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
-        // Ferie fra inntektsmelding vises hvis finnes
-        svpTilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> dto.leggTilOppholdPerioder(hentFerieFraIM(finnIMForArbeidsforhold(inntektsmeldinger, arbeidsgiver, svpTilrettelegging.getInternArbeidsforholdRef().orElse(null)))));
+        // Ferie fra inntektsmelding skal vises til saksbehandler hvis finnes
+        svpTilrettelegging.getArbeidsgiver()
+            .flatMap(arbeidsgiver -> finnIMForArbeidsforhold(inntektsmeldinger, arbeidsgiver, svpTilrettelegging.getInternArbeidsforholdRef().orElse(null)))
+            .ifPresent(im -> dto.leggTilOppholdPerioder(hentFerieFraIM(im)));
 
         dto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
         dto.setOpplysningerOmTilrettelegging(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null));
@@ -157,10 +160,10 @@ public class SvangerskapspengerTjeneste {
         return dto;
     }
 
-    private List<Inntektsmelding> finnIMForArbeidsforhold(List<Inntektsmelding> inntektsmeldinger, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+    private Optional<Inntektsmelding> finnIMForArbeidsforhold(List<Inntektsmelding> inntektsmeldinger, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
         return inntektsmeldinger.stream()
-            .filter(im-> im.getArbeidsgiver().equals(arbeidsgiver) && internArbeidsforholdRef != null && im.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef))
-            .toList();
+            .filter(im -> im.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || im.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
+            .min(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.reverseOrder())));
     }
 
     private Optional<String> finnEksternRef(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
@@ -231,10 +234,9 @@ public class SvangerskapspengerTjeneste {
         return new ArrayList<>(liste);
     }
 
-    private List<SvpAvklartOppholdPeriodeDto> hentFerieFraIM(List<Inntektsmelding> inntektsmeldingForArbeidsforhold) {
+    private List<SvpAvklartOppholdPeriodeDto> hentFerieFraIM(Inntektsmelding inntektsmeldingForArbeidsforhold) {
         List<SvpAvklartOppholdPeriodeDto> ferieListe = new ArrayList<>();
-        inntektsmeldingForArbeidsforhold.stream()
-            .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
+        inntektsmeldingForArbeidsforhold.getUtsettelsePerioder().stream()
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .forEach(utsettelse -> ferieListe.add(new SvpAvklartOppholdPeriodeDto(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE, true)));
         return ferieListe;
