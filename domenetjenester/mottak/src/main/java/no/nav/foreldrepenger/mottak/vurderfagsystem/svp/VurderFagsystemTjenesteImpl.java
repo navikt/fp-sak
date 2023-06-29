@@ -82,6 +82,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, relevanteFagsaker.get(0)) ?
                 new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
+        LOG.info("VurderFagsystem SV strukturert søknad 1 relevant saker som ikke matchet {}", relevanteFagsaker.get(0).getSaksnummer());
         return new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 
@@ -156,6 +157,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         if (fellesUtils.finnGjeldendeFamilieHendelseSVP(fagsak).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE)) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
         }
+        LOG.info("VurderFagsystem SV strukturert søknad førstegang gir manuell {}", fagsak.getSaksnummer());
         return new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 

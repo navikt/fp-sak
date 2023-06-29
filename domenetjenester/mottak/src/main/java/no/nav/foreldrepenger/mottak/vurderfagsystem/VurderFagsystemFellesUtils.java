@@ -408,6 +408,7 @@ public class VurderFagsystemFellesUtils {
             return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, åpneFagsaker.get(0).getSaksnummer()));
         }
         if (åpneFagsaker.size() > 1) {
+            LOG.info("VurderFagsystem ustrukturert søknad flere åpne saker {}", åpneFagsaker.stream().map(Fagsak::getSaksnummer).toList());
             return Optional.of(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
         var avslagDokumentasjon = harSakMedAvslagGrunnetManglendeDok(sakerTilVurdering);
