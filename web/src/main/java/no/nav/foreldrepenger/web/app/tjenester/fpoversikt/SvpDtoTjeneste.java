@@ -16,7 +16,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -35,6 +34,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -146,12 +147,13 @@ public class SvpDtoTjeneste {
                         case SVANGERSKAPSVILKÅRET_IKKE_OPPFYLT, OPPTJENINGSVILKÅRET_IKKE_OPPFYLT ->
                             SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode.ResultatÅrsak.AVSLAG_INNGANGSVILKÅR;
                     };
+
                     var arbeidstidprosent = matchendeTilretteleggingFOM.map(TilretteleggingFOM::getStillingsprosent).orElse(BigDecimal.ZERO);
                     return new SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode(p.getFom(), p.getTom(), tilretteleggingType, arbeidstidprosent,
                         p.getUtbetalingsgrad().decimalValue(), resultatÅrsak);
                 }).filter(Objects::nonNull).collect(Collectors.toSet());
                 //utlede oppholdsperioder
-                var oppholdsperioder = matchendeTilrettelegging.map(mt -> finnAlleOppholdsperioder(mt, behandling)).orElse(Set.of());
+                var oppholdsperioder = matchendeTilrettelegging.map(mt -> finnAlleOppholdsperioderFraTlr(mt, behandling)).orElse(Set.of());
 
                 return new SvpSak.Vedtak.ArbeidsforholdUttak(new SvpSak.Aktivitet(type, arbeidsgiver, arbeidsforholdId),
                     matchendeTilrettelegging.map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom).orElse(null),
@@ -174,15 +176,19 @@ public class SvpDtoTjeneste {
             .allMatch(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget);
     }
 
-    private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioder(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling) {
-        var oppholdspFraSaksbehandler = oppholdsperioderFraTilrettelegging(tilrettelegging);
-        Set<SvpSak.OppholdPeriode> oppholdListe = new HashSet<>(oppholdspFraSaksbehandler);
-        var oppholdFraIM = oppholdsperioderFraIM(behandling);
-        oppholdListe.addAll(oppholdFraIM);
-        return oppholdListe;
+    private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioderFraTlr(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling) {
+        var oppholdspFraSaksbehandler = oppholdsperioderRegAvSaksbehandler(tilrettelegging);
+        Set<SvpSak.OppholdPeriode> alleOppholdForArbforhold = new HashSet<>(oppholdspFraSaksbehandler);
+        //opphold fra inntektsmelding
+        tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
+            var oppholdFraIM = oppholdsperioderFraIM(behandling, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(null));
+            alleOppholdForArbforhold.addAll(oppholdFraIM);
+            });
+
+        return alleOppholdForArbforhold;
     }
 
-    private static Set<SvpSak.OppholdPeriode> oppholdsperioderFraTilrettelegging(SvpTilretteleggingEntitet matchendeTilrettelegging) {
+    private static Set<SvpSak.OppholdPeriode> oppholdsperioderRegAvSaksbehandler(SvpTilretteleggingEntitet matchendeTilrettelegging) {
         return matchendeTilrettelegging.getAvklarteOpphold()
             .stream()
             .map(o -> new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), switch (o.getOppholdÅrsak()) {
@@ -192,17 +198,30 @@ public class SvpDtoTjeneste {
             .collect(Collectors.toSet());
     }
 
-    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling) {
+    private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling, no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
+        Set<SvpSak.OppholdPeriode> oppholdFraImForArbeidsgiver = new HashSet<>();
+        var inntektsmeldingForArbeidsforhold = finnIMForArbforhold(behandling, arbeidsgiver, internArbeidsforholdRef);
+
+        inntektsmeldingForArbeidsforhold.ifPresent(inntektsmelding -> oppholdFraImForArbeidsgiver.addAll(hentOppholdFraIm(inntektsmelding)));
+
+        return oppholdFraImForArbeidsgiver;
+    }
+
+    private Set<SvpSak.OppholdPeriode> hentOppholdFraIm(Inntektsmelding inntektsmelding) {
+        return inntektsmelding.getUtsettelsePerioder().stream()
+            .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
+            .map(utsettelse -> new SvpSak.OppholdPeriode(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(),
+                SvpSak.OppholdPeriode.Årsak.FERIE,
+                SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING))
+            .collect(Collectors.toSet());
+    }
+
+    private Optional<Inntektsmelding> finnIMForArbforhold(Behandling behandling, no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
         return inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkter.getSkjæringstidspunktOpptjening()).stream()
-            .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
-            .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
-            .map(utsettelse ->
-                new SvpSak.OppholdPeriode(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(),
-                    SvpSak.OppholdPeriode.Årsak.FERIE,
-                    SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING))
-            .collect(Collectors.toSet());
+            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
+            .findFirst();
     }
 
     private static SvpSak.Aktivitet.Type mapTilAktivitetType(UttakArbeidType uttakArbeidType) {
@@ -254,7 +273,7 @@ public class SvpDtoTjeneste {
             SvpSak.TilretteleggingType tilretteleggingType = mapTilretteleggingType(tFom.getType());
             return new SvpSak.Søknad.Tilrettelegging.Periode(tFom.getFomDato(), tilretteleggingType, tFom.getStillingsprosent());
         }).collect(Collectors.toSet());
-        Set<SvpSak.OppholdPeriode> oppholdsperioder = oppholdsperioderFraTilrettelegging(tl);
+        Set<SvpSak.OppholdPeriode> oppholdsperioder = oppholdsperioderRegAvSaksbehandler(tl);
         return new SvpSak.Søknad.Tilrettelegging(aktivitet, tl.getBehovForTilretteleggingFom(), tl.getOpplysningerOmRisikofaktorer().orElse(null),
             tl.getOpplysningerOmTilretteleggingstiltak().orElse(null), perioder, oppholdsperioder);
     }
