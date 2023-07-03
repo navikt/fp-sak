@@ -36,12 +36,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class SvpDtoTjeneste {
-    private static final Environment ENV = Environment.current();
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private SvangerskapspengerRepository svangerskapspengerRepository;
@@ -91,9 +89,6 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.Vedtak.ArbeidsforholdUttak> finnArbeidsforhold(BehandlingVedtak vedtak) {
-        if (isProd()) {
-            return Set.of();
-        }
         var behandlingsresultat = vedtak.getBehandlingsresultat();
         var behandlingId = behandlingsresultat.getBehandlingId();
         var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandlingId);
@@ -251,9 +246,6 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.Søknad.Tilrettelegging> finnTilrettelegginger(Long behandlingId) {
-        if (isProd()) {
-            return Set.of();
-        }
         return svangerskapspengerRepository.hentGrunnlag(behandlingId)
             .map(svpGrunnlag -> svpGrunnlag.getOpprinneligeTilrettelegginger()
                 .getTilretteleggingListe()
@@ -261,10 +253,6 @@ public class SvpDtoTjeneste {
                 .map(SvpDtoTjeneste::map)
                 .collect(Collectors.toSet()))
             .orElse(Set.of());
-    }
-
-    private static boolean isProd() {
-        return ENV.isProd();
     }
 
     private static SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl) {
