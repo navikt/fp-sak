@@ -157,6 +157,10 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
 
         public void verifyStateForBuild() {
             Objects.requireNonNull(behandlingDokumentMal.behandlingId, "Behandling må være satt");
+            if (behandlingDokumentMal.overstyrtBrevFritekst != null || behandlingDokumentMal.overstyrtBrevOverskrift != null) {
+                Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevFritekst, "overstyrtBrevFritekst må være satt");
+                Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevOverskrift, "overstyrtBrevOverskrift må være satt");
+            }
         }
     }
 }
