@@ -114,9 +114,11 @@ public class ForvaltningSøknadRestTjeneste {
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
             .findFirst().orElseGet(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElseThrow());
         var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
-        if (gjeldende.isEmpty() || !gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeBarna).orElse(List.of()).isEmpty() ||
-            gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeAntallBarn).filter(ab -> ab > 0).isPresent())
+        if (gjeldende.isEmpty() || !gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeBarna).orElse(List.of()).isEmpty()
+           // || gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeAntallBarn).filter(ab -> ab > 0).isPresent()
+        ) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandling)
             .medAntallBarn(1)
             .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
