@@ -20,7 +20,8 @@ jobs:
   build-app:
     name: Build
     permissions:
-      packages: write # push image
+      contents: read
+      packages: write
     uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
     with:
       runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
