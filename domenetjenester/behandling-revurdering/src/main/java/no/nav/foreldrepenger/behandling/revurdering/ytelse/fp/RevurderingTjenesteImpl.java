@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
@@ -95,11 +93,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
                                                 BehandlingÅrsakType revurderingsÅrsak,
                                                 OrganisasjonsEnhet enhet,
                                                 String opprettetAv) {
-        var behandling = opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet, opprettetAv);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst,
-            List.of(AksjonspunktDefinisjon.KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING));
-        return behandling;
+        return opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet, opprettetAv);
     }
 
     @Override
