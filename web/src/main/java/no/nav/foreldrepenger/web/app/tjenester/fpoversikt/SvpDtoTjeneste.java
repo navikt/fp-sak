@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 import static no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef.nullRef;
 import static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.DtoTjenesteFelles.statusForSøknad;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -161,7 +160,10 @@ public class SvpDtoTjeneste {
                             SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode.ResultatÅrsak.AVSLAG_INNGANGSVILKÅR;
                     };
 
-                    var arbeidstidprosent = matchendeTilretteleggingFOM.map(TilretteleggingFOM::getStillingsprosent).orElse(BigDecimal.ZERO);
+                    var arbeidstidprosent =  matchendeTilretteleggingFOM
+                        .filter(mt -> TilretteleggingType.DELVIS_TILRETTELEGGING.equals(mt.getType()))
+                        .map(TilretteleggingFOM::getStillingsprosent)
+                        .orElse(null);
                     return new SvpSak.Vedtak.ArbeidsforholdUttak.SvpPeriode(p.getFom(), p.getTom(), tilretteleggingType, arbeidstidprosent,
                         p.getUtbetalingsgrad().decimalValue(), resultatÅrsak);
                 }).filter(Objects::nonNull).collect(Collectors.toSet());
