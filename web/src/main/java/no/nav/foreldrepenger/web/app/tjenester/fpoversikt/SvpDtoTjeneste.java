@@ -99,7 +99,7 @@ public class SvpDtoTjeneste {
             return null;
         }
         return switch (avslagsårsak) {
-            case ARBEIDSTAKER_KAN_OMPLASSERES -> SvpSak.Vedtak.AvslagÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
+            case ARBEIDSTAKER_KAN_OMPLASSERES, SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE -> SvpSak.Vedtak.AvslagÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
             case SØKER_HAR_MOTTATT_SYKEPENGER -> SvpSak.Vedtak.AvslagÅrsak.SØKER_ER_INNVILGET_SYKEPENGER;
             case MANGLENDE_DOKUMENTASJON -> SvpSak.Vedtak.AvslagÅrsak.MANGLENDE_DOKUMENTASJON;
             default -> SvpSak.Vedtak.AvslagÅrsak.ANNET;
