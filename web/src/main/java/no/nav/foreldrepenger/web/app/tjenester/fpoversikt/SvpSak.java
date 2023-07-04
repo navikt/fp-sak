@@ -38,7 +38,7 @@ record SvpSak(String saksnummer,
             INNTEKTSMELDING
         }
     }
-    public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold) {
+    public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold, AvslagÅrsak avslagÅrsak) {
 
 
 
@@ -75,6 +75,13 @@ record SvpSak(String saksnummer,
                 ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN,
                 ANNET
             }
+        }
+
+        public enum AvslagÅrsak {
+            ARBEIDSGIVER_KAN_TILRETTELEGGE,
+            SØKER_ER_INNVILGET_SYKEPENGER,
+            MANGLENDE_DOKUMENTASJON,
+            ANNET,
         }
     }
 
