@@ -85,7 +85,25 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.Vedtak> finnSvpVedtak(Stream<BehandlingVedtak> vedtak) {
-        return vedtak.map(v -> new SvpSak.Vedtak(v.getVedtakstidspunkt(), finnArbeidsforhold(v))).collect(Collectors.toSet());
+        return vedtak.map(v -> {
+            var arbeidsforhold = finnArbeidsforhold(v);
+            var vedtakstidspunkt = v.getVedtakstidspunkt();
+            var avslagÅrsak = finnAvslagÅrsak(v);
+            return new SvpSak.Vedtak(vedtakstidspunkt, arbeidsforhold, avslagÅrsak);
+        }).collect(Collectors.toSet());
+    }
+
+    private SvpSak.Vedtak.AvslagÅrsak finnAvslagÅrsak(BehandlingVedtak vedtak) {
+        var avslagsårsak = vedtak.getBehandlingsresultat().getAvslagsårsak();
+        if (avslagsårsak == null) {
+            return null;
+        }
+        return switch (avslagsårsak) {
+            case ARBEIDSTAKER_KAN_OMPLASSERES -> SvpSak.Vedtak.AvslagÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE;
+            case SØKER_HAR_MOTTATT_SYKEPENGER -> SvpSak.Vedtak.AvslagÅrsak.SØKER_ER_INNVILGET_SYKEPENGER;
+            case MANGLENDE_DOKUMENTASJON -> SvpSak.Vedtak.AvslagÅrsak.MANGLENDE_DOKUMENTASJON;
+            default -> SvpSak.Vedtak.AvslagÅrsak.ANNET;
+        };
     }
 
     private Set<SvpSak.Vedtak.ArbeidsforholdUttak> finnArbeidsforhold(BehandlingVedtak vedtak) {
