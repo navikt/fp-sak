@@ -15,24 +15,29 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftVedtakUtenTotrinnskontrollDto.class, adapter = AksjonspunktOppdaterer.class)
-class BekreftVedtakUtenTotrinnskontrollOppdaterer extends AbstractVedtaksbrevOverstyringshåndterer
-        implements AksjonspunktOppdaterer<BekreftVedtakUtenTotrinnskontrollDto> {
+class BekreftVedtakUtenTotrinnskontrollOppdaterer extends AbstractVedtaksbrevOverstyringshåndterer implements AksjonspunktOppdaterer<BekreftVedtakUtenTotrinnskontrollDto> {
+
+    @Inject
+    public BekreftVedtakUtenTotrinnskontrollOppdaterer(BehandlingRepository behandlingRepository,
+                                                       BehandlingsresultatRepository behandlingsresultatRepository,
+                                                       HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+                                                       VedtakTjeneste vedtakTjeneste,
+                                                       BehandlingDokumentRepository behandlingDokumentRepository,
+                                                       OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag) {
+        super(behandlingRepository, behandlingsresultatRepository, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository,
+            opprettToTrinnsgrunnlag);
+    }
 
     BekreftVedtakUtenTotrinnskontrollOppdaterer() {
         // for CDI proxy
     }
 
-    @Inject
-    public BekreftVedtakUtenTotrinnskontrollOppdaterer(BehandlingRepository behandlingRepository,
-            BehandlingsresultatRepository behandlingsresultatRepository,
-            HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-            VedtakTjeneste vedtakTjeneste,
-            BehandlingDokumentRepository behandlingDokumentRepository) {
-        super(behandlingRepository, behandlingsresultatRepository, historikkApplikasjonTjeneste, vedtakTjeneste, behandlingDokumentRepository);
-    }
-
     @Override
     public OppdateringResultat oppdater(BekreftVedtakUtenTotrinnskontrollDto dto, AksjonspunktOppdaterParameter param) {
-        return standardHåndteringUtenTotrinn(dto, param);
+        return håndter(dto, param, utledToTrinn(dto));
+    }
+
+    static boolean utledToTrinn(VedtaksbrevOverstyringDto dto) {
+        return dto.isSkalBrukeOverstyrendeFritekstBrev();
     }
 }

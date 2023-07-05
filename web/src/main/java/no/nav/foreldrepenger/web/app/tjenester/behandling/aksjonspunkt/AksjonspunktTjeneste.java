@@ -55,8 +55,6 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 public class AksjonspunktTjeneste {
 
     private static final Set<AksjonspunktDefinisjon> VEDTAK_AP_UTEN_TOTRINN = Set.of(
-        AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL,
-        AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT,
         AksjonspunktDefinisjon.FATTER_VEDTAK
     );
 

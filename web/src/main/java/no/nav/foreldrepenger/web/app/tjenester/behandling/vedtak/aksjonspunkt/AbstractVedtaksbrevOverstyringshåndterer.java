@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -22,37 +21,64 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
-    protected HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
-    BehandlingsresultatRepository behandlingsresultatRepository;
+
+    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private VedtakTjeneste vedtakTjeneste;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private BehandlingRepository behandlingRepository;
-
-    AbstractVedtaksbrevOverstyringshåndterer() {
-        // for CDI proxy
-    }
+    private OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag;
 
     AbstractVedtaksbrevOverstyringshåndterer(BehandlingRepository behandlingRepository,
-            BehandlingsresultatRepository behandlingsresultatRepository,
-            HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-            VedtakTjeneste vedtakTjeneste,
-            BehandlingDokumentRepository behandlingDokumentRepository) {
+                                             BehandlingsresultatRepository behandlingsresultatRepository,
+                                             HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+                                             VedtakTjeneste vedtakTjeneste,
+                                             BehandlingDokumentRepository behandlingDokumentRepository,
+                                             OpprettToTrinnsgrunnlag opprettToTrinnsgrunnlag) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.behandlingRepository = behandlingRepository;
+        this.opprettToTrinnsgrunnlag = opprettToTrinnsgrunnlag;
     }
 
-    void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
+    AbstractVedtaksbrevOverstyringshåndterer() {
+        //CDI
+    }
+
+    OppdateringResultat håndter(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param, boolean toTrinn) {
+        var begrunnelse = dto.getBegrunnelse();
+        var behandling = getBehandling(param.getBehandlingId());
+
+        oppdaterBegrunnelse(behandling, begrunnelse);
+        var builder = OppdateringResultat.utenTransisjon();
+        if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
+            oppdaterFritekstVedtaksbrev(dto, param);
+        } else {
+            fjernFritekstBrevHvisEksisterer(param.getBehandlingId());
+        }
+        if (toTrinn) {
+            opprettHistorikkinnslag(behandling, true);
+            opprettAksjonspunktForFatterVedtak(behandling, builder);
+            opprettToTrinnsgrunnlag.settNyttTotrinnsgrunnlag(behandling);
+            behandling.setToTrinnsBehandling();
+            return builder.medTotrinnHvis(dto.isSkalBrukeOverstyrendeFritekstBrev()).build();
+        } else {
+            opprettHistorikkinnslag(behandling, false);
+            return builder.build();
+        }
+    }
+
+    private void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = getBehandling(param.getBehandlingId());
         settFritekstBrev(behandling, dto.getOverskrift(), dto.getFritekstBrev());
-        opprettHistorikkinnslag(behandling);
     }
 
-    Behandling getBehandling(Long behandlingId) {
+    private Behandling getBehandling(Long behandlingId) {
         return behandlingRepository.hentBehandling(behandlingId);
     }
 
@@ -70,7 +96,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         behandlingsresultatRepository.lagre(behandlingId, behandlingsresultat);
     }
 
-    void fjernFritekstBrevHvisEksisterer(long behandlingId) {
+    private void fjernFritekstBrevHvisEksisterer(long behandlingId) {
         var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
             var behandlingDokument = getBehandlingDokumentBuilder(eksisterendeBehandlingDokument)
@@ -96,7 +122,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         return Behandlingsresultat.builderEndreEksisterende(eksisterendeBehandlingsresultat);
     }
 
-    void opprettAksjonspunktForFatterVedtak(Behandling behandling, OppdateringResultat.Builder builder) {
+    private void opprettAksjonspunktForFatterVedtak(Behandling behandling, OppdateringResultat.Builder builder) {
         if (BehandlingType.INNSYN.equals(behandling.getType())) {
             return; // vedtak for innsynsbehanding fattes automatisk
         }
@@ -104,20 +130,35 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         builder.medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.FATTER_VEDTAK, AksjonspunktStatus.OPPRETTET);
     }
 
-    OppdateringResultat standardHåndteringUtenTotrinn(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
-        var builder = OppdateringResultat.utenTransisjon();
-        if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
-            oppdaterFritekstVedtaksbrev(dto, param);
-            builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FATTE_VEDTAK);
-        } else {
-            fjernFritekstBrevHvisEksisterer(param.getBehandlingId());
-        }
-        return builder.build();
+    private void oppdaterBegrunnelse(Behandling behandling, String begrunnelse) {
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+
+        behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).ifPresent(behandlingsresultat -> {
+            if (BehandlingType.KLAGE.equals(behandling.getType()) || behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
+                || begrunnelse != null || skalNullstilleFritekstfelt(behandling, behandlingsresultat, behandlingDokument)) {
+
+                var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingDokument);
+                behandlingDokumentBuilder.medBehandling(behandling.getId());
+                behandlingDokumentBuilder.medVedtakFritekst(begrunnelse);
+                behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
+            }
+        });
+        behandling.setAnsvarligSaksbehandler(getCurrentUserId());
     }
 
-    void opprettHistorikkinnslag(Behandling behandling) {
+    private boolean skalNullstilleFritekstfelt(Behandling behandling, Behandlingsresultat behandlingsresultat,
+                                               Optional<BehandlingDokumentEntitet> behandlingDokument) {
+        return !BehandlingType.KLAGE.equals(behandling.getType()) && !behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
+            && behandlingDokument.isPresent() && behandlingDokument.get().getVedtakFritekst() != null;
+    }
+
+    protected String getCurrentUserId() {
+        return KontekstHolder.getKontekst().getUid();
+    }
+
+    private void opprettHistorikkinnslag(Behandling behandling, boolean toTrinn) {
         var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
-        var historikkInnslagType = utledHistorikkInnslag(behandling);
+        var historikkInnslagType = utledHistorikkInnslag(behandling, toTrinn);
 
         var tekstBuilder = new HistorikkInnslagTekstBuilder()
                 .medResultat(vedtakResultatType)
@@ -132,20 +173,19 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         historikkApplikasjonTjeneste.lagInnslag(innslag);
     }
 
-    private HistorikkinnslagType utledHistorikkInnslag(Behandling behandling) {
-        var harToTrinn = behandling.harAksjonspunktMedTotrinnskontroll();
-        if (BehandlingType.INNSYN.equals(behandling.getType()) || !harToTrinn) {
+    private HistorikkinnslagType utledHistorikkInnslag(Behandling behandling, boolean toTrinn) {
+        if (BehandlingType.INNSYN.equals(behandling.getType()) || !toTrinn) {
             return HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN;
         }
         return HistorikkinnslagType.FORSLAG_VEDTAK;
     }
 
-    BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {
+    private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         return getBehandlingDokumentBuilder(behandlingDokument);
     }
 
-    BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(Optional<BehandlingDokumentEntitet> behandlingDokument) {
+    private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(Optional<BehandlingDokumentEntitet> behandlingDokument) {
         return behandlingDokument.map(BehandlingDokumentEntitet.Builder::fraEksisterende).orElseGet(BehandlingDokumentEntitet.Builder::ny);
     }
 }
