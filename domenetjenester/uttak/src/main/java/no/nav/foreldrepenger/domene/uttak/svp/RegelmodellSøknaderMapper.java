@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
@@ -23,6 +21,8 @@ import no.nav.svangerskapspenger.domene.søknad.FullTilrettelegging;
 import no.nav.svangerskapspenger.domene.søknad.IngenTilrettelegging;
 import no.nav.svangerskapspenger.domene.søknad.Søknad;
 import no.nav.svangerskapspenger.domene.søknad.Tilrettelegging;
+
+import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class RegelmodellSøknaderMapper {
@@ -68,7 +68,7 @@ public class RegelmodellSøknaderMapper {
         throw new IllegalStateException("Mangler gyldig TilretteleggingType");
     }
 
-    private AktivitetType mapTilAktivitetType(ArbeidType arbeidType) {
+    public static AktivitetType mapTilAktivitetType(ArbeidType arbeidType) {
         if (ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(arbeidType)) {
             return AktivitetType.ARBEID;
         }
@@ -93,7 +93,7 @@ public class RegelmodellSøknaderMapper {
         return BigDecimal.valueOf(100L); //Ellers 100% stilling
     }
 
-    private Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsforhold,
+    public static Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsforhold,
                                              Optional<InternArbeidsforholdRef> internArbeidsforholdRef,
                                              AktivitetType aktivitetType) {
         if (arbeidsforhold.isEmpty()) {

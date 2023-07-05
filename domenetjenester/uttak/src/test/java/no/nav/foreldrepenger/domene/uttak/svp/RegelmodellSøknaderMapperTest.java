@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 import no.nav.svangerskapspenger.domene.søknad.IngenTilrettelegging;
 
 class RegelmodellSøknaderMapperTest {
-
     private final RegelmodellSøknaderMapper regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final GrunnlagOppretter grunnlagOppretter = new GrunnlagOppretter(repositoryProvider);
