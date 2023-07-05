@@ -28,7 +28,7 @@ public final class Databaseskjemainitialisering {
 
     private static final DataSource DEFAULT_DS = settJdniOppslag();
     private static final String DEFAULTDS_SCHEMA = "defaultDS";
-    public static final String DEFAULTDS_USER = "fpsak";
+    public static final String DEFAULTDS_USER = "fpsak_unit";
 
     public static void main(String[] args) {
         //brukes i mvn clean install
@@ -82,7 +82,7 @@ public final class Databaseskjemainitialisering {
     }
 
     private static String getScriptLocation(String dsName) {
-        if (DBTestUtil.kjøresAvMaven()) {
+        if (ENV.getProperty("maven.cmd.line.args") != null) {
             return classpathScriptLocation(dsName);
         }
         return fileScriptLocation(dsName);

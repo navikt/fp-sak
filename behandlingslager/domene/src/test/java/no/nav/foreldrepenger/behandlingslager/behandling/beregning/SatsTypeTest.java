@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -10,11 +11,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.dbstoette.DBTestUtil;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
 class SatsTypeTest {
+
+    private static <T> List<T> hentAlle(EntityManager entityManager, Class<T> klasse) {
+        var criteria = entityManager.getCriteriaBuilder().createQuery(klasse);
+        criteria.select(criteria.from(klasse));
+        return entityManager.createQuery(criteria).getResultList();
+    }
 
     private BeregningsresultatRepository beregningRepository;
     private EntityManager entityManager;
@@ -28,11 +34,11 @@ class SatsTypeTest {
     @Test
     void skal_teste_verdier_for_sats_gbeløp_og_gsnitt() {
         //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
-        var grunnbeløpListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
+        var grunnbeløpListe = hentAlle(entityManager, BeregningSats.class)
             .stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GRUNNBELØP))
             .toList();
-        var gsnittListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
+        var gsnittListe = hentAlle(entityManager, BeregningSats.class)
             .stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT))
             .toList();
@@ -44,7 +50,7 @@ class SatsTypeTest {
     @Test
     void skal_teste_gsnitt_fom_tom_er_1jan_og_31des() {
         //Denne testen går ut i fra at satser i db ikke er endret på siden migrering ble kjørt
-        var gsnittListe = DBTestUtil.hentAlle(entityManager, BeregningSats.class)
+        var gsnittListe = hentAlle(entityManager, BeregningSats.class)
             .stream()
             .filter(sats -> sats.getSatsType().equals(BeregningSatsType.GSNITT))
             .toList();
