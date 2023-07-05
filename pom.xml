@@ -75,20 +75,33 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-micrometer</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>no.nav.vedtak.prosesstask</groupId>
-                <artifactId>prosesstask-root</artifactId>
+                <artifactId>prosesstask</artifactId>
                 <version>${prosesstask.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask-rest-api</artifactId>
+                <version>${prosesstask.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask-kontekst</artifactId>
+                <version>${prosesstask.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-pom</artifactId>
+                <artifactId>felles-integrasjon-webservice</artifactId>
                 <version>${felles.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
