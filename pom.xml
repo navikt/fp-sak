@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>0.5.6</version>
+        <version>0.6.2</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -35,8 +35,8 @@
         <fp-stonadskonto.version>1.0.1</fp-stonadskonto.version>
         <svp-uttak.version>2.3.9</svp-uttak.version>
 
-        <felles.version>4.3.1</felles.version>
-        <prosesstask.version>3.2.1</prosesstask.version>
+        <felles.version>4.4.0</felles.version>
+        <prosesstask.version>3.2.3</prosesstask.version>
 
         <fp-kontrakter.version>6.2.22</fp-kontrakter.version>
         <fp-tidsserie.version>2.6.8</fp-tidsserie.version>
@@ -55,16 +55,9 @@
         <dependencies>
             <!-- Felles biblioteker - Importerte avhengigheter -->
             <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-bom</artifactId>
-                <version>5.3.1</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>0.5.6</version>
+                <version>0.6.2</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -75,20 +68,33 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-micrometer</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>no.nav.vedtak.prosesstask</groupId>
-                <artifactId>prosesstask-root</artifactId>
+                <artifactId>prosesstask</artifactId>
                 <version>${prosesstask.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask-rest-api</artifactId>
+                <version>${prosesstask.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask-kontekst</artifactId>
+                <version>${prosesstask.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-pom</artifactId>
+                <artifactId>felles-integrasjon-webservice</artifactId>
                 <version>${felles.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
