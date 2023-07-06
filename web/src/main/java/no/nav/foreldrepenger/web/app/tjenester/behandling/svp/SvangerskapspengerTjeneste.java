@@ -152,7 +152,7 @@ public class SvangerskapspengerTjeneste {
         dto.setAvklarteOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
         // Ferie fra inntektsmelding skal vises til saksbehandler hvis finnes
         svpTilrettelegging.getArbeidsgiver()
-            .flatMap(arbeidsgiver -> finnIMForArbeidsforhold(inntektsmeldinger, arbeidsgiver, svpTilrettelegging.getInternArbeidsforholdRef().orElse(null)))
+            .flatMap(arbeidsgiver -> finnIMForArbeidsforhold(inntektsmeldinger, arbeidsgiver, svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef())))
             .ifPresent(im -> dto.leggTilOppholdPerioder(hentFerieFraIM(im)));
         dto.setOpplysningerOmRisiko(svpTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null));
         dto.setOpplysningerOmTilrettelegging(svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null));
@@ -168,7 +168,7 @@ public class SvangerskapspengerTjeneste {
 
     private Optional<Inntektsmelding> finnIMForArbeidsforhold(List<Inntektsmelding> inntektsmeldinger, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
         return inntektsmeldinger.stream()
-            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (internArbeidsforholdRef == null || inntektsmelding.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
+            .filter(im -> im.getArbeidsgiver().equals(arbeidsgiver) && (im.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
             .findFirst();
     }
 
