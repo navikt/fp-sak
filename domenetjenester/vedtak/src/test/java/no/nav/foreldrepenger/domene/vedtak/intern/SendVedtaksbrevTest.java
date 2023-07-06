@@ -76,6 +76,17 @@ class SendVedtaksbrevTest {
     }
 
     @Test
+    void testSendVedtaksbrevIngenEndringFritekst() {
+        lenient().when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
+        lenient().when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
+        // Act
+        sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
+
+        // Assert
+        verify(dokumentBestillerTjeneste).produserVedtaksbrev(behandlingVedtak);
+    }
+
+    @Test
     void testSendVedtaksbrevVedtakInnvilget() {
         // Act
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
