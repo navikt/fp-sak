@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AbstractOverstyringshåndterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
@@ -56,8 +57,8 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringUttakDto dto) {
-        var historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(
-            behandling, dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
+        var historikkinnslag = UttakHistorikkUtil.forOverstyring()
+            .lagHistorikkinnslag(BehandlingReferanse.fra(behandling), dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
         historikkinnslag.forEach(innslag -> getHistorikkAdapter().lagInnslag(innslag));
     }
 }

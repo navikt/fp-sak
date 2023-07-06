@@ -13,16 +13,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -37,7 +37,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class UttakHistorikkUtilTest {
 
-    private static final Behandling BEHANDLING = mockBehandling();
+    private static final BehandlingReferanse BEHANDLING = mockBehandling();
     private static final LocalDate DEFAULT_FOM = LocalDate.now();
     private static final LocalDate DEFAULT_TOM = LocalDate.now().plusWeeks(1);
     public static final String ORGNR = KUNSTIG_ORG;
@@ -54,7 +54,7 @@ class UttakHistorikkUtilTest {
                 perioder, List.of(gjeldende));
 
         assertThat(historikkinnslag).hasSize(1);
-        assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.getId());
+        assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
         assertThat(historikkinnslag.get(0).getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.get(0).getHistorikkinnslagDeler()).hasSize(1);
         var endretFelt = historikkinnslag.get(0).getHistorikkinnslagDeler().get(0)
@@ -99,7 +99,7 @@ class UttakHistorikkUtilTest {
                 perioder, gjeldende);
 
         assertThat(historikkinnslag).hasSize(1);
-        assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.getId());
+        assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
         assertThat(historikkinnslag.get(0).getType()).isEqualTo(HistorikkinnslagType.OVST_UTTAK_SPLITT);
         assertThat(historikkinnslag.get(0).getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.get(0).getHistorikkinnslagDeler()).hasSize(1);
@@ -170,7 +170,7 @@ class UttakHistorikkUtilTest {
                 perioder, List.of(gjeldende));
 
         assertThat(historikkinnslag).hasSize(1);
-        assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.getId());
+        assertThat(historikkinnslag.get(0).getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
         assertThat(historikkinnslag.get(0).getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.get(0).getHistorikkinnslagDeler()).hasSize(1);
         var endretFelt = historikkinnslag.get(0).getHistorikkinnslagDeler().get(0)
@@ -266,9 +266,9 @@ class UttakHistorikkUtilTest {
         return enkeltPeriode(type, DEFAULT_FOM, DEFAULT_TOM, virksomhet);
     }
 
-    private static Behandling mockBehandling() {
-        var mock = mock(Behandling.class);
-        when(mock.getId()).thenReturn(123L);
+    private static BehandlingReferanse mockBehandling() {
+        var mock = mock(BehandlingReferanse.class);
+        when(mock.behandlingId()).thenReturn(123L);
         return mock;
     }
 

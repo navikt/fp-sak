@@ -65,7 +65,7 @@ class FastsettUttakOppdatererTest {
     @BeforeEach
     public void setup() {
         oppdaterer = new FastsettUttakOppdaterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste,
-                uttakTjeneste, uttakInputTjeneste);
+                uttakTjeneste, uttakInputTjeneste, repositoryProvider.getBehandlingRepository());
     }
 
     @Test

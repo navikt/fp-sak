@@ -91,7 +91,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 totrinnTjeneste,
                 new AbakusInMemoryInntektArbeidYtelseTjeneste());
         fatterVedtakAksjonspunkt = new FatterVedtakAksjonspunkt(behandlingskontrollTjeneste, vedtakTjeneste,
-                totrinnTjeneste, mock(InntektArbeidYtelseTjeneste.class));
+                totrinnTjeneste, mock(InntektArbeidYtelseTjeneste.class), behandlingRepository);
     }
 
     @Test
