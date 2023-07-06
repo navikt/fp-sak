@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -86,10 +87,10 @@ public class SendVedtaksbrev {
         }
 
         if (behandlingVedtak.isBeslutningsvedtak()) {
-            if (harSendtVarselOmRevurdering(behandlingId)) {
+            if (harSendtVarselOmRevurdering(behandlingId) || harFritekstBrev(behandlingVedtak)) {
                 LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId);
             } else {
-                LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering. Sender ikke brev for behandling: {}", behandlingId);
+                LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}", behandlingId);
                 return;
             }
         } else if (gjelderEngangsstønad(behandling)) {
@@ -98,6 +99,10 @@ public class SendVedtaksbrev {
             LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
         }
         dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtak);
+    }
+
+    private static boolean harFritekstBrev(BehandlingVedtak behandlingVedtak) {
+        return Vedtaksbrev.FRITEKST.equals(behandlingVedtak.getBehandlingsresultat().getVedtaksbrev());
     }
 
     private boolean gjelderEngangsstønad(Behandling behandling) {
