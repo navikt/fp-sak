@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
@@ -19,13 +17,13 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.TidsromPermisjonD
 import no.nav.foreldrepenger.web.app.tjenester.registrering.svp.ManuellRegistreringSvangerskapspengerDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.svp.ManuellRegistreringSvangerskapspengerValidator;
 
-public class ManuellRegistreringValidator {
+class ManuellRegistreringValidator {
 
     private ManuellRegistreringValidator() {
         // Klassen skal ikke instansieres
     }
 
-    public static void validerOpplysninger(ManuellRegistreringDto registreringDto) {
+    static void validerOpplysninger(ManuellRegistreringDto registreringDto) {
         List<FeltFeilDto> feil = new ArrayList<>();
         if (registreringDto instanceof ManuellRegistreringEndringsøknadDto endringsøknadDto) {
             //Valideringer på endringssøknaden plugges inn her
@@ -47,13 +45,9 @@ public class ManuellRegistreringValidator {
         }
     }
 
-    public static void validerAktivitetskrav(Fagsak fagsak, ManuellRegistreringDto registreringDto) {
-        List<FeltFeilDto> feil = new ArrayList<>();
-        if (!FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
-            return;
-        }
+    static void validerAktivitetskrav(ManuellRegistreringDto registreringDto, RelasjonsRolleType relasjonsRolleType) {
         TidsromPermisjonDto uttaksperioder = null;
-        if (registreringDto instanceof ManuellRegistreringEndringsøknadDto endringsøknadDto && !RelasjonsRolleType.MORA.equals(fagsak.getRelasjonsRolleType())) {
+        if (registreringDto instanceof ManuellRegistreringEndringsøknadDto endringsøknadDto && !RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
             uttaksperioder = endringsøknadDto.getTidsromPermisjon();
         } else if (registreringDto instanceof ManuellRegistreringForeldrepengerDto foreldrepengerDto && !ForeldreType.MOR.equals(registreringDto.getSoker())
             && Optional.ofNullable(registreringDto.getAnnenForelder()).filter(AnnenForelderDto::getSokerHarAleneomsorg).isEmpty()) {
@@ -61,7 +55,7 @@ public class ManuellRegistreringValidator {
         }
 
         if (!ManuellRegistreringSøknadValidator.validerAktivitetskravFarMedmor(uttaksperioder).isEmpty()) {
-            throw new Valideringsfeil(feil);
+            throw new Valideringsfeil(List.of());
         }
     }
 }

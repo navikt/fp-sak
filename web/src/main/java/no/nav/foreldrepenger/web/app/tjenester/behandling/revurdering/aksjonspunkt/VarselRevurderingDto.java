@@ -22,8 +22,7 @@ public abstract class VarselRevurderingDto extends BekreftetAksjonspunktDto {
     @ValidKodeverk
     private Venteårsak ventearsak;
 
-    public VarselRevurderingDto(String begrunnelse, boolean sendVarsel,
-            String fritekst, LocalDate frist, Venteårsak ventearsak) {
+    VarselRevurderingDto(String begrunnelse, boolean sendVarsel, String fritekst, LocalDate frist, Venteårsak ventearsak) {
         super(begrunnelse);
         this.sendVarsel = sendVarsel;
         this.fritekst = fritekst;

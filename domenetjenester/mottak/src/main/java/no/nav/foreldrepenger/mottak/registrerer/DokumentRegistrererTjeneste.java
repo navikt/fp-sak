@@ -5,10 +5,11 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 
@@ -17,19 +18,22 @@ public class DokumentRegistrererTjeneste {
 
     private MottatteDokumentRepository mottatteDokumentRepository;
     private MottattDokumentPersisterer mottattDokumentPersisterer;
+    private BehandlingRepository behandlingRepository;
+
+    @Inject
+    public DokumentRegistrererTjeneste(MottatteDokumentRepository mottatteDokumentRepository,
+                                       MottattDokumentPersisterer mottattDokumentPersisterer,
+                                       BehandlingRepository behandlingRepository) {
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.mottattDokumentPersisterer = mottattDokumentPersisterer;
+        this.behandlingRepository = behandlingRepository;
+    }
 
     DokumentRegistrererTjeneste() {
         // CDI
     }
 
-    @Inject
-    public DokumentRegistrererTjeneste(MottatteDokumentRepository mottatteDokumentRepository,
-                                       MottattDokumentPersisterer mottattDokumentPersisterer) {
-        this.mottatteDokumentRepository = mottatteDokumentRepository;
-        this.mottattDokumentPersisterer = mottattDokumentPersisterer;
-    }
-
-    public Optional<AksjonspunktDefinisjon> aksjonspunktManuellRegistrering(Behandling behandling, ManuellRegistreringAksjonspunktDto adapter) {
+    public Optional<AksjonspunktDefinisjon> aksjonspunktManuellRegistrering(BehandlingReferanse behandlingReferanse, ManuellRegistreringAksjonspunktDto adapter) {
         if (adapter.getErFullstendigSøknad()) {
             var dokument = new MottattDokument.Builder()
                 .medDokumentType(adapter.getDokumentTypeId())
@@ -37,9 +41,10 @@ public class DokumentRegistrererTjeneste {
                 .medElektroniskRegistrert(false)
                 .medMottattDato(adapter.getMottattDato())
                 .medXmlPayload(adapter.getSøknadsXml())
-                .medBehandlingId(behandling.getId())
-                .medFagsakId(behandling.getFagsakId())
+                .medBehandlingId(behandlingReferanse.behandlingId())
+                .medFagsakId(behandlingReferanse.fagsakId())
                 .build();
+            var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
             mottattDokumentPersisterer.persisterDokumentinnhold(dokument, behandling);
             mottatteDokumentRepository.lagre(dokument);
 

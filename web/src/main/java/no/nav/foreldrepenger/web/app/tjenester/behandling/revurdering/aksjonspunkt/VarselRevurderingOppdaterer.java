@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.revurdering.aksjonspu
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -26,10 +26,6 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
-    VarselRevurderingOppdaterer() {
-        // CDI
-    }
-
     @Inject
     public VarselRevurderingOppdaterer(VarselRevurderingTjeneste dokumentTjeneste, HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                        DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
@@ -38,33 +34,37 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
+    VarselRevurderingOppdaterer() {
+        // CDI
+    }
+
     @Override
     public OppdateringResultat oppdater(VarselRevurderingDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
-        if (dto.isSendVarsel() && !harSendtVarselOmRevurdering(behandling)) {
-            final var adapter = new VarselRevurderingAksjonspunktDto(dto.getFritekst(), dto.getBegrunnelse(), dto.getFrist(), dto.getVentearsak().getKode());
-            dokumentTjeneste.håndterVarselRevurdering(behandling, adapter);
+        var behandlingRef = param.getRef();
+        if (dto.isSendVarsel() && !harSendtVarselOmRevurdering(behandlingRef)) {
+            var adapter = new VarselRevurderingAksjonspunktDto(dto.getFritekst(), dto.getBegrunnelse(), dto.getFrist(), dto.getVentearsak().getKode());
+            dokumentTjeneste.håndterVarselRevurdering(behandlingRef, adapter);
         } else if (!dto.isSendVarsel()) {
-            opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(behandling, dto, HistorikkAktør.SAKSBEHANDLER);
+            opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(behandlingRef, dto, HistorikkAktør.SAKSBEHANDLER);
         }
         return OppdateringResultat.utenOveropp();
     }
 
-    private void opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(Behandling behandling, VarselRevurderingDto varselRevurderingDto, HistorikkAktør historikkAktør) {
+    private void opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(BehandlingReferanse ref, VarselRevurderingDto varselRevurderingDto, HistorikkAktør historikkAktør) {
         var historiebygger = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.VRS_REV_IKKE_SNDT)
             .medBegrunnelse(varselRevurderingDto.getBegrunnelse());
         var innslag = new Historikkinnslag();
         innslag.setAktør(historikkAktør);
         innslag.setType(HistorikkinnslagType.VRS_REV_IKKE_SNDT);
-        innslag.setBehandlingId(behandling.getId());
+        innslag.setBehandlingId(ref.behandlingId());
         historiebygger.build(innslag);
 
         historikkApplikasjonTjeneste.lagInnslag(innslag);
     }
 
-    private Boolean harSendtVarselOmRevurdering(Behandling behandling) {
-        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
+    private boolean harSendtVarselOmRevurdering(BehandlingReferanse behandlingReferanse) {
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingReferanse.behandlingId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }
 
 }
