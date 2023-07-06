@@ -7,12 +7,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.FpriskTjeneste;
-import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
-import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -22,13 +23,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.FpriskTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
+import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
@@ -64,8 +64,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_UENDRET);
 
         // Act
-        vurderFaresignalerOppdaterer.oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         // Assert
         var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
@@ -91,8 +90,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INNVILGET_REDUSERT);
 
         // Act
-        vurderFaresignalerOppdaterer.oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         // Assert
         var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
@@ -119,8 +117,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.INGEN_INNVIRKNING);
 
         // Act
-        vurderFaresignalerOppdaterer.oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        vurderFaresignalerOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         // Assert
         var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
@@ -147,8 +144,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         var dto = new VurderFaresignalerDto("Dustemikkel", FaresignalVurdering.AVSLAG_FARESIGNAL);
 
         // Act
-        assertThrows(IllegalStateException.class, () -> vurderFaresignalerOppdaterer.oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto)));
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        assertThrows(IllegalStateException.class, () -> vurderFaresignalerOppdaterer.oppdater(dto, param));
     }
 
     private RisikovurderingResultatDto lagRespons(no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering faresignalVurdering) {

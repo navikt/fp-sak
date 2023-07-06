@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
@@ -21,6 +22,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     AvklarForeldreansvarOppdaterer() {
         // for CDI proxy
@@ -28,9 +30,10 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     @Inject
     public AvklarForeldreansvarOppdaterer(SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
+                                          FamilieHendelseTjeneste familieHendelseTjeneste, BehandlingRepository behandlingRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
     @Override
     public OppdateringResultat oppdater(AvklarFaktaForForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var behandling = param.getBehandling();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         final var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         oppdaterAksjonspunktGrunnlag(dto, behandling);
         var skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);

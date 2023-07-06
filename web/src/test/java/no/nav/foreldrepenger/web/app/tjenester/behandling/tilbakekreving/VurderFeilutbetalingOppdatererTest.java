@@ -5,15 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
-import java.util.Optional;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
@@ -25,12 +26,13 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjons
 
 class VurderFeilutbetalingOppdatererTest {
 
-    private TilbakekrevingRepository repository = mock(TilbakekrevingRepository.class);
-    private HistorikkTjenesteAdapter historikkTjenesteAdapter = mock(HistorikkTjenesteAdapter.class);
-    private TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(historikkTjenesteAdapter);
-    private VurderFeilutbetalingOppdaterer oppdaterer = new VurderFeilutbetalingOppdaterer(repository, historikkInnslagBygger);
+    private final TilbakekrevingRepository repository = mock(TilbakekrevingRepository.class);
+    private final HistorikkTjenesteAdapter historikkTjenesteAdapter = mock(HistorikkTjenesteAdapter.class);
+    private final TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger = new TilbakekrevingvalgHistorikkinnslagBygger(historikkTjenesteAdapter);
+    private final BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
+    private final VurderFeilutbetalingOppdaterer oppdaterer = new VurderFeilutbetalingOppdaterer(repository, historikkInnslagBygger, behandlingRepository);
 
-    private ArgumentCaptor<TilbakekrevingValg> captor = ArgumentCaptor.forClass(TilbakekrevingValg.class);
+    private final ArgumentCaptor<TilbakekrevingValg> captor = ArgumentCaptor.forClass(TilbakekrevingValg.class);
 
     private Behandling behandling;
 
@@ -38,6 +40,7 @@ class VurderFeilutbetalingOppdatererTest {
     public void setup() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         this.behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
     }
 
     @Test
@@ -45,7 +48,7 @@ class VurderFeilutbetalingOppdatererTest {
         var varseltekst = "varsel";
         var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, varseltekst);
 
-        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         verify(repository).lagre(eq(behandling), captor.capture());
 
@@ -60,8 +63,8 @@ class VurderFeilutbetalingOppdatererTest {
     void skal_feile_når_Inntrekk_er_forsøkt_valgt() {
         var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.INNTREKK, null);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto)));
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
+        assertThrows(IllegalArgumentException.class, () -> oppdaterer.oppdater(dto, param));
 
     }
 

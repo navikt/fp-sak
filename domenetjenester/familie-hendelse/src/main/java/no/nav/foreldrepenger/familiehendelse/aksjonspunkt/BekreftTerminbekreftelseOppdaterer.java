@@ -11,12 +11,11 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
@@ -30,24 +29,25 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator;
     private HistorikkTjenesteAdapter historikkAdapter;
-    private FamilieHendelseRepository familieHendelseRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     BekreftTerminbekreftelseOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftTerminbekreftelseOppdaterer(BehandlingRepositoryProvider repositoryProvider, HistorikkTjenesteAdapter historikkAdapter,
+    public BekreftTerminbekreftelseOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                               SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
                                               FamilieHendelseTjeneste familieHendelseTjeneste,
-                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator) {
-        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator,
+                                              BehandlingRepository behandlingRepository) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.bekreftTerminbekreftelseValidator = bekreftTerminbekreftelseValidator;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
 
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -57,9 +57,9 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
 
     @Override
     public OppdateringResultat oppdater(BekreftTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
         var behandlingId = param.getBehandlingId();
-        final var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        final var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
         var orginalTermindato = getTermindato(grunnlag);
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
@@ -110,7 +110,6 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         }
         if (FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(oppdatertGrunnlag)) {
             // Må kontrollere fakta på nytt for å sjekke om fødsel skulle ha inntruffet.
-            // TODO: Vurder å fjerne denne (var tilbakehopp til kofak). APutleder/StpUtl tar hensyn til utløpt frist. Oppdateres når tas opp i gui.
             builder.medOppdaterGrunnlag();
         }
 

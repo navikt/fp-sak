@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
@@ -27,6 +28,7 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
     private BeregningHåndterer beregningHåndterer;
+    private BehandlingRepository behandlingRepository;
 
     VurderFaktaOmBeregningOppdaterer() {
         // for CDI proxy
@@ -37,17 +39,19 @@ public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<
                                             HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                            BeregningHåndterer beregningHåndterer)  {
+                                            BeregningHåndterer beregningHåndterer,
+                                            BehandlingRepository behandlingRepository)  {
         this.faktaBeregningHistorikkHåndterer = faktaBeregningHistorikkHåndterer;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
         this.beregningHåndterer = beregningHåndterer;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(VurderFaktaOmBeregningDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var forrigeGrunnlag = beregningsgrunnlagTjeneste
             .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
                 behandling.getId(),

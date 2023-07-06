@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
@@ -45,23 +44,21 @@ public class BekreftBosattVurderingOppdaterer implements AksjonspunktOppdaterer<
     @Override
     public OppdateringResultat oppdater(BekreftBosattVurderingDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var behandling = param.getBehandling();
 
         var bekreftedeDto = dto.getBekreftedePerioder().stream().findFirst();
         if (bekreftedeDto.isEmpty()) {
             return OppdateringResultat.utenOveropp();
         }
         var bekreftet = bekreftedeDto.get();
-        var totrinn = håndterEndringHistorikk(bekreftet, behandling);
+        var totrinn = håndterEndringHistorikk(bekreftet, behandlingId);
         medlemTjeneste.aksjonspunktBekreftBosattVurdering(behandlingId, new BekreftBosattVurderingAksjonspunktDto(bekreftet.getBosattVurdering(), bekreftet.getBegrunnelse()));
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private boolean håndterEndringHistorikk(BekreftedePerioderDto bekreftet, Behandling behandling) {
+    private boolean håndterEndringHistorikk(BekreftedePerioderDto bekreftet, Long behandlingId) {
         var bosattVurdering = bekreftet.getBosattVurdering();
         var begrunnelse = bekreftet.getBegrunnelse();
-        var behandlingId = behandling.getId();
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         var originalBosattBool = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap)
             .map(VurdertMedlemskap::getBosattVurdering).orElse(null);

@@ -5,16 +5,16 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftMannAdoptererAksjonspunktDto;
@@ -24,27 +24,28 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 @DtoTilServiceAdapter(dto = BekreftMannAdoptererAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<BekreftMannAdoptererAksjonspunktDto> {
 
-    private BehandlingRepositoryProvider repositoryProvider;
-
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private BehandlingRepository behandlingRepository;
+
+    @Inject
+    public BekreftMannAdoptererOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                          FamilieHendelseTjeneste familieHendelseTjeneste,
+                                          BehandlingRepository behandlingRepository) {
+        this.historikkAdapter = historikkAdapter;
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.behandlingRepository = behandlingRepository;
+    }
 
     BekreftMannAdoptererOppdaterer() {
         // for CDI proxy
     }
 
-    @Inject
-    public BekreftMannAdoptererOppdaterer(BehandlingRepositoryProvider repositoryProvider, HistorikkTjenesteAdapter historikkAdapter,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
-        this.historikkAdapter = historikkAdapter;
-        this.repositoryProvider = repositoryProvider;
-        this.familieHendelseTjeneste = familieHendelseTjeneste;
-    }
-
     @Override
     public OppdateringResultat oppdater(BekreftMannAdoptererAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
-        var totrinn = håndterEndringHistorikk(dto, behandling, param);
+        var behandlingReferanse = param.getRef();
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
+        var totrinn = håndterEndringHistorikk(dto, behandlingReferanse, param);
 
         final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
@@ -54,13 +55,13 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private boolean håndterEndringHistorikk(BekreftMannAdoptererAksjonspunktDto dto, Behandling behandling, AksjonspunktOppdaterParameter param) {
-        var mannAdoptererAlene = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId())
+    private boolean håndterEndringHistorikk(BekreftMannAdoptererAksjonspunktDto dto, BehandlingReferanse ref, AksjonspunktOppdaterParameter param) {
+        var mannAdoptererAlene = familieHendelseTjeneste.hentAggregat(ref.behandlingId())
             .getOverstyrtVersjon()
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
             .map(AdopsjonEntitet::getAdoptererAlene);
 
-        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.MANN_ADOPTERER, konvertBooleanTilFaktaEndretVerdiType(mannAdoptererAlene.orElse(null)),
+        var erEndret = oppdaterVedEndretVerdi(konvertBooleanTilFaktaEndretVerdiType(mannAdoptererAlene.orElse(null)),
             konvertBooleanTilFaktaEndretVerdiType(dto.getMannAdoptererAlene()));
 
         historikkAdapter.tekstBuilder()
@@ -77,9 +78,9 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
         return mannAdoptererAlene ? HistorikkEndretFeltVerdiType.ADOPTERER_ALENE : HistorikkEndretFeltVerdiType.ADOPTERER_IKKE_ALENE;
     }
 
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, HistorikkEndretFeltVerdiType original, HistorikkEndretFeltVerdiType bekreftet) {
+    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltVerdiType original, HistorikkEndretFeltVerdiType bekreftet) {
         if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, original, bekreftet);
+            historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.MANN_ADOPTERER, original, bekreftet);
             return true;
         }
         return false;

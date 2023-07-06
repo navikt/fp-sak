@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -79,8 +81,8 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
             bekreftedeFødselsdatoer);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste, skjæringstidspunktTjeneste).oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste, skjæringstidspunktTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);

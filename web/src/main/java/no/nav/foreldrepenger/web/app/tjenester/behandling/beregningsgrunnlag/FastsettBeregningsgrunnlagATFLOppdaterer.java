@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
@@ -33,6 +34,7 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
     private FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste;
     private BeregningHåndterer beregningHåndterer;
+    private BehandlingRepository behandlingRepository;
 
     protected FastsettBeregningsgrunnlagATFLOppdaterer() {
         // CDI
@@ -43,12 +45,13 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
                                                     FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste,
                                                     FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste,
                                                     BeregningsgrunnlagInputProvider beregningsgrunnlagInputTjeneste,
-                                                    BeregningHåndterer beregningHåndterer) {
+                                                    BeregningHåndterer beregningHåndterer, BehandlingRepository behandlingRepository) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.fastsettBeregningsgrunnlagATFLHistorikkTjeneste = fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
         this.fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste = fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
         this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
         this.beregningHåndterer = beregningHåndterer;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -70,7 +73,8 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
         beregningHåndterer.håndterFastsettBeregningsgrunnlagATFL(input, OppdatererDtoMapper.mapFastsettBeregningsgrunnlagATFLDto(dto));
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(param, dto, aktivtGrunnlag);
         var builder = OppdateringResultat.utenTransisjon();
-        håndterEventueltOverflødigAksjonspunkt(param.getBehandling())
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
+        håndterEventueltOverflødigAksjonspunkt(behandling)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         return builder.build();
     }

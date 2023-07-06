@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -64,11 +65,11 @@ class AvklarFortsattMedlemskapOppdatererTest {
 
         final var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, historikkTjenesteAdapter, lagMockYtelseSkjæringstidspunktTjeneste(LocalDate.now()));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
         new AvklarFortsattMedlemskapOppdaterer(medlemskapTjeneste)
-                .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+                .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertLøpendeMedlemskap(behandling.getId(), repositoryProvider);

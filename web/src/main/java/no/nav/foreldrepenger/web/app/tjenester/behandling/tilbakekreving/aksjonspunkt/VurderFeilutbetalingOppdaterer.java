@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
@@ -20,15 +21,18 @@ public class VurderFeilutbetalingOppdaterer implements AksjonspunktOppdaterer<Vu
     static final Set<TilbakekrevingVidereBehandling> LOVLIGE_VALG = Set.of(TilbakekrevingVidereBehandling.IGNORER_TILBAKEKREVING, TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD);
     private TilbakekrevingRepository repository;
     private TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger;
+    private BehandlingRepository behandlingRepository;
 
     VurderFeilutbetalingOppdaterer() {
         //CDI proxy
     }
 
     @Inject
-    public VurderFeilutbetalingOppdaterer(TilbakekrevingRepository repository, TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger) {
+    public VurderFeilutbetalingOppdaterer(TilbakekrevingRepository repository, TilbakekrevingvalgHistorikkinnslagBygger historikkInnslagBygger,
+                                          BehandlingRepository behandlingRepository) {
         this.repository = repository;
         this.historikkInnslagBygger = historikkInnslagBygger;
+        this.behandlingRepository = behandlingRepository;
     }
 
     private static void valider(VurderFeilutbetalingDto dto) {
@@ -40,8 +44,8 @@ public class VurderFeilutbetalingOppdaterer implements AksjonspunktOppdaterer<Vu
     @Override
     public OppdateringResultat oppdater(VurderFeilutbetalingDto dto, AksjonspunktOppdaterParameter param) {
         valider(dto);
-        var behandling = param.getBehandling();
         var behandlingId = param.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var forrigeValg = repository.hent(behandlingId);
         var valg = TilbakekrevingValg.utenMulighetForInntrekk(dto.getVidereBehandling(), dto.getVarseltekst());
         repository.lagre(behandling, valg);

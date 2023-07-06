@@ -5,12 +5,12 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
@@ -114,7 +114,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         };
 
         // Act
-        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         // Assert
         assertThat(behandling.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANLDER);
@@ -136,7 +136,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 behandlingDokumentRepository);
 
         // Act
-        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -168,7 +168,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 behandlingDokumentRepository);
 
         // Act
-        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -196,7 +196,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var aksjonspunktDto = new FatterVedtakAksjonspunktDto("", Collections.singletonList(aksGodkjDto));
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
-                new AksjonspunktOppdaterParameter(behandling, Optional.empty(), aksjonspunktDto));
+                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
 
         var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);
@@ -225,7 +225,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
 
         var aksjonspunktDto = new FatterVedtakAksjonspunktDto("", Collections.singletonList(aksGodkjDto));
         new FatterVedtakAksjonspunktOppdaterer(fatterVedtakAksjonspunkt).oppdater(aksjonspunktDto,
-                new AksjonspunktOppdaterParameter(behandling, Optional.empty(), aksjonspunktDto));
+                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), aksjonspunktDto, null));
 
         var totrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         assertThat(totrinnsvurderinger).hasSize(1);
