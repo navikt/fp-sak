@@ -8,10 +8,9 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -39,13 +37,10 @@ import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory;
-import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = ManuellRegistreringDto.class, adapter = AksjonspunktOppdaterer.class)
 public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<ManuellRegistreringDto> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ManuellRegistreringOppdaterer.class);
 
     private FagsakRepository fagsakRepository;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
@@ -70,14 +65,13 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
     @Override
     public OppdateringResultat oppdater(ManuellRegistreringDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
+        var behandlingReferanse = param.getRef();
         var behandlingId = param.getBehandlingId();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
 
         if (dto.getUfullstendigSoeknad()) {
-
-            final var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
-            dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandling, adapter)
+            var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
+            dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
                 .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
             lagHistorikkInnslag(behandlingId, HistorikkinnslagType.MANGELFULL_SØKNAD, null);
             return resultatBuilder
@@ -86,16 +80,18 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         }
 
         ManuellRegistreringValidator.validerOpplysninger(dto);
-        ManuellRegistreringValidator.validerAktivitetskrav(behandling.getFagsak(), dto);
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandlingReferanse.fagsakYtelseType())) {
+            ManuellRegistreringValidator.validerAktivitetskrav(dto, behandlingReferanse.relasjonRolle());
+        }
 
-        var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
+        var fagsak = fagsakRepository.finnEksaktFagsak(behandlingReferanse.fagsakId());
         var navBruker = fagsak.getNavBruker();
-        var søknadXml = opprettSøknadsskjema(dto, behandling, navBruker);
-        var dokumentTypeId = finnDokumentType(dto, behandling.getType());
+        var søknadXml = opprettSøknadsskjema(dto, behandlingReferanse, navBruker);
+        var dokumentTypeId = finnDokumentType(dto, behandlingReferanse.behandlingType());
 
-        final var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml,
+        var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml,
             dokumentTypeId, dto.getMottattDato(), dto.isRegistrerVerge());
-        dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandling, adapter)
+        dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
             .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
 
         lagHistorikkInnslag(behandlingId, HistorikkinnslagType.REGISTRER_PAPIRSØK, dto.getKommentarEndring());
@@ -142,12 +138,10 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         return FamilieHendelseType.FØDSEL.getKode().equals(dto.getTema().getKode());
     }
 
-    private String opprettSøknadsskjema(ManuellRegistreringDto dto, Behandling behandling, NavBruker navBruker) {
-        Soeknad søknad = null;
+    private String opprettSøknadsskjema(ManuellRegistreringDto dto, BehandlingReferanse behandlingReferanse, NavBruker navBruker) {
 
-        var ytelseType = behandling.getFagsakYtelseType();
-        var behandlingType = behandling.getType();
-
+        var ytelseType = behandlingReferanse.fagsakYtelseType();
+        var behandlingType = behandlingReferanse.behandlingType();
 
         if (REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER.equals(dto.getAksjonspunktDefinisjon())) {
             // minihack for
@@ -155,11 +149,10 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         }
 
         var mapper = finnSøknadMapper(ytelseType, behandlingType);
-        søknad = mapper.mapSøknad(dto, navBruker);
+        var søknad = mapper.mapSøknad(dto, navBruker);
 
-        String søknadXml;
         try {
-            søknadXml = JaxbHelper.marshalAndValidateJaxb(SøknadConstants.JAXB_CLASS,
+            return JaxbHelper.marshalAndValidateJaxb(SøknadConstants.JAXB_CLASS,
                 new ObjectFactory().createSoeknad(søknad),
                 SøknadConstants.XSD_LOCATION,
                 SøknadConstants.ADDITIONAL_XSD_LOCATION,
@@ -167,7 +160,6 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         } catch (JAXBException | SAXException e) {
             throw new TekniskException("FP-453254", "Feil ved marshalling av søknadsskjema", e);
         }
-        return søknadXml;
     }
 
     private void lagHistorikkInnslag(Long behandlingId, HistorikkinnslagType innslagType, String kommentarEndring) {
