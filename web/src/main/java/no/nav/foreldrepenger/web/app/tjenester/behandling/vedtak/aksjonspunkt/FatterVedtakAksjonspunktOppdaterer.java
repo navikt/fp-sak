@@ -48,8 +48,7 @@ public class FatterVedtakAksjonspunktOppdaterer implements AksjonspunktOppdatere
                 })
                 .collect(Collectors.toSet());
 
-        var behandling = param.getBehandling();
-        fatterVedtakAksjonspunkt.oppdater(behandling, aksjonspunkter);
+        fatterVedtakAksjonspunkt.oppdater(param.getRef(), aksjonspunkter);
 
         return OppdateringResultat.utenOveropp();
     }

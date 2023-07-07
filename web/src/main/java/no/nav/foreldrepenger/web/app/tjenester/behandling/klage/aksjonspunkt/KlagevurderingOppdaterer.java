@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -33,6 +34,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     KlagevurderingOppdaterer() {
         // for CDI proxy
@@ -42,16 +44,18 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     public KlagevurderingOppdaterer(HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                     BehandlingsutredningTjeneste behandlingsutredningTjeneste,
                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                    KlageVurderingTjeneste klageVurderingTjeneste) {
+                                    KlageVurderingTjeneste klageVurderingTjeneste,
+                                    BehandlingRepository behandlingRepository) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(KlageVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         var totrinn = håndterToTrinnsBehandling(behandling, aksjonspunktDefinisjon, dto.getKlageVurdering());
 

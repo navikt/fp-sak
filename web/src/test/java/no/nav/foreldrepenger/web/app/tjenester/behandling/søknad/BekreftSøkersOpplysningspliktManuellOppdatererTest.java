@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -39,7 +40,7 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
 
         var behandling = scenario.getBehandling();
 
-        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(lagMockHistory());
+        var oppdaterer = new BekreftSøkersOpplysningspliktManuellOppdaterer(lagMockHistory(), scenario.mockBehandlingRepository());
 
         // Dto
         var bekreftSokersOpplysningspliktManuDto = new BekreftSokersOpplysningspliktManuDto(
@@ -47,9 +48,9 @@ class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
-                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, bekreftSokersOpplysningspliktManuDto));
+                new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), bekreftSokersOpplysningspliktManuDto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);

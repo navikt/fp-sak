@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -69,13 +70,13 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
 
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
                 .medRegisterUføretrygd(false, null, null).build()));
         dto.setAnnenforelderMottarUføretrygd(Boolean.TRUE);
 
-        oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkinnslagDeler = tekstBuilder.build(historikkinnslag);
@@ -108,7 +109,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
         var resultat = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         //assert
         assertThat(behandling.harAksjonspunktMedType(AKSONSPUNKT_DEF)).isTrue();
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
@@ -131,7 +132,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
         var resultat = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         //assert
         assertThat(resultat.kreverTotrinnsKontroll()).isFalse();
 
@@ -140,7 +141,7 @@ class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
             .medRegisterUføretrygd(false, null, null).build()));
         dto.setAnnenforelderMottarUføretrygd(true);  //skal ikke påvirker her
         var resultat1 = oppdaterer().oppdater(dto,
-            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         //assert
         assertThat(resultat1.kreverTotrinnsKontroll()).isTrue();
     }

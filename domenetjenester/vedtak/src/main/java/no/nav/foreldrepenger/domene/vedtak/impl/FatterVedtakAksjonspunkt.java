@@ -8,11 +8,12 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakAksjonspunktData;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
@@ -27,23 +28,27 @@ public class FatterVedtakAksjonspunkt {
     private TotrinnTjeneste totrinnTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-
-    public FatterVedtakAksjonspunkt() {
-        // CDI
-    }
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public FatterVedtakAksjonspunkt(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                     VedtakTjeneste vedtakTjeneste,
                                     TotrinnTjeneste totrinnTjeneste,
-                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                    BehandlingRepository behandlingRepository) {
         this.vedtakTjeneste = vedtakTjeneste;
         this.totrinnTjeneste = totrinnTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
-    public void oppdater(Behandling behandling, Collection<VedtakAksjonspunktData> aksjonspunkter) {
+    FatterVedtakAksjonspunkt() {
+        // CDI
+    }
+
+    public void oppdater(BehandlingReferanse behandlingReferanse, Collection<VedtakAksjonspunktData> aksjonspunkter) {
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandling.setAnsvarligBeslutter(KontekstHolder.getKontekst().getUid());
 

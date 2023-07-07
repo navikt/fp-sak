@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
@@ -37,6 +38,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     SjekkManglendeFødselOppdaterer() {
         // for CDI proxy
@@ -45,10 +47,12 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     @Inject
     public SjekkManglendeFødselOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                           SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
+                                          FamilieHendelseTjeneste familieHendelseTjeneste,
+                                          BehandlingRepository behandlingRepository) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -59,7 +63,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
 
     @Override
     public OppdateringResultat oppdater(SjekkManglendeFodselDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandling.getId());
         var totrinn = håndterEndringHistorikk(dto, behandling, param, grunnlag);
         var utledetResultat = utledFødselsdata(dto, grunnlag);

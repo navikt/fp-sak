@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -93,10 +94,10 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
         // Dto
         var dto = new BekreftEktefelleAksjonspunktDto("begrunnelse", oppdatertEktefellesBarn);
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        new BekreftEktefelleOppdaterer(repositoryProvider, lagMockHistory(), familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new BekreftEktefelleOppdaterer(lagMockHistory(), familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
@@ -138,11 +139,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         // Dto
         var dto = new SjekkManglendeFodselDto("begrunnelse",
             true, antallBarnTpsGjelderBekreftet, List.of(uidentifiserteBarn));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
 
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
@@ -174,11 +175,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         // Dto
 
         var dto = new SjekkManglendeFodselDto("begrunnelse", true, false, List.of(uidentifiserteBarn));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
@@ -214,11 +215,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         final var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -243,11 +244,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         assertThat(resultat.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.OPPDATER);
@@ -276,11 +277,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        var resultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
@@ -289,8 +290,9 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         AksjonspunktTestSupport.fjernToTrinnsBehandlingKreves(aksjonspunkt);
 
         // Act
-        var oppdateringResultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        var oppdateringResultat = new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste,
+            repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         assertThat(oppdateringResultat.kreverTotrinnsKontroll()).isTrue();
@@ -312,11 +314,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(now.minusDays(3), null)};
         var dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         final var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -349,11 +351,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
         var dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, true, new ArrayList<UidentifisertBarnDto>());
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act
-        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste, repositoryProvider.getBehandlingRepository())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         final var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -382,12 +384,12 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, false, List.of(uidentifiserteBarn));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         var oppdaterer = new SjekkManglendeFødselOppdaterer(lagMockHistory(),
-            skjæringstidspunktTjeneste, familieHendelseTjeneste);
+            skjæringstidspunktTjeneste, familieHendelseTjeneste, repositoryProvider.getBehandlingRepository());
         assertThrows(KanIkkeUtledeGjeldendeFødselsdatoException.class, () -> oppdaterer
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto)));
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt)));
     }
 
     private void assertFelt(HistorikkinnslagDel historikkinnslagDel, HistorikkEndretFeltType historikkEndretFeltType, Object fraVerdi, Object tilVerdi) {

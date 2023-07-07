@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -76,9 +77,9 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
         final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
 
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftOppholdsrettVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);
-        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         var vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);
@@ -118,9 +119,9 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
         final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
 
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftLovligOppholdVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);
-        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
         var behandlingId = behandling.getId();
@@ -130,7 +131,7 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
 
         // Act 2
         bekreftetPeriode.setBegrunnelse("test2");
-        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert 2
         vurdertMedlemskap = getVurdertMedlemskap(behandlingId, repositoryProvider);

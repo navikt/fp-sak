@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -67,11 +68,15 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
     @Mock
     private BeregningsgrunnlagInput input;
 
+    @Mock
+    private BehandlingRepository behandlingRepository;
+
     @BeforeEach
     public void setup() {
         when(behandling.getFagsak()).thenReturn(fagsak);
+        when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         oppdaterer = new FastsettBeregningsgrunnlagATFLOppdaterer(beregningsgrunnlagTjeneste, historikk, historikkTidsbegrenset,
-                beregningsgrunnlagInputTjeneste, beregningHåndterer);
+                beregningsgrunnlagInputTjeneste, beregningHåndterer, behandlingRepository);
     }
 
     @Test
@@ -88,7 +93,7 @@ class FastsettBeregningsgrunnlagATFLOppdatererTest {
         // Dto
         var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.emptyList(), null);
         // Act
-        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, ap, dto));
+        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, ap));
 
         // Assert
         assertThat(resultat.getEkstraAksjonspunktResultat()).hasSize(1);

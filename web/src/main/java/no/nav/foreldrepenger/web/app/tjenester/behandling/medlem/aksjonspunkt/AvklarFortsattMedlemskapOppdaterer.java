@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -31,30 +30,29 @@ public class AvklarFortsattMedlemskapOppdaterer implements AksjonspunktOppdatere
 
     @Override
     public OppdateringResultat oppdater(AvklarFortsattMedlemskapDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
         final var adapter = new AvklarFortsattMedlemskapAksjonspunktDto(mapTilAdapterFra(dto));
 
-        medlemTjeneste.aksjonspunktAvklarFortsattMedlemskap(behandling.getId(), adapter);
+        medlemTjeneste.aksjonspunktAvklarFortsattMedlemskap(param.getBehandlingId(), adapter);
         return OppdateringResultat.utenOveropp();
     }
 
     private List<BekreftedePerioderAdapter> mapTilAdapterFra(AvklarFortsattMedlemskapDto dto) {
-        List<BekreftedePerioderAdapter> resultat = new ArrayList<>();
-        dto.getBekreftedePerioder().forEach(periode -> {
-            var adapter = new BekreftedePerioderAdapter();
-            if (periode.getMedlemskapManuellVurderingType() != null) {
+        return dto.getBekreftedePerioder().stream().map(AvklarFortsattMedlemskapOppdaterer::map).toList();
+    }
+
+    private static BekreftedePerioderAdapter map(BekreftedePerioderDto periode) {
+        var adapter = new BekreftedePerioderAdapter();
+        if (periode.getMedlemskapManuellVurderingType() != null) {
             adapter.setMedlemskapManuellVurderingType(periode.getMedlemskapManuellVurderingType());
-            }
-            adapter.setAksjonspunkter(periode.getAksjonspunkter());
-            adapter.setBosattVurdering(periode.getBosattVurdering());
-            adapter.setErEosBorger(periode.getErEosBorger());
-            adapter.setLovligOppholdVurdering(periode.getLovligOppholdVurdering());
-            adapter.setVurderingsdato(periode.getVurderingsdato());
-            adapter.setOmsorgsovertakelseDato(periode.getOmsorgsovertakelseDato());
-            adapter.setOppholdsrettVurdering(periode.getOppholdsrettVurdering());
-            adapter.setBegrunnelse(periode.getBegrunnelse());
-            resultat.add(adapter);
-        });
-        return resultat;
+        }
+        adapter.setAksjonspunkter(periode.getAksjonspunkter());
+        adapter.setBosattVurdering(periode.getBosattVurdering());
+        adapter.setErEosBorger(periode.getErEosBorger());
+        adapter.setLovligOppholdVurdering(periode.getLovligOppholdVurdering());
+        adapter.setVurderingsdato(periode.getVurderingsdato());
+        adapter.setOmsorgsovertakelseDato(periode.getOmsorgsovertakelseDato());
+        adapter.setOppholdsrettVurdering(periode.getOppholdsrettVurdering());
+        adapter.setBegrunnelse(periode.getBegrunnelse());
+        return adapter;
     }
 }

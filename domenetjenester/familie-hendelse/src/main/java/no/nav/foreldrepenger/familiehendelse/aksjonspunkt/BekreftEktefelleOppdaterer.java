@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAksjonspunktDto;
@@ -23,28 +23,28 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 @DtoTilServiceAdapter(dto = BekreftEktefelleAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<BekreftEktefelleAksjonspunktDto> {
 
-    private BehandlingRepositoryProvider repositoryProvider;
-
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private BehandlingRepository behandlingRepository;
 
-    public BekreftEktefelleOppdaterer() {
+    BekreftEktefelleOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftEktefelleOppdaterer(BehandlingRepositoryProvider repositoryProvider, HistorikkTjenesteAdapter historikkAdapter,
-                                      FamilieHendelseTjeneste familieHendelseTjeneste) {
+    public BekreftEktefelleOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                      FamilieHendelseTjeneste familieHendelseTjeneste,
+                                      BehandlingRepository behandlingRepository) {
         this.historikkAdapter = historikkAdapter;
-        this.repositoryProvider = repositoryProvider;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftEktefelleAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
         var behandlingId = param.getBehandlingId();
-        var erEktefellesBarn = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId)
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var erEktefellesBarn = familieHendelseTjeneste.hentAggregat(behandlingId)
             .getGjeldendeBekreftetVersjon()
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
             .map(AdopsjonEntitet::getErEktefellesBarn);

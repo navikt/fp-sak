@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -41,7 +41,7 @@ public final class UttakHistorikkUtil {
         return new UttakHistorikkUtil(HistorikkinnslagType.FASTSATT_UTTAK_SPLITT, HistorikkinnslagType.FASTSATT_UTTAK);
     }
 
-    public List<Historikkinnslag> lagHistorikkinnslag(Behandling behandling,
+    public List<Historikkinnslag> lagHistorikkinnslag(BehandlingReferanse behandling,
                                                       List<UttakResultatPeriodeLagreDto> uttakResultat,
                                                       List<ForeldrepengerUttakPeriode> gjeldende) {
         List<Historikkinnslag> historikkinnslag = new ArrayList<>();
@@ -50,7 +50,7 @@ public final class UttakHistorikkUtil {
         return historikkinnslag;
     }
 
-    private List<Historikkinnslag> lagHistorikkinnslagFraPeriodeEndringer(Behandling behandling,
+    private List<Historikkinnslag> lagHistorikkinnslagFraPeriodeEndringer(BehandlingReferanse behandling,
                                                                           List<UttakResultatPeriodeLagreDto> perioder,
                                                                           List<ForeldrepengerUttakPeriode> gjeldende) {
         return perioder
@@ -60,7 +60,7 @@ public final class UttakHistorikkUtil {
             .toList();
     }
 
-    private List<Historikkinnslag> lagHistorikkinnslagFraSplitting(Behandling behandling,
+    private List<Historikkinnslag> lagHistorikkinnslagFraSplitting(BehandlingReferanse behandling,
                                                                    List<UttakResultatPeriodeLagreDto> nyePerioder,
                                                                    List<ForeldrepengerUttakPeriode> gjeldende) {
         if (nyePerioder.size() == gjeldende.size()) {
@@ -70,12 +70,12 @@ public final class UttakHistorikkUtil {
         return splittet.stream().map(split -> lagHistorikkinnslag(behandling, split)).toList();
     }
 
-    private Historikkinnslag lagHistorikkinnslag(Behandling behandling,
+    private Historikkinnslag lagHistorikkinnslag(BehandlingReferanse behandling,
                                                  UttakOverstyringsPeriodeSplitt split) {
         var historikkinnslag = new Historikkinnslag.Builder()
             .medType(historikkinnslagTypeSplitt)
-            .medFagsakId(behandling.getFagsakId())
-            .medBehandlingId(behandling.getId())
+            .medFagsakId(behandling.fagsakId())
+            .medBehandlingId(behandling.behandlingId())
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .build();
         var tekstBuilder = new HistorikkInnslagTekstBuilder()
@@ -112,7 +112,7 @@ public final class UttakHistorikkUtil {
             matchendeGjeldendePeriode.getTom().isEqual(periode.getTom());
     }
 
-    private List<Historikkinnslag> lagHistorikkinnslagForPeriode(Behandling behandling,
+    private List<Historikkinnslag> lagHistorikkinnslagForPeriode(BehandlingReferanse behandling,
                                                                  UttakResultatPeriodeLagreDto periode,
                                                                  List<ForeldrepengerUttakPeriode> gjeldende) {
         List<Historikkinnslag> list = new ArrayList<>();
@@ -129,14 +129,14 @@ public final class UttakHistorikkUtil {
         return list;
     }
 
-    private Historikkinnslag lagHistorikkinnslag(Behandling behandling,
+    private Historikkinnslag lagHistorikkinnslag(BehandlingReferanse behandling,
                                                  List<ForeldrepengerUttakPeriode> gjeldende,
                                                  UttakResultatPeriodeLagreDto nyPeriode,
                                                  UttakResultatPeriodeAktivitetLagreDto nyAktivitet) {
         var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medBehandlingId(behandling.getId())
-            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.behandlingId())
+            .medFagsakId(behandling.fagsakId())
             .medType(historikkinnslagTypeEndring)
             .build();
         var tekstBuilder = lagHistorikkinnslagTekst(gjeldende, nyPeriode, nyAktivitet);
@@ -144,13 +144,13 @@ public final class UttakHistorikkUtil {
         return historikkinnslag;
     }
 
-    private Historikkinnslag lagHistorikkinnslagForOppholdsperiode(Behandling behandling,
+    private Historikkinnslag lagHistorikkinnslagForOppholdsperiode(BehandlingReferanse behandling,
                                                                    List<ForeldrepengerUttakPeriode> gjeldende,
                                                                    UttakResultatPeriodeLagreDto nyPeriode) {
         var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medBehandlingId(behandling.getId())
-            .medFagsakId(behandling.getFagsakId())
+            .medBehandlingId(behandling.behandlingId())
+            .medFagsakId(behandling.fagsakId())
             .medType(historikkinnslagTypeEndring)
             .build();
         var tekstBuilder = lagHistorikkinnslagTekstForOppholdsperiode(gjeldende, nyPeriode);

@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -31,19 +32,22 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
 
     private VilkårType vilkårType;
     private HistorikkTjenesteAdapter historikkAdapter;
+    private BehandlingRepository bRepo;
 
     protected OmsorgsvilkårAksjonspunktOppdaterer() {
         // for CDI proxy
     }
 
-    public OmsorgsvilkårAksjonspunktOppdaterer(HistorikkTjenesteAdapter historikkAdapter, VilkårType vilkårType) {
+    public OmsorgsvilkårAksjonspunktOppdaterer(HistorikkTjenesteAdapter historikkAdapter, VilkårType vilkårType,
+                                               BehandlingRepository behandlingRepository) {
         this.historikkAdapter = historikkAdapter;
         this.vilkårType = vilkårType;
+        this.bRepo = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(AvslagbartAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
+        var behandling = bRepo.hentBehandling(param.getBehandlingId());
         var resultatBuilder = OppdateringResultat.utenTransisjon();
         var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         var skjermlenkeType = HistorikkAksjonspunktAdapter.getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon);
@@ -83,8 +87,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public Foreldreansvarsvilkår1Oppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-            super(historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
+        public Foreldreansvarsvilkår1Oppdaterer(HistorikkTjenesteAdapter historikkAdapter, BehandlingRepository behandlingRepository) {
+            super(historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, behandlingRepository);
         }
 
         @Override
@@ -103,8 +107,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public Foreldreansvarsvilkår2Oppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-            super(historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+        public Foreldreansvarsvilkår2Oppdaterer(HistorikkTjenesteAdapter historikkAdapter, BehandlingRepository behandlingRepository) {
+            super(historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, behandlingRepository);
         }
 
         @Override
@@ -122,8 +126,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public OmsorgsvilkårOppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-            super(historikkAdapter, VilkårType.OMSORGSVILKÅRET);
+        public OmsorgsvilkårOppdaterer(HistorikkTjenesteAdapter historikkAdapter, BehandlingRepository behandlingRepository) {
+            super(historikkAdapter, VilkårType.OMSORGSVILKÅRET, behandlingRepository);
         }
 
         @Override

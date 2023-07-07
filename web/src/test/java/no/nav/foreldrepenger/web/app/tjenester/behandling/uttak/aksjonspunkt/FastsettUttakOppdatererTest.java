@@ -7,13 +7,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -65,7 +65,7 @@ class FastsettUttakOppdatererTest {
     @BeforeEach
     public void setup() {
         oppdaterer = new FastsettUttakOppdaterer(mock(HistorikkTjenesteAdapter.class), fastettePerioderTjeneste,
-                uttakTjeneste, uttakInputTjeneste);
+                uttakTjeneste, uttakInputTjeneste, repositoryProvider.getBehandlingRepository());
     }
 
     @Test
@@ -112,7 +112,7 @@ class FastsettUttakOppdatererTest {
             .build();
         ytelsesFordelingRepository.lagre(behandling.getId(), ytelseFordelingAggregat);
 
-        var result = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
+        var result = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         var lagretUttak = uttakTjeneste.hentUttak(behandling.getId());
 
@@ -153,7 +153,7 @@ class FastsettUttakOppdatererTest {
                 .build();
         FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of(dtoPeriode));
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
-        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
 
         var avbrutt = resultat.getEkstraAksjonspunktResultat().stream()
                 .anyMatch(aer -> AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER.equals(aer.getAksjonspunktDefinisjon())

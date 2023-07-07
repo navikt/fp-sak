@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
@@ -23,19 +24,22 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 public class BekreftSøkersOpplysningspliktManuellOppdaterer implements AksjonspunktOppdaterer<BekreftSokersOpplysningspliktManuDto> {
 
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
+    private BehandlingRepository behandlingRepository;
 
     protected BekreftSøkersOpplysningspliktManuellOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public BekreftSøkersOpplysningspliktManuellOppdaterer(HistorikkTjenesteAdapter historikkTjenesteAdapter) {
+    public BekreftSøkersOpplysningspliktManuellOppdaterer(HistorikkTjenesteAdapter historikkTjenesteAdapter,
+                                                          BehandlingRepository behandlingRepository) {
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftSokersOpplysningspliktManuDto dto, AksjonspunktOppdaterParameter param) {
-        var behandling = param.getBehandling();
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         final var erVilkårOk = dto.getErVilkarOk() &&
             dto.getInntektsmeldingerSomIkkeKommer().stream().filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer()).toList().isEmpty();
         leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), erVilkårOk);

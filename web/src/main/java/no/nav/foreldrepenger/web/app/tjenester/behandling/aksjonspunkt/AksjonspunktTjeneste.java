@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,6 +13,7 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -349,7 +349,7 @@ public class AksjonspunktTjeneste {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         var oppdaterer = finnAksjonspunktOppdaterer(dto.getClass(), dto.getAksjonspunktDefinisjon());
-        var param = new AksjonspunktOppdaterParameter(behandling, Optional.of(aksjonspunkt), skjæringstidspunkter, dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, skjæringstidspunkter), dto, aksjonspunkt);
         var delresultat = oppdaterer.oppdater(dto, param);
         overhoppResultat.leggTil(delresultat);
         byggVilkårResultat(vilkårBuilder, delresultat);

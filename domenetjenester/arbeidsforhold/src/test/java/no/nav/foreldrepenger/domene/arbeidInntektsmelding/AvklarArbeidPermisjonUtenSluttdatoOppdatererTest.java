@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -116,8 +117,8 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
             .build();
 
         //Act
-        var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt,
-            bekreftetArbeidMedPermisjonUtenSluttdato.getBegrunnelse()));
+        var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(
+            BehandlingReferanse.fra(behandling, skjæringstidspunkt), bekreftetArbeidMedPermisjonUtenSluttdato, aksjonspunkt));
 
         //Assert
         var behandlingRepository = provider.getBehandlingRepository();
@@ -162,8 +163,8 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
             .build();
 
         //Act
-        var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt,
-            bekreftetArbeidMedPermisjonUtenSluttdato.getBegrunnelse()));
+        var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(
+            BehandlingReferanse.fra(behandling, skjæringstidspunkt), bekreftetArbeidMedPermisjonUtenSluttdato, aksjonspunkt));
 
         //Assert
         var behandlingRepository = provider.getBehandlingRepository();

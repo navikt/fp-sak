@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
@@ -28,22 +29,26 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private InnsynTjeneste innsynTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     VurderInnsynOppdaterer() {
         // for CDI proxy
     }
 
     @Inject
-    public VurderInnsynOppdaterer(BehandlingskontrollTjeneste behandlingskontrollTjeneste, InnsynTjeneste innsynTjeneste) {
+    public VurderInnsynOppdaterer(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                  InnsynTjeneste innsynTjeneste,
+                                  BehandlingRepository behandlingRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.innsynTjeneste = innsynTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(VurderInnsynDto dto, AksjonspunktOppdaterParameter param) {
         var resultatBuilder = new OppdateringResultat.Builder();
         resultatBuilder.medVilkårResultatType(VilkårResultatType.UDEFINERT); // Kvifor settes denne her?
-        var behandling = param.getBehandling();
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         var builder = InnsynEntitet.InnsynBuilder.builder();
         builder
             .medBehandlingId(param.getBehandlingId())

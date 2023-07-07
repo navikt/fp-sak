@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -88,7 +88,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
 
         // Act
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto), dto, bg);
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto), dto, bg);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);
@@ -119,7 +119,7 @@ class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
 
         // Act
         fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(
-            new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto), dto, bg);
+            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto), dto, bg);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         var historikkInnslag = tekstBuilder.build(historikkinnslag);

@@ -3,14 +3,13 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.Optional;
-
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -43,7 +42,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
@@ -59,7 +58,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
         var resultat = oppdaterer.oppdater(dto, param);
 
         var builder = VilkårResultat.builder();
@@ -79,7 +78,7 @@ class BekreftSvangerskapspengervilkårOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         var behandling = scenario.lagre(repositoryProvider);
-        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
         var resultat = oppdaterer.oppdater(dto, param);
 
         var builder = VilkårResultat.builder();

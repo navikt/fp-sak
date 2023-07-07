@@ -10,6 +10,8 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
@@ -65,7 +67,7 @@ class VurderSøknadsfristOppdatererTest {
 
     private AksjonspunktOppdaterParameter aksjonspunktParam(Behandling behandling, BekreftetAksjonspunktDto dto) {
         var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
-        return new AksjonspunktOppdaterParameter(behandling, ap, dto);
+        return new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, ap);
     }
 
     @Test

@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -66,9 +67,9 @@ class VergeOppdatererTest {
         // Behandling
         var behandling = opprettBehandling();
         var dto = opprettDtoVerge();
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         new VergeOppdaterer(historikkTjeneste, personinfoAdapter, mock(VergeRepository.class), brukerTjeneste)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt.orElse(null), dto));
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
