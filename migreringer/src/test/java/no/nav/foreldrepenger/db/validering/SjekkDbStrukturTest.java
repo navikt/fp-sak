@@ -36,7 +36,14 @@ class SjekkDbStrukturTest {
 
     @Test
     void sjekk_at_alle_tabeller_er_dokumentert() throws Exception {
-        var sql = "SELECT table_name FROM all_tab_comments WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT')) AND owner=sys_context('userenv', 'current_schema') AND table_name NOT LIKE 'schema_%' AND table_name not like '%_MOCK' AND table_name NOT LIKE 'HTE_%'";
+        var sql = """
+            SELECT table_name FROM all_tab_comments
+            WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT'))
+            AND owner=sys_context('userenv', 'current_schema')
+            AND table_name NOT LIKE 'schema_%'
+            AND table_name not like '%_MOCK'
+            AND table_name NOT LIKE 'HTE_%'
+            """;
         List<String> avvik = new ArrayList<>();
         try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
