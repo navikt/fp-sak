@@ -64,15 +64,27 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .filter(yrkesaktivitet -> harAnsettelsesperiodeSomInkludererEllerTilkommerEtterStp(stp, yrkesaktivitet))
                 .toList();
 
-        var tilretteleggingerMedArbeidsforholdId = tilretteleggingerMedArbeidsgiver.stream()
+        List<SvpTilretteleggingEntitet> tilretteleggingerMedArbeidsforholdId = new ArrayList<>(tilretteleggingerMedArbeidsgiver.stream()
             .filter(t -> t.getInternArbeidsforholdRef().isPresent())
-            .toList();
+            .toList());
+
+        List<SvpTilretteleggingEntitet> tilretteleggingerUtenArbeidsforholdId = new ArrayList<>(tilretteleggingerMedArbeidsgiver.stream()
+            .filter(t -> t.getInternArbeidsforholdRef().isEmpty())
+            .toList());
+
+        //Vi må sjekke om tilretteleggingene i listen tilretteleggingerMedArbeidsforholdId fortsatt har en matchende inntektsmelding
+        //Dersom det ikke finnes må det opprettes nye tilrettelegginger for nye yrkesaktiviteter (feks pga endringer i aa-Reg og det er sendt inn ny IM)
+        List<SvpTilretteleggingEntitet> tilrMedArbforholdIdSomIkkeHarMatchendeIM = finnTilrSomIkkeHarMatchendeIM(inntektsmeldinger, tilretteleggingerMedArbeidsforholdId);
+
+        tilretteleggingerMedArbeidsforholdId.removeAll(tilrMedArbforholdIdSomIkkeHarMatchendeIM);
+        //Dersom det er allerede finnes flere tilrettelegginger for samme arbeidsgiver grunnet ulik arbeidsforholdsId vet ikke vi hvilken tilrettelegging som hører til ny arbeidsforholdsId - saksbehandler må vurdere dette manuelt. Vi oppretter en kopi av den første tilr vi finner for hver nye yrkesaktivitet for arbeidsgiveren.
+        tilrMedArbforholdIdSomIkkeHarMatchendeIM.forEach(tilr -> {
+            if (tilretteleggingerUtenArbeidsforholdId.stream().map(SvpTilretteleggingEntitet::getArbeidsgiver).noneMatch(a -> a.equals(tilr.getArbeidsgiver()))) {
+                tilretteleggingerUtenArbeidsforholdId.add(tilr);
+            }
+        });
 
         nyeTilrettelegginger.addAll(tilretteleggingerMedArbeidsforholdId);
-
-        var tilretteleggingerUtenArbeidsforholdId = tilretteleggingerMedArbeidsgiver.stream()
-            .filter(t -> t.getInternArbeidsforholdRef().isEmpty())
-            .toList();
 
         for (var tilrettelegging : tilretteleggingerUtenArbeidsforholdId) {
 
@@ -85,7 +97,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                     .toList();
 
             if (skalKunOppretteEnTilretteleggingForArbeidsgiver(inntektsmeldingerForArbeidsgiver)) {
-                nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).build());
+                nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).medInternArbeidsforholdRef(null).build());
             } else {
                 var tilrettelegginger = opprettTilretteleggingForHverYrkesaktivitet(relevanteYrkesaktiviteter, tilrettelegging, arbeidsgiver);
                 nyeTilrettelegginger.addAll(tilrettelegginger);
@@ -94,6 +106,21 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
         }
         return nyeTilrettelegginger;
 
+    }
+
+    List<SvpTilretteleggingEntitet> finnTilrSomIkkeHarMatchendeIM(List<Inntektsmelding> inntektsmeldinger,
+                                  List<SvpTilretteleggingEntitet> tilretteleggingerMedArbeidsforholdId) {
+        List<SvpTilretteleggingEntitet> tilrSomSkalOppdateres = new ArrayList<>();
+        tilretteleggingerMedArbeidsforholdId.forEach(tilrMedArbeidsforholdId -> {
+            var internArbeidsforholdRef = tilrMedArbeidsforholdId.getInternArbeidsforholdRef().orElseThrow(() -> new IllegalStateException("Utviklerfeil:Liste med tilrettelegginger med arbeidsforholdId manger id, noe er feil"));
+            tilrMedArbeidsforholdId.getArbeidsgiver().ifPresent( arbeidsgiver -> {
+                var matchendeIM = inntektsmeldinger.stream().filter(inntektsmelding -> arbeidsgiver.equals(inntektsmelding.getArbeidsgiver()) && internArbeidsforholdRef.equals(inntektsmelding.getArbeidsforholdRef())).findFirst();
+                if (matchendeIM.isEmpty()) {
+                    tilrSomSkalOppdateres.add(tilrMedArbeidsforholdId);
+                }
+            });
+        });
+        return tilrSomSkalOppdateres;
     }
 
     private boolean skalKunOppretteEnTilretteleggingForArbeidsgiver(List<Inntektsmelding> inntektsmeldingerForArbeidsgiver) {
