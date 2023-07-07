@@ -167,6 +167,11 @@
             <groupId>org.jboss.weld.servlet</groupId>
             <artifactId>weld-servlet-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss</groupId>
+            <artifactId>jandex</artifactId>
+        </dependency>
+
 
         <!-- Server -->
         <dependency>
@@ -259,13 +264,14 @@
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-core</artifactId>
+            <artifactId>swagger-core-jakarta</artifactId>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-jaxrs2</artifactId>
+            <artifactId>swagger-jaxrs2-jakarta</artifactId>
         </dependency>
         <!-- Må gjenta her for å få riktig scope (kolliderer ellers med dependencyManagement -->
+
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>

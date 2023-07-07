@@ -3,10 +3,10 @@ package no.nav.foreldrepenger.batch;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.batch.task.BatchSchedulerTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;

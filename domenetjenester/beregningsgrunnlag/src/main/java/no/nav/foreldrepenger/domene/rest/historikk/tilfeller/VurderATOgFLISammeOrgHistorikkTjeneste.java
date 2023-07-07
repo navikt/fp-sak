@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;

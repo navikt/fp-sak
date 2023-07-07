@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
 import java.util.Objects;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 

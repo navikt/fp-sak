@@ -13,17 +13,17 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Persistence;
-import javax.persistence.Table;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Type;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.Table;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Type;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Disabled;

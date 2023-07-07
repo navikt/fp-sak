@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.*;
 import no.nav.foreldrepenger.domene.uttak.UttakPeriodeEndringDto;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;

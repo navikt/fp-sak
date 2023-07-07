@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.QueryParam;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;

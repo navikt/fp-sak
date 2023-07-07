@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 @Embeddable
 public class FagsystemId {
 

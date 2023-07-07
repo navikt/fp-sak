@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

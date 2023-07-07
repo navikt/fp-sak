@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.medlemskap.svp;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandling.steg.medlemskap.KontrollerFaktaLøpendeMedlemskapSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;

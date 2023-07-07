@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 
 import static java.util.Collections.singletonList;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;

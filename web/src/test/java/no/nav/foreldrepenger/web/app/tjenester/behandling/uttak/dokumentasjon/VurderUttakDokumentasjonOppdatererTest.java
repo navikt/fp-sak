@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 

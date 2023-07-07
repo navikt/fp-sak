@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.behandlingslager.etterkontroll;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 

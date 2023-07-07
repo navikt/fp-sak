@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagGUIInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;

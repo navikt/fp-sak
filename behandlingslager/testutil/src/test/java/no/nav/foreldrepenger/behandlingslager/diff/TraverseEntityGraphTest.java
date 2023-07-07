@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 import org.junit.jupiter.api.Test;
 

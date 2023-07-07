@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.register;
 
 import java.net.URI;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;

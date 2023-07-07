@@ -15,8 +15,8 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Alternative;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Alternative;
 
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;

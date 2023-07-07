@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 
 import no.nav.vedtak.exception.TekniskException;
 

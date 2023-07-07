@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;

@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import java.util.Objects;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.NoResultException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.NoResultException;
 
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;

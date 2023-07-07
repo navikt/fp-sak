@@ -4,8 +4,8 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDateTime;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.kabal.SendTilKabalTask;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;

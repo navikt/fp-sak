@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;

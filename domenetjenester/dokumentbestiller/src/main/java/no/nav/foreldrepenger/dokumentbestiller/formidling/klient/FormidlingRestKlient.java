@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.dokumentbestiller.formidling.klient;
 
 import java.net.URI;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;

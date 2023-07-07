@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.behandlingskontroll.spi;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;

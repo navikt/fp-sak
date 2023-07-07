@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.domene.rest.historikk.overstyring;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.rest.dto.MatchBeregningsgrunnlagTjeneste;

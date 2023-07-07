@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.økonomistøtte.queue.config;
 
 import java.sql.SQLException;
 
-import javax.annotation.Resource;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.annotation.Resource;
+import jakarta.enterprise.context.ApplicationScoped;
 import javax.sql.DataSource;
 
 import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;

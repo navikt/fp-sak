@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.familiehendelse.rest;
 import java.time.LocalDate;
 import java.util.Map;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsOvertakelse;
 

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåresultat;
 
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

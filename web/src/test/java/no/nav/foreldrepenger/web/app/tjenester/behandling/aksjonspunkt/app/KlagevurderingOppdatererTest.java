@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

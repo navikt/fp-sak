@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdÅrsak;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 

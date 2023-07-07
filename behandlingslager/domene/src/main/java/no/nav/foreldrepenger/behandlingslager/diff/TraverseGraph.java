@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;

@@ -11,8 +11,8 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.steg.varselrevurdering.VarselRevurderingSteg;
 import no.nav.foreldrepenger.behandling.steg.varselrevurdering.VarselRevurderingStegFeil;

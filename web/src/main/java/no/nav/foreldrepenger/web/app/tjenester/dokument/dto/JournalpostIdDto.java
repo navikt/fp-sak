@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.dokument.dto;
 
-import javax.validation.constraints.Digits;
+import jakarta.validation.constraints.Digits;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;

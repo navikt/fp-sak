@@ -5,9 +5,9 @@ import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import org.slf4j.Logger;

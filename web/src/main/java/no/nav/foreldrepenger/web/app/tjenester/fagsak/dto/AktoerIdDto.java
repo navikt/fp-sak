@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import java.util.Optional;
 
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.util.InputValideringRegex;

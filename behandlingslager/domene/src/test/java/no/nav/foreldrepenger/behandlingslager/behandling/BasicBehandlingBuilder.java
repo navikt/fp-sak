@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;

@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.domene.rest.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 public class FastsettBgKunYtelseDto {
 

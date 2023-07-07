@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 

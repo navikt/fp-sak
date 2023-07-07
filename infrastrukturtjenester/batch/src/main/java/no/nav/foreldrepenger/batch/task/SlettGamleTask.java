@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.batch.task;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;

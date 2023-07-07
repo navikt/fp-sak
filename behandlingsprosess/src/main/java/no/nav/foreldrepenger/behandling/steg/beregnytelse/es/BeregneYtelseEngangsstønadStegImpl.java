@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.behandling.steg.beregnytelse.es;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;

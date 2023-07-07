@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.UnmarshalException;
 import javax.xml.stream.XMLStreamException;
 
 import org.xml.sax.SAXException;

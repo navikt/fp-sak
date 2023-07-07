@@ -7,7 +7,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

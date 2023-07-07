@@ -2,10 +2,10 @@ package no.nav.foreldrepenger.domene.vedtak.observer;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

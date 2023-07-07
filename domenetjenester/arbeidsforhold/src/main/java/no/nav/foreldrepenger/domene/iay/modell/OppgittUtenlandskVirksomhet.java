@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.iay.modell;
 
 import java.io.Serializable;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;

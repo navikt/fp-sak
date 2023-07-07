@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 import org.junit.jupiter.api.extension.ExtendWith;

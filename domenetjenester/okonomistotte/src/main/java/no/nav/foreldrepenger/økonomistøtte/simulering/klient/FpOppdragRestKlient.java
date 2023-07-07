@@ -11,8 +11,8 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilType;

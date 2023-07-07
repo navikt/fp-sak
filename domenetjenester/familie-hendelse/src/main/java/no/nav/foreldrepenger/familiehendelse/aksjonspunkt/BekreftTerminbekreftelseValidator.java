@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 import java.time.Period;
 import java.util.Objects;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;

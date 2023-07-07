@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag;
 
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.DefaultValue;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.DefaultValue;
 
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 

@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.server.abac;
 
 import java.util.Set;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 

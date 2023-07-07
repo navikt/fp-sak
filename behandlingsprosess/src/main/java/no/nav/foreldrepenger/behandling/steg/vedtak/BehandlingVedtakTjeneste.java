@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.behandling.steg.vedtak;
 
 import java.time.LocalDateTime;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;

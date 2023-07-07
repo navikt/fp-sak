@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
 import java.util.UUID;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.QueryParam;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.QueryParam;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

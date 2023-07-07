@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
 

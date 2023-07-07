@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.innsyn;
 
 import java.util.Collections;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;

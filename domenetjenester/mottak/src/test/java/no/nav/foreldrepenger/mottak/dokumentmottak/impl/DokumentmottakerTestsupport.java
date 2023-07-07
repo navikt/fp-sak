@@ -5,7 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType.F
 
 import java.time.LocalDate;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;

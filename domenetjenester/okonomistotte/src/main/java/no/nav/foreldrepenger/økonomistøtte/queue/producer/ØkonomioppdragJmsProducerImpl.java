@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.producer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.økonomistøtte.queue.Mq;
 import no.nav.foreldrepenger.felles.jms.JmsMessage;

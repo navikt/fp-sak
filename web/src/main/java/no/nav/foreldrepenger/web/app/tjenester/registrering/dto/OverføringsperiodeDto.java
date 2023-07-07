@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
 import java.time.LocalDate;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.validering.ValidKodeverk;

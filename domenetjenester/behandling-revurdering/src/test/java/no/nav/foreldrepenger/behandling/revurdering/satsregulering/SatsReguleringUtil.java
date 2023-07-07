@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.mockito.ArgumentCaptor;
 

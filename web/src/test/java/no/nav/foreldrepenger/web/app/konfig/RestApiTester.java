@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Application;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 

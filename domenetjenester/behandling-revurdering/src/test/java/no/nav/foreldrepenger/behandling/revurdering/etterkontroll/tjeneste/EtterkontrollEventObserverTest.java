@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Period;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

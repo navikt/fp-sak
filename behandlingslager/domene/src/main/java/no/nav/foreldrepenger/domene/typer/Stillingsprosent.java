@@ -6,8 +6,8 @@ import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

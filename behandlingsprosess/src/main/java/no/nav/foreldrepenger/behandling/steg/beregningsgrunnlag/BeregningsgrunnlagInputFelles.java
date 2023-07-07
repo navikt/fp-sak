@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;

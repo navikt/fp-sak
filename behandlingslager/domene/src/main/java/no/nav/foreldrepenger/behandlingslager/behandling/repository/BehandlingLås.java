@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
 import java.util.Objects;
 
-import javax.persistence.LockModeType;
+import jakarta.persistence.LockModeType;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 

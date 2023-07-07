@@ -22,7 +22,7 @@ import no.nav.svangerskapspenger.domene.søknad.IngenTilrettelegging;
 import no.nav.svangerskapspenger.domene.søknad.Søknad;
 import no.nav.svangerskapspenger.domene.søknad.Tilrettelegging;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class RegelmodellSøknaderMapper {

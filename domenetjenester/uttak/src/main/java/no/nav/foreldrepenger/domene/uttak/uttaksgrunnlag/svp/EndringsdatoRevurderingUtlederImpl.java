@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;

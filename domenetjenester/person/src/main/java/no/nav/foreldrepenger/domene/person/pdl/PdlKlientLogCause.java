@@ -5,9 +5,9 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.net.SocketTimeoutException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.ProcessingException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

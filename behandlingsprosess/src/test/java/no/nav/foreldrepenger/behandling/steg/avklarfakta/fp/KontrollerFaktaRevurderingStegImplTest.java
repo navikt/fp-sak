@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 

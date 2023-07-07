@@ -14,8 +14,8 @@ import java.time.Month;
 import java.util.Calendar;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

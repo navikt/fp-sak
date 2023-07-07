@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingskontroll.spi;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import no.nav.vedtak.felles.jpa.savepoint.RunWithSavepoint;
 import no.nav.vedtak.felles.jpa.savepoint.Work;

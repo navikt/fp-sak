@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.skjæringstidspunkt;
 
 import java.time.LocalDate;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;

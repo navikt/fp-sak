@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;

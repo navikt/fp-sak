@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;

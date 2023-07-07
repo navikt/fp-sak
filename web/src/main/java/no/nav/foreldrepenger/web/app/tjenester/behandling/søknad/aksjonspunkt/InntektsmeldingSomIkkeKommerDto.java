@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Inntektsmeldinger som søker har rapport at ikke vil komme fra angitt arbeidsgiver

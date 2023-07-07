@@ -2,13 +2,13 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 public class EgenVirksomhetDto {
 
     Boolean harArbeidetIEgenVirksomhet;
-    
+
     @Valid
     @Size(max = 10)
     private List<VirksomhetDto> virksomheter;

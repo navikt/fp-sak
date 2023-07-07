@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.klage;
 
 import static java.util.Collections.singletonList;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;

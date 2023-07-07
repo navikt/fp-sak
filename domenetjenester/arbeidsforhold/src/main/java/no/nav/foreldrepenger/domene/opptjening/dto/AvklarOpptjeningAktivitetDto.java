@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.domene.opptjening.dto;
 
 import java.time.LocalDate;
 
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;

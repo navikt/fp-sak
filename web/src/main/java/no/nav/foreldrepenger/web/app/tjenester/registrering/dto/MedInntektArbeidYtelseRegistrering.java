@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
@@ -23,7 +23,7 @@ public abstract class MedInntektArbeidYtelseRegistrering extends ManuellRegistre
 
     @Valid
     private FrilansDto frilans;
-    
+
     protected MedInntektArbeidYtelseRegistrering() {
         // TODO Auto-generated constructor stub
     }

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 

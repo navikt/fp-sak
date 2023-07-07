@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.es;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles.mapAnnenForelder;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles.mapRelasjonTilBarnet;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;

@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import javax.persistence.Convert;
+import jakarta.persistence.Convert;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;

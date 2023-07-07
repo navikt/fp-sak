@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.domene.rest.dto;
 
 import java.math.BigDecimal;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 

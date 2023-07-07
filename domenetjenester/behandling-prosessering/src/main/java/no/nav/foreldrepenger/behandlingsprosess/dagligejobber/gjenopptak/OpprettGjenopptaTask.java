@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak;
 
 import java.time.LocalDateTime;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;

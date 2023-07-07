@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(JpaExtension.class)
 class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
     private EntityManager entityManager;

@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 

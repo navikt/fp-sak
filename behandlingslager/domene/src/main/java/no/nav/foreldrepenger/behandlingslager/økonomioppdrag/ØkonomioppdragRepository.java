@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -62,14 +62,11 @@ public class ØkonomioppdragRepository {
     }
 
     public Oppdrag110 hentOppdragUtenKvittering(long fagsystemId, long behandlingId) {
-        Objects.requireNonNull(fagsystemId, "fagsystemId");
-        Objects.requireNonNull(behandlingId, "behandlingId");
         var typedQuery = entityManager
             .createQuery("""
-                    select o110 from Oppdrag110 as o110
+                    from Oppdrag110 as o110
                     where o110.oppdragskontroll.behandlingId = :behandlingId
-                        and o110.fagsystemId = :fagsystemId
-                        and o110.oppdragKvittering is empty
+                    and o110.fagsystemId = :fagsystemId
                     """, Oppdrag110.class)
             .setParameter("fagsystemId", fagsystemId)
             .setParameter("behandlingId", behandlingId)

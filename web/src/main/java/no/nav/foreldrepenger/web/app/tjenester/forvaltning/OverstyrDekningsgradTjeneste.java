@@ -2,11 +2,11 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;

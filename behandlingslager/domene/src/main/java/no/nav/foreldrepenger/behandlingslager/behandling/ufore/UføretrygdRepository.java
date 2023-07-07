@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;

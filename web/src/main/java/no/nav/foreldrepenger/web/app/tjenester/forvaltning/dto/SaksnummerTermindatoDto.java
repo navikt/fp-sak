@@ -5,11 +5,11 @@ import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
 
 import java.time.LocalDate;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.QueryParam;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;

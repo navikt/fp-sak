@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.prosess;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.rest;
 
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 

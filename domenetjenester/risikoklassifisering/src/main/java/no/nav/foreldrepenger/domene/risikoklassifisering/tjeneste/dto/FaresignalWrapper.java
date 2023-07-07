@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public record FaresignalWrapper(@NotNull Kontrollresultat kontrollresultat,
                                 FaresignalVurdering faresignalVurdering,

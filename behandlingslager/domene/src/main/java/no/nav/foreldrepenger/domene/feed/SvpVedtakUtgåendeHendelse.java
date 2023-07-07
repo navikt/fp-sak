@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.feed;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 @Entity(name = "SvpVedtakUtgåendeHendelse")
 @DiscriminatorValue(SvpVedtakUtgåendeHendelse.FEED_NAVN_VEDTAK)

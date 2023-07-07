@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

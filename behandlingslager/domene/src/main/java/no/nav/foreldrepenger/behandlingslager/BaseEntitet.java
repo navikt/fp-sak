@@ -3,10 +3,10 @@ package no.nav.foreldrepenger.behandlingslager;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PreUpdate;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PreUpdate;
 
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 

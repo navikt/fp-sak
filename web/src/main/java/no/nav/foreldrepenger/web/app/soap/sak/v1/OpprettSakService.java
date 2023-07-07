@@ -2,10 +2,10 @@ package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
 import java.util.function.Function;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.jws.WebService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.jws.WebService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

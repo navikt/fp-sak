@@ -10,19 +10,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 import org.hibernate.query.NativeQuery;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
+import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -111,12 +109,12 @@ public class FagsakProsessTaskRepository {
                 ProsessTaskEntitet.class);
 
         query.setParameter("statuses", statusNames)
-            .setParameter("gruppe", gruppeId, StringType.INSTANCE)
+            .setParameter("gruppe", gruppeId, StandardBasicTypes.STRING)
             .setParameter("nesteKjoeringFraOgMed", nesteKjoeringFraOgMed) // max oppløsning på neste_kjoering_etter er sekunder
             .setParameter("nesteKjoeringTilOgMed", nesteKjoeringTilOgMed)
             .setParameter("fagsakId", fagsakId)
-            .setParameter("behandlingId", behandlingId, LongType.INSTANCE)
-            .setHint(QueryHints.HINT_READONLY, "true");
+            .setParameter("behandlingId", behandlingId, StandardBasicTypes.LONG)
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
 
         var resultList = query.getResultList();
         return tilProsessTask(resultList);

@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

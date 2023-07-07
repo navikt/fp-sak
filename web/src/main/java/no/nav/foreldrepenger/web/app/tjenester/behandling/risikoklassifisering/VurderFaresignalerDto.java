@@ -7,8 +7,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE)
 public class VurderFaresignalerDto extends BekreftetAksjonspunktDto {

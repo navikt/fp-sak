@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Length;
 
