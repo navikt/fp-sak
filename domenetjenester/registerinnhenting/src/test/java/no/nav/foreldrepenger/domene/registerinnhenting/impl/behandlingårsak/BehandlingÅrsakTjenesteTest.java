@@ -122,7 +122,7 @@ class BehandlingÅrsakTjenesteTest {
     @Test
     void test_behandlingsårsaker_når_endring_dødsdato_søker() {
         var behandling = opprettBehandling();
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(behandling, null);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(behandling,
             dødsdato);
@@ -144,9 +144,8 @@ class BehandlingÅrsakTjenesteTest {
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(Behandling behandling, LocalDate dødsdato) {
         var personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         var behandlingId = behandling.getId();
-        final var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        final var personopplysningBuilder = builder.getPersonopplysningBuilder(
-            behandling.getAktørId());
+        var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
+        var personopplysningBuilder = builder.getPersonopplysningBuilder(behandling.getAktørId());
         personopplysningBuilder.medDødsdato(dødsdato);
         builder.leggTil(personopplysningBuilder);
         personopplysningRepository.lagre(behandlingId, builder);

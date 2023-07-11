@@ -74,7 +74,7 @@ public class BeregningsgrunnlagRestTjeneste {
     public BeregningsgrunnlagDto hentBeregningsgrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        final var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
+        var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
         if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
             return null;
         }

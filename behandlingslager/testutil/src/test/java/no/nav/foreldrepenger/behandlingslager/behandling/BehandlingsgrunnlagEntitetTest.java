@@ -74,16 +74,13 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandling = lagBehandling();
 
-        final var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
-            .medAntallBarn(antallBarnFraSøknad)
-            .medFødselsDato(fødselsdato);
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling).medAntallBarn(antallBarnFraSøknad).medFødselsDato(fødselsdato);
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medAdoptererAlene(true));
 
         familieGrunnlagRepository.lagre(behandling, hendelseBuilder);
 
         var søknadBuilder = new SøknadEntitet.Builder()
-            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE)
-            .medSøknadsdato(søknadsdato);
+            .medFarSøkerType(FarSøkerType.ADOPTERER_ALENE).medSøknadsdato(søknadsdato);
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
 
         // Assert
@@ -93,8 +90,8 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(søknad.getSøknadsdato()).isEqualTo(søknadsdato);
         assertThat(søknad.getFarSøkerType()).isEqualTo(FarSøkerType.ADOPTERER_ALENE);
 
-        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
-        final var søknadVersjon = familieHendelseGrunnlag.getSøknadVersjon();
+        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
+        var søknadVersjon = familieHendelseGrunnlag.getSøknadVersjon();
         assertThat(søknadVersjon.getAdopsjon()).isPresent();
         assertThat(søknadVersjon.getAdopsjon().get().getAdoptererAlene()).isTrue();
         assertThat(søknadVersjon.getBarna()).hasSize(1);
@@ -111,12 +108,12 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandling = lagBehandling();
 
-        final var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(antallBarnFraSøknad)
             .leggTilBarn(fødselAdopsjonsdato);
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medAdoptererAlene(true));
         familieGrunnlagRepository.lagre(behandling, hendelseBuilder);
-        final var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling);
+        var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling);
         oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(omsorgsovertakelseDato)
             .medAdoptererAlene(true)
@@ -129,14 +126,14 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
 
         // Assert
-        final var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         assertThat(grunnlag).isNotNull();
         assertThat(grunnlag.getGjeldendeBekreftetVersjon()).isPresent();
         assertThat(grunnlag.getGjeldendeBekreftetVersjon().get().getBarna()).isNotEmpty();
 
         var optionalAdopsjon = grunnlag.getGjeldendeVersjon().getAdopsjon();
         assertThat(optionalAdopsjon).isPresent();
-        final var adopsjon = optionalAdopsjon.get();
+        var adopsjon = optionalAdopsjon.get();
         assertThat(adopsjon.getOmsorgsovertakelseDato()).isEqualTo(omsorgsovertakelseDato);
         assertThat(adopsjon.getErEktefellesBarn()).isFalse();
         assertThat(adopsjon.getAdoptererAlene()).isTrue();
@@ -155,7 +152,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandling = lagBehandling();
 
-        final var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(antallBarnFraSøknad)
             .leggTilBarn(fødselAdopsjonsdato);
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medAdoptererAlene(true));
@@ -170,9 +167,8 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var hentet = behandlingRepository.hentBehandling(behandling.getId());
 
         // Act
-        final var oppdatere = familieGrunnlagRepository.opprettBuilderFor(hentet);
-        oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(omsorgsovertakelseDato))
+        var oppdatere = familieGrunnlagRepository.opprettBuilderFor(hentet);
+        oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelseDato))
             .tilbakestillBarn()
             .leggTilBarn(new UidentifisertBarnEntitet(fødselAdopsjonsdato, 1));
         familieGrunnlagRepository.lagre(hentet, oppdatere);
@@ -180,8 +176,8 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         lagreBehandling(hentet);
 
         // Arrange
-        final var hendelse = familieHendelseRepository.hentAggregat(behandling.getId()).getGjeldendeVersjon();
-        final var adopsjon1 = hendelse.getAdopsjon();
+        var hendelse = familieHendelseRepository.hentAggregat(behandling.getId()).getGjeldendeVersjon();
+        var adopsjon1 = hendelse.getAdopsjon();
 
         assertThat(adopsjon1).isPresent();
         assertThat(hendelse.getBarna()).hasSize(1);
@@ -202,7 +198,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandling = lagBehandling();
 
-        final var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
             .medAntallBarn(antallBarnFraSøknad)
             .leggTilBarn(fødselAdopsjonsdato);
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medAdoptererAlene(true));
@@ -228,11 +224,9 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandling = lagBehandling();
 
-        final var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling)
-            .medAntallBarn(1)
-            .medFødselsDato(fødselsdato);
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandling).medAntallBarn(1).medFødselsDato(fødselsdato);
         familieGrunnlagRepository.lagre(behandling, hendelseBuilder);
-        final var hendelseBuilder1 = familieGrunnlagRepository.opprettBuilderFor(behandling).tilbakestillBarn().medAntallBarn(1).leggTilBarn(fødselsdato);
+        var hendelseBuilder1 = familieGrunnlagRepository.opprettBuilderFor(behandling).tilbakestillBarn().medAntallBarn(1).leggTilBarn(fødselsdato);
         familieGrunnlagRepository.lagre(behandling, hendelseBuilder1);
 
         var søknadBuilder = new SøknadEntitet.Builder()
@@ -255,32 +249,29 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var utstedtDato = LocalDate.now().minusMonths(2);
 
         var behandling = lagBehandling();
-        final var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling);
+        var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling);
         søknadVersjon.medTerminbekreftelse(søknadVersjon.getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now())
             .medUtstedtDato(LocalDate.now())
             .medNavnPå("LEGEN MIN"));
         familieGrunnlagRepository.lagre(behandling, søknadVersjon);
-        final var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling);
+        var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling);
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
             .medTermindato(termindato)
             .medNavnPå("LEGEN MIN")
             .medUtstedtDato(utstedtDato))
             .medAntallBarn(1);
         familieGrunnlagRepository.lagre(behandling, oppdatere);
-        final var søknad = new SøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
-            .medSøknadsdato(LocalDate.now())
-            .build();
+        var søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         // Assert
-        final var grunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
+        var grunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
         assertThat(grunnlag).isNotNull();
 
-        final var terminbekreftelse1 = grunnlag.getGjeldendeVersjon().getTerminbekreftelse();
+        var terminbekreftelse1 = grunnlag.getGjeldendeVersjon().getTerminbekreftelse();
         assertThat(terminbekreftelse1).isPresent();
-        final var terminbekreftelse2 = terminbekreftelse1.get();
+        var terminbekreftelse2 = terminbekreftelse1.get();
         assertThat(terminbekreftelse2.getTermindato()).isEqualTo(termindato);
         assertThat(terminbekreftelse2.getUtstedtdato()).isEqualTo(utstedtDato);
         assertThat(grunnlag.getGjeldendeVersjon().getAntallBarn()).isEqualTo(1);
@@ -293,26 +284,23 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var behandling = lagBehandling();
 
-        final var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling);
+        var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling);
         søknadVersjon.medAdopsjon(søknadVersjon.getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(LocalDate.now()));
         familieGrunnlagRepository.lagre(behandling, søknadVersjon);
-        final var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling);
+        var oppdatere = familieGrunnlagRepository.opprettBuilderFor(behandling);
         oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(omsorgsovertakelsesdato)
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
         familieGrunnlagRepository.lagre(behandling, oppdatere);
 
-        final var søknad = new SøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
-            .medSøknadsdato(LocalDate.now())
-            .build();
+        var søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         // Assert
-        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandling.getId());
         assertThat(familieHendelseGrunnlag).isNotNull();
-        final var bekreftetVersjon = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
+        var bekreftetVersjon = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
         assertThat(bekreftetVersjon).isPresent();
         assertThat(bekreftetVersjon.get().getAdopsjon()).isPresent();
         assertThat(bekreftetVersjon.get().getAdopsjon().get().getOmsorgsovertakelseDato()).isEqualTo(omsorgsovertakelsesdato);
@@ -329,7 +317,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
 
         var behandlingId = behandling.getId();
-        final var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
+        var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
         informasjonBuilder
             .leggTil(
                 informasjonBuilder.getPersonopplysningBuilder(barnAktørId)
@@ -362,14 +350,10 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
-        final var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling)
-            .medFødselsDato(LocalDate.now().minusDays(10));
+        var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling).medFødselsDato(LocalDate.now().minusDays(10));
         familieGrunnlagRepository.lagre(behandling, søknadVersjon);
 
-        final var søknad = new SøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
-            .medSøknadsdato(LocalDate.now())
-            .build();
+        var søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         // Assert 1: Barn 1 er lagret
@@ -420,9 +404,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         // Arrange 3: Anvend grunnlagsbuilder uten å gjøre endringer på bekreftet barn
         // -> skal ikke føre til utilsiktede oppdateringer av BekreftetBarn
-        final var builder = familieGrunnlagRepository.opprettBuilderFor(opphentet2)
-            .medFødselsDato(LocalDate.now())
-            .medAntallBarn(1);
+        var builder = familieGrunnlagRepository.opprettBuilderFor(opphentet2).medFødselsDato(LocalDate.now()).medAntallBarn(1);
 
         familieGrunnlagRepository.lagre(opphentet2, builder);
 
@@ -588,14 +570,10 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
-        final var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling)
-            .medFødselsDato(LocalDate.now().minusDays(10));
+        var søknadVersjon = familieGrunnlagRepository.opprettBuilderFor(behandling).medFødselsDato(LocalDate.now().minusDays(10));
         familieGrunnlagRepository.lagre(behandling, søknadVersjon);
 
-        final var søknad = new SøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
-            .medSøknadsdato(LocalDate.now())
-            .build();
+        var søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         // Assert 1: Forelder 1 er lagret
@@ -629,9 +607,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         // Arrange 3: Anvend grunnlagsbuilder uten å gjøre endringer på bekreftet forelder
         // -> skal ikke føre til utilsiktede oppdateringer av BekreftetForeldre
-        final var builder = familieGrunnlagRepository.opprettBuilderFor(opphentet2)
-            .medFødselsDato(LocalDate.now())
-            .medAntallBarn(1);
+        var builder = familieGrunnlagRepository.opprettBuilderFor(opphentet2).medFødselsDato(LocalDate.now()).medAntallBarn(1);
         familieGrunnlagRepository.lagre(opphentet2, builder);
 
         lagreBehandling(opphentet2);

@@ -24,16 +24,18 @@ class StartpunktUtlederMedlemskap implements StartpunktUtleder {
 
     @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        final var grunnlag1 = medlemskapRepository.hentMedlemskapPåId((Long)grunnlagId1);
-        final var grunnlag2 = medlemskapRepository.hentMedlemskapPåId((Long)grunnlagId2);
+        var grunnlag1 = medlemskapRepository.hentMedlemskapPåId((Long) grunnlagId1);
+        var grunnlag2 = medlemskapRepository.hentMedlemskapPåId((Long) grunnlagId2);
 
         var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
         if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, periode)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, "medlemskap medlemskapsvilkår", grunnlagId1, grunnlagId2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,
+                "medlemskap medlemskapsvilkår", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
         } else if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, DatoIntervallEntitet.fraOgMed(skjæringstidspunkt))) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "medlemskap uttak", grunnlagId1, grunnlagId2);
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR,
+                "medlemskap uttak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
         }
         return StartpunktType.UDEFINERT;

@@ -518,8 +518,10 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
     }
 
     public static Set<PeriodeResultatÅrsak> opphørsAvslagÅrsaker() {
-        return Set.of(MOR_HAR_IKKE_OMSORG, FAR_HAR_IKKE_OMSORG,
-            BARNET_ER_DØD, SØKER_ER_DØD,
+        return Set.of(MOR_HAR_IKKE_OMSORG,
+            FAR_HAR_IKKE_OMSORG,
+            BARNET_ER_DØD,
+            SØKER_ER_DØD,
             OPPHØR_MEDLEMSKAP,
             FØDSELSVILKÅRET_IKKE_OPPFYLT,
             ADOPSJONSVILKÅRET_IKKE_OPPFYLT,

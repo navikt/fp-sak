@@ -27,9 +27,8 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
 
     @Override
     public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse) {
-        final var førsteUttaksdato = behandlingReferanse.getSkjæringstidspunkt().getFørsteUttaksdato();
-        var grunnlag = OpptjeningsperiodeGrunnlag.grunnlag(FagsakÅrsak.SVANGERSKAP, RegelSøkerRolle.MORA, null)
-            .medFørsteUttaksDato(førsteUttaksdato);
+        var førsteUttaksdato = behandlingReferanse.getSkjæringstidspunkt().getFørsteUttaksdato();
+        var grunnlag = OpptjeningsperiodeGrunnlag.grunnlag(FagsakÅrsak.SVANGERSKAP, RegelSøkerRolle.MORA, null).medFørsteUttaksDato(førsteUttaksdato);
 
         var resultat = InngangsvilkårRegler.opptjeningsperiode(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 

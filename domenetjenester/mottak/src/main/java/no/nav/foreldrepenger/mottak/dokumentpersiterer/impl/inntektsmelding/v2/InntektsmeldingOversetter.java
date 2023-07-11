@@ -109,10 +109,10 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
                                           InntektsmeldingBuilder builder) {
-        final var arbeidsforhold = wrapper.getArbeidsforhold();
+        var arbeidsforhold = wrapper.getArbeidsforhold();
         if (arbeidsforhold.isPresent()) {
-            final var arbeidsforholdet = arbeidsforhold.get();
-            final var arbeidsforholdId = arbeidsforholdet.getArbeidsforholdId();
+            var arbeidsforholdet = arbeidsforhold.get();
+            var arbeidsforholdId = arbeidsforholdet.getArbeidsforholdId();
             if (arbeidsforholdId != null) {
                 var arbeidsforholdRef = EksternArbeidsforholdRef.ref(arbeidsforholdId.getValue());
                 builder.medArbeidsforholdId(arbeidsforholdRef);
@@ -181,7 +181,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         for (var detaljer : wrapper.getUtsettelser()) {
             // FIXME (weak reference)
             var årsakUtsettelse = ÅrsakUtsettelseKodeliste.fromValue(detaljer.getAarsakTilUtsettelse().getValue());
-            final var årsak = UtsettelseÅrsak.fraKode(årsakUtsettelse.name());
+            var årsak = UtsettelseÅrsak.fraKode(årsakUtsettelse.name());
             builder.leggTil(UtsettelsePeriode.utsettelse(detaljer.getPeriode().getValue().getFom().getValue(),
                 detaljer.getPeriode().getValue().getTom().getValue(), årsak));
         }
@@ -198,7 +198,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
         Map<NaturalYtelseType, BigDecimal> beløp = new HashMap<>();
         for (var detaljer : wrapper.getOpphørelseAvNaturalytelse()) {
             var naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
-            final var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
+            var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
             beløp.put(ytelseType, detaljer.getBeloepPrMnd().getValue());
             var bortfallFom = detaljer.getFom().getValue();
             var naturalytelseTom = bortfallFom.minusDays(1);
@@ -207,7 +207,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
         for (var detaljer : wrapper.getGjenopptakelserAvNaturalytelse()) {
             var naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
-            final var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
+            var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
             builder.leggTil(
                 new NaturalYtelse(detaljer.getFom().getValue(), Tid.TIDENES_ENDE, beløp.get(ytelseType), ytelseType));
         }

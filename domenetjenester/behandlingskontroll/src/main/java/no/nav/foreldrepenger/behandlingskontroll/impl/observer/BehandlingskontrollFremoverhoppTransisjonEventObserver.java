@@ -74,7 +74,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
                 førsteSteg = modell.finnNesteSteg(førsteSteg).getBehandlingStegType();
             }
 
-            final var finalFørsteSteg = førsteSteg;
+            var finalFørsteSteg = førsteSteg;
             modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, false)
                     .forEach(s -> hoppFramover(s, transisjonEvent, sisteSteg, finalFørsteSteg));
 

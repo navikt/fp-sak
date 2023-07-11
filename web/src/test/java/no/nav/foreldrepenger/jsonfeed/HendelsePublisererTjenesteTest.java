@@ -209,7 +209,7 @@ class HendelsePublisererTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         scenario.medBehandlingType(behandlingTypeOppr == null ? behandlingType : behandlingTypeOppr);
-        final var familieHendelseBuilder = scenario.medSøknadHendelse();
+        var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1).medFødselsDato(LocalDate.now());
         var behandlingresultatBuilder = Behandlingsresultat.builder();
         behandlingresultatBuilder.medBehandlingResultatType(

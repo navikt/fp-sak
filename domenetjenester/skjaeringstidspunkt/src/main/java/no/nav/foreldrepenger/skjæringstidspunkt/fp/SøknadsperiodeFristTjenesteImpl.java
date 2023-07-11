@@ -60,7 +60,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
 
     private Søknadsfristdatoer finnSøknadsfrist(Long behandlingId, LocalDateInterval søknadsperiode) {
         var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
-        final var brukfrist = søknadsperiode != null ? Søknadsfrister.søknadsfristDagytelse(søknadsperiode.getFomDato()) : null;
+        var brukfrist = søknadsperiode != null ? Søknadsfrister.søknadsfristDagytelse(søknadsperiode.getFomDato()) : null;
 
         var builder = Søknadsfristdatoer.builder()
             .medSøknadGjelderPeriode(søknadsperiode)

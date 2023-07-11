@@ -91,7 +91,7 @@ class KontrollerFaktaStegImplTest {
 
         // Assert
         var behandlingId = behandling.getId();
-        final var medlemskapAggregat = repositoryProvider.getMedlemskapRepository().hentMedlemskap(behandlingId);
+        var medlemskapAggregat = repositoryProvider.getMedlemskapRepository().hentMedlemskap(behandlingId);
         assertThat(medlemskapAggregat).isPresent();
         assertThat(medlemskapAggregat.flatMap(MedlemskapAggregat::getVurdertMedlemskap)).isNotPresent();
         behandling = behandlingRepository.hentBehandling(behandlingId);

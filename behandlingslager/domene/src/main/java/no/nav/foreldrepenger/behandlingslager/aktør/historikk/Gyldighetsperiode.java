@@ -56,7 +56,7 @@ public class Gyldighetsperiode {
 
     @Override
     public String toString() {
-        final var sb = new StringBuilder("Gyldig{");
+        var sb = new StringBuilder("Gyldig{");
         sb.append("fom=").append(fom);
         sb.append(", tom=").append(tom);
         sb.append('}');

@@ -27,7 +27,7 @@ public class FagsakLåsRepository {
      * @return låsen
      */
     public FagsakLås taLås(final Long fagsakIdIn) {
-        final var lockModeType = LockModeType.PESSIMISTIC_WRITE;
+        var lockModeType = LockModeType.PESSIMISTIC_WRITE;
 
         var lås = new FagsakLås(fagsakIdIn);
 

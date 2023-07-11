@@ -68,7 +68,8 @@ class VedtattYtelseTjenesteTest {
         // Arrange
         var stp = LocalDate.now().plusDays(40);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        final var terminbekreftelse = scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+        var terminbekreftelse = scenario.medBekreftetHendelse()
+            .getTerminbekreftelseBuilder()
             .medTermindato(stp)
             .medNavnPå("LEGEN LEGESEN")
             .medUtstedtDato(LocalDate.now().minusDays(7));

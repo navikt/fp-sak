@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 
@@ -34,11 +37,8 @@ class SatsTest {
 
     @Test
     void skal_feile_hvis_sats_er_mindre_en_0() {
-        final var verdi = -100;
-        Exception thrown = assertThrows(
-            IllegalArgumentException.class,
-            () -> Sats.på(verdi)
-        );
+        var verdi = -100;
+        Exception thrown = assertThrows(IllegalArgumentException.class, () -> Sats.på(verdi));
         assertTrue(thrown.getMessage().contains("Sats er utenfor lovlig intervall"));
     }
 

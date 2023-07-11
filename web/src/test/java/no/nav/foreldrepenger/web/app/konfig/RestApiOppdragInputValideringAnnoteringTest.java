@@ -39,9 +39,9 @@ public class RestApiOppdragInputValideringAnnoteringTest extends RestApiTester {
     }
 
     private boolean isRequiredAnnotationPresent(Parameter parameter) {
-        final var validAnnotation = parameter.getAnnotation(Valid.class);
+        var validAnnotation = parameter.getAnnotation(Valid.class);
         if (validAnnotation == null) {
-            final var contextAnnotation = parameter.getAnnotation(Context.class);
+            var contextAnnotation = parameter.getAnnotation(Context.class);
             return contextAnnotation != null;
         }
         return true;

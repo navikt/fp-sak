@@ -183,7 +183,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void behandlingTilbakeføringTilTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
             BehandlingStegType tidligereStegType) {
 
-        final var startStatusForNyttSteg = getStatusKonfigurasjon().getInngang();
+        var startStatusForNyttSteg = getStatusKonfigurasjon().getInngang();
         var behandlingId = kontekst.getBehandlingId();
         var behandling = serviceProvider.hentBehandling(behandlingId);
 
@@ -230,7 +230,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void behandlingFramføringTilSenereBehandlingSteg(BehandlingskontrollKontekst kontekst,
             BehandlingStegType senereSteg) {
 
-        final var statusInngang = getStatusKonfigurasjon().getInngang();
+        var statusInngang = getStatusKonfigurasjon().getInngang();
         var behandlingId = kontekst.getBehandlingId();
         var behandling = serviceProvider.hentBehandling(behandlingId);
 
@@ -410,7 +410,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     @Override
     public void opprettBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling) {
-        final var fagsakLås = serviceProvider.taFagsakLås(behandling.getFagsakId());
+        var fagsakLås = serviceProvider.taFagsakLås(behandling.getFagsakId());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         serviceProvider.oppdaterLåsVersjon(fagsakLås);
         eventPubliserer.fireEvent(kontekst, null, behandling.getStatus());

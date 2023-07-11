@@ -491,9 +491,10 @@ public class VurderFagsystemFellesUtils {
             return BehandlingTema.fraFagsakHendelse(s.getYtelseType(), FamilieHendelseType.UDEFINERT);
         }
 
-        final var fhType = behandling.flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
+        var fhType = behandling.flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+            .map(FamilieHendelseEntitet::getType)
+            .orElse(FamilieHendelseType.UDEFINERT);
         return BehandlingTema.fraFagsakHendelse(s.getYtelseType(), fhType);
     }
 

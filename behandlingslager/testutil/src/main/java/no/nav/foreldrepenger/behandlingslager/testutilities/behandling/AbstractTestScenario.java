@@ -402,12 +402,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void lagreRegisterHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
-                final var kladd = hentAggregatHvisEksisterer(behandling.getId());
-                final var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
+                var kladd = hentAggregatHvisEksisterer(behandling.getId());
+                var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 aggregatBuilder.medBekreftetVersjon(hendelse);
                 try {
                     var m = FamilieHendelseGrunnlagBuilder.class.getDeclaredMethod("getKladd");
-                    final var invoke = (FamilieHendelseGrunnlagEntitet) m.invoke(aggregatBuilder);
+                    var invoke = (FamilieHendelseGrunnlagEntitet) m.invoke(aggregatBuilder);
                     if (harOverstyrtTerminOgOvergangTilFødselMock(invoke)) {
                         aggregatBuilder.medOverstyrtVersjon(null);
                     }
@@ -428,8 +428,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
-                final var kladd = hentAggregatHvisEksisterer(behandling.getId());
-                final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
+                var kladd = hentAggregatHvisEksisterer(behandling.getId());
+                var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 oppdatere.medOverstyrtVersjon(hendelse);
                 familieHendelseAggregatMap.remove(behandling.getId());
                 familieHendelseAggregatMap.put(behandling.getId(), oppdatere.build());
@@ -452,8 +452,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
-                final var familieHendelseAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
-                final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
+                var familieHendelseAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
+                var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
 
                 familieHendelseAggregatMap.remove(nyBehandlingId);
                 familieHendelseAggregatMap.put(nyBehandlingId, oppdatere.build());
@@ -461,8 +461,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long gammelBehandlingId, Long nyBehandlingId) {
-                final var familieHendelseAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
-                final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
+                var familieHendelseAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
+                var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
                 oppdatere.medOverstyrtVersjon(null);
                 oppdatere.medBekreftetVersjon(null);
 
@@ -472,8 +472,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
-                final var aggregatBuilder = FamilieHendelseGrunnlagBuilder
-                        .oppdatere(hentAggregatHvisEksisterer(behandling.getId()));
+                var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(hentAggregatHvisEksisterer(behandling.getId()));
                 return opprettBuilderFor(aggregatBuilder);
             }
 
@@ -892,7 +891,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void lagreSøknad(BehandlingRepositoryProvider repositoryProvider) {
         if (søknadBuilder != null) {
-            final var søknadRepository = repositoryProvider.getSøknadRepository();
+            var søknadRepository = repositoryProvider.getSøknadRepository();
             søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
         }
     }
@@ -903,7 +902,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         var vurdertMedlemskap = medMedlemskap().build();
         repositoryProvider.getMedlemskapRepository().lagreMedlemskapVurdering(behandlingId, vurdertMedlemskap);
         if (oppgittTilknytningBuilder != null) {
-            final var oppgittTilknytning = medOppgittTilknytning().build();
+            var oppgittTilknytning = medOppgittTilknytning().build();
             repositoryProvider.getMedlemskapRepository().lagreOppgittTilkytning(behandlingId, oppgittTilknytning);
         }
     }
@@ -925,7 +924,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private FamilieHendelseRepository opprettHendelseGrunnlag(BehandlingRepositoryProvider repositoryProvider) {
-        final var grunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
+        var grunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         grunnlagRepository.lagre(behandling, medSøknadHendelse());
         if (bekreftetHendelseBuilder != null) {
             grunnlagRepository.lagre(behandling, bekreftetHendelseBuilder);
@@ -973,11 +972,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     protected void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final var entityManager = fagsakRepo.getEntityManager();
+            var entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
                 var brukerRepository = new NavBrukerRepository(entityManager);
-                final var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
-                        .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
+                var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
+                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }
@@ -1237,10 +1236,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     @SuppressWarnings("unchecked")
     public S medDefaultSøknadTerminbekreftelse() {
-        final var terminbekreftelse = medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().plusDays(40))
-                .medNavnPå("LEGEN LEGESEN")
-                .medUtstedtDato(LocalDate.now().minusDays(7));
+        var terminbekreftelse = medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTermindato(LocalDate.now().plusDays(40))
+            .medNavnPå("LEGEN LEGESEN")
+            .medUtstedtDato(LocalDate.now().minusDays(7));
         medSøknadHendelse()
                 .medTerminbekreftelse(terminbekreftelse);
 
@@ -1249,10 +1248,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     @SuppressWarnings("unchecked")
     public S medDefaultBekreftetTerminbekreftelse() {
-        final var terminbekreftelse = medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().plusDays(40))
-                .medNavnPå("LEGEN LEGESEN")
-                .medUtstedtDato(LocalDate.now().minusDays(7));
+        var terminbekreftelse = medBekreftetHendelse().getTerminbekreftelseBuilder()
+            .medTermindato(LocalDate.now().plusDays(40))
+            .medNavnPå("LEGEN LEGESEN")
+            .medUtstedtDato(LocalDate.now().minusDays(7));
         medBekreftetHendelse()
                 .medTerminbekreftelse(terminbekreftelse);
 
@@ -1392,7 +1391,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     @Deprecated
     public S medSøker(Personinfo søker) {
-        final var builder = opprettBuilderForRegisteropplysninger();
+        var builder = opprettBuilderForRegisteropplysninger();
         PersonopplysningPersoninfoAdapter.mapPersonopplysningTilPerson(builder, søker);
         medRegisterOpplysninger(builder.build());
         medBruker(søker.getAktørId(), søker.getKjønn());
@@ -1402,8 +1401,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private final class MockPersonopplysningRepository extends PersonopplysningRepository {
         @Override
         public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long eksisterendeBehandlingId, Long nyBehandlingId) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+                Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }
@@ -1424,8 +1423,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         @Override
         public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             if (builder.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
                 oppdatere.medRegistrertVersjon(builder);
             }
@@ -1437,23 +1435,22 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         @Override
         public void lagre(Long behandlingId, OppgittAnnenPartEntitet oppgittAnnenPart) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             oppdatere.medOppgittAnnenPart(oppgittAnnenPart);
             personopplysningMap.put(behandlingId, oppdatere.build());
         }
 
         @Override
         public PersonInformasjonBuilder opprettBuilderForRegisterdata(Long behandlingId) {
-            final var grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
+            var grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
             return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon),
                     PersonopplysningVersjonType.REGISTRERT);
         }
 
         @Override
         public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+                Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }

@@ -47,20 +47,20 @@ class TpsFamilieTjenesteTest {
 
     @Test
     void test() {
-        final var mottattDato = LocalDate.now().minusDays(30);
-        final var intervall = new LocalDateInterval(mottattDato.minusWeeks(6), mottattDato.plusWeeks(6));
-        final var antallBarn = 1;
+        var mottattDato = LocalDate.now().minusDays(30);
+        var intervall = new LocalDateInterval(mottattDato.minusWeeks(6), mottattDato.plusWeeks(6));
+        var antallBarn = 1;
 
-        final var personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
+        var personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
         when(fødselTjeneste.hentFødteBarnInfoFor(any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
 
-        final var fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(AKTØR, List.of(intervall));
+        var fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(AKTØR, List.of(intervall));
 
         assertThat(fødslerRelatertTilBehandling).hasSize(antallBarn);
     }
 
     private List<FødtBarnInfo> genererBarn(Set<FamilierelasjonVL> familierelasjoner, LocalDate startdatoIntervall) {
-        final var barn = new ArrayList<FødtBarnInfo>();
+        var barn = new ArrayList<FødtBarnInfo>();
         for (var familierelasjon : familierelasjoner) {
             barn.add(new FødtBarnInfo.Builder()
                     .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
@@ -71,7 +71,7 @@ class TpsFamilieTjenesteTest {
     }
 
     private Personinfo opprettPersonInfo(AktørId aktørId, int antallBarn, LocalDate startdatoIntervall) {
-        final var builder = new Personinfo.Builder();
+        var builder = new Personinfo.Builder();
         builder.medAktørId(aktørId)
                 .medNavn("Test")
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
@@ -90,10 +90,10 @@ class TpsFamilieTjenesteTest {
     }
 
     private LocalDate genererFødselsdag(LocalDate startdatoIntervall) {
-        final var datoIntervallEntitet = DatoIntervallEntitet.fraOgMedTilOgMed(startdatoIntervall, LocalDate.now());
-        final var l = datoIntervallEntitet.antallDager();
+        var datoIntervallEntitet = DatoIntervallEntitet.fraOgMedTilOgMed(startdatoIntervall, LocalDate.now());
+        var l = datoIntervallEntitet.antallDager();
 
-        final var v = Math.random() * l;
+        var v = Math.random() * l;
         return startdatoIntervall.plusDays((long) v);
     }
 

@@ -47,7 +47,7 @@ public class FamilieHendelseBuilder {
     }
 
     public FamilieHendelseBuilder leggTilBarn(UidentifisertBarn barn) {
-        final var barnEntitet = new UidentifisertBarnEntitet(barn);
+        var barnEntitet = new UidentifisertBarnEntitet(barn);
         hendelse.leggTilBarn(barnEntitet);
         return this;
     }

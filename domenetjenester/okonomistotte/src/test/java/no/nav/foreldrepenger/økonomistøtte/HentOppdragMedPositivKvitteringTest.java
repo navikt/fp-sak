@@ -44,7 +44,7 @@ class HentOppdragMedPositivKvitteringTest {
     }
 
     private void mockRepository(Oppdragskontroll oppdragskontroll) {
-        final var økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
+        var økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
         when(økonomioppdragRepository.finnOppdragForBehandling(eq(behandling.getId()))).thenReturn(Optional.of(oppdragskontroll));
         when(økonomioppdragRepository.finnAlleOppdragForSak(eq(saksnummer))).thenReturn(Collections.singletonList(oppdragskontroll));
         hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);

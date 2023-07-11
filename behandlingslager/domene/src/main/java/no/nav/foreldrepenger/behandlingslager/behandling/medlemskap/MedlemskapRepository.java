@@ -66,7 +66,7 @@ public class MedlemskapRepository {
 
     /** Kopierer grunnlag fra en tidligere behandling.  Endrer ikke aggregater, en skaper nye referanser til disse. */
     public void kopierGrunnlagFraEksisterendeBehandling(Long eksisterendeBehandlingId, Long nyBehandlingId) {
-        final var nyLås = taLås(nyBehandlingId);
+        var nyLås = taLås(nyBehandlingId);
         var eksisterendeGrunnlag = getAktivtBehandlingsgrunnlag(eksisterendeBehandlingId);
 
         var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(eksisterendeGrunnlag, nyBehandlingId);
@@ -76,7 +76,7 @@ public class MedlemskapRepository {
     }
 
     public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long eksisterendeBehandlingId, Long nyBehandlingId) {
-        final var nyLås = taLås(nyBehandlingId);
+        var nyLås = taLås(nyBehandlingId);
         var eksisterendeGrunnlag = getAktivtBehandlingsgrunnlag(eksisterendeBehandlingId);
 
         var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.forRevurdering(eksisterendeGrunnlag,
@@ -88,7 +88,7 @@ public class MedlemskapRepository {
 
     /** Lagre registrert opplysninger om medlemskap (fra MEDL). Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
     public void lagreMedlemskapRegisterOpplysninger(Long behandlingId, Collection<MedlemskapPerioderEntitet> registrertMedlemskap) {
-        final var lås = taLås(behandlingId);
+        var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
         var data = kopierOgLagreHvisEndret(gr, registrertMedlemskap);
         var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId, data);
@@ -107,7 +107,7 @@ public class MedlemskapRepository {
 
     /** Lagre vurderte opplysninger om meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
     public void lagreMedlemskapVurdering(Long behandlingId, VurdertMedlemskap vurdertMedlemskap) {
-        final var lås = taLås(behandlingId);
+        var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
         var data = kopierOgLagreHvisEndret(gr, vurdertMedlemskap);
         var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId, data);
@@ -141,7 +141,7 @@ public class MedlemskapRepository {
 
     /** Lagre oppgitte opplysninger om oppgitt tilknytning slik det kan brukes i vurdering av Medlemskap. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
     public void lagreOppgittTilkytning(Long behandlingId, MedlemskapOppgittTilknytningEntitet oppgittTilknytning) {
-        final var lås = taLås(behandlingId);
+        var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
         var data = kopierHvisEndretOgLagre(gr, oppgittTilknytning);
         var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId, data);
@@ -301,7 +301,7 @@ public class MedlemskapRepository {
 
     /** Lagre vurderte opplysninger om løpende meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
     public void lagreLøpendeMedlemskapVurdering(Long behandlingId, VurdertMedlemskapPeriodeEntitet løpendeMedlemskap) {
-        final var lås = taLås(behandlingId);
+        var lås = taLås(behandlingId);
         var gr = getAktivtBehandlingsgrunnlag(behandlingId);
         var data = kopierOgLagreHvisEndret(gr, løpendeMedlemskap);
         var nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId, data);

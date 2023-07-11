@@ -168,7 +168,7 @@ public class PersonInformasjonEntitet extends BaseEntitet {
 
     PersonInformasjonBuilder.PersonopplysningBuilder getPersonBuilderForAktørId(AktørId aktørId) {
         Objects.requireNonNull(aktørId, "aktørId");
-        final var eksisterendeAktør = personopplysninger.stream().filter(it -> it.getAktørId().equals(aktørId)).findFirst();
+        var eksisterendeAktør = personopplysninger.stream().filter(it -> it.getAktørId().equals(aktørId)).findFirst();
         return PersonInformasjonBuilder.PersonopplysningBuilder.oppdater(eksisterendeAktør).medAktørId(aktørId);
     }
 
@@ -273,16 +273,17 @@ public class PersonInformasjonEntitet extends BaseEntitet {
     }
 
     PersonInformasjonBuilder.RelasjonBuilder getRelasjonBuilderForAktørId(AktørId fraAktør, AktørId tilAktør, RelasjonsRolleType rolle) {
-        final var eksisterende = relasjoner.stream()
-                .filter(it -> it.getAktørId().equals(fraAktør) && it.getTilAktørId().equals(tilAktør) && it.getRelasjonsrolle().equals(rolle))
-                .findAny();
+        var eksisterende = relasjoner.stream()
+            .filter(it -> it.getAktørId().equals(fraAktør) && it.getTilAktørId().equals(tilAktør) && it.getRelasjonsrolle().equals(rolle))
+            .findAny();
         return PersonInformasjonBuilder.RelasjonBuilder.oppdater(eksisterende).fraAktør(fraAktør).tilAktør(tilAktør).medRolle(rolle);
     }
 
     PersonInformasjonBuilder.AdresseBuilder getAdresseBuilderForAktørId(AktørId aktørId, AdresseType type, DatoIntervallEntitet periode) {
-        final var eksisterende = adresser.stream()
-                .filter(it -> it.getAktørId().equals(aktørId) && it.getAdresseType().equals(type) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
-                .findAny();
+        var eksisterende = adresser.stream()
+            .filter(
+                it -> it.getAktørId().equals(aktørId) && it.getAdresseType().equals(type) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
+            .findAny();
         return PersonInformasjonBuilder.AdresseBuilder.oppdater(eksisterende).medAktørId(aktørId).medAdresseType(type).medPeriode(periode);
     }
 
@@ -292,21 +293,22 @@ public class PersonInformasjonEntitet extends BaseEntitet {
     }
 
     PersonInformasjonBuilder.StatsborgerskapBuilder getStatsborgerskapBuilderForAktørId(AktørId aktørId, Landkoder landkode, DatoIntervallEntitet periode) {
-        final var eksisterende = statsborgerskap.stream()
-                .filter(it -> it.getAktørId().equals(aktørId) && it.getStatsborgerskap().equals(landkode) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
-                .findAny();
+        var eksisterende = statsborgerskap.stream()
+            .filter(it -> it.getAktørId().equals(aktørId) && it.getStatsborgerskap().equals(landkode) && erSannsynligvisSammePeriode(it.getPeriode(),
+                periode))
+            .findAny();
         return PersonInformasjonBuilder.StatsborgerskapBuilder.oppdater(eksisterende).medAktørId(aktørId).medStatsborgerskap(landkode).medPeriode(periode);
     }
 
     PersonInformasjonBuilder.PersonstatusBuilder getPersonstatusBuilderForAktørId(AktørId aktørId, DatoIntervallEntitet periode) {
-        final var eksisterende = personstatuser.stream()
-                .filter(it -> it.getAktørId().equals(aktørId) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
-                .findAny();
+        var eksisterende = personstatuser.stream()
+            .filter(it -> it.getAktørId().equals(aktørId) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
+            .findAny();
         return PersonInformasjonBuilder.PersonstatusBuilder.oppdater(eksisterende).medAktørId(aktørId).medPeriode(periode);
     }
 
     PersonInformasjonBuilder.OppholdstillatelseBuilder getOppholdstillatelseBuilderForAktørId(AktørId aktørId, DatoIntervallEntitet periode) {
-        final var eksisterende = oppholdstillatelser.stream()
+        var eksisterende = oppholdstillatelser.stream()
             .filter(it -> it.getAktørId().equals(aktørId) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
             .findAny();
         return PersonInformasjonBuilder.OppholdstillatelseBuilder.oppdater(eksisterende).medAktørId(aktørId).medPeriode(periode);

@@ -127,13 +127,13 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .map(SkjæringstidspunktTjenesteImpl::utledBasertPåGrunnlag);
 
         if (behandling.erRevurdering()) {
-            final var førsteUttaksdagIForrigeVedtak = finnFørsteDatoMedUttak(behandling);
+            var førsteUttaksdagIForrigeVedtak = finnFørsteDatoMedUttak(behandling);
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteUttakSøknad.isEmpty()) {
                 return svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandling))
                     .map(SkjæringstidspunktTjenesteImpl::utledBasertPåGrunnlag)
                     .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
             }
-            final var skjæringstidspunkt = utledTidligste(førsteUttakSøknad.orElse(Tid.TIDENES_ENDE),
+            var skjæringstidspunkt = utledTidligste(førsteUttakSøknad.orElse(Tid.TIDENES_ENDE),
                 førsteUttaksdagIForrigeVedtak.orElse(Tid.TIDENES_ENDE));
             if (skjæringstidspunkt.equals(Tid.TIDENES_ENDE)) {
                 // Fant da ikke noe skjæringstidspunkt i tidligere vedtak heller.

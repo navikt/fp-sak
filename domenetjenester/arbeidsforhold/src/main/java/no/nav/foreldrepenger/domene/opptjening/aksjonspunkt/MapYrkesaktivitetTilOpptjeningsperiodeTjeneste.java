@@ -34,7 +34,7 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
             OpptjeningAktivitetVurdering vurderForSaksbehandling,
             Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening,
             Yrkesaktivitet overstyrtAktivitet) {
-        final var type = utledOpptjeningType(mapArbeidOpptjening, registerAktivitet.getArbeidType());
+        var type = utledOpptjeningType(mapArbeidOpptjening, registerAktivitet.getArbeidType());
         return new ArrayList<>(mapAktivitetsavtaler(behandlingReferanse, registerAktivitet, grunnlag,
                 vurderForSaksbehandling, type, overstyrtAktivitet));
     }
@@ -100,7 +100,7 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
     }
 
     private static Stillingsprosent finnStillingsprosent(Yrkesaktivitet registerAktivitet) {
-        final var defaultStillingsprosent = new Stillingsprosent(0);
+        var defaultStillingsprosent = new Stillingsprosent(0);
         if (registerAktivitet.erArbeidsforhold() || ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(registerAktivitet.getArbeidType())) {
             var filter = new YrkesaktivitetFilter(null, List.of(registerAktivitet));
             return filter.getAktivitetsAvtalerForArbeid()

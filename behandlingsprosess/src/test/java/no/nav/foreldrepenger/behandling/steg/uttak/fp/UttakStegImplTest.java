@@ -382,8 +382,8 @@ class UttakStegImplTest {
     }
 
     private void opprettPersonopplysninger(Behandling behandling) {
-        final var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
-        final var personopplysningBuilder = builder.getPersonopplysningBuilder(behandling.getAktørId());
+        var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
+        var personopplysningBuilder = builder.getPersonopplysningBuilder(behandling.getAktørId());
         personopplysningBuilder.medFødselsdato(LocalDate.now().minusYears(20));
         builder.leggTil(personopplysningBuilder);
         personopplysningRepository.lagre(behandling.getId(), builder);
@@ -445,10 +445,10 @@ class UttakStegImplTest {
         var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
-        final var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
-                .tilbakestillBarn()
-                .medAntallBarn(1)
-                .leggTilBarn(LocalDate.now(), LocalDate.now().plusDays(1));
+        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
+            .tilbakestillBarn()
+            .medAntallBarn(1)
+            .leggTilBarn(LocalDate.now(), LocalDate.now().plusDays(1));
         familieHendelseRepository.lagreRegisterHendelse(behandling, bekreftetHendelse);
 
         // Act
@@ -464,14 +464,12 @@ class UttakStegImplTest {
     @Test
     void skal_ha_aksjonspunkt_når_finnes_dødsdato_i_overstyrt_versjon() {
         var behandling = opprettBehandling();
-        final var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
-                .tilbakestillBarn()
-                .medFødselsDato(LocalDate.now());
+        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling).tilbakestillBarn().medFødselsDato(LocalDate.now());
         familieHendelseRepository.lagreRegisterHendelse(behandling, bekreftetHendelse);
 
-        final var overstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
-                .tilbakestillBarn()
-                .leggTilBarn(LocalDate.now(), LocalDate.now().plusDays(1));
+        var overstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
+            .tilbakestillBarn()
+            .leggTilBarn(LocalDate.now(), LocalDate.now().plusDays(1));
         familieHendelseRepository.lagreOverstyrtHendelse(behandling, overstyrtHendelse);
         opprettPersonopplysninger(behandling);
 
@@ -512,14 +510,10 @@ class UttakStegImplTest {
         var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, lås);
 
-        final var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
-                .medAntallBarn(1)
-                .medFødselsDato(fødselsdato);
+        var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling).medAntallBarn(1).medFødselsDato(fødselsdato);
         familieHendelseRepository.lagre(behandling, søknadHendelse);
 
-        final var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
-                .medAntallBarn(1)
-                .medFødselsDato(fødselsdato);
+        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling).medAntallBarn(1).medFødselsDato(fødselsdato);
         familieHendelseRepository.lagre(behandling, bekreftetHendelse);
 
         OppgittFordelingEntitet fordeling;
@@ -560,11 +554,7 @@ class UttakStegImplTest {
             .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
-        final var søknad = new SøknadEntitet.Builder()
-                .medSøknadsdato(LocalDate.now())
-                .medMottattDato(mottattDato)
-                .medElektroniskRegistrert(true)
-                .build();
+        var søknad = new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).medMottattDato(mottattDato).medElektroniskRegistrert(true).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         return behandling;
     }

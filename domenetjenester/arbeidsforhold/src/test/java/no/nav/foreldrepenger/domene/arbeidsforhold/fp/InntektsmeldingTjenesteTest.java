@@ -132,7 +132,7 @@ class InntektsmeldingTjenesteTest {
     @Test
     void skal_ta_hensyn_til_arbeidsforhold_med_inntekt() {
         // Arrange
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
                 DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
@@ -147,7 +147,7 @@ class InntektsmeldingTjenesteTest {
     @Test
     void skal_ikke_ta_hensyn_til_arbeidsforhold_uten_inntekt() {
         // Arrange
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
         LØNNSPOST = BigDecimal.ZERO;
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
@@ -164,7 +164,7 @@ class InntektsmeldingTjenesteTest {
     @Test
     void skal_ikke_ta_hensyn_til_arbeidsforhold_ikke_gyldig_stp() {
         // Arrange
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
                 DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_FRA.plusWeeks(1)),
@@ -205,7 +205,7 @@ class InntektsmeldingTjenesteTest {
         // Act+Assert
         assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, true)).isEmpty();
 
-        final var nyeInntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, I_DAG);
+        var nyeInntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, I_DAG);
         assertThat(nyeInntektsmeldinger).hasSize(1);
     }
 
@@ -505,15 +505,15 @@ class InntektsmeldingTjenesteTest {
     }
 
     private Behandling opprettBehandling(Fagsak fagsak) {
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         return behandling;
     }
 
     private Fagsak opprettFagsak() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), RelasjonsRolleType.MORA,
-                new Saksnummer("9999"));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), RelasjonsRolleType.MORA,
+            new Saksnummer("9999"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

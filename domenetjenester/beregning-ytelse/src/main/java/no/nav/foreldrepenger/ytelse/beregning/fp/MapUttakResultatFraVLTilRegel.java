@@ -74,14 +74,13 @@ public class MapUttakResultatFraVLTilRegel {
     private BigDecimal finnArbeidsprosent(ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet,
                                         UttakYrkesaktiviteter uttakYrkesaktiviteter, LocalDate periodeFom) {
         if (!uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) return BigDecimal.ZERO;
-        var aktivitet= uttakResultatPeriodeAktivitet.getUttakAktivitet();
-        final var arbeidsgiver = aktivitet.getArbeidsgiver();
+        var aktivitet = uttakResultatPeriodeAktivitet.getUttakAktivitet();
+        var arbeidsgiver = aktivitet.getArbeidsgiver();
         if (arbeidsgiver.isPresent()) {
-            final var stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
-                aktivitet.getArbeidsforholdRef(), periodeFom);
-            final var totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
-                null, periodeFom);
-            final var arbeidsprosentandel = finnArbeidsprosentandel(stillingsprosent, totalStillingsprosent);
+            var stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(), aktivitet.getArbeidsforholdRef(),
+                periodeFom);
+            var totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(), null, periodeFom);
+            var arbeidsprosentandel = finnArbeidsprosentandel(stillingsprosent, totalStillingsprosent);
             return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel);
         }
         return uttakResultatPeriodeAktivitet.getArbeidsprosent();

@@ -48,7 +48,7 @@ public class FpUttakRepository {
 
     private void lagreUttaksresultat(Long behandlingId,
                                      Function<UttakResultatEntitet.Builder, UttakResultatEntitet.Builder> resultatTransformator) {
-        final var lås = behandlingLåsRepository.taLås(behandlingId);
+        var lås = behandlingLåsRepository.taLås(behandlingId);
 
         var eksistrendeResultat = hentUttakResultatHvisEksisterer(behandlingId);
 
@@ -147,8 +147,7 @@ public class FpUttakRepository {
 
     public Optional<UttakResultatEntitet> hentUttakResultatPåId(Long id) {
         Objects.requireNonNull(id, "aggregatId");
-        final var query = entityManager.createQuery(
-            "FROM UttakResultatEntitet ur " + "WHERE ur.id = :id ", UttakResultatEntitet.class);
+        var query = entityManager.createQuery("FROM UttakResultatEntitet ur " + "WHERE ur.id = :id ", UttakResultatEntitet.class);
         query.setParameter("id", id);
         return HibernateVerktøy.hentUniktResultat(query);
     }

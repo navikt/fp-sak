@@ -120,7 +120,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     public void lagreIayAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
         var grunnlagBuilder = getGrunnlagBuilder(behandlingId, builder);
 
-        final var informasjon = grunnlagBuilder.getInformasjon();
+        var informasjon = grunnlagBuilder.getInformasjon();
 
         // lagre reserverte interne referanser opprettet tidligere
         builder.getNyeInternArbeidsforholdReferanser()
@@ -148,7 +148,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         var aggregat = Optional.ofNullable(grunnlagBuilder.getKladd());
         Objects.requireNonNull(aggregat, "aggregat");
         if (aggregat.isPresent()) {
-            final var aggregat1 = aggregat.get();
+            var aggregat1 = aggregat.get();
             return InntektArbeidYtelseAggregatBuilder.builderFor(hentRiktigVersjon(versjonType, aggregat1), angittReferanse, opprettetTidspunkt,
                     versjonType);
         }
@@ -222,14 +222,14 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders) {
         Objects.requireNonNull(builders, "builders");
         var builder = opprettGrunnlagBuilderFor(behandlingId);
-        final var inntektsmeldinger = builder.getInntektsmeldinger();
+        var inntektsmeldinger = builder.getInntektsmeldinger();
 
         for (var inntektsmeldingBuilder : builders) {
-            final var informasjon = builder.getInformasjon();
+            var informasjon = builder.getInformasjon();
             konverterEksternArbeidsforholdRefTilInterne(inntektsmeldingBuilder, informasjon);
 
             var inntektsmelding = inntektsmeldingBuilder.build();
-            final var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(informasjon);
+            var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(informasjon);
 
             // Kommet inn inntektsmelding på arbeidsforhold som vi har gått videre med uten
             // inntektsmelding?

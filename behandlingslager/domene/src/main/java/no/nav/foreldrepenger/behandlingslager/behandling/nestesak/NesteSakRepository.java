@@ -57,17 +57,14 @@ public class NesteSakRepository {
     }
 
     public Optional<NesteSakGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
-        final var query = entityManager.createQuery(
-            "FROM NestesakGrunnlag n WHERE n.behandlingId = :behandlingId AND n.aktiv = true",
-                NesteSakGrunnlagEntitet.class)
-            .setParameter("behandlingId", behandlingId);
+        var query = entityManager.createQuery("FROM NestesakGrunnlag n WHERE n.behandlingId = :behandlingId AND n.aktiv = true",
+            NesteSakGrunnlagEntitet.class).setParameter("behandlingId", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     public NesteSakGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
-        final var query = entityManager
-            .createQuery("FROM NestesakGrunnlag n WHERE n.id = :grunnlagId", NesteSakGrunnlagEntitet.class)
+        var query = entityManager.createQuery("FROM NestesakGrunnlag n WHERE n.id = :grunnlagId", NesteSakGrunnlagEntitet.class)
             .setParameter("grunnlagId", grunnlagId);
 
         return query.getResultStream().findFirst().orElse(null);

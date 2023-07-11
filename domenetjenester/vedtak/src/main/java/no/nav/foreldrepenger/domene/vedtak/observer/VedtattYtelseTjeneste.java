@@ -53,12 +53,12 @@ public class VedtattYtelseTjeneste {
     }
 
     public Ytelse genererYtelse(Behandling behandling) {
-        final var vedtak = vedtakRepository.hentForBehandling(behandling.getId());
+        var vedtak = vedtakRepository.hentForBehandling(behandling.getId());
         var berResultat = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId());
 
-        final var aktør = new Aktør();
+        var aktør = new Aktør();
         aktør.setVerdi(behandling.getAktørId().getId());
-        final var ytelse = new YtelseV1();
+        var ytelse = new YtelseV1();
         ytelse.setKildesystem(Kildesystem.FPSAK);
         ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
@@ -90,7 +90,7 @@ public class VedtattYtelseTjeneste {
 
 
     private Periode utledPeriode(Behandling behandling, BehandlingVedtak vedtak, BeregningsresultatEntitet beregningsresultat) {
-        final var periode = new Periode();
+        var periode = new Periode();
         if (beregningsresultat != null) {
             var minFom = beregningsresultat.getBeregningsresultatPerioder().stream()
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)

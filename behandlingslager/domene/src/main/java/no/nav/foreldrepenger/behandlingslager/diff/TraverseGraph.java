@@ -98,7 +98,7 @@ public class TraverseGraph {
         var currentClass = targetClass;
 
         while (!graphConfig.isRoot(currentClass)) {
-            for (final var field : currentClass.getDeclaredFields()) {
+            for (var field : currentClass.getDeclaredFields()) {
                 if (graphConfig.isTraverseField(field)) {
                     var newPath = new Node(field.getName(), currentPath, obj);
                     try {

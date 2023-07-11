@@ -370,8 +370,7 @@ class BehandlingDvhMapperTest {
 
     private static FamilieHendelseGrunnlagEntitet byggHendelseGrunnlag(LocalDate fødselsdato,
                                                                        LocalDate oppgittFødselsdato) {
-        final var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(),
-            HendelseVersjonType.SØKNAD);
+        var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         if (oppgittFødselsdato != null) {
             hendelseBuilder.medFødselsDato(oppgittFødselsdato);
         }

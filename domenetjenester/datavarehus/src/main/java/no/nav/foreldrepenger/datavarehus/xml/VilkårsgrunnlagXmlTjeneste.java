@@ -54,7 +54,7 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
     protected abstract Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Optional<SøknadEntitet> søknad, Optional<LocalDate> familieHendelseDato);
 
     protected boolean erBarnetFødt(Behandling behandling) {
-        final var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         return inneholderFødsel(familieHendelseGrunnlag.getOverstyrtVersjon()) || inneholderFødsel(familieHendelseGrunnlag.getBekreftetVersjon()) ||
             inneholderFødsel(Optional.of(familieHendelseGrunnlag.getSøknadVersjon()));
     }

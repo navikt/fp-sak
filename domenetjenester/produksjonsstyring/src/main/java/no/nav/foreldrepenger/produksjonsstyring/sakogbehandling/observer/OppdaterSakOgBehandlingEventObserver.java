@@ -75,7 +75,7 @@ public class OppdaterSakOgBehandlingEventObserver {
     }
 
     private BehandlingTema behandlingTemaFraBehandling(Behandling sisteBehandling) {
-        final var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteBehandling.getId());
+        var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteBehandling.getId());
         return BehandlingTema.fraFagsak(sisteBehandling.getFagsak(), grunnlag.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
     }
 }

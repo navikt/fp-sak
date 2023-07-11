@@ -71,7 +71,7 @@ class KompletthetssjekkerManglendeVedleggTest {
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
 
         // Act
-        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -103,7 +103,7 @@ class KompletthetssjekkerManglendeVedleggTest {
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
         // Act
-        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isNotEmpty();
@@ -134,7 +134,7 @@ class KompletthetssjekkerManglendeVedleggTest {
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
         // Act
-        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isNotEmpty();
@@ -149,7 +149,7 @@ class KompletthetssjekkerManglendeVedleggTest {
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
         // Act
-        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();

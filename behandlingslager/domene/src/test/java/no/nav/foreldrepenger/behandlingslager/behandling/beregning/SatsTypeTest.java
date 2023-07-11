@@ -56,7 +56,7 @@ class SatsTypeTest {
             .toList();
 
         for (var sats : gsnittListe) {
-            final var satsPeriode = sats.getPeriode();
+            var satsPeriode = sats.getPeriode();
             assertThat(satsPeriode.getFomDato()).isEqualTo(satsPeriode.getFomDato().getYear() + "-01-01");
             assertThat(satsPeriode.getTomDato()).isEqualTo(satsPeriode.getFomDato().getYear() + "-12-31");
         }
@@ -74,10 +74,9 @@ class SatsTypeTest {
     @Test
     void skal_teste_gverdi_stiger_hvert_år() {
         for (var i = 1967; i <= 2016; i++) {
-            final var localDate = LocalDate.of(i, 9, 15);
-            final var sats = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate);
-            final var satsNestÅr = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
-                localDate.plusYears(1));
+            var localDate = LocalDate.of(i, 9, 15);
+            var sats = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate);
+            var satsNestÅr = beregningRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, localDate.plusYears(1));
 
             assertThat(satsNestÅr.getVerdi()).isGreaterThan(sats.getVerdi());
         }

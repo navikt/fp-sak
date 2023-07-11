@@ -158,7 +158,7 @@ public class AvklaringFaktaMedlemskap {
 
     private DatoIntervallEntitet utledInntektsintervall3Mnd(BehandlingReferanse referanse, LocalDate vurderingstidspunkt) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.fagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
-            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.behandlingId()).getMottattDato();
+            var søknadMottattDato = søknadRepository.hentSøknad(referanse.behandlingId()).getMottattDato();
             var brukdato = søknadMottattDato.isBefore(vurderingstidspunkt) ? søknadMottattDato : vurderingstidspunkt;
             return DatoIntervallEntitet.fraOgMedTilOgMed(brukdato.minusMonths(3), brukdato);
         }

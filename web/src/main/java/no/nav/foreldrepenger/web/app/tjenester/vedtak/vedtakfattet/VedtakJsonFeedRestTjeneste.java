@@ -68,7 +68,7 @@ public class VedtakJsonFeedRestTjeneste {
 
         var hendelseType = LoggerUtils.removeLineBreaks(hendelseTypeParam.get());
 
-        final var dto = tjeneste.hentFpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseType, aktørParam.get());
+        var dto = tjeneste.hentFpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseType, aktørParam.get());
 
         if (LOG.isInfoEnabled()) {
             LOG.info("VedtakFeed FP sekvens {} max {} type {} aktør {} antall {}",
@@ -97,7 +97,7 @@ public class VedtakJsonFeedRestTjeneste {
 
         var hendelseType = LoggerUtils.removeLineBreaks(hendelseTypeParam.get());
 
-        final var dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseType, aktørParam.get());
+        var dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseType, aktørParam.get());
 
         if (LOG.isInfoEnabled()) {
             LOG.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}",

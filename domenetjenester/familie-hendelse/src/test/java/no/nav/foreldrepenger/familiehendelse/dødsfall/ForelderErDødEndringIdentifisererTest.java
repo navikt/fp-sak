@@ -23,7 +23,7 @@ class ForelderErDødEndringIdentifisererTest {
 
     @Test
     void testDødsdatoUendret() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato);
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -34,7 +34,7 @@ class ForelderErDødEndringIdentifisererTest {
 
     @Test
     void testSøkerDør() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
 
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(null);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato);
@@ -59,7 +59,7 @@ class ForelderErDødEndringIdentifisererTest {
 
     @Test
     void testDødsdatoEndret() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
 
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato.minusDays(1));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato);
@@ -72,7 +72,7 @@ class ForelderErDødEndringIdentifisererTest {
     @Test
     void skal_detektere_brukes_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
         // Arrange
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettTomtPersonopplysningGrunnlag();
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato);
 
@@ -101,7 +101,7 @@ class ForelderErDødEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(LocalDate dødsdato) {
-        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID).medDødsdato(dødsdato));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }

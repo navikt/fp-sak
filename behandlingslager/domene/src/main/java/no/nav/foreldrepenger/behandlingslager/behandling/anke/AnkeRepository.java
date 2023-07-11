@@ -34,16 +34,15 @@ public class AnkeRepository {
     public Optional<AnkeResultatEntitet> hentAnkeResultat(Long ankeBehandlingId) {
         Objects.requireNonNull(ankeBehandlingId, "behandlingId");
 
-        final var query = entityManager.createQuery(
-            " FROM AnkeResultat WHERE ankeBehandlingId = :behandlingId", AnkeResultatEntitet.class);
+        var query = entityManager.createQuery(" FROM AnkeResultat WHERE ankeBehandlingId = :behandlingId", AnkeResultatEntitet.class);
         query.setParameter("behandlingId", ankeBehandlingId);
         return hentUniktResultat(query);
     }
 
     private Optional<AnkeVurderingResultatEntitet> hentVurderingsResultaterForAnkeBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        final var query = entityManager.createQuery(
-            " FROM AnkeVurderingResultat WHERE ankeResultat.ankeBehandlingId = :behandlingId", AnkeVurderingResultatEntitet.class);
+        var query = entityManager.createQuery(" FROM AnkeVurderingResultat WHERE ankeResultat.ankeBehandlingId = :behandlingId",
+            AnkeVurderingResultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }

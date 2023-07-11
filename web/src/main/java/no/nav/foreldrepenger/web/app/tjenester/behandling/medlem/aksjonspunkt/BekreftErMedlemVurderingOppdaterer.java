@@ -65,7 +65,8 @@ public class BekreftErMedlemVurderingOppdaterer implements AksjonspunktOppdatere
             historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.GYLDIG_MEDLEM_FOLKETRYGDEN, originalVurdering, bekreftetVurdering);
         }
 
-        final var adapter = new BekreftErMedlemVurderingAksjonspunktDto(bekreftet.getMedlemskapManuellVurderingType().getKode(), bekreftet.getBegrunnelse());
+        var adapter = new BekreftErMedlemVurderingAksjonspunktDto(bekreftet.getMedlemskapManuellVurderingType().getKode(),
+            bekreftet.getBegrunnelse());
         medlemTjeneste.aksjonspunktBekreftMeldlemVurdering(behandlingId, adapter);
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(erEndret).build();

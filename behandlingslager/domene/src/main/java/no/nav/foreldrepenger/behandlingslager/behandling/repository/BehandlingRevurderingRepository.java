@@ -61,7 +61,7 @@ public class BehandlingRevurderingRepository {
         var sisteInnvilgede = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
 
         if (sisteInnvilgede.isPresent()) {
-            final var behandlingsIder = finnHenlagteBehandlingerEtter(fagsakId, sisteInnvilgede.get());
+            var behandlingsIder = finnHenlagteBehandlingerEtter(fagsakId, sisteInnvilgede.get());
             for (var behandlingId : behandlingsIder) {
                 behandlingLåsRepository.taLås(behandlingId);
             }
@@ -135,9 +135,7 @@ public class BehandlingRevurderingRepository {
         for (var behandlingId : behandlingIder) {
             behandlingLåsRepository.taLås(behandlingId);
         }
-        final var behandlinger = behandlingIder.stream()
-            .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId))
-            .toList();
+        var behandlinger = behandlingIder.stream().map(behandlingId -> behandlingRepository.hentBehandling(behandlingId)).toList();
         check(behandlinger.size() <= 2, "Kan maks ha én åpen og én køet ytelsesbehandling");
         check(behandlinger.stream().filter(Behandling::erKøet).count() <= 1, "Kan maks ha én køet ytelsesbehandling");
         check(behandlinger.stream().filter(it -> !it.erKøet()).count() <= 1, "Kan maks ha én åpen ytelsesbehandling");

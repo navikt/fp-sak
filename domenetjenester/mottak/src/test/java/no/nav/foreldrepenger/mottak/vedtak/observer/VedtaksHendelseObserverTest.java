@@ -136,8 +136,7 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
     }
 
     private BehandlingVedtakEvent genererYtelseFpsak(Behandling behandling) {
-        final var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-                .orElseThrow();
+        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).orElseThrow();
 
         return new BehandlingVedtakEvent(vedtak, behandling);
     }

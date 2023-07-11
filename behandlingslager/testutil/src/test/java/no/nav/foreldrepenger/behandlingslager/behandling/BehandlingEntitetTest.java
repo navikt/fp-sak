@@ -41,7 +41,7 @@ class BehandlingEntitetTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettOgLagreBehandling() {
-        final var scenarioMorSøkerEngangsstønad = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenarioMorSøkerEngangsstønad = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenarioMorSøkerEngangsstønad.medSøknadHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now());
         return scenarioMorSøkerEngangsstønad.lagre(repositoryProvider);
     }
@@ -81,29 +81,31 @@ class BehandlingEntitetTest extends EntityManagerAwareTest {
         assertThat(alle).hasSize(1);
 
         var første = alle.get(0);
-        final var søknad = repositoryProvider.getSøknadRepository().hentSøknad(første.getId());
-        final var fhGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(første.getId());
+        var søknad = repositoryProvider.getSøknadRepository().hentSøknad(første.getId());
+        var fhGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(første.getId());
         assertThat(søknad).isNotNull();
         assertThat(søknad.getSøknadsdato()).isEqualTo(LocalDate.now());
         assertThat(fhGrunnlag.getSøknadVersjon().getTerminbekreftelse()).isNotPresent();
         assertThat(fhGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
-        assertThat(fhGrunnlag.getSøknadVersjon().getBarna().iterator().next().getFødselsdato())
-                .isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(fhGrunnlag.getSøknadVersjon().getBarna().iterator().next().getFødselsdato()).isEqualTo(LocalDate.now().plusDays(1));
     }
 
     @Test
     void skal_ikke_opprette_nytt_behandlingsgrunnlag_når_endring_skjer_på_samme_behandling_som_originalt_lagd_for() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                        .medTermindato(LocalDate.now()).medUtstedtDato(LocalDate.now()).medNavnPå("Lege legesen"));
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now())
+                .medUtstedtDato(LocalDate.now())
+                .medNavnPå("Lege legesen"));
         var behandling = scenario.lagre(repositoryProvider);
 
         var terminDato = LocalDate.now();
 
         lagreBehandling(behandling);
-        final var grunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
-        final var grunnlag = grunnlagRepository.hentAggregat(behandling.getId());
+        var grunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
+        var grunnlag = grunnlagRepository.hentAggregat(behandling.getId());
 
         // Ny behandling gir samme grunnlag når det ikke er endringer
         var behandlingBuilder2 = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD);
@@ -112,13 +114,13 @@ class BehandlingEntitetTest extends EntityManagerAwareTest {
         var behandling2 = behandlingBuilder2.build();
         lagreBehandling(behandling2);
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), behandling2.getId());
-        final var oppdatere = grunnlagRepository.opprettBuilderFor(behandling);
+        var oppdatere = grunnlagRepository.opprettBuilderFor(behandling);
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
                 .medTermindato(nyTerminDato)
                 .medUtstedtDato(terminDato).medNavnPå("Lege navn"));
         grunnlagRepository.lagre(behandling2, oppdatere);
 
-        final var oppdatertGrunnlag = grunnlagRepository.hentAggregat(behandling2.getId());
+        var oppdatertGrunnlag = grunnlagRepository.hentAggregat(behandling2.getId());
         assertThat(oppdatertGrunnlag).isNotSameAs(grunnlag);
 
         assertThat(grunnlag.getGjeldendeVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)).hasValue(terminDato);

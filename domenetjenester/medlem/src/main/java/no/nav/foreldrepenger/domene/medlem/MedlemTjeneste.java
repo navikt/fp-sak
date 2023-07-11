@@ -146,11 +146,11 @@ public class MedlemTjeneste {
     }
 
     public Map<LocalDate, VurderMedlemskap> utledVurderingspunkterMedAksjonspunkt(BehandlingReferanse ref) {
-        final var vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref);
-        final var map = new HashMap<LocalDate, VurderMedlemskap>();
+        var vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref);
+        var map = new HashMap<LocalDate, VurderMedlemskap>();
         for (var entry : vurderingsdatoer.entrySet()) {
             var vurderingsdato = entry.getKey();
-            final var vurderinger = vurderMedlemskapTjeneste.vurderMedlemskap(ref, vurderingsdato);
+            var vurderinger = vurderMedlemskapTjeneste.vurderMedlemskap(ref, vurderingsdato);
             if (!vurderinger.isEmpty()) {
                 map.put(vurderingsdato, mapTilVurderMeldemspa(vurderinger, entry.getValue()));
             }
@@ -159,10 +159,7 @@ public class MedlemTjeneste {
     }
 
     private VurderMedlemskap mapTilVurderMeldemspa(Set<MedlemResultat> vurderinger, Set<VurderingsÅrsak> vurderingsÅrsaks) {
-        final var aksjonspunkter = vurderinger.stream()
-            .map(RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP::get)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+        var aksjonspunkter = vurderinger.stream().map(RESULTAT_AKSJONSPUNKT_DEFINISJON_MAP::get).filter(Objects::nonNull).collect(Collectors.toSet());
         return new VurderMedlemskap(aksjonspunkter, vurderingsÅrsaks);
     }
 

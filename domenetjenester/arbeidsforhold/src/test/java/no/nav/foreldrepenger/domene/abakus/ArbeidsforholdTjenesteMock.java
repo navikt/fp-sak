@@ -35,12 +35,12 @@ public class ArbeidsforholdTjenesteMock {
     }
 
     private List<ArbeidsforholdDto> opprettResponse(boolean medToArbeidsforhold) {
-        final var arbeidsforhold = new ArbeidsforholdDto(new Organisasjon(ORGNR1), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        var arbeidsforhold = new ArbeidsforholdDto(new Organisasjon(ORGNR1), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         arbeidsforhold.setAnsettelsesperiode(List.of(new Periode(PERIODE_FOM, Tid.TIDENES_ENDE)));
         arbeidsforhold.setArbeidsforholdId(new ArbeidsforholdRefDto(null, "1"));
 
         if (medToArbeidsforhold) {
-            final var arbeidsforhold2 = new ArbeidsforholdDto(new Organisasjon(ORGNR2), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+            var arbeidsforhold2 = new ArbeidsforholdDto(new Organisasjon(ORGNR2), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
             arbeidsforhold2.setArbeidsforholdId(new ArbeidsforholdRefDto(null, "1"));
             arbeidsforhold2.setAnsettelsesperiode(List.of(new Periode(PERIODE_FOM, Tid.TIDENES_ENDE)));
             return List.of(arbeidsforhold, arbeidsforhold2);

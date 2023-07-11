@@ -145,7 +145,7 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        final var sb = new StringBuilder("PersonopplysningGrunnlagEntitet{");
+        var sb = new StringBuilder("PersonopplysningGrunnlagEntitet{");
         sb.append("id=").append(id);
         sb.append(", søknadAnnenPart=").append(søknadAnnenPart);
         sb.append(", aktiv=").append(aktiv);

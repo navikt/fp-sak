@@ -30,7 +30,7 @@ public class AvklarFortsattMedlemskapOppdaterer implements AksjonspunktOppdatere
 
     @Override
     public OppdateringResultat oppdater(AvklarFortsattMedlemskapDto dto, AksjonspunktOppdaterParameter param) {
-        final var adapter = new AvklarFortsattMedlemskapAksjonspunktDto(mapTilAdapterFra(dto));
+        var adapter = new AvklarFortsattMedlemskapAksjonspunktDto(mapTilAdapterFra(dto));
 
         medlemTjeneste.aksjonspunktAvklarFortsattMedlemskap(param.getBehandlingId(), adapter);
         return OppdateringResultat.utenOveropp();

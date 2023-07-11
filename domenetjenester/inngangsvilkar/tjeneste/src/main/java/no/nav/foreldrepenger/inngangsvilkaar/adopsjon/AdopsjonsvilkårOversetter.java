@@ -50,7 +50,7 @@ public class AdopsjonsvilkårOversetter {
     }
 
     public AdopsjonsvilkårGrunnlag oversettTilRegelModellAdopsjon(BehandlingReferanse ref) {
-        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
+        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.behandlingId());
         var bekreftetAdopsjon = byggBekreftetAdopsjon(ref, familieHendelseGrunnlag);
         var adopsjonBarn = bekreftetAdopsjon.adopsjonBarn();
         return new AdopsjonsvilkårGrunnlag(
@@ -75,17 +75,18 @@ public class AdopsjonsvilkårOversetter {
     }
 
     private static BekreftetAdopsjon byggBekreftetAdopsjon(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        final var bekreftetVersjon = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
-        final var adopsjon = bekreftetVersjon.flatMap(FamilieHendelseEntitet::getAdopsjon)
+        var bekreftetVersjon = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
+        var adopsjon = bekreftetVersjon.flatMap(FamilieHendelseEntitet::getAdopsjon)
             .orElseThrow(() -> new TekniskException("FP-384255",
                 String.format("Ikke mulig å oversette adopsjonsgrunnlag til regelmotor for behandlingId %s", ref.behandlingId())));
 
-        var bekreftetAdopsjonBarn = bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(List.of()).stream()
+        var bekreftetAdopsjonBarn = bekreftetVersjon.map(FamilieHendelseEntitet::getBarna)
+            .orElse(List.of())
+            .stream()
             .map(barn -> new BekreftetAdopsjonBarn(barn.getFødselsdato()))
             .toList();
         return new BekreftetAdopsjon(adopsjon.getOmsorgsovertakelseDato(), bekreftetAdopsjonBarn,
-            getBooleanOrDefaultFalse(adopsjon.getErEktefellesBarn()),
-            getBooleanOrDefaultFalse(adopsjon.getAdoptererAlene()));
+            getBooleanOrDefaultFalse(adopsjon.getErEktefellesBarn()), getBooleanOrDefaultFalse(adopsjon.getAdoptererAlene()));
     }
 
     private static boolean getBooleanOrDefaultFalse(Boolean bool) {

@@ -76,7 +76,7 @@ class FagsakTjenesteTest {
         // TODO opplegg for å opprette PersonInformasjon og PersonopplysningerAggregat
         // på en enklere måte
         var behandlingId = behandling.getId();
-        final var medBarnOgOppdatertKjønn = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
+        var medBarnOgOppdatertKjønn = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
         medBarnOgOppdatertKjønn
                 .leggTil(
                         medBarnOgOppdatertKjønn.getPersonopplysningBuilder(barnAktørId)
@@ -103,7 +103,7 @@ class FagsakTjenesteTest {
         // dirty, men eksponerer ikke status nå
         fagsak.setStatus(FagsakStatus.LØPENDE);
         personopplysningRepository.lagre(behandlingId, medBarnOgOppdatertKjønn);
-        final var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
+        var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
                 forelderAktørId, LocalDate.now(), LocalDate.now());

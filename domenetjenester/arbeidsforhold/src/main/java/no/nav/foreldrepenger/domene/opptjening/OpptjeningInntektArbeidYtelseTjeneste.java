@@ -64,14 +64,13 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
     }
 
     public List<OpptjeningAktivitetPeriode> hentRelevanteOpptjeningAktiveterForVilkårVurdering(BehandlingReferanse behandlingReferanse) {
-        final var perioder = opptjeningsperioderTjeneste
-                .hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
+        var perioder = opptjeningsperioderTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
 
         return perioder.stream().map(this::mapTilPerioder).toList();
     }
 
     private OpptjeningAktivitetPeriode mapTilPerioder(OpptjeningsperiodeForSaksbehandling periode) {
-        final var builder = OpptjeningAktivitetPeriode.Builder.ny();
+        var builder = OpptjeningAktivitetPeriode.Builder.ny();
         builder.medPeriode(periode.getPeriode())
                 .medOpptjeningAktivitetType(periode.getOpptjeningAktivitetType())
                 .medOrgnr(Optional.ofNullable(periode.getArbeidsgiver()).map(Arbeidsgiver::getOrgnr).orElse(null))

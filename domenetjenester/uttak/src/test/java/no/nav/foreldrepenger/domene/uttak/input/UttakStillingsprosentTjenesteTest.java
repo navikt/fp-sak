@@ -48,7 +48,7 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
 
         var yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
-        final var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
@@ -76,7 +76,7 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesAktivitetBuilder = List.of(yrkesAktivitet1, yrkesAktivitet2);
         var yrkesaktiviteter = List.of(yrkesAktivitet1.build(), yrkesAktivitet2.build());
 
-        final var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
         assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom))
@@ -104,7 +104,7 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesaktivitetBuilder = List.of(yrkesAktivitet1, yrkesAktivitet2);
         var yrkesaktiviteter = List.of(yrkesAktivitet1.build(), yrkesAktivitet2.build());
 
-        final var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
         assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbId1, fom1))
@@ -128,7 +128,7 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
 
         var yrkesAktivitetBuilder = Collections.singletonList(yrkesAktivitet);
-        final var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
@@ -162,7 +162,7 @@ class UttakStillingsprosentTjenesteTest {
             .medArbeidsgiver(arbeidsgiver);
 
         var yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
-        final var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
@@ -197,7 +197,7 @@ class UttakStillingsprosentTjenesteTest {
             .medArbeidsgiver(arbeidsgiver);
 
         var yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
-        final var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
@@ -246,7 +246,7 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesAktivitetBuilder = List.of(yrkesAktivitet1, yrkesAktivitet2);
         var yrkesaktiviteter = List.of(yrkesAktivitet1.build(), yrkesAktivitet2.build());
 
-        final var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesAktivitetBuilder, behandling.getAktørId()).build();
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
         assertThat(tjeneste.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, null, fom))
@@ -266,7 +266,7 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
 
         var yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
-        final var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 
@@ -289,7 +289,7 @@ class UttakStillingsprosentTjenesteTest {
         var yrkesAktivitet = arbeidAktivitet(arbeidsgiver, arbId, fom, tom, stillingsprosent);
 
         var yrkesaktivitetBuilder = Collections.singletonList(yrkesAktivitet);
-        final var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
+        var grunnlag = opprettGrunnlag(yrkesaktivitetBuilder, behandling.getAktørId()).build();
         var yrkesaktiviteter = Collections.singletonList(yrkesAktivitet.build());
         var tjeneste = tjeneste(behandling, grunnlag, yrkesaktiviteter);
 

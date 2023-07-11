@@ -69,7 +69,7 @@ class DokumentRestTjenesteTest {
     @Test
     void skal_gi_tom_liste_ved_ikkeeksisterende_saksnummer() {
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.empty());
-        final var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
+        var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
         assertThat(response).isEmpty();
     }
 
@@ -139,7 +139,7 @@ class DokumentRestTjenesteTest {
 
         when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(sinsen));
 
-        final var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
+        var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
         assertThat(response).hasSize(3);
 
         assertThat(response.iterator().next().getTidspunkt()).isNull();

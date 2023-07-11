@@ -47,7 +47,7 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var totrinn = håndterEndringHistorikk(dto, behandlingReferanse, param);
 
-        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medAdoptererAlene(dto.getMannAdoptererAlene()));

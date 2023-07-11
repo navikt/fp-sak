@@ -39,7 +39,7 @@ public class InntektArbeidYtelseGrunnlagBuilder {
     }
 
     public InntektsmeldingAggregat getInntektsmeldinger() {
-        final var inntektsmeldinger = kladd.getInntektsmeldinger();
+        var inntektsmeldinger = kladd.getInntektsmeldinger();
         return inntektsmeldinger.map(InntektsmeldingAggregat::new).orElseGet(InntektsmeldingAggregat::new);
     }
 

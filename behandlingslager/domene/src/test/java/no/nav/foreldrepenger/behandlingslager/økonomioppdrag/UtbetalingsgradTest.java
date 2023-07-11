@@ -34,21 +34,15 @@ class UtbetalingsgradTest {
 
     @Test
     void skal_feile_hvis_utbetalingsgrad_er_mindre_en_0() {
-        final var verdi = -100;
-        Exception thrown = assertThrows(
-            IllegalArgumentException.class,
-            () -> Utbetalingsgrad.prosent(verdi)
-        );
+        var verdi = -100;
+        Exception thrown = assertThrows(IllegalArgumentException.class, () -> Utbetalingsgrad.prosent(verdi));
         assertTrue(thrown.getMessage().contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi));
     }
 
     @Test
     void skal_feile_hvis_utbetalingsgrad_er_storre_en_100() {
-        final var verdi = 110;
-        Exception thrown = assertThrows(
-            IllegalArgumentException.class,
-            () -> Utbetalingsgrad.prosent(verdi)
-        );
+        var verdi = 110;
+        Exception thrown = assertThrows(IllegalArgumentException.class, () -> Utbetalingsgrad.prosent(verdi));
         assertTrue(thrown.getMessage().contains("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + verdi));
     }
 

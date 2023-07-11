@@ -114,7 +114,7 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
 
     @Override
     public String toString() {
-        final var sb = new StringBuilder("PersonRelasjonEntitet{");
+        var sb = new StringBuilder("PersonRelasjonEntitet{");
         sb.append("relasjonsrolle=").append(relasjonsrolle);
         sb.append('}');
         return sb.toString();

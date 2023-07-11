@@ -42,7 +42,7 @@ public class KabalHendelseStream implements LiveAndReadinessAware, Controllable 
 
         final Consumed<String, String> consumed = Consumed.with(Topology.AutoOffsetReset.EARLIEST);
 
-        final var builder = new StreamsBuilder();
+        var builder = new StreamsBuilder();
         builder.stream(topicName, consumed)
             .foreach(kabalHendelseHåndterer::handleMessage);
 

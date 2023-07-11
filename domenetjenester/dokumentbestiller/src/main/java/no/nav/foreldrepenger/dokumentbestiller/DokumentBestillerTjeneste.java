@@ -34,7 +34,7 @@ public class DokumentBestillerTjeneste {
     }
 
     public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
-        final var behandlingsresultat = behandlingVedtak.getBehandlingsresultat();
+        var behandlingsresultat = behandlingVedtak.getBehandlingsresultat();
 
         if (Vedtaksbrev.INGEN.equals(behandlingsresultat.getVedtaksbrev())) {
             return;

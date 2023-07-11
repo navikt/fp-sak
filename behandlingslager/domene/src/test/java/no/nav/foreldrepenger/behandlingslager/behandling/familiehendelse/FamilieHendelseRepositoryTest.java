@@ -32,13 +32,13 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_lage_søknad_versjon() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        final var hendelseBuilder = repository.opprettBuilderFor(behandling);
+        var hendelseBuilder = repository.opprettBuilderFor(behandling);
         hendelseBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
         repository.lagre(behandling, hendelseBuilder);
 
@@ -50,7 +50,7 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
-        final var hendelseBuilder1 = repository.opprettBuilderFor(behandling);
+        var hendelseBuilder1 = repository.opprettBuilderFor(behandling);
         hendelseBuilder1.leggTilBarn(LocalDate.now()).medAntallBarn(2);
         repository.lagre(behandling, hendelseBuilder1);
 
@@ -67,15 +67,14 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_lagre_med_endring_i_vilkår() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         var hendelseBuilder = repository.opprettBuilderFor(behandling);
-        hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now()))
+        hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()))
             .erOmsorgovertagelse()
             .medFødselsDato(LocalDate.now())
             .medAntallBarn(1);
@@ -101,7 +100,7 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
-        final var hendelseBuilder1 = repository.opprettBuilderFor(behandling);
+        var hendelseBuilder1 = repository.opprettBuilderFor(behandling);
         hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
         repository.lagre(behandling, hendelseBuilder1);
@@ -119,15 +118,14 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_hente_eldste_versjon_av_aggregat() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         var hendelseBuilder = repository.opprettBuilderFor(behandling);
-        hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now()))
+        hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()))
             .erOmsorgovertagelse()
             .medFødselsDato(LocalDate.now())
             .medAntallBarn(1);
@@ -140,12 +138,12 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
         repository.lagreOverstyrtHendelse(behandling, hendelseBuilder);
 
-        final var hendelseBuilder1 = repository.opprettBuilderFor(behandling);
+        var hendelseBuilder1 = repository.opprettBuilderFor(behandling);
         hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
         repository.lagre(behandling, hendelseBuilder1);
 
-        final var hendelseBuilder2 = repository.opprettBuilderFor(behandling);
+        var hendelseBuilder2 = repository.opprettBuilderFor(behandling);
         hendelseBuilder2.medAdopsjon(hendelseBuilder2.getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
         repository.lagre(behandling, hendelseBuilder2);

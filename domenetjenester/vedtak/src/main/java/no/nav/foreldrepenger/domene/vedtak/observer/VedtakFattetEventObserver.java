@@ -43,7 +43,7 @@ public class VedtakFattetEventObserver {
     }
 
     private boolean erBehandlingAvRettType(Behandling behandling, BehandlingVedtak vedtak) {
-        final var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.UDEFINERT;
+        var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.UDEFINERT;
         return SKAL_SENDE_HENDELSE.contains(resultatType) ||
             tilbakekrevingRepository.hent(behandling.getId()).isPresent() ||
             revurderingAvslåttMedForrigeInnvilget(behandling, resultatType);
@@ -58,7 +58,7 @@ public class VedtakFattetEventObserver {
     }
 
     private void opprettTaskForPubliseringAvVedtak(Long behandlingId) {
-        final var taskData = ProsessTaskData.forProsessTask(PubliserVedtattYtelseHendelseTask.class);
+        var taskData = ProsessTaskData.forProsessTask(PubliserVedtattYtelseHendelseTask.class);
         taskData.setProperty(PubliserVedtattYtelseHendelseTask.KEY, behandlingId.toString());
         taskData.setCallIdFraEksisterende();
         taskRepository.lagre(taskData);

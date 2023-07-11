@@ -97,11 +97,11 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     @Test
     void bekrefte_avklart_permisjon_uten_sluttdato() {
         // Arrange
-        final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, NAV_ORGNR, InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID), inntektArbeidYtelseAggregatBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
-        final var inntektArbeidYtelseAggregatBuilder1 = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        var inntektArbeidYtelseAggregatBuilder1 = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, KUNSTIG_ORG, InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID_2), inntektArbeidYtelseAggregatBuilder1);
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder1);
 
@@ -138,7 +138,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
     @Test
     void ikke_overstyre_eksisterende_overstyringer_gjort_i_5085_5080() {
         // Arrange
-        final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, NAV_ORGNR, InternArbeidsforholdRef.ref(INTERN_ARBEIDSFORHOLD_ID), inntektArbeidYtelseAggregatBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
@@ -182,19 +182,17 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
 
     private void leggTilArbeidsforholdPåBehandling(Behandling behandling, String virksomhetOrgnr, InternArbeidsforholdRef ref,
                                                    InntektArbeidYtelseAggregatBuilder builder) {
-        final var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
-        final var arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
-        final var nøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(ref, arbeidsgiver);
-        final var yrkesaktivitetBuilderForType = arbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-        yrkesaktivitetBuilderForType
-            .medArbeidsgiver(arbeidsgiver)
+        var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
+        var arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        var nøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(ref, arbeidsgiver);
+        var yrkesaktivitetBuilderForType = arbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        yrkesaktivitetBuilderForType.medArbeidsgiver(arbeidsgiver)
             .medArbeidsforholdId(ref)
-            .leggTilPermisjon(byggPermisjon(yrkesaktivitetBuilderForType, LocalDate.now(), Tid.TIDENES_ENDE ))
-            .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
-                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), false)
-                .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
-                .medProsentsats(BigDecimal.valueOf(100)))
+            .leggTilPermisjon(byggPermisjon(yrkesaktivitetBuilderForType, LocalDate.now(), Tid.TIDENES_ENDE))
+            .leggTilAktivitetsAvtale(
+                yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), false)
+                    .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
+                    .medProsentsats(BigDecimal.valueOf(100)))
             .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
                 .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), true));
         arbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilderForType);

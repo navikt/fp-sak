@@ -79,7 +79,7 @@ public class VedtakXmlTjeneste {
     }
 
     private void setBehandlingsTema(Vedtak vedtak, Behandling behandling) {
-        final var familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+        var familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .orElse(null);
         var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelse);

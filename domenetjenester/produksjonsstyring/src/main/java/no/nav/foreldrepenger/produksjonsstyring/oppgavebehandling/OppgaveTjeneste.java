@@ -118,7 +118,7 @@ public class OppgaveTjeneste {
     }
 
     public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {
-        final var BESKRIVELSE = "Samordning arenaytelse. Vedtak foreldrepenger fra %s";
+        var BESKRIVELSE = "Samordning arenaytelse. Vedtak foreldrepenger fra %s";
         var beskrivelse = String.format(BESKRIVELSE, førsteUttaksdato);
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -147,11 +147,9 @@ public class OppgaveTjeneste {
         var saksnummer = behandling.getFagsak().getSaksnummer();
         var arbeidsgiverIdent = hentPersonInfo(arbeidsgiverAktørId).getIdent();
 
-        final var beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
-            "Saksnummer: %s," +
-            "Vedtaksdato: %s," +
-            "Dato for første utbetaling: %s," +
-            "Fødselsnummer arbeidsgiver: %s", saksnummer.getVerdi(), vedtaksdato, førsteUttaksdato, arbeidsgiverIdent);
+        var beskrivelse = String.format(
+            "Refusjon til privat arbeidsgiver," + "Saksnummer: %s," + "Vedtaksdato: %s," + "Dato for første utbetaling: %s,"
+                + "Fødselsnummer arbeidsgiver: %s", saksnummer.getVerdi(), vedtaksdato, førsteUttaksdato, arbeidsgiverIdent);
 
         return opprettOkonomiSettPåVent(beskrivelse, behandling);
     }

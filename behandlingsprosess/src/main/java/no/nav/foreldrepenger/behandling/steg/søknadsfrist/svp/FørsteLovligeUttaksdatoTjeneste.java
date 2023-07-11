@@ -63,7 +63,7 @@ public class FørsteLovligeUttaksdatoTjeneste {
         var uttaksperiodegrense = new Uttaksperiodegrense(tidligstMottattDato);
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
-        final var tidligsteLovligeUttakDato = Søknadsfrister.tidligsteDatoDagytelse(tidligstMottattDato);
+        var tidligsteLovligeUttakDato = Søknadsfrister.tidligsteDatoDagytelse(tidligstMottattDato);
 
         var forTidligUttak = førsteUttaksDato.filter(fud -> fud.isBefore(tidligsteLovligeUttakDato)).isPresent();
         return forTidligUttak ? Optional.of(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST) : Optional.empty();

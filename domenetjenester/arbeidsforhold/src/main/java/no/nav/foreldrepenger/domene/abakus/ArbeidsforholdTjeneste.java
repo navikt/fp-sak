@@ -39,7 +39,7 @@ public class ArbeidsforholdTjeneste {
     public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> finnArbeidsforholdForIdentPåDag(AktørId ident, LocalDate dato,
             FagsakYtelseType ytelseType) {
         var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
-        final var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(dato, dato), ytelse);
+        var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(dato, dato), ytelse);
 
         return abakusTjeneste.hentArbeidsforholdIPerioden(request).stream()
                 .filter(af -> !ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(af.getType()))
@@ -51,7 +51,7 @@ public class ArbeidsforholdTjeneste {
     }
 
     private Arbeidsgiver mapTilArbeidsgiver(ArbeidsforholdDto arbeidsforhold) {
-        final var arbeidsgiver = arbeidsforhold.getArbeidsgiver();
+        var arbeidsgiver = arbeidsforhold.getArbeidsgiver();
         if (arbeidsgiver.getErOrganisasjon()) {
             return Arbeidsgiver.virksomhet(arbeidsgiver.getIdent());
         }

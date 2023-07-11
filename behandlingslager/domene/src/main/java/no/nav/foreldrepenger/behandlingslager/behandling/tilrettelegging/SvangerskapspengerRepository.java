@@ -28,7 +28,7 @@ public class SvangerskapspengerRepository {
     }
 
     public void lagreOgFlush(SvpGrunnlagEntitet svpGrunnlag) {
-        final var eksisterendeGrunnlag = hentGrunnlag(svpGrunnlag.getBehandlingId());
+        var eksisterendeGrunnlag = hentGrunnlag(svpGrunnlag.getBehandlingId());
         if (eksisterendeGrunnlag.isPresent()) {
             var eksisterendeEntitet = eksisterendeGrunnlag.get();
             eksisterendeEntitet.deaktiver();
@@ -39,10 +39,8 @@ public class SvangerskapspengerRepository {
     }
 
     public Optional<SvpGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
-        final var query = entityManager.createQuery(
-            "FROM SvpGrunnlag s " +
-                    "WHERE s.behandlingId = :behandlingId AND s.aktiv = true",
-                    SvpGrunnlagEntitet.class);
+        var query = entityManager.createQuery("FROM SvpGrunnlag s " + "WHERE s.behandlingId = :behandlingId AND s.aktiv = true",
+            SvpGrunnlagEntitet.class);
 
         query.setParameter("behandlingId", behandlingId);
 

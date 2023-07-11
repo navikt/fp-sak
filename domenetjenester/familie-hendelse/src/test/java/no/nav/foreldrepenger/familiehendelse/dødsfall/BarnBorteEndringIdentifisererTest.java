@@ -102,7 +102,7 @@ class BarnBorteEndringIdentifisererTest {
     }
 
     private void opprettPersonopplysningGrunnlag(Behandling behandling, boolean registrerMedBarn) {
-        final var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
+        var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         if (registrerMedBarn) {
             builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)));

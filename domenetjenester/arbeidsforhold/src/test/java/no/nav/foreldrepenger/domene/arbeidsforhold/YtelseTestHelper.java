@@ -51,11 +51,10 @@ public class YtelseTestHelper {
         var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode, false);
         var permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
 
-        var aktivitetsAvtale = aktivitetsAvtaleBuilder
-                .medProsentsats(prosentsats)
-                .medSisteLønnsendringsdato(periode.getFomDato())
-                .medBeskrivelse("Ser greit ut");
-        final var ansettelsesPeriode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode, true);
+        var aktivitetsAvtale = aktivitetsAvtaleBuilder.medProsentsats(prosentsats)
+            .medSisteLønnsendringsdato(periode.getFomDato())
+            .medBeskrivelse("Ser greit ut");
+        var ansettelsesPeriode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode, true);
 
         var permisjon = permisjonBuilder
                 .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)

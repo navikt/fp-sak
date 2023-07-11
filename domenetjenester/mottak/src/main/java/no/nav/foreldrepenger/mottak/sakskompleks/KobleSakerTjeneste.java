@@ -121,11 +121,11 @@ public class KobleSakerTjeneste {
     }
 
     public void kobleRelatertFagsakHvisDetFinnesEn(Behandling behandling) {
-        final var eksisterendeRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
+        var eksisterendeRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         if (eksisterendeRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             return;
         }
-        final var potensiellFagsak = finnRelatertFagsakDersomRelevant(behandling);
+        var potensiellFagsak = finnRelatertFagsakDersomRelevant(behandling);
         potensiellFagsak.ifPresent(fagsak -> fagsakRelasjonTjeneste.kobleFagsaker(fagsak, behandling.getFagsak(), behandling));
     }
 

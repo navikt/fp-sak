@@ -61,18 +61,18 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForNøkkel(Opptjeningsnøkkel identifikator, ArbeidType arbeidType) {
         var yrkesaktivitet = yrkesaktiviter.stream()
-                .filter(ya -> ya.getArbeidType().equals(arbeidType) && new Opptjeningsnøkkel(ya).equals(identifikator))
-                .findFirst();
-        final var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
+            .filter(ya -> ya.getArbeidType().equals(arbeidType) && new Opptjeningsnøkkel(ya).equals(identifikator))
+            .findFirst();
+        var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         oppdatere.medArbeidType(arbeidType);
         return oppdatere;
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForNøkkel(Opptjeningsnøkkel identifikator, Set<ArbeidType> arbeidTyper) {
         var yrkesaktivitet = yrkesaktiviter.stream()
-                .filter(ya -> arbeidTyper.contains(ya.getArbeidType()) && new Opptjeningsnøkkel(ya).equals(identifikator))
-                .findFirst();
-        final var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
+            .filter(ya -> arbeidTyper.contains(ya.getArbeidType()) && new Opptjeningsnøkkel(ya).equals(identifikator))
+            .findFirst();
+        var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         if (!oppdatere.getErOppdatering()) {
             // Defaulter til ordinert arbeidsforhold hvis saksbehandler har lagt til fra GUI
             oppdatere.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
@@ -93,10 +93,8 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForType(ArbeidType type) {
-        var yrkesaktivitet = yrkesaktiviter.stream()
-                .filter(ya -> ya.getArbeidType().equals(type))
-                .findFirst();
-        final var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
+        var yrkesaktivitet = yrkesaktiviter.stream().filter(ya -> ya.getArbeidType().equals(type)).findFirst();
+        var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         oppdatere.medArbeidType(type);
         return oppdatere;
     }

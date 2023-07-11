@@ -60,7 +60,7 @@ class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.TIDLIGERE_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        final var fireMånederSidenTilTreMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(4), idag.minusMonths(3), "FRA");
+        var fireMånederSidenTilTreMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(4), idag.minusMonths(3), "FRA");
         registreringDto.setTidligereOppholdUtenlands(asList(fireMånederSidenTilTreMånederSiden, fireMånederSidenTilTreMånederSiden));
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Perioder for utenlandsopphold kan ikke fullstendig overlappe").isPresent();
@@ -126,7 +126,7 @@ class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        final var periode1 = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(100), "SWE");
+        var periode1 = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(100), "SWE");
         var tomLikPeriode1Fom = opprettUtenlandsOpphold(idag.plusDays(5), idag.plusDays(10), "SWE");
         registreringDto.setFremtidigeOppholdUtenlands(asList(periode1, tomLikPeriode1Fom));
         feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);

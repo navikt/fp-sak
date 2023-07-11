@@ -115,7 +115,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
     void skal_generere_historikkinnslag_ved_avklaring_av_antall_barn() {
         // Arrange
         var antallBarnOpprinnelig = 2;
-        final var antallBarnTpsGjelderBekreftet = false;
+        var antallBarnTpsGjelderBekreftet = false;
 
         var fødselsdatoFraTps = LocalDate.now().minusDays(1);
         var fødselsDatoFraSøknad = fødselsdatoFraTps.minusDays(10);
@@ -132,7 +132,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             .leggTilBarn(fødselsdatoFraTps)
             .medAntallBarn(3);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        final var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         // Dto
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsDatoFraSøknad, null), new UidentifisertBarnDto(fødselsDatoFraSøknad, null)};
 
@@ -222,7 +222,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
-        final var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
+        var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
         assertThat(hendelse).isNotNull();
         assertThat(hendelse.getAntallBarn()).isEqualTo(1);
         var fodselsdatoOpt = hendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
@@ -252,7 +252,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(resultat.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.OPPDATER);
-        final var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
+        var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
         assertThat(hendelse).isNotNull();
         assertThat(hendelse.getAntallBarn()).isEqualTo(1);
         var fodselsdatoOpt = hendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
@@ -321,7 +321,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
-        final var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
+        var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
         assertThat(hendelse).isNotNull();
         assertThat(hendelse.getAntallBarn()).isEqualTo(1);
         var fodselsdatoOpt = hendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
@@ -358,7 +358,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
-        final var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
+        var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
         assertThat(hendelse).isNotNull();
         assertThat(hendelse.getAntallBarn()).isEqualTo(3);
         var fodselsdatoOpt = hendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();

@@ -60,7 +60,7 @@ public class KrrSpråkKlient {
             LOG.info("KrrSpråkKlient: Mangler tilgang, returnerer default.");
             return Språkkode.NB;
         } catch (IntegrasjonException e) {
-            final var NOT_FOUND = String.valueOf(Response.Status.NOT_FOUND.getStatusCode());
+            var NOT_FOUND = String.valueOf(Response.Status.NOT_FOUND.getStatusCode());
             var ie = e.getMessage();
             if (ie.contains(NOT_FOUND)) {
                 LOG.info("KrrSpråkKlient: fant ikke bruker, returnerer default. Feilmelding: {}", ie);

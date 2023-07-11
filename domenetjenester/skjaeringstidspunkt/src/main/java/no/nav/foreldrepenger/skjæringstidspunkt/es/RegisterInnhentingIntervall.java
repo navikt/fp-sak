@@ -38,12 +38,12 @@ public class RegisterInnhentingIntervall {
     }
 
     private boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiEtter) {
-        final var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
+        var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
         return !avstand.isNegative() && størreEnn(avstand, grenseverdiEtter);
     }
 
     private boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiFør) {
-        final var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
+        var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
         return !avstand.isNegative() && størreEnn(avstand, grenseverdiFør);
     }
 

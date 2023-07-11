@@ -34,7 +34,7 @@ class VedtakUtbetalingDvhMapperTest {
             .build();
 
 
-        final var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         var mapped = VedtakUtbetalingDvhMapper.map(XML, behandling, vedtak, familieHendelseGrunnlag.getGjeldendeVersjon().getType());
         assertThat(mapped.getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(mapped.getXmlClob()).isEqualTo(XML);

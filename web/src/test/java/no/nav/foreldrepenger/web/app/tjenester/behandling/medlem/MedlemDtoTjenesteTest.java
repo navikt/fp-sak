@@ -54,7 +54,7 @@ class MedlemDtoTjenesteTest {
                 .medLovligOppholdVurdering(true);
 
         var behandling = scenario.lagMocked();
-        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
@@ -102,7 +102,7 @@ class MedlemDtoTjenesteTest {
                 .medLovligOppholdVurdering(true);
 
         var behandling = scenario.lagMocked();
-        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));

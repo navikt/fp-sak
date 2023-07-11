@@ -37,10 +37,10 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     void omfordeling_med_2_tilkomne_arbeidsforhold_skal_ikke_ta_med_tilkommet_i_flyttbar_dagsats() {
         // Arrange
-        final var PERIODE_FOM = LocalDate.of(2020, 3, 24);
-        final var GAMMELT_ARBEID = ARBEIDSGIVER1;
-        final var TILKOMMET1 = ARBEIDSGIVER2;
-        final var TILKOMMET2 = ARBEIDSGIVER3;
+        var PERIODE_FOM = LocalDate.of(2020, 3, 24);
+        var GAMMELT_ARBEID = ARBEIDSGIVER1;
+        var TILKOMMET1 = ARBEIDSGIVER2;
+        var TILKOMMET2 = ARBEIDSGIVER3;
 
         var forrigeBrp = lagBeregningsresultatPeriode(PERIODE_FOM, LocalDate.of(2020, 3, 31));
         lagSNAndel(forrigeBrp, 1225);
@@ -49,8 +49,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
         var forrigeTY = forrigeBrp.getBeregningsresultat();
 
-        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(
-                LocalDate.of(2020, 3, 24),
+        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(LocalDate.of(2020, 3, 24),
                 LocalDate.of(2020, 3, 31));
         lagSNAndel(beregningsgrunnlagBrp, 152);
         lagAndel(beregningsgrunnlagBrp, GAMMELT_ARBEID, true, 0, UTEN_INTERNREFERANSE);

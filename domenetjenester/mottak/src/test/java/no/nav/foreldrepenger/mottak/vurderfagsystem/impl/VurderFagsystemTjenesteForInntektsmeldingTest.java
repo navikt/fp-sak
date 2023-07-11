@@ -119,7 +119,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(behandling);
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
@@ -148,7 +148,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(9)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(9)).build());
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling2.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(4)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(4)).build());
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
@@ -177,7 +177,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling2.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(1)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(1)).build());
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
@@ -206,7 +206,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(30)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(30)).build());
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling2.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
         when(beregningsresultatRepositoryMock.hentUtbetBeregningsresultat(behandling1.getId()))
             .thenReturn(Optional.of(lagBeregningsresultatGradert(LocalDate.now().minusMonths(30), LocalDate.now().minusMonths(15))));
@@ -233,7 +233,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
         when(beregningsresultatRepositoryMock.hentUtbetBeregningsresultat(behandling1.getId()))
             .thenReturn(Optional.of(lagBeregningsresultatGradert(LocalDate.now().minusMonths(12), LocalDate.now().plusMonths(2))));
@@ -258,7 +258,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
         when(ytelsesFordelingRepositoryMock.hentAggregatHvisEksisterer(behandling1.getId()))
             .thenReturn(Optional.of(YtelseFordelingAggregat.Builder.nytt()
@@ -287,7 +287,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         when(grunnlagRepository.hentAggregatHvisEksisterer(anyLong())).thenReturn(Optional.of(grunnlag));
         when(beregningsresultatRepositoryMock.hentUtbetBeregningsresultat(behandling1.getId()))
             .thenReturn(Optional.of(lagBeregningsresultatGradert(LocalDate.now().minusMonths(12), LocalDate.now().minusMonths(1))));
@@ -359,7 +359,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
         lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);

@@ -81,12 +81,12 @@ public class FamilieHendelseEntitet extends BaseEntitet {
         this.morForSykVedFødsel = hendelse.erMorForSykVedFødsel();
 
         hendelse.getAdopsjon().ifPresent(it -> {
-            final var nyAdopsjon = new AdopsjonEntitet(it);
+            var nyAdopsjon = new AdopsjonEntitet(it);
             nyAdopsjon.setFamilieHendelse(this);
             this.setAdopsjon(nyAdopsjon);
         });
         hendelse.getTerminbekreftelse().ifPresent(it -> {
-            final var nyTerminbekreftelse = new TerminbekreftelseEntitet(it);
+            var nyTerminbekreftelse = new TerminbekreftelseEntitet(it);
             nyTerminbekreftelse.setFamilieHendelse(this);
             this.setTerminbekreftelse(nyTerminbekreftelse);
         });
@@ -127,7 +127,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
     }
 
     void leggTilBarn(UidentifisertBarn barn) {
-        final var barnEntitet = (UidentifisertBarnEntitet) barn;
+        var barnEntitet = (UidentifisertBarnEntitet) barn;
         this.barna.add(barnEntitet);
         barnEntitet.setFamilieHendelse(this);
     }

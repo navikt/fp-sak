@@ -31,10 +31,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @CdiDbAwareTest
 class BeregneYtelseStegImplTest {
@@ -197,12 +197,15 @@ class BeregneYtelseStegImplTest {
         var behandling = behandlingBuilder.build();
 
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        final var søknadVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-                .medFødselsDato(fødselsdato, antallBarn)
-                .medAntallBarn(antallBarn);
+        var søknadVersjon = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(behandling)
+            .medFødselsDato(fødselsdato, antallBarn)
+            .medAntallBarn(antallBarn);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadVersjon);
-        final var bekreftetVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-                .medAntallBarn(antallBarn).tilbakestillBarn();
+        var bekreftetVersjon = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(behandling)
+            .medAntallBarn(antallBarn)
+            .tilbakestillBarn();
         IntStream.range(0, antallBarn).forEach(it -> bekreftetVersjon.leggTilBarn(fødselsdato));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, bekreftetVersjon);
         var søknad = new SøknadEntitet.Builder()

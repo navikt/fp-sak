@@ -78,14 +78,12 @@ public class AvklarOmErBosatt {
     private boolean søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(BehandlingReferanse ref, LocalDate vurderingsdato) {
         var grunnlag = familieHendelseRepository.hentAggregat(ref.behandlingId());
         if (grunnlag.getGjeldendeVersjon().getTerminbekreftelse().isPresent()) {
-            final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.behandlingId());
-            final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
-                .orElseThrow(IllegalStateException::new);
+            var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.behandlingId());
+            var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning).orElseThrow(IllegalStateException::new);
 
             var fremtidigeOpphold = oppgittTilknytning.getOpphold()
                 .stream()
-                .filter(opphold -> !opphold.isTidligereOpphold()
-                    && !opphold.getLand().equals(Landkoder.NOR))
+                .filter(opphold -> !opphold.isTidligereOpphold() && !opphold.getLand().equals(Landkoder.NOR))
                 .map(o -> finnSegment(vurderingsdato, o.getPeriodeFom(), o.getPeriodeTom()))
                 .toList();
 
@@ -120,17 +118,19 @@ public class AvklarOmErBosatt {
 
     //TODO(OJR) må denne endres?
     private Utfall harBrukerTilknytningHjemland(BehandlingReferanse ref) {
-        final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.behandlingId());
-        final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
-            .orElseThrow(IllegalStateException::new);
+        var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.behandlingId());
+        var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning).orElseThrow(IllegalStateException::new);
 
         var antallNei = 0;
-        if (!oppgittTilknytning.isOppholdINorgeSistePeriode())
+        if (!oppgittTilknytning.isOppholdINorgeSistePeriode()) {
             antallNei++;
-        if (!oppgittTilknytning.isOppholdNå())
+        }
+        if (!oppgittTilknytning.isOppholdNå()) {
             antallNei++;
-        if (!oppgittTilknytning.isOppholdINorgeNestePeriode())
+        }
+        if (!oppgittTilknytning.isOppholdINorgeNestePeriode()) {
             antallNei++;
+        }
 
         if (antallNei >= 2) {
             return NEI;

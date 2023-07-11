@@ -66,7 +66,7 @@ public class FeedRepository {
         var results = createScrollableResult(outputFeedKode, hendelseCriteria);
         List<V> hendelser = new ArrayList<>();
         for (var object : results) {
-            final var resultObjects = (Object[]) object;
+            var resultObjects = (Object[]) object;
 
             if (resultObjects.length > 0) {
                 var hendelse = hentUtgåendeHendelse(((BigDecimal) resultObjects[0]).longValue());

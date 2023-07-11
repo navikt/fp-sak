@@ -18,8 +18,8 @@ class MedlemEndringIdentifisererTest {
     @Test
     void skal_indikere_endring_før_stp() {
         var aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
-        final var set = new HashSet<MedlemskapPerioderEntitet>();
-        final var builder = new MedlemskapPerioderBuilder();
+        var set = new HashSet<MedlemskapPerioderEntitet>();
+        var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(5), LocalDate.now().plusMonths(5));
         set.add(builder.build());
         var aggregat1 = new MedlemskapAggregat(null, set, null, null);
@@ -30,8 +30,8 @@ class MedlemEndringIdentifisererTest {
     @Test
     void skal_ikke_indikere_endring_hele_før_stp() {
         var aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
-        final var set = new HashSet<MedlemskapPerioderEntitet>();
-        final var builder = new MedlemskapPerioderBuilder();
+        var set = new HashSet<MedlemskapPerioderEntitet>();
+        var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(18), LocalDate.now().minusMonths(13));
         set.add(builder.build());
         var aggregat1 = new MedlemskapAggregat(null, set, null, null);
@@ -41,13 +41,13 @@ class MedlemEndringIdentifisererTest {
 
     @Test
     void skal_indikere_endring_etter_stp() {
-        final var set = new HashSet<MedlemskapPerioderEntitet>();
-        final var builder = new MedlemskapPerioderBuilder();
+        var set = new HashSet<MedlemskapPerioderEntitet>();
+        var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(5), LocalDate.now().plusMonths(5));
         set.add(builder.build());
         var aggregat = new MedlemskapAggregat(null, set, null, null);
-        final var setEtter = new HashSet<MedlemskapPerioderEntitet>();
-        final var builder1 = new MedlemskapPerioderBuilder();
+        var setEtter = new HashSet<MedlemskapPerioderEntitet>();
+        var builder1 = new MedlemskapPerioderBuilder();
         builder1.medPeriode(LocalDate.now().plusMonths(5), LocalDate.now().plusMonths(15));
         setEtter.add(builder.build());
         setEtter.add(builder1.build());

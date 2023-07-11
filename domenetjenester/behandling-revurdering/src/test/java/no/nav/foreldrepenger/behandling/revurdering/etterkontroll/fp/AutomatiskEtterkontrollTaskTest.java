@@ -107,11 +107,11 @@ class AutomatiskEtterkontrollTaskTest {
         entityManager.persist(navBruker);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, relasjonsRolleType, saksnummer);
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
-        final var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         Behandlingsresultat.opprettFor(behandling);
         entityManager.persist(behandling.getFagsak());
         entityManager.flush();
-        final var lås = repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId());
+        var lås = repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId());
 
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
@@ -258,18 +258,18 @@ class AutomatiskEtterkontrollTaskTest {
 
         var termindato = LocalDate.now().minusDays(70);
 
-        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository()
-                .opprettBuilderFor(morsBehandling);
-        final var søknadHendelse = familieHendelseBuilder.medAntallBarn(1)
-                .medTerminbekreftelse(familieHendelseBuilder.getTerminbekreftelseBuilder()
-                        .medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
+        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling);
+        var søknadHendelse = familieHendelseBuilder.medAntallBarn(1)
+            .medTerminbekreftelse(
+                familieHendelseBuilder.getTerminbekreftelseBuilder().medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
         repositoryProvider.getFamilieHendelseRepository().lagre(morsBehandling, søknadHendelse);
 
-        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository()
-                .opprettBuilderFor(farsBehandling);
-        final var søknadHendelseFar = familieHendelseBuilderFar.medAntallBarn(1)
-                .medTerminbekreftelse(familieHendelseBuilderFar.getTerminbekreftelseBuilder()
-                        .medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
+        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(farsBehandling);
+        var søknadHendelseFar = familieHendelseBuilderFar.medAntallBarn(1)
+            .medTerminbekreftelse(familieHendelseBuilderFar.getTerminbekreftelseBuilder()
+                .medTermindato(termindato)
+                .medUtstedtDato(LocalDate.now())
+                .medNavnPå("Doktor"));
         repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling, søknadHendelseFar);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
@@ -367,23 +367,21 @@ class AutomatiskEtterkontrollTaskTest {
 
         var termindato = LocalDate.now().minusDays(70);
 
-        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(morsBehandling);
-        final var søknadHendelse = familieHendelseBuilder.medAntallBarn(1)
-            .medTerminbekreftelse(familieHendelseBuilder.getTerminbekreftelseBuilder()
-                .medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
+        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling);
+        var søknadHendelse = familieHendelseBuilder.medAntallBarn(1)
+            .medTerminbekreftelse(
+                familieHendelseBuilder.getTerminbekreftelseBuilder().medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
         repositoryProvider.getFamilieHendelseRepository().lagre(morsBehandling, søknadHendelse);
-        var familieHendelseBuilderFødsel = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(morsBehandling);
-        final var bekreftetHendelse = familieHendelseBuilderFødsel.medAntallBarn(1)
-            .medFødselsDato(termindato);
+        var familieHendelseBuilderFødsel = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling);
+        var bekreftetHendelse = familieHendelseBuilderFødsel.medAntallBarn(1).medFødselsDato(termindato);
         repositoryProvider.getFamilieHendelseRepository().lagreRegisterHendelse(morsBehandling, bekreftetHendelse);
 
-        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(farsBehandling);
-        final var søknadHendelseFar = familieHendelseBuilderFar.medAntallBarn(1)
+        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(farsBehandling);
+        var søknadHendelseFar = familieHendelseBuilderFar.medAntallBarn(1)
             .medTerminbekreftelse(familieHendelseBuilderFar.getTerminbekreftelseBuilder()
-                .medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
+                .medTermindato(termindato)
+                .medUtstedtDato(LocalDate.now())
+                .medNavnPå("Doktor"));
         repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling, søknadHendelseFar);
 
         var prosessTaskDataFar = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);

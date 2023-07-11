@@ -114,7 +114,7 @@ class FordelRestTjenesteTest {
 
     @Test
     void skalReturnereFagsakinformasjonMedBehandlingTemaOgAktørId() {
-        final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(new Saksnummer("TEST2")).medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.lagre(repositoryProvider);
         var result = fordelRestTjeneste.fagsak(new AbacSaksnummerDto("TEST2"));
@@ -126,8 +126,8 @@ class FordelRestTjenesteTest {
 
     @Test
     void skalReturnereNullNårFagsakErStengt() {
-        final var saknr = new Saksnummer("TEST3");
-        final var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
+        var saknr = new Saksnummer("TEST3");
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medSaksnummer(saknr).medSøknadHendelse().medFødselsDato(LocalDate.now());
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRepository().fagsakSkalStengesForBruk(behandling.getFagsakId());

@@ -84,10 +84,11 @@ public abstract class KompletthetssjekkerSøknadImpl implements Kompletthetssjek
 
     @Override
     public Boolean erSøknadMottatt(BehandlingReferanse ref) {
-        final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
-        var mottattSøknad =  mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.fagsakId()).stream()
-            .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType())
-                || DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori()))
+        var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
+        var mottattSøknad = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.fagsakId())
+            .stream()
+            .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType()) || DokumentKategori.SØKNAD.equals(
+                mottattDokument.getDokumentKategori()))
             .findFirst();
         // sjekker på både søknad og mottatte dokumenter siden søknad ikke lagres med en gang
         return søknad.isPresent() || mottattSøknad.isPresent();

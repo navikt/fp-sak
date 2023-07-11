@@ -40,8 +40,11 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
     @Override
     public OppdateringResultat oppdater(BekreftSokersOpplysningspliktManuDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
-        final var erVilkårOk = dto.getErVilkarOk() &&
-            dto.getInntektsmeldingerSomIkkeKommer().stream().filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer()).toList().isEmpty();
+        var erVilkårOk = dto.getErVilkarOk() && dto.getInntektsmeldingerSomIkkeKommer()
+            .stream()
+            .filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer())
+            .toList()
+            .isEmpty();
         leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), erVilkårOk);
 
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();

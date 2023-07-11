@@ -76,7 +76,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
     @Test
     void skal_lagre_ned_bekreftet_kunstig_arbeidsforhold() {
         var iDag = LocalDate.now();
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
 
@@ -121,7 +121,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
     @Test
     void skal_lagre_ned_bekreftet_aksjonspunkt() {
         var iDag = LocalDate.now();
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
         var periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(1));
@@ -174,7 +174,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
     @Test
     void skal_lagre_endring_i_periode_for_egen_næring() {
         var iDag = LocalDate.now();
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         when(vurderOpptjening.girAksjonspunktForOppgittNæring(any(), any(), any(), any())).thenReturn(true);
         var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
@@ -213,10 +213,10 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
     }
 
     private Behandling opprettBehandling() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
         fagsakRepository.opprettNy(fagsak);
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         return behandling;
     }

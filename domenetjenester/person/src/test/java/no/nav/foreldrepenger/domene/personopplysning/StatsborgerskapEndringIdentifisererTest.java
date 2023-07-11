@@ -100,7 +100,7 @@ class StatsborgerskapEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlagMotstattRekkefølge(List<StatsborgerskapEntitet> statsborgerLand) {
-        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         // Bygg opp identiske statsborgerskap, bare legg de inn i motsatt rekkefølge.
         new LinkedList<>(statsborgerLand)
@@ -112,7 +112,7 @@ class StatsborgerskapEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(List<Landkoder> statsborgerskap) {
-        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1
                 .leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         IntStream.range(0, statsborgerskap.size())
