@@ -159,8 +159,6 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
         var revurdering = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad, men mangler mottatt dato:
-        Set<DokumentTypeId> dokumentListe = new HashSet<>();
-        dokumentListe.add(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(Collections.emptySet());
 
         // Act

@@ -108,7 +108,7 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     }
 
     void setArbeidsforholdId(InternArbeidsforholdRef arbeidsforholdId) {
-        this.arbeidsforholdRef = (arbeidsforholdId != null) && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdId) ? arbeidsforholdId : null;
+        this.arbeidsforholdRef = arbeidsforholdId != null && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdId) ? arbeidsforholdId : null;
     }
 
     /**

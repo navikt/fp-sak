@@ -41,7 +41,7 @@ public class ManuellRegistreringSøknadValidator {
     }
 
     public static List<FeltFeilDto> validerFrilans(FrilansDto frilans) {
-        if (Boolean.TRUE.equals(frilans.getHarSokerPeriodeMedFrilans()) && (frilans.getPerioder().isEmpty())) {
+        if (Boolean.TRUE.equals(frilans.getHarSokerPeriodeMedFrilans()) && frilans.getPerioder().isEmpty()) {
             return List.of(new FeltFeilDto("", ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE));
         }
         return List.of();

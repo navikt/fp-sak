@@ -189,8 +189,8 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
     }
 
     private BiPredicate<Inntekt, Inntektspost> harInntektI(Set<Integer> forventetFerdiglignet) {
-        return (inntekt, inntektspost) -> (forventetFerdiglignet.contains(inntektspost.getPeriode().getTomDato().getYear())) &&
-                (inntektspost.getBeløp().getVerdi().compareTo(BigDecimal.ZERO) != 0);
+        return (inntekt, inntektspost) -> forventetFerdiglignet.contains(inntektspost.getPeriode().getTomDato().getYear())
+            && inntektspost.getBeløp().getVerdi().compareTo(BigDecimal.ZERO) != 0;
     }
 
     private Utfall erDetRegistrertNæringEtterSisteFerdiglignendeÅr(OppgittOpptjening oppgittOpptjening, Set<Integer> forventetFerdiglignet) {
@@ -222,9 +222,9 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         }
         var oppgittOpptjening = iayg.getOppgittOpptjening().orElse(null);
         var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
-                fastsattOpptjeningOptional.get().getTom());
+            fastsattOpptjeningOptional.get().getTom());
 
-        return (harBrukerOppgittÅVæreSelvstendigNæringsdrivende(oppgittOpptjening, opptjeningPeriode) == JA) &&
-                (manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, iayg, skjæringstidspunkt) == JA);
+        return harBrukerOppgittÅVæreSelvstendigNæringsdrivende(oppgittOpptjening, opptjeningPeriode) == JA
+            && manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, iayg, skjæringstidspunkt) == JA;
     }
 }

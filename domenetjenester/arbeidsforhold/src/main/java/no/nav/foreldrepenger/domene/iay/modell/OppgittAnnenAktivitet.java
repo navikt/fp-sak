@@ -46,7 +46,7 @@ public class OppgittAnnenAktivitet extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittAnnenAktivitet that)) {
+        if (!(o instanceof OppgittAnnenAktivitet that)) {
             return false;
         }
         return Objects.equals(periode, that.periode) &&

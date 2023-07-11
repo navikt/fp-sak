@@ -30,7 +30,8 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
     @Override
     public OppdateringResultat oppdater(AvklarAleneomsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
 
-        if (!dto.getAleneomsorg() && (dto.getAnnenforelderHarRett() == null || (!dto.getAnnenforelderHarRett() && dto.getAnnenforelderMottarUføretrygd() == null))) {
+        if (!dto.getAleneomsorg() && (dto.getAnnenforelderHarRett() == null
+            || !dto.getAnnenforelderHarRett() && dto.getAnnenforelderMottarUføretrygd() == null)) {
             throw new FunksjonellException("FP-093924", "Avkreftet aleneomsorg mangler verdi for annen forelder rett eller uføretrygd.",
                 "Angi om annen forelder har rett eller om annen forelder mottar uføretrygd.");
         }

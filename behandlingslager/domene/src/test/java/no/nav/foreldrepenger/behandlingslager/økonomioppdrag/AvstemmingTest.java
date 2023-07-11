@@ -66,7 +66,7 @@ class AvstemmingTest {
 
         assertThat(avstemming1.compareTo(avstemming2)).isEqualTo(-1);
         assertThat(avstemming2.compareTo(avstemming1)).isEqualTo(1);
-        assertThat(avstemming1.compareTo(avstemming1)).isEqualTo(0);
+        assertThat(avstemming1.compareTo(avstemming1)).isZero();
     }
 
     private void validerObjekt(Avstemming avstemming) {

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import static java.util.Collections.singletonList;
-
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,8 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 @ApplicationScoped
 public class SøkersopplysningspliktVilkårStegImpl extends InngangsvilkårStegImpl {
 
-    private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(
-            VilkårType.SØKERSOPPLYSNINGSPLIKT);
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.SØKERSOPPLYSNINGSPLIKT);
 
     @Inject
     public SøkersopplysningspliktVilkårStegImpl(BehandlingRepositoryProvider repositoryProvider,

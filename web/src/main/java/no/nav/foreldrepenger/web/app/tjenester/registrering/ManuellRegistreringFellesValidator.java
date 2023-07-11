@@ -206,7 +206,7 @@ public class ManuellRegistreringFellesValidator {
             if (fødselsdatoer.stream().anyMatch(pred)) {
                 return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
             }
-        } else if(erFødsel(registreringDto) && (TRUE.equals(registreringDto.getErBarnetFodt()))) {
+        } else if (erFødsel(registreringDto) && TRUE.equals(registreringDto.getErBarnetFodt())) {
             if (fødselsdatoer.isEmpty()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }
@@ -233,7 +233,7 @@ public class ManuellRegistreringFellesValidator {
         var feltnavn = "arsak";
         var annenForelder = registreringDto.getAnnenForelder();
 
-        if (!isNull(annenForelder) && (TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder()))) {
+        if (!isNull(annenForelder) && TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder())) {
             var kanIkkeOppgiBegrunnelse = annenForelder.getKanIkkeOppgiBegrunnelse();
             if (isNull(kanIkkeOppgiBegrunnelse) || kanIkkeOppgiBegrunnelse.getArsak().isBlank()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
@@ -246,14 +246,15 @@ public class ManuellRegistreringFellesValidator {
         var feltnavn = "utenlandskFoedselsnummer";
         short tillattLengde = 20;
         var annenForelder = registreringDto.getAnnenForelder();
-        if (!isNull(annenForelder) && (TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder()))) {
+        if (!isNull(annenForelder) && TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder())) {
             var kanIkkeOppgiBegrunnelse = annenForelder.getKanIkkeOppgiBegrunnelse();
-            if(isNull(kanIkkeOppgiBegrunnelse)) {
+            if (isNull(kanIkkeOppgiBegrunnelse)) {
                 //Har vi ikke valgt årsak kan vi heller ikke validere utenlandsk fødselsnummer.
                 return Optional.empty();
             }
             var utenlandskFoedselsnummer = kanIkkeOppgiBegrunnelse.getUtenlandskFoedselsnummer();
-            if (utenlandskFoedselsnummer != null && !utenlandskFoedselsnummer.isBlank() && erStoerreEnnTillatt(tillattLengde, utenlandskFoedselsnummer)) {
+            if (utenlandskFoedselsnummer != null && !utenlandskFoedselsnummer.isBlank() && erStoerreEnnTillatt(tillattLengde,
+                utenlandskFoedselsnummer)) {
                 return Optional.of(new FeltFeilDto(feltnavn, MINDRE_ELLER_LIK_LENGDE + tillattLengde));
             }
         }
@@ -263,7 +264,7 @@ public class ManuellRegistreringFellesValidator {
     static Optional<FeltFeilDto> validerAnnenForelderFødselsnummer(ManuellRegistreringDto registreringDto) {
         var feltnavn = "foedselsnummer";
         var annenForelder = registreringDto.getAnnenForelder();
-        if (!isNull(annenForelder) && (!TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder()))) {
+        if (!isNull(annenForelder) && !TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder())) {
             if (annenForelder.getFoedselsnummer() == null || annenForelder.getFoedselsnummer().isBlank()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }

@@ -61,11 +61,7 @@ public class BehandlingBackendRestTjeneste {
 
     @GET
     @Path(BACKEND_ROOT_PATH)
-    @Operation(description = "Hent behandling gitt id for backend", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BehandlingDto.class))
-            }),
-    })
+    @Operation(description = "Hent behandling gitt id for backend", summary = "Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført.", tags = "behandlinger", responses = {@ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = BehandlingDto.class))}),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBehandlingResultatForBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {

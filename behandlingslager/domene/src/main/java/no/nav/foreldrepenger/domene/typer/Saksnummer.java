@@ -49,7 +49,7 @@ public class Saksnummer implements SakId, IndexKey {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj instanceof Saksnummer other)) {
+        if (!(obj instanceof Saksnummer other)) {
             return false;
         }
         return Objects.equals(saksnummer, other.saksnummer);

@@ -154,6 +154,7 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         assertThat(familieHendelseGrunnlag).isNotEqualTo(førsteVersjonFamilieHendelseAggregat);
         assertThat(familieHendelseGrunnlag.getErAktivt()).isTrue();
         assertThat(førsteVersjonFamilieHendelseAggregat.getErAktivt()).isFalse();
-        assertThat((førsteVersjonFamilieHendelseAggregat).getSøknadVersjon().getAdopsjon().get().getOmsorgovertakelseVilkår()).isEqualTo(OmsorgsovertakelseVilkårType.UDEFINERT);
+        assertThat(førsteVersjonFamilieHendelseAggregat.getSøknadVersjon().getAdopsjon().get().getOmsorgovertakelseVilkår()).isEqualTo(
+            OmsorgsovertakelseVilkårType.UDEFINERT);
     }
 }

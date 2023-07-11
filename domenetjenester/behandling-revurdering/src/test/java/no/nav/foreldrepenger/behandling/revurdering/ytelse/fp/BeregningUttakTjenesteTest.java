@@ -318,7 +318,7 @@ class BeregningUttakTjenesteTest {
         var sisteUttaksdato = tjeneste.finnSisteTilnærmedeUttaksdato(BehandlingReferanse.fra(behandling));
 
         assertThat(sisteUttaksdato).isPresent();
-        assertThat(sisteUttaksdato.get()).isEqualTo(LocalDate.of(2019, 6, 25));
+        assertThat(sisteUttaksdato).contains(LocalDate.of(2019, 6, 25));
     }
 
     @Test
@@ -337,7 +337,7 @@ class BeregningUttakTjenesteTest {
         var sisteUttaksdato = tjeneste.finnSisteTilnærmedeUttaksdato(BehandlingReferanse.fra(behandling));
 
         assertThat(sisteUttaksdato).isPresent();
-        assertThat(sisteUttaksdato.get()).isEqualTo(LocalDate.of(2019, 6, 1));
+        assertThat(sisteUttaksdato).contains(LocalDate.of(2019, 6, 1));
     }
 
 

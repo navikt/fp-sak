@@ -49,7 +49,7 @@ class OppgittPeriodeUtilTest {
 
         var førsteSøkteUttaksdato = OppgittPeriodeUtil.finnFørsteSøkteUttaksdato(List.of(førstePeriodeOverføring, andrePeriodeUttaksperiode));
 
-        assertThat(førsteSøkteUttaksdato.get()).isEqualTo(førstePeriodeOverføring.getFom());
+        assertThat(førsteSøkteUttaksdato).contains(førstePeriodeOverføring.getFom());
     }
 
     @Test
@@ -68,7 +68,7 @@ class OppgittPeriodeUtilTest {
 
         var førsteSøkteUttaksdato = OppgittPeriodeUtil.finnFørsteSøkteUttaksdato(List.of(førstePeriodeUttaksperiode, andrePeriodeOverføring));
 
-        assertThat(førsteSøkteUttaksdato.get()).isEqualTo(førstePeriodeUttaksperiode.getFom());
+        assertThat(førsteSøkteUttaksdato).contains(førstePeriodeUttaksperiode.getFom());
     }
 
     @Test
@@ -87,7 +87,7 @@ class OppgittPeriodeUtilTest {
 
         var førsteSøkteUttaksdato = OppgittPeriodeUtil.finnFørsteSøkteUttaksdato(List.of(førstePeriodeUtsettelse, andrePeriodeUttaksperiode));
 
-        assertThat(førsteSøkteUttaksdato.get()).isEqualTo(førstePeriodeUtsettelse.getFom());
+        assertThat(førsteSøkteUttaksdato).contains(førstePeriodeUtsettelse.getFom());
     }
 
     @Test
@@ -106,7 +106,7 @@ class OppgittPeriodeUtilTest {
 
         var førsteSøkteUttaksdato = OppgittPeriodeUtil.finnFørsteSøkteUttaksdato(List.of(førstePeriodeOpphold, andrePeriodeUttaksperiode));
 
-        assertThat(førsteSøkteUttaksdato.get()).isEqualTo(andrePeriodeUttaksperiode.getFom());
+        assertThat(førsteSøkteUttaksdato).contains(andrePeriodeUttaksperiode.getFom());
     }
 
     @Test

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.felles;
 
-import static java.util.Collections.singletonList;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -21,8 +19,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 
 public abstract class VurderOpptjeningsvilkårStegFelles extends InngangsvilkårStegImpl {
 
-    protected static final VilkårType OPPTJENINGSVILKÅRET = VilkårType.OPPTJENINGSVILKÅRET;
-    private static final List<VilkårType> STØTTEDE_VILKÅR = singletonList(OPPTJENINGSVILKÅRET);
+    private static final VilkårType OPPTJENINGSVILKÅRET = VilkårType.OPPTJENINGSVILKÅRET;
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(OPPTJENINGSVILKÅRET);
 
     private BehandlingRepositoryProvider repositoryProvider;
 

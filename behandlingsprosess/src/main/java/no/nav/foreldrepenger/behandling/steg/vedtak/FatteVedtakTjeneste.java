@@ -115,7 +115,7 @@ public class FatteVedtakTjeneste {
 
     private void verifiserBehandlingsresultat(Behandling behandling) {
         var behandlingsresultat = behandlingVedtakTjeneste.getBehandlingsresultat(behandling.getId());
-        if ((behandlingsresultat == null) || !LOVLIGE_RESULTAT.get(behandling.getType()).contains(behandlingsresultat.getBehandlingResultatType())) {
+        if (behandlingsresultat == null || !LOVLIGE_RESULTAT.get(behandling.getType()).contains(behandlingsresultat.getBehandlingResultatType())) {
             var exString = UTVIKLER_FEIL_VEDTAK + (behandlingsresultat == null ? "null" : behandlingsresultat.getBehandlingResultatType().getNavn());
             throw new IllegalStateException(exString);
         }

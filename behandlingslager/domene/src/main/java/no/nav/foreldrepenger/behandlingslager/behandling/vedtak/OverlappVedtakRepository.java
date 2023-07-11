@@ -47,11 +47,10 @@ public class OverlappVedtakRepository {
     }
 
     public void slettAvstemtPeriode(LocalDate før, String hendelse) {
-        entityManager.createNativeQuery(
-            "DELETE FROM OVERLAPP_VEDTAK WHERE opprettet_tid < :foer and hendelse=:hendelse")
+        entityManager.createNativeQuery("DELETE FROM OVERLAPP_VEDTAK WHERE opprettet_tid < :foer and hendelse=:hendelse")
             .setParameter("foer", før.atStartOfDay())
             .setParameter("hendelse", hendelse)
-            .executeUpdate(); ;
+            .executeUpdate();
     }
 
     public void lagre(OverlappVedtak.Builder overlappBuilder) {

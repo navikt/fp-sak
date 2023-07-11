@@ -85,8 +85,8 @@ public class YtelserKonsolidertTjeneste {
                 .filter(sak -> !saksnumre.contains(sak.getSaksnummer()))
                 .filter(sak -> inkluder.isEmpty()
                         || inkluder.contains(BehandlingRelaterteYtelserMapper.mapFraFagsakYtelseTypeTilRelatertYtelseType(sak.getYtelseType())))
-                .filter(sak -> STATUS_ÅPEN.contains(sak.getStatus()) ||
-                    (FagsakYtelseType.ENGANGSTØNAD.equals(sak.getYtelseType()) && !erSisteBehandlingAvsluttetAvslag(sak)))
+                .filter(sak -> STATUS_ÅPEN.contains(sak.getStatus())
+                    || FagsakYtelseType.ENGANGSTØNAD.equals(sak.getYtelseType()) && !erSisteBehandlingAvsluttetAvslag(sak))
                 .map(sak -> mapFraFagsakForBruker(sak, iDag))
                 .filter(Objects::nonNull)
                 .toList();

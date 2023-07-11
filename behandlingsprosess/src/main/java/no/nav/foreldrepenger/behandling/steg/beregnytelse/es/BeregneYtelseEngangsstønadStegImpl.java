@@ -67,7 +67,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
         var behandlingId = kontekst.getBehandlingId();
 
         var sisteBeregning = finnSisteBeregning(behandlingId);
-        if ((sisteBeregning == null) || !sisteBeregning.isOverstyrt()) {
+        if (sisteBeregning == null || !sisteBeregning.isOverstyrt()) {
             var barnFinner = new BarnFinner(familieHendelseRepository);
             long antallBarn = barnFinner.finnAntallBarn(behandlingId, maksStønadsalderAdopsjon);
             var satsDato = getSatsDato(behandlingId);

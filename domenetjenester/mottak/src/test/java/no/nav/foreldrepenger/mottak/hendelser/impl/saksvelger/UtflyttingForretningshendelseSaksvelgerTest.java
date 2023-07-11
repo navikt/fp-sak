@@ -80,8 +80,7 @@ class UtflyttingForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING).get(0)).isEqualTo(fagsak);
     }
@@ -103,8 +102,7 @@ class UtflyttingForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING).get(0)).isEqualTo(fagsak);
     }
@@ -124,8 +122,7 @@ class UtflyttingForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING)).isEmpty();
     }
 
@@ -158,16 +155,15 @@ class UtflyttingForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
-            .thenReturn(Optional.of(opprettBeregningsresultatPerioder(UTFLYTTINGSDATO.plusDays(2))));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(
+            Optional.of(opprettBeregningsresultatPerioder(UTFLYTTINGSDATO.plusDays(2))));
         var hendelse = new UtflyttingForretningshendelse(singletonList(aktørId), UTFLYTTINGSDATO, Endringstype.OPPRETTET);
 
         // Act
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING).get(0)).isEqualTo(fagsak);
     }
@@ -180,16 +176,15 @@ class UtflyttingForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
-            .thenReturn(Optional.of(opprettBeregningsresultatPerioder(UTFLYTTINGSDATO)));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(
+            Optional.of(opprettBeregningsresultatPerioder(UTFLYTTINGSDATO)));
         var hendelse = new UtflyttingForretningshendelse(singletonList(aktørId), UTFLYTTINGSDATO, Endringstype.OPPRETTET);
 
         // Act
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING).get(0)).isEqualTo(fagsak);
     }
@@ -202,16 +197,15 @@ class UtflyttingForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
-            .thenReturn(Optional.of(opprettBeregningsresultatPerioder(UTFLYTTINGSDATO.minusDays(2))));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(
+            Optional.of(opprettBeregningsresultatPerioder(UTFLYTTINGSDATO.minusDays(2))));
         var hendelse = new UtflyttingForretningshendelse(singletonList(aktørId), UTFLYTTINGSDATO, Endringstype.OPPRETTET);
 
         // Act
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING)).isEmpty();
     }
 
@@ -234,13 +228,8 @@ class UtflyttingForretningshendelseSaksvelgerTest {
 
 
     private BeregningsresultatEntitet opprettBeregningsresultatPerioder(LocalDate sluttDato) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("")
-            .medRegelSporing("")
-            .build();
-        BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(sluttDato.minusDays(10), sluttDato)
-            .build(beregningsresultat);
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
+        BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(sluttDato.minusDays(10), sluttDato).build(beregningsresultat);
         return beregningsresultat;
     }
 }

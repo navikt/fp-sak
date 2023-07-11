@@ -129,7 +129,7 @@ public record BehandlingReferanse(Saksnummer saksnummer,
         if (obj == this) {
             return true;
         }
-        if ((obj == null) || !getClass().equals(obj.getClass())) {
+        if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
         var other = (BehandlingReferanse) obj;

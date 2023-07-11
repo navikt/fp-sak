@@ -301,9 +301,21 @@ public class IAYMapperTilKalkulus {
                                                                   no.nav.foreldrepenger.domene.typer.AktørId aktørId,
                                                                   List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), versjonTypeDto);
-        aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst().ifPresent(aktørArbeid -> builder.leggTilAktørArbeid(mapAktørArbeid(aktørArbeid, arbeidsforholdOverstyringer)));
-        aggregat.getAktørInntekt().stream().filter(ai -> ai.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørInntekt -> builder.leggTilAktørInntekt(mapAktørInntekt(aktørInntekt))));
-        aggregat.getAktørYtelse().stream().filter(ay -> ay.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørYtelse -> builder.leggTilAktørYtelse(mapAktørYtelse(aktørYtelse))));
+        aggregat.getAktørArbeid()
+            .stream()
+            .filter(aa -> aa.getAktørId().equals(aktørId))
+            .findFirst()
+            .ifPresent(aktørArbeid -> builder.leggTilAktørArbeid(mapAktørArbeid(aktørArbeid, arbeidsforholdOverstyringer)));
+        aggregat.getAktørInntekt()
+            .stream()
+            .filter(ai -> ai.getAktørId().equals(aktørId))
+            .findFirst()
+            .ifPresent(aktørInntekt -> builder.leggTilAktørInntekt(mapAktørInntekt(aktørInntekt)));
+        aggregat.getAktørYtelse()
+            .stream()
+            .filter(ay -> ay.getAktørId().equals(aktørId))
+            .findFirst()
+            .ifPresent(aktørYtelse -> builder.leggTilAktørYtelse(mapAktørYtelse(aktørYtelse)));
         return builder;
 
     }

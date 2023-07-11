@@ -12,8 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -333,9 +331,6 @@ class VedtakXmlTest {
 
     private Behandling opprettBehandlingMedAdopsjon(BehandlingStegType stegType) {
         var fødselsdato = LocalDate.now().minusMonths(8);
-        Map<Integer, LocalDate> map = new HashMap<>();
-        map.put(1, fødselsdato);
-        map.put(2, fødselsdato.minusYears(2));
 
         var behandlingBuilder = Behandling.forFørstegangssøknad(opprettFagsak());
 

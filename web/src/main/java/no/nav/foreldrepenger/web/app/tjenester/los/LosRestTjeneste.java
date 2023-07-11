@@ -70,11 +70,7 @@ public class LosRestTjeneste {
 
     @GET
     @Path(LOS_BEHANDLING_PATH)
-    @Operation(description = "Hent behandling gitt id for LOS", summary = ("Returnerer behandlingen som er tilknyttet uuid."), tags = "los-data", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = LosBehandlingDto.class))
-            }),
-    })
+    @Operation(description = "Hent behandling gitt id for LOS", summary = "Returnerer behandlingen som er tilknyttet uuid.", tags = "los-data", responses = {@ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LosBehandlingDto.class))}),})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
@@ -89,11 +85,7 @@ public class LosRestTjeneste {
 
     @GET
     @Path(LOS_FAGSAK_EGENSKAP_PATH)
-    @Operation(description = "Hent egenskaper for fagsak gitt saksnummer for LOS", summary = ("Returnerer saksegenskaper som er tilknyttet saksnummer."), tags = "los-data", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {
-            @Content(mediaType = "application/json", schema = @Schema(implementation = LosFagsakEgenskaperDto.class))
-        }),
-    })
+    @Operation(description = "Hent egenskaper for fagsak gitt saksnummer for LOS", summary = "Returnerer saksegenskaper som er tilknyttet saksnummer.", tags = "los-data", responses = {@ApiResponse(responseCode = "200", description = "Returnerer behandling", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = LosFagsakEgenskaperDto.class))}),})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)

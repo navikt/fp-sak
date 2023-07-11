@@ -49,7 +49,7 @@ class RegelOrkestrererTest {
         // Arrange
         var vilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
 
         var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
@@ -68,7 +68,7 @@ class RegelOrkestrererTest {
         // Arrange
         var vilkårType = VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
@@ -86,7 +86,7 @@ class RegelOrkestrererTest {
         // Arrange
         var vilkårType = VilkårType.MEDLEMSKAPSVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
@@ -104,7 +104,7 @@ class RegelOrkestrererTest {
         // Arrange
         var vilkårType = VilkårType.SØKNADSFRISTVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
@@ -122,7 +122,7 @@ class RegelOrkestrererTest {
         // Arrange
         var vilkårType = VilkårType.OMSORGSVILKÅRET;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
@@ -140,7 +140,7 @@ class RegelOrkestrererTest {
         // Arrange
         var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
@@ -158,7 +158,7 @@ class RegelOrkestrererTest {
         // Arrange
         var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(VilkårResultatType.IKKE_FASTSATT, vilkårType);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
@@ -182,7 +182,7 @@ class RegelOrkestrererTest {
                 .buildFor(behandling);
 
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, List.of(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET));
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -203,7 +203,7 @@ class RegelOrkestrererTest {
             .buildFor(behandling);
 
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, List.of(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET));
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act
@@ -230,7 +230,7 @@ class RegelOrkestrererTest {
                 .buildFor(behandling);
 
         var vilkårData = new VilkårData(adopsjonsvilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(adopsjonsvilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn((b) -> vilkårData);
+        when(inngangsvilkårTjeneste.finnVilkår(adopsjonsvilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
 
         // Act

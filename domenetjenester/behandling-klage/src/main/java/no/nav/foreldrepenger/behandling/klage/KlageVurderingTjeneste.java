@@ -139,16 +139,17 @@ public class KlageVurderingTjeneste {
         var nyttresultat = builder.medKlageResultat(klageResultat).medKlageVurdertAv(vurdertAv).build();
         var eksisterende = hentKlageVurderingResultat(behandling, vurdertAv).orElse(null);
 
-        var uendret = (eksisterende != null) && eksisterende.harLikVurdering(nyttresultat);
-        var endretBeslutterStatus = (eksisterende != null) && !uendret;
+        var uendret = eksisterende != null && eksisterende.harLikVurdering(nyttresultat);
+        var endretBeslutterStatus = eksisterende != null && !uendret;
         var kabal = klageResultat.erBehandletAvKabal();
 
-        var tilbakeføres = !kabal && endretBeslutterStatus &&
-                !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) &&
-                behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);
+        var tilbakeføres =
+            !kabal && endretBeslutterStatus && !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) && behandlingskontrollTjeneste.erStegPassert(
+                behandling, vurderingsteg);
         klageRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
         if (erVurderingOppdaterer || tilbakeføres || kabal) {
-            settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), nyttresultat.getKlageVurderingOmgjør(), vurdertAv);
+            settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), nyttresultat.getKlageVurderingOmgjør(),
+                vurdertAv);
         }
         if (tilbakeføres) {
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));

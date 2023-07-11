@@ -81,9 +81,9 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
 
     private static boolean periodeSkalVurderes(OppgittPeriodeEntitet periode, LocalDate søknadMottattDato) {
         // Mangler tidligst mottatt dato, eller tidligst mottatt er >= søknadMottatt/periodeMottatt
-        if (periode.getTidligstMottattDato().isEmpty() || periode.getMottattDato() == null ||
-            (søknadMottattDato != null && periode.getTidligstMottattDato().filter(tmd -> tmd.isBefore(søknadMottattDato)).isEmpty()) ||
-            periode.getTidligstMottattDato().filter(tmd -> tmd.isBefore(periode.getMottattDato())).isEmpty()) {
+        if (periode.getTidligstMottattDato().isEmpty() || periode.getMottattDato() == null
+            || søknadMottattDato != null && periode.getTidligstMottattDato().filter(tmd -> tmd.isBefore(søknadMottattDato)).isEmpty()
+            || periode.getTidligstMottattDato().filter(tmd -> tmd.isBefore(periode.getMottattDato())).isEmpty()) {
             return true;
         }
         // Det skal finnes en tidligst mottatt dato og den skal være før mottatt dato. Perioden har vært behandlet i tidligere behandling

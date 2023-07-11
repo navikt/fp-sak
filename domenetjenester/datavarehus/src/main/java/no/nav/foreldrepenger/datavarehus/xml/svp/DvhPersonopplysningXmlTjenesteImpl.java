@@ -45,7 +45,6 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.FamilieHendelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Familierelasjon;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Inntekt;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.Inntektspost;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.PersonopplysningerDvhForeldrepenger;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.dvh.fp.v2.RelatertYtelse;
@@ -227,7 +226,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
             annenForelder.setNavn(VedtakXmlUtil.lagStringOpplysning(oppgittAnnenPart.get().getNavn()));
             if (oppgittAnnenPart.get().getUtenlandskPersonident() != null && !oppgittAnnenPart.get().getUtenlandskPersonident().isEmpty()) {
-                annenForelder.setUtenlandskPersonidentifikator(VedtakXmlUtil.lagStringOpplysning((oppgittAnnenPart.get().getUtenlandskPersonident())));
+                annenForelder.setUtenlandskPersonidentifikator(VedtakXmlUtil.lagStringOpplysning(oppgittAnnenPart.get().getUtenlandskPersonident()));
             }
             var landkoder = oppgittAnnenPart.get().getUtenlandskFnrLand();
             if (landkoder != null) {
@@ -271,7 +270,6 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private List<? extends Inntekt> lagInntekt(AktørId aktørId, InntektFilter filter) {
         List<Inntekt> inntektList = new ArrayList<>();
-        List<Inntektspost> inntektspostList = new ArrayList<>();
 
         var inntektXml = personopplysningDvhObjectFactory.createInntekt();
         filter.forFilter((inntekt, inntektsposter) -> {
@@ -286,7 +284,6 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
             });
             inntektXml.getInntektsposter().add(inntektspostXml);
             inntektXml.setMottaker(VedtakXmlUtil.lagStringOpplysning(aktørId.getId()));
-            inntektspostList.add(inntektspostXml);
         });
         inntektList.add(inntektXml);
         return inntektList;

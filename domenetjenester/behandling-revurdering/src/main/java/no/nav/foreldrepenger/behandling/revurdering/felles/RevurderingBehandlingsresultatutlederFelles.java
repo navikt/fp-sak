@@ -208,7 +208,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
     private boolean erFattetEtter(Behandling sisteInnvilget, BehandlingVedtak vedtak) {
         var sistInnvilgetVedtak = behandlingVedtakRepository.hentForBehandling(sisteInnvilget.getId());
         var sistInnvilgetVedtaksdato = sistInnvilgetVedtak.getVedtaksdato();
-        return (vedtak != null) && vedtak.getVedtaksdato().isAfter(sistInnvilgetVedtaksdato);
+        return vedtak != null && vedtak.getVedtaksdato().isAfter(sistInnvilgetVedtaksdato);
     }
 
     private Predicate<BehandlingVedtak> opphørvedtak() {

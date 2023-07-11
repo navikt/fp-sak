@@ -106,10 +106,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(FamilieHendelseGrunnlagEntitet grunnlag, int antallBarnRegister) {
         var antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
-        if ((antallBarnRegister == 0) && (finnAntallOverstyrtManglendeFødsel(grunnlag) > 0)) {
+        if (antallBarnRegister == 0 && finnAntallOverstyrtManglendeFødsel(grunnlag) > 0) {
             return Optional.empty();
         }
-        if ((antallBarnSakBekreftet > 0) && (antallBarnSakBekreftet == antallBarnRegister)) {
+        if (antallBarnSakBekreftet > 0 && antallBarnSakBekreftet == antallBarnRegister) {
             return Optional.empty();
         }
 

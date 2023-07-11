@@ -5,13 +5,12 @@ import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingT
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 
 public class LagEnAndelTjeneste implements LagAndelTjeneste {
@@ -37,6 +36,6 @@ public class LagEnAndelTjeneste implements LagAndelTjeneste {
             .medDagsatsArbeidsgiver(ds.getDagsatsArbeidstaker().longValue())
             .medKilde(AndelKilde.PROSESS_START)
             .build();
-        return Arrays.asList(andel);
+        return List.of(andel);
     }
 }

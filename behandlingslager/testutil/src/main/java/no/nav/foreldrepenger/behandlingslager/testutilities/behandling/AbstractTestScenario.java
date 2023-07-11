@@ -579,7 +579,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                         beh.setId(id);
                     }
 
-                    beh.getAksjonspunkter().forEach(punkt -> punkt.setId((nyId())));
+                    beh.getAksjonspunkter().forEach(punkt -> punkt.setId(nyId()));
                     behandlingMap.put(id, beh);
                     return id;
                 });
@@ -987,9 +987,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private NavBrukerKjønn getKjønnFraFagsak() {
-        return fagsakBuilder.getBrukerBuilder().getKjønn() != null ? fagsakBuilder.getBrukerBuilder().getKjønn()
-                : (RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE
-                        : NavBrukerKjønn.MANN);
+        return
+            fagsakBuilder.getBrukerBuilder().getKjønn() != null ? fagsakBuilder.getBrukerBuilder().getKjønn() :
+                RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(
+                    fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.MANN;
     }
 
     private void lagreBehandlingsresultatOgVilkårResultat(BehandlingRepositoryProvider repoProvider, BehandlingLås lås) {

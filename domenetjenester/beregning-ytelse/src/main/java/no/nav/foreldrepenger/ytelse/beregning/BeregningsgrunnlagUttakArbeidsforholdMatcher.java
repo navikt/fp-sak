@@ -28,6 +28,6 @@ public final class BeregningsgrunnlagUttakArbeidsforholdMatcher {
 
     public static boolean matcherGenerellAndel(BeregningsgrunnlagPrStatus beregningsgrunnlagPrStatus, UttakAktivitet aktivitet) {
         return aktivitet.aktivitetStatus().equals(beregningsgrunnlagPrStatus.aktivitetStatus())
-            || (aktivitet.aktivitetStatus().equals(AktivitetStatus.ANNET) && !beregningsgrunnlagPrStatus.aktivitetStatus().erGraderbar());
+            || aktivitet.aktivitetStatus().equals(AktivitetStatus.ANNET) && !beregningsgrunnlagPrStatus.aktivitetStatus().erGraderbar();
     }
 }

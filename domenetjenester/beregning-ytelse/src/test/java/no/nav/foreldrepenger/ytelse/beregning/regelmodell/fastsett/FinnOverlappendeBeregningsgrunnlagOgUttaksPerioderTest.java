@@ -454,7 +454,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
         assertThat(andel.get(0).getDagsats()).isEqualTo(dagsatsBruker + dagsatsArbeidsgiver);
         assertThat(andel.get(0).getDagsatsFraBg()).isEqualTo(dagsatsBruker);
         assertThat(andel.get(1).erBrukerMottaker()).isFalse();
-        assertThat(andel.get(1).getDagsats()).isEqualTo(0);
+        assertThat(andel.get(1).getDagsats()).isZero();
         assertThat(andel.get(1).getDagsatsFraBg()).isEqualTo(dagsatsArbeidsgiver);
     }
 

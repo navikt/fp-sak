@@ -128,22 +128,15 @@ class OpprettNyFørstegangsbehandlingTest {
         lenient().when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             var md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
-            // LocalDateTime.now().minusSeconds(1L));
             md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
             var md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
-            // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
-            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md2d);
             var md3d = md3.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            // Whitebox.setInternalState(md3d, "opprettetTidspunkt", LocalDateTime.now());
             md3d.setOpprettetTidspunkt(LocalDateTime.now());
             mottatteDokumentList.add(md3d);
             var md4d = md4.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            // Whitebox.setInternalState(md4d, "opprettetTidspunkt",
-            // LocalDateTime.now().plusSeconds(1L));
             md4d.setOpprettetTidspunkt(LocalDateTime.now().plusSeconds(1L));
             mottatteDokumentList.add(md4d);
             return mottatteDokumentList;
@@ -158,12 +151,8 @@ class OpprettNyFørstegangsbehandlingTest {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             var md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
-            // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
-            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
             var md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
-            // LocalDateTime.now().minusSeconds(1L));
             md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md2d);
             return mottatteDokumentList;
@@ -178,8 +167,6 @@ class OpprettNyFørstegangsbehandlingTest {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             var md1d = md1.medFagsakId(behandling.getFagsakId()).build();
             md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
-            // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
-            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
             return mottatteDokumentList;
         });
@@ -193,9 +180,6 @@ class OpprettNyFørstegangsbehandlingTest {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             var md5d = md5.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md5d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
-
-            // Whitebox.setInternalState(md5d, "opprettetTidspunkt",
-            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md5d);
             return mottatteDokumentList;
         });
@@ -209,8 +193,6 @@ class OpprettNyFørstegangsbehandlingTest {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             var md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
-            // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
-            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md2d);
             return mottatteDokumentList;
         });
@@ -222,15 +204,17 @@ class OpprettNyFørstegangsbehandlingTest {
     void skal_kaste_exception_når_behandling_fortsatt_er_åpen() {
         mockMottatteDokumentRepository(repositoryProvider);
         // Act and expect Exception
-        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(),
-                behandling.getFagsak().getSaksnummer(), false));
+        var fagsakId = behandling.getFagsakId();
+        var saksnummer = behandling.getFagsak().getSaksnummer();
+        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsakId, saksnummer, false));
     }
 
     @Test
     void skal_kaste_exception_når_behandling_ikke_eksisterer() {
         mockMottatteDokumentRepository(repositoryProvider);
         // Act and expect Exception
-        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(-1L, new Saksnummer("050"), false));
+        var saksnummer = new Saksnummer("050");
+        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(-1L, saksnummer, false));
     }
 
     @Test
@@ -317,8 +301,9 @@ class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryUtenSøknadEllerIm(repositoryProvider);
 
         // Act
-        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(),
-                behandling.getFagsak().getSaksnummer(), false));
+        var fagsakId = behandling.getFagsakId();
+        var saksnummer = behandling.getFagsak().getSaksnummer();
+        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsakId, saksnummer, false));
     }
 
     @Test
@@ -328,8 +313,9 @@ class OpprettNyFørstegangsbehandlingTest {
         behandling.avsluttBehandling();
 
         // Act
-        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(),
-                behandling.getFagsak().getSaksnummer(), true));
+        var fagsakId = behandling.getFagsakId();
+        var saksnummer = behandling.getFagsak().getSaksnummer();
+        assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsakId, saksnummer, true));
     }
 
     @Test
@@ -365,8 +351,10 @@ class OpprettNyFørstegangsbehandlingTest {
         behandling.avsluttBehandling();
 
         // Act
+        var fagsakId = behandling.getFagsakId();
+        var saksnummer = behandling.getFagsak().getSaksnummer();
         assertThrows(FunksjonellException.class, () -> behandlingsoppretterTjeneste
-                .henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer()));
+                .henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsakId, saksnummer));
 
         // Assert
         verify(taskTjeneste, times(0)).lagre(any(ProsessTaskData.class));

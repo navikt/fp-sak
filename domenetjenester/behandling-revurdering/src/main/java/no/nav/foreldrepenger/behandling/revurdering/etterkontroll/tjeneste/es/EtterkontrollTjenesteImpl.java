@@ -76,10 +76,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             int antallBarnRegister) {
         var antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
-        if ((antallBarnRegister == 0) && (finnAntallOverstyrtManglendeFødsel(grunnlag) > 0)) {
+        if (antallBarnRegister == 0 && finnAntallOverstyrtManglendeFødsel(grunnlag) > 0) {
             return Optional.empty();
         }
-        if ((antallBarnSakBekreftet > 0) && (antallBarnSakBekreftet == antallBarnRegister)) {
+        if (antallBarnSakBekreftet > 0 && antallBarnSakBekreftet == antallBarnRegister) {
             return Optional.empty();
         }
 
@@ -102,7 +102,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private boolean skalReberegneES(Behandling behandling, List<FødtBarnInfo> fødteBarn) {
         var fødselsdato = fødteBarn.stream().map(FødtBarnInfo::fødselsdato).max(Comparator.naturalOrder()).orElse(null);
-        return (fødselsdato != null) && esBeregningRepository.skalReberegne(behandling.getId(), fødselsdato);
+        return fødselsdato != null && esBeregningRepository.skalReberegne(behandling.getId(), fødselsdato);
     }
 
     private int finnAntallBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {

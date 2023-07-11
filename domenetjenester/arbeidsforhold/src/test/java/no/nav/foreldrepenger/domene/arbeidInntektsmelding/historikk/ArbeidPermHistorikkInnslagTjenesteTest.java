@@ -67,6 +67,6 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
         arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(avklarteArbForhold, "begrunnelse");
 
         assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler()).hasSize(3);
-        assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler().get(2).getBegrunnelse().get()).isEqualTo("begrunnelse");
+        assertThat(historikkAdapter.tekstBuilder().getHistorikkinnslagDeler().get(2).getBegrunnelse()).contains("begrunnelse");
     }
 }

@@ -68,7 +68,7 @@ public class MapAktørArbeid {
         }
 
         List<AktørArbeidBuilder> map(Collection<ArbeidDto> dtos) {
-            if ((dtos == null) || dtos.isEmpty()) {
+            if (dtos == null || dtos.isEmpty()) {
                 return Collections.emptyList();
             }
             return dtos.stream().map(this::mapAktørArbeid).toList();
@@ -164,17 +164,17 @@ public class MapAktørArbeid {
             if (val == null) {
                 return val;
             }
-            if ((min != null) && (val.compareTo(min) < 0)) {
+            if (min != null && val.compareTo(min) < 0) {
                 return min;
             }
-            if ((max != null) && (val.compareTo(max) > 0)) {
+            if (max != null && val.compareTo(max) > 0) {
                 return max;
             }
             return val;
         }
 
         List<ArbeidDto> map(Collection<AktørArbeid> aktørArbeid) {
-            if ((aktørArbeid == null) || aktørArbeid.isEmpty()) {
+            if (aktørArbeid == null || aktørArbeid.isEmpty()) {
                 return Collections.emptyList();
             }
             return aktørArbeid.stream().map(this::map).toList();
@@ -234,7 +234,7 @@ public class MapAktørArbeid {
 
         private ArbeidsforholdRefDto mapArbeidsforholdsId(Arbeidsgiver arbeidsgiver, Yrkesaktivitet yrkesaktivitet) {
             var internRef = yrkesaktivitet.getArbeidsforholdRef();
-            if ((internRef == null) || (internRef.getReferanse() == null)) {
+            if (internRef == null || internRef.getReferanse() == null) {
                 return null;
             }
             EksternArbeidsforholdRef eksternRef;
@@ -249,7 +249,7 @@ public class MapAktørArbeid {
                 }
             }
 
-            if ((eksternRef == null) || (eksternRef.getReferanse() == null)) {
+            if (eksternRef == null || eksternRef.getReferanse() == null) {
                 LOG.warn("Mangler eksternReferanse for internReferanse={}, forkaster internReferanse. Antar feilmapping", internRef);
                 return null;
             }

@@ -81,8 +81,8 @@ class IverksetteVedtakStegYtelseTest {
         assertThat(historikkinnslag.getHistorikkinnslagDeler()).hasSize(1);
         var del1 = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del1.getHendelse()).hasValueSatisfying(
-                hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.IVERKSETTELSE_VENT.getKode()));
-        assertThat(del1.getAarsak().get()).isEqualTo(Venteårsak.VENT_TIDLIGERE_BEHANDLING.getKode());
+            hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.IVERKSETTELSE_VENT.getKode()));
+        assertThat(del1.getAarsak()).contains(Venteårsak.VENT_TIDLIGERE_BEHANDLING.getKode());
     }
 
     @Test

@@ -80,14 +80,16 @@ public class MapInntektsmeldinger {
         public InntektsmeldingerDto map(ArbeidsforholdInformasjon arbeidsforholdInformasjon,
                 InntektsmeldingAggregat inntektsmeldingAggregat, boolean validerArbeidsforholdId) {
 
-            if ((arbeidsforholdInformasjon == null) && (inntektsmeldingAggregat == null)) {
+            if (arbeidsforholdInformasjon == null && inntektsmeldingAggregat == null) {
                 return null;
             }
-            if ((!validerArbeidsforholdId || (arbeidsforholdInformasjon != null)) && (inntektsmeldingAggregat != null)) {
+            if ((!validerArbeidsforholdId || arbeidsforholdInformasjon != null) && inntektsmeldingAggregat != null) {
                 var dto = new InntektsmeldingerDto();
-                var inntektsmeldinger = inntektsmeldingAggregat.getAlleInntektsmeldinger().stream()
-                        .map(im -> this.mapInntektsmelding(arbeidsforholdInformasjon, im, validerArbeidsforholdId)).sorted(COMP_INNTEKTSMELDING)
-                        .toList();
+                var inntektsmeldinger = inntektsmeldingAggregat.getAlleInntektsmeldinger()
+                    .stream()
+                    .map(im -> this.mapInntektsmelding(arbeidsforholdInformasjon, im, validerArbeidsforholdId))
+                    .sorted(COMP_INNTEKTSMELDING)
+                    .toList();
                 dto.medInntektsmeldinger(inntektsmeldinger);
 
                 return dto;
@@ -178,18 +180,16 @@ public class MapInntektsmeldinger {
 
         private ArbeidsforholdRefDto mapArbeidsforholdsId(@SuppressWarnings("unused") Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internRef,
                 EksternArbeidsforholdRef eksternRef, boolean validerArbeidsforholdId) {
-            if (((internRef == null) || (internRef.getReferanse() == null)) && ((eksternRef == null) || (eksternRef.getReferanse() == null))) {
+            if ((internRef == null || internRef.getReferanse() == null) && (eksternRef == null || eksternRef.getReferanse() == null)) {
                 return null;
             }
-            if ((internRef != null) && (eksternRef != null) && (internRef.getReferanse() != null) && (eksternRef.getReferanse() != null)) {
-                return new ArbeidsforholdRefDto(internRef.getReferanse(), eksternRef.getReferanse(),
-                        Fagsystem.AAREGISTERET);
+            if (internRef != null && eksternRef != null && internRef.getReferanse() != null && eksternRef.getReferanse() != null) {
+                return new ArbeidsforholdRefDto(internRef.getReferanse(), eksternRef.getReferanse(), Fagsystem.AAREGISTERET);
             }
-            if (!validerArbeidsforholdId && (eksternRef != null) && (eksternRef.getReferanse() != null)) {
-                return new ArbeidsforholdRefDto(null, eksternRef.getReferanse(),
-                        Fagsystem.AAREGISTERET);
+            if (!validerArbeidsforholdId && eksternRef != null && eksternRef.getReferanse() != null) {
+                return new ArbeidsforholdRefDto(null, eksternRef.getReferanse(), Fagsystem.AAREGISTERET);
             }
-            if ((internRef != null) && (internRef.getReferanse() != null) && (eksternRef == null)) {
+            if (internRef != null && internRef.getReferanse() != null && eksternRef == null) {
                 return null;
             }
             throw new IllegalStateException(
@@ -198,7 +198,7 @@ public class MapInntektsmeldinger {
         }
 
         public InntektsmeldingerDto map(Collection<InntektsmeldingBuilder> inntektsmeldingBuildere) {
-            if ((inntektsmeldingBuildere == null) || inntektsmeldingBuildere.isEmpty()) {
+            if (inntektsmeldingBuildere == null || inntektsmeldingBuildere.isEmpty()) {
                 return null;
             }
             return new InntektsmeldingerDto()
@@ -257,15 +257,15 @@ public class MapInntektsmeldinger {
             var arbeidsgiver = mapArbeidsgiver(dto.getArbeidsgiver());
 
             var arbeidsforholdRef = dto.getArbeidsforholdRef();
-            var internRef = (arbeidsforholdRef == null) || (arbeidsforholdRef.getAbakusReferanse() == null)
-                    ? InternArbeidsforholdRef.nullRef()
-                    : InternArbeidsforholdRef.ref(arbeidsforholdRef.getAbakusReferanse());
-            var eksternRef = (arbeidsforholdRef == null) || (arbeidsforholdRef.getEksternReferanse() == null) ? null
-                    : EksternArbeidsforholdRef.ref(arbeidsforholdRef.getEksternReferanse());
+            var internRef = arbeidsforholdRef == null
+                || arbeidsforholdRef.getAbakusReferanse() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(
+                arbeidsforholdRef.getAbakusReferanse());
+            var eksternRef = arbeidsforholdRef == null || arbeidsforholdRef.getEksternReferanse() == null ? null : EksternArbeidsforholdRef.ref(
+                arbeidsforholdRef.getEksternReferanse());
 
-            if (((internRef.getReferanse() != null) && (eksternRef == null)) || ((internRef.getReferanse() == null) && (eksternRef != null))) {
+            if (internRef.getReferanse() != null && eksternRef == null || internRef.getReferanse() == null && eksternRef != null) {
                 throw new IllegalStateException(
-                        "Både internRef og eksternRef må enten være satt eller begge null, fikk intern=" + internRef + ", ekstern=" + eksternRef);
+                    "Både internRef og eksternRef må enten være satt eller begge null, fikk intern=" + internRef + ", ekstern=" + eksternRef);
             }
             if (!InternArbeidsforholdRef.nullRef().equals(internRef)) {
                 arbeidsforholdInformasjon.leggTilNyReferanse(new ArbeidsforholdReferanse(arbeidsgiver, internRef, eksternRef));

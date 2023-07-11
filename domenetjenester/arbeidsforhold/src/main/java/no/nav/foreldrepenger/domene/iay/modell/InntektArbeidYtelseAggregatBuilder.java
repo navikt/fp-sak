@@ -152,7 +152,7 @@ public class InntektArbeidYtelseAggregatBuilder {
     }
 
     public InternArbeidsforholdRef medNyInternArbeidsforholdRef(Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef eksternReferanse) {
-        if ((eksternReferanse == null) || (eksternReferanse.getReferanse() == null)) {
+        if (eksternReferanse == null || eksternReferanse.getReferanse() == null) {
             return InternArbeidsforholdRef.nullRef();
         }
         var nyRef = InternArbeidsforholdRef.nyRef();

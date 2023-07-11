@@ -74,7 +74,7 @@ public class OpptjeningsperiodeForSaksbehandling {
         if (this == o) {
             return true;
         }
-        if ((o == null) || (getClass() != o.getClass())) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var other = (OpptjeningsperiodeForSaksbehandling) o;
@@ -182,8 +182,8 @@ public class OpptjeningsperiodeForSaksbehandling {
 
         private void valider() {
             // Opptjeningsperiode av typen arbeid krever alltid arbeidsgiver
-            if ((kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID) && (kladd.arbeidsgiver == null)
-                    && ((kladd.grupperingNøkkel == null) || (kladd.grupperingNøkkel.getArbeidsgiverType() == null))) {
+            if (kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID && kladd.arbeidsgiver == null && (kladd.grupperingNøkkel == null
+                || kladd.grupperingNøkkel.getArbeidsgiverType() == null)) {
                 throw new IllegalStateException("Informasjon om arbeidsgiver mangler for " + kladd.toString());
             }
         }

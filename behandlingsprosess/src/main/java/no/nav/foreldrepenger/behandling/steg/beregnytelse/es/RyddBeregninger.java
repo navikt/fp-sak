@@ -32,7 +32,7 @@ class RyddBeregninger {
     }
 
     public void ryddBeregningerHvisIkkeOverstyrt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        if ((behandlingsresultat.getBeregningResultat() != null) && !behandlingsresultat.getBeregningResultat().isOverstyrt()) {
+        if (behandlingsresultat.getBeregningResultat() != null && !behandlingsresultat.getBeregningResultat().isOverstyrt()) {
             ryddBeregninger(behandling, behandlingsresultat);
         }
     }

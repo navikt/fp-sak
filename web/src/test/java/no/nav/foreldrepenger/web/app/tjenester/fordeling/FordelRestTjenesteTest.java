@@ -92,7 +92,7 @@ class FordelRestTjenesteTest {
         var result = fordelRestTjeneste.vurderFagsystem(innDto);
 
         assertThat(result).isNotNull();
-        assertThat(result.getSaksnummer().get()).isEqualTo(saksnummer.getVerdi());
+        assertThat(result.getSaksnummer()).contains(saksnummer.getVerdi());
         assertThat(result.isBehandlesIVedtaksløsningen()).isTrue();
     }
 

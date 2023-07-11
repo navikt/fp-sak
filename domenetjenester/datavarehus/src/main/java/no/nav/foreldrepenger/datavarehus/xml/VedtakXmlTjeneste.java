@@ -104,7 +104,7 @@ public class VedtakXmlTjeneste {
         var kodeverksOpplysning = new KodeverksOpplysning();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             kodeverksOpplysning.setValue(FagsakType.ENGANGSSTOENAD.value());
-        } else if ((FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()))) {
+        } else if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
             kodeverksOpplysning.setValue(FagsakType.FORELDREPENGER.value());
         }
         vedtak.setFagsakType(kodeverksOpplysning);
@@ -127,6 +127,6 @@ public class VedtakXmlTjeneste {
 
     private void setVedtaksResultat(Vedtak vedtakKontrakt, Behandling behandling) {
         var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
-        vedtak.ifPresent(v -> vedtakKontrakt.setVedtaksresultat((VedtakXmlUtil.lagKodeverksOpplysning(v.getVedtakResultatType()))));
+        vedtak.ifPresent(v -> vedtakKontrakt.setVedtaksresultat(VedtakXmlUtil.lagKodeverksOpplysning(v.getVedtakResultatType())));
     }
 }

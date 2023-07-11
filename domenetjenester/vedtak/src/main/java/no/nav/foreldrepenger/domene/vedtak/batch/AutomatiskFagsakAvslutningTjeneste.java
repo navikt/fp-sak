@@ -41,7 +41,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
             var task = opprettFagsakAvslutningTask(fagsak, nyCallId);
             taskTjeneste.lagre(task);
         }
-        return batchname + "-" + (UUID.randomUUID().toString());
+        return batchname + "-" + UUID.randomUUID().toString();
     }
 
     private ProsessTaskData opprettFagsakAvslutningTask(Fagsak fagsak, String callId) {

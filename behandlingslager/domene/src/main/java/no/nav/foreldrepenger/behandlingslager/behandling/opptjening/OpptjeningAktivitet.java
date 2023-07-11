@@ -122,7 +122,7 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj.getClass().equals(this.getClass()))) {
+        if (obj == null || !obj.getClass().equals(this.getClass())) {
             return false;
         }
 

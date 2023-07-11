@@ -65,7 +65,7 @@ public class YtelserGrunnlagBygger {
     private static LocalDateSegment<Boolean> slåSammenOverlappendePleiepenger(LocalDateInterval dateInterval,
                                                                               LocalDateSegment<Boolean> lhs,
                                                                               LocalDateSegment<Boolean> rhs) {
-        var innlagt = (lhs != null && Boolean.TRUE.equals(lhs.getValue())) || (rhs != null && Boolean.TRUE.equals(rhs.getValue()));
+        var innlagt = lhs != null && Boolean.TRUE.equals(lhs.getValue()) || rhs != null && Boolean.TRUE.equals(rhs.getValue());
         return new LocalDateSegment<>(dateInterval, innlagt);
 
     }

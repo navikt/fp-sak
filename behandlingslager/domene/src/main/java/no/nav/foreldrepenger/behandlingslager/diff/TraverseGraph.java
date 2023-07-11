@@ -134,7 +134,7 @@ public class TraverseGraph {
 
     private void traverseMap(Node newPath, Map<?, ?> map, TraverseResult result) {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
-            var collNode = new Node("{" + (entry.getKey()) + "}", newPath, map);
+            var collNode = new Node("{" + entry.getKey() + "}", newPath, map);
             traverseRecursiveInternal(entry.getValue(), collNode, result);
         }
     }
@@ -148,7 +148,7 @@ public class TraverseGraph {
                 collectionKey = String.valueOf(listPositionEq.getKey(newPath, v));
             }
 
-            var collNode = new Node("[" + (collectionKey) + "]", newPath, v);
+            var collNode = new Node("[" + collectionKey + "]", newPath, v);
             traverseRecursiveInternal(v, collNode, result);
         }
     }

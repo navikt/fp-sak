@@ -144,7 +144,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                 var familieHendelse = bekreftet.get();
                 var antallBarnLike = Objects.equals(familieHendelse.getAntallBarn(), overstyrt.getAntallBarn());
                 var fødselsdatoLike = Objects.equals(familieHendelse.getFødselsdato(), overstyrt.getFødselsdato());
-                return (antallBarnLike && fødselsdatoLike);
+                return antallBarnLike && fødselsdatoLike;
             }
             return !overstyrt.getBarna().isEmpty();
         }
@@ -160,9 +160,8 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                                                        boolean erEndret) {
         var erEndretTemp = erEndret;
         var orginalFødselsdato = getFødselsdato(behandlingsgrunnlag);
-        erEndretTemp =
-            (0 == dto.size() || oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato,
-                dto.get(0).getFødselsdato())) || erEndretTemp;
+        erEndretTemp = 0 == dto.size() || oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato, dto.get(0).getFødselsdato())
+            || erEndretTemp;
         var opprinneligAntallBarn = getAntallBarnVedSøknadFødsel(behandlingsgrunnlag);
         erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, dto.size())
             || erEndretTemp;
@@ -170,9 +169,8 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     }
 
     private void opprettetInnslagforFeltBrukAntallBarnITps(SjekkManglendeFodselDto dto, Behandling behandling) {
-        var feltNavn = dto.isBrukAntallBarnITps() ? HistorikkEndretFeltType.BRUK_ANTALL_I_TPS : (BehandlingType.REVURDERING
-            .equals(
-                behandling.getType()) ? HistorikkEndretFeltType.BRUK_ANTALL_I_VEDTAKET : HistorikkEndretFeltType.BRUK_ANTALL_I_SOKNAD);
+        var feltNavn = dto.isBrukAntallBarnITps() ? HistorikkEndretFeltType.BRUK_ANTALL_I_TPS : BehandlingType.REVURDERING.equals(
+            behandling.getType()) ? HistorikkEndretFeltType.BRUK_ANTALL_I_VEDTAKET : HistorikkEndretFeltType.BRUK_ANTALL_I_SOKNAD;
 
         if (dto.getDokumentasjonForeligger()) {
             historikkAdapter.tekstBuilder().medEndretFelt(feltNavn, null, true);

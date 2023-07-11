@@ -32,11 +32,11 @@ public class AvklarBarnFødtUtenlands {
     public Optional<MedlemResultat> utled(Long behandlingId) {
         var bekreftetFH = familieHendelseRepository.hentAggregat(behandlingId).getBekreftetVersjon().orElse(null);
 
-        if (!((erSøktPåBakgrunnAvFødselsdato(behandlingId) == JA) || erFødselBekreftet(bekreftetFH) == JA)) {
+        if (!(erSøktPåBakgrunnAvFødselsdato(behandlingId) == JA || erFødselBekreftet(bekreftetFH) == JA)) {
             return Optional.empty();
         }
-        if ((erFødselsdatoFraTpsInnenforEnOppgittUtlandsperiode(bekreftetFH, behandlingId) == JA)
-            || (erFødselsdatoFraSøknadInnenforEnOppgittUtlandsperiode(behandlingId) == JA)) {
+        if (erFødselsdatoFraTpsInnenforEnOppgittUtlandsperiode(bekreftetFH, behandlingId) == JA
+            || erFødselsdatoFraSøknadInnenforEnOppgittUtlandsperiode(behandlingId) == JA) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
         return Optional.empty();

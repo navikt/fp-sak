@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import static java.util.Collections.emptyList;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,7 +25,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 @ApplicationScoped
 public class SamletInngangsvilkårStegImpl extends InngangsvilkårStegImpl {
 
-    private static final List<VilkårType> STØTTEDE_VILKÅR = emptyList();
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of();
 
     private final Set<VilkårType> alleInngangsVilkår;
 

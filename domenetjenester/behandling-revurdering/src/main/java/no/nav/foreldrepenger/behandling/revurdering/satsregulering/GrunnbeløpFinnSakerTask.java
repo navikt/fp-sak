@@ -1,19 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
@@ -24,6 +10,20 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Dependent
 @ProsessTask("behandlingsprosess.gregulering.opprett")
@@ -68,7 +68,7 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
         var reguleringType = Optional.ofNullable(prosessTaskData.getPropertyValue(REGULERING_TYPE_KEY))
             .filter(a -> Arrays.stream(ReguleringType.values()).map(ReguleringType::name).collect(Collectors.toSet()).contains(a))
             .map(ReguleringType::valueOf).orElse(null);
-        if (ytelse == null || reguleringType == null || (Ytelse.SVP.equals(ytelse) && ReguleringType.ARENA.equals(reguleringType))) {
+        if (ytelse == null || reguleringType == null || Ytelse.SVP.equals(ytelse) && ReguleringType.ARENA.equals(reguleringType)) {
             LOG.warn("GrunnbeløpRegulering ukjent ytelse {} eller reguleringtype {}", ytelse, reguleringType);
             return;
         }

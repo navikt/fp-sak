@@ -266,9 +266,10 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(ArgumentMatchers.any()))
                 .thenAnswer(a -> {
                     Long id = a.getArgument(0);
-                    return behandlingMap.values().stream()
-                            .filter(b -> b.getFagsakId().equals(id) && (b.getBehandlingsresultat() != null)
-                                    && !b.getBehandlingsresultat().isBehandlingHenlagt())
+                    return behandlingMap.values()
+                        .stream()
+                        .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null && !b.getBehandlingsresultat()
+                            .isBehandlingHenlagt())
                             .sorted()
                             .findFirst();
                 });
@@ -334,7 +335,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     }
 
     BehandlingRepository lagMockedRepositoryForOpprettingAvBehandlingInternt() {
-        if ((mockBehandlingRepository != null) && (behandling != null)) {
+        if (mockBehandlingRepository != null && behandling != null) {
             return mockBehandlingRepository;
         }
         validerTilstandVedMocking();
@@ -449,7 +450,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         @Override
         public PersonopplysningGrunnlagEntitet hentPersonopplysninger(Long behandlingId) {
-            if (personopplysningMap.isEmpty() || (personopplysningMap.get(behandlingId) == null) || !personopplysningMap.containsKey(behandlingId)) {
+            if (personopplysningMap.isEmpty() || personopplysningMap.get(behandlingId) == null || !personopplysningMap.containsKey(behandlingId)) {
                 throw new IllegalStateException("Fant ingen personopplysninger for angitt behandling");
             }
 

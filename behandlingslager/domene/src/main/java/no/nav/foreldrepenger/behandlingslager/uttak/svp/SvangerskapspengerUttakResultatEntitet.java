@@ -73,8 +73,7 @@ public class SvangerskapspengerUttakResultatEntitet extends BaseEntitet {
                 .stream()
                 .map(p -> p.getTidsperiode().getTomDato())
                 .max(LocalDate::compareTo);
-            if (sisteUttaksdato.isEmpty() || (maxDatoForArbeidsforhold.isPresent() && maxDatoForArbeidsforhold.get()
-                .isAfter(sisteUttaksdato.get()))) {
+            if (sisteUttaksdato.isEmpty() || maxDatoForArbeidsforhold.isPresent() && maxDatoForArbeidsforhold.get().isAfter(sisteUttaksdato.get())) {
                 sisteUttaksdato = maxDatoForArbeidsforhold;
             }
         }
@@ -90,8 +89,7 @@ public class SvangerskapspengerUttakResultatEntitet extends BaseEntitet {
                 .filter(p -> p.getUtbetalingsgrad().harUtbetaling())
                 .map(p -> p.getTidsperiode().getTomDato())
                 .max(LocalDate::compareTo);
-            if (sisteUttaksdato.isEmpty() || (maxDatoForArbeidsforhold.isPresent() && maxDatoForArbeidsforhold.get()
-                .isAfter(sisteUttaksdato.get()))) {
+            if (sisteUttaksdato.isEmpty() || maxDatoForArbeidsforhold.isPresent() && maxDatoForArbeidsforhold.get().isAfter(sisteUttaksdato.get())) {
                 sisteUttaksdato = maxDatoForArbeidsforhold;
             }
         }
@@ -105,8 +103,8 @@ public class SvangerskapspengerUttakResultatEntitet extends BaseEntitet {
                 .stream()
                 .map(p -> p.getTidsperiode().getFomDato())
                 .min(LocalDate::compareTo);
-            if (førsteUttaksdato.isEmpty() || (minDatoForArbeidsforhold.isPresent() && minDatoForArbeidsforhold.get()
-                .isBefore(førsteUttaksdato.get()))) {
+            if (førsteUttaksdato.isEmpty() || minDatoForArbeidsforhold.isPresent() && minDatoForArbeidsforhold.get()
+                .isBefore(førsteUttaksdato.get())) {
                 førsteUttaksdato = minDatoForArbeidsforhold;
             }
         }

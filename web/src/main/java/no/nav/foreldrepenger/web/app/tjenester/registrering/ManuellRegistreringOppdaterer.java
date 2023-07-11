@@ -130,8 +130,8 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     }
 
     private boolean erAdopsjon(ManuellRegistreringDto dto) {
-        return (FamilieHendelseType.ADOPSJON.getKode().equals(dto.getTema().getKode()) ||
-                FamilieHendelseType.OMSORG.getKode().equals(dto.getTema().getKode()));
+        return FamilieHendelseType.ADOPSJON.getKode().equals(dto.getTema().getKode()) || FamilieHendelseType.OMSORG.getKode()
+            .equals(dto.getTema().getKode());
     }
 
     private boolean erFødsel(ManuellRegistreringDto dto) {

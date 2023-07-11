@@ -347,8 +347,8 @@ class MorsJustering implements ForelderFødselJustering {
 
     private Optional<OppgittPeriodeEntitet> finnOverlappendePeriode(LocalDate dato, List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream()
-            .filter(periode -> (periode.getFom().equals(dato) || periode.getFom().isBefore(dato) && (periode.getTom().equals(dato) || periode.getTom()
-                .isAfter(dato))))
+            .filter(periode -> periode.getFom().equals(dato) || periode.getFom().isBefore(dato) && (periode.getTom().equals(dato) || periode.getTom()
+                .isAfter(dato)))
             .findFirst();
     }
 
@@ -385,8 +385,7 @@ class MorsJustering implements ForelderFødselJustering {
     }
 
     private boolean overlapper(OppgittPeriodeEntitet periode, LocalDate dato) {
-        return periode.getFom().isEqual(dato) || periode.getTom().isEqual(dato) || (periode.getFom().isBefore(dato) && periode.getTom()
-            .isAfter(dato));
+        return periode.getFom().isEqual(dato) || periode.getTom().isEqual(dato) || periode.getFom().isBefore(dato) && periode.getTom().isAfter(dato);
     }
 
     /**

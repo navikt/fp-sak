@@ -80,7 +80,7 @@ class EntityTest {
     }
 
     private static boolean isDoubleOrFloat(Class<?> javaType) {
-        return javaType == Double.class || javaType == Float.class || (javaType.isPrimitive() && (javaType == Double.TYPE || javaType == Float.TYPE));
+        return javaType == Double.class || javaType == Float.class || javaType.isPrimitive() && (javaType == Double.TYPE || javaType == Float.TYPE);
     }
 
     private static <V extends Annotation> V getInheritedAnnotation(Class<?> cls, Class<V> ann) {

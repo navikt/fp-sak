@@ -107,7 +107,7 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     }
 
     void destroy() {
-        if ((stegInstances != null) && (steg != null)) {
+        if (stegInstances != null && steg != null) {
             stegInstances.destroy(steg);
         }
     }

@@ -147,7 +147,7 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if ((obj == null) || !(obj instanceof Inntektspost other)) {
+        if (!(obj instanceof Inntektspost other)) {
             return false;
         }
         return Objects.equals(this.getInntektspostType(), other.getInntektspostType())
@@ -176,7 +176,7 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
     }
 
     public boolean hasValues() {
-        return (inntektspostType != null) || (periode.getFomDato() != null) || (periode.getTomDato() != null) || (beløp != null);
+        return inntektspostType != null || periode.getFomDato() != null || periode.getTomDato() != null || beløp != null;
     }
 
 }

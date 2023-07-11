@@ -141,10 +141,9 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         if (!Objects.equals(sammenlign.getMorsAktivitet(), bruk.getMorsAktivitet())) {
             morsAktivitetTekst(bruk).ifPresent(t -> builder.append(", Mors aktivitet: ").append(t));
         }
-        if (!Objects.equals(sammenlign.isGradert(), bruk.isGradert()) ||
-            (sammenlign.isGradert() && (!Objects.equals(arbeidsprosent(sammenlign), arbeidsprosent(bruk)) ||
-                !Objects.equals(sammenlign.getGraderingAktivitetType(), bruk.getGraderingAktivitetType()) ||
-                !Objects.equals(sammenlign.getArbeidsgiver(), bruk.getArbeidsgiver())))) {
+        if (!Objects.equals(sammenlign.isGradert(), bruk.isGradert()) || sammenlign.isGradert() && (
+            !Objects.equals(arbeidsprosent(sammenlign), arbeidsprosent(bruk)) || !Objects.equals(sammenlign.getGraderingAktivitetType(),
+                bruk.getGraderingAktivitetType()) || !Objects.equals(sammenlign.getArbeidsgiver(), bruk.getArbeidsgiver()))) {
             graderingTekst(bruk).ifPresent(t -> builder.append(", Gradering: ").append(t));
         }
         if (!Objects.equals(samtidigUttaksprosent(sammenlign), samtidigUttaksprosent(bruk))) {
@@ -207,14 +206,11 @@ public class FaktaUttakHistorikkinnslagTjeneste {
     private record Endring(String intro, String tekstFra, String tekstTil) {}
 
     private static boolean erLikePerioder(OppgittPeriodeEntitet før, OppgittPeriodeEntitet etter) {
-        return Objects.equals(før, etter) || (Objects.equals(før.getPeriodeType(), etter.getPeriodeType()) &&
-            Objects.equals(før.getÅrsak(), etter.getÅrsak()) &&
-            Objects.equals(arbeidsprosent(før), arbeidsprosent(etter)) &&
-            Objects.equals(før.getArbeidsgiver(), etter.getArbeidsgiver()) &&
-            Objects.equals(før.getGraderingAktivitetType(), etter.getGraderingAktivitetType()) &&
-            Objects.equals(samtidigUttaksprosent(før), samtidigUttaksprosent(etter)) &&
-            Objects.equals(før.isFlerbarnsdager(), etter.isFlerbarnsdager()) &&
-            Objects.equals(før.getMorsAktivitet(), etter.getMorsAktivitet()));
+        return Objects.equals(før, etter) || Objects.equals(før.getPeriodeType(), etter.getPeriodeType()) && Objects.equals(før.getÅrsak(),
+            etter.getÅrsak()) && Objects.equals(arbeidsprosent(før), arbeidsprosent(etter)) && Objects.equals(før.getArbeidsgiver(),
+            etter.getArbeidsgiver()) && Objects.equals(før.getGraderingAktivitetType(), etter.getGraderingAktivitetType()) && Objects.equals(
+            samtidigUttaksprosent(før), samtidigUttaksprosent(etter)) && Objects.equals(før.isFlerbarnsdager(), etter.isFlerbarnsdager())
+            && Objects.equals(før.getMorsAktivitet(), etter.getMorsAktivitet());
     }
 
     private static SamtidigUttaksprosent samtidigUttaksprosent(OppgittPeriodeEntitet periode) {

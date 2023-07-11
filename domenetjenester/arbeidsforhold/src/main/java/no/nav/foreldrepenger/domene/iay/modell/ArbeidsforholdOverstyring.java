@@ -114,9 +114,8 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
     }
 
     void setNyArbeidsforholdRef(InternArbeidsforholdRef nyArbeidsforholdRef) {
-        this.nyArbeidsforholdRef = (nyArbeidsforholdRef != null) && !InternArbeidsforholdRef.nullRef().equals(nyArbeidsforholdRef)
-                ? nyArbeidsforholdRef
-                : null;
+        this.nyArbeidsforholdRef =
+            nyArbeidsforholdRef != null && !InternArbeidsforholdRef.nullRef().equals(nyArbeidsforholdRef) ? nyArbeidsforholdRef : null;
     }
 
     public Optional<BekreftetPermisjon> getBekreftetPermisjon() {
@@ -132,8 +131,8 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
 
     public boolean erOverstyrt() {
         return !Objects.equals(ArbeidsforholdHandlingType.BRUK, handling)
-                || (Objects.equals(ArbeidsforholdHandlingType.BRUK, handling) &&
-                        !Objects.equals(bekreftetPermisjon.getStatus(), BekreftetPermisjonStatus.UDEFINERT));
+            || Objects.equals(ArbeidsforholdHandlingType.BRUK, handling) && !Objects.equals(bekreftetPermisjon.getStatus(),
+            BekreftetPermisjonStatus.UDEFINERT);
     }
 
     public boolean kreverIkkeInntektsmelding() {
@@ -151,7 +150,7 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof ArbeidsforholdOverstyring that)) {
+        if (!(o instanceof ArbeidsforholdOverstyring that)) {
             return false;
         }
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&

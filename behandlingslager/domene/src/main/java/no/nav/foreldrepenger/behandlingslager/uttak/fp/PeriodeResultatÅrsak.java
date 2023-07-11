@@ -418,7 +418,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         this.sortering = sortering;
         this.navn = navn;
         this.lovHjemmel = lovHjemmel;
-        this.utfallType = UDEFINERT_KODE.equals(kode) ? null : (Long.parseLong(kode) < 4000L ? UtfallType.INNVILGET : UtfallType.AVSLÅTT);
+        this.utfallType = UDEFINERT_KODE.equals(kode) ? null : Long.parseLong(kode) < 4000L ? UtfallType.INNVILGET : UtfallType.AVSLÅTT;
         this.uttakTyper = uttakTyper == null ? of(UTTAK) : uttakTyper;
         this.valgbarForKonto = valgbarForKonto == null ?
             of(FELLESPERIODE, MØDREKVOTE, FEDREKVOTE, FORELDREPENGER, FORELDREPENGER_FØR_FØDSEL)

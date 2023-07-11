@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlemskap.svp;
 
-import static java.util.Collections.singletonList;
-
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,7 +28,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
-    private static final List<VilkårType> STØTTEDE_VILKÅR = singletonList(VilkårType.MEDLEMSKAPSVILKÅRET);
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.MEDLEMSKAPSVILKÅRET);
 
     private final MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private final BehandlingsresultatRepository behandlingsresultatRepository;

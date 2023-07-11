@@ -6,9 +6,9 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger.UTLAND;
 
 import java.time.Period;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
@@ -141,7 +141,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
     private boolean evaluerEvtUnderkjennUtlandskeAktiviteteter(OpptjeningsvilkårMellomregning data) {
         var utlandsFilter = new Aktivitet(UTLAND, null, null);
 
-        var tidslinje = slåSammenTilFellesTidslinje(data, false, Arrays.asList(utlandsFilter));
+        var tidslinje = slåSammenTilFellesTidslinje(data, false, List.of(utlandsFilter));
 
         var maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().førsteDatoOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
 
@@ -166,7 +166,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
                 antallEkstraMånederFraTalteDager = antallEnkeltDager / MAGISK_TALL_DAGER_TIL_MÅNED;
                 antallEnkeltDager = antallEnkeltDager % MAGISK_TALL_DAGER_TIL_MÅNED;
             }
-            return Period.of(0, (antallHeleMåneder + antallEkstraGodtatteMåneder + antallEkstraMånederFraTalteDager), antallEnkeltDager);
+            return Period.of(0, antallHeleMåneder + antallEkstraGodtatteMåneder + antallEkstraMånederFraTalteDager, antallEnkeltDager);
         }
 
         /** Legg mengde telt fra angitt intervall. */

@@ -39,13 +39,13 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         var ktx = aksjonspunkterFunnetEvent.getKontekst();
         for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
             if (aksjonspunkt.erOpprettet() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(),
-                        HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
-            } else if (aksjonspunkt.erOpprettet() && (aksjonspunkt.getFristTid() != null)) {
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_KØET, null,
+                    Venteårsak.VENT_ÅPEN_BEHANDLING);
+            } else if (aksjonspunkt.erOpprettet() && aksjonspunkt.getFristTid() != null) {
                 var frist = aksjonspunkt.getFristTid();
                 var venteårsak = aksjonspunkt.getVenteårsak();
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(),
-                        HistorikkinnslagType.BEH_VENT, frist, venteårsak);
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_VENT, frist,
+                    venteårsak);
             }
         }
     }
@@ -80,10 +80,10 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
             var ktx = aksjonspunkterFunnetEvent.getKontekst();
             if (aksjonspunkt.erUtført() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.KØET_BEH_GJEN,
-                        null, null);
-            } else if (aksjonspunkt.erUtført() && (aksjonspunkt.getFristTid() != null)) {
+                    null, null);
+            } else if (aksjonspunkt.erUtført() && aksjonspunkt.getFristTid() != null) {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_GJEN, null,
-                        null);
+                    null);
             }
         }
     }

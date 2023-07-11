@@ -122,6 +122,6 @@ public class Permisjon extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return (permisjonsbeskrivelseType != null) || (periode.getFomDato() != null) || (prosentsats != null);
+        return permisjonsbeskrivelseType != null || periode.getFomDato() != null || prosentsats != null;
     }
 }

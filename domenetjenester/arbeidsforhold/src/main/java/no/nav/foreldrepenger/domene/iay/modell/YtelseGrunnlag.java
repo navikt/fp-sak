@@ -115,7 +115,7 @@ public class YtelseGrunnlag extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof YtelseGrunnlag that)) {
+        if (!(o instanceof YtelseGrunnlag that)) {
             return false;
         }
         return Objects.equals(arbeidskategori, that.arbeidskategori) &&

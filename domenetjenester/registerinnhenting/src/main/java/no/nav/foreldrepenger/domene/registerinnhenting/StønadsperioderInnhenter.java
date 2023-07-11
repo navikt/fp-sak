@@ -144,9 +144,9 @@ public class StønadsperioderInnhenter {
         // Sak med senere starttidspunkt eller tilfelle der Mor begynner Barn2 før Far begynner Barn1.
         // Men skal ikke slå til på koblet sak eller andre saker for samme barn eller saker for tidligere barn.
         // Krever at mulig sak har FamilieHendelse 12 uker etter sak det sjekkes mot - kan justeres
-        return muligSak.startdato().isAfter(egenSak.startdato()) ||
-            (egenSak.fhdato() != null && muligSak.fhdato() != null &&
-                muligSak.fhdato().minusWeeks(6).isAfter(egenSak.fhdato().plusWeeks(6)));
+        return muligSak.startdato().isAfter(egenSak.startdato()) || egenSak.fhdato() != null && muligSak.fhdato() != null && muligSak.fhdato()
+            .minusWeeks(6)
+            .isAfter(egenSak.fhdato().plusWeeks(6));
     }
 
     private Set<MuligSak> utledEgneMuligeSaker(Behandling behandling, MuligSak egenSak) {
@@ -155,8 +155,8 @@ public class StønadsperioderInnhenter {
         // SVP->SVP + FP->FP + SVP->FP. Ser ikke på FP->SVP ettersom det ikke opphører rett til FP forrige barn. Skal være sak med vedtak
         Set<MuligSak> egneMuligeSaker = new HashSet<>();
         alleEgneSaker.stream()
-            .filter(f -> f.getYtelseType().equals(aktuellType) ||
-                (FagsakYtelseType.SVANGERSKAPSPENGER.equals(aktuellType) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType())))
+            .filter(f -> f.getYtelseType().equals(aktuellType)
+                || FagsakYtelseType.SVANGERSKAPSPENGER.equals(aktuellType) && FagsakYtelseType.FORELDREPENGER.equals(f.getYtelseType()))
             .filter(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).isPresent())
             .flatMap(f -> opprettMuligSak(behandling, f, SaksForhold.EGEN_SAK).stream())
             .forEach(egneMuligeSaker::add);

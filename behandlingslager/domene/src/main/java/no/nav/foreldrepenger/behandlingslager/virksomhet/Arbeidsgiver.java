@@ -107,10 +107,12 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof Arbeidsgiver that))
+        }
+        if (!(o instanceof Arbeidsgiver that)) {
             return false;
+        }
         return Objects.equals(getOrgnr(), that.getOrgnr()) &&
             Objects.equals(getAktørId(), that.getAktørId());
     }

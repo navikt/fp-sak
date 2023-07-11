@@ -64,7 +64,8 @@ public class OppholdTjeneste {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingRef, behandlingRef.getSkjæringstidspunkt().getSkjæringstidspunktOpptjening());
         List<Opphold> oppholdListe = new ArrayList<>();
         inntektsmeldinger.stream()
-            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && (inntektsmelding.getArbeidsforholdRef().gjelderFor(internRef)))
+            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver) && inntektsmelding.getArbeidsforholdRef()
+                .gjelderFor(internRef))
             .flatMap(inntektsmelding -> inntektsmelding.getUtsettelsePerioder().stream())
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .forEach(utsettelse -> oppholdListe.addAll(Opphold.opprett(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(), SvpOppholdÅrsak.FERIE)));

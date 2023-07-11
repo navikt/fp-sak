@@ -168,7 +168,7 @@ public class SvangerskapspengerTjeneste {
 
     private Optional<Inntektsmelding> finnIMForArbeidsforhold(List<Inntektsmelding> inntektsmeldinger, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef) {
         return inntektsmeldinger.stream()
-            .filter(im -> im.getArbeidsgiver().equals(arbeidsgiver) && (im.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef)))
+            .filter(im -> im.getArbeidsgiver().equals(arbeidsgiver) && im.getArbeidsforholdRef().gjelderFor(internArbeidsforholdRef))
             .findFirst();
     }
 

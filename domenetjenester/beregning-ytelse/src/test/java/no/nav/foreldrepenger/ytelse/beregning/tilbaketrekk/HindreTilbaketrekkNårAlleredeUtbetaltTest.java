@@ -103,19 +103,19 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET2);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
             assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1400);
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET2);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET1);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
     }
 
@@ -164,13 +164,13 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER2);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER2);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
             assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1500);
         });
         assertThat(p0andeler).anySatisfy(andel -> {
@@ -220,11 +220,11 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getDagsats()).as("dagsats").isEqualTo(forventetDagsats);
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
             assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(forventetDagsats);
         });
 
@@ -235,8 +235,8 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p1andeler).hasSize(2);
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
-            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isZero();
         });
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -295,7 +295,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -321,7 +321,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -331,7 +331,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -395,7 +395,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -431,7 +431,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER1);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -441,7 +441,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER2);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -451,7 +451,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsgiver().get()).isSameAs(ARBEIDSGIVER3);
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -517,7 +517,7 @@ class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getArbeidsforholdRef()).isEqualTo(InternArbeidsforholdRef.nullRef());
-            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsats()).as("dagsats").isZero();
         });
     }
 

@@ -193,8 +193,8 @@ public class MottattDokument extends BaseEntitet {
     }
 
     public boolean erSøknadsDokument() {
-        return (dokumentTypeId != null && (getDokumentType().erSøknadType() || getDokumentType().erEndringsSøknadType())) ||
-            DokumentKategori.SØKNAD.equals(dokumentKategori);
+        return dokumentTypeId != null && (getDokumentType().erSøknadType() || getDokumentType().erEndringsSøknadType())
+            || DokumentKategori.SØKNAD.equals(dokumentKategori);
     }
 
     public boolean erUstrukturertDokument() {

@@ -56,7 +56,7 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return (aktørId != null) || (yrkesaktiviter != null);
+        return aktørId != null || yrkesaktiviter != null;
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForNøkkel(Opptjeningsnøkkel identifikator, ArbeidType arbeidType) {

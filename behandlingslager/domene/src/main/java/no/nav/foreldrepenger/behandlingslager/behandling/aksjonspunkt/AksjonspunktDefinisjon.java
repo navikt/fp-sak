@@ -620,7 +620,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     public boolean kanSetteTotrinnBehandling() {
-        return (SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType) && !ENTRINN_VEDTAK.contains(this)) || DYNAMISK_SKJERMLENKE.contains(this);
+        return SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType) && !ENTRINN_VEDTAK.contains(this) || DYNAMISK_SKJERMLENKE.contains(this);
     }
 
     public Period getFristPeriod() {
@@ -632,7 +632,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     public VilkårType getVilkårType() {
-        return (Objects.equals(VilkårType.UDEFINERT, vilkårType) ? null : vilkårType);
+        return Objects.equals(VilkårType.UDEFINERT, vilkårType) ? null : vilkårType;
     }
 
     public Set<FagsakYtelseType> getYtelseTyper() {

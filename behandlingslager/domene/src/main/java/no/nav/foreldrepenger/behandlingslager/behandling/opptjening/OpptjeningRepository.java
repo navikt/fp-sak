@@ -111,7 +111,7 @@ public class OpptjeningRepository {
      */
     public Opptjening lagreOpptjeningsperiode(Behandling behandling, LocalDate opptjeningFom, LocalDate opptjeningTom, boolean skalBevareResultat) {
 
-        Function<Opptjening, Opptjening> oppdateringsfunksjon = (tidligereOpptjening) -> {
+        Function<Opptjening, Opptjening> oppdateringsfunksjon = tidligereOpptjening -> {
             // lager ny opptjening alltid ved ny opptjeningsperiode.
             var nyOpptjening = new Opptjening(opptjeningFom, opptjeningTom);
             if (skalBevareResultat) {
@@ -167,7 +167,7 @@ public class OpptjeningRepository {
 
         var kopiListe = duplikatSjekk(opptjeningAktiviteter);
 
-        Function<Opptjening, Opptjening> oppdateringsfunksjon = (tidligereOpptjening) -> {
+        Function<Opptjening, Opptjening> oppdateringsfunksjon = tidligereOpptjening -> {
             var ny = new Opptjening(tidligereOpptjening);
             ny.setOpptjeningAktivitet(kopiListe);
             ny.setOpptjentPeriode(opptjentPeriode);

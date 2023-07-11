@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp;
 
-import static java.util.Collections.singletonList;
-
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @ApplicationScoped
 public class VurderSvangerskapspengervilkårSteg extends InngangsvilkårStegImpl {
 
-    private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(VilkårType.SVANGERSKAPSPENGERVILKÅR);
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.SVANGERSKAPSPENGERVILKÅR);
 
     @Inject
     public VurderSvangerskapspengervilkårSteg(BehandlingRepositoryProvider repositoryProvider,

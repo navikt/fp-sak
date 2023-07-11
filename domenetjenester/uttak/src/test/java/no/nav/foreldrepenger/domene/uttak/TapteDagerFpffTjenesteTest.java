@@ -63,7 +63,7 @@ class TapteDagerFpffTjenesteTest {
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input);
 
-        assertThat(resultat).isEqualTo(0);
+        assertThat(resultat).isZero();
     }
 
     @Test
@@ -89,7 +89,7 @@ class TapteDagerFpffTjenesteTest {
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input);
 
-        assertThat(resultat).isEqualTo(0);
+        assertThat(resultat).isZero();
     }
 
     @Test
@@ -177,7 +177,7 @@ class TapteDagerFpffTjenesteTest {
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
         var resultat = tjeneste().antallTapteDagerFpff(input);
 
-        assertThat(resultat).isEqualTo(0);
+        assertThat(resultat).isZero();
     }
 
     @Test

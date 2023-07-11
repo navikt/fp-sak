@@ -86,8 +86,8 @@ public class YtelseFilter {
             if (venstreSideASkjæringstidspunkt) {
                 return periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1));
             }
-            return periode.getFomDato().isAfter(skjæringstidspunkt) ||
-                    (periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt));
+            return periode.getFomDato().isAfter(skjæringstidspunkt)
+                || periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt);
         }
         return true;
     }

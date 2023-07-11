@@ -64,8 +64,8 @@ public class IAYGrunnlagDiff {
         }
         var eksisterendeFilter = new YrkesaktivitetFilter(Optional.empty(), eksisterendeAktørArbeid).før(skjæringstidspunkt);
         var nyFilter = new YrkesaktivitetFilter(Optional.empty(), nyAktørArbeid).før(skjæringstidspunkt);
-        if ((eksisterendeFilter.getYrkesaktiviteter().size() != nyFilter.getYrkesaktiviteter().size())
-                || (eksisterendeFilter.getAnsettelsesPerioder().size() != nyFilter.getAnsettelsesPerioder().size())) {
+        if (eksisterendeFilter.getYrkesaktiviteter().size() != nyFilter.getYrkesaktiviteter().size()
+            || eksisterendeFilter.getAnsettelsesPerioder().size() != nyFilter.getAnsettelsesPerioder().size()) {
             return true;
         }
 
@@ -98,10 +98,10 @@ public class IAYGrunnlagDiff {
     }
 
     public AktørYtelseEndring endringPåAktørYtelseForAktør(Saksnummer egetSaksnummer, LocalDate skjæringstidspunkt, AktørId aktørId) {
-        Predicate<Ytelse> predikatEksklusiveTyper = ytelse -> EKSLUSIVE_TYPER.contains(ytelse.getRelatertYtelseType())
-                && ((ytelse.getSaksnummer() == null) || !ytelse.getSaksnummer().equals(egetSaksnummer));
-        Predicate<Ytelse> predikatAndreYtelseTyper = ytelse -> !EKSLUSIVE_TYPER.contains(ytelse.getRelatertYtelseType())
-                && ((ytelse.getSaksnummer() == null) || !ytelse.getSaksnummer().equals(egetSaksnummer));
+        Predicate<Ytelse> predikatEksklusiveTyper = ytelse -> EKSLUSIVE_TYPER.contains(ytelse.getRelatertYtelseType()) && (
+            ytelse.getSaksnummer() == null || !ytelse.getSaksnummer().equals(egetSaksnummer));
+        Predicate<Ytelse> predikatAndreYtelseTyper = ytelse -> !EKSLUSIVE_TYPER.contains(ytelse.getRelatertYtelseType()) && (
+            ytelse.getSaksnummer() == null || !ytelse.getSaksnummer().equals(egetSaksnummer));
         // Setter fris for å få med nye "parallelle" søknader, men unngår overlapp med
         // neste barn. Kan tunes. Annen søknad får AP når denne vedtatt
         var datoForEksklusiveTyper = LocalDate.now().isAfter(skjæringstidspunkt) ? skjæringstidspunkt.plusMonths(3L) : skjæringstidspunkt;

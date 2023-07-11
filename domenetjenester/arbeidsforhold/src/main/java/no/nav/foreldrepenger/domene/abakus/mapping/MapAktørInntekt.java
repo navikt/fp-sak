@@ -53,7 +53,7 @@ class MapAktørInntekt {
         }
 
         List<AktørInntektBuilder> map(Collection<InntekterDto> dtos) {
-            if ((dtos == null) || dtos.isEmpty()) {
+            if (dtos == null || dtos.isEmpty()) {
                 return Collections.emptyList();
             }
 
@@ -107,7 +107,7 @@ class MapAktørInntekt {
 
     static class MapTilDto {
         List<InntekterDto> map(Collection<AktørInntekt> aktørInntekt) {
-            if ((aktørInntekt == null) || aktørInntekt.isEmpty()) {
+            if (aktørInntekt == null || aktørInntekt.isEmpty()) {
                 return Collections.emptyList();
             }
             return aktørInntekt.stream().map(this::mapTilInntekt).collect(Collectors.toList());

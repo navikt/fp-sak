@@ -464,7 +464,7 @@ public class HistorikkInnslagTekstBuilder {
             totrinnsvurderinger2.sort(Comparator.comparing(HistorikkinnslagTotrinnsvurdering::getAksjonspunktSistEndret));
             var date1 = totrinnsvurderinger1.get(0).getAksjonspunktSistEndret();
             var date2 = totrinnsvurderinger2.get(0).getAksjonspunktSistEndret();
-            if ((date1 == null) || (date2 == null)) {
+            if (date1 == null || date2 == null) {
                 return -1;
             }
             return date1.isAfter(date2) ? 1 : -1;

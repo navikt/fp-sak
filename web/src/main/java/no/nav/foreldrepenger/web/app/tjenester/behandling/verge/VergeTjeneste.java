@@ -71,7 +71,8 @@ public class VergeTjeneste {
         var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         var under18År = erSøkerUnder18ar(behandlingReferanse);
 
-        if ((harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg) || SpesialBehandling.erSpesialBehandling(behandling) || iFatteVedtakEllerSenereSteg) {
+        if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)
+            || iFatteVedtakEllerSenereSteg) {
             return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.SKJUL);
         }
         if (!harRegistrertVerge && !harVergeAksjonspunkt) {

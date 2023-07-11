@@ -99,7 +99,6 @@ class FagsakTjenesteTest {
                                 .getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA)
                                 .harSammeBosted(true));
 
-        // Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); //
         // dirty, men eksponerer ikke status nå
         fagsak.setStatus(FagsakStatus.LØPENDE);
         personopplysningRepository.lagre(behandlingId, medBarnOgOppdatertKjønn);
@@ -121,10 +120,8 @@ class FagsakTjenesteTest {
     void opprettFlereFagsakerSammeBruker() {
         // Opprett en fagsak i systemet
         fagsak = lagNyFagsak();
-        fagsak.setStatus(FagsakStatus.LØPENDE);
-
-        // Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); //
         // dirty, men eksponerer ikke status nå
+        fagsak.setStatus(FagsakStatus.LØPENDE);
 
         // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
         // ikke har sak nyere enn 10 mnd:

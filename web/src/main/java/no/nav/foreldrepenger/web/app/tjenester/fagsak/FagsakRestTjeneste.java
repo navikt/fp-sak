@@ -166,9 +166,8 @@ public class FagsakRestTjeneste {
     @POST
     @Path(SOK_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Søk etter saker på saksnummer eller fødselsnummer", tags = "fagsak", summary = ("Spesifikke saker kan søkes via saksnummer. "
-        +
-        "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer."))
+    @Operation(description = "Søk etter saker på saksnummer eller fødselsnummer", tags = "fagsak", summary =
+        "Spesifikke saker kan søkes via saksnummer. " + "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer.")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
@@ -194,7 +193,7 @@ public class FagsakRestTjeneste {
     @POST
     @Path(NOTAT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagre nytt notat for sak", tags = "fagsak", summary = ("Lagre nytt notat."))
+    @Operation(description = "Lagre nytt notat for sak", tags = "fagsak", summary = "Lagre nytt notat.")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response lagreFagsakNotat(@TilpassetAbacAttributt(supplierClass = LagreFagsakNotatAbacSupplier.class)
                                      @Parameter(description = "Saksnummer og nytt notat") @Valid LagreFagsakNotatDto notatDto) {
@@ -212,7 +211,7 @@ public class FagsakRestTjeneste {
     @POST
     @Path(ENDRE_UTLAND_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Endre utlandsmerking av sak", tags = "fagsak", summary = ("Endre merking fra tidligere verdi."))
+    @Operation(description = "Endre utlandsmerking av sak", tags = "fagsak", summary = "Endre merking fra tidligere verdi.")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response endreUtlandMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class)
                                           @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {

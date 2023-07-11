@@ -43,8 +43,8 @@ public class BehandlingskontrollEventPubliserer {
     public void fireEvent(BehandlingStegOvergangEvent event) {
         var fraTilstand = event.getFraTilstand();
         var nyTilstand = event.getTilTilstand();
-        if ((fraTilstand.isEmpty() && nyTilstand.isEmpty())
-                || (fraTilstand.isPresent() && nyTilstand.isPresent() && Objects.equals(fraTilstand.get(), nyTilstand.get()))) {
+        if (fraTilstand.isEmpty() && nyTilstand.isEmpty() || fraTilstand.isPresent() && nyTilstand.isPresent() && Objects.equals(fraTilstand.get(),
+            nyTilstand.get())) {
             // ikke fyr duplikate events
             return;
         }

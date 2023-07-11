@@ -52,6 +52,6 @@ public class RegisterInnhentingIntervall {
     }
 
     private static int tilDager(Period period) {
-        return period.getDays() + (period.getMonths() * 30) + ((period.getYears() * 12) * 30);
+        return period.getDays() + period.getMonths() * 30 + period.getYears() * 12 * 30;
     }
 }

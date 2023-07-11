@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +95,7 @@ class VurderFagsystemTjenesteImplTest {
 
         var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, false, FagsakYtelseType.SVANGERSKAPSPENGER);
         var fagsak2 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_TO_ID, false, FagsakYtelseType.SVANGERSKAPSPENGER);
-        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Arrays.asList(fagsak1, fagsak2));
+        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1, fagsak2));
 
         var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         var behandling2 = Behandling.forFørstegangssøknad(fagsak2).build();
@@ -122,7 +122,7 @@ class VurderFagsystemTjenesteImplTest {
         vurderFagsystem.setStrukturertSøknad(true);
 
         var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, true, FagsakYtelseType.SVANGERSKAPSPENGER);
-        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Arrays.asList(fagsak1));
+        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1));
 
         var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         lenient().when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
@@ -143,7 +143,7 @@ class VurderFagsystemTjenesteImplTest {
         vurderFagsystem.setStrukturertSøknad(true);
 
         var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, false, FagsakYtelseType.SVANGERSKAPSPENGER);
-        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Arrays.asList(fagsak1));
+        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1));
 
         var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
@@ -165,7 +165,7 @@ class VurderFagsystemTjenesteImplTest {
         vurderFagsystem.setStrukturertSøknad(true);
 
         var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, true, FagsakYtelseType.SVANGERSKAPSPENGER);
-        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Arrays.asList(fagsak1));
+        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1));
 
         var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
@@ -186,7 +186,7 @@ class VurderFagsystemTjenesteImplTest {
         vurderFagsystem.setStrukturertSøknad(true);
 
         var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, false, FagsakYtelseType.SVANGERSKAPSPENGER);
-        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Arrays.asList(fagsak1));
+        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1));
 
         var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
@@ -208,7 +208,7 @@ class VurderFagsystemTjenesteImplTest {
 
         var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, false, FagsakYtelseType.SVANGERSKAPSPENGER);
         var fagsak2 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_TO_ID, true, FagsakYtelseType.SVANGERSKAPSPENGER);
-        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(Arrays.asList(fagsak1, fagsak2));
+        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1, fagsak2));
         var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
         var behandling2 = Behandling.forFørstegangssøknad(fagsak2).build();
         behandling1.avsluttBehandling();
@@ -266,7 +266,7 @@ class VurderFagsystemTjenesteImplTest {
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
-        assertThat(result.getSaksnummer().get()).isEqualTo(fagsak1.getSaksnummer());
+        assertThat(result.getSaksnummer()).contains(fagsak1.getSaksnummer());
     }
 
     @Test
@@ -287,7 +287,7 @@ class VurderFagsystemTjenesteImplTest {
 
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
-        assertThat(result.getSaksnummer().get()).isEqualTo(fagsak1.getSaksnummer());
+        assertThat(result.getSaksnummer()).contains(fagsak1.getSaksnummer());
     }
 
     @Test

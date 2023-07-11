@@ -31,7 +31,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var begrunnelse = "Begrunnelse";
         var dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
             begrunnelse, orgnr, null);
-        var mangler = Arrays.asList(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+        var mangler = List.of(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
 
         // Act
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler);
@@ -86,7 +86,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var begrunnelse = "Begrunnelse";
         var dto = new ManglendeOpplysningerVurderingDto(UUID.randomUUID(), ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
             begrunnelse, orgnr1, null);
-        var mangler = Arrays.asList(lagMangel(orgnr2, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+        var mangler = List.of(lagMangel(orgnr2, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
 
         // Act
         assertThrows(IllegalStateException.class, () -> ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, mangler));
@@ -102,7 +102,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var informasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, orgnr, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING);
-        var mangler = Arrays.asList(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
+        var mangler = List.of(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
 
         // Act
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, informasjonBuilder).build();
@@ -132,7 +132,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
         var ref = InternArbeidsforholdRef.nyRef().getReferanse();
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, orgnr, ref, "Dette er et navn",
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER);
-        var mangler = Arrays.asList(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
+        var mangler = List.of(lagMangel(orgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
 
         // Act
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, informasjonBuilder).build();
@@ -169,7 +169,7 @@ class ArbeidsforholdInntektsmeldingMangelMapperTest {
 
         var dto = new ManueltArbeidsforholdDto(UUID.randomUUID(), begrunnelse, nyttOrgnr, null, null,
             fom, tom, 50, ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING);
-        var mangler = Arrays.asList(lagMangel(nyttOrgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
+        var mangler = List.of(lagMangel(nyttOrgnr, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
 
         // Act
         var resultat = ArbeidsforholdInntektsmeldingMangelMapper.mapManueltArbeidsforhold(dto, mangler, nyInformasjonBuilder).build();

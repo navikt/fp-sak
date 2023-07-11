@@ -156,7 +156,7 @@ public class Ytelse extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof Ytelse that)) {
+        if (!(o instanceof Ytelse that)) {
             return false;
         }
         return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&

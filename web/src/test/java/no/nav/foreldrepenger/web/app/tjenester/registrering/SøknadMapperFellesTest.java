@@ -321,10 +321,10 @@ class SøknadMapperFellesTest {
         assertThat(egenNaering).isInstanceOf(UtenlandskOrganisasjon.class);
         assertThat(egenNaering.getVirksomhetstype().get(0).getKode()).isEqualTo(VirksomhetType.ANNEN.getKode());
         assertThat(((UtenlandskOrganisasjon) egenNaering).getRegistrertILand()).isNotNull();
-        assertThat((egenNaering).getPeriode().getFom()).isNotNull();
-        assertThat((egenNaering).getPeriode().getFom()).isEqualTo(LocalDate.now());
-        assertThat((egenNaering).getPeriode().getTom()).isNotNull();
-        assertThat((egenNaering).getPeriode().getTom()).isEqualTo(Tid.TIDENES_ENDE);
+        assertThat(egenNaering.getPeriode().getFom()).isNotNull();
+        assertThat(egenNaering.getPeriode().getFom()).isEqualTo(LocalDate.now());
+        assertThat(egenNaering.getPeriode().getTom()).isNotNull();
+        assertThat(egenNaering.getPeriode().getTom()).isEqualTo(Tid.TIDENES_ENDE);
     }
 
     @Test

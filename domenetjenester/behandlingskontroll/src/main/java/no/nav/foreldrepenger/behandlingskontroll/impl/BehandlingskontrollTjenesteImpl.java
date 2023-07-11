@@ -143,7 +143,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst,
             Collection<AksjonspunktDefinisjon> oppdaterteAksjonspunkter) {
 
-        if ((oppdaterteAksjonspunkter == null) || oppdaterteAksjonspunkter.isEmpty()) {
+        if (oppdaterteAksjonspunkter == null || oppdaterteAksjonspunkter.isEmpty()) {
             return;
         }
 
@@ -644,10 +644,10 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         }
         if (!erLikEllerTidligereSteg(modell, stegType, tidligereStegType)) {
             throw new IllegalStateException(
-                    "Kan ikke angi steg [" + tidligereStegType + "] som er etter [" + stegType + "]" + "for behandlingId " + behandling.getId());
+                "Kan ikke angi steg [" + tidligereStegType + "] som er etter [" + stegType + "]" + "for behandlingId " + behandling.getId());
         }
-        if (tidligereStegType.equals(stegType) && (behandling.getBehandlingStegStatus() != null)
-                && behandling.getBehandlingStegStatus().erVedInngang()) {
+        if (tidligereStegType.equals(stegType) && behandling.getBehandlingStegStatus() != null && behandling.getBehandlingStegStatus()
+            .erVedInngang()) {
             // Her står man allerede på steget man skal tilbakeføres, på inngang -> ingen
             // tilbakeføring gjennomføres.
             return;
@@ -658,15 +658,14 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     protected void doTilbakeføringTilTidligsteAksjonspunkt(Behandling behandling, BehandlingStegType stegType, BehandlingModell modell,
             Collection<AksjonspunktDefinisjon> oppdaterteAksjonspunkter) {
-        Consumer<BehandlingStegType> oppdaterBehandlingStegStatus = (bst) -> {
+        Consumer<BehandlingStegType> oppdaterBehandlingStegStatus = bst -> {
             var stegStatus = modell.finnStegStatusFor(bst, oppdaterteAksjonspunkter);
-            if (stegStatus.isPresent()
-                    && !(Objects.equals(stegStatus.get(), behandling.getBehandlingStegStatus())
-                            && Objects.equals(bst, behandling.getAktivtBehandlingSteg()))) {
+            if (stegStatus.isPresent() && !(Objects.equals(stegStatus.get(), behandling.getBehandlingStegStatus()) && Objects.equals(bst,
+                behandling.getAktivtBehandlingSteg()))) {
                 // er på starten av steg med endret aksjonspunkt. Ikke kjør steget her, kun
                 // oppdater
                 oppdaterEksisterendeBehandlingStegStatusVedFramføringEllerTilbakeføring(behandling, bst, stegStatus.get(),
-                        BehandlingStegStatus.TILBAKEFØRT);
+                    BehandlingStegStatus.TILBAKEFØRT);
             }
         };
 
@@ -703,8 +702,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             BehandlingStegStatus behandlingStegStatus,
             BehandlingStegStatus sluttStatusForAndreÅpneSteg) {
         oppdaterEksisterendeBehandling(behandling,
-                (beh) -> forceOppdaterBehandlingSteg(behandling, revidertStegType, behandlingStegStatus,
-                        sluttStatusForAndreÅpneSteg));
+            beh -> forceOppdaterBehandlingSteg(behandling, revidertStegType, behandlingStegStatus, sluttStatusForAndreÅpneSteg));
     }
 
     protected Behandling hentBehandling(BehandlingskontrollKontekst kontekst) {

@@ -55,9 +55,10 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
     }
 
     private boolean sjekkMotEksisterendeGsakOppgaverUtført(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream()
-                .anyMatch(ap -> (ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK) && ap.erUtført())
-                        || (ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK) && ap.erUtført()));
+        return behandling.getAksjonspunkter()
+            .stream()
+            .anyMatch(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK) && ap.erUtført()
+                || ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK) && ap.erUtført());
     }
 
     private void opprettHistorikkinnslagOmVurderingFørVedtak(Behandling behandling, OppgaveÅrsak begrunnelse,

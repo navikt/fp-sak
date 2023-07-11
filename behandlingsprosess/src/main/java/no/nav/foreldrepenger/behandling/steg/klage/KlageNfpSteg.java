@@ -53,8 +53,9 @@ public class KlageNfpSteg implements BehandlingSteg {
     private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(BehandlingskontrollKontekst kontekst) {
 
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        if ((behandling.getBehandlendeEnhet() != null)
-                && !BehandlendeEnhetTjeneste.getKlageInstans().enhetId().equals(behandling.getBehandlendeEnhet())) {
+        if (behandling.getBehandlendeEnhet() != null && !BehandlendeEnhetTjeneste.getKlageInstans()
+            .enhetId()
+            .equals(behandling.getBehandlendeEnhet())) {
             return;
         }
         var tilEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());

@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDER_INNSYN;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,7 +24,7 @@ public class ScenarioInnsynEngangsstønad {
         return new ScenarioInnsynEngangsstønad().setup(abstractTestScenario);
     }
 
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> opprettedeAksjonspunktDefinisjoner = new HashMap<>();
+    private final Map<AksjonspunktDefinisjon, BehandlingStegType> opprettedeAksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
 
     private AbstractTestScenario<?> abstractTestScenario;
 
@@ -93,7 +93,6 @@ public class ScenarioInnsynEngangsstønad {
         startSteg = null;
         lagre(abstractTestScenario.mockBehandlingRepositoryProvider());
         behandling.setId(AbstractTestScenario.nyId());
-        // Whitebox.setInternalState(behandling, "id", AbstractTestScenario.nyId());
         return behandling;
     }
 

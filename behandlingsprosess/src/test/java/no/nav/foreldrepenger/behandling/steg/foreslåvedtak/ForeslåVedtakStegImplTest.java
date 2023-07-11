@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -11,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 
 class ForeslåVedtakStegImplTest {
 
-    private ForeslåVedtakTjeneste foreslåVedtakTjeneste = mock(ForeslåVedtakTjeneste.class);
+    private final ForeslåVedtakTjeneste foreslåVedtakTjeneste = mock(ForeslåVedtakTjeneste.class);
 
     @Test
     void skalKalleTjeneste() {
@@ -28,6 +27,6 @@ class ForeslåVedtakStegImplTest {
         steg.utførSteg(kontekst);
 
         // Assert
-        verify(foreslåVedtakTjeneste).foreslåVedtak(eq(behandling));
+        verify(foreslåVedtakTjeneste).foreslåVedtak(behandling);
     }
 }

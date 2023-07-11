@@ -119,7 +119,7 @@ public class DokumentRestTjeneste {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path(DOKUMENTER_PART_PATH)
-    @Operation(description = "Henter dokumentlisten knyttet til en sak", summary = ("Oversikt over alle pdf dokumenter fra dokumentarkiv registrert for saksnummer."), tags = "dokument")
+    @Operation(description = "Henter dokumentlisten knyttet til en sak", summary = "Oversikt over alle pdf dokumenter fra dokumentarkiv registrert for saksnummer.", tags = "dokument")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Collection<DokumentDto> hentAlleDokumenterForSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummerDto) {
@@ -153,7 +153,7 @@ public class DokumentRestTjeneste {
 
     @GET
     @Path(DOKUMENT_PART_PATH)
-    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = ("Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId."), tags = "dokument")
+    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = "Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId.", tags = "dokument")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentDokument(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,

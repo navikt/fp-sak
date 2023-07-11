@@ -47,7 +47,7 @@ public enum StartpunktType implements Kodeverdi {
         }
     }
 
-    static Map<StartpunktType, Set<VilkårType>> VILKÅR_HÅNDTERT_INNEN_STARTPUNKT = new HashMap<>();
+    static final Map<StartpunktType, Set<VilkårType>> VILKÅR_HÅNDTERT_INNEN_STARTPUNKT = new HashMap<>();
     static {
         // Kontroller arbeidsforhold - ingen vilkår håndter før dette startpunktet
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.KONTROLLER_ARBEIDSFORHOLD,

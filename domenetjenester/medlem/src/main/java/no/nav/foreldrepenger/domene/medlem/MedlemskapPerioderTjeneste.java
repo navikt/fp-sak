@@ -124,18 +124,16 @@ public class MedlemskapPerioderTjeneste {
                 && (MedlemskapType.UNDER_AVKLARING.equals(periode.getMedlemskapType()) || MedlemskapKildeType.LAANEKASSEN.equals(periode.getKildeType())));
         var åpenPeriode = medlemskapPerioder.stream()
             .anyMatch(periode -> erDatoInnenforÅpenPeriode(periode.getFom(), periode.getTom(), skjæringsdato));
-        return (periodeUnderAvklaring || åpenPeriode);
+        return periodeUnderAvklaring || åpenPeriode;
     }
 
     private boolean erDatoInnenforLukketPeriode(LocalDate periodeFom, LocalDate periodeTom, LocalDate dato) {
-        return (dato != null && !periodeFom.equals(Tid.TIDENES_BEGYNNELSE) && !periodeTom.equals(Tid.TIDENES_ENDE)
-            && (dato.isAfter(periodeFom) || dato.isEqual(periodeFom))
-            && (dato.isBefore(periodeTom) || dato.isEqual(periodeTom)));
+        return dato != null && !periodeFom.equals(Tid.TIDENES_BEGYNNELSE) && !periodeTom.equals(Tid.TIDENES_ENDE) && (dato.isAfter(periodeFom)
+            || dato.isEqual(periodeFom)) && (dato.isBefore(periodeTom) || dato.isEqual(periodeTom));
     }
 
     private boolean erDatoInnenforÅpenPeriode(LocalDate periodeFom, LocalDate periodeTom, LocalDate dato) {
-        return (dato != null
-            && ((periodeTom.equals(Tid.TIDENES_ENDE) && (dato.isAfter(periodeFom) || dato.isEqual(periodeFom)))
-                || (periodeFom.equals(Tid.TIDENES_BEGYNNELSE) && (dato.isBefore(periodeTom) || dato.isEqual(periodeTom)))));
+        return dato != null && (periodeTom.equals(Tid.TIDENES_ENDE) && (dato.isAfter(periodeFom) || dato.isEqual(periodeFom))
+            || periodeFom.equals(Tid.TIDENES_BEGYNNELSE) && (dato.isBefore(periodeTom) || dato.isEqual(periodeTom)));
     }
 }

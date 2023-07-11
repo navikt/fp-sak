@@ -97,13 +97,13 @@ public class BehandlingOpprettingTjeneste {
     private Behandling opprettBehandling(Fagsak fagsak, BehandlingType behandlingType, OrganisasjonsEnhet enhet, BehandlingÅrsakType årsak,
             boolean historikk) {
         var behandling = behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingType,
-                (beh) -> {
-                    if (!BehandlingÅrsakType.UDEFINERT.equals(årsak)) {
-                        BehandlingÅrsak.builder(årsak).buildFor(beh);
-                    }
-                    beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
-                    beh.setBehandlendeEnhet(enhet);
-                });
+            beh -> {
+                if (!BehandlingÅrsakType.UDEFINERT.equals(årsak)) {
+                    BehandlingÅrsak.builder(årsak).buildFor(beh);
+                }
+                beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
+                beh.setBehandlendeEnhet(enhet);
+            });
         if (historikk) {
             opprettHistorikkinnslag(behandling, behandlingType);
         }

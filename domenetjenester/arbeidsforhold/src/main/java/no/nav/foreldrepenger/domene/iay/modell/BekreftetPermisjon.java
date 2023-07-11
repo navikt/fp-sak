@@ -45,7 +45,7 @@ public class BekreftetPermisjon {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof BekreftetPermisjon that)) {
+        if (!(o instanceof BekreftetPermisjon that)) {
             return false;
         }
         return Objects.equals(periode, that.periode)

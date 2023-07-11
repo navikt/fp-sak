@@ -132,8 +132,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             var request = initRequest(behandling, inntektArbeidYtelseGrunnlagUuid);
             var aktørId = behandling.getAktørId();
             var grunnlaget = hentOgMapGrunnlag(request, aktørId);
-            if ((grunnlaget == null) || (grunnlaget.getEksternReferanse() == null)
-                    || !grunnlaget.getEksternReferanse().equals(inntektArbeidYtelseGrunnlagUuid)) {
+            if (grunnlaget == null || grunnlaget.getEksternReferanse() == null || !grunnlaget.getEksternReferanse()
+                .equals(inntektArbeidYtelseGrunnlagUuid)) {
                 throw new IllegalStateException("Fant ikke grunnlag med referanse=" + inntektArbeidYtelseGrunnlagUuid);
             }
             return grunnlaget;

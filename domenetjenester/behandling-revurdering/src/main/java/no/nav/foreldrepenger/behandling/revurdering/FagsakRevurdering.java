@@ -48,9 +48,8 @@ class FagsakRevurdering {
     static class BehandlingAvsluttetDatoComparator implements Comparator<Behandling>, Serializable {
         @Override
         public int compare(Behandling behandling, Behandling otherBehandling) {
-            return (otherBehandling.getAvsluttetDato() != null) && (behandling.getAvsluttetDato() != null)
-                    ? otherBehandling.getAvsluttetDato().compareTo(behandling.getAvsluttetDato())
-                    : otherBehandling.getOpprettetDato().compareTo(behandling.getOpprettetDato());
+            return otherBehandling.getAvsluttetDato() != null && behandling.getAvsluttetDato() != null ? otherBehandling.getAvsluttetDato()
+                .compareTo(behandling.getAvsluttetDato()) : otherBehandling.getOpprettetDato().compareTo(behandling.getOpprettetDato());
         }
     }
 }

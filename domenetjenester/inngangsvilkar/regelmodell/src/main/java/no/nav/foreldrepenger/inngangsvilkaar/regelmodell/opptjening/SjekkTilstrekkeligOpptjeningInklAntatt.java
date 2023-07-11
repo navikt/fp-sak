@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 import java.time.LocalDate;
 import java.time.Period;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.doc.RuleOutcomeDocumentation;
@@ -48,7 +48,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
         }
 
         //TODO(OJR) burde kanskje lage et egen regelsett for SVP, da det er store forskjeller
-        if ((data.getRegelParametre().skalGodkjenneBasertPåAntatt())) {
+        if (data.getRegelParametre().skalGodkjenneBasertPåAntatt()) {
             // SVP godkjenner basert på antatt opptjening hvis behandling er før frist for inntektsrapportering.
             var fristForInntektsrapportering = beregnFristForOpptjeningsopplysninger(data);
             var skalKreveRapportertInntekt = data.getGrunnlag().behandlingsDato().isAfter(fristForInntektsrapportering);

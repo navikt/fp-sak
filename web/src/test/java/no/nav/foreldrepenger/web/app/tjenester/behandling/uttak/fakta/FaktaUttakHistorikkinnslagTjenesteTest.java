@@ -238,8 +238,8 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     }
 
     public Historikkinnslag opprettHistorikkInnslag(HistorikkInnslagTekstBuilder builder) {
-        if (!builder.getHistorikkinnslagDeler().isEmpty() || (builder.antallEndredeFelter() > 0) ||
-            builder.getErBegrunnelseEndret() || builder.getErGjeldendeFraSatt()) {
+        if (!builder.getHistorikkinnslagDeler().isEmpty() || builder.antallEndredeFelter() > 0 || builder.getErBegrunnelseEndret()
+            || builder.getErGjeldendeFraSatt()) {
 
             var innslag = new Historikkinnslag();
 

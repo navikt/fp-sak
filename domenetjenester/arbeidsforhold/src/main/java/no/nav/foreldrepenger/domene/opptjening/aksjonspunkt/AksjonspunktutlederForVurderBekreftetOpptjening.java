@@ -122,8 +122,8 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         }
         var avtaler = filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet);
         for (var aktivitetsAvtale : avtaler) {
-            if (((aktivitetsAvtale.getProsentsats() == null) || (aktivitetsAvtale.getProsentsats().getVerdi().compareTo(BigDecimal.ZERO) == 0))
-                    && opptjeningPeriode.overlapper(aktivitetsAvtale.getPeriode())) {
+            if ((aktivitetsAvtale.getProsentsats() == null || aktivitetsAvtale.getProsentsats().getVerdi().compareTo(BigDecimal.ZERO) == 0)
+                && opptjeningPeriode.overlapper(aktivitetsAvtale.getPeriode())) {
                 return true;
             }
         }
@@ -132,12 +132,12 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
 
     boolean girAksjonspunktForArbeidsforhold(YrkesaktivitetFilter filter, Long behandlingId, Yrkesaktivitet registerAktivitet,
             Yrkesaktivitet overstyrtAktivitet) {
-        if ((overstyrtAktivitet != null) && (overstyrtAktivitet.getArbeidsgiver() != null)
-                && OrgNummer.erKunstig(overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
+        if (overstyrtAktivitet != null && overstyrtAktivitet.getArbeidsgiver() != null && OrgNummer.erKunstig(
+            overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
             return true;
         }
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
-        if (opptjening.isEmpty() || (registerAktivitet == null)) {
+        if (opptjening.isEmpty() || registerAktivitet == null) {
             return false;
         }
         var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.get().getFom(), opptjening.get().getTom());

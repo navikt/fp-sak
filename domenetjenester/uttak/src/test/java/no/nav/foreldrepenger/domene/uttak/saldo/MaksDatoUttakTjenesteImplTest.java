@@ -67,8 +67,7 @@ class MaksDatoUttakTjenesteImplTest {
             new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         // Assert
-        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling)).get()).isEqualTo(
-            fellesperiode.getTom());
+        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling))).contains(fellesperiode.getTom());
     }
 
     @Test
@@ -93,8 +92,7 @@ class MaksDatoUttakTjenesteImplTest {
             new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         // Assert
-        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling)).get()).isEqualTo(
-            LocalDate.of(2019, 10, 18));
+        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling))).contains(LocalDate.of(2019, 10, 18));
     }
 
     private UttakInput input(Behandling behandling) {
@@ -126,8 +124,7 @@ class MaksDatoUttakTjenesteImplTest {
             new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
 
         // Assert
-        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling)).get()).isEqualTo(
-            LocalDate.of(2019, 10, 18));
+        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling))).contains(LocalDate.of(2019, 10, 18));
     }
 
     private void lagreStønadskonto(Behandling behandling, Stønadskonto stønadskonto) {
@@ -172,8 +169,7 @@ class MaksDatoUttakTjenesteImplTest {
 
         // Assert
         //siste uttaksdag + 2 fellesperiode + 1 mødrekvote gjenværende
-        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling)).get()).isEqualTo(
-            LocalDate.of(2019, 2, 13));
+        assertThat(maksDatoUttakTjeneste.beregnMaksDatoUttak(input(behandling))).contains(LocalDate.of(2019, 2, 13));
     }
 
 }

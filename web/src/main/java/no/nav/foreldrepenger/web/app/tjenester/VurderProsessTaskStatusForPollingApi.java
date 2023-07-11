@@ -48,9 +48,8 @@ public class VurderProsessTaskStatusForPollingApi {
         var gruppe = task.getGruppe();
         var callId = task.getPropertyValue("callId");
         var taskStatus = task.getStatus();
-        if (ProsessTaskStatus.KLAR.equals(taskStatus) ||
-            (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus) && TaskType.forProsessTask(InnhentIAYIAbakusTask.class).equals(task.taskType()) &&
-                task.getNesteKjøringEtter().isBefore(maksTidFørNesteKjøring))) {
+        if (ProsessTaskStatus.KLAR.equals(taskStatus) || ProsessTaskStatus.VENTER_SVAR.equals(taskStatus) && TaskType.forProsessTask(
+            InnhentIAYIAbakusTask.class).equals(task.taskType()) && task.getNesteKjøringEtter().isBefore(maksTidFørNesteKjøring)) {
             return ventPåKlar(gruppe, maksTidFørNesteKjøring, task, callId);
         }
         if (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus)) {

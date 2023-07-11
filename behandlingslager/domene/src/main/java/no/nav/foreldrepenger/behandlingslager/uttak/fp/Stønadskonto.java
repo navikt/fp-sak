@@ -51,7 +51,7 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj instanceof Stønadskonto other)) {
+        if (!(obj instanceof Stønadskonto other)) {
             return false;
         }
         return Objects.equals(stønadskontoType, other.stønadskontoType);

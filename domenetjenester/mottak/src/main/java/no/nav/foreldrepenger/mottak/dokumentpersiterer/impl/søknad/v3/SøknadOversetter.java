@@ -306,9 +306,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         } catch (Exception e) {
             // Intentionally empty
         }
-        LOG.info("OversettFørstegang {} {}: type {} dato {} gjeldende type {} dato {} for bId {} type {} yt {}", infix, (harBekreftetFamiliehendelse ? "bekreftet" : "søknad"),
-            søknadFamilieHendelseType.getKode(), søknadFamiliehendelseDato, gjeldendeFamilieHendelseType.getKode(), gjeldendeFamiliehendelseDato,
-            behandling.getId(), behandling.getType().getKode(), behandling.getFagsakYtelseType().getKode());
+        LOG.info("OversettFørstegang {} {}: type {} dato {} gjeldende type {} dato {} for bId {} type {} yt {}", infix,
+            harBekreftetFamiliehendelse ? "bekreftet" : "søknad", søknadFamilieHendelseType.getKode(), søknadFamiliehendelseDato,
+            gjeldendeFamilieHendelseType.getKode(), gjeldendeFamiliehendelseDato, behandling.getId(), behandling.getType().getKode(),
+            behandling.getFagsakYtelseType().getKode());
         return true;
     }
 
@@ -573,9 +574,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     // TODO: Avklare med AP om dette er rett måte å serve rettighet??? Info må uansett sjekke oppgitt fordeling for eldre tilfelle (med mindre vi kjører DB-oppdatering)
     private static boolean harOppgittUføreEllerPerioderMedAktivitetUføre(Foreldrepenger omYtelse, Boolean oppgittUføre) {
-        return (oppgittUføre != null && oppgittUføre) || omYtelse.getFordeling().getPerioder().stream()
-            .anyMatch(p -> (p instanceof Uttaksperiode uttak && erPeriodeMedAktivitetUføre(uttak.getMorsAktivitetIPerioden())) ||
-                (p instanceof Utsettelsesperiode utsettelse && erPeriodeMedAktivitetUføre(utsettelse.getMorsAktivitetIPerioden())));
+        return oppgittUføre != null && oppgittUføre || omYtelse.getFordeling()
+            .getPerioder()
+            .stream()
+            .anyMatch(p -> p instanceof Uttaksperiode uttak && erPeriodeMedAktivitetUføre(uttak.getMorsAktivitetIPerioden())
+                || p instanceof Utsettelsesperiode utsettelse && erPeriodeMedAktivitetUføre(utsettelse.getMorsAktivitetIPerioden()));
     }
 
     private static boolean erPeriodeMedAktivitetUføre(MorsAktivitetsTyper morsAktivitet) {

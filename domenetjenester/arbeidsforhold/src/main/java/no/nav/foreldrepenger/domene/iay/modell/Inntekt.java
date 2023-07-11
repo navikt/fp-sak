@@ -55,7 +55,7 @@ public class Inntekt extends BaseEntitet implements IndexKey {
         if (obj == this) {
             return true;
         }
-        if ((obj == null) || !(obj instanceof Inntekt other)) {
+        if (!(obj instanceof Inntekt other)) {
             return false;
         }
         return Objects.equals(this.getInntektsKilde(), other.getInntektsKilde())
@@ -118,7 +118,7 @@ public class Inntekt extends BaseEntitet implements IndexKey {
     }
 
     public boolean hasValues() {
-        return (arbeidsgiver != null) || (inntektsKilde != null) || (inntektspost != null);
+        return arbeidsgiver != null || inntektsKilde != null || inntektspost != null;
     }
 
 }

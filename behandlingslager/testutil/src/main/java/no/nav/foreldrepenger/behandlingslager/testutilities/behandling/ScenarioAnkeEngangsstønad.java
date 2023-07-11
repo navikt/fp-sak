@@ -4,20 +4,15 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTy
 import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_AVVIS;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehandlingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 
@@ -33,13 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
  */
 public class ScenarioAnkeEngangsstønad {
 
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> opprettedeAksjonspunktDefinisjoner = new HashMap<>();
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> utførteAksjonspunktDefinisjoner = new HashMap<>();
     private AbstractTestScenario<?> abstractTestScenario;
     private AnkeVurdering ankeVurdering;
     private Behandling ankeBehandling;
     private BehandlingStegType startSteg;
-    private AnkeVurderingResultatEntitet.Builder vurderingResultat = AnkeVurderingResultatEntitet.builder();
 
     private ScenarioAnkeEngangsstønad() {
     }
@@ -88,11 +80,7 @@ public class ScenarioAnkeEngangsstønad {
                     .buildFor(ankeBehandling);
         }
 
-        utførteAksjonspunktDefinisjoner.forEach((apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType));
-
         ankeBehandling.getAksjonspunkter().forEach(punkt -> AksjonspunktTestSupport.setTilUtført(punkt, "Test"));
-
-        opprettedeAksjonspunktDefinisjoner.forEach((apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType));
 
         if (startSteg != null) {
             InternalManipulerBehandling.forceOppdaterBehandlingSteg(ankeBehandling, startSteg);

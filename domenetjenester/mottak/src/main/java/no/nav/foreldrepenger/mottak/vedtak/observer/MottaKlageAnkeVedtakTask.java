@@ -92,7 +92,7 @@ public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
         if (KLAGE_ENDRES.contains(vurdering)) {
             lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_BESKRIVELSE);
         } else if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering)
-            || (KlageVurdering.AVVIS_KLAGE.equals(vurdering) && KlageVurdertAv.NK.equals(vurderingResultat.getKlageVurdertAv()))) {
+            || KlageVurdering.AVVIS_KLAGE.equals(vurdering) && KlageVurdertAv.NK.equals(vurderingResultat.getKlageVurdertAv())) {
             lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_UENDRET_BESKRIVELSE);
         }
     }

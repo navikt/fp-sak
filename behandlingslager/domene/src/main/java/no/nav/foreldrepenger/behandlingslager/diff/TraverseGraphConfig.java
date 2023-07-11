@@ -66,10 +66,7 @@ public class TraverseGraphConfig {
 
     public boolean isMappedField(Field fld) {
         var mods = fld.getModifiers();
-        if (Modifier.isStatic(mods) || Modifier.isTransient(mods) || Modifier.isVolatile(mods)) {
-            return false;
-        }
-        return true;
+        return !Modifier.isStatic(mods) && !Modifier.isTransient(mods) && !Modifier.isVolatile(mods);
     }
 
     public void addRootClasses(Class<?>... moreRootClasses) {
@@ -86,8 +83,7 @@ public class TraverseGraphConfig {
     }
 
     public boolean isTraverseField(final Field field) {
-        return (isOnlyCheckTrackedFields() && isChangeTrackedField(field))
-            || (!isOnlyCheckTrackedFields() && isMappedField(field));
+        return isOnlyCheckTrackedFields() && isChangeTrackedField(field) || !isOnlyCheckTrackedFields() && isMappedField(field);
     }
 
     public boolean isLeaf(Object obj) {

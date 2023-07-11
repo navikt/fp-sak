@@ -613,13 +613,13 @@ public class PersoninfoTjeneste {
         if (utenlandskAdresse == null)
             return null;
         var postlinje = hvisfinnes(utenlandskAdresse.getPostkode()) + hvisfinnes(utenlandskAdresse.getByEllerStedsnavn());
-        var sisteline = utenlandskAdresse.getAdresselinje3() != null ? postlinje + utenlandskAdresse.getLandkode()
-                : (utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getLandkode() : null);
+        var sisteline = utenlandskAdresse.getAdresselinje3() != null ?
+            postlinje + utenlandskAdresse.getLandkode() : utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getLandkode() : null;
         return Adresseinfo.builder(type)
                 .medAdresselinje1(utenlandskAdresse.getAdresselinje1())
                 .medAdresselinje2(utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getAdresselinje2().toUpperCase() : postlinje)
-                .medAdresselinje3(utenlandskAdresse.getAdresselinje3() != null ? utenlandskAdresse.getAdresselinje3().toUpperCase()
-                        : (utenlandskAdresse.getAdresselinje2() != null ? postlinje : utenlandskAdresse.getLandkode()))
+                .medAdresselinje3(utenlandskAdresse.getAdresselinje3() != null ? utenlandskAdresse.getAdresselinje3().toUpperCase() :
+                    utenlandskAdresse.getAdresselinje2() != null ? postlinje : utenlandskAdresse.getLandkode())
                 .medAdresselinje4(sisteline)
                 .medLand(utenlandskAdresse.getLandkode())
                 .build();

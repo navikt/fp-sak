@@ -48,7 +48,7 @@ public class Refusjon extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof Refusjon that)) {
+        if (!(o instanceof Refusjon that)) {
             return false;
         }
         return Objects.equals(refusjonsbeløpMnd, that.refusjonsbeløpMnd) &&

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -147,7 +146,7 @@ class TraverseEntityGraphTest {
         var differ = new DiffEntity(lagTraverserForTrackedFields());
 
         // Act
-        var diffResult = differ.diff(Arrays.asList(periode1), Arrays.asList(periode1, periode2));
+        var diffResult = differ.diff(List.of(periode1), List.of(periode1, periode2));
 
         // Assert
         assertThat(diffResult.getLeafDifferences()).hasSize(1);

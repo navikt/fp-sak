@@ -103,8 +103,8 @@ public class YrkesaktivitetBuilder {
     public AktivitetsAvtaleBuilder getAktivitetsAvtaleBuilder(DatoIntervallEntitet aktivitetsPeriode, boolean erAnsettelsesperioden) {
         var oppdater = AktivitetsAvtaleBuilder.oppdater(kladd.getAlleAktivitetsAvtaler()
                 .stream()
-                .filter(aa -> aa.matcherPeriode(aktivitetsPeriode)
-                        && (!kladd.erArbeidsforhold() || (aa.erAnsettelsesPeriode() == erAnsettelsesperioden)))
+                .filter(
+                    aa -> aa.matcherPeriode(aktivitetsPeriode) && (!kladd.erArbeidsforhold() || aa.erAnsettelsesPeriode() == erAnsettelsesperioden))
                 .findFirst());
         oppdater.medPeriode(aktivitetsPeriode);
         return oppdater;

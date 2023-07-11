@@ -128,8 +128,9 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         return yrkesaktiviteter
                 .stream()
                 .anyMatch(it -> {
-                    var erNullProsent = filter.getAktivitetsAvtalerForArbeid(it).stream()
-                            .anyMatch(aa -> (aa.getProsentsats() == null) || aa.getProsentsats().erNulltall());
+                    var erNullProsent = filter.getAktivitetsAvtalerForArbeid(it)
+                        .stream()
+                        .anyMatch(aa -> aa.getProsentsats() == null || aa.getProsentsats().erNulltall());
                     var erKunstig = it.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(it.getArbeidsgiver().getOrgnr());
                     return arbeidTypes.contains(it.getArbeidType())
                             && it.getArbeidsgiver().getIdentifikator().equals(periode.getArbeidsgiverReferanse())
@@ -152,7 +153,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
             InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder overstyrtBuilder,
             BekreftOpptjeningPeriodeDto periodeDto,
             Set<ArbeidType> arbeidType) {
-        if ((arbeidType == null) || arbeidType.isEmpty()) {
+        if (arbeidType == null || arbeidType.isEmpty()) {
             throw new IllegalStateException("Støtter ikke " + periodeDto.getAktivitetType().getKode());
         }
         YrkesaktivitetBuilder builder;

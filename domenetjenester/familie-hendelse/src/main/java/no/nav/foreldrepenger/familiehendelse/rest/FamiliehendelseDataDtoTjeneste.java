@@ -168,7 +168,7 @@ public class FamiliehendelseDataDtoTjeneste {
             antallBarnLike = Objects.equals(bekreftet.get().getAntallBarn(), overstyrt.getAntallBarn());
             fødselsdatoLike = Objects.equals(bekreftet.get().getFødselsdato(), overstyrt.getFødselsdato());
         }
-        return (antallBarnLike && fødselsdatoLike) || (bekreftet.isEmpty() && overstyrt.getBarna().isEmpty());
+        return antallBarnLike && fødselsdatoLike || bekreftet.isEmpty() && overstyrt.getBarna().isEmpty();
     }
 
     private static Optional<FamiliehendelseDto> lagAdopsjonDto(FamilieHendelseGrunnlagEntitet grunnlag) {

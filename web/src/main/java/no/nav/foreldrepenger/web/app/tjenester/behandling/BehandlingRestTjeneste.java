@@ -156,9 +156,7 @@ public class BehandlingRestTjeneste {
     @GET
     // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Deprecated
-    @Operation(description = "Hent behandling gitt id", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))
-    })
+    @Operation(description = "Hent behandling gitt id", summary = "Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført.", tags = "behandlinger", responses = {@ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
@@ -339,7 +337,7 @@ public class BehandlingRestTjeneste {
 
     @GET
     @Path(BEHANDLINGER_ALLE_PART_PATH)
-    @Operation(description = "Henter alle behandlinger basert på saksnummer", summary = ("Returnerer alle behandlinger som er tilknyttet saksnummer."), tags = "behandlinger")
+    @Operation(description = "Henter alle behandlinger basert på saksnummer", summary = "Returnerer alle behandlinger som er tilknyttet saksnummer.", tags = "behandlinger")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
 
     public List<BehandlingDto> hentBehandlinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)

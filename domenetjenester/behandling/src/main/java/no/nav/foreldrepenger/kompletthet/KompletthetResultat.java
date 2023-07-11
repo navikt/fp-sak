@@ -19,6 +19,6 @@ public record KompletthetResultat(boolean erOppfylt, LocalDateTime ventefrist, V
     }
 
     public boolean erFristUtløpt() {
-        return !erOppfylt() && (ventefrist() == null);
+        return !erOppfylt() && ventefrist() == null;
     }
 }

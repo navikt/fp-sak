@@ -88,8 +88,9 @@ public class BehandlingRelaterteYtelserMapper {
     }
 
     private static List<TilgrensendeYtelserDto> sortTilgrensendeYtelser(List<TilgrensendeYtelserDto> relatertYtelser, String relatertYtelseType) {
-        return relatertYtelser.stream().filter(tilgrensendeYtelserDto -> (relatertYtelseType.equals(tilgrensendeYtelserDto.getRelatertYtelseType())))
-                .sorted()
-                .toList();
+        return relatertYtelser.stream()
+            .filter(tilgrensendeYtelserDto -> relatertYtelseType.equals(tilgrensendeYtelserDto.getRelatertYtelseType()))
+            .sorted()
+            .toList();
     }
 }
