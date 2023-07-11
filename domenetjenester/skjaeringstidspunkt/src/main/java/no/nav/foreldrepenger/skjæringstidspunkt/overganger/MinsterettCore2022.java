@@ -41,7 +41,7 @@ public class MinsterettCore2022 {
     @Inject
     public MinsterettCore2022(@KonfigVerdi(value = PROP_NAME_DATO, required = false) LocalDate ikrafttredelse) {
         // Pass på å ikke endre dato som skal brukes i produksjon før ting er vedtatt ...
-        this.ikrafttredelseDato = (Environment.current().isProd() || ikrafttredelse == null) ? DATO_FOR_PROD : ikrafttredelse;
+        this.ikrafttredelseDato = Environment.current().isProd() || ikrafttredelse == null ? DATO_FOR_PROD : ikrafttredelse;
     }
 
     public boolean utenMinsterett(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {

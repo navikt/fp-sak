@@ -55,9 +55,10 @@ class FinnOmSøkerHarArbeidsforholdOgInntekt {
     }
 
     private static boolean periodeOverlapperMedEllerGårOver(LocalDate skjæringstidspunkt, AktivitetsAvtale aktivitetsAvtale) {
-        return (aktivitetsAvtale.getErLøpende() && aktivitetsAvtale.getPeriode().getFomDato().isBefore(skjæringstidspunkt))
-            || (aktivitetsAvtale.getPeriode().getFomDato().isBefore(skjæringstidspunkt)
-                && aktivitetsAvtale.getPeriode().getTomDato().isAfter(skjæringstidspunkt));
+        return aktivitetsAvtale.getErLøpende() && aktivitetsAvtale.getPeriode().getFomDato().isBefore(skjæringstidspunkt)
+            || aktivitetsAvtale.getPeriode().getFomDato().isBefore(skjæringstidspunkt) && aktivitetsAvtale.getPeriode()
+            .getTomDato()
+            .isAfter(skjæringstidspunkt);
     }
 
     private static boolean sjekkOmGjelderRelevantArbeidsgiverOgNærSkjæringstidspunktet(InntektFilter filter, LocalDate skjæringstidspunkt,

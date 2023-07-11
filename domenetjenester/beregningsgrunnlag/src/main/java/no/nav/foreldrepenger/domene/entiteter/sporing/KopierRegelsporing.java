@@ -72,9 +72,7 @@ public class KopierRegelsporing {
             var tidligerePeriode = finnTidligerePeriode(tidligereBgPerioder, periode);
             var regelSporinger = periode.getRegelSporinger();
             var tidligerePeriodeSporinger = tidligerePeriode.getRegelSporinger();
-            var sporinger = tidligerePeriodeSporinger.entrySet()
-                .stream()
-                .filter((e) -> !regelSporinger.containsKey(e.getKey()))
+            var sporinger = tidligerePeriodeSporinger.entrySet().stream().filter(e -> !regelSporinger.containsKey(e.getKey()))
                 .map(Map.Entry::getValue)
                 .map(BeregningsgrunnlagPeriodeRegelSporing::new)
                 .toList();

@@ -10,7 +10,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OMSORGSVILKÅRET;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,33 +30,34 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
 class RyddVilkårTyper {
 
-    private BehandlingRepository behandlingRepository;
-    private final Behandling behandling;
-    private final BehandlingskontrollKontekst kontekst;
-
-    static Map<VilkårType, Consumer<RyddVilkårTyper>> OPPRYDDER_FOR_AVKLARTE_DATA = new HashMap<>();
-    private FamilieHendelseRepository familieGrunnlagRepository;
-    private MedlemskapRepository medlemskapRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private static final Map<VilkårType, Consumer<RyddVilkårTyper>> OPPRYDDER_FOR_AVKLARTE_DATA = new EnumMap<>(VilkårType.class);
 
     static {
         OPPRYDDER_FOR_AVKLARTE_DATA.put(FØDSELSVILKÅRET_MOR,
-                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(FØDSELSVILKÅRET_FAR_MEDMOR,
-                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(ADOPSJONSVILKARET_FORELDREPENGER,
-                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(OMSORGSVILKÅRET,
-                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_2_LEDD,
-                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_4_LEDD,
-                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(MEDLEMSKAPSVILKÅRET,
-                r -> r.medlemskapRepository.slettAvklarteMedlemskapsdata(r.behandling.getId(), r.kontekst.getSkriveLås()));
+            r -> r.medlemskapRepository.slettAvklarteMedlemskapsdata(r.behandling.getId(), r.kontekst.getSkriveLås()));
     }
+
+    private final BehandlingRepository behandlingRepository;
+    private final FamilieHendelseRepository familieGrunnlagRepository;
+    private final MedlemskapRepository medlemskapRepository;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
+    private final Behandling behandling;
+
+    private final BehandlingskontrollKontekst kontekst;
 
     RyddVilkårTyper(BehandlingRepositoryProvider repositoryProvider, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();

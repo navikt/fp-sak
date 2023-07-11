@@ -33,7 +33,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
 
     public void oppdaterMedPersonIdent(PersonIdentDto dto) {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
-        Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder = memoize((aktørId) -> personinfoAdapter.hentPersoninfoForVisning(aktørId));
+        Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder = memoize(aktørId -> personinfoAdapter.hentPersoninfoForVisning(aktørId));
 
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra

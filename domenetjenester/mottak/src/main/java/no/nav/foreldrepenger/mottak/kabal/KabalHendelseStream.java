@@ -81,7 +81,7 @@ public class KabalHendelseStream implements LiveAndReadinessAware, Controllable 
 
     @Override
     public boolean isAlive() {
-        return !IS_DEPLOY || (stream != null && stream.state().isRunningOrRebalancing());
+        return !IS_DEPLOY || stream != null && stream.state().isRunningOrRebalancing();
     }
 
     @Override

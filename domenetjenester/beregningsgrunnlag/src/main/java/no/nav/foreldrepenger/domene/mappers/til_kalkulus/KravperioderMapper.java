@@ -63,8 +63,9 @@ public class KravperioderMapper {
 
     private static List<Inntektsmelding> filtrerKunRefusjon(Collection<Inntektsmelding> inntektsmeldinger) {
         return inntektsmeldinger.stream()
-            .filter(im -> (im.getRefusjonBeløpPerMnd() != null && !im.getRefusjonBeløpPerMnd().erNullEllerNulltall()) ||
-                im.getEndringerRefusjon().stream().anyMatch(e -> !e.getRefusjonsbeløp().erNullEllerNulltall()))
+            .filter(im -> im.getRefusjonBeløpPerMnd() != null && !im.getRefusjonBeløpPerMnd().erNullEllerNulltall() || im.getEndringerRefusjon()
+                .stream()
+                .anyMatch(e -> !e.getRefusjonsbeløp().erNullEllerNulltall()))
             .toList();
     }
 

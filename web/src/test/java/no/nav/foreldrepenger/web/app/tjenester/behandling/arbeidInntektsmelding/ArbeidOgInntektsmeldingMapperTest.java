@@ -130,7 +130,7 @@ class ArbeidOgInntektsmeldingMapperTest {
     void skal_teste_mapping_av_inntekter() {
         // Arrange
         var inntekt = lagInntekter(YearMonth.of(2022, 1), YearMonth.of(2022, 12), "999999999");
-        var filter = new InntektFilter(Arrays.asList(inntekt));
+        var filter = new InntektFilter(List.of(inntekt));
 
         // Act
         var inntekter = ArbeidOgInntektsmeldingMapper.mapInntekter(filter, LocalDate.of(2022, 10, 1));

@@ -94,7 +94,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         // OBS Dokumentmottak kan kopierere vedlegg fra tidligere behandlinger og disse
         // er "nyere" enn søknad som trigger ny 1gang/revurdering
         var nyesteSøknad = nyesteSøknad(mottatteDokumenterBehandling);
-        if ((nyesteSøknad == null) && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+        if (nyesteSøknad == null && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             // Må dekke tilfellet der det tidligere papirsøknad er avslått på
             // opplysningsplikt og det kommer ikke-søknad
             nyesteSøknad = nyesteSøknad(alleDokumentSak);
@@ -157,28 +157,25 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
 
     private boolean erUstrukturertEndringSøknad(MottattDokument dokument) {
         var dokumentTypeId = dokument.getDokumentType();
-        return (dokument.getPayloadXml() == null) && (dokumentTypeId != null) && dokumentTypeId.erEndringsSøknadType();
+        return dokument.getPayloadXml() == null && dokumentTypeId != null && dokumentTypeId.erEndringsSøknadType();
     }
 
     private boolean erUstrukturertEngangsstønadSøknad(MottattDokument dokument) {
         var dokumentTypeId = dokument.getDokumentType();
-        return (dokument.getPayloadXml() == null) && (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId)
-                || DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId)
-                || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+        return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId)
+            || DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
     }
 
     private boolean erUstrukturertForeldrepengerSøknad(MottattDokument dokument) {
         var dokumentTypeId = dokument.getDokumentType();
-        return (dokument.getPayloadXml() == null) &&
-                (DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.equals(dokumentTypeId)
-                        || DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)
-                        || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+        return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.equals(dokumentTypeId)
+            || DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
     }
 
     private boolean erUstrukturertSvangerskapspengerSøknad(MottattDokument dokument) {
         var dokumentTypeId = dokument.getDokumentType();
-        return (dokument.getPayloadXml() == null) &&
-                (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+        return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(
+            dokument.getDokumentKategori()));
     }
 
     private boolean henleggBehandling(Behandling behandling) {

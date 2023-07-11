@@ -246,7 +246,7 @@ class BehandlingStegVisitor {
     }
 
     private boolean erForbiInngang(BehandlingStegStatus nåBehandlingStegStatus) {
-        return (nåBehandlingStegStatus != null) && !Objects.equals(behandlingStegKonfigurasjon.getInngang(), nåBehandlingStegStatus);
+        return nåBehandlingStegStatus != null && !Objects.equals(behandlingStegKonfigurasjon.getInngang(), nåBehandlingStegStatus);
     }
 
     /**

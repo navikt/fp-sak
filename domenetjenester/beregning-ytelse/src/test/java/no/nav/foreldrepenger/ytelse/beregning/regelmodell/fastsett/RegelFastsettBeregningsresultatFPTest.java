@@ -126,7 +126,7 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("111")).toList().get(0)
                 .getDagsats()).isEqualTo(2000);
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).toList().get(0)
-                .getDagsats()).isEqualTo(0);
+                .getDagsats()).isZero();
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).toList().get(0)
                 .getDagsats()).isEqualTo(1000);
 
@@ -167,7 +167,7 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold() == null).toList().get(0).getDagsats())
                 .isEqualTo(2000);
         assertThat(brukerAndeler.stream().filter(af -> "222".equals(af.getArbeidsgiverId())).toList().get(0).getDagsats())
-                .isEqualTo(0);
+                .isZero();
 
         assertThat(arbAndeler).hasSize(1);
         assertThat(arbAndeler.stream().filter(af -> "222".equals(af.getArbeidsforhold().identifikator())).toList().get(0)
@@ -246,7 +246,7 @@ class RegelFastsettBeregningsresultatFPTest {
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("111")).toList().get(0)
                 .getDagsats()).isEqualTo(2165);
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("222")).toList().get(0)
-                .getDagsats()).isEqualTo(0);
+                .getDagsats()).isZero();
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().identifikator().equals("333")).toList().get(0)
                 .getDagsats()).isEqualTo(1002);
 

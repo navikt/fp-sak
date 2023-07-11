@@ -134,7 +134,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     public BehandlingStegModell finnNesteSteg(BehandlingStegType stegType) {
         Objects.requireNonNull(stegType, "stegType");
         var idx = indexOf(stegType);
-        if ((idx >= (steg.size() - 1)) || (idx < 0)) {
+        if (idx >= steg.size() - 1 || idx < 0) {
             return null;
         }
         return steg.get(idx + 1);
@@ -144,7 +144,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     public BehandlingStegModell finnForrigeSteg(BehandlingStegType stegType) {
         Objects.requireNonNull(stegType, "stegType");
         var idx = indexOf(stegType);
-        if ((idx > 0) && (idx < steg.size())) {
+        if (idx > 0 && idx < steg.size()) {
             return steg.get(idx - 1);
         }
         return null;
@@ -194,7 +194,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
         throw new IllegalArgumentException(
                 "Utvikler-feil: Ingen av forespurte steg er kjent i BehandlingModell: behandlingType=" + behandlingType
-                        + ", forspurteSteg=" + Arrays.asList(stegTyper)
+                        + ", forspurteSteg=" + List.of(stegTyper)
         );
     }
 
@@ -322,7 +322,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
             if (idx < 0) {
                 throw new IllegalStateException("BehandlingSteg " + stegType + ER_IKKE_DEFINERT_BLANT + steg);
             }
-            if (idx == (steg.size() - 1)) {
+            if (idx == steg.size() - 1) {
                 return Collections.emptyList();
             }
         }
@@ -367,8 +367,8 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     boolean kanFortsetteTilNeste(StegProsesseringResultat resultat) {
         var transisjon = finnTransisjon(resultat.getTransisjon()); // TODO (jol) rydd opp henleggelse. HENLEGGELSE er avbrutt, ikke
                                                                               // framoverført
-        return resultat.getNyStegStatus().kanFortsetteTilNeste()
-                || (transisjon.getMålstegHvisHopp().isPresent() && !FellesTransisjoner.HENLAGT.getId().equals(transisjon.getId()));
+        return resultat.getNyStegStatus().kanFortsetteTilNeste() || transisjon.getMålstegHvisHopp().isPresent() && !FellesTransisjoner.HENLAGT.getId()
+            .equals(transisjon.getId());
     }
 
     void leggTil(BehandlingStegType stegType, BehandlingType behandlingType, FagsakYtelseType ytelseType) {

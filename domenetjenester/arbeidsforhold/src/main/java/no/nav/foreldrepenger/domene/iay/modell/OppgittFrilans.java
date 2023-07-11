@@ -40,14 +40,12 @@ public class OppgittFrilans extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittFrilans that)) {
+        if (!(o instanceof OppgittFrilans that)) {
             return false;
         }
-        return (harInntektFraFosterhjem == that.harInntektFraFosterhjem) &&
-                (erNyoppstartet == that.erNyoppstartet) &&
-                (harNærRelasjon == that.harNærRelasjon) &&
-                Objects.equals(oppgittOpptjening, that.oppgittOpptjening) &&
-                Objects.equals(frilansoppdrag, that.frilansoppdrag);
+        return harInntektFraFosterhjem == that.harInntektFraFosterhjem && erNyoppstartet == that.erNyoppstartet
+            && harNærRelasjon == that.harNærRelasjon && Objects.equals(oppgittOpptjening, that.oppgittOpptjening) && Objects.equals(frilansoppdrag,
+            that.frilansoppdrag);
     }
 
     @Override

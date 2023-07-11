@@ -62,8 +62,7 @@ class RestApiAbacTest {
                 var parameterAnnotations = restMethode.getParameterAnnotations();
                 if (Collection.class.isAssignableFrom(parameterType)) {
                     var type = (ParameterizedType) parameter.getParameterizedType();
-                    @SuppressWarnings("rawtypes")
-                    Class<?> aClass = (Class) (type.getActualTypeArguments()[0]);
+                    @SuppressWarnings("rawtypes") Class<?> aClass = (Class) type.getActualTypeArguments()[0];
                     if (!harAbacKonfigurasjon(parameterAnnotations[0], aClass)) {
                         feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(),
                                 aClass.getSimpleName()));
@@ -93,17 +92,17 @@ class RestApiAbacTest {
     private void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
         var klasse = metode.getDeclaringClass();
         var annotation = metode.getAnnotation(BeskyttetRessurs.class);
-        if ((annotation != null) && (annotation.actionType() == ActionType.DUMMY)) {
-            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for "
-                + ActionType.class.getSimpleName());
-        } else if (annotation != null && annotation.resource().isEmpty() && annotation.resourceType() == ResourceType.DUMMY && annotation.property().isEmpty()) {
+        if (annotation != null && annotation.actionType() == ActionType.DUMMY) {
+            fail(klasse.getSimpleName() + "." + metode.getName() + " Ikke bruk DUMMY-verdi for " + ActionType.class.getSimpleName());
+        } else if (annotation != null && annotation.resource().isEmpty() && annotation.resourceType() == ResourceType.DUMMY && annotation.property()
+            .isEmpty()) {
             fail(klasse.getSimpleName() + "." + metode.getName() + " En verdi for resource må være satt!");
         } else if (annotation != null && !annotation.property().isEmpty()) {
             if (annotation.property().equals("abac.attributt.drift")) {
                 return;
             }
             fail(klasse.getSimpleName() + "." + metode.getName() + " @" + annotation.getClass().getSimpleName() + " bruker ikke-støttet property: "
-                    + annotation.property());
+                + annotation.property());
         }
     }
 

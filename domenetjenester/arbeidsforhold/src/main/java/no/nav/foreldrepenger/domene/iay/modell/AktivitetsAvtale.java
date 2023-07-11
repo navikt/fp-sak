@@ -134,7 +134,7 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof AktivitetsAvtale that)) {
+        if (!(o instanceof AktivitetsAvtale that)) {
             return false;
         }
         return Objects.equals(beskrivelse, that.beskrivelse) &&
@@ -160,11 +160,10 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return (sisteLønnsendringsdato != null) || (prosentsats != null) || (periode != null);
+        return sisteLønnsendringsdato != null || prosentsats != null || periode != null;
     }
 
     public boolean erAnsettelsesPeriode() {
-        return ((prosentsats == null) || prosentsats.erNulltall())
-                && (sisteLønnsendringsdato == null);
+        return (prosentsats == null || prosentsats.erNulltall()) && sisteLønnsendringsdato == null;
     }
 }

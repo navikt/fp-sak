@@ -56,7 +56,7 @@ class OppdragFactoryTest {
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
         assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FP);
 
-        assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);
+        assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelse);
 
         var kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
@@ -77,7 +77,7 @@ class OppdragFactoryTest {
         assertThat(resultat).hasSize(1);
         var oppdrag = resultat.get(0);
 
-        assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse, nøkkelFeriepenger);
+        assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelse, nøkkelFeriepenger);
 
         var ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
@@ -142,7 +142,7 @@ class OppdragFactoryTest {
         assertThat(resultat).hasSize(1);
         var oppdrag = resultat.get(0);
         assertThat(oppdrag.getBetalingsmottaker()).isEqualTo(arbeidsgiver);
-        assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelseTilArbeidsgiver);
+        assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelseTilArbeidsgiver);
         var kjede = oppdrag.getKjeder().get(nøkkelYtelseTilArbeidsgiver);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
         assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medYtelsePeriode(arbeidsgiversYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-102-100")).build());
@@ -172,7 +172,7 @@ class OppdragFactoryTest {
 
         var oppdragBruker = resultat.get(0);
         assertThat(oppdragBruker.getBetalingsmottaker()).isEqualTo(Betalingsmottaker.BRUKER);
-        assertThat(oppdragBruker.getKjeder().keySet()).containsOnly(nøkkelYtelseTilBruker);
+        assertThat(oppdragBruker.getKjeder()).containsOnlyKeys(nøkkelYtelseTilBruker);
         var kjede = oppdragBruker.getKjeder().get(nøkkelYtelseTilBruker);
         assertThat(kjede.getOppdragslinjer()).hasSize(2);
         assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medYtelsePeriode(brukersYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-101-101")).medOpphørFomDato(periode.getFom()).build());
@@ -180,7 +180,7 @@ class OppdragFactoryTest {
 
         var oppdragArbeidsgiver = resultat.get(1);
         assertThat(oppdragArbeidsgiver.getBetalingsmottaker()).isEqualTo(arbeidsgiver);
-        assertThat(oppdragArbeidsgiver.getKjeder().keySet()).containsOnly(nøkkelYtelseTilArbeidsgiver);
+        assertThat(oppdragArbeidsgiver.getKjeder()).containsOnlyKeys(nøkkelYtelseTilArbeidsgiver);
         var kjedeArbg = oppdragArbeidsgiver.getKjeder().get(nøkkelYtelseTilArbeidsgiver);
         assertThat(kjedeArbg.getOppdragslinjer()).hasSize(1);
         assertLik(kjedeArbg.getOppdragslinjer().get(0), OppdragLinje.builder().medYtelsePeriode(arbeidsgiversYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-102-100")).build());

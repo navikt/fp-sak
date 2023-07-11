@@ -17,7 +17,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtleder {
 
     private static boolean utledAksjonspunktVedDødfødselOgDekningsgradUlik100(int dekningsgradFraFagsakRelasjon,
             List<UidentifisertBarn> registerBarn) {
-        if ((dekningsgradFraFagsakRelasjon != DEKNINGSGRAD_80) || registerBarn.isEmpty()) {
+        if (dekningsgradFraFagsakRelasjon != DEKNINGSGRAD_80 || registerBarn.isEmpty()) {
             return false;
         }
         return registerBarn.stream().allMatch(VurderDekningsgradVedDødsfallAksjonspunktUtleder::dødeBarnetInnenDeFørsteSeksLeveuker);
@@ -27,7 +27,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtleder {
         var dødsdato = barn.getDødsdato();
         if (dødsdato.isPresent()) {
             var antallDagerLevd = DatoIntervallEntitet.fraOgMedTilOgMed(barn.getFødselsdato(), dødsdato.get()).antallDager();
-            return antallDagerLevd <= (ANTALL_DAGER_I_EN_UKE * ANTALL_LEVEUKER);
+            return antallDagerLevd <= ANTALL_DAGER_I_EN_UKE * ANTALL_LEVEUKER;
         }
         return false;
     }

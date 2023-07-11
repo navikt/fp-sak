@@ -31,7 +31,7 @@ public class BehandlingModellRepository implements AutoCloseable {
      */
     public BehandlingModell getModell(BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
         var key = cacheKey(behandlingType, fagsakYtelseType);
-        cachedModell.computeIfAbsent(key, (kode) -> byggModell(behandlingType, fagsakYtelseType));
+        cachedModell.computeIfAbsent(key, kode -> byggModell(behandlingType, fagsakYtelseType));
         return cachedModell.get(key);
     }
 

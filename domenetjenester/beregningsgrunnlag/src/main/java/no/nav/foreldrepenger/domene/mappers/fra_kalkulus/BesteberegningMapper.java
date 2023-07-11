@@ -26,7 +26,7 @@ public final class BesteberegningMapper {
         var nyEntitet = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus,
             faktaAggregat, regelSporingAggregat);
         return BeregningsgrunnlagEntitet.Builder.oppdater(nyEntitet)
-            .medBesteberegninggrunnlag((BesteberegningMapper.mapBestebergninggrunnlag(besteberegningVurderingGrunnlag)))
+            .medBesteberegninggrunnlag(BesteberegningMapper.mapBestebergninggrunnlag(besteberegningVurderingGrunnlag))
             .build();
     }
 

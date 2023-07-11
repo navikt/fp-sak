@@ -83,7 +83,8 @@ public class FamilieHendelseTjeneste {
 
     public boolean matcherFødselsSøknadMedBehandling(FamilieHendelseGrunnlagEntitet grunnlag, LocalDate termindato, LocalDate fødselsdato) {
         // Finn behandling
-        if (grunnlag == null || (termindato == null && fødselsdato == null) || !FamilieHendelseType.gjelderFødsel(grunnlag.getGjeldendeVersjon().getType())) {
+        if (grunnlag == null || termindato == null && fødselsdato == null || !FamilieHendelseType.gjelderFødsel(
+            grunnlag.getGjeldendeVersjon().getType())) {
             return false;
         }
         List<LocalDateSegment<Boolean>> søknadSegmenter = new ArrayList<>();
@@ -135,7 +136,7 @@ public class FamilieHendelseTjeneste {
     }
 
     private boolean gjelderStebarnsadopsjon(FamilieHendelseEntitet hendelse1, FamilieHendelseEntitet hendelse2) {
-        return (hendelse1.getGjelderFødsel() && hendelse2.getGjelderAdopsjon()) || (hendelse1.getGjelderAdopsjon() && hendelse2.getGjelderFødsel());
+        return hendelse1.getGjelderFødsel() && hendelse2.getGjelderAdopsjon() || hendelse1.getGjelderAdopsjon() && hendelse2.getGjelderFødsel();
     }
 
     public void oppdaterFødselPåGrunnlag(Behandling behandling, List<FødtBarnInfo> bekreftetTps) {

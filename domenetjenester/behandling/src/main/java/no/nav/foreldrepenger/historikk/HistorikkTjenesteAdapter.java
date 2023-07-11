@@ -75,8 +75,8 @@ public class HistorikkTjenesteAdapter {
     }
 
     public void opprettHistorikkInnslag(Long behandlingId, HistorikkinnslagType hisType, HistorikkAktør historikkAktør) {
-        if (!builder.getHistorikkinnslagDeler().isEmpty() || (builder.antallEndredeFelter() > 0) ||
-                builder.getErBegrunnelseEndret() || builder.getErGjeldendeFraSatt()) {
+        if (!builder.getHistorikkinnslagDeler().isEmpty() || builder.antallEndredeFelter() > 0 || builder.getErBegrunnelseEndret()
+            || builder.getErGjeldendeFraSatt()) {
 
             var innslag = new Historikkinnslag();
 

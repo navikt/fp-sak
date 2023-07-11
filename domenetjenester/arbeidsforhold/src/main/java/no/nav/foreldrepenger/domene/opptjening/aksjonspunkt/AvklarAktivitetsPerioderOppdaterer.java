@@ -163,8 +163,9 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
     }
 
     private boolean ikkeGyldigArbeidsgiverReferanse(BekreftOpptjeningPeriodeDto bekreftetAktivitet) {
-        return bekreftetAktivitet.getArbeidsgiverReferanse() == null || (!OrgNummer.erGyldigOrgnr(bekreftetAktivitet.getArbeidsgiverReferanse()) &&
-            !AktørId.erGyldigAktørId(bekreftetAktivitet.getArbeidsgiverReferanse()));
+        return bekreftetAktivitet.getArbeidsgiverReferanse() == null
+            || !OrgNummer.erGyldigOrgnr(bekreftetAktivitet.getArbeidsgiverReferanse()) && !AktørId.erGyldigAktørId(
+            bekreftetAktivitet.getArbeidsgiverReferanse());
     }
 
     private void byggHistorikkinnslag(BekreftOpptjeningPeriodeDto bekreftetAktivitet, Long behandlingId, String fraVerdi, String tilVerdi) {

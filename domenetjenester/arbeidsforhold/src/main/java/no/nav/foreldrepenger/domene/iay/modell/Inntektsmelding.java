@@ -225,13 +225,12 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
      * @return {@link Boolean}
      */
     public boolean gjelderForEtSpesifiktArbeidsforhold() {
-        return (getArbeidsforholdRef() != null) && getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold();
+        return getArbeidsforholdRef() != null && getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold();
     }
 
     public boolean gjelderSammeArbeidsforhold(Inntektsmelding annen) {
-        return getArbeidsgiver().equals(annen.getArbeidsgiver())
-                && ((getArbeidsforholdRef() == null) || (annen.getArbeidsforholdRef() == null)
-                        || ((getArbeidsforholdRef() != null) && getArbeidsforholdRef().gjelderFor(annen.getArbeidsforholdRef())));
+        return getArbeidsgiver().equals(annen.getArbeidsgiver()) && (getArbeidsforholdRef() == null || annen.getArbeidsforholdRef() == null
+            || getArbeidsforholdRef() != null && getArbeidsforholdRef().gjelderFor(annen.getArbeidsforholdRef()));
     }
 
     /**
@@ -240,8 +239,7 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
      * @param arbeidsforholdRef Intern arbeidsforhold id
      */
     void setArbeidsforholdId(InternArbeidsforholdRef arbeidsforholdRef) {
-        this.arbeidsforholdRef = (arbeidsforholdRef != null) && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdRef) ? arbeidsforholdRef
-                : null;
+        this.arbeidsforholdRef = arbeidsforholdRef != null && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdRef) ? arbeidsforholdRef : null;
     }
 
     /**
@@ -340,7 +338,7 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof Inntektsmelding entitet)) {
+        if (!(o instanceof Inntektsmelding entitet)) {
             return false;
         }
         return Objects.equals(getArbeidsgiver(), entitet.getArbeidsgiver())

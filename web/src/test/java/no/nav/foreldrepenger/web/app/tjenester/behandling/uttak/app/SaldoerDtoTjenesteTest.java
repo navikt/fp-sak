@@ -175,9 +175,9 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertKonto(fpffDto, maxDagerFPFF, 0);
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 6 * 5);
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
-        assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
+        assertKonto(fpDto, maxDagerFP, maxDagerFP - 10 * 5);
     }
 
     private void lagre(Behandlingsresultat behandlingsresultatForMor) {
@@ -289,7 +289,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Assert
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 6 * 5);
     }
 
     private Long lagre(Behandling morsBehandling) {
@@ -346,9 +346,9 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertKonto(fpffDto, maxDagerFPFF, 0);
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (15 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 15 * 5);
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
-        assertKonto(fpDto, maxDagerFP, maxDagerFP - (17 * 5));
+        assertKonto(fpDto, maxDagerFP, maxDagerFP - 17 * 5);
         //Info: ikke relevant å teste maxdato da denne datoen ikke skal være satt dersom det finnes manuelle perioder som er eneste måten en kan få en negativ saldo.
     }
 
@@ -412,11 +412,11 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertKonto(fpffDto, maxDagerFPFF, 0);
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 6 * 5);
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
-        assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
+        assertKonto(fpDto, maxDagerFP, maxDagerFP - 10 * 5);
         var fbDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER);
-        assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (10 * 5));
+        assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - 10 * 5);
 
     }
 
@@ -459,7 +459,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         // Assert
         var fbDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER);
         //5 uker mor, 4 uker som far stjeler fra mor, 1 uker der far og mor har samtidig uttak, 5 uker far
-        assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (15 * 5));
+        assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - 15 * 5);
     }
 
     private void lagreEndringsdato(Behandling behandling) {
@@ -521,26 +521,24 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(fpffDto.maxDager()).isEqualTo(maxDagerFPFF);
         assertThat(fpffDto.aktivitetSaldoDtoList()).hasSize(2);
-        assertThat(fpffDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(0);
-        assertThat(fpffDto.aktivitetSaldoDtoList().get(1).saldo()).isEqualTo(0);
+        assertThat(fpffDto.aktivitetSaldoDtoList().get(0).saldo()).isZero();
+        assertThat(fpffDto.aktivitetSaldoDtoList().get(1).saldo()).isZero();
 
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
         assertThat(mkDto.maxDager()).isEqualTo(maxDagerMK);
         assertThat(mkDto.aktivitetSaldoDtoList()).hasSize(2);
-        assertThat(mkDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(maxDagerMK - (6 * 5));
-        assertThat(mkDto.aktivitetSaldoDtoList().get(1).saldo()).isEqualTo(maxDagerMK - (6 * 5));
+        assertThat(mkDto.aktivitetSaldoDtoList().get(0).saldo()).isEqualTo(maxDagerMK - 6 * 5);
+        assertThat(mkDto.aktivitetSaldoDtoList().get(1).saldo()).isEqualTo(maxDagerMK - 6 * 5);
 
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
         assertThat(fpDto.maxDager()).isEqualTo(maxDagerFP);
         assertThat(fpDto.aktivitetSaldoDtoList()).hasSize(2);
-        var aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.aktivitetSaldoDtoList(),
-            uttakAktivitetForMor1);
-        var aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.aktivitetSaldoDtoList(),
-            uttakAktivitetForMor2);
+        var aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.aktivitetSaldoDtoList(), uttakAktivitetForMor1);
+        var aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.aktivitetSaldoDtoList(), uttakAktivitetForMor2);
         assertThat(aktivitetSaldo1).isPresent();
         assertThat(aktivitetSaldo2).isPresent();
         assertThat(aktivitetSaldo1.get().saldo()).isEqualTo(maxDagerFP - 25);
-        assertThat(aktivitetSaldo2.get().saldo()).isEqualTo(maxDagerFP - (10 * 5));
+        assertThat(aktivitetSaldo2.get().saldo()).isEqualTo(maxDagerFP - 10 * 5);
         assertThat(fpDto.saldo()).isEqualTo(maxDagerFP - 25);
     }
 
@@ -581,9 +579,9 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertKonto(fpffDto, maxDagerFPFF, 0);
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 6 * 5);
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
-        assertKonto(fpDto, maxDagerFP, maxDagerFP - (12 * 5));
+        assertKonto(fpDto, maxDagerFP, maxDagerFP - 12 * 5);
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
     }
@@ -633,9 +631,9 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertKonto(fpffDto, maxDagerFPFF, 0);
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 6 * 5);
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
-        assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
+        assertKonto(fpDto, maxDagerFP, maxDagerFP - 15 * 5);
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
     }
@@ -725,9 +723,9 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertKonto(fpffDto, maxDagerFPFF, 0);
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 6 * 5);
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
-        assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
+        assertKonto(fpDto, maxDagerFP, maxDagerFP - 15 * 5);
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
     }
@@ -779,7 +777,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var fpffDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertKonto(fpffDto, maxDagerFPFF, 0);
         var mkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE);
-        assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+        assertKonto(mkDto, maxDagerMK, maxDagerMK - 6 * 5);
         var fpDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE);
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (5 /* gradert uttak 20% 5 uker */ + 50 /* fullt uttak 10 uker */));
         var fkDto = saldoer.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE);

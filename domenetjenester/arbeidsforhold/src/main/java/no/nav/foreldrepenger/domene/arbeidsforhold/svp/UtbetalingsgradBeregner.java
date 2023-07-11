@@ -133,17 +133,15 @@ class UtbetalingsgradBeregner {
     private static LocalDateSegment<BigDecimal> regnUtUtbetalingsgrad(LocalDateInterval di,
             LocalDateSegment<BigDecimal> aareg,
             LocalDateSegment<UtbetalingsgradBeregningProsent> tilrettelegging) {
-        if ((tilrettelegging != null) && (tilrettelegging.getValue().overstyrtUtbetalingsgrad != null)) {
+        if (tilrettelegging != null && tilrettelegging.getValue().overstyrtUtbetalingsgrad != null) {
             return new LocalDateSegment<>(di, tilrettelegging.getValue().overstyrtUtbetalingsgrad);
         }
-        if ((aareg != null) && (tilrettelegging != null)) {
+        if (aareg != null && tilrettelegging != null) {
             var opprinnelig = aareg.getValue();
             var ny = tilrettelegging.getValue().stillingsprosent;
-            var sum = opprinnelig.compareTo(NULL_PROSENT) == 0 ? NULL_PROSENT
-                    : opprinnelig
-                            .subtract(ny)
-                            .divide(opprinnelig, 2, RoundingMode.HALF_UP)
-                            .multiply(HUNDRE_PROSENT);
+            var sum = opprinnelig.compareTo(NULL_PROSENT) == 0 ? NULL_PROSENT : opprinnelig.subtract(ny)
+                .divide(opprinnelig, 2, RoundingMode.HALF_UP)
+                .multiply(HUNDRE_PROSENT);
 
             // negativ sum blir satt til 0 utbetalingsgrad (Betaler ikke ut hvis man jobber
             // mer...)
@@ -160,13 +158,13 @@ class UtbetalingsgradBeregner {
 
     private static Stillingsprosent summerStillingsprosent(Stillingsprosent førsteVersjon, Stillingsprosent sisteVersjon) {
 
-        if ((førsteVersjon != null) && (førsteVersjon.getVerdi() != null) && (sisteVersjon != null) && (sisteVersjon.getVerdi() != null)) {
+        if (førsteVersjon != null && førsteVersjon.getVerdi() != null && sisteVersjon != null && sisteVersjon.getVerdi() != null) {
             return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getVerdi().add(sisteVersjon.getVerdi()))));
         }
-        if ((førsteVersjon != null) && (førsteVersjon.getVerdi() != null)) {
+        if (førsteVersjon != null && førsteVersjon.getVerdi() != null) {
             return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getVerdi())));
         }
-        if ((sisteVersjon != null) && (sisteVersjon.getVerdi() != null)) {
+        if (sisteVersjon != null && sisteVersjon.getVerdi() != null) {
             return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(sisteVersjon.getVerdi())));
         }
         return new Stillingsprosent(HUNDRE_PROSENT);
@@ -180,7 +178,7 @@ class UtbetalingsgradBeregner {
     }
 
     private static BigDecimal nullBlirTilHundre(BigDecimal verdi) {
-        return (verdi == null) || (verdi.compareTo(NULL_PROSENT) == 0) ? HUNDRE_PROSENT : verdi;
+        return verdi == null || verdi.compareTo(NULL_PROSENT) == 0 ? HUNDRE_PROSENT : verdi;
     }
 
     private static LocalDateTimeline<UtbetalingsgradBeregningProsent> byggTidsserienForSøknad(List<TilretteleggingFOM> tilretteleggingFOMListe,
@@ -191,9 +189,9 @@ class UtbetalingsgradBeregner {
         List<LocalDateSegment<UtbetalingsgradBeregningProsent>> segmenter = new ArrayList<>();
 
         for (var i = 0; i < sortert.size(); i++) {
-            if ((i == 0) && sortert.get(i).getFomDato().isAfter(jordmorsdato)) {
+            if (i == 0 && sortert.get(i).getFomDato().isAfter(jordmorsdato)) {
                 segmenter.add(new LocalDateSegment<>(jordmorsdato, sortert.get(i).getFomDato().minusDays(1),
-                        new UtbetalingsgradBeregningProsent(NULL_PROSENT, null)));
+                    new UtbetalingsgradBeregningProsent(NULL_PROSENT, null)));
             }
             segmenter.add(new LocalDateSegment<>(sortert.get(i).getFomDato(), finnSluttdato(i, sortert, termindato), finnProsent(sortert.get(i))));
         }
@@ -229,7 +227,7 @@ class UtbetalingsgradBeregner {
         BigDecimal forrigeVerdi = null;
         while (iterator.hasNext()) {
             var next = iterator.next();
-            if (TUSEN.equals(next.getValue()) && (forrigeVerdi == null)) {
+            if (TUSEN.equals(next.getValue()) && forrigeVerdi == null) {
                 segmenter.add(new LocalDateSegment<>(next.getLocalDateInterval(), NULL_PROSENT));
             } else if (TUSEN.equals(next.getValue())) {
                 segmenter.add(new LocalDateSegment<>(next.getLocalDateInterval(), forrigeVerdi));

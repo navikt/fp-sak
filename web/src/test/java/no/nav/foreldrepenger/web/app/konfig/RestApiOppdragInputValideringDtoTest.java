@@ -97,9 +97,9 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> VALIDERINGSALTERNATIVER = new HashMap<>() {
         {
-            put(String.class, asList(asList(Pattern.class, Size.class), asList(Pattern.class), singletonList(Digits.class)));
-            put(Long.class, asList(asList(Min.class, Max.class), asList(Digits.class)));
-            put(long.class, asList(asList(Min.class, Max.class), asList(Digits.class)));
+            put(String.class, asList(asList(Pattern.class, Size.class), List.of(Pattern.class), singletonList(Digits.class)));
+            put(Long.class, asList(asList(Min.class, Max.class), List.of(Digits.class)));
+            put(long.class, asList(asList(Min.class, Max.class), List.of(Digits.class)));
             put(Integer.class, singletonList(asList(Min.class, Max.class)));
             put(int.class, singletonList(asList(Min.class, Max.class)));
             put(BigDecimal.class, asList(asList(Min.class, Max.class, Digits.class),

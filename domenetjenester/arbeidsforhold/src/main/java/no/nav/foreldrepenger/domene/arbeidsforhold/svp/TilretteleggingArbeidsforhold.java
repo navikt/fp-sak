@@ -37,7 +37,7 @@ public final class TilretteleggingArbeidsforhold {
         if (this == o) {
             return true;
         }
-        if ((o == null) || (getClass() != o.getClass())) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var that = (TilretteleggingArbeidsforhold) o;

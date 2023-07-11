@@ -102,8 +102,8 @@ public class MapYtelseperioderTjeneste {
             fom = ytelse.getPeriode().getFomDato();
         }
         var tom = ytelseAnvist.getAnvistTOM();
-        if ((tom != null) && !Tid.TIDENES_ENDE.equals(tom)) {
-            if (Fagsystem.INFOTRYGD.equals(ytelse.getKilde()) && (DayOfWeek.THURSDAY.getValue() < DayOfWeek.from(tom).getValue())) {
+        if (tom != null && !Tid.TIDENES_ENDE.equals(tom)) {
+            if (Fagsystem.INFOTRYGD.equals(ytelse.getKilde()) && DayOfWeek.THURSDAY.getValue() < DayOfWeek.from(tom).getValue()) {
                 tom = tom.plusDays((long) DayOfWeek.SUNDAY.getValue() - DayOfWeek.from(tom).getValue());
             }
             return DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);

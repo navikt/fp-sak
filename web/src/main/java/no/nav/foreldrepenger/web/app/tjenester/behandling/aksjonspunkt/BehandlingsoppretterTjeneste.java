@@ -208,8 +208,8 @@ public class BehandlingsoppretterTjeneste {
 
     private boolean erLovÅOppretteNyBehandling(List<Behandling> behandlinger) {
         var ingenApenYtelsesBeh = behandlinger.stream()
-            .noneMatch(b -> (b.getType().equals(BehandlingType.REVURDERING) && !b.erAvsluttet()) || (
-                b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD) && !b.erAvsluttet()));
+            .noneMatch(b -> b.getType().equals(BehandlingType.REVURDERING) && !b.erAvsluttet()
+                || b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD) && !b.erAvsluttet());
 
         var minstEnAvsluttet = behandlinger.stream().anyMatch(Behandling::erAvsluttet);
 
@@ -217,8 +217,7 @@ public class BehandlingsoppretterTjeneste {
     }
 
     private boolean harMinstEnÅpenFørstegangsbehandling(List<Behandling> behandlinger) {
-        return behandlinger.stream()
-            .anyMatch(b -> (b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD) && !b.erAvsluttet()));
+        return behandlinger.stream().anyMatch(b -> b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD) && !b.erAvsluttet());
     }
 
     private boolean erEtterKlageGyldigValg(Long fagsakId) {

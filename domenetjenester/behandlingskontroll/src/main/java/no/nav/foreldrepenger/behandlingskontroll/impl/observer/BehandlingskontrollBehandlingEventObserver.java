@@ -49,8 +49,8 @@ public class BehandlingskontrollBehandlingEventObserver {
         var fraTilstand = event.getFraTilstand();
         var tilTilstand = event.getTilTilstand();
 
-        if ((fraTilstand.isEmpty() && tilTilstand.isEmpty())
-                || (fraTilstand.isPresent() && tilTilstand.isPresent() && Objects.equals(fraTilstand.get(), tilTilstand.get()))) {
+        if (fraTilstand.isEmpty() && tilTilstand.isEmpty() || fraTilstand.isPresent() && tilTilstand.isPresent() && Objects.equals(fraTilstand.get(),
+            tilTilstand.get())) {
             // gjør ingenting - ingen endring i steg
             return;
         }

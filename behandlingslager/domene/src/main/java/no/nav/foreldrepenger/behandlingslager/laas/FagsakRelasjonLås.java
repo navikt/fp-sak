@@ -52,7 +52,7 @@ public class FagsakRelasjonLås {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj instanceof FagsakRelasjonLås other)) {
+        if (!(obj instanceof FagsakRelasjonLås other)) {
             return false;
         }
         return Objects.equals(getFagsakRelasjonId(), other.getFagsakRelasjonId());

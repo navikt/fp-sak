@@ -60,12 +60,12 @@ public class AktørYtelse extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return (aktørId != null) || ((ytelser != null) && !ytelser.isEmpty());
+        return aktørId != null || ytelser != null && !ytelser.isEmpty();
     }
 
     YtelseBuilder getYtelseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer saksnummer) {
         var ytelse = getAlleYtelser().stream()
-                .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type) && (saksnummer.equals(ya.getSaksnummer())))
+            .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type) && saksnummer.equals(ya.getSaksnummer()))
                 .findFirst();
         return YtelseBuilder.oppdatere(ytelse).medYtelseType(type).medKilde(fagsystem).medSaksnummer(saksnummer);
     }

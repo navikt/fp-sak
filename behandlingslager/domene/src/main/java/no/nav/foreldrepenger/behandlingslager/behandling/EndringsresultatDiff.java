@@ -107,7 +107,7 @@ public class EndringsresultatDiff {
         if (Objects.equals(id1, id2)) {
             // Sporede felt kan ikke være endret dersom id-er er like
             erSporetFeltEndret = false;
-        } else if ((id1 == null && id2 != null) || (id1 != null && id2 == null)) {  // NOSONAR - false positive
+        } else if (id1 == null && id2 != null || id1 != null && id2 == null) {  // NOSONAR - false positive
             // Grunnlaget har gått fra å ikke eksistere til å eksistere -> antas alltid å være en sporbar endring
             erSporetFeltEndret = true;
         } else {
@@ -123,17 +123,10 @@ public class EndringsresultatDiff {
 
     @Override
     public String toString() {
-        return "Endringer{" +
-            "grunnlagKlasse='" + grunnlagKlasse.getSimpleName() + '\'' +
-            ", grunnlagId1=" + grunnlagId1 +
-            ", grunnlagId2=" + grunnlagId2 +
-            ", erSporedeFeltEndret=" + erSporedeFeltEndret +
-            ", antallFeltEndringer=" + Optional.ofNullable(diffResult)
+        return "Endringer{" + "grunnlagKlasse='" + grunnlagKlasse.getSimpleName() + '\'' + ", grunnlagId1=" + grunnlagId1 + ", grunnlagId2="
+            + grunnlagId2 + ", erSporedeFeltEndret=" + erSporedeFeltEndret + ", antallFeltEndringer=" + Optional.ofNullable(diffResult)
             .map(diff -> diff.getLeafDifferences().size())
-            .orElse(0) +
-            ", type=" + (children.isEmpty() ? "løvnode" : "rotnode") +
-            (children.isEmpty() ? "" : (", children=" + children)) +
-            '}' + "\n";
+            .orElse(0) + ", type=" + (children.isEmpty() ? "løvnode" : "rotnode") + (children.isEmpty() ? "" : ", children=" + children) + '}' + "\n";
     }
 
     @Override

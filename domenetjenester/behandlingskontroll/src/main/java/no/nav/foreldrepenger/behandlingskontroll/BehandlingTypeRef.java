@@ -61,7 +61,7 @@ public @interface BehandlingTypeRef {
         }
 
         public BehandlingTypeRefLiteral(BehandlingType behandlingType) {
-            this.behandlingType = (behandlingType== null ? BehandlingType.UDEFINERT : behandlingType);
+            this.behandlingType = behandlingType == null ? BehandlingType.UDEFINERT : behandlingType;
         }
 
         @Override

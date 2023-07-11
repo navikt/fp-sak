@@ -196,7 +196,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getSkjæringstidspunkt().getFørsteUttaksdatoGrunnbeløp());
         long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue).orElse(0L);
 
-        if ((grunnbeløp.getVerdi() - satsIBeregning) > 1) {
+        if (grunnbeløp.getVerdi() - satsIBeregning > 1) {
             return StartpunktType.BEREGNING;
         }
         return StartpunktType.UDEFINERT;

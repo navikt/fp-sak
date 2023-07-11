@@ -54,7 +54,7 @@ class LagOppdragTjenesteTest {
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
 
-        var input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
+        var input = lagInput(FagsakYtelseType.FORELDREPENGER, gruppertYtelse);
         //act
         var resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
@@ -65,7 +65,7 @@ class LagOppdragTjenesteTest {
         assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FP);
 
         var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
-        assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);
+        assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelse);
 
         var kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
@@ -83,7 +83,7 @@ class LagOppdragTjenesteTest {
         var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
 
-        var input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
+        var input = lagInput(FagsakYtelseType.FORELDREPENGER, gruppertYtelse);
         //act
         var resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
@@ -92,7 +92,7 @@ class LagOppdragTjenesteTest {
 
         var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
-        assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse, nøkkelFeriepenger);
+        assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelse, nøkkelFeriepenger);
 
         var ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
@@ -118,10 +118,10 @@ class LagOppdragTjenesteTest {
 
     OppdragInput lagTomInput() {
         var tomtResultat = GruppertYtelse.builder().build();
-        return lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, tomtResultat);
+        return lagInput(FagsakYtelseType.FORELDREPENGER, tomtResultat);
     }
 
-    OppdragInput lagInput(FagsakYtelseType ytelseType, FamilieYtelseType familieYtelseType, GruppertYtelse tilkjentYtelse) {
+    OppdragInput lagInput(FagsakYtelseType ytelseType, GruppertYtelse tilkjentYtelse) {
         return OppdragInput.builder()
             .medFagsakYtelseType(ytelseType)
             .medTilkjentYtelse(tilkjentYtelse)

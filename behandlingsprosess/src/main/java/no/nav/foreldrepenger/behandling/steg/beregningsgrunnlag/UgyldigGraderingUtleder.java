@@ -105,6 +105,6 @@ public class UgyldigGraderingUtleder {
             .toList();
     }
 
-    protected record ArbeidGraderingMap(String arbeidsgiverIdent, InternArbeidsforholdRefDto internRef, LocalDate startdatoGradering){};
+    protected record ArbeidGraderingMap(String arbeidsgiverIdent, InternArbeidsforholdRefDto internRef, LocalDate startdatoGradering){}
 
 }

@@ -49,6 +49,6 @@ class VurderFagsystemFellesTjenesteTest {
 
         var result = vurderFagsystemFellesTjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
-        assertThat(result.getSaksnummer().get()).isEqualTo(fagsakFødselES.getSaksnummer());
+        assertThat(result.getSaksnummer()).contains(fagsakFødselES.getSaksnummer());
     }
 }

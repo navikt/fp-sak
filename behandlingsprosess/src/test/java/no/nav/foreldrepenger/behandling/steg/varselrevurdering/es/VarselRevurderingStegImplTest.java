@@ -45,7 +45,6 @@ class VarselRevurderingStegImplTest {
     @Test
     void utførerUtenAksjonspunktVedAvvikIAntallBarn() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
-        // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
@@ -59,7 +58,6 @@ class VarselRevurderingStegImplTest {
     void utførerUtenAksjonspunktVedVedtakMellomUke26Og29() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE))
                 .build();
-        // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
@@ -73,7 +71,6 @@ class VarselRevurderingStegImplTest {
     @Test
     void varslerAutomatiskOgSetterBehandlingPåVentNårIngenBarnITps() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)).build();
-        // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
@@ -92,7 +89,6 @@ class VarselRevurderingStegImplTest {
     void utførerMedAksjonspunktVedManueltOpprettetRevurdering() {
         var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_I_LOVANDVENDELSE)).build();
         behandling.setId(behandlingId);
-        // Whitebox.setInternalState(behandling, "id", behandlingId);
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         var behandleStegResultat = steg.utførSteg(kontekst);

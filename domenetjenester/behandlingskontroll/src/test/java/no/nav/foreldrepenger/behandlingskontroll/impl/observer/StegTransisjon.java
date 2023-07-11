@@ -27,8 +27,7 @@ public class StegTransisjon {
         if (!(o instanceof StegTransisjon that)) {
             return false;
         }
-        return (transisjonType == that.transisjonType)
-                && Objects.equals(behandlingStegType, that.behandlingStegType);
+        return transisjonType == that.transisjonType && Objects.equals(behandlingStegType, that.behandlingStegType);
     }
 
     @Override

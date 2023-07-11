@@ -120,7 +120,7 @@ public class OppgittOpptjening extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittOpptjening that)) {
+        if (!(o instanceof OppgittOpptjening that)) {
             return false;
         }
         return Objects.equals(oppgittArbeidsforhold, that.oppgittArbeidsforhold) &&

@@ -65,7 +65,7 @@ public class YtelseMaksdatoTjeneste {
                 }
                 var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdager(perioder, saksnummer);
                 var tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
-                if ((maksdato == null) || maksdato.isBefore(tmpMaksdato)) {
+                if (maksdato == null || maksdato.isBefore(tmpMaksdato)) {
                     maksdato = tmpMaksdato;
                 }
             }
@@ -101,7 +101,7 @@ public class YtelseMaksdatoTjeneste {
                 }
                 var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdagerForeldrepenger(perioder, behandling.getFagsak());
                 var tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
-                if ((maksdato == null) || maksdato.isBefore(tmpMaksdato)) {
+                if (maksdato == null || maksdato.isBefore(tmpMaksdato)) {
                     maksdato = tmpMaksdato;
                 }
             }
@@ -188,6 +188,6 @@ public class YtelseMaksdatoTjeneste {
 
         var uker = paddedVirkedager / virkedager_pr_uke;
         var dager = paddedVirkedager % virkedager_pr_uke;
-        return justertDatoForHelg.plusDays(((uker * dager_pr_uke) + dager) - (long) padBefore);
+        return justertDatoForHelg.plusDays((uker * dager_pr_uke + dager) - (long) padBefore);
     }
 }

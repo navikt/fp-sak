@@ -62,11 +62,11 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
         if (foedselsnummer.length() != FNR_LENGDE || !VALID.matcher(foedselsnummer).matches()) {
             return false;
         }
-        var checksumEn = FNR_LENGDE - (sum(foedselsnummer, CHECKSUM_EN_VECTOR) % FNR_LENGDE);
+        var checksumEn = FNR_LENGDE - sum(foedselsnummer, CHECKSUM_EN_VECTOR) % FNR_LENGDE;
         if (checksumEn == FNR_LENGDE) {
             checksumEn = 0;
         }
-        var checksumTo = FNR_LENGDE - (sum(foedselsnummer, CHECKSUM_TO_VECTOR) % FNR_LENGDE);
+        var checksumTo = FNR_LENGDE - sum(foedselsnummer, CHECKSUM_TO_VECTOR) % FNR_LENGDE;
         if (checksumTo == FNR_LENGDE) {
             checksumTo = 0;
         }

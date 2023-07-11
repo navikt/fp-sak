@@ -54,9 +54,12 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
         if (uttakresultat.isEmpty()) {
             return false;
         }
-        var antallAvslåtteArbeidsforhold = uttakresultat.get().getUttaksResultatArbeidsforhold().stream()
-                .filter(arbeidsforhold -> (arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak() != null) &&
-                        !arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak().equals(ArbeidsforholdIkkeOppfyltÅrsak.INGEN))
+        var antallAvslåtteArbeidsforhold = uttakresultat.get()
+            .getUttaksResultatArbeidsforhold()
+            .stream()
+            .filter(
+                arbeidsforhold -> arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak() != null && !arbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak()
+                    .equals(ArbeidsforholdIkkeOppfyltÅrsak.INGEN))
                 .count();
         if (antallAvslåtteArbeidsforhold == uttakresultat.get().getUttaksResultatArbeidsforhold().size()) {
             return true;
@@ -116,11 +119,9 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
     }
 
     private boolean erLikResPeriode(SvangerskapspengerUttakResultatPeriodeEntitet r1, SvangerskapspengerUttakResultatPeriodeEntitet r2) {
-        return Objects.equals(r1.getTidsperiode(), r2.getTidsperiode()) &&
-                Objects.equals(r1.getPeriodeIkkeOppfyltÅrsak(), r2.getPeriodeIkkeOppfyltÅrsak()) &&
-                Objects.equals(r1.getPeriodeResultatType(), r2.getPeriodeResultatType()) &&
-                (Objects.equals(r1.getUtbetalingsgrad(), r2.getUtbetalingsgrad())
-                        || (r1.getUtbetalingsgrad().compareTo(r2.getUtbetalingsgrad()) == 0));
+        return Objects.equals(r1.getTidsperiode(), r2.getTidsperiode()) && Objects.equals(r1.getPeriodeIkkeOppfyltÅrsak(),
+            r2.getPeriodeIkkeOppfyltÅrsak()) && Objects.equals(r1.getPeriodeResultatType(), r2.getPeriodeResultatType()) && (
+            Objects.equals(r1.getUtbetalingsgrad(), r2.getUtbetalingsgrad()) || r1.getUtbetalingsgrad().compareTo(r2.getUtbetalingsgrad()) == 0);
     }
 
     private List<SvangerskapspengerUttakResultatPeriodeEntitet> finnSisteUttaksperiodePrArbeidsforhold() {

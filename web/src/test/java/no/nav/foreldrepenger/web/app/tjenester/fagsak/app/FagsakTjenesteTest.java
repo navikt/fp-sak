@@ -81,7 +81,6 @@ class FagsakTjenesteTest {
         when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(AKTØR_ID));
 
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
-        // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
         fagsak.setOpprettetTidspunkt(LocalDateTime.now());
         when(fagsakRepository.hentForBruker(AKTØR_ID)).thenReturn(Collections.singletonList(fagsak));
@@ -104,7 +103,6 @@ class FagsakTjenesteTest {
     void skal_hente_saker_på_saksreferanse() {
         var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
-        // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
         when(fagsakRepository.hentSakGittSaksnummer(SAKSNUMMER)).thenReturn(Optional.of(fagsak));
 
@@ -126,7 +124,6 @@ class FagsakTjenesteTest {
         // Arrange
         var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
-        // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
         var view = tjeneste.søkFagsakDto(valueOf(SAKSNUMMER));
 

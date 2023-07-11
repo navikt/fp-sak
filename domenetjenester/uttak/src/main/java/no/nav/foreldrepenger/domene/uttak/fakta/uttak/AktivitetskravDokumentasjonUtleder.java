@@ -85,9 +85,9 @@ public class AktivitetskravDokumentasjonUtleder {
     private boolean bareFarHarRettOgSøkerUtsettelse(OppgittPeriodeEntitet periode,
                                                     YtelseFordelingAggregat ytelseFordelingAggregat,
                                                     ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        return (Set.of(UtsettelseÅrsak.ARBEID, UtsettelseÅrsak.FERIE).contains(periode.getÅrsak()) || (UtsettelseÅrsak.FRI.equals(periode.getÅrsak())
-            && MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet()))) && !harAnnenForelderRett(ytelseFordelingAggregat,
-            foreldrepengerGrunnlag);
+        return (Set.of(UtsettelseÅrsak.ARBEID, UtsettelseÅrsak.FERIE).contains(periode.getÅrsak())
+            || UtsettelseÅrsak.FRI.equals(periode.getÅrsak()) && MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet()))
+            && !harAnnenForelderRett(ytelseFordelingAggregat, foreldrepengerGrunnlag);
     }
 
     private boolean helePeriodenErHelg(OppgittPeriodeEntitet periode) {

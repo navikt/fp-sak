@@ -1,5 +1,28 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +46,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kontrakter.fordel.*;
+import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
+import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -38,25 +68,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.function.Function;
 
 /**
  * Mottar dokumenter fra f.eks. FPFORDEL og håndterer dispatch internt for
@@ -126,7 +137,7 @@ public class FordelRestTjeneste {
     @Path("/fagsak/informasjon")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Informasjon om en fagsak", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
+    @Operation(description = "Informasjon om en fagsak", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public FagsakInfomasjonDto fagsak(@Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
         ensureCallId();
@@ -151,7 +162,7 @@ public class FordelRestTjeneste {
     @Path("/fagsak/opprett")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
+    @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
         ensureCallId();
@@ -173,7 +184,7 @@ public class FordelRestTjeneste {
     @Path("/fagsak/opprett/v2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
+    @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public SaksnummerDto opprettSakv2(@TilpassetAbacAttributt(supplierClass = AktørIdDataSupplier.class) @Parameter(description = "Oppretter fagsak") @Valid OpprettSakV2Dto opprettSakDto) {
         ensureCallId();
@@ -202,7 +213,7 @@ public class FordelRestTjeneste {
     @Path("/fagsak/knyttJournalpost")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Knytt journalpost til fagsak.", summary = ("Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten."), tags = "fordel")
+    @Operation(description = "Knytt journalpost til fagsak.", summary = "Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response knyttSakOgJournalpost(@Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
@@ -214,7 +225,7 @@ public class FordelRestTjeneste {
     @Path("/journalpost")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
+    @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response mottaJournalpost(@Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
         var dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
@@ -232,11 +243,7 @@ public class FordelRestTjeneste {
     @Path("/finnFagsaker")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Finn alle saker for en bruker.", summary = ("Finn alle saker for en bruker"), tags = "fordel",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste",
-                content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SakInfoDto.class))))
-        })
+    @Operation(description = "Finn alle saker for en bruker.", summary = "Finn alle saker for en bruker", tags = "fordel", responses = {@ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SakInfoDto.class))))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<SakInfoDto> finnAlleSakerForBruker( @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @Parameter(description = "AktørId") @Valid AktørIdDto bruker) {
         ensureCallId();

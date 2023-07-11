@@ -354,7 +354,8 @@ public class VurderFagsystemFellesUtils {
             if (erÅpenBehandlingMedSøknadRundtIM(behandling, referanseDatoForSaker)) {
                 return SorteringSaker.GRUNNLAG_MULIG_MATCH;
             }
-            if ((fagsak.erÅpen() && harSakOpprettetInnenIntervallForIM(List.of(fagsak), referanseDatoForSaker)) || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
+            if (fagsak.erÅpen() && harSakOpprettetInnenIntervallForIM(List.of(fagsak), referanseDatoForSaker)
+                || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
                 return SorteringSaker.GRUNNLAG_MULIG_MATCH;
             }
             return SorteringSaker.GRUNNLAG_MISMATCH;
@@ -434,7 +435,7 @@ public class VurderFagsystemFellesUtils {
             .filter(Objects::nonNull)
             .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
             .toList();
-        if (behandlinger.isEmpty() && !sakerTilVurdering.isEmpty() && (behandlingTema != null && !BehandlingTema.UDEFINERT.equals(behandlingTema))) {
+        if (behandlinger.isEmpty() && !sakerTilVurdering.isEmpty() && behandlingTema != null && !BehandlingTema.UDEFINERT.equals(behandlingTema)) {
             // Det var oppgitt et behandlingtema men vi fant ingen passende saker som matchet oppgitt behandlingtema. Sjekker derfor alle saker
             behandlinger = sakerTilVurdering.stream()
                 .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
@@ -481,8 +482,8 @@ public class VurderFagsystemFellesUtils {
     }
 
     public static boolean erSøknad(VurderFagsystem vurderFagsystem) {
-        return (DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId())) ||
-            (DokumentKategori.SØKNAD.equals(vurderFagsystem.getDokumentKategori()));
+        return DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId()) || DokumentKategori.SØKNAD.equals(
+            vurderFagsystem.getDokumentKategori());
     }
 
     private BehandlingTema getBehandlingsTemaForFagsak(Fagsak s) {

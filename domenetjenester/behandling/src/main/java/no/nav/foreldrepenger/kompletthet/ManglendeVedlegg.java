@@ -52,7 +52,7 @@ public class ManglendeVedlegg {
         if (obj == this) {
             return true;
         }
-        if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
+        if (obj == null || !obj.getClass().equals(this.getClass())) {
             return false;
         }
         var other = (ManglendeVedlegg) obj;

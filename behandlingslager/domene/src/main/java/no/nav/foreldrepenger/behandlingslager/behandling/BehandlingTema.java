@@ -86,9 +86,8 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
     }
 
     public static boolean gjelderSammeYtelse(BehandlingTema tema1, BehandlingTema tema2) {
-        return (gjelderForeldrepenger(tema1) && gjelderForeldrepenger(tema2))
-            || (gjelderEngangsstønad(tema1) && gjelderEngangsstønad(tema2))
-            || (gjelderSvangerskapspenger(tema1) && gjelderSvangerskapspenger(tema2));
+        return gjelderForeldrepenger(tema1) && gjelderForeldrepenger(tema2) || gjelderEngangsstønad(tema1) && gjelderEngangsstønad(tema2)
+            || gjelderSvangerskapspenger(tema1) && gjelderSvangerskapspenger(tema2);
 
     }
 

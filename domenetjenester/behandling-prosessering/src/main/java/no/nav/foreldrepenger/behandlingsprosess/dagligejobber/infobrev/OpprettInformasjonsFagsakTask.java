@@ -146,7 +146,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private boolean erUkoblet(Fagsak fagsak) {
         var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
-        return relasjon.isEmpty() || (relasjon.get().getFagsakNrEn().equals(fagsak) && relasjon.get().getFagsakNrTo().isEmpty());
+        return relasjon.isEmpty() || relasjon.get().getFagsakNrEn().equals(fagsak) && relasjon.get().getFagsakNrTo().isEmpty();
     }
 
     private Optional<LocalDate> finnSakensFHDato(Fagsak fagsak) {

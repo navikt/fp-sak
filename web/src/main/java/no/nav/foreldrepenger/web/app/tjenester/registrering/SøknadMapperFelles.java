@@ -243,10 +243,8 @@ public class SøknadMapperFelles {
         var farSøkerType = switch (registreringDto.getRettigheter()) {
             case ANNEN_FORELDER_DOED -> FarSøkerType.ANDRE_FORELDER_DØD;
             case MANN_ADOPTERER_ALENE -> FarSøkerType.ADOPTERER_ALENE;
-            default -> (erSøknadVedFødsel(registreringDto.getErBarnetFodt(), registreringDto.getTema())
-                ? FarSøkerType.OVERTATT_OMSORG_F
-                : FarSøkerType.OVERTATT_OMSORG
-            );
+            default -> erSøknadVedFødsel(registreringDto.getErBarnetFodt(),
+                registreringDto.getTema()) ? FarSøkerType.OVERTATT_OMSORG_F : FarSøkerType.OVERTATT_OMSORG;
         };
         omsorgsovertakelseaarsaker.setKode(farSøkerType.getKode());
         return omsorgsovertakelseaarsaker;
@@ -262,12 +260,12 @@ public class SøknadMapperFelles {
 
     private static boolean erSøknadVedFødsel(Boolean erBarnetFødt, FamilieHendelseType tema) {
         var fødsel = FamilieHendelseType.FØDSEL.getKode().equals(tema.getKode());
-        return (fødsel && (TRUE.equals(erBarnetFødt)));
+        return fødsel && TRUE.equals(erBarnetFødt);
     }
 
     private static boolean erSøknadVedTermin(Boolean erBarnetFødt, FamilieHendelseType tema) {
         var fødsel = FamilieHendelseType.FØDSEL.getKode().equals(tema.getKode());
-        return (fødsel && !(TRUE.equals(erBarnetFødt))); //Barnet er ikke født ennå, termin.
+        return fødsel && !TRUE.equals(erBarnetFødt); //Barnet er ikke født ennå, termin.
     }
 
     private static boolean erSøknadVedAdopsjon(FamilieHendelseType tema) {
@@ -376,7 +374,7 @@ public class SøknadMapperFelles {
     }
 
     private static List<EgenNaering> mapEgneNæringer(EgenVirksomhetDto egenVirksomhetDto, VirksomhetTjeneste virksomhetTjeneste) {
-        if ((isNull(egenVirksomhetDto)) || isNull(egenVirksomhetDto.getVirksomheter())) {
+        if (isNull(egenVirksomhetDto) || isNull(egenVirksomhetDto.getVirksomheter())) {
             return new ArrayList<>();
         }
         return egenVirksomhetDto.getVirksomheter().stream().map(v -> mapEgenNæring(v, virksomhetTjeneste)).toList();

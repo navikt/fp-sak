@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import static java.util.Arrays.asList;
-
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 @ApplicationScoped
 public class VurderSøkersRelasjonTilBarnStegImpl extends InngangsvilkårStegImpl {
 
-    static List<VilkårType> STØTTEDE_VILKÅR = asList(
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(
             VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
             VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
             VilkårType.FØDSELSVILKÅRET_MOR,

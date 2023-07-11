@@ -81,11 +81,8 @@ public class ProsesseringAsynkTjeneste {
     }
 
     private boolean angittGruppeErFerdig(String gruppe, Map<String, ProsessTaskData> nestePerGruppe) {
-        return (gruppe != null)
-                && (nestePerGruppe.isEmpty()
-                        || ((nestePerGruppe.size() == 1)
-                                && nestePerGruppe.containsKey(gruppe)
-                                && nestePerGruppe.get(gruppe).getStatus().erKjørt()));
+        return gruppe != null && (nestePerGruppe.isEmpty() || nestePerGruppe.size() == 1 && nestePerGruppe.containsKey(gruppe) && nestePerGruppe.get(
+            gruppe).getStatus().erKjørt());
     }
 
     private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Long fagsakId, Long behandlingId, String gruppe) {

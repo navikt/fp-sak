@@ -47,8 +47,8 @@ public class FaktaOmsorgRettTjeneste {
         var erEndretBekreftetVersjon = harAvklartUdefinertEllerEndretBekreftet(harAnnenForeldreRettBekreftetVersjon, annenforelderHarRett);
 
         // Totrinns er sett hvis saksbehandler avkreftet først gang eller endret etter han bekreftet
-        return endretVurderingAvMorsUføretrygd || endretVurderingAvRettEØS || avkreftetBrukersOpplysinger ||
-            (harAnnenForeldreRettBekreftetVersjon != null && erEndretBekreftetVersjon);
+        return endretVurderingAvMorsUføretrygd || endretVurderingAvRettEØS || avkreftetBrukersOpplysinger
+            || harAnnenForeldreRettBekreftetVersjon != null && erEndretBekreftetVersjon;
     }
 
     public boolean totrinnForAleneomsorg(AksjonspunktOppdaterParameter param,
@@ -61,7 +61,7 @@ public class FaktaOmsorgRettTjeneste {
         var erEndretBekreftetVersjon = harAvklartUdefinertEllerEndretBekreftet(aleneomsorgForBarnetBekreftetVersjon, aleneomsorg);
         var avkreftetBrukersOpplysinger = harAvklartUdefinertEllerEndretBekreftet(aleneomsorgForBarnetSokVersjon, aleneomsorg);
 
-        return avkreftetBrukersOpplysinger || (aleneomsorgForBarnetBekreftetVersjon != null && erEndretBekreftetVersjon);
+        return avkreftetBrukersOpplysinger || aleneomsorgForBarnetBekreftetVersjon != null && erEndretBekreftetVersjon;
     }
 
     public void annenforelderRettHistorikkFelt(AksjonspunktOppdaterParameter param,

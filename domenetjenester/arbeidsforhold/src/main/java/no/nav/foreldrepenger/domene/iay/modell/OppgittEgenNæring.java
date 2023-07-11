@@ -177,7 +177,7 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittEgenNæring that)) {
+        if (!(o instanceof OppgittEgenNæring that)) {
             return false;
         }
         return Objects.equals(periode, that.periode) &&

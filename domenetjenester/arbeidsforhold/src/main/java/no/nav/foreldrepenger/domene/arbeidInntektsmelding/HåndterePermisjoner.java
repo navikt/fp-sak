@@ -87,7 +87,7 @@ public class HåndterePermisjoner {
 
     private static PermisjonOgMangelDto byggPermisjonOgMangelDto(Permisjon permisjon, AksjonspunktÅrsak årsak, BekreftetPermisjonStatus bekreftetPermisjonStatus) {
         return new PermisjonOgMangelDto(permisjon.getFraOgMed(),
-            (permisjon.getTilOgMed() == null) || TIDENES_ENDE.equals(permisjon.getTilOgMed()) ? null : permisjon.getTilOgMed(),
+            permisjon.getTilOgMed() == null || TIDENES_ENDE.equals(permisjon.getTilOgMed()) ? null : permisjon.getTilOgMed(),
             permisjon.getPermisjonsbeskrivelseType(), årsak, bekreftetPermisjonStatus);
     }
 
@@ -104,15 +104,14 @@ public class HåndterePermisjoner {
     }
 
     private static boolean tomErLikEllerEtterStp(LocalDate stp, Permisjon p) {
-        return (p.getTilOgMed() == null) || p.getTilOgMed().isAfter(stp) || p.getTilOgMed().isEqual(stp);
+        return p.getTilOgMed() == null || p.getTilOgMed().isAfter(stp) || p.getTilOgMed().isEqual(stp);
     }
 
 
     private static boolean erPeriodenInnenfortilretteleggingFom(Permisjon p, LocalDate tilretteleggingBehovFom) {
         if (p.getTilOgMed() != null) {
-            return p.getPeriode().getFomDato().isEqual(tilretteleggingBehovFom)
-                || p.getPeriode().getTomDato().isEqual(tilretteleggingBehovFom)
-                || (tilretteleggingBehovFom.isAfter(p.getFraOgMed()) && tilretteleggingBehovFom.isBefore(p.getTilOgMed()));
+            return p.getPeriode().getFomDato().isEqual(tilretteleggingBehovFom) || p.getPeriode().getTomDato().isEqual(tilretteleggingBehovFom)
+                || tilretteleggingBehovFom.isAfter(p.getFraOgMed()) && tilretteleggingBehovFom.isBefore(p.getTilOgMed());
         }
         return false;
     }

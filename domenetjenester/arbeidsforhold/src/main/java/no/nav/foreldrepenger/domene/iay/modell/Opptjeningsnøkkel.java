@@ -28,7 +28,7 @@ public class Opptjeningsnøkkel {
     }
 
     public Opptjeningsnøkkel(InternArbeidsforholdRef arbeidsforholdId, String orgNummer, String aktørId) {
-        if ((arbeidsforholdId == null) && (orgNummer == null) && (aktørId == null)) {
+        if (arbeidsforholdId == null && orgNummer == null && aktørId == null) {
             throw new IllegalArgumentException("Minst en av arbeidsforholdId, orgnummer og aktørId må vere ulik null");
         }
         this.arbeidsforholdId = arbeidsforholdId;
@@ -75,7 +75,7 @@ public class Opptjeningsnøkkel {
     }
 
     private boolean harArbeidsforholdId() {
-        return (this.arbeidsforholdId != null) && (this.arbeidsforholdId.getReferanse() != null);
+        return this.arbeidsforholdId != null && this.arbeidsforholdId.getReferanse() != null;
     }
 
     public Optional<InternArbeidsforholdRef> getArbeidsforholdRef() {
@@ -122,10 +122,10 @@ public class Opptjeningsnøkkel {
         if (other == null) {
             return false;
         }
-        if (((this.getType() != Type.ARBEIDSFORHOLD_ID) && (other.getType() == this.getType()))) {
+        if (this.getType() != Type.ARBEIDSFORHOLD_ID && other.getType() == this.getType()) {
             return other.getVerdi().equals(this.getVerdi());
         }
-        if (((this.getType() == Type.ARBEIDSFORHOLD_ID) && (other.getType() == this.getType()))) {
+        if (this.getType() == Type.ARBEIDSFORHOLD_ID && other.getType() == this.getType()) {
             return matchArbeidsforholdId(other);
         }
         return matchOrgEllerAktørId(other);
@@ -134,7 +134,7 @@ public class Opptjeningsnøkkel {
     private boolean matchOrgEllerAktørId(Opptjeningsnøkkel other) {
         if ((Type.ORG_NUMMER.equals(other.getType()) || Type.ORG_NUMMER.equals(this.getType()))
                 && (!other.harArbeidsforholdId() || !this.harArbeidsforholdId())) {
-            return (other.orgNummer != null) && other.orgNummer.equals(this.orgNummer);
+            return other.orgNummer != null && other.orgNummer.equals(this.orgNummer);
         }
         return Objects.equals(other.aktørId, this.aktørId);
     }
@@ -142,10 +142,10 @@ public class Opptjeningsnøkkel {
     private boolean matchArbeidsforholdId(Opptjeningsnøkkel other) {
         var likArbeidsforholdsId = other.getVerdi().equals(this.getVerdi());
         boolean likArbeidsgiver;
-        if ((other.orgNummer != null) || (this.orgNummer != null)) {
-            likArbeidsgiver = (other.orgNummer != null) && other.orgNummer.equals(this.orgNummer);
+        if (other.orgNummer != null || this.orgNummer != null) {
+            likArbeidsgiver = other.orgNummer != null && other.orgNummer.equals(this.orgNummer);
         } else {
-            likArbeidsgiver = (other.aktørId != null) && other.aktørId.equals(this.aktørId);
+            likArbeidsgiver = other.aktørId != null && other.aktørId.equals(this.aktørId);
         }
         return likArbeidsforholdsId && likArbeidsgiver;
     }
@@ -155,7 +155,7 @@ public class Opptjeningsnøkkel {
         if (obj == this) {
             return true;
         }
-        if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
+        if (obj == null || !obj.getClass().equals(this.getClass())) {
             return false;
         }
         var other = (Opptjeningsnøkkel) obj;

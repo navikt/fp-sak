@@ -43,7 +43,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
     public void observerBehandlingSteg(@Observes BehandlingTransisjonEvent transisjonEvent) {
         var behandling = serviceProvider.hentBehandling(transisjonEvent.getBehandlingId());
         var modell = getModell(behandling);
-        if (!(FellesTransisjoner.erFremhoppTransisjon(transisjonEvent.getTransisjonIdentifikator())) || !transisjonEvent.erOverhopp()) {
+        if (!FellesTransisjoner.erFremhoppTransisjon(transisjonEvent.getTransisjonIdentifikator()) || !transisjonEvent.erOverhopp()) {
             return;
         }
 
@@ -82,7 +82,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         // Lagre oppdateringer; eventhåndteringen skal være autonom og selv ferdigstille
         // oppdateringer på behandlingen
         lagre(transisjonEvent, behandling);
-        if (!avbrutte.isEmpty() && (serviceProvider.getEventPubliserer() != null)) {
+        if (!avbrutte.isEmpty() && serviceProvider.getEventPubliserer() != null) {
             serviceProvider.getEventPubliserer().fireEvent(new AksjonspunktStatusEvent(transisjonEvent.getKontekst(), avbrutte, førsteSteg));
         }
 

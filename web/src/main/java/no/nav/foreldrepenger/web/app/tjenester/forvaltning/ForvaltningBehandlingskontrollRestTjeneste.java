@@ -48,7 +48,7 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
     @POST
     @Path("/taskFortsettBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = ("Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving."), tags = "FORVALTNING-behandlingskontroll")
+    @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = "Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving.", tags = "FORVALTNING-behandlingskontroll")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response lagFortsettBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
 

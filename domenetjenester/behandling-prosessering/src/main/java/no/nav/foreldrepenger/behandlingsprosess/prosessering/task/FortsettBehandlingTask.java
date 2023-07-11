@@ -59,7 +59,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
             var gjenoppta = data.getPropertyValue(GJENOPPTA_STEG);
 
             var stegtype = getBehandlingStegType(gjenoppta);
-            if ((gjenoppta != null) || manuellFortsettelse) {
+            if (gjenoppta != null || manuellFortsettelse) {
                 if (behandling.isBehandlingPåVent()) { // Autopunkt
                     behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
                 }
@@ -76,8 +76,8 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
             // Sjekke om kan prosesserere, samt feilhåndtering vs savepoint: Ved retry av
             // feilet task som har passert gjenopptak må man fortsette.
             var tilstand = behandling.getBehandlingStegTilstand();
-            if ((gjenoppta != null) && tilstand.isPresent() && tilstand.get().getBehandlingSteg().equals(stegtype)
-                    && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
+            if (gjenoppta != null && tilstand.isPresent() && tilstand.get().getBehandlingSteg().equals(stegtype)
+                && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
                 behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, stegtype);
             } else if (!behandling.erAvsluttet()) {
                 behandlingskontrollTjeneste.prosesserBehandling(kontekst);

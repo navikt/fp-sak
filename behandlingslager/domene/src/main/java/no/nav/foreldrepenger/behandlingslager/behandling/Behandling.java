@@ -501,14 +501,9 @@ public class Behandling extends BaseEntitet {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<"
-                + (id != null ? "id=" + id + ", " : "")
-                + "fagsak=" + fagsak + ", "
-                + "status=" + status + ", "
-                + "type=" + behandlingType + ","
-                + "steg=" + (getBehandlingStegTilstand().orElse(null)) + ","
-                + "opprettetTs=" + getOpprettetTidspunkt()
-                + ">";
+        return getClass().getSimpleName() + "<" + (id != null ? "id=" + id + ", " : "") + "fagsak=" + fagsak + ", " + "status=" + status + ", "
+            + "type=" + behandlingType + "," + "steg=" + getBehandlingStegTilstand().orElse(null) + "," + "opprettetTs=" + getOpprettetTidspunkt()
+            + ">";
     }
 
     public NavBruker getNavBruker() {
@@ -719,7 +714,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public boolean erSaksbehandlingAvsluttet() {
-        return (erAvsluttet() || erUnderIverksettelse() || erHenlagt());
+        return erAvsluttet() || erUnderIverksettelse() || erHenlagt();
     }
 
     private boolean erHenlagt() {

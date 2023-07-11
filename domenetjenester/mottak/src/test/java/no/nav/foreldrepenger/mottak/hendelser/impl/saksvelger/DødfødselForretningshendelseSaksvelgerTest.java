@@ -75,8 +75,8 @@ class DødfødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1)
+            .containsKey(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL).get(0)).isEqualTo(fagsak);
     }
@@ -95,8 +95,8 @@ class DødfødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1)
+            .containsKey(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL)).isEmpty();
     }
 
@@ -113,8 +113,8 @@ class DødfødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1)
+            .containsKey(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL)).isEmpty();
     }
 
@@ -131,8 +131,8 @@ class DødfødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1)
+            .containsKey(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL).get(0)).isEqualTo(fagsak);
         verify(historikkinnslagTjeneste, times(1)).opprettHistorikkinnslagForEndringshendelse(eq(fagsak), anyString());
@@ -154,8 +154,8 @@ class DødfødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1)
+            .containsKey(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL).get(0)).isEqualTo(fagsak);
         verify(historikkinnslagTjeneste, times(1)).opprettHistorikkinnslagForEndringshendelse(eq(fagsak), anyString());

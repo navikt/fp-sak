@@ -84,14 +84,14 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
             throw new IllegalArgumentException("Vurdering " + vurderingTimeline + " ligger utenfor yf perioder " + yfTimeline);
         }
 
-        var nyFordeling = yfTimeline.combine(vurderingTimeline, ((datoInterval, oppgittPeriode, vurdering) -> {
+        var nyFordeling = yfTimeline.combine(vurderingTimeline, (datoInterval, oppgittPeriode, vurdering) -> {
             var nyPeriode = OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode.getValue())
                 .medPeriode(datoInterval.getFomDato(), datoInterval.getTomDato())
-                .medDokumentasjonVurdering(vurdering == null || vurdering.getValue().vurdering() == null
-                    ? oppgittPeriode.getValue().getDokumentasjonVurdering() :  mapVurdering(vurdering.getValue()))
+                .medDokumentasjonVurdering(vurdering == null || vurdering.getValue().vurdering() == null ? oppgittPeriode.getValue()
+                    .getDokumentasjonVurdering() : mapVurdering(vurdering.getValue()))
                 .build();
             return new LocalDateSegment<>(datoInterval, nyPeriode);
-        }), LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(LocalDateSegment::getValue).toList();
+        }, LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(LocalDateSegment::getValue).toList();
 
         ytelseFordelingTjeneste.overstyrSøknadsperioder(param.getBehandlingId(), nyFordeling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(dto, gjeldendePerioder);

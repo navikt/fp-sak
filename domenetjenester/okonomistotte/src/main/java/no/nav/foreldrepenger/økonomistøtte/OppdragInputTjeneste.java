@@ -152,7 +152,7 @@ public class OppdragInputTjeneste {
             .flatMap(ok -> ok.getOppdrag110Liste().stream())
             .filter(OppdragKvitteringTjeneste::harPositivKvittering)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .min((Comparator.comparing(Oppdragslinje150::getDelytelseId)));
+            .min(Comparator.comparing(Oppdragslinje150::getDelytelseId));
     }
 
     protected YtelsePeriode lagPeriode(LocalDate referanseDato, Satsen sats) {

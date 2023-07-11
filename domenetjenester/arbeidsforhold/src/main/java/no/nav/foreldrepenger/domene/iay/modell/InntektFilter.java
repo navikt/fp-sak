@@ -83,8 +83,7 @@ public class InntektFilter {
     }
 
     public List<Inntekt> getAlleInntekter(InntektsKilde kilde) {
-        return inntekter.stream()
-                .filter(it -> (kilde == null) || kilde.equals(it.getInntektsKilde()))
+        return inntekter.stream().filter(it -> kilde == null || kilde.equals(it.getInntektsKilde()))
                 .toList();
     }
 
@@ -108,9 +107,10 @@ public class InntektFilter {
      * hvis satt på filter.
      */
     public Collection<Inntektspost> getInntektsposter(InntektsKilde kilde) {
-        return getAlleInntekter(null).stream().filter(i -> (kilde == null) || kilde.equals(i.getInntektsKilde()))
-                .flatMap(i -> i.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(i, ip)))
-                .toList();
+        return getAlleInntekter(null).stream()
+            .filter(i -> kilde == null || kilde.equals(i.getInntektsKilde()))
+            .flatMap(i -> i.getAlleInntektsposter().stream().filter(ip -> filtrerInntektspost(i, ip)))
+            .toList();
     }
 
     public Collection<Inntektspost> getInntektsposterPensjonsgivende() {
@@ -127,8 +127,7 @@ public class InntektFilter {
     }
 
     private boolean filtrerInntektspost(Inntekt inntekt, Inntektspost ip) {
-        return ((inntektspostFilter == null) || inntektspostFilter.test(inntekt, ip))
-                && skalMedEtterSkjæringstidspunktVurdering(ip);
+        return (inntektspostFilter == null || inntektspostFilter.test(inntekt, ip)) && skalMedEtterSkjæringstidspunktVurdering(ip);
     }
 
     /**
@@ -155,8 +154,8 @@ public class InntektFilter {
             if (venstreSideASkjæringstidspunkt) {
                 return periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1));
             }
-            return periode.getFomDato().isAfter(skjæringstidspunkt) ||
-                    (periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt));
+            return periode.getFomDato().isAfter(skjæringstidspunkt)
+                || periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt);
         }
         return true;
     }

@@ -126,9 +126,7 @@ public class InntektArbeidYtelseRestTjeneste {
 
     @GET
     @Path(INNTEKT_ARBEID_YTELSE_PART_PATH)
-    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = IAYYtelseDto.class)))
-    })
+    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = "Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad.", tags = "inntekt-arbeid-ytelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = IAYYtelseDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public IAYYtelseDto getInntektArbeidYtelser(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
@@ -162,9 +160,7 @@ public class InntektArbeidYtelseRestTjeneste {
 
     @GET
     @Path(ALLE_INNTEKTSMELDINGER_PART_PATH)
-    @Operation(description = "Hent informasjon om inntektsmelding", summary = ("Returnerer info om alle inntektsmeldinger."), tags = "inntekt-arbeid-ytelse", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer InntektsmeldingerDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektsmeldingerDto.class)))
-    })
+    @Operation(description = "Hent informasjon om inntektsmelding", summary = "Returnerer info om alle inntektsmeldinger.", tags = "inntekt-arbeid-ytelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer InntektsmeldingerDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektsmeldingerDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public InntektsmeldingerDto getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
@@ -178,10 +174,7 @@ public class InntektArbeidYtelseRestTjeneste {
 
     @GET
     @Path(ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH)
-    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
-            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidsgiverOversiktDto.class)))
-    })
+    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = "Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad.", tags = "inntekt-arbeid-ytelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidsgiverOversiktDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public ArbeidsgiverOversiktDto getArbeidsgiverOpplysninger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {

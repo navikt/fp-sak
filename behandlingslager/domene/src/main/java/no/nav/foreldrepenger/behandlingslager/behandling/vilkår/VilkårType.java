@@ -207,7 +207,7 @@ public enum VilkårType implements Kodeverdi {
             }
 
             INDEKS_VILKÅR_AVSLAGSÅRSAKER.put(v, v.avslagsårsaker);
-            v.avslagsårsaker.forEach(a -> INDEKS_AVSLAGSÅRSAK_VILKÅR.computeIfAbsent(a, (k) -> new HashSet<>(4)).add(v));
+            v.avslagsårsaker.forEach(a -> INDEKS_AVSLAGSÅRSAK_VILKÅR.computeIfAbsent(a, k -> new HashSet<>(4)).add(v));
         }
     }
 

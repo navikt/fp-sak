@@ -239,7 +239,7 @@ public class OpptjeningsvilkårMellomregning {
     private static boolean sjekkErErOverAntallPåkrevd(Period opptjentPeriode, int minsteAntallMåneder,
                                                       int minsteAntallDager) {
         return opptjentPeriode.getMonths() > minsteAntallMåneder
-            || (opptjentPeriode.getMonths() == minsteAntallMåneder && opptjentPeriode.getDays() >= minsteAntallDager);
+            || opptjentPeriode.getMonths() == minsteAntallMåneder && opptjentPeriode.getDays() >= minsteAntallDager;
     }
 
     private static Map<Aktivitet, LocalDateTimeline<Boolean>> trimTidslinje(Map<Aktivitet, LocalDateTimeline<Boolean>> tidslinjer,

@@ -23,7 +23,7 @@ final class IndexKeyComposer {
         for (var i = 0; i < max; i++) {
             var part = toString(keyParts[i], i);
             sb.append(part);
-            if (i < (max - 1)) {
+            if (i < max - 1) {
                 sb.append("::");
             }
         }

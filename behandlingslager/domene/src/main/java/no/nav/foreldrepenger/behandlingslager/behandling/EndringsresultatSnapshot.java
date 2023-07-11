@@ -102,18 +102,18 @@ public class EndringsresultatSnapshot {
 
     @Override
     public String toString() {
-        return "Endringer{" +
-            "grunnlagKlasse='" + grunnlagKlasse.getSimpleName() + '\'' +
-            ", grunnlagId=" + getGrunnlagRef() +
-            ", type=" + (children.isEmpty() ? "løvnode" : "rotnode") +
-            (children.isEmpty() ? "" : (", children=" + children)) +
-            '}' + "\n";
+        return "Endringer{" + "grunnlagKlasse='" + grunnlagKlasse.getSimpleName() + '\'' + ", grunnlagId=" + getGrunnlagRef() + ", type="
+            + (children.isEmpty() ? "løvnode" : "rotnode") + (children.isEmpty() ? "" : ", children=" + children) + '}' + "\n";
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof EndringsresultatSnapshot that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EndringsresultatSnapshot that)) {
+            return false;
+        }
 
         return Objects.equals(getGrunnlagRef(), that.getGrunnlagRef()) &&
             Objects.equals(grunnlagKlasse, that.grunnlagKlasse);

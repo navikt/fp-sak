@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -239,7 +238,6 @@ public class OppdragskontrollTestVerktøy {
             .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(KodeEndringLinje.NY))
             .toList();
 
-        List<Oppdragslinje150> opp150List = new ArrayList<>();
         assertThat(opp150NyList).isNotEmpty();
         for (var opp150Ny : opp150NyList) {
             assertThat(opp150Ny.getKodeStatusLinje()).isNull();
@@ -254,7 +252,6 @@ public class OppdragskontrollTestVerktøy {
                     .orElse(null);
                 assertThat(oppdr150).isNotNull();
                 assertThat(opp150Ny.getKodeKlassifik()).isEqualTo(oppdr150.getKodeKlassifik());
-                opp150List.add(oppdr150);
             }
             if (opp150Ny.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FPREF)) {
                 assertThat(opp150Ny.getRefusjonsinfo156()).isNotNull();

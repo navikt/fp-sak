@@ -89,8 +89,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).get(0)).isEqualTo(fagsak);
     }
@@ -108,8 +107,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).isEmpty();
     }
 
@@ -128,8 +126,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).get(0)).isEqualTo(fagsak);
     }
@@ -151,8 +148,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).get(0)).isEqualTo(fagsak);
     }
@@ -171,8 +167,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).isEmpty();
     }
 
@@ -203,8 +198,8 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
-            .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.plusDays(2))));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(
+            Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.plusDays(2))));
         when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
@@ -212,8 +207,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).get(0)).isEqualTo(fagsak);
     }
@@ -227,8 +221,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
-            .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO)));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO)));
         when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
@@ -236,8 +229,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).get(0)).isEqualTo(fagsak);
     }
@@ -250,16 +242,15 @@ class FødselForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
-            .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.minusDays(2))));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(
+            Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.minusDays(2))));
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
         // Act
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).isEmpty();
     }
 
@@ -275,8 +266,7 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).get(0)).isEqualTo(fagsak);
         verify(historikkinnslagTjeneste, times(1)).opprettHistorikkinnslagForEndringshendelse(eq(fagsak), anyString());
@@ -297,21 +287,15 @@ class FødselForretningshendelseSaksvelgerTest {
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
-        assertThat(behandlingÅrsakTypeListMap).hasSize(1);
-        assertThat(behandlingÅrsakTypeListMap.keySet()).contains(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(behandlingÅrsakTypeListMap).hasSize(1).containsKey(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)).hasSize(1);
         assertThat(behandlingÅrsakTypeListMap.get(BehandlingÅrsakType.RE_HENDELSE_FØDSEL).get(0)).isEqualTo(fagsak);
         verify(historikkinnslagTjeneste, times(1)).opprettHistorikkinnslagForEndringshendelse(eq(fagsak), anyString());
     }
 
     private BeregningsresultatEntitet opprettBeregningsresultatPerioder(LocalDate sluttDato) {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("")
-            .medRegelSporing("")
-            .build();
-        BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(sluttDato.minusDays(10), sluttDato)
-            .build(beregningsresultat);
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
+        BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(sluttDato.minusDays(10), sluttDato).build(beregningsresultat);
         return beregningsresultat;
     }
 }

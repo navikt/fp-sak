@@ -4,9 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -145,8 +143,6 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         // Arrange
         var søknadsdato = LocalDate.now();
         var fødselAdopsjonsdato = LocalDate.now();
-        Map<Long, LocalDate> map = new HashMap<>();
-        map.put(1L, fødselAdopsjonsdato);
         var omsorgsovertakelseDato = LocalDate.now().plusDays(1);
         var antallBarnFraSøknad = 1;
 
@@ -238,7 +234,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(grunnlag).isNotNull();
 
         assertThat(grunnlag.getGjeldendeVersjon()).isNotNull();
-        assertThat(grunnlag.getGjeldendeVersjon().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get()).isEqualTo(fødselsdato);
+        assertThat(grunnlag.getGjeldendeVersjon().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst()).contains(fødselsdato);
         assertThat(grunnlag.getGjeldendeVersjon().getAntallBarn()).isEqualTo(1);
     }
 
@@ -783,7 +779,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         // Assert
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         assertThat(medlemskap).isNotNull().isPresent();
-        assertThat(medlemskap.get().getVurdertMedlemskap().get()).isEqualTo(vurdertMedlemskap);
+        assertThat(medlemskap.get().getVurdertMedlemskap()).contains(vurdertMedlemskap);
     }
 
     private Behandling lagBehandling() {

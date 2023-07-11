@@ -74,7 +74,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         var addedDays = 0;
         while (addedDays < antallVirkedager) {
             result = result.plusDays(1);
-            if (!(WEEKEND.contains(result.getDayOfWeek()))) {
+            if (!WEEKEND.contains(result.getDayOfWeek())) {
                 ++addedDays;
             }
         }

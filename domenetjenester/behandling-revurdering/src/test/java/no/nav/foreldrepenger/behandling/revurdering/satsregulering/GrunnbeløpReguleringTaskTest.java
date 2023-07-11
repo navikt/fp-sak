@@ -225,7 +225,6 @@ class GrunnbeløpReguleringTaskTest {
 
         var behandling = scenario.lagre(repositoryProvider);
         behandling.setStatus(status);
-        // Whitebox.setInternalState(behandling, "status", status);
 
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);

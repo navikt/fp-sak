@@ -95,7 +95,7 @@ public final class Redirect {
                 }
             }
         }
-        return newLocation != null ? newLocation : (erKallFraGcp(request) ? location : leggTilBaseUri(location));
+        return newLocation != null ? newLocation : erKallFraGcp(request) ? location : leggTilBaseUri(location);
     }
 
     private static boolean erKallFraGcp(HttpServletRequest request) {

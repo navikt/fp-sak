@@ -79,8 +79,8 @@ public class BerørtBehandlingTjeneste {
 
     private boolean ikkeAktuellForVurderBerørt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         // Vurder å inkludere
-        return (SpesialBehandling.erBerørtBehandling(behandling) && SpesialBehandling.skalUttakVurderes(behandling)) ||
-            behandlingsresultat.isBehandlingHenlagt() || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING);
+        return SpesialBehandling.erBerørtBehandling(behandling) && SpesialBehandling.skalUttakVurderes(behandling)
+            || behandlingsresultat.isBehandlingHenlagt() || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING);
     }
 
     private boolean isAktivtUttak(ForeldrepengerUttakPeriode p) {

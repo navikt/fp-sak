@@ -38,10 +38,10 @@ public class InntektsmeldingBuilder {
         var internRef = getInternArbeidsforholdRef();
         if (internRef.isPresent() && !ignore) {
             // magic - hvis har ekstern referanse må også intern referanse være spesifikk
-            if (((eksternArbeidsforholdId != null) && eksternArbeidsforholdId.gjelderForSpesifiktArbeidsforhold())
-                    && (internRef.get().getReferanse() == null)) {
+            if (eksternArbeidsforholdId != null && eksternArbeidsforholdId.gjelderForSpesifiktArbeidsforhold()
+                && internRef.get().getReferanse() == null) {
                 throw new IllegalArgumentException(
-                        "Begge referanser må gjelde spesifikke arbeidsforhold. " + " Ekstern: " + eksternArbeidsforholdId + ", Intern: " + internRef);
+                    "Begge referanser må gjelde spesifikke arbeidsforhold. " + " Ekstern: " + eksternArbeidsforholdId + ", Intern: " + internRef);
             }
         }
         erBygget = true; // Kan ikke bygge mer med samme builder, vil bare returnere samme kladd.
@@ -94,11 +94,10 @@ public class InntektsmeldingBuilder {
         precondition();
         if (arbeidsforholdId != null) {
             // magic - hvis har ekstern referanse må også intern referanse være spesifikk
-            if ((arbeidsforholdId.getReferanse() == null) && (eksternArbeidsforholdId != null)
-                    && eksternArbeidsforholdId.gjelderForSpesifiktArbeidsforhold()) {
+            if (arbeidsforholdId.getReferanse() == null && eksternArbeidsforholdId != null
+                && eksternArbeidsforholdId.gjelderForSpesifiktArbeidsforhold()) {
                 throw new IllegalArgumentException(
-                        "Begge referanser gjelde spesifikke arbeidsforhold. " + " Ekstern: " + eksternArbeidsforholdId + ", Intern: "
-                                + arbeidsforholdId);
+                    "Begge referanser gjelde spesifikke arbeidsforhold. " + " Ekstern: " + eksternArbeidsforholdId + ", Intern: " + arbeidsforholdId);
             }
             kladd.setArbeidsforholdId(arbeidsforholdId);
         }

@@ -108,9 +108,9 @@ public class VurderOmArenaYtelseSkalOpphøre {
         if (førsteAnvistDatoFP.isBefore(sisteArenaAnvistDatoFørVedtaksdato)) {
             return true;
         }
-        return (nesteArenaAnvistDatoEtterVedtaksdato.isPresent() &&
-            DatoIntervallEntitet.fraOgMedTilOgMed(sisteArenaAnvistDatoFørVedtaksdato, nesteArenaAnvistDatoEtterVedtaksdato.get()).inkluderer(førsteAnvistDatoFP) &&
-            vedtaksDato.isAfter(nesteArenaAnvistDatoEtterVedtaksdato.get().minusDays(HALV_MELDEKORT_PERIODE)));
+        return nesteArenaAnvistDatoEtterVedtaksdato.isPresent() && DatoIntervallEntitet.fraOgMedTilOgMed(sisteArenaAnvistDatoFørVedtaksdato,
+            nesteArenaAnvistDatoEtterVedtaksdato.get()).inkluderer(førsteAnvistDatoFP) && vedtaksDato.isAfter(
+            nesteArenaAnvistDatoEtterVedtaksdato.get().minusDays(HALV_MELDEKORT_PERIODE));
     }
 
     private Collection<Ytelse> hentArenaYtelser(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {

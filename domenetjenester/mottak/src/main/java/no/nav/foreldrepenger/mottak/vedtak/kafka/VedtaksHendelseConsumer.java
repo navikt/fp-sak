@@ -61,7 +61,7 @@ public class VedtaksHendelseConsumer implements LiveAndReadinessAware, Controlla
 
     @Override
     public boolean isAlive() {
-        return (stream != null && stream.state().isRunningOrRebalancing());
+        return stream != null && stream.state().isRunningOrRebalancing();
     }
 
     @Override

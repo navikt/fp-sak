@@ -51,7 +51,6 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.DokumentasjonPer
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.FamilieHendelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Familierelasjon;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Inntekt;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Inntektspost;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.PersonopplysningerForeldrepenger;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.RelatertYtelse;
@@ -309,7 +308,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private Collection<? extends Inntekt> lagInntekt(AktørId aktørId, InntektFilter filter) {
         List<Inntekt> inntektList = new ArrayList<>();
-        List<Inntektspost> inntektspostList = new ArrayList<>();
 
         filter.forFilter((inntekt, inntektsposter) -> {
             var inntektXML = personopplysningObjectFactory.createInntekt();
@@ -324,7 +322,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
                 inntektspostXML.setYtelsetype(VedtakXmlUtil.lagStringOpplysning(inntektspost.getInntektspostType().getKode()));
                 inntektXML.getInntektsposter().add(inntektspostXML);
                 inntektXML.setMottaker(VedtakXmlUtil.lagStringOpplysning(aktørId.getId()));
-                inntektspostList.add(inntektspostXML);
             });
             inntektList.add(inntektXML);
         });

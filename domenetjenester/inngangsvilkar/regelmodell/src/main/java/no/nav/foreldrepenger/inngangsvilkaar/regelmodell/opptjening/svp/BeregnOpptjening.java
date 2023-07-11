@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.svp;
 import static no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger.UTLAND;
 
 import java.time.Period;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårMellomregning;
@@ -118,7 +118,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
     private boolean evaluerEvtUnderkjennUtlandskeAktiviteteter(OpptjeningsvilkårMellomregning data) {
         var utlandsFilter = new Aktivitet(UTLAND, null, null);
 
-        var tidslinje = slåSammenTilFellesTidslinje(data, false, Arrays.asList(utlandsFilter));
+        var tidslinje = slåSammenTilFellesTidslinje(data, false, List.of(utlandsFilter));
 
         var maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().førsteDatoOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
 

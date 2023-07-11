@@ -90,7 +90,7 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof YtelseStørrelse that)) {
+        if (!(o instanceof YtelseStørrelse that)) {
             return false;
         }
         return Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
@@ -114,6 +114,6 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return (beløp != null) || (hyppighet != null) || (virksomhetOrgnr != null);
+        return beløp != null || hyppighet != null || virksomhetOrgnr != null;
     }
 }

@@ -58,8 +58,6 @@ class NavBrukerTjenesteTest {
         assertThat(navBruker.getSpråkkode()).isEqualTo(Språkkode.NB);
         navBrukerRepository.lagre(navBruker);
         navBruker.setOpprettetTidspunkt(LocalDateTime.now().minusYears(1));
-        // Whitebox.setInternalState(navBruker, "opprettetTidspunkt",
-        // LocalDateTime.now().minusYears(1));
         navBrukerRepository.lagre(navBruker);
 
         when(personinfoAdapter.hentForetrukketSpråk(aktør)).thenReturn(new PersoninfoSpråk(aktør, Språkkode.NN));

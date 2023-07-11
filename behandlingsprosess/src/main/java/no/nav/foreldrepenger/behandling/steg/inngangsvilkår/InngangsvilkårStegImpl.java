@@ -133,8 +133,8 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     }
 
     private BehandleStegResultat getBehandleStegResultatVedAvslag(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
-        if (behandling.erRevurdering() && (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()))
-                && !harAvslåttForrigeBehandling(behandling)) {
+        if (behandling.erRevurdering() && !FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) && !harAvslåttForrigeBehandling(
+            behandling)) {
             return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_UTTAKSPLAN, aksjonspunktDefinisjoner);
         }
         return BehandleStegResultat.fremoverførtMedAksjonspunkter(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, aksjonspunktDefinisjoner);

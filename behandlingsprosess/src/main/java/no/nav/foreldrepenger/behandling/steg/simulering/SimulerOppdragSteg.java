@@ -148,7 +148,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         if (DayOfWeek.SATURDAY.equals(currentTime.getDayOfWeek()) || DayOfWeek.SUNDAY.equals(currentTime.getDayOfWeek())) {
             return kommendeMandag(currentTime);
         }
-        if (DayOfWeek.FRIDAY.equals(currentTime.getDayOfWeek()) && (currentTime.getHour() > STENGETID)) {
+        if (DayOfWeek.FRIDAY.equals(currentTime.getDayOfWeek()) && currentTime.getHour() > STENGETID) {
             return kommendeMandag(currentTime);
         }
         if (currentTime.getHour() < ÅPNINGSTID) {
@@ -170,7 +170,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
             LOG.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
                 behandling.getFagsak().getSaksnummer(), simuleringResultatDto.getSumFeilutbetaling(), simuleringResultatDto.getSumInntrekk(), simuleringResultatDto.isSlåttAvInntrekk());
         }
-        return harÅpenTilbakekreving && (simuleringResultatDto.getSumFeilutbetaling() != 0);
+        return harÅpenTilbakekreving && simuleringResultatDto.getSumFeilutbetaling() != 0;
     }
 
     private boolean harÅpenTilbakekreving(Behandling behandling) {

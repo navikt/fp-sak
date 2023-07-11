@@ -43,7 +43,7 @@ public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittFrilansoppdrag that)) {
+        if (!(o instanceof OppgittFrilansoppdrag that)) {
             return false;
         }
         return Objects.equals(frilans, that.frilans) &&

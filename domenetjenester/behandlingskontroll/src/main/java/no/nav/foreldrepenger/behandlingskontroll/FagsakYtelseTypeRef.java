@@ -60,7 +60,7 @@ public @interface FagsakYtelseTypeRef {
         }
 
         public FagsakYtelseTypeRefLiteral(FagsakYtelseType ytelseType) {
-            this.ytelseType = (ytelseType == null ? FagsakYtelseType.UDEFINERT : ytelseType);
+            this.ytelseType = ytelseType == null ? FagsakYtelseType.UDEFINERT : ytelseType;
         }
 
         @Override

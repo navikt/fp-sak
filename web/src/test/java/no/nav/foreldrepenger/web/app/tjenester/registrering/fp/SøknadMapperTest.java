@@ -200,8 +200,8 @@ class SøknadMapperTest {
         var tomDato = LocalDate.now().plusDays(3);
         var prosentAndel = BigDecimal.valueOf(15);
         var orgNr = KUNSTIG_ORG + "1";
-        var gradering = ((Gradering) YtelseSøknadMapper.mapGraderingsperiode(
-            opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, true, false, false, orgNr)));
+        var gradering = (Gradering) YtelseSøknadMapper.mapGraderingsperiode(
+            opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, true, false, false, orgNr));
         assertThat(gradering).isNotNull();
         assertThat(gradering.getFom()).isEqualTo(fraDato);
         assertThat(gradering.getTom()).isEqualTo(tomDato);
@@ -217,8 +217,8 @@ class SøknadMapperTest {
         var tomDato = LocalDate.now().plusDays(3);
         var prosentAndel = BigDecimal.valueOf(15.55);
         var orgNr = KUNSTIG_ORG + "1";
-        var gradering = ((Gradering) YtelseSøknadMapper.mapGraderingsperiode(
-            opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, true, false, false, orgNr)));
+        var gradering = (Gradering) YtelseSøknadMapper.mapGraderingsperiode(
+            opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, true, false, false, orgNr));
         assertThat(gradering).isNotNull();
         assertThat(gradering.getFom()).isEqualTo(fraDato);
         assertThat(gradering.getTom()).isEqualTo(tomDato);

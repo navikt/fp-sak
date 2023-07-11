@@ -113,7 +113,7 @@ public class UttakXmlTjenesteImpl {
             .ifPresent(o -> kontrakt.setOpplysningerOmRisikofaktorer(VedtakXmlUtil.lagStringOpplysning(o)));
 
         svpTilrettelegging.getOpplysningerOmTilretteleggingstiltak()
-            .ifPresent(o -> kontrakt.setOpplysningerOmTilretteleggingstiltak((VedtakXmlUtil.lagStringOpplysning(o))));
+            .ifPresent(o -> kontrakt.setOpplysningerOmTilretteleggingstiltak(VedtakXmlUtil.lagStringOpplysning(o)));
 
         svpTilrettelegging.getBegrunnelse().ifPresent(b -> kontrakt.setBegrunnelse(VedtakXmlUtil.lagStringOpplysning(b)));
 

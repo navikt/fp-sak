@@ -328,8 +328,7 @@ class BehandlingskontrollTjenesteImplTest {
     private void sjekkBehandlingStegTilstandHistorikk(Behandling behandling, BehandlingStegType stegType,
             BehandlingStegStatus... stegStatuser) {
         assertThat(
-                behandling.getBehandlingStegTilstandHistorikk()
-                        .filter(bst -> (stegType == null) || Objects.equals(bst.getBehandlingSteg(), stegType))
+                behandling.getBehandlingStegTilstandHistorikk().filter(bst -> stegType == null || Objects.equals(bst.getBehandlingSteg(), stegType))
                         .map(BehandlingStegTilstand::getBehandlingStegStatus))
                                 .containsExactly(stegStatuser);
     }
@@ -339,11 +338,9 @@ class BehandlingskontrollTjenesteImplTest {
     }
 
     private static final class BehandlingskontrollEventPublisererForTest extends BehandlingskontrollEventPubliserer {
-        private List<BehandlingEvent> events = new ArrayList<>();
 
         @Override
         protected void doFireEvent(BehandlingEvent event) {
-            events.add(event);
         }
     }
 

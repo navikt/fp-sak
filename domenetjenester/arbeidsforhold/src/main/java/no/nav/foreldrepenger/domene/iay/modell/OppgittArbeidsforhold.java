@@ -73,7 +73,7 @@ public class OppgittArbeidsforhold extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof OppgittArbeidsforhold that)) {
+        if (!(o instanceof OppgittArbeidsforhold that)) {
             return false;
         }
 

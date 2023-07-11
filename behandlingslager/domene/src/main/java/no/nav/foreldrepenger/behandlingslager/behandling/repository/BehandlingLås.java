@@ -49,7 +49,7 @@ public class BehandlingLås {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !(obj instanceof BehandlingLås other)) {
+        if (!(obj instanceof BehandlingLås other)) {
             return false;
         }
         return Objects.equals(getBehandlingId(), other.getBehandlingId());

@@ -1,17 +1,14 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-
-import java.util.List;
 
 public class SammenlignBeregningsresultat {
 
     public static boolean erLike(BeregningsresultatEntitet res1, BeregningsresultatEntitet res2) {
-        if (!perioderErlike(res1.getBeregningsresultatPerioder(), res2.getBeregningsresultatPerioder())) {
-            return false;
-        }
-        return true;
+        return perioderErlike(res1.getBeregningsresultatPerioder(), res2.getBeregningsresultatPerioder());
     }
 
     private static boolean perioderErlike(List<BeregningsresultatPeriode> liste1, List<BeregningsresultatPeriode> liste2) {
@@ -45,9 +42,6 @@ public class SammenlignBeregningsresultat {
         if (p1.getBeregningsresultatAndelList().size() != p2.getBeregningsresultatAndelList().size()) {
             return false;
         }
-        if (!p1.getBeregningsresultatAndelList().containsAll(p2.getBeregningsresultatAndelList())) {
-            return false;
-        }
-        return true;
+        return p1.getBeregningsresultatAndelList().containsAll(p2.getBeregningsresultatAndelList());
     }
 }

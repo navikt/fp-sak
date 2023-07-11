@@ -57,7 +57,7 @@ class MergeOverlappendePeriodeHjelp {
             LocalDateSegment<OpptjeningAktivitetKlassifisering> rhs) {
 
         // legger inn perioden for mellomliggende
-        if ((lhs == null) || lhs.getValue().equals(OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE)) {
+        if (lhs == null || lhs.getValue().equals(OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE)) {
             return new LocalDateSegment<>(di, OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE);
             // legger inn periode for bekreftet godkjent
         }
@@ -72,7 +72,7 @@ class MergeOverlappendePeriodeHjelp {
             LocalDateSegment<OpptjeningAktivitetKlassifisering> rhs) {
 
         // legger inn perioden for bekreftet avvist
-        if ((lhs == null) || lhs.getValue().equals(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST)) {
+        if (lhs == null || lhs.getValue().equals(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST)) {
             return new LocalDateSegment<>(di, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
         }
         if (rhs == null) {

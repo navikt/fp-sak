@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -99,13 +98,13 @@ class BeregningsresultatMedUttaksplanMapperTest {
         assertThat(periodeDtoer).hasSize(2);
 
         var p1 = periodeDtoer.get(0);
-        assertThat(p1.getDagsats()).isEqualTo(0);
+        assertThat(p1.getDagsats()).isZero();
         assertThat(p1.getFom()).isEqualTo(P1_FOM);
         assertThat(p1.getTom()).isEqualTo(P1_TOM);
         assertThat(p1.getAndeler()).isEmpty();
 
         var p2 = periodeDtoer.get(1);
-        assertThat(p2.getDagsats()).isEqualTo(0);
+        assertThat(p2.getDagsats()).isZero();
         assertThat(p2.getFom()).isEqualTo(P2_FOM);
         assertThat(p2.getTom()).isEqualTo(P2_TOM);
         assertThat(p2.getAndeler()).isEmpty();
@@ -256,8 +255,8 @@ class BeregningsresultatMedUttaksplanMapperTest {
                 .orElse(null);
         assertThat(andel1.getTilSoker()).isEqualTo(1000);
         assertThat(andel2.getTilSoker()).isEqualTo(2000);
-        assertThat(andel1.getRefusjon()).isEqualTo(0);
-        assertThat(andel2.getRefusjon()).isEqualTo(0);
+        assertThat(andel1.getRefusjon()).isZero();
+        assertThat(andel2.getRefusjon()).isZero();
     }
 
     @Test
@@ -273,8 +272,6 @@ class BeregningsresultatMedUttaksplanMapperTest {
 
         var beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat
         var beregningsresultatPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Periode uten andeler
-        var beregningsresultatPerioder = new ArrayList<BeregningsresultatPeriode>();
-        beregningsresultatPerioder.add(beregningsresultatPeriode);
 
         lagAndelTilSøker(beregningsresultatPeriode, 500, virksomhet, uttakAktivitet.getArbeidsforholdRef());
         lagAndelTilSøker(beregningsresultatPeriode, 1000, virksomhet, uttakAktivitet.getArbeidsforholdRef());
@@ -356,7 +353,6 @@ class BeregningsresultatMedUttaksplanMapperTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak)
                 .build();
         behandling.setId(1L);
-        // Whitebox.setInternalState(behandling, "id", 1L);
         return behandling;
     }
 

@@ -44,11 +44,8 @@ public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {
     }
 
     protected boolean isSkippedFields(Field fld) {
-        return fld.isAnnotationPresent(DiffIgnore.class)
-            || (fld.isAnnotationPresent(Id.class) && fld.isAnnotationPresent(GeneratedValue.class))
-            || fld.isAnnotationPresent(Version.class)
-            || fld.isAnnotationPresent(GeneratedValue.class)
-            || fld.isAnnotationPresent(Transient.class);
+        return fld.isAnnotationPresent(DiffIgnore.class) || fld.isAnnotationPresent(Id.class) && fld.isAnnotationPresent(GeneratedValue.class)
+            || fld.isAnnotationPresent(Version.class) || fld.isAnnotationPresent(GeneratedValue.class) || fld.isAnnotationPresent(Transient.class);
     }
 
     @Override

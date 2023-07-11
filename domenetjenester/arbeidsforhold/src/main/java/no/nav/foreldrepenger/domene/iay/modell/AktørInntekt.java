@@ -61,15 +61,14 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
     }
 
     public boolean hasValues() {
-        return (aktørId != null) || (inntekt != null);
+        return aktørId != null || inntekt != null;
     }
 
     InntektBuilder getInntektBuilder(InntektsKilde inntektsKilde, Opptjeningsnøkkel nøkkel) {
-        var inntektOptional = getInntekt()
-                .stream()
-                .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
-                .filter(i -> ((i.getArbeidsgiver() != null) && new Opptjeningsnøkkel(i.getArbeidsgiver()).matcher(nøkkel))
-                        || inntektsKilde.equals(InntektsKilde.SIGRUN))
+        var inntektOptional = getInntekt().stream()
+            .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
+            .filter(i -> i.getArbeidsgiver() != null && new Opptjeningsnøkkel(i.getArbeidsgiver()).matcher(nøkkel) || inntektsKilde.equals(
+                InntektsKilde.SIGRUN))
                 .findFirst();
         var oppdatere = InntektBuilder.oppdatere(inntektOptional);
         if (!oppdatere.getErOppdatering()) {

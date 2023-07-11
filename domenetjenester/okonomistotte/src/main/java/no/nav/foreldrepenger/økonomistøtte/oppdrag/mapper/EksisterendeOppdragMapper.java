@@ -29,9 +29,13 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 
 
-public class EksisterendeOppdragMapper {
+public final class EksisterendeOppdragMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(EksisterendeOppdragMapper.class);
+
+    private EksisterendeOppdragMapper() {
+
+    }
 
     public static Map<KjedeNøkkel, OppdragKjede> tilKjeder(List<Oppdragskontroll> oppdragskontroll) {
         return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).toList());

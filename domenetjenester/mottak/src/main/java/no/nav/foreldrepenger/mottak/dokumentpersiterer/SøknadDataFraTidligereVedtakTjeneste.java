@@ -56,8 +56,8 @@ public class SøknadDataFraTidligereVedtakTjeneste {
             forrigeUttak.getGjeldendePerioder().getPerioder().stream()
                 .anyMatch(p -> p.getAktiviteter().stream().map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto).anyMatch(StønadskontoType.FORELDREPENGER::equals));
         // Skal ikke legge inn utsettelse for BFHR
-        var kreverSammenhengendeUttak = !behandling.erRevurdering() || utsettelseBehandling.kreverSammenhengendeUttak(behandling) ||
-            (foreldrepenger && !RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType()));
+        var kreverSammenhengendeUttak = !behandling.erRevurdering() || utsettelseBehandling.kreverSammenhengendeUttak(behandling)
+            || foreldrepenger && !RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType());
         return VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling.getId(), nysøknad, forrigeUttak, kreverSammenhengendeUttak);
     }
 

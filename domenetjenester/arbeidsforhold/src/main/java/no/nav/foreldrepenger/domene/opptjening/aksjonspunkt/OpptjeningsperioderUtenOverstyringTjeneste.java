@@ -148,9 +148,10 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
             Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening) {
         // Hvis oppgitt frilansaktivitet brukes perioden derfra og det er allerede laget
         // en OFS.
-        if (((oppgittOpptjening != null)
-                && oppgittOpptjening.getAnnenAktivitet().stream().anyMatch(oaa -> ArbeidType.FRILANSER.equals(oaa.getArbeidType()))) ||
-                perioder.stream().anyMatch(oaa -> OpptjeningAktivitetType.FRILANS.equals(oaa.getOpptjeningAktivitetType()))) {
+        if (oppgittOpptjening != null && oppgittOpptjening.getAnnenAktivitet()
+            .stream()
+            .anyMatch(oaa -> ArbeidType.FRILANSER.equals(oaa.getArbeidType())) || perioder.stream()
+            .anyMatch(oaa -> OpptjeningAktivitetType.FRILANS.equals(oaa.getOpptjeningAktivitetType()))) {
             return Optional.empty();
         }
         var opptjeningOptional = opptjeningRepository.finnOpptjening(behandlingReferanse.behandlingId());

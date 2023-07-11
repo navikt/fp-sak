@@ -62,7 +62,7 @@ public class MapAktørYtelse {
         }
 
         List<AktørYtelseBuilder> map(Collection<YtelserDto> dtos) {
-            if ((dtos == null) || dtos.isEmpty()) {
+            if (dtos == null || dtos.isEmpty()) {
                 return Collections.emptyList();
             }
             return dtos.stream().map(this::mapAktørYtelse).toList();
@@ -244,7 +244,7 @@ public class MapAktørYtelse {
         }
 
         List<YtelserDto> map(Collection<AktørYtelse> aktørYtelser) {
-            if ((aktørYtelser == null) || aktørYtelser.isEmpty()) {
+            if (aktørYtelser == null || aktørYtelser.isEmpty()) {
                 return Collections.emptyList();
             }
             return aktørYtelser.stream().map(this::mapTilYtelser).toList();

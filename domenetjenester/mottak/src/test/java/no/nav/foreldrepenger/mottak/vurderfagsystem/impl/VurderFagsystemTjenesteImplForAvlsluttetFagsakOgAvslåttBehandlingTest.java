@@ -167,7 +167,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
         // Assert
         assertThat(resultat.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(resultat.getSaksnummer()).isPresent();
-        assertThat(resultat.getSaksnummer().get()).isEqualTo(behandling.getFagsak().getSaksnummer());
+        assertThat(resultat.getSaksnummer()).contains(behandling.getFagsak().getSaksnummer());
     }
 
     private Behandling opprettBehandling(BehandlingType behandlingType, BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak,

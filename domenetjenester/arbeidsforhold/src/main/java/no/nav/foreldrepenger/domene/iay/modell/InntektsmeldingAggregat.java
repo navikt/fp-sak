@@ -53,17 +53,13 @@ public class InntektsmeldingAggregat extends BaseEntitet {
     }
 
     private boolean skalBrukes(Inntektsmelding im) {
-        return (arbeidsforholdInformasjon == null) || arbeidsforholdInformasjon.getOverstyringer()
-                .stream()
-                .noneMatch(ov -> erFjernet(im, ov));
+        return arbeidsforholdInformasjon == null || arbeidsforholdInformasjon.getOverstyringer().stream().noneMatch(ov -> erFjernet(im, ov));
     }
 
     private boolean erFjernet(Inntektsmelding im, ArbeidsforholdOverstyring ov) {
-        return (ov.getArbeidsforholdRef().equals(im.getArbeidsforholdRef()))
-                && ov.getArbeidsgiver().equals(im.getArbeidsgiver())
-                && (Objects.equals(IKKE_BRUK, ov.getHandling())
-                        || Objects.equals(SLÅTT_SAMMEN_MED_ANNET, ov.getHandling())
-                        || ov.kreverIkkeInntektsmelding());
+        return ov.getArbeidsforholdRef().equals(im.getArbeidsforholdRef()) && ov.getArbeidsgiver().equals(im.getArbeidsgiver()) && (
+            Objects.equals(IKKE_BRUK, ov.getHandling()) || Objects.equals(SLÅTT_SAMMEN_MED_ANNET, ov.getHandling())
+                || ov.kreverIkkeInntektsmelding());
     }
 
     /**
@@ -96,7 +92,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         if (gammel.gjelderSammeArbeidsforhold(ny)) {
             if (ALTINN_SYSTEM_NAVN.equals(gammel.getKildesystem()) || ALTINN_SYSTEM_NAVN.equals(ny.getKildesystem())) {
                 // WTF? Hvorfor trengs ALTINN å spesialbehandles?
-                if ((gammel.getKanalreferanse() != null) && (ny.getKanalreferanse() != null)) {
+                if (gammel.getKanalreferanse() != null && ny.getKanalreferanse() != null) {
                     // skummelt å stole på stigende arkivreferanser fra Altinn. :-(
                     return ny.getKanalreferanse().compareTo(gammel.getKanalreferanse()) > 0;
                 }
@@ -104,7 +100,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
             if (gammel.getInnsendingstidspunkt().isBefore(ny.getInnsendingstidspunkt())) {
                 return true;
             }
-            if (gammel.getInnsendingstidspunkt().equals(ny.getInnsendingstidspunkt()) && (ny.getKanalreferanse() != null)) {
+            if (gammel.getInnsendingstidspunkt().equals(ny.getInnsendingstidspunkt()) && ny.getKanalreferanse() != null) {
                 if (gammel.getKanalreferanse() != null) {
                     // skummelt å stole på stigende arkivreferanser fra Altinn. :-(
                     return ny.getKanalreferanse().compareTo(gammel.getKanalreferanse()) > 0;
@@ -124,7 +120,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof InntektsmeldingAggregat that)) {
+        if (!(o instanceof InntektsmeldingAggregat that)) {
             return false;
         }
         return Objects.equals(inntektsmeldinger, that.inntektsmeldinger);

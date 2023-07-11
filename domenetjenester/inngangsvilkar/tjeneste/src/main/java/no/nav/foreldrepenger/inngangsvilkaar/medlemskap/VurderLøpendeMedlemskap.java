@@ -264,8 +264,8 @@ public class VurderLøpendeMedlemskap {
     private boolean harLøpendeArbeidsforholdFørSkjæringstidspunkt(LocalDate skjæringstidspunkt, AktivitetsAvtale aktivitetsAvtale) {
         var fomDato = aktivitetsAvtale.getPeriode().getFomDato();
         var tomDato = aktivitetsAvtale.getPeriode().getTomDato();
-        return (aktivitetsAvtale.getErLøpende() && fomDato.isBefore(skjæringstidspunkt))
-            || (fomDato.isBefore(skjæringstidspunkt) && tomDato.isAfter(skjæringstidspunkt));
+        return aktivitetsAvtale.getErLøpende() && fomDato.isBefore(skjæringstidspunkt) || fomDato.isBefore(skjæringstidspunkt) && tomDato.isAfter(
+            skjæringstidspunkt);
     }
 
 

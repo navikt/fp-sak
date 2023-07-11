@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 
 public class ErEndringIBeregning {
     private ErEndringIBeregning() {
@@ -54,8 +54,7 @@ public class ErEndringIBeregning {
         for (var dato : allePeriodeDatoer) {
             var dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
             var dagsatsOriginaltGrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, originalePerioder);
-            if ((dagsatsOriginaltGrunnlag != null)
-                    && ((dagsatsRevurderingsgrunnlag == null) || (dagsatsRevurderingsgrunnlag < dagsatsOriginaltGrunnlag))) {
+            if (dagsatsOriginaltGrunnlag != null && (dagsatsRevurderingsgrunnlag == null || dagsatsRevurderingsgrunnlag < dagsatsOriginaltGrunnlag)) {
                 return true;
             }
         }

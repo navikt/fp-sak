@@ -96,7 +96,7 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof YtelseAnvist that)) {
+        if (!(o instanceof YtelseAnvist that)) {
             return false;
         }
         return Objects.equals(anvistPeriode, that.anvistPeriode) &&

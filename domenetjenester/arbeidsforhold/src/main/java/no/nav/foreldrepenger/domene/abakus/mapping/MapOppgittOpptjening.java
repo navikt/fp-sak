@@ -183,10 +183,10 @@ class MapOppgittOpptjening {
             if (val == null) {
                 return null;
             }
-            if ((min != null) && (val.compareTo(min) < 0)) {
+            if (min != null && val.compareTo(min) < 0) {
                 return min;
             }
-            if ((max != null) && (val.compareTo(max) > 0)) {
+            if (max != null && val.compareTo(max) > 0) {
                 return max;
             }
             return val;

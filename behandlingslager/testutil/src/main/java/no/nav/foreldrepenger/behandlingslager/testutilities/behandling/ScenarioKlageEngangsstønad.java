@@ -9,7 +9,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurde
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.STADFESTE_YTELSESVEDTAK;
 import static org.mockito.Mockito.lenient;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingRes
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 /**
@@ -49,7 +48,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
  */
 public class ScenarioKlageEngangsstønad {
 
-    private KlageRepository klageRepository = mockKlageRepository();
+    private final KlageRepository klageRepository = mockKlageRepository();
 
     public static ScenarioKlageEngangsstønad forFormKrav(AbstractTestScenario<?> abstractTestScenario) {
         return new ScenarioKlageEngangsstønad().setup(abstractTestScenario, KLAGE_VURDER_FORMKRAV_NFP, VURDERING_AV_FORMKRAV_KLAGE_NFP);
@@ -87,8 +86,8 @@ public class ScenarioKlageEngangsstønad {
         return new ScenarioKlageEngangsstønad().setup(abstractTestScenario, STADFESTE_YTELSESVEDTAK, STADFESTE_YTELSESVEDTAK);
     }
 
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> opprettedeAksjonspunktDefinisjoner = new HashMap<>();
-    private Map<AksjonspunktDefinisjon, BehandlingStegType> utførteAksjonspunktDefinisjoner = new HashMap<>();
+    private final Map<AksjonspunktDefinisjon, BehandlingStegType> opprettedeAksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
+    private final Map<AksjonspunktDefinisjon, BehandlingStegType> utførteAksjonspunktDefinisjoner = new EnumMap<>(AksjonspunktDefinisjon.class);
 
     private AbstractTestScenario<?> abstractTestScenario;
 
@@ -99,9 +98,8 @@ public class ScenarioKlageEngangsstønad {
     private Behandling klageBehandling;
     private BehandlingStegType startSteg;
 
-    private KlageVurderingResultat.Builder vurderingResultatNFP = KlageVurderingResultat.builder();
-    private KlageVurderingResultat.Builder vurderingResultatNK = KlageVurderingResultat.builder();
-    private BehandlingVedtak behandlingVedtak;
+    private final KlageVurderingResultat.Builder vurderingResultatNFP = KlageVurderingResultat.builder();
+    private final KlageVurderingResultat.Builder vurderingResultatNK = KlageVurderingResultat.builder();
 
     private KlageResultatEntitet klageResultat;
 
@@ -252,8 +250,6 @@ public class ScenarioKlageEngangsstønad {
         var repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
         lagre(repositoryProvider, this.klageRepository);
         klageBehandling.setId(AbstractTestScenario.nyId());
-        // Whitebox.setInternalState(klageBehandling, "id",
-        // AbstractTestScenario.nyId());
         return klageBehandling;
     }
 

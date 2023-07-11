@@ -185,9 +185,8 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         private LocalDateSegment<AktivitetStatus> antaGodkjentFramforIkkeGodkjent(LocalDateInterval di,
                                                                                   LocalDateSegment<AktivitetStatus> lhs,
                                                                                   LocalDateSegment<AktivitetStatus> rhs) {
-            var nyStatus = lhs == null || Objects.equals(lhs.getValue(), AktivitetStatus.IKKE_GODKJENT)
-                ? (rhs == null ? (lhs == null ? null : lhs.getValue()) : rhs.getValue())
-                : lhs.getValue();
+            var nyStatus = lhs == null || Objects.equals(lhs.getValue(), AktivitetStatus.IKKE_GODKJENT) ?
+                rhs == null ? lhs == null ? null : lhs.getValue() : rhs.getValue() : lhs.getValue();
             return new LocalDateSegment<>(di, nyStatus);
         }
 

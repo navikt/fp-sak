@@ -47,10 +47,10 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     void skal_ikke_gi_utslag_ved_inntektsmelding_med_arbeidsforhold() {
         // Arrange
         var orgnr = "222222222";
-        var ya = Arrays.asList(yrkesaktivitet(orgnr, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+        var ya = List.of(yrkesaktivitet(orgnr, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
         var inntektsposter = lagInntektsposter(dagerFørStp(90), dagerEtterStp(60), 100);
-        var inntekter = Arrays.asList(inntekt(orgnr, inntektsposter));
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr));
+        var inntekter = List.of(inntekt(orgnr, inntektsposter));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnr));
 
         // Act
         var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger));
@@ -63,7 +63,7 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     void skal_gi_utslag_hvis_det_mangler_arbeidsforhold_men_kreves_refusjon() {
         // Arrange
         var orgnr = "222222222";
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr, 5000));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnr, 5000));
 
         // Act
         var resultat = utled(lagAggregat(Collections.emptyList(), Collections.emptyList(), inntektsmeldinger));
@@ -78,8 +78,8 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     void skal_ikke_gi_utslag_hvis_det_kreves_refusjon_og_finnes_arbeidsforhold() {
         // Arrange
         var orgnr = "222222222";
-        var ya = Arrays.asList(yrkesaktivitet(orgnr, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr, 5000));
+        var ya = List.of(yrkesaktivitet(orgnr, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnr, 5000));
 
         // Act
         var resultat = utled(lagAggregat(ya, Collections.emptyList(), inntektsmeldinger));
@@ -93,10 +93,11 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         // Arrange
         var orgnrIM = "222222222";
         var orgnrArbeidInntekt = "333333333";
-        var ya = Arrays.asList(yrkesaktivitet(orgnrArbeidInntekt, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+        var ya = List.of(
+            yrkesaktivitet(orgnrArbeidInntekt, dagerFørStp(90), dagerEtterStp(60), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
         var inntektsposter = lagInntektsposter(dagerFørStp(90), dagerEtterStp(60), 100);
-        var inntekter = Arrays.asList(inntekt(orgnrArbeidInntekt, inntektsposter));
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnrIM));
+        var inntekter = List.of(inntekt(orgnrArbeidInntekt, inntektsposter));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnrIM));
 
         // Act
         var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger));
@@ -111,8 +112,8 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         var orgnr = "222222222";
         List<YrkesaktivitetBuilder> ya = Collections.emptyList();
         var inntektsposter = lagInntektsposter(dagerFørStp(90), dagerEtterStp(60), 100);
-        var inntekter = Arrays.asList(inntekt(orgnr, inntektsposter));
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr));
+        var inntekter = List.of(inntekt(orgnr, inntektsposter));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnr));
 
         // Act
         var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger));
@@ -129,8 +130,8 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         var orgnr = "222222222";
         List<YrkesaktivitetBuilder> ya = Collections.emptyList();
         var inntektsposter = lagInntektsposter(dagerFørStp(360), dagerFørStp(200), 100);
-        var inntekter = Arrays.asList(inntekt(orgnr, inntektsposter));
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr));
+        var inntekter = List.of(inntekt(orgnr, inntektsposter));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnr));
 
         // Act
         var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger));
@@ -145,8 +146,8 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         var orgnr = "222222222";
         List<YrkesaktivitetBuilder> ya = Collections.emptyList();
         var inntektsposter = lagInntektsposter(dagerFørStp(360), dagerFørStp(200), 100);
-        var inntekter = Arrays.asList(inntekt(orgnr, inntektsposter));
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr));
+        var inntekter = List.of(inntekt(orgnr, inntektsposter));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnr));
 
         // Act
         var resultat = utled(lagAggregat(ya, inntekter, inntektsmeldinger, lagFiske(), null));
@@ -163,8 +164,8 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
         var orgnr = "222222222";
         List<YrkesaktivitetBuilder> ya = Collections.emptyList();
         var inntektsposter = lagInntektsposter(dagerFørStp(360), dagerFørStp(200), 100);
-        var inntekter = Arrays.asList(inntekt(orgnr, inntektsposter));
-        var inntektsmeldinger = Arrays.asList(inntektsmelding(orgnr));
+        var inntekter = List.of(inntekt(orgnr, inntektsposter));
+        var inntektsmeldinger = List.of(inntektsmelding(orgnr));
         var ref = inntektsmeldinger.get(0).getArbeidsforholdRef();
         var infoBuilder = ArbeidsforholdInformasjonBuilder.builder(empty());
         var manueltOpprettetArbeidsforhold = infoBuilder.getOverstyringBuilderFor(Arbeidsgiver.virksomhet(orgnr), ref)
@@ -207,7 +208,7 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     }
 
     private OppgittOpptjeningBuilder lagFiske() {
-        return OppgittOpptjeningBuilder.ny().leggTilEgneNæringer(Arrays.asList(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+        return OppgittOpptjeningBuilder.ny().leggTilEgneNæringer(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMed(dagerFørStp(100)))
             .medVirksomhetType(VirksomhetType.FISKE)
             .medVirksomhet("999999999")));

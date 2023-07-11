@@ -52,7 +52,7 @@ public class OpptjeningAktivitetPeriode {
         if (this == o) {
             return true;
         }
-        if ((o == null) || (getClass() != o.getClass())) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         var other = (OpptjeningAktivitetPeriode) o;
@@ -144,8 +144,8 @@ public class OpptjeningAktivitetPeriode {
 
         private void valider() {
             // Opptjeningsperiode av typen arbeid krever alltid arbeidsgiver
-            if ((kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID) &&
-                    ((kladd.grupperingNøkkel == null) || (kladd.grupperingNøkkel.getArbeidsgiverType() == null))) {
+            if (kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID && (kladd.grupperingNøkkel == null
+                || kladd.grupperingNøkkel.getArbeidsgiverType() == null)) {
                 throw new IllegalStateException("Validering feilet for" + kladd.toString());
             }
         }

@@ -91,9 +91,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
 
     @GET
     @Path(ARBEID_OG_INNTEKTSMELDING_PART_PATH)
-    @Operation(description = "Hent informasjon arbeidsforhold og tilhørende inntektsmeldinger", summary = ("Returnerer info om arbeidsforhold og inntektsmeldinger tilknyttet saken."), tags = "arbeid-intektsmelding", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer ArbeidOgInntektsmeldingDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidOgInntektsmeldingDto.class)))
-    })
+    @Operation(description = "Hent informasjon arbeidsforhold og tilhørende inntektsmeldinger", summary = "Returnerer info om arbeidsforhold og inntektsmeldinger tilknyttet saken.", tags = "arbeid-intektsmelding", responses = {@ApiResponse(responseCode = "200", description = "Returnerer ArbeidOgInntektsmeldingDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidOgInntektsmeldingDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public ArbeidOgInntektsmeldingDto getArbeidOgInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
@@ -105,8 +103,9 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @POST
     @Path(LAGRE_VURDERING_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagre vurdering av arbeidsforhold som mangler inntektsmelding, eller inntektsmelding som mangler arbeidsforhold", summary = ("Lagrer vurdering av manglende inntektsmelding for et enkelt arbeidsforhold, " +
-        "eller manglende arbeidsforhold for en enkelt inntektsmelding."), tags = "arbeid-intektsmelding")
+    @Operation(description = "Lagre vurdering av arbeidsforhold som mangler inntektsmelding, eller inntektsmelding som mangler arbeidsforhold", summary =
+        "Lagrer vurdering av manglende inntektsmelding for et enkelt arbeidsforhold, "
+            + "eller manglende arbeidsforhold for en enkelt inntektsmelding.", tags = "arbeid-intektsmelding")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response lagreVurderingAvManglendeOpplysninger(@TilpassetAbacAttributt(supplierClass = ManglendeInntektsmeldingVurderingAbacDataSupplier.class)
                                                                    @NotNull @Parameter(description = "Vurdering av opplysning som mangler.") @Valid ManglendeOpplysningerVurderingDto manglendeOpplysningerVurderingDto) {
@@ -118,7 +117,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @POST
     @Path(REGISTRER_ARBEIDSFORHOLD_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagre registrering av arbeidsforhold", summary = ("Lagrer registrering av arbeidsforhold fra saksbehandler"), tags = "arbeid-intektsmelding")
+    @Operation(description = "Lagre registrering av arbeidsforhold", summary = "Lagrer registrering av arbeidsforhold fra saksbehandler", tags = "arbeid-intektsmelding")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response lagreManuelleArbeidsforhold(@TilpassetAbacAttributt(supplierClass = ManueltArbeidsforholdDtoAbacDataSupplier.class)
                                                  @NotNull @Parameter(description = "Registrering av arbeidsforhold.") @Valid ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
@@ -135,7 +134,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     @POST
     @Path(ÅPNE_FOR_NY_VURDERING_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Åpner behandling for endring av vurdering i arbeid og inntektsmelding, hvis dette er mulig.", summary = ("Åpner behandling for endring ved å rulle saken tilbake til korrekt steg"), tags = "arbeid-intektsmelding")
+    @Operation(description = "Åpner behandling for endring av vurdering i arbeid og inntektsmelding, hvis dette er mulig.", summary = "Åpner behandling for endring ved å rulle saken tilbake til korrekt steg", tags = "arbeid-intektsmelding")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public Response åpneForEndring(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
                                                 @NotNull @Parameter(description = "BehandlingUID og versjon på behadlingen.") @Valid BehandlingIdVersjonDto behandlingIdVersjonDto) {

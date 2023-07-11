@@ -70,7 +70,7 @@ public class OpptjeningDtoTjeneste {
             resultat.setOpptjeningAktivitetList(Collections.emptyList());
         }
 
-        if ((resultat.getFastsattOpptjening() == null) && resultat.getOpptjeningAktivitetList().isEmpty()) {
+        if (resultat.getFastsattOpptjening() == null && resultat.getOpptjeningAktivitetList().isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(resultat);
@@ -86,9 +86,9 @@ public class OpptjeningDtoTjeneste {
                 oap.getPeriode().getFomDato(), oap.getPeriode().getTomDato());
 
         var arbeidsgiver = oap.getArbeidsgiver();
-        if ((arbeidsgiver != null) && arbeidsgiver.erAktørId()) {
+        if (arbeidsgiver != null && arbeidsgiver.erAktørId()) {
             lagOpptjeningAktivitetDtoForPrivatArbeidsgiver(oap, dto);
-        } else if ((arbeidsgiver != null) && OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr())) {
+        } else if (arbeidsgiver != null && OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr())) {
             lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, false);
         } else if (erKunstig(oap)) {
             lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, true);
@@ -120,7 +120,7 @@ public class OpptjeningDtoTjeneste {
     }
 
     private void lagOpptjeningAktivitetDtoForArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto, boolean kunstig) {
-        if (!kunstig && (oap.getArbeidsgiver() != null) && OpptjeningAktivitetType.NÆRING.equals(oap.getOpptjeningAktivitetType())) {
+        if (!kunstig && oap.getArbeidsgiver() != null && OpptjeningAktivitetType.NÆRING.equals(oap.getOpptjeningAktivitetType())) {
             var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(oap.getArbeidsgiver().getOrgnr());
             dto.setNaringRegistreringsdato(virksomhet.getRegistrert());
         }
@@ -142,8 +142,8 @@ public class OpptjeningDtoTjeneste {
     }
 
     private boolean erKunstig(OpptjeningsperiodeForSaksbehandling oap) {
-        return (oap.getArbeidsgiver() != null) && oap.getArbeidsgiver().getErVirksomhet()
-                && Organisasjonstype.erKunstig(oap.getArbeidsgiver().getOrgnr());
+        return oap.getArbeidsgiver() != null && oap.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(
+            oap.getArbeidsgiver().getOrgnr());
     }
 
 }

@@ -53,7 +53,7 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     }
 
     @GET
-    @Operation(description = "Hent beregningsgrunnlag for angitt behandling for formidlingsbruk", summary = ("Returnerer beregningsgrunnlag for behandling for formidlingsbruk."), tags = "formidling")
+    @Operation(description = "Hent beregningsgrunnlag for angitt behandling for formidlingsbruk", summary = "Returnerer beregningsgrunnlag for behandling for formidlingsbruk.", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
     public Response hentBeregningsgrunnlagFormidlingV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)

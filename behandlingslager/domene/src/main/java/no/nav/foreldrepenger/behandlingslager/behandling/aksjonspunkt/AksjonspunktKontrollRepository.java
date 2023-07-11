@@ -104,7 +104,7 @@ public class AksjonspunktKontrollRepository {
     }
 
     public void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt, boolean totrinn) {
-        if (!aksjonspunkt.erÅpentAksjonspunkt() || (totrinn && !aksjonspunkt.kanSetteToTrinnsbehandling())) {
+        if (!aksjonspunkt.erÅpentAksjonspunkt() || totrinn && !aksjonspunkt.kanSetteToTrinnsbehandling()) {
             throw new IllegalStateException("Utviklerfeil: kan ikke sette totrinn på aksjonspunkt " + aksjonspunkt);
         }
         aksjonspunkt.setToTrinnsBehandling(totrinn);

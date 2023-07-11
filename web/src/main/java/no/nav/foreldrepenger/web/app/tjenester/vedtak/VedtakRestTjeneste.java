@@ -75,7 +75,7 @@ public class VedtakRestTjeneste {
 
     @GET
     @Path(HENT_VEDTAKSDOKUMENT_PART_PATH)
-    @Operation(description = "Hent vedtaksdokument gitt behandlingId", summary = ("Returnerer vedtaksdokument som er tilknyttet behandlingId."), tags = "vedtak")
+    @Operation(description = "Hent vedtaksdokument gitt behandlingId", summary = "Returnerer vedtaksdokument som er tilknyttet behandlingId.", tags = "vedtak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentVedtaksdokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for vedtaksdokument") @Valid BehandlingIdDto behandlingIdDto) {

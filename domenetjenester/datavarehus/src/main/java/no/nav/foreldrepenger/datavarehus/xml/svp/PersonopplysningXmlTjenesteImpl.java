@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.FamilieHendelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Inntekt;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.Inntektspost;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.PersonopplysningerSvangerskapspenger;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.svp.v2.RelatertYtelse;
@@ -216,7 +215,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private Collection<? extends Inntekt> lagInntekt(AktørId aktørId, InntektFilter filter) {
         List<Inntekt> inntektList = new ArrayList<>();
-        List<Inntektspost> inntektspostList = new ArrayList<>();
 
         filter.forFilter((inntekt, inntektsposter) -> {
             var inntektXML = personopplysningObjectFactory.createInntekt();
@@ -231,7 +229,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
                 inntektXML.getInntektsposter().add(inntektspostXML);
                 inntektXML.setMottaker(VedtakXmlUtil.lagStringOpplysning(aktørId.getId()));
-                inntektspostList.add(inntektspostXML);
             });
             inntektList.add(inntektXML);
         });

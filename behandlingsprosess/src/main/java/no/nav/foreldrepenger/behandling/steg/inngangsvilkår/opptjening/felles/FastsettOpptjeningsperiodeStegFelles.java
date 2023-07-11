@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.felles;
 
-import static java.util.Collections.singletonList;
-
 import java.util.List;
 
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
@@ -23,7 +21,7 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
     private OpptjeningRepository opptjeningRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(VilkårType.OPPTJENINGSPERIODEVILKÅR);
+    private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(VilkårType.OPPTJENINGSPERIODEVILKÅR);
 
     protected FastsettOpptjeningsperiodeStegFelles() {
         // CDI

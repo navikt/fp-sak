@@ -79,8 +79,8 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
                 .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
             return forretningshendelse.fødselsdato().minusDays(1).isBefore(tilkjentYtelseTom);
         }
-        return fagsak.erÅpen() ||
-            (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) && behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isPresent());
+        return fagsak.erÅpen() || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) && behandlingRepository.finnSisteInnvilgetBehandling(
+            fagsak.getId()).isPresent();
 
     }
 

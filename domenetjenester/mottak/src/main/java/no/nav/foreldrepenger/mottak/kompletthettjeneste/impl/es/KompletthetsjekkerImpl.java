@@ -79,7 +79,9 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
 
         // Manuelt registrerte søknader har foreløpig ikke vedleggsliste og kan derfor ikke kompletthetssjekkes:
-        if (søknad.isEmpty() || (!søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null || søknad.get().getSøknadVedlegg().isEmpty())) {
+        if (søknad.isEmpty() || !søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null || søknad.get()
+            .getSøknadVedlegg()
+            .isEmpty()) {
             return emptyList();
         }
 
@@ -118,9 +120,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             return true;
         }
         if (familieHendelseRepository.hentAggregat(behandlingId).getSøknadVersjon().getGjelderFødsel()) {
-            if (finnesBarnet(ref)) {
-                return true;
-            }
+            return finnesBarnet(ref);
         }
         return false;
     }

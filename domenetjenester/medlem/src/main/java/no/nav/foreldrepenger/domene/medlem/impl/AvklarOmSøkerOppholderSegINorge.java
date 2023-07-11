@@ -45,13 +45,13 @@ public class AvklarOmSøkerOppholderSegINorge {
         var behandlingId = ref.behandlingId();
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
         var region = getRegion(ref, personopplysninger);
-        if ((harFødselsdato(behandlingId) == JA) || (harDatoForOmsorgsovertakelse(behandlingId) == JA)) {
+        if (harFødselsdato(behandlingId) == JA || harDatoForOmsorgsovertakelse(behandlingId) == JA) {
             return Optional.empty();
         }
-        if ((harNordiskStatsborgerskap(region) == JA) || (harAnnetStatsborgerskap(region) == JA)) {
+        if (harNordiskStatsborgerskap(region) == JA || harAnnetStatsborgerskap(region) == JA) {
             return Optional.empty();
         }
-        if ((erGiftMedNordiskBorger(personopplysninger) == JA) || (erGiftMedBorgerMedANNETStatsborgerskap(personopplysninger) == JA)) {
+        if (erGiftMedNordiskBorger(personopplysninger) == JA || erGiftMedBorgerMedANNETStatsborgerskap(personopplysninger) == JA) {
             return Optional.empty();
         }
         if (harOppholdstilltatelseVed(ref, vurderingstidspunkt) == JA) {
@@ -86,7 +86,7 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall harAnnetStatsborgerskap(Region region) {
-        return (region == null || Region.TREDJELANDS_BORGER.equals(region)) || Region.UDEFINERT.equals(region) ? JA : NEI;
+        return region == null || Region.TREDJELANDS_BORGER.equals(region) || Region.UDEFINERT.equals(region) ? JA : NEI;
     }
 
     private Utfall erGiftMedNordiskBorger(PersonopplysningerAggregat personopplysninger) {

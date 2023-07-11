@@ -249,7 +249,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         if (this == o) {
             return true;
         }
-        if ((o == null) || !(o instanceof InntektArbeidYtelseGrunnlag that)) {
+        if (!(o instanceof InntektArbeidYtelseGrunnlag that)) {
             return false;
         }
         return (aktiv == that.aktiv) &&

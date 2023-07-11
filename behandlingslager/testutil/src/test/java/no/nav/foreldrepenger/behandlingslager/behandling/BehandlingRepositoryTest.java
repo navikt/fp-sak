@@ -235,7 +235,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(resultat).isPresent();
-        assertThat(resultat.get()).isEqualTo(behandling);
+        assertThat(resultat).contains(behandling);
     }
 
     @Test

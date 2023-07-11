@@ -650,7 +650,7 @@ class FinnEndringerIUtbetaltYtelseTest {
             assertThat(andel.erBrukerMottaker()).isTrue();
         });
         assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isEqualTo(0);
+            assertThat(andel.getDagsats()).isZero();
             assertThat(andel.erBrukerMottaker()).isFalse();
         });
     }
@@ -758,7 +758,7 @@ class FinnEndringerIUtbetaltYtelseTest {
             assertThat(andel.erBrukerMottaker()).isTrue();
         });
         assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isEqualTo(0);
+            assertThat(andel.getDagsats()).isZero();
             assertThat(andel.erBrukerMottaker()).isFalse();
         });
     }
@@ -900,7 +900,7 @@ class FinnEndringerIUtbetaltYtelseTest {
             assertThat(andel.erBrukerMottaker()).isTrue();
         });
         assertThat(resultat).anySatisfy(andel -> {
-            assertThat(andel.getDagsats()).isEqualTo(0);
+            assertThat(andel.getDagsats()).isZero();
             assertThat(andel.erBrukerMottaker()).isFalse();
         });
     }

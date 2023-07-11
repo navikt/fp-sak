@@ -104,7 +104,7 @@ public class FagsakTjeneste {
     }
 
     private void validerNyFagsak(Fagsak fagsak) {
-        if ((fagsak.getId() != null) || !Objects.equals(fagsak.getStatus(), FagsakStatus.OPPRETTET)) {
+        if (fagsak.getId() != null || !Objects.equals(fagsak.getStatus(), FagsakStatus.OPPRETTET)) {
             throw new IllegalArgumentException("Kan ikke kalle opprett fagsak med eksisterende: " + fagsak);
         }
     }
@@ -116,7 +116,7 @@ public class FagsakTjeneste {
     }
 
     private void validerEksisterendeFagsak(Fagsak fagsak) {
-        if ((fagsak.getId() == null) || Objects.equals(fagsak.getStatus(), FagsakStatus.OPPRETTET)) {
+        if (fagsak.getId() == null || Objects.equals(fagsak.getStatus(), FagsakStatus.OPPRETTET)) {
             throw new IllegalArgumentException("Kan ikke kalle oppdater med ny fagsak: " + fagsak);
         }
     }

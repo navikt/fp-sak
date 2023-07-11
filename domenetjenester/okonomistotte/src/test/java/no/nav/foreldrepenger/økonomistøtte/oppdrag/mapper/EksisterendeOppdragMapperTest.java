@@ -2,12 +2,12 @@ package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
 import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FERIEPENGER_BRUKER;
 import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FPF_ARBEIDSTAKER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
@@ -55,9 +55,9 @@ class EksisterendeOppdragMapperTest {
 
         var kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
         var kjedeNøkkel = KjedeNøkkel.lag(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
-        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
+        assertThat(kjeder).containsOnlyKeys(kjedeNøkkel);
         var kjede = kjeder.get(kjedeNøkkel);
-        Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
+        assertThat(kjede.getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Satsen.dagsats(100)).build(),
             OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(150)).medRefDelytelseId(delytelseId1)
                 .build());
@@ -73,10 +73,10 @@ class EksisterendeOppdragMapperTest {
         var kjeder = EksisterendeOppdragMapper.tilKjeder(List.of(oppdragskontroll));
         var kjedeNøkkel = KjedeNøkkel.lag(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
         var kjedeNøkkelKnektKjede = KjedeNøkkel.builder(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
-        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkelKnektKjede);
-        Assertions.assertThat(kjeder.get(kjedeNøkkel).getOppdragslinjer()).containsExactly(
+        assertThat(kjeder).containsOnlyKeys(kjedeNøkkel, kjedeNøkkelKnektKjede);
+        assertThat(kjeder.get(kjedeNøkkel).getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Satsen.dagsats(100)).build());
-        Assertions.assertThat(kjeder.get(kjedeNøkkelKnektKjede).getOppdragslinjer()).containsExactly(
+        assertThat(kjeder.get(kjedeNøkkelKnektKjede).getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(150)).build());
     }
 
@@ -91,11 +91,11 @@ class EksisterendeOppdragMapperTest {
         lagOpphørslinje(oppdrag110, delytelseId2, p2, Satsen.dagsats(101), opphørsdato);
         lagOrdinærLinje(oppdrag110, delytelseId3, p3, Satsen.dagsats(100), DelytelseId.parse(Long.toString(linje2.getDelytelseId())));
 
-        var kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
+        var kjeder = EksisterendeOppdragMapper.tilKjeder(List.of(oppdragskontroll));
         var kjedeNøkkel = KjedeNøkkel.lag(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
-        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
+        assertThat(kjeder).containsOnlyKeys(kjedeNøkkel);
         var kjede = kjeder.get(kjedeNøkkel);
-        Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
+        assertThat(kjede.getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Satsen.dagsats(100)).build(),
             OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(101)).medRefDelytelseId(linje1.getDelytelseId()).build(),
             OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Satsen.dagsats(101)).medOpphørFomDato(opphørsdato).build(),
@@ -113,16 +113,16 @@ class EksisterendeOppdragMapperTest {
         lagOppdragslinje150(oppdrag110, delytelseId1, mai, Satsen.engang(1000), null, mai.getFom(), FERIEPENGER_BRUKER);
         lagOppdragslinje150(oppdrag110, delytelseId2, mai, Satsen.engang(1000), null, null, FERIEPENGER_BRUKER);
 
-        var kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
+        var kjeder = EksisterendeOppdragMapper.tilKjeder(List.of(oppdragskontroll));
         var kjedeNøkkel = KjedeNøkkel.lag(FERIEPENGER_BRUKER, Betalingsmottaker.BRUKER, 2019);
         var kjedeNøkkel2 = kjedeNøkkel.forNesteKnekteKjededel();
-        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkel2);
+        assertThat(kjeder).containsOnlyKeys(kjedeNøkkel, kjedeNøkkel2);
         var aktivKjede = kjeder.get(kjedeNøkkel);
-        Assertions.assertThat(aktivKjede.getOppdragslinjer()).containsExactly(
+        assertThat(aktivKjede.getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(mai).medSats(Satsen.engang(1000)).build()
         );
         var opphørtKjede = kjeder.get(kjedeNøkkel2);
-        Assertions.assertThat(opphørtKjede.getOppdragslinjer()).containsExactly(
+        assertThat(opphørtKjede.getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(mai).medSats(Satsen.engang(1000)).build(),
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(mai).medSats(Satsen.engang(1000)).medOpphørFomDato(mai.getFom()).build()
         );

@@ -234,23 +234,27 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue)
                 .orElse(0L);
 
-        if ((grunnbeløp.getVerdi() - satsIBeregning) > 1) {
-            var bruttoPrÅr = forrigeBeregning.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList())
-                    .stream()
-                    .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
-                    .max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
+        if (grunnbeløp.getVerdi() - satsIBeregning > 1) {
+            var bruttoPrÅr = forrigeBeregning.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
+                .max(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO);
             var avkortingOver = BeregningsresultatRepository.avkortingMultiplikatorG();
             var grenseAvkorting = new BigDecimal(satsIBeregning * avkortingOver);
             var militærUnder = BeregningsresultatRepository.militærMultiplikatorG();
             var grenseMilitær = new BigDecimal(grunnbeløp.getVerdi() * militærUnder);
             var over6G = bruttoPrÅr.compareTo(grenseAvkorting) >= 0;
-            var erMilitærUnderGrense = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
-                    .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-                    .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
-                            && (a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(grenseMilitær) < 0));
-            var erNæringsdrivende = forrigeBeregning.stream().flatMap(bg -> bg.getAktivitetStatuser().stream())
-                    .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
-                    .anyMatch(SN_REGULERING::contains);
+            var erMilitærUnderGrense = forrigeBeregning.stream()
+                .flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+                .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+                .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
+                    && a.getBeregningsgrunnlagPeriode().getBruttoPrÅr().compareTo(grenseMilitær) < 0);
+            var erNæringsdrivende = forrigeBeregning.stream()
+                .flatMap(bg -> bg.getAktivitetStatuser().stream())
+                .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
+                .anyMatch(SN_REGULERING::contains);
             if (over6G || erMilitærUnderGrense || erNæringsdrivende) {
                 LOG.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
                 return finnStartpunktForGRegulering(revurdering);
