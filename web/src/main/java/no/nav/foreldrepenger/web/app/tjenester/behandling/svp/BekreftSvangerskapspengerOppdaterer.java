@@ -451,13 +451,13 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato.orElse(null), dto.getFødselsdato());
 
         if (erEndret) {
-            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling);
+            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId());
             oppdatertOverstyrtHendelse.tilbakestillBarn();
             if (dto.getFødselsdato() != null) {
                 oppdatertOverstyrtHendelse.medFødselsDato(dto.getFødselsdato()).medAntallBarn(1);
             }
 
-            familieHendelseRepository.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+            familieHendelseRepository.lagreOverstyrtHendelse(behandling.getId(), oppdatertOverstyrtHendelse);
         }
         return erEndret;
     }
@@ -472,11 +472,11 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
 
         if (erEndret) {
-            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling);
+            var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId());
             oppdatertOverstyrtHendelse
                 .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
                     .medTermindato(dto.getTermindato()));
-            familieHendelseRepository.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+            familieHendelseRepository.lagreOverstyrtHendelse(behandling.getId(), oppdatertOverstyrtHendelse);
         }
         return erEndret;
     }

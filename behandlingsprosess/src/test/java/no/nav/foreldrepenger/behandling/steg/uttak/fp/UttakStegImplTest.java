@@ -319,7 +319,7 @@ class UttakStegImplTest {
         var gjeldendeVersjon = familieHendelseRepository.hentAggregat(revurdering.getId()).getGjeldendeVersjon();
         var hendelse = FamilieHendelseBuilder.oppdatere(Optional.of(gjeldendeVersjon), HendelseVersjonType.SØKNAD);
         hendelse.medFødselsDato(fødselsdato).medAntallBarn(1);
-        familieHendelseRepository.lagreRegisterHendelse(revurdering, hendelse);
+        familieHendelseRepository.lagreRegisterHendelse(revurdering.getId(), hendelse);
 
         var relasjonFør = fagsakRelasjonRepository.finnRelasjonFor(revurdering.getFagsak());
         assertThat(relasjonFør.getOverstyrtStønadskontoberegning()).isNotPresent();
@@ -445,11 +445,11 @@ class UttakStegImplTest {
         var behandling = opprettBehandling();
         opprettPersonopplysninger(behandling);
 
-        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
+        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId())
             .tilbakestillBarn()
             .medAntallBarn(1)
             .leggTilBarn(LocalDate.now(), LocalDate.now().plusDays(1));
-        familieHendelseRepository.lagreRegisterHendelse(behandling, bekreftetHendelse);
+        familieHendelseRepository.lagreRegisterHendelse(behandling.getId(), bekreftetHendelse);
 
         // Act
         var behandleStegResultat = steg.utførSteg(kontekst(behandling));
@@ -464,13 +464,13 @@ class UttakStegImplTest {
     @Test
     void skal_ha_aksjonspunkt_når_finnes_dødsdato_i_overstyrt_versjon() {
         var behandling = opprettBehandling();
-        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling).tilbakestillBarn().medFødselsDato(LocalDate.now());
-        familieHendelseRepository.lagreRegisterHendelse(behandling, bekreftetHendelse);
+        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId()).tilbakestillBarn().medFødselsDato(LocalDate.now());
+        familieHendelseRepository.lagreRegisterHendelse(behandling.getId(), bekreftetHendelse);
 
-        var overstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
+        var overstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId())
             .tilbakestillBarn()
             .leggTilBarn(LocalDate.now(), LocalDate.now().plusDays(1));
-        familieHendelseRepository.lagreOverstyrtHendelse(behandling, overstyrtHendelse);
+        familieHendelseRepository.lagreOverstyrtHendelse(behandling.getId(), overstyrtHendelse);
         opprettPersonopplysninger(behandling);
 
         // Act
@@ -510,11 +510,11 @@ class UttakStegImplTest {
         var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET).buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, lås);
 
-        var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling).medAntallBarn(1).medFødselsDato(fødselsdato);
-        familieHendelseRepository.lagre(behandling, søknadHendelse);
+        var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId()).medAntallBarn(1).medFødselsDato(fødselsdato);
+        familieHendelseRepository.lagre(behandling.getId(), søknadHendelse);
 
-        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling).medAntallBarn(1).medFødselsDato(fødselsdato);
-        familieHendelseRepository.lagre(behandling, bekreftetHendelse);
+        var bekreftetHendelse = familieHendelseRepository.opprettBuilderFor(behandling.getId()).medAntallBarn(1).medFødselsDato(fødselsdato);
+        familieHendelseRepository.lagre(behandling.getId(), bekreftetHendelse);
 
         OppgittFordelingEntitet fordeling;
         if (fagsak.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA)) {

@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
@@ -72,19 +71,18 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     @Override
     public OppdateringResultat oppdater(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var totrinn = håndterEndringHistorikk(dto, behandling, param);
+        var totrinn = håndterEndringHistorikk(dto, param);
 
         var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
 
         var builder = OppdateringResultat.utenTransisjon();
 
-        oppdaterAksjonspunktGrunnlag(dto, behandling);
+        oppdaterAksjonspunktGrunnlag(dto, behandlingId);
 
         var skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
         // Aksjonspunkter
-        settNyttVilkårOgAvbrytAndreOmsorgsovertakelseVilkårOgAksjonspunkter(dto, behandling, builder);
+        settNyttVilkårOgAvbrytAndreOmsorgsovertakelseVilkårOgAksjonspunkter(dto, builder, behandlingId);
 
         if (skalReinnhenteRegisteropplysninger) {
             return builder.medTotrinnHvis(totrinn).medOppdaterGrunnlag().build();
@@ -92,20 +90,20 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         return builder.medTotrinnHvis(totrinn).build();
     }
 
-    private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, Behandling behandling) {
+    private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, Long behandlingId) {
         var omsorgsovertakelseVilkårType = Optional.ofNullable(MAP_VILKÅR_OMSORGSVILKÅR.get(dto.getVilkårType()))
             .orElseThrow(() -> new FunksjonellException("FP-765341", "Mangler vilkårtype", "Oppgi vilkårtype"));
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medOmsorgovertalseVilkårType(omsorgsovertakelseVilkårType)
                 .medOmsorgsovertakelseDato(dto.getOmsorgsovertakelseDato()));
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
     }
 
     private void settNyttVilkårOgAvbrytAndreOmsorgsovertakelseVilkårOgAksjonspunkter(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto,
-                                                                                     Behandling behandling,
-                                                                                     OppdateringResultat.Builder builder) {
+                                                                                     OppdateringResultat.Builder builder,
+                                                                                     Long behandlingId) {
 
         // Omsorgsovertakelse
         var vilkårType = dto.getVilkårType();
@@ -115,20 +113,21 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
 
         builder.leggTilIkkeVurdertVilkår(vilkårType);
         // Rydd opp i eventuelle omsorgsvilkår som er tidligere lagt til
-        behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).ifPresent(br -> br.getVilkårResultat().getVilkårene().stream()
+        behandlingsresultatRepository.hentHvisEksisterer(behandlingId).ifPresent(br -> br.getVilkårResultat().getVilkårene().stream()
             .filter(vilkår -> OmsorgsvilkårKonfigurasjon.OMSORGS_VILKÅR.contains(vilkår.getVilkårType()))
             // Men uten å fjerne seg selv
             .filter(vilkår -> !vilkår.getVilkårType().equals(vilkårType))
             .forEach(fjernet -> builder.fjernVilkårType(fjernet.getVilkårType())));
-        behandling.getAksjonspunkter().stream()
+
+        behandlingRepository.hentBehandling(behandlingId).getAksjonspunkter().stream()
             .filter(ap -> OmsorgsvilkårKonfigurasjon.OMSORGS_AKSJONSPUNKT.contains(ap.getAksjonspunktDefinisjon()))
             .forEach(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
     }
 
-    private boolean håndterEndringHistorikk(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, Behandling behandling, AksjonspunktOppdaterParameter param) {
+    private boolean håndterEndringHistorikk(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         boolean erEndret;
 
-        var behandlingId = behandling.getId();
+        var behandlingId = param.getBehandlingId();
         var hendelseGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
         var orginalOmsorgsovertakelseDato = getOriginalOmsorgsovertakelseDato(hendelseGrunnlag);
@@ -145,7 +144,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
-            .medSkjermlenke(getSkjermlenkeType(behandling.getFagsakYtelseType()));
+            .medSkjermlenke(getSkjermlenkeType(param.getRef().fagsakYtelseType()));
 
         return erEndret;
     }

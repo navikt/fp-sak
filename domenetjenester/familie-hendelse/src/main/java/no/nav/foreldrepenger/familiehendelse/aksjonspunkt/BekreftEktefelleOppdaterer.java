@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAksjonspunktDto;
@@ -25,7 +24,6 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private BehandlingRepository behandlingRepository;
 
     BekreftEktefelleOppdaterer() {
         // for CDI proxy
@@ -33,17 +31,14 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
 
     @Inject
     public BekreftEktefelleOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                      FamilieHendelseTjeneste familieHendelseTjeneste,
-                                      BehandlingRepository behandlingRepository) {
+                                      FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public OppdateringResultat oppdater(BekreftEktefelleAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var erEktefellesBarn = familieHendelseTjeneste.hentAggregat(behandlingId)
             .getGjeldendeBekreftetVersjon()
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
@@ -57,11 +52,11 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_ADOPSJON);
 
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medErEktefellesBarn(dto.getEktefellesBarn()));
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(erEndret).build();
     }
 

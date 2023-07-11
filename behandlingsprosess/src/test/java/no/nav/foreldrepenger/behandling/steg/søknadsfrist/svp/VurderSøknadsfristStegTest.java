@@ -63,9 +63,9 @@ class VurderSøknadsfristStegTest {
     void ingen_aksjonspunkt_når_søkt_i_tide(EntityManager em) {
         var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
         var termindato = LocalDate.of(2019, Month.JULY, 1);
-        svpHelper.lagreTerminbekreftelse(behandling, termindato);
+        svpHelper.lagreTerminbekreftelse(termindato, behandling.getId());
         svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, behovFraDato);
-        var søknad = opprettSøknad(behandling, behovFraDato, behovFraDato);
+        var søknad = opprettSøknad(behovFraDato, behovFraDato, behandling.getId());
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -96,9 +96,9 @@ class VurderSøknadsfristStegTest {
         var søknadMotattt = LocalDate.of(2019, Month.NOVEMBER, 3);
         var tidligstMottatt = LocalDate.of(2019, Month.SEPTEMBER, 3);;
         var termindato = LocalDate.of(2019, Month.JULY, 1);
-        svpHelper.lagreTerminbekreftelse(behandling, termindato);
+        svpHelper.lagreTerminbekreftelse(termindato, behandling.getId());
         svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, tidligstMottatt);
-        var søknad = opprettSøknad(behandling, behovFraDato, søknadMotattt);
+        var søknad = opprettSøknad(behovFraDato, søknadMotattt, behandling.getId());
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -129,9 +129,9 @@ class VurderSøknadsfristStegTest {
     void ingen_aksjonspunkt_revurdering_søkt_i_tide(EntityManager em) {
         var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
         var termindato = LocalDate.of(2019, Month.DECEMBER, 1);
-        svpHelper.lagreTerminbekreftelse(behandling, termindato);
+        svpHelper.lagreTerminbekreftelse(termindato, behandling.getId());
         svpHelper.lagreDelvisTilrettelegging(behandling, jordsmorsdato, jordsmorsdato, new BigDecimal(60));
-        var søknad = opprettSøknad(behandling, termindato, jordsmorsdato);
+        var søknad = opprettSøknad(termindato, jordsmorsdato, behandling.getId());
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         em.flush();
         em.clear();
@@ -157,9 +157,9 @@ class VurderSøknadsfristStegTest {
         behandling.avsluttBehandling();
 
         var revurdering = svpHelper.lagreRevurdering(behandling);
-        svpHelper.lagreTerminbekreftelse(revurdering, LocalDate.of(2019, Month.DECEMBER, 1));
+        svpHelper.lagreTerminbekreftelse(LocalDate.of(2019, Month.DECEMBER, 1), revurdering.getId());
         svpHelper.lagreDelvisTilrettelegging(revurdering, jordsmorsdato, jordsmorsdato.plusMonths(4), new BigDecimal(20));
-        var søknadRevurder = opprettSøknad(revurdering, termindato, jordsmorsdato.plusMonths(4));
+        var søknadRevurder = opprettSøknad(termindato, jordsmorsdato.plusMonths(4), revurdering.getId());
         repositoryProvider.getSøknadRepository().lagreOgFlush(revurdering, søknadRevurder);
         em.flush();
         em.clear();
@@ -183,14 +183,12 @@ class VurderSøknadsfristStegTest {
 
     }
 
-
-
-    private SøknadEntitet opprettSøknad(Behandling behandling, LocalDate termindato, LocalDate mottattDato) {
+    private SøknadEntitet opprettSøknad(LocalDate termindato, LocalDate mottattDato, Long behandlingId) {
         var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandling)
+            .opprettBuilderFor(behandlingId)
             .medAntallBarn(1)
             .medFødselsDato(termindato);
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
+        repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
 
         return new SøknadEntitet.Builder()
                 .medSøknadsdato(LocalDate.now())

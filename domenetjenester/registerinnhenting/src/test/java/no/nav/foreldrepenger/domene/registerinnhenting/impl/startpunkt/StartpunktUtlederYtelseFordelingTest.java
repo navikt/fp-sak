@@ -245,7 +245,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
     }
 
     private void lagreEndringssøknad(Behandling behandling) {
-        byggFamilieHendelse(behandling);
+        byggFamilieHendelse(behandling.getId());
         var søknad = new SøknadEntitet.Builder()
             .medElektroniskRegistrert(true)
             .medSøknadsdato(LocalDate.now())
@@ -255,15 +255,15 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
         søknadRepository.lagreOgFlush(behandling, søknad);
     }
 
-    private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling) {
+    private FamilieHendelseEntitet byggFamilieHendelse(Long behandlingId) {
         var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandling)
+            .opprettBuilderFor(behandlingId)
             .medAntallBarn(1);
         søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now())
             .medUtstedtDato(LocalDate.now()));
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
-        return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getSøknadVersjon();
+        repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
+        return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId).getSøknadVersjon();
     }
 
 

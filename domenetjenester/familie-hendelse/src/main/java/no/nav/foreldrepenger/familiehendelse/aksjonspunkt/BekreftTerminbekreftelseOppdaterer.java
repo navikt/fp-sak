@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
@@ -30,7 +29,6 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     private BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private BehandlingRepository behandlingRepository;
 
     BekreftTerminbekreftelseOppdaterer() {
         // for CDI proxy
@@ -40,14 +38,11 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     public BekreftTerminbekreftelseOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                               SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
                                               FamilieHendelseTjeneste familieHendelseTjeneste,
-                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator,
-                                              BehandlingRepository behandlingRepository) {
+                                              BekreftTerminbekreftelseValidator bekreftTerminbekreftelseValidator) {
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.bekreftTerminbekreftelseValidator = bekreftTerminbekreftelseValidator;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-
-        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -58,7 +53,6 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     @Override
     public OppdateringResultat oppdater(BekreftTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
         var orginalTermindato = getTermindato(grunnlag);
@@ -78,7 +72,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             }
         }
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
         if (FamilieHendelseType.TERMIN.equals(grunnlag.getGjeldendeVersjon().getType())) {
             oppdatertOverstyrtHendelse
                 .tilbakestillBarn()
@@ -87,7 +81,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
                     .medTermindato(dto.getTermindato())
                     .medUtstedtDato(dto.getUtstedtdato()))
                 .medAntallBarn(dto.getAntallBarn());
-            familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+            familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         } else {
             // Hvis man nå av en eller annen grunn har aksjonspunkt avklar termin når typen er fødsel.
             oppdatertOverstyrtHendelse
@@ -96,7 +90,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
                     .medTermindato(dto.getTermindato())
                     .medUtstedtDato(dto.getUtstedtdato()))
                 .medAntallBarn(dto.getAntallBarn());
-            familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+            familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
         }
 
         var oppdatertGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);

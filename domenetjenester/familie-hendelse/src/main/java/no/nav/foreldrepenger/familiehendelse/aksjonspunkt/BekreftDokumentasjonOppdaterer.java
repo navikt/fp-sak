@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftDokumentertDatoAksjonspunktDto;
@@ -34,7 +33,6 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private BehandlingRepository behandlingRepository;
 
     BekreftDokumentasjonOppdaterer() {
         // for CDI proxy
@@ -43,12 +41,10 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
     @Inject
     public BekreftDokumentasjonOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                           FamilieHendelseTjeneste familieHendelseTjeneste,
-                                          SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste,
-                                          BehandlingRepository behandlingRepository) {
+                                          SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.historikkAdapter = historikkAdapter;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -59,13 +55,12 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
     @Override
     public OppdateringResultat oppdater(BekreftDokumentertDatoAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var totrinn = håndterEndringHistorikk(dto, param);
 
         // beregn denne før vi oppdaterer grunnlag
         var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);
         oppdatertOverstyrtHendelse
             .tilbakestillBarn()
             .medAntallBarn(dto.getFodselsdatoer().keySet().size())
@@ -74,7 +69,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
         dto.getFodselsdatoer()
             .forEach((barnnummer, fødselsdato) -> oppdatertOverstyrtHendelse.leggTilBarn(new UidentifisertBarnEntitet(fødselsdato, barnnummer)));
 
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatertOverstyrtHendelse);
 
         var skalReinnhente = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 

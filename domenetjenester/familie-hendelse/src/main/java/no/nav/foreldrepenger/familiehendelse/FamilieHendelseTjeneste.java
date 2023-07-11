@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -139,73 +138,63 @@ public class FamilieHendelseTjeneste {
         return hendelse1.getGjelderFødsel() && hendelse2.getGjelderAdopsjon() || hendelse1.getGjelderAdopsjon() && hendelse2.getGjelderFødsel();
     }
 
-    public void oppdaterFødselPåGrunnlag(Behandling behandling, List<FødtBarnInfo> bekreftetTps) {
-
-        var tidligereRegistrertFødselsdato = hentRegisterFødselsdato(behandling.getId()).orElse(null);
+    public void oppdaterFødselPåGrunnlag(Long behandlingId, List<FødtBarnInfo> bekreftetTps) {
+        var tidligereRegistrertFødselsdato = hentRegisterFødselsdato(behandlingId).orElse(null);
 
         if (bekreftetTps.isEmpty()) {
             if (tidligereRegistrertFødselsdato != null) {
-                LOG.info("Ungt Barn Forsvunnet fra Register for sak {} behandling {}", behandling.getFagsak().getSaksnummer(), behandling.getId());
+                LOG.info("Ungt Barn Forsvunnet fra Register for sak, behandling {}", behandlingId);
             }
             return;
         }
 
-        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderForregister(behandling).tilbakestillBarn();
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderFor(behandlingId, true).tilbakestillBarn();
 
         bekreftetTps.forEach(barn -> hendelseBuilder.leggTilBarn(barn.fødselsdato(), barn.getDødsdato().orElse(null)));
         hendelseBuilder.medAntallBarn(bekreftetTps.size());
 
-        familieGrunnlagRepository.lagreRegisterHendelse(behandling, hendelseBuilder);
+        familieGrunnlagRepository.lagreRegisterHendelse(behandlingId, hendelseBuilder);
 
-        var sisteRegistrertFødselsdato = hentRegisterFødselsdato(behandling.getId()).orElse(null);
+        var sisteRegistrertFødselsdato = hentRegisterFødselsdato(behandlingId).orElse(null);
 
-        var familieHendelseGrunnlag = hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = hentAggregat(behandlingId);
         if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
             familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FØDSEL::equals).orElse(Boolean.FALSE)) {
-            familiehendelseEventPubliserer.fireEventTerminFødsel(behandling, tidligereRegistrertFødselsdato, sisteRegistrertFødselsdato);
+            familiehendelseEventPubliserer.fireEventTerminFødsel(behandlingId, tidligereRegistrertFødselsdato, sisteRegistrertFødselsdato);
         }
     }
 
 
-    public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
-        return familieGrunnlagRepository.opprettBuilderFor(behandling);
+    public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId) {
+        return familieGrunnlagRepository.opprettBuilderFor(behandlingId);
     }
 
 
-    public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
-        var tidligereGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandling.getId()).orElse(null);
+    public void lagreOverstyrtHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
+        var tidligereGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandlingId).orElse(null);
 
-        familieGrunnlagRepository.lagreOverstyrtHendelse(behandling, hendelse);
+        familieGrunnlagRepository.lagreOverstyrtHendelse(behandlingId, hendelse);
 
-        var sisteGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandling.getId()).orElse(null);
+        var sisteGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandlingId).orElse(null);
 
-        var familieHendelseGrunnlag = hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = hentAggregat(behandlingId);
         if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
             familieHendelseGrunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).filter(FØDSEL::equals).isPresent()) {
-            familiehendelseEventPubliserer.fireEventTerminFødsel(behandling, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
+            familiehendelseEventPubliserer.fireEventTerminFødsel(behandlingId, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
         }
     }
-
-
-    public FamilieHendelseGrunnlagEntitet hentAggregat(BehandlingReferanse ref) {
-        return familieGrunnlagRepository.hentAggregat(ref.behandlingId());
-    }
-
 
     public FamilieHendelseGrunnlagEntitet hentAggregat(Long behandlingId) {
         return familieGrunnlagRepository.hentAggregat(behandlingId);
     }
 
-
     public Optional<FamilieHendelseGrunnlagEntitet> finnAggregat(Long behandlingId) {
         return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
     }
 
-
     public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
         return familieGrunnlagRepository.hentGrunnlagPåId(grunnlagId);
     }
-
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
         var funnetId = familieGrunnlagRepository.hentIdPåAktivFamiliehendelse(behandlingId);
@@ -306,7 +295,7 @@ public class FamilieHendelseTjeneste {
         return familieHendelseEntitet.getBarna().stream()
             .map(UidentifisertBarn::getFødselsdato)
             .map(dato -> new LocalDateSegment<>(dato.minus(MATCH_INTERVAlL_FØDSEL), dato.plus(MATCH_INTERVAlL_FØDSEL), Boolean.TRUE))
-            .collect(toList());
+            .toList();
     }
 
     private static LocalDateSegment<Boolean> intervallForFødselsdato(LocalDate fødselsdato) {

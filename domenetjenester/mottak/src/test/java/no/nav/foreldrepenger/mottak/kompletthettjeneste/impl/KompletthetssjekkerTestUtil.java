@@ -94,7 +94,7 @@ public class KompletthetssjekkerTestUtil {
         var oppgittFordeling = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getOppgittFordeling();
         Objects.requireNonNull(oppgittFordeling, "OppgittFordeling må være lagret på forhånd");
 
-        byggFamilieHendelse(behandling);
+        byggFamilieHendelse(behandling.getId());
         var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true)
             .medSøknadsdato(søknadsDato)
             .medMottattDato(LocalDate.now())
@@ -106,7 +106,7 @@ public class KompletthetssjekkerTestUtil {
 
     public void byggOgLagreFørstegangsSøknadMedMottattdato(Behandling behandling, LocalDate søknadsdato, LocalDate stp) {
         byggOppgittFordelingMedUtsettelse(behandling, stp, null);
-        byggFamilieHendelse(behandling);
+        byggFamilieHendelse(behandling.getId());
         var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true)
             .medSøknadsdato(søknadsdato)
             .medMottattDato(søknadsdato)
@@ -137,11 +137,11 @@ public class KompletthetssjekkerTestUtil {
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
-    private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling) {
-        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
+    private FamilieHendelseEntitet byggFamilieHendelse(Long behandlingId) {
+        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandlingId)
             .medAntallBarn(1)
             .medFødselsDato(LocalDate.now().minusDays(1));
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
-        return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getSøknadVersjon();
+        repositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, søknadHendelse);
+        return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId).getSøknadVersjon();
     }
 }

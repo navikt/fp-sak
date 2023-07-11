@@ -128,7 +128,7 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        tjeneste.oppdaterFødselPåGrunnlag(behandling, List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
+        tjeneste.oppdaterFødselPåGrunnlag(behandling.getId(), List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
 
         // Assert
         var aggregat = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());

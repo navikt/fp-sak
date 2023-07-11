@@ -177,8 +177,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             }
 
             @Override
-            public void lagre(Behandling behandling, FamilieHendelseBuilder hendelseBuilder) {
-                var behandlingId = behandling.getId();
+            public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
                 var kladd = hentAggregatHvisEksisterer(behandlingId);
                 var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 var type = utledTypeFor(kladd);
@@ -193,12 +192,12 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             }
 
             @Override
-            public void lagreRegisterHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
+            public void lagreRegisterHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
+            public void lagreOverstyrtHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
                 throw new UnsupportedOperationException();
             }
 
@@ -241,7 +240,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             }
 
             @Override
-            public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
+            public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId, boolean register) {
                 throw new UnsupportedOperationException();
             }
 

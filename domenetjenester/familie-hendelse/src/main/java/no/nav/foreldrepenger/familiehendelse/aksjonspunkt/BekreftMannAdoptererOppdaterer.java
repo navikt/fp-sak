@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftMannAdoptererAksjonspunktDto;
@@ -26,15 +25,12 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
 
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
-    private BehandlingRepository behandlingRepository;
 
     @Inject
     public BekreftMannAdoptererOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
-                                          FamilieHendelseTjeneste familieHendelseTjeneste,
-                                          BehandlingRepository behandlingRepository) {
+                                          FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        this.behandlingRepository = behandlingRepository;
     }
 
     BekreftMannAdoptererOppdaterer() {
@@ -44,14 +40,13 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
     @Override
     public OppdateringResultat oppdater(BekreftMannAdoptererAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingReferanse = param.getRef();
-        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.behandlingId());
         var totrinn = håndterEndringHistorikk(dto, behandlingReferanse, param);
 
-        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingReferanse.behandlingId());
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medAdoptererAlene(dto.getMannAdoptererAlene()));
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingReferanse.behandlingId(), oppdatertOverstyrtHendelse);
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 

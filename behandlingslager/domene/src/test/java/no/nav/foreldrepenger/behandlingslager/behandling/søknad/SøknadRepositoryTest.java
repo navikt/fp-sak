@@ -49,7 +49,7 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
 
         var fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         fhBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
-        familieHendelseRepository.lagre(behandling, fhBuilder);
+        familieHendelseRepository.lagre(behandling.getId(), fhBuilder);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), behandling2.getId());
 
         var søknad = opprettSøknad(false);
@@ -78,7 +78,7 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
 
         var fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         fhBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
-        familieHendelseRepository.lagre(behandling, fhBuilder);
+        familieHendelseRepository.lagre(behandling.getId(), fhBuilder);
 
         var søknad = opprettSøknad(false);
         søknadRepository.lagreOgFlush(behandling, søknad);

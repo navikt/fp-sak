@@ -252,7 +252,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var mottattDato = mottattDokument.getMottattDato();
         var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
         var loggFør = loggFamilieHendelseForFørstegangPåRevurdering(behandling, "FØR");
-        var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling);
+        var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling.getId());
         var søknadBuilder = new SøknadEntitet.Builder();
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, Optional.empty());
         var behandlingId = behandling.getId();
@@ -277,7 +277,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder, søknadBuilder);
             }
         }
-        familieHendelseRepository.lagre(behandling, hendelseBuilder);
+        familieHendelseRepository.lagre(behandling.getId(), hendelseBuilder);
         søknadBuilder.medErEndringssøknad(false);
         var relasjonsRolleType = utledRolle(wrapper.getBruker(), behandlingId, aktørId);
         var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();

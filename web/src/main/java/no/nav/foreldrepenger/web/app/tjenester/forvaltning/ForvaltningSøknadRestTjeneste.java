@@ -90,15 +90,16 @@ public class ForvaltningSøknadRestTjeneste {
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
             .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
-        var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        var behandlingId = behandling.getId();
+        var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (gjeldende.isEmpty() || gjeldende.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeTerminbekreftelse).isPresent())
             return Response.status(Response.Status.BAD_REQUEST).build();
-        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandling);
+        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandlingId);
         var terminbuilder = hendelsebuilder.getTerminbekreftelseBuilder()
             .medTermindato(dto.getTermindato())
             .medUtstedtDato(dto.getUtstedtdato())
             .medNavnPå(dto.getBegrunnelse());
-        familieHendelseRepository.lagre(behandling, hendelsebuilder.medTerminbekreftelse(terminbuilder));
+        familieHendelseRepository.lagre(behandlingId, hendelsebuilder.medTerminbekreftelse(terminbuilder));
 
         return Response.ok().build();
     }
@@ -113,18 +114,19 @@ public class ForvaltningSøknadRestTjeneste {
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
             .filter(SpesialBehandling::erIkkeSpesialBehandling)
             .findFirst().orElseGet(() -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakId).orElseThrow());
-        var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        var behandlingId = behandling.getId();
+        var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (gjeldende.isEmpty() || !gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeBarna).orElse(List.of()).isEmpty()
            // || gjeldende.map(FamilieHendelseGrunnlagEntitet::getGjeldendeAntallBarn).filter(ab -> ab > 0).isPresent()
         ) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandling)
+        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandlingId)
             .medAntallBarn(1)
             .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
             .medErMorForSykVedFødsel(null)
             .leggTilBarn(dto.getFødselsdato(), dto.getDødsdato());
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, hendelsebuilder);
+        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, hendelsebuilder);
 
         return Response.ok().build();
     }

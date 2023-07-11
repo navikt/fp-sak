@@ -90,7 +90,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
             .medFødselsdato(LocalDate.now().plusDays(2))
             .medDødsdato(LocalDate.now().plusDays(2))
             .build();
-        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandlingMor, of(fødtBarnInfo));
+        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandlingMor.getId(), of(fødtBarnInfo));
 
         // Act
         var resultat = tjeneste.launch(settOppBatchArguments(LocalDate.now(), LocalDate.now().plusDays(3)));
