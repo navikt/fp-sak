@@ -196,7 +196,7 @@ public class OpptjeningRepository {
         if (opptjeningAktiviteter == null) {
             return Collections.emptySet();
         }
-        Set<OpptjeningAktivitet> kopiListe = opptjeningAktiviteter.stream().map(oa -> new OpptjeningAktivitet(oa)).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<OpptjeningAktivitet> kopiListe = opptjeningAktiviteter.stream().map(OpptjeningAktivitet::new).collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (opptjeningAktiviteter.size() > kopiListe.size()) {
             // har duplikater!!

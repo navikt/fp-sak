@@ -37,7 +37,7 @@ class SoapApiTester {
         var classes = getAllClasses();
         List<Class<?>> classesToReturn = new ArrayList<Class<?>>();
 
-        classes.stream().filter(s -> s.getAnnotation(SoapWebService.class) != null).forEach(s -> classesToReturn.add(s));
+        classes.stream().filter(s -> s.getAnnotation(SoapWebService.class) != null).forEach(classesToReturn::add);
         return classesToReturn;
     }
 }

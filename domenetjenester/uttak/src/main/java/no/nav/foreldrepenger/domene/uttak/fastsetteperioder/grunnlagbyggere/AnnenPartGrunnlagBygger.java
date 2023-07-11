@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
@@ -63,7 +64,7 @@ public class AnnenPartGrunnlagBygger {
             .samtidigUttak(periode.isSamtidigUttak())
             .flerbarnsdager(periode.isFlerbarnsdager())
             .innvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()))
-            .senestMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null));
+            .senestMottattDato(periode.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null));
 
         for (var aktivitet : periode.getAktiviteter()) {
             var utbetalingsgrad = new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue());

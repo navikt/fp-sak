@@ -60,7 +60,7 @@ class EtterkontrollRepositoryTest {
 
         var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
-        assertThat(behandlings.stream().map(b -> b.getId())).contains(behandling.getId());
+        assertThat(behandlings.stream().map(Behandling::getId)).contains(behandling.getId());
     }
 
     @Test
@@ -121,7 +121,7 @@ class EtterkontrollRepositoryTest {
 
         var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
-        assertThat(behandlings.stream().map(b -> b.getId())).contains(behandling.getId());
+        assertThat(behandlings.stream().map(Behandling::getId)).contains(behandling.getId());
     }
 
     @Test

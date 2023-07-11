@@ -121,7 +121,7 @@ class MapAktørInntekt {
         }
 
         private List<UtbetalingDto> tilUtbetalinger(Collection<Inntekt> inntekter) {
-            return inntekter.stream().map(in -> tilUtbetaling(in)).sorted(COMP_UTBETALING).collect(Collectors.toList());
+            return inntekter.stream().map(this::tilUtbetaling).sorted(COMP_UTBETALING).collect(Collectors.toList());
         }
 
         private UtbetalingDto tilUtbetaling(Inntekt inntekt) {

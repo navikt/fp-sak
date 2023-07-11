@@ -15,7 +15,7 @@ public class BeregningsresultatPeriodeDto {
         fom = builder.fom;
         tom = builder.tom;
         dagsats = builder.dagsats;
-        andeler = builder.andeler.stream().toArray(BeregningsresultatPeriodeAndelDto[]::new);
+        andeler = builder.andeler.toArray(BeregningsresultatPeriodeAndelDto[]::new);
     }
 
     public LocalDate getFom() {

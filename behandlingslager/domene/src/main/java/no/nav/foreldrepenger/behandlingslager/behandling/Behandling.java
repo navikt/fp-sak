@@ -433,7 +433,7 @@ public class Behandling extends BaseEntitet {
                 .thenComparing(Comparator.nullsLast(comparatorEndret).reversed());
 
         // tar nyeste.
-        return behandlingStegTilstander.stream().sorted(comparator).findFirst();
+        return behandlingStegTilstander.stream().min(comparator);
     }
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand(BehandlingStegType stegType) {
@@ -608,7 +608,7 @@ public class Behandling extends BaseEntitet {
     public boolean harAvbruttAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return getAksjonspunkterStream()
             .filter(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()))
-            .anyMatch(ap -> ap.erAvbrutt());
+            .anyMatch(Aksjonspunkt::erAvbrutt);
     }
 
     public boolean harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {

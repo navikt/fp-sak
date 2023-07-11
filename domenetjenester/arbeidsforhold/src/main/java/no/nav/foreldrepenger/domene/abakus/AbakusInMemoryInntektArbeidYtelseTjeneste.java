@@ -319,7 +319,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             return Optional.empty();
         }
         return behGrunnlag.stream().map(grId -> hentGrunnlagPåId(behandlingId, grId))
-                .filter(gr -> gr.isAktiv())
+                .filter(InntektArbeidYtelseGrunnlag::isAktiv)
                 .findFirst();
     }
 

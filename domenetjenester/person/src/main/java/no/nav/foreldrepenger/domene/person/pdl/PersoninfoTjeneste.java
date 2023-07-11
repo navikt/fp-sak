@@ -322,14 +322,14 @@ public class PersoninfoTjeneste {
                 .max(Comparator.comparing(a -> a.getGyldighetsperiode().getFom()))
                 .filter(a -> AdresseType.UKJENT_ADRESSE.equals(a.getAdresse().getAdresseType())).isPresent();
             if (sistePeriodiserteErUkjent) {
-                var aplist = adressePerioder.stream().map(ap -> new AdressePeriode.AdresseTypePeriode(ap)).toList();
-                var applist = adressePerioderPeriodisert.stream().map(ap -> new AdressePeriode.AdresseTypePeriode(ap)).toList();
+                var aplist = adressePerioder.stream().map(AdressePeriode.AdresseTypePeriode::new).toList();
+                var applist = adressePerioderPeriodisert.stream().map(AdressePeriode.AdresseTypePeriode::new).toList();
                 LOG.info("UKJENT ADRESSE odditet: OPfom {} OPtom {} bosted {} kontakt {} opphold {} mapped {} periodisert {}", fom, tom,
                     person.getBostedsadresse().size(), person.getKontaktadresse().size(), person.getOppholdsadresse().size(),
                     aplist, applist);
                 var kommune = person.getBostedsadresse().stream()
-                    .map(b -> b.getUkjentBosted()).filter(Objects::nonNull)
-                    .map(u -> u.getBostedskommune()).filter(Objects::nonNull)
+                    .map(Bostedsadresse::getUkjentBosted).filter(Objects::nonNull)
+                    .map(UkjentBosted::getBostedskommune).filter(Objects::nonNull)
                     .toList();
                 if (!kommune.isEmpty())
                     LOG.info("UKJENT ADRESSE kommune: {}", kommune);

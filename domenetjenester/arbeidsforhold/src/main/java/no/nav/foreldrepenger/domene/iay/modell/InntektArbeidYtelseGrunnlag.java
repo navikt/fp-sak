@@ -52,11 +52,11 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
 
         // NB! skal ikke lage ny versjon av oppgitt opptjening eller andre underlag!
         // Lenker bare inn på ferskt grunnlag
-        grunnlag.getOppgittOpptjening().ifPresent(opp -> this.setOppgittOpptjening(opp));
-        grunnlag.getRegisterVersjon().ifPresent(ver -> this.setRegister(ver));
-        grunnlag.getSaksbehandletVersjon().ifPresent(ver -> this.setSaksbehandlet(ver));
-        grunnlag.getInntektsmeldinger().ifPresent(inn -> this.setInntektsmeldinger(inn));
-        grunnlag.getArbeidsforholdInformasjon().ifPresent(info -> this.setInformasjon(info));
+        grunnlag.getOppgittOpptjening().ifPresent(this::setOppgittOpptjening);
+        grunnlag.getRegisterVersjon().ifPresent(this::setRegister);
+        grunnlag.getSaksbehandletVersjon().ifPresent(this::setSaksbehandlet);
+        grunnlag.getInntektsmeldinger().ifPresent(this::setInntektsmeldinger);
+        grunnlag.getArbeidsforholdInformasjon().ifPresent(this::setInformasjon);
     }
 
     public InntektArbeidYtelseGrunnlag(UUID grunnlagReferanse, LocalDateTime opprettetTidspunkt) {
@@ -189,7 +189,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         }
         var overstyringer = arbeidsforholdInformasjon.getOverstyringer();
         return overstyringer.stream()
-                .filter(ov -> ov.kreverIkkeInntektsmelding())
+                .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
                 .map(ov -> {
                     // TODO (FC): fiks/fjern eksternRef herfra
                     EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(),

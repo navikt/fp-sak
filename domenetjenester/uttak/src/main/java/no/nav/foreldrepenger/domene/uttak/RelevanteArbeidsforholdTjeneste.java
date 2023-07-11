@@ -70,7 +70,7 @@ public class RelevanteArbeidsforholdTjeneste {
             .getPerioder()
             .stream()
             .flatMap(p -> p.getAktiviteter().stream())
-            .map(aktivitet -> aktivitet.getUttakAktivitet())
+            .map(UttakResultatPeriodeAktivitetEntitet::getUttakAktivitet)
             .collect(Collectors.toSet());
     }
 

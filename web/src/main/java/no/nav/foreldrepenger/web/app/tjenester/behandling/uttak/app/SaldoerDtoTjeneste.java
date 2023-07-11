@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
@@ -141,7 +142,7 @@ public class SaldoerDtoTjeneste {
             return new AktivitetSaldoDto(mapToDto(a), round(restSaldoFlerbarnsdager));
         }).toList();
         int restSaldoFlerbarnsdager = aktivitetSaldoList.stream()
-            .map(aktivitetSaldoDto -> aktivitetSaldoDto.saldo())
+            .map(AktivitetSaldoDto::saldo)
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoFlerbarnsdager >= 0;
@@ -157,7 +158,7 @@ public class SaldoerDtoTjeneste {
             return new AktivitetSaldoDto(mapToDto(a), Math.min(round(restSaldoDagerUtenAktivitetskrav), totalSaldo));
         }).toList();
         int restSaldoDagerUtenAktivitetskrav = aktivitetSaldoList.stream()
-            .map(aktivitetSaldoDto -> aktivitetSaldoDto.saldo())
+            .map(AktivitetSaldoDto::saldo)
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoDagerUtenAktivitetskrav >= 0;
@@ -252,7 +253,7 @@ public class SaldoerDtoTjeneste {
 
     private AktivitetIdentifikatorDto mapToDto(AktivitetIdentifikator aktivitet) {
         return new AktivitetIdentifikatorDto(UttakEnumMapper.map(aktivitet.getAktivitetType()),
-            Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ai -> ai.value()).orElse(null), aktivitet.getArbeidsforholdId());
+            Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ArbeidsgiverIdentifikator::value).orElse(null), aktivitet.getArbeidsforholdId());
     }
 
 }

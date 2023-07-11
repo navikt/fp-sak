@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.validering.FeltFeilDto;
@@ -28,13 +27,13 @@ public class ManuellRegistreringEndringssøknadValidator {
     private static List<FeltFeilDto> validerTidsromPermisjon(ManuellRegistreringEndringsøknadDto registreringDto) {
         List<FeltFeilDto> result = new ArrayList<>();
         //Valider far(medmor) spesifikke felter
-        validerOverføringAvKvoter(registreringDto).ifPresent(feltFeilDto1 -> result.add(feltFeilDto1));
+        validerOverføringAvKvoter(registreringDto).ifPresent(result::add);
 
         //Valider tidspermisjonsfelter som er felles for alle foreldretyper
         var tidsromPermisjon = registreringDto.getTidsromPermisjon();
         if(tidsromPermisjon != null) {
             var feltFeilPermisjonsperiode = validerPermisjonsperiode(tidsromPermisjon);
-            feltFeilPermisjonsperiode.ifPresent(feil -> result.add(feil));
+            feltFeilPermisjonsperiode.ifPresent(result::add);
 
             if (tidsromPermisjon.getUtsettelsePeriode() != null) {
                 result.addAll(ManuellRegistreringSøknadValidator.validerUtsettelse(tidsromPermisjon.getUtsettelsePeriode()));
@@ -62,7 +61,7 @@ public class ManuellRegistreringEndringssøknadValidator {
         if (feil.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new FeltFeilDto(feltnavn, feil.stream().collect(Collectors.joining(", "))));
+        return Optional.of(new FeltFeilDto(feltnavn, String.join(", ", feil)));
     }
 
     private static Optional<FeltFeilDto> validerOverføringAvKvoter(ManuellRegistreringEndringsøknadDto registreringDto) {

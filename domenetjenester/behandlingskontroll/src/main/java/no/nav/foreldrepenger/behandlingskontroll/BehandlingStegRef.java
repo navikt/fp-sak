@@ -127,11 +127,11 @@ public @interface BehandlingStegRef {
         }
 
         private static List<FagsakYtelseType> coalesce(FagsakYtelseType... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().toList();
+            return Arrays.stream(vals).filter(Objects::nonNull).distinct().toList();
         }
 
         private static List<BehandlingType> coalesce(BehandlingType... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().toList();
+            return Arrays.stream(vals).filter(Objects::nonNull).distinct().toList();
         }
 
     }

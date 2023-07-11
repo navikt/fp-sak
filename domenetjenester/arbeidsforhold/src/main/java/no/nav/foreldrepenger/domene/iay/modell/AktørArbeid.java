@@ -29,7 +29,7 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     AktørArbeid(AktørArbeid aktørArbeid) {
         this.aktørId = aktørArbeid.getAktørId();
 
-        this.yrkesaktiviter = aktørArbeid.yrkesaktiviter.stream().map(yrkesaktivitet -> new Yrkesaktivitet(yrkesaktivitet)).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.yrkesaktiviter = aktørArbeid.yrkesaktiviter.stream().map(Yrkesaktivitet::new).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override

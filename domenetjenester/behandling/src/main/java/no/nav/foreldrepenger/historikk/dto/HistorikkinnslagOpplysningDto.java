@@ -27,7 +27,7 @@ public class HistorikkinnslagOpplysningDto {
     }
 
     static List<HistorikkinnslagOpplysningDto> mapFra(List<HistorikkinnslagFelt> opplysninger) {
-        return opplysninger.stream().map(o -> mapFra(o)).toList();
+        return opplysninger.stream().map(HistorikkinnslagOpplysningDto::mapFra).toList();
     }
 
     private static HistorikkinnslagOpplysningDto mapFra(HistorikkinnslagFelt opplysning) {

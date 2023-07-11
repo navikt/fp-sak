@@ -182,7 +182,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
     @Override
     public BehandlingStegModell finnFørsteSteg(BehandlingStegType... behandlingStegTyper) {
-        Set<BehandlingStegType> stegTyper = new LinkedHashSet<>(Arrays.asList(behandlingStegTyper).stream().filter(bs -> bs != null)
+        Set<BehandlingStegType> stegTyper = new LinkedHashSet<>(Arrays.stream(behandlingStegTyper).filter(Objects::nonNull)
                 .toList());
 
         for (var stegModell : steg) {
@@ -200,12 +200,12 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
     @Override
     public Stream<BehandlingStegModell> hvertSteg() {
-        return steg.stream().map(m -> (BehandlingStegModell) m);
+        return steg.stream().map(m -> m);
     }
 
     @Override
     public List<BehandlingStegType> getAlleBehandlingStegTyper() {
-        return steg.stream().map(s -> s.getBehandlingStegType()).toList();
+        return steg.stream().map(BehandlingStegModellImpl::getBehandlingStegType).toList();
     }
 
     /**

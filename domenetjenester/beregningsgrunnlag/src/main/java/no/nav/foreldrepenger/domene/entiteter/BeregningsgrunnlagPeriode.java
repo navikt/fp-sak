@@ -133,7 +133,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     public BigDecimal getBeregnetPrÅr() {
         return beregningsgrunnlagPrStatusOgAndelList.stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
-                .filter(beregnetPrÅr -> beregnetPrÅr != null)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
     }
@@ -141,7 +141,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     void updateBruttoPrÅr() {
         bruttoPrÅr = beregningsgrunnlagPrStatusOgAndelList.stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr)
-                .filter(prÅr -> prÅr != null)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
     }
@@ -362,7 +362,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
             kladd.dagsats = kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getDagsats)
-                .filter(bgpsaDagsats -> bgpsaDagsats != null)
+                .filter(Objects::nonNull)
                 .reduce(Long::sum)
                 .orElse(null);
             built = true;

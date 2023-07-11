@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -188,7 +188,7 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     public static DokumentTypeId finnForKodeverkEiersNavn(String navn) {
         if (navn == null)
             return UDEFINERT;
-        return List.of(values()).stream().filter(k -> Objects.equals(k.navn, navn)).findFirst()
+        return Stream.of(values()).filter(k -> Objects.equals(k.navn, navn)).findFirst()
             .orElseGet(() -> ALT_TITLER.getOrDefault(navn, ANNET));
     }
 

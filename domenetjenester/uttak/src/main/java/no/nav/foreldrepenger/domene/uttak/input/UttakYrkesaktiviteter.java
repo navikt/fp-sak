@@ -78,7 +78,7 @@ public class UttakYrkesaktiviteter {
     public Set<AktivitetIdentifikator> tilAktivitetIdentifikatorer() {
         return input.getBeregningsgrunnlagStatuser()
             .stream()
-            .map(statusPeriode -> statusPeriode.toUttakAktivitetIdentifikator())
+            .map(BeregningsgrunnlagStatus::toUttakAktivitetIdentifikator)
             .collect(Collectors.toSet());
     }
 

@@ -56,7 +56,7 @@ public final class UttakOmsorgUtil {
     }
 
     private static boolean harUtbetaling(ForeldrepengerUttak resultat) {
-        return resultat.getGjeldendePerioder().stream().anyMatch(p -> p.harUtbetaling());
+        return resultat.getGjeldendePerioder().stream().anyMatch(ForeldrepengerUttakPeriode::harUtbetaling);
     }
 
 }

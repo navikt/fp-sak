@@ -60,7 +60,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     private void setBeregningsresultat(YtelseForeldrepenger ytelseForeldrepenger, List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         var resultat = beregningsresultatPerioder
             .stream()
-            .map(periode -> periode.getBeregningsresultatAndelList()).flatMap(Collection::stream).map(this::konverterFraDomene).toList();
+            .map(BeregningsresultatPeriode::getBeregningsresultatAndelList).flatMap(Collection::stream).map(this::konverterFraDomene).toList();
 
         ytelseForeldrepenger.getBeregningsresultat().addAll(resultat);
     }

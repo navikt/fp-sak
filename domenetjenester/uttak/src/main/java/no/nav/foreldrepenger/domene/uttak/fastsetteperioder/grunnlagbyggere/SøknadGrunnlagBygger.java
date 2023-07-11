@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
@@ -140,7 +141,7 @@ public class SøknadGrunnlagBygger {
         }
         return aktivieterMedType(aktiviter, AktivitetType.ARBEID).stream()
             .filter(aktivitetIdentifikator -> Objects.equals(oppgittPeriode.getArbeidsgiver().getIdentifikator(),
-                Optional.ofNullable(aktivitetIdentifikator.getArbeidsgiverIdentifikator()).map(ai -> ai.value()).orElse(null)))
+                Optional.ofNullable(aktivitetIdentifikator.getArbeidsgiverIdentifikator()).map(ArbeidsgiverIdentifikator::value).orElse(null)))
             .collect(Collectors.toSet());
     }
 

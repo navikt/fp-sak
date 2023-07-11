@@ -637,7 +637,7 @@ class FastsettePerioderTjenesteTest {
     }
 
     private Set<Arbeidsgiver> arbeidsgivereIPeriode(List<UttakResultatPeriodeAktivitetEntitet> aktiviteterPeriode1) {
-        return aktiviteterPeriode1.stream().map(a -> a.getArbeidsgiver()).collect(Collectors.toSet());
+        return aktiviteterPeriode1.stream().map(UttakResultatPeriodeAktivitetEntitet::getArbeidsgiver).collect(Collectors.toSet());
     }
 
     private Optional<UttakAktivitetEntitet> aktivitetMedArbeidsgiverIPeriode(Arbeidsgiver arbeidsgiver,

@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -206,7 +205,7 @@ public class ManuellRegistreringSøknadValidator {
         feilUtsettelsePerioder.addAll(ManuellRegistreringValidatorUtil.overlappendePerioder(perioder));
 
         if (!feilUtsettelsePerioder.isEmpty()) {
-            var feltFeilUtsettelsePerioder = new FeltFeilDto(feltnavnTidsromForPermisjon, feilUtsettelsePerioder.stream().collect(Collectors.joining(", ")));
+            var feltFeilUtsettelsePerioder = new FeltFeilDto(feltnavnTidsromForPermisjon, String.join(", ", feilUtsettelsePerioder));
             feltFeilUtsettelse.add(feltFeilUtsettelsePerioder);
         }
 

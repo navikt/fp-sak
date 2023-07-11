@@ -132,7 +132,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
     private Optional<AksjonspunktDefinisjon> utledAksjonspunktForAnnenpartEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .filter(yfa -> UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yfa))
+            .filter(UttakOmsorgUtil::avklartAnnenForelderHarRettEØS)
             .map(yfa -> AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS);
     }
 

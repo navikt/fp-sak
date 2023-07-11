@@ -60,7 +60,7 @@ public class FaktaUttakPeriodeDtoTjeneste {
     }
 
     public List<FaktaUttakPeriodeDto> lagDtos(Long behandlingId) {
-        return hentRelevanteOppgittPerioder(behandlingId).map(p -> tilDto(p)).toList();
+        return hentRelevanteOppgittPerioder(behandlingId).map(this::tilDto).toList();
     }
 
     public Stream<OppgittPeriodeEntitet> hentRelevanteOppgittPerioder(Long behandlingId) {

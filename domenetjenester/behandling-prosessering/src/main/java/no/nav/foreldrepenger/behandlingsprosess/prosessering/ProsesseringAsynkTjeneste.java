@@ -70,16 +70,13 @@ public class ProsesseringAsynkTjeneste {
     private Map<String, ProsessTaskData> nesteProsessTaskPerGruppe(Map<String, List<ProsessTaskData>> tasks) {
         // velg top task per gruppe
 
-        return tasks.entrySet().stream()
-                .filter(e -> !e.getValue().isEmpty())
-                .map(e -> e.getValue()
-                        .stream()
-                        .sorted(
-                                Comparator.comparing(ProsessTaskData::getSekvens)
-                                        .thenComparing(Comparator.comparing(ProsessTaskData::getStatus).reversed()) /*
-                                                                                                                     * NB: avhenger av enum ordinal!
-                                                                                                                     */)
-                        .findFirst().get())
+        return tasks.values().stream()
+                .filter(prosessTaskData -> !prosessTaskData.isEmpty())
+                .map(/*
+                 * NB: avhenger av enum ordinal!
+                 */prosessTaskData -> prosessTaskData
+                        .stream().min(Comparator.comparing(ProsessTaskData::getSekvens)
+                                .thenComparing(Comparator.comparing(ProsessTaskData::getStatus).reversed())).get())
                 .collect(Collectors.toMap(ProsessTaskData::getGruppe, Function.identity()));
     }
 

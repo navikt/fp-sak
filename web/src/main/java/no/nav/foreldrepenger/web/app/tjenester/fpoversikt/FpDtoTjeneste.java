@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
@@ -170,8 +171,8 @@ public class FpDtoTjeneste {
                     var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
                     return oppgittFordeling.getPerioder().stream().map(FpDtoTjeneste::tilDto).collect(Collectors.toSet());
                 }).orElse(Set.of());
-                var oppgittDekingsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(fr -> fr.getDekningsgrad());
-                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekingsgrad.map(d -> tilDekningsgradDto(d)).orElse(null));
+                var oppgittDekingsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getDekningsgrad);
+                return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekingsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
             })
             .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
             .collect(Collectors.toSet());
@@ -292,8 +293,8 @@ public class FpDtoTjeneste {
 
     private FpSak.Vedtak tilDto(BehandlingVedtak vedtak, Fagsak fagsak) {
         var uttaksperioder = finnUttaksperioder(vedtak.getBehandlingsresultat().getBehandlingId());
-        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(fr -> fr.getGjeldendeDekningsgrad());
-        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(d -> tilDekningsgradDto(d)).orElse(null));
+        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getGjeldendeDekningsgrad);
+        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
     }
 
     private List<FpSak.Uttaksperiode> finnUttaksperioder(Long behandlingId) {

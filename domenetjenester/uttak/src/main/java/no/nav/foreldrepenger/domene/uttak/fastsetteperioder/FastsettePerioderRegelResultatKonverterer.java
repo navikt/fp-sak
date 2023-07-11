@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIde
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenPart;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
@@ -123,14 +124,14 @@ public class FastsettePerioderRegelResultatKonverterer {
     private List<PeriodeSøknad> lagPeriodeSøknader(OppgittFordelingEntitet oppgittFordeling) {
         return oppgittFordeling.getPerioder()
             .stream()
-            .map(oppgittPeriode -> lagPeriodeSøknad(oppgittPeriode))
+            .map(this::lagPeriodeSøknad)
             .toList();
     }
 
     private Set<UttakAktivitetEntitet> lagUttakAktiviteter(List<FastsettePeriodeResultat> resultat) {
         return resultat.stream()
             .flatMap(periode -> periode.uttakPeriode().getAktiviteter().stream())
-            .map(a -> a.getIdentifikator())
+            .map(UttakPeriodeAktivitet::getIdentifikator)
             .map(this::lagUttakAktivitet)
             .collect(Collectors.toSet());
     }
@@ -140,7 +141,7 @@ public class FastsettePerioderRegelResultatKonverterer {
         return uttakAktiviteter.stream()
             .filter(uttakAktivitet -> {
                 var identifikator = Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator())
-                    .map(ai -> ai.value())
+                    .map(ArbeidsgiverIdentifikator::value)
                     .orElse(null);
                 return Objects.equals(lagArbeidType(aktivitet), uttakAktivitet.getUttakArbeidType())
                     && Objects.equals(aktivitet.getArbeidsforholdId(), uttakAktivitet.getArbeidsforholdRef().getReferanse())
@@ -192,13 +193,14 @@ public class FastsettePerioderRegelResultatKonverterer {
                 .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
             var annenpartUtbetalingsgrad = annenpartOverlapp.getAktiviteter().stream()
                 .map(AnnenpartUttakPeriodeAktivitet::getUtbetalingsgrad)
-                .filter(utbetalingsgrad -> utbetalingsgrad.harUtbetaling()).min(Comparator.naturalOrder()).map(u -> u.decimalValue()).orElse(BigDecimal.ZERO);
+                .filter(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::harUtbetaling).min(Comparator.naturalOrder()).map(
+                    no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::decimalValue).orElse(BigDecimal.ZERO);
             var antallAktiviteter = periode.getAktiviteter().stream()
                 .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
             var utbetalingsgrad = periode.getAktiviteter().stream()
-                .map(a -> a.getUtbetalingsgrad())
-                .filter(u -> u.harUtbetaling())
-                .min(Comparator.naturalOrder()).map(u -> u.decimalValue()).orElse(BigDecimal.ZERO);
+                .map(UttakPeriodeAktivitet::getUtbetalingsgrad)
+                .filter(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::harUtbetaling)
+                .min(Comparator.naturalOrder()).map(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::decimalValue).orElse(BigDecimal.ZERO);
             var samtidig = periode.erSamtidigUttak() ;
             var gradering = periode.erGraderingInnvilget();
             var annenpartSamtidig = annenpartOverlapp.isSamtidigUttak();

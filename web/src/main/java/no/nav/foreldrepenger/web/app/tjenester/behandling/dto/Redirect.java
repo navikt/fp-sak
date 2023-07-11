@@ -59,7 +59,7 @@ public final class Redirect {
 
     private static UriBuilder getUriBuilder(HttpServletRequest request) {
         var uriBuilder = request == null || request.getContextPath() == null ? UriBuilder.fromUri("") : UriBuilder.fromUri(URI.create(request.getContextPath()));
-        Optional.ofNullable(request).map(HttpServletRequest::getServletPath).ifPresent(c -> uriBuilder.path(c));
+        Optional.ofNullable(request).map(HttpServletRequest::getServletPath).ifPresent(uriBuilder::path);
         return uriBuilder;
     }
 

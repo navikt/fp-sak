@@ -99,7 +99,7 @@ final class PleiepengerJustering {
                     .build());
 
             });
-        var combined = fellesTimeline.toSegments().stream().map(s -> s.getValue())
+        var combined = fellesTimeline.toSegments().stream().map(LocalDateSegment::getValue)
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .toList();

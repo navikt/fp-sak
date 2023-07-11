@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 import java.time.Period;
 import java.util.ArrayList;
@@ -134,6 +133,6 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
     }
 
     private String lagDokumentTypeString(List<ManglendeVedlegg> manglendeVedlegg) {
-        return manglendeVedlegg.stream().map(mv -> mv.getDokumentType().getKode()).collect(toList()).toString();
+        return manglendeVedlegg.stream().map(mv -> mv.getDokumentType().getKode()).toList().toString();
     }
 }

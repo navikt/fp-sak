@@ -63,7 +63,7 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
         opprettFagsak(saksnummer, aktørId);
         var list = fagsakRepository.hentForBruker(aktørId);
 
-        assertThat(list.stream().map(f -> f.getSaksnummer())).contains(saksnummer);
+        assertThat(list.stream().map(Fagsak::getSaksnummer)).contains(saksnummer);
     }
 
     @Test

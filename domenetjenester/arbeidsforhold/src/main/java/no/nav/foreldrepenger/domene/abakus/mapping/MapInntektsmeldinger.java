@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class MapInntektsmeldinger {
     private static final Comparator<RefusjonDto> COMP_ENDRINGER_REFUSJON = Comparator
-            .comparing((RefusjonDto re) -> re.getFom(), Comparator.nullsLast(Comparator.naturalOrder()));
+            .comparing(RefusjonDto::getFom, Comparator.nullsLast(Comparator.naturalOrder()));
 
     private static final Comparator<GraderingDto> COMP_GRADERING = Comparator
             .comparing((GraderingDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
@@ -57,7 +57,7 @@ public class MapInntektsmeldinger {
 
     private static final Comparator<InntektsmeldingDto> COMP_INNTEKTSMELDING = Comparator
             .comparing((InntektsmeldingDto im) -> im.getArbeidsgiver().getIdent())
-            .thenComparing(im -> im.getInnsendingstidspunkt())
+            .thenComparing(InntektsmeldingDto::getInnsendingstidspunkt)
             .thenComparing(im -> im.getArbeidsforholdRef() == null ? null : im.getArbeidsforholdRef().getAbakusReferanse(),
                     Comparator.nullsLast(Comparator.naturalOrder()));
 

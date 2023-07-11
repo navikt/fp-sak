@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
@@ -46,7 +47,7 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     @Override
     public boolean harOppgittAnnenpartMedNorskID(BehandlingReferanse ref) {
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
-        return personopplysningerAggregat.getOppgittAnnenPart().map(ap -> ap.getAktørId()).isPresent();
+        return personopplysningerAggregat.getOppgittAnnenPart().map(OppgittAnnenPartEntitet::getAktørId).isPresent();
     }
 
     @Override

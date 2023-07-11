@@ -91,7 +91,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                     ? oppgittPeriode.getValue().getDokumentasjonVurdering() :  mapVurdering(vurdering.getValue()))
                 .build();
             return new LocalDateSegment<>(datoInterval, nyPeriode);
-        }), LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(s -> s.getValue()).toList();
+        }), LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(LocalDateSegment::getValue).toList();
 
         ytelseFordelingTjeneste.overstyrSøknadsperioder(param.getBehandlingId(), nyFordeling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(dto, gjeldendePerioder);

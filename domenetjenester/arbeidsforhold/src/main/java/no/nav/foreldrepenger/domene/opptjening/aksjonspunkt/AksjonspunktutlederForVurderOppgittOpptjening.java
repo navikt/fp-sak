@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -104,8 +105,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
     }
 
     private List<ArbeidType> finnRelevanteKoder() {
-        return List.of(ArbeidType.values())
-                .stream()
+        return Stream.of(ArbeidType.values())
                 .filter(ArbeidType::erAnnenOpptjening)
                 .toList();
     }

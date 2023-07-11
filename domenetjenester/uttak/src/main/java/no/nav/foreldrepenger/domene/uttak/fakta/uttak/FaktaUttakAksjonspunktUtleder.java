@@ -81,7 +81,7 @@ public class FaktaUttakAksjonspunktUtleder {
 
     private static boolean graderingPåUkjentAktivitet(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser, List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream()
-            .filter(periode -> periode.isGradert())
+            .filter(OppgittPeriodeEntitet::isGradert)
             .anyMatch(periode -> gradererUkjentAktivitet(periode, beregningsgrunnlagStatuser));
     }
 
@@ -96,16 +96,16 @@ public class FaktaUttakAksjonspunktUtleder {
     }
 
     private static boolean beregningHarSelvstendigNæringsdrivende(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
-        return beregningsgrunnlagStatuser.stream().anyMatch(bs -> bs.erSelvstendigNæringsdrivende());
+        return beregningsgrunnlagStatuser.stream().anyMatch(BeregningsgrunnlagStatus::erSelvstendigNæringsdrivende);
     }
 
     private static boolean beregningHarFrilanser(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
-        return beregningsgrunnlagStatuser.stream().anyMatch(bs -> bs.erFrilanser());
+        return beregningsgrunnlagStatuser.stream().anyMatch(BeregningsgrunnlagStatus::erFrilanser);
     }
 
     private static boolean beregningHarArbeidsgiver(Arbeidsgiver arbeidsgiver, Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
         if (arbeidsgiver == null) {
-            return beregningsgrunnlagStatuser.stream().anyMatch(statusPeriode -> statusPeriode.erArbeidstaker());
+            return beregningsgrunnlagStatuser.stream().anyMatch(BeregningsgrunnlagStatus::erArbeidstaker);
         }
         return beregningsgrunnlagStatuser.stream().anyMatch(statusPeriode ->
             statusPeriode.erArbeidstaker()

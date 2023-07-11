@@ -75,13 +75,13 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
                 //Flere aksjonspunkt kan bekreftes i samme kall
                 return ((BekreftedeAksjonspunkterDto) executableParameter).getBekreftedeAksjonspunktDtoer()
                     .stream()
-                    .map(dto -> getKode(dto))
+                    .map(ConstraintViolationMapper::getKode)
                     .toList();
             }
             if (executableParameter instanceof OverstyrteAksjonspunkterDto) {
                 return ((OverstyrteAksjonspunkterDto) executableParameter).getOverstyrteAksjonspunktDtoer()
                     .stream()
-                    .map(dto -> getKode(dto))
+                    .map(ConstraintViolationMapper::getKode)
                     .toList();
             }
         }

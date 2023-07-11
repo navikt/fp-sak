@@ -22,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -89,10 +91,10 @@ class VurderUttakDokumentasjonOppdatererTest {
 
         var historikk = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
         var historikkDeler = historikk.stream()
-            .map(h -> h.getHistorikkinnslagDeler())
+            .map(Historikkinnslag::getHistorikkinnslagDeler)
             .flatMap(Collection::stream)
             .toList();
-        var historikkEndretFelt = historikkDeler.stream().map(d -> d.getEndredeFelt()).flatMap(Collection::stream).toList();
+        var historikkEndretFelt = historikkDeler.stream().map(HistorikkinnslagDel::getEndredeFelt).flatMap(Collection::stream).toList();
 
         assertThat(resultat.skalUtføreAksjonspunkt()).isTrue();
         assertThat(lagretPerioder).hasSize(3);

@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
@@ -80,7 +81,7 @@ public class YtelseFordelingDtoTjeneste {
         var oppgittePerioder = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
             .getGjeldendeFordeling()
             .getPerioder();
-        return oppgittePerioder.stream().map(op -> op.getFom()).min(LocalDate::compareTo);
+        return oppgittePerioder.stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo);
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoRevurdering(Behandling behandling) {

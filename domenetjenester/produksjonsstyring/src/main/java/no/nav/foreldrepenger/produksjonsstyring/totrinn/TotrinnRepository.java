@@ -39,7 +39,7 @@ public class TotrinnRepository {
     }
 
     public void lagreOgFlush(Collection<Totrinnsvurdering> totrinnaksjonspunktvurderinger) {
-        var behandlingIds = totrinnaksjonspunktvurderinger.stream().map(t -> t.getBehandlingId()).collect(Collectors.toSet());
+        var behandlingIds = totrinnaksjonspunktvurderinger.stream().map(Totrinnsvurdering::getBehandlingId).collect(Collectors.toSet());
         if (behandlingIds.size() > 1) {
             throw new IllegalArgumentException("Alle totrinnsvurderinger må ha samme behandling. Fant " + behandlingIds);
         }
