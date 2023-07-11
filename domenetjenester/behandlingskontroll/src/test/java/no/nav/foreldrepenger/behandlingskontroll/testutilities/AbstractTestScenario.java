@@ -104,13 +104,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final var entityManager = fagsakRepo.getEntityManager();
+            var entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
                 var brukerRepository = new NavBrukerRepository(entityManager);
-                final var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
-                        .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(),
-                                fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode()
-                                        : Språkkode.NB));
+                var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
+                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(),
+                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }

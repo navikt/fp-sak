@@ -15,7 +15,7 @@ class OpptjeningsvilkårMellomregningTest {
 
     @Test
     void skal_håndtere_overlappende_perioder() {
-        final var aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, "123", Aktivitet.ReferanseType.ORGNR);
+        var aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, "123", Aktivitet.ReferanseType.ORGNR);
 
         var aktiviteter = List.of(
             AktivitetPeriode.periodeTilVurdering(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(8), Period.ofWeeks(6)), aktivitet),
@@ -25,7 +25,7 @@ class OpptjeningsvilkårMellomregningTest {
 
         var grunnlag = new Opptjeningsgrunnlag(LocalDate.now(), LocalDate.now().minusMonths(10), LocalDate.now(), aktiviteter, List.of());
 
-        final var mellomregning = new OpptjeningsvilkårMellomregning(grunnlag, OpptjeningsvilkårParametre.opptjeningsparametreForeldrepenger());
+        var mellomregning = new OpptjeningsvilkårMellomregning(grunnlag, OpptjeningsvilkårParametre.opptjeningsparametreForeldrepenger());
 
         assertThat(mellomregning.getAktivitetTidslinjer(true, true)).isNotEmpty();
     }

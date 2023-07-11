@@ -122,9 +122,9 @@ class KlagevurderingOppdatererTest {
 
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
-        final var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
-                prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
-                repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
+        var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
+            prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
+            repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
         return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, mock(BehandlingskontrollTjeneste.class), klageVurderingTjeneste,
             behandlingRepository);
     }

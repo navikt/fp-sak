@@ -26,11 +26,13 @@ class ForeldrepengerVilkårUtlederTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var behandling = scenario.lagMocked();
-        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Act
-        final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
+        var familieHendelseType = repositoryProvider.getFamilieHendelseRepository()
+            .hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getType);
         var utledeteVilkår = ForeldrepengerVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
@@ -43,11 +45,13 @@ class ForeldrepengerVilkårUtlederTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         var behandling = scenario.lagMocked();
-        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Act
-        final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
+        var familieHendelseType = repositoryProvider.getFamilieHendelseRepository()
+            .hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getType);
         var utledeteVilkår = ForeldrepengerVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert

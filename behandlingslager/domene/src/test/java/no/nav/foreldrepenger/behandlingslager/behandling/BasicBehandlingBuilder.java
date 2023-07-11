@@ -42,7 +42,7 @@ public class BasicBehandlingBuilder {
     }
 
     public Behandling opprettOgLagreFørstegangssøknad(Fagsak fagsak) {
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        var builder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = builder.build();
 
         lagreBehandling(behandling);

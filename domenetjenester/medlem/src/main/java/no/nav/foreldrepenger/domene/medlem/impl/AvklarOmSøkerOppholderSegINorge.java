@@ -44,7 +44,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         var vurderingstidspunkt = ref.getUtledetSkjæringstidspunkt();
         var behandlingId = ref.behandlingId();
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
-        final var region = getRegion(ref, personopplysninger);
+        var region = getRegion(ref, personopplysninger);
         if ((harFødselsdato(behandlingId) == JA) || (harDatoForOmsorgsovertakelse(behandlingId) == JA)) {
             return Optional.empty();
         }
@@ -64,11 +64,11 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall harFødselsdato(Long behandlingId) {
-        final var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         if (!grunnlag.getGjeldendeBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).map(List::isEmpty).orElse(true)) {
             return JA;
         }
-        final var søknad = grunnlag.getSøknadVersjon();
+        var søknad = grunnlag.getSøknadVersjon();
         if (!FamilieHendelseType.FØDSEL.equals(søknad.getType())) {
             return NEI;
         }
@@ -76,8 +76,8 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall harDatoForOmsorgsovertakelse(Long behandlingId) {
-        final var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
-        final var søknad = grunnlag.getSøknadVersjon();
+        var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        var søknad = grunnlag.getSøknadVersjon();
         return søknad.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).isPresent() ? JA : NEI;
     }
 
@@ -128,7 +128,7 @@ public class AvklarOmSøkerOppholderSegINorge {
 
     private DatoIntervallEntitet utledInntektsintervall3Mnd(BehandlingReferanse referanse, LocalDate vurderingstidspunkt) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.fagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
-            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.behandlingId()).getMottattDato();
+            var søknadMottattDato = søknadRepository.hentSøknad(referanse.behandlingId()).getMottattDato();
             var brukdato = søknadMottattDato.isBefore(vurderingstidspunkt) ? søknadMottattDato : vurderingstidspunkt;
             return DatoIntervallEntitet.fraOgMedTilOgMed(brukdato.minusMonths(3), brukdato);
         }
@@ -145,7 +145,8 @@ public class AvklarOmSøkerOppholderSegINorge {
 
     private Utfall harTermindatoPassertMed14Dager(Long behandlingId) {
         var dagensDato = LocalDate.now();
-        final var termindato = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeTerminbekreftelse()
+        var termindato = familieGrunnlagRepository.hentAggregat(behandlingId)
+            .getGjeldendeTerminbekreftelse()
             .map(TerminbekreftelseEntitet::getTermindato);
         return termindato.filter(localDate -> localDate.plusDays(14L).isBefore(dagensDato)).map(localDate -> JA).orElse(NEI);
     }

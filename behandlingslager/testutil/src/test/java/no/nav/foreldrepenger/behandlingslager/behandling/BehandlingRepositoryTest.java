@@ -601,12 +601,13 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var behandling = behandlingBuilder.build();
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
         lagreBehandling(behandling);
-        final var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
+        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
+            .opprettBuilderFor(behandling)
             .medAntallBarn(1)
             .medFødselsDato(fødselsdato);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
 
-        final var søknad = new SøknadEntitet.Builder()
+        var søknad = new SøknadEntitet.Builder()
             .medSøknadsdato(LocalDate.now())
             .medMottattDato(mottattDato)
             .medElektroniskRegistrert(true)
@@ -666,10 +667,13 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
             .medAntallBarn(1));
 
         behandling = scenario.lagre(repositoryProvider);
-        var behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        final var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
-            .medVedtakResultatType(VedtakResultatType.INNVILGET).medAnsvarligSaksbehandler("asdf").build();
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(behandling));

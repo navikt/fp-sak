@@ -57,7 +57,7 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_ADOPSJON);
 
 
-        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medErEktefellesBarn(dto.getEktefellesBarn()));

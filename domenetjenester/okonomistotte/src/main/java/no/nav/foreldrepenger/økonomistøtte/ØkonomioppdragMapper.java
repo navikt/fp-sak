@@ -56,7 +56,7 @@ public class ØkonomioppdragMapper {
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
-        final var oppdrag = objectFactory.createOppdrag();
+        var oppdrag = objectFactory.createOppdrag();
         oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110, behandlingId));
         return oppdrag;
     }
@@ -83,7 +83,7 @@ public class ØkonomioppdragMapper {
     }
 
     private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 mapOppdrag110(Oppdrag110 okoOppdrag110, Long behandlingId) {
-        final var oppdrag110 = objectFactory.createOppdrag110();
+        var oppdrag110 = objectFactory.createOppdrag110();
         var kodeFagområde = okoOppdrag110.getKodeFagomrade();
 
         oppdrag110.setKodeAksjon(KODE_AKSJON);
@@ -115,8 +115,7 @@ public class ØkonomioppdragMapper {
     }
 
     private Avstemming115 mapAvstemming115(Avstemming avstemming) {
-        final var avstemming115 =
-            objectFactory.createAvstemming115();
+        var avstemming115 = objectFactory.createAvstemming115();
 
         avstemming115.setKodeKomponent(ØkonomiKodekomponent.VLFP.name());
         avstemming115.setNokkelAvstemming(avstemming.getNøkkel());
@@ -126,8 +125,7 @@ public class ØkonomioppdragMapper {
     }
 
     private OppdragsEnhet120 mapOppdragsEnhet120() {
-        final var oppdragsEnhet120 =
-            objectFactory.createOppdragsEnhet120();
+        var oppdragsEnhet120 = objectFactory.createOppdragsEnhet120();
 
         oppdragsEnhet120.setTypeEnhet(TYPE_ENHET);
         oppdragsEnhet120.setEnhet(ENHET);
@@ -184,8 +182,7 @@ public class ØkonomioppdragMapper {
     }
 
     private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 mapRefusjonInfo156(Refusjonsinfo156 okoRefusjonsInfo156) {
-        final var refusjonsinfo156 =
-            objectFactory.createRefusjonsinfo156();
+        var refusjonsinfo156 = objectFactory.createRefusjonsinfo156();
 
         refusjonsinfo156.setMaksDato(toXmlGregCal(okoRefusjonsInfo156.getMaksDato()));
         refusjonsinfo156.setDatoFom(toXmlGregCal(okoRefusjonsInfo156.getDatoFom()));
@@ -195,7 +192,7 @@ public class ØkonomioppdragMapper {
     }
 
     private Grad170 mapGrad170(Utbetalingsgrad okoUtbetalingsgrad) {
-        final var grad170 = objectFactory.createGrad170();
+        var grad170 = objectFactory.createGrad170();
 
         grad170.setGrad(BigInteger.valueOf(okoUtbetalingsgrad.getVerdi()));
         grad170.setTypeGrad(TYPE_GRAD);
@@ -204,8 +201,7 @@ public class ØkonomioppdragMapper {
     }
 
     private Attestant180 mapAttestant180(String saksbehId) {
-        final var attestant180 =
-            objectFactory.createAttestant180();
+        var attestant180 = objectFactory.createAttestant180();
 
         attestant180.setAttestantId(saksbehId);
 

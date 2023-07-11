@@ -58,16 +58,16 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     private OpptjeningsperiodeGrunnlag opprettGrunnlag(BehandlingReferanse ref) {
 
         var behandlingId = ref.behandlingId();
-        final var hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
-        final var hendelse = hendelseAggregat.getGjeldendeVersjon();
-        final var sammenhengendeUttak = ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
-        final var førsteUttaksdato = ref.getSkjæringstidspunkt().getFørsteUttaksdato();
-        final var lovversjon = ref.getSkjæringstidspunkt().utenMinsterett() ? LovVersjoner.KLASSISK : LovVersjoner.PROP15L2122;
+        var hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
+        var hendelse = hendelseAggregat.getGjeldendeVersjon();
+        var sammenhengendeUttak = ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
+        var førsteUttaksdato = ref.getSkjæringstidspunkt().getFørsteUttaksdato();
+        var lovversjon = ref.getSkjæringstidspunkt().utenMinsterett() ? LovVersjoner.KLASSISK : LovVersjoner.PROP15L2122;
 
         var fagsakÅrsak = finnFagsakÅrsak(hendelse);
-        var søkerRolle =  finnFagsakSøkerRolle(ref);
-        Optional<LocalDate> morsMaksdato = !sammenhengendeUttak ? Optional.empty() :
-            ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.saksnummer(), ref.relasjonRolle());
+        var søkerRolle = finnFagsakSøkerRolle(ref);
+        Optional<LocalDate> morsMaksdato = !sammenhengendeUttak ? Optional.empty() : ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.saksnummer(),
+            ref.relasjonRolle());
         Optional<LocalDate> termindato;
         LocalDate hendelsedato;
         if (FagsakÅrsak.FØDSEL.equals(fagsakÅrsak)) {
@@ -104,7 +104,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     }
 
     private FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet familieHendelse) {
-        final var type = familieHendelse.getType();
+        var type = familieHendelse.getType();
         if (familieHendelse.getGjelderFødsel()) {
             return FagsakÅrsak.FØDSEL;
         }

@@ -128,10 +128,8 @@ public class InntektsmeldingRegisterTjeneste {
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
             boolean erEndringssøknad) {
         Objects.requireNonNull(referanse, VALID_REF);
-        final var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(
-                referanse.behandlingId());
-        var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse,
-            inntektArbeidYtelseGrunnlag);
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
+        var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
@@ -158,14 +156,14 @@ public class InntektsmeldingRegisterTjeneste {
 
     private <V> void fjernInntektsmeldingerSomAltErAvklart(BehandlingReferanse ref, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
             BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
-        final var arbeidsforholdInformasjon = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
-                .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
+        var arbeidsforholdInformasjon = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
+            .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
         if (arbeidsforholdInformasjon.isPresent()) {
-            final var informasjon = arbeidsforholdInformasjon.get();
-            final var inntektsmeldingSomIkkeKommer = informasjon.getOverstyringer()
-                    .stream()
-                    .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
-                    .toList();
+            var informasjon = arbeidsforholdInformasjon.get();
+            var inntektsmeldingSomIkkeKommer = informasjon.getOverstyringer()
+                .stream()
+                .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
+                .toList();
 
             fjernInntektsmeldinger(påkrevdeInntektsmeldinger, inntektsmeldingSomIkkeKommer, tilnternArbeidsforhold);
         }
@@ -176,7 +174,7 @@ public class InntektsmeldingRegisterTjeneste {
             BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
         for (var im : inntektsmeldingSomIkkeKommer) {
             if (påkrevdeInntektsmeldinger.containsKey(im.getArbeidsgiver())) {
-                final var arbeidsforhold = påkrevdeInntektsmeldinger.get(im.getArbeidsgiver());
+                var arbeidsforhold = påkrevdeInntektsmeldinger.get(im.getArbeidsgiver());
                 if (im.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold()) {
                     var matchKey = tilnternArbeidsforhold.apply(im.getArbeidsgiver(), im.getArbeidsforholdRef());
                     arbeidsforhold.remove(matchKey);
@@ -208,7 +206,7 @@ public class InntektsmeldingRegisterTjeneste {
 
         for (var inntektsmelding : inntektsmeldinger) {
             if (påkrevdeInntektsmeldinger.containsKey(inntektsmelding.getArbeidsgiver())) {
-                final var arbeidsforhold = påkrevdeInntektsmeldinger.get(inntektsmelding.getArbeidsgiver());
+                var arbeidsforhold = påkrevdeInntektsmeldinger.get(inntektsmelding.getArbeidsgiver());
                 if (inntektsmelding.gjelderForEtSpesifiktArbeidsforhold()) {
                     var matchKey = tilnternArbeidsforhold.apply(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef());
                     arbeidsforhold.remove(matchKey);

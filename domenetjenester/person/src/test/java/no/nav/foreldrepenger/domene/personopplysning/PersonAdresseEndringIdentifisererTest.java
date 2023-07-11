@@ -27,7 +27,7 @@ class PersonAdresseEndringIdentifisererTest {
 
     @Test
     void testPersonAdresseUendret() {
-        final var postnummer = "2040";
+        var postnummer = "2040";
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(postnummer));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(postnummer));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -98,7 +98,7 @@ class PersonAdresseEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlagMotstattRekkefølge(List<PersonAdresseEntitet> personadresser) {
-        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         // Bygg opp identiske statsborgerskap, bare legg de inn i motsatt rekkefølge.
         new LinkedList<>(personadresser)
@@ -109,7 +109,7 @@ class PersonAdresseEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(List<String> postnummer) {
-        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1
                 .leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         // Opprett adresser med forskjellig fra og med dato. Går 1 mnd tilbake for hver

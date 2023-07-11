@@ -114,7 +114,7 @@ class InntektsmeldingTjenesteTest {
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
 
-        final var behandling = opprettBehandling();
+        var behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
                 DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
@@ -278,15 +278,15 @@ class InntektsmeldingTjenesteTest {
     }
 
     private Behandling opprettBehandling(Fagsak fagsak) {
-        final var builder = Behandling.forFørstegangssøknad(fagsak);
-        final var behandling = builder.build();
+        var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         return behandling;
     }
 
     private Fagsak opprettFagsak() {
-        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), RelasjonsRolleType.MORA,
-                new Saksnummer("9999"));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), RelasjonsRolleType.MORA,
+            new Saksnummer("9999"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

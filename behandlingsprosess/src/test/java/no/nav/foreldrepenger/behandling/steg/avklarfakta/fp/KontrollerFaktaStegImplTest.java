@@ -81,7 +81,7 @@ class KontrollerFaktaStegImplTest {
         steg.vedTransisjon(kontekst, stegModellMock, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
 
         // Assert
-        final var medlemskapAggregat = repositoryProvider.getMedlemskapRepository().hentMedlemskap(behandling.getId());
+        var medlemskapAggregat = repositoryProvider.getMedlemskapRepository().hentMedlemskap(behandling.getId());
         assertThat(medlemskapAggregat).isPresent();
         assertThat(medlemskapAggregat.flatMap(MedlemskapAggregat::getVurdertMedlemskap)).isNotPresent();
         behandling = behandlingRepository.hentBehandling(behandling.getId());

@@ -64,8 +64,8 @@ class VedtattYtelseMapper {
     }
 
     private Anvisning mapPeriode(BeregningsresultatPeriode periode, BigDecimal utbetalingsgrad) {
-        final var anvisning = new Anvisning();
-        final var p = new Periode();
+        var anvisning = new Anvisning();
+        var p = new Periode();
         p.setFom(periode.getBeregningsresultatPeriodeFom());
         p.setTom(periode.getBeregningsresultatPeriodeTom());
         anvisning.setPeriode(p);

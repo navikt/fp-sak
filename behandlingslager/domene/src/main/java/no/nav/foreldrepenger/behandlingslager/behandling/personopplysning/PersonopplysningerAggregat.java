@@ -53,10 +53,10 @@ public class PersonopplysningerAggregat {
                     .collect(Collectors.groupingBy(PersonAdresseEntitet::getAktørId));
             overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus)
                     .orElse(Collections.emptyList());
-            final var registerPersonstatus = registerversjon.getPersonstatus()
-                    .stream()
-                    .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
-                    .toList();
+            var registerPersonstatus = registerversjon.getPersonstatus()
+                .stream()
+                .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
+                .toList();
             this.orginalPersonstatus = registerversjon.getPersonstatus()
                     .stream()
                     .filter(it -> !finnesIkkeIOverstyrt(it, overstyrtPersonstatus))

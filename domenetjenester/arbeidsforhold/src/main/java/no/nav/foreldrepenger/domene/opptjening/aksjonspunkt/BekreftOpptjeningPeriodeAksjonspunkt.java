@@ -82,8 +82,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
                     yrkesaktivitetBuilder.medArbeidsgiverNavn(periode.getArbeidsgiverNavn());
                 }
             }
-            final var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(),
-                    periode.getOpptjeningTom());
+            var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(), periode.getOpptjeningTom());
             aktivitetsAvtaleBuilder.medPeriode(aktivitetsPeriode);
         }
     }
@@ -94,7 +93,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         if (!kodeRelasjonMap.containsKey(periode.getAktivitetType())) {
             return false;
         }
-        final var arbeidTypes = kodeRelasjonMap.get(periode.getAktivitetType());
+        var arbeidTypes = kodeRelasjonMap.get(periode.getAktivitetType());
         return kanSaksbehandles(behandlingId, aktørId, iayg, arbeidTypes, periode, skjæringstidspunkt);
     }
 

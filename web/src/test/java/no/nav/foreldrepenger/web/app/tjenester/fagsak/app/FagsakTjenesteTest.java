@@ -58,7 +58,7 @@ class FagsakTjenesteTest {
     private FamilieHendelseTjeneste hendelseTjeneste;
 
     private static FamilieHendelseGrunnlagEntitet byggHendelseGrunnlag(LocalDate fødselsdato, LocalDate oppgittFødselsdato) {
-        final var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         if (oppgittFødselsdato != null) {
             hendelseBuilder.medFødselsDato(oppgittFødselsdato);
         }
@@ -87,7 +87,7 @@ class FagsakTjenesteTest {
         when(fagsakRepository.hentForBruker(AKTØR_ID)).thenReturn(Collections.singletonList(fagsak));
 
         var fødselsdato = LocalDate.of(2017, JANUARY, 1);
-        final var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
+        var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
                 .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
@@ -108,10 +108,10 @@ class FagsakTjenesteTest {
         fagsak.setId(-1L);
         when(fagsakRepository.hentSakGittSaksnummer(SAKSNUMMER)).thenReturn(Optional.of(fagsak));
 
-        final var fødselsdato = LocalDate.of(2017, JANUARY, 1);
-        final var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
-                .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
+        var fødselsdato = LocalDate.of(2017, JANUARY, 1);
+        var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong())).thenReturn(
+            Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
 
         var view = tjeneste.søkFagsakDto(SAKSNUMMER.getVerdi());

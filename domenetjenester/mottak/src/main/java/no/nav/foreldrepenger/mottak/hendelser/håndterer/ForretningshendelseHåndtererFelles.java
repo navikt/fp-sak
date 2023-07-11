@@ -81,7 +81,7 @@ public class ForretningshendelseHåndtererFelles {
     }
 
     public boolean barnFødselogDødAlleredeRegistrert(Behandling åpenEllerForrige) {
-        final var familieHendelseGrunnlag = familieHendelseTjeneste.finnAggregat(åpenEllerForrige.getId()).orElse(null);
+        var familieHendelseGrunnlag = familieHendelseTjeneste.finnAggregat(åpenEllerForrige.getId()).orElse(null);
         if (familieHendelseGrunnlag == null) {
             return false;
         }

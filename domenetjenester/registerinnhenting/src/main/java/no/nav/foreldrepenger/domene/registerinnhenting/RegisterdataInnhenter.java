@@ -145,9 +145,9 @@ public class RegisterdataInnhenter {
     private void innhentPersoninformasjon(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
         var søker = behandling.getNavBruker().getAktørId();
         var annenPart = finnAnnenPart(behandling.getId());
-        final var opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(behandling.getId(), behandling.getFagsakYtelseType());
+        var opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(behandling.getId(), behandling.getFagsakYtelseType());
 
-        final var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
+        var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         informasjonBuilder.tilbakestill(behandling.getAktørId(), annenPart);
         personopplysningInnhenter.innhentPersonopplysninger(informasjonBuilder, søker, annenPart, opplysningsperioden, filtrertFødselFREG);
         personopplysningRepository.lagre(behandling.getId(), informasjonBuilder);
@@ -192,7 +192,7 @@ public class RegisterdataInnhenter {
     }
 
     private List<MedlemskapPerioderEntitet> innhentMedlemskapsopplysninger(Behandling behandling) {
-        final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
+        var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
 
         return medlemTjeneste.finnMedlemskapPerioder(behandling.getAktørId(), opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()).stream()
             .map(this::lagMedlemskapPeriode)
@@ -226,7 +226,7 @@ public class RegisterdataInnhenter {
     }
 
     private void doInnhentIAYIAbakus(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
-        final var innhentRegisterdataRequest = lagInnhentIAYRequest(behandling, behandlingType, fagsakYtelseType);
+        var innhentRegisterdataRequest = lagInnhentIAYRequest(behandling, behandlingType, fagsakYtelseType);
         innhentRegisterdataRequest.setCallbackUrl(abakusTjeneste.getCallbackUrl());
         innhentRegisterdataRequest.setCallbackScope(FpApplication.scopesFor(FpApplication.FPSAK));
 
@@ -235,12 +235,12 @@ public class RegisterdataInnhenter {
 
     private InnhentRegisterdataRequest lagInnhentIAYRequest(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
         LOG.info("Trigger innhenting i abakus for behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
-        final var behandlingUuid = behandling.getUuid();
-        final var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
-        final var ytelseType =  KodeverkMapper.fraFagsakYtelseType(fagsakYtelseType);
-        final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), fagsakYtelseType);
-        final var periode = new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato());
-        final var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
+        var behandlingUuid = behandling.getUuid();
+        var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
+        var ytelseType = KodeverkMapper.fraFagsakYtelseType(fagsakYtelseType);
+        var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), fagsakYtelseType);
+        var periode = new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato());
+        var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
         var informasjonsElementer = utledBasertPå(behandlingType, fagsakYtelseType);
 
         return new InnhentRegisterdataRequest(saksnummer, behandlingUuid, ytelseType, periode, aktør, informasjonsElementer);

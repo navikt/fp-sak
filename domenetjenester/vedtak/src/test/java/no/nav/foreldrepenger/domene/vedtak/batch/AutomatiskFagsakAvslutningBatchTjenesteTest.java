@@ -48,7 +48,7 @@ class AutomatiskFagsakAvslutningBatchTjenesteTest {
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(1L)).thenReturn(Optional.empty());
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(2L)).thenReturn(Optional.of(behandling));
 
-        final var batchId = tjeneste.launch(new Properties());
+        var batchId = tjeneste.launch(new Properties());
 
         Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now());
         Assertions.assertThat(batchId.substring(0, 6)).isEqualTo("BVL006");

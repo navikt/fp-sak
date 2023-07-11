@@ -76,7 +76,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     @Override
     public List<ManglendeVedlegg> utledAlleManglendeVedleggForForsendelse(BehandlingReferanse ref) {
 
-        final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
+        var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
 
         // Manuelt registrerte søknader har foreløpig ikke vedleggsliste og kan derfor ikke kompletthetssjekkes:
         if (søknad.isEmpty() || (!søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null || søknad.get().getSøknadVedlegg().isEmpty())) {
@@ -127,8 +127,12 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     private boolean finnesBarnet(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
-        final var fødselsDato = familieHendelseRepository.hentAggregat(behandlingId).getSøknadVersjon().getBarna()
-            .stream().map(UidentifisertBarn::getFødselsdato).findFirst();
+        var fødselsDato = familieHendelseRepository.hentAggregat(behandlingId)
+            .getSøknadVersjon()
+            .getBarna()
+            .stream()
+            .map(UidentifisertBarn::getFødselsdato)
+            .findFirst();
 
         if (fødselsDato.isPresent()) {
             var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);

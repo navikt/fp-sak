@@ -392,11 +392,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final var entityManager = fagsakRepo.getEntityManager();
+            var entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
                 var brukerRepository = new NavBrukerRepository(entityManager);
-                final var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
-                        .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
+                var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
+                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }
@@ -436,8 +436,8 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private final class MockPersonopplysningRepository extends PersonopplysningRepository {
         @Override
         public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long eksisterendeBehandlingId, Long nyBehandlingId) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+                Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }
@@ -458,8 +458,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         @Override
         public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             if (builder.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
                 oppdatere.medRegistrertVersjon(builder);
             }
@@ -471,23 +470,22 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         @Override
         public void lagre(Long behandlingId, OppgittAnnenPartEntitet oppgittAnnenPart) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             oppdatere.medOppgittAnnenPart(oppgittAnnenPart);
             personopplysningMap.put(behandlingId, oppdatere.build());
         }
 
         @Override
         public PersonInformasjonBuilder opprettBuilderForRegisterdata(Long behandlingId) {
-            final var grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
+            var grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
             return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon),
                     PersonopplysningVersjonType.REGISTRERT);
         }
 
         @Override
         public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
-            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                    Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
+            var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+                Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }

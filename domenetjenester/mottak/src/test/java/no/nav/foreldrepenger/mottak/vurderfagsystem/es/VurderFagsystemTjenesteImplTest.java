@@ -438,7 +438,7 @@ class VurderFagsystemTjenesteImplTest {
 
         var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
-        final var grunnlag = byggFødselGrunnlag(terminDatdato, null);
+        var grunnlag = byggFødselGrunnlag(terminDatdato, null);
         lenient().when(grunnlagRepository.hentAggregat(behandling.get().getId())).thenReturn(grunnlag);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
@@ -458,7 +458,7 @@ class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
 
         var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
-        final var grunnlag = byggFødselGrunnlag(terminDatdato, null);
+        var grunnlag = byggFødselGrunnlag(terminDatdato, null);
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
         lenient().when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of(behandling.get()));
 
@@ -500,7 +500,7 @@ class VurderFagsystemTjenesteImplTest {
 
         var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
         behandling.get().avsluttBehandling();
-        final var grunnlag = byggFødselGrunnlag(terminDatdato, null);
+        var grunnlag = byggFødselGrunnlag(terminDatdato, null);
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
         lenient().when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
         lenient().when(grunnlagRepository.hentAggregat(behandling.get().getId())).thenReturn(grunnlag);
@@ -537,7 +537,7 @@ class VurderFagsystemTjenesteImplTest {
         var terminDatDato = LocalDate.of(2018, 7, 1);
 
         var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
-        final var grunnlag = byggFødselGrunnlag(terminDatDato, null);
+        var grunnlag = byggFødselGrunnlag(terminDatDato, null);
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
@@ -551,7 +551,7 @@ class VurderFagsystemTjenesteImplTest {
         var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
-        final var grunnlag = byggFødselGrunnlag(null, null);
+        var grunnlag = byggFødselGrunnlag(null, null);
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         assertThat(FagsakYtelseType.FORELDREPENGER.equals(fpFagsakUdefinert.getYtelseType()) && fpFagsakUdefinert.erÅpen()).isTrue();

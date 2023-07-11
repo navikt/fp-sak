@@ -38,7 +38,7 @@ class SivilstandEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(SivilstandType sivilstand) {
-        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID).medSivilstand(sivilstand));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }

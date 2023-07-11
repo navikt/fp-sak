@@ -47,7 +47,7 @@ class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
-        final var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         var fagsak = behandling.getFagsak();
 
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),

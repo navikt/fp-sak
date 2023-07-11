@@ -88,9 +88,8 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         vilkårBuilder.buildFor(behandling);
 
         // Assert
-        final var gjellendeVersjon = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId())
-            .getGjeldendeVersjon();
-        final var adopsjon = gjellendeVersjon.getAdopsjon();
+        var gjellendeVersjon = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
+        var adopsjon = gjellendeVersjon.getAdopsjon();
         assertThat(gjellendeVersjon.getAntallBarn()).isEqualTo(2);
         assertThat(adopsjon).hasValueSatisfying(value -> {
             assertThat(value.getOmsorgsovertakelseDato()).as("omsorgsovertakelsesDato").isEqualTo(LocalDate.now());

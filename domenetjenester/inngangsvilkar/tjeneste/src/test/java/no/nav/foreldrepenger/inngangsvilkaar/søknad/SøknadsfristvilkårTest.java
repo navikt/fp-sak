@@ -53,7 +53,7 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
 
     @Test
     void skal_vurdere_vilkår_som_ikke_vurdert_når_elektronisk_søknad_og_søknad_ikke_mottat_innen_6_mnd_fra_skjæringstidspunkt() {
-        final var ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT = 100;
+        var ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT = 100;
 
         // Arrange
         var behandling = mockBehandling(true, LocalDate.now().plusMonths(6).plusDays(ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT),

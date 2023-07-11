@@ -77,7 +77,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     @Test
     void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() throws Exception {
         // Arrange
-        final var xml = new FileToStringUtil().readFile(PAYLOAD_XML);
+        var xml = new FileToStringUtil().readFile(PAYLOAD_XML);
         var fagsak = opprettFagsak();
         var mottattDokument = new MottattDokument.Builder()
             .medFagsakId(fagsak.getId())

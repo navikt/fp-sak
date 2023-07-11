@@ -63,9 +63,9 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
         var totrinn = håndterEndringHistorikk(dto, param);
 
         // beregn denne før vi oppdaterer grunnlag
-        final var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
 
-        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
             .tilbakestillBarn()
             .medAntallBarn(dto.getFodselsdatoer().keySet().size())
@@ -86,7 +86,7 @@ public class BekreftDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Be
 
     private boolean håndterEndringHistorikk(BekreftDokumentertDatoAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         boolean erEndret;
-        final var hendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
+        var hendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
 
         var originalDato = getOmsorgsovertakelsesdatoForAdopsjon(
             hendelseGrunnlag.getGjeldendeAdopsjon().orElseThrow(IllegalStateException::new));

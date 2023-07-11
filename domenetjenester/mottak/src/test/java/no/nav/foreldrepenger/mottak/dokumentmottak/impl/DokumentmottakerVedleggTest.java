@@ -199,13 +199,12 @@ class DokumentmottakerVedleggTest {
      */
     @Test
     void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_hent_behandlende_enhet_fra_ikke_klagebehandling() {
-        final var førstegangssøknadEnhetsId = "4833";
-        final var klageEnhetsId = "4292";
+        var førstegangssøknadEnhetsId = "4833";
+        var klageEnhetsId = "4292";
 
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
-                ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(førstegangssøknadEnhetsId))
-                .medBehandlendeEnhet(klageEnhetsId);
+            ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(førstegangssøknadEnhetsId)).medBehandlendeEnhet(klageEnhetsId);
         var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
         var fagsakId = scenario.getFagsak().getId();
@@ -249,13 +248,12 @@ class DokumentmottakerVedleggTest {
 
     @Test
     void skal_opprette_task_for_å_vurdere_dokument_når_dokumenttype_er_udefinert() {
-        final var førstegangssøknadEnhetsId = ENHET.enhetId();
-        final var klageEnhetsId = BehandlendeEnhetTjeneste.getKlageInstans().enhetId();
+        var førstegangssøknadEnhetsId = ENHET.enhetId();
+        var klageEnhetsId = BehandlendeEnhetTjeneste.getKlageInstans().enhetId();
 
         // Arrange
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
-                ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(førstegangssøknadEnhetsId))
-                .medBehandlendeEnhet(klageEnhetsId);
+            ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(førstegangssøknadEnhetsId)).medBehandlendeEnhet(klageEnhetsId);
         var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
         var fagsakId = scenario.getFagsak().getId();

@@ -106,15 +106,13 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     }
 
     private void setFamilierelasjoner(PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat aggregat) {
-        final var aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
-        final var tilPersoner = aggregat.getSøkersRelasjoner().stream()
-            .filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null)
-            .toList();
+        var aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
+        var tilPersoner = aggregat.getSøkersRelasjoner().stream().filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null).toList();
         if (!tilPersoner.isEmpty()) {
-            var familierelasjoner = personopplysningDvhObjectFactory
-                .createPersonopplysningerDvhEngangsstoenadFamilierelasjoner();
+            var familierelasjoner = personopplysningDvhObjectFactory.createPersonopplysningerDvhEngangsstoenadFamilierelasjoner();
             personopplysninger.setFamilierelasjoner(familierelasjoner);
-            tilPersoner.forEach(relasjon -> personopplysninger.getFamilierelasjoner().getFamilierelasjon()
+            tilPersoner.forEach(relasjon -> personopplysninger.getFamilierelasjoner()
+                .getFamilierelasjon()
                 .add(lagRelasjon(relasjon, aktørPersonopplysningMap.get(relasjon.getTilAktørId()), aggregat)));
         }
     }
@@ -247,7 +245,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     }
 
     private void setAdresse(PersonopplysningerDvhEngangsstoenad personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
-        final var personopplysning = personopplysningerAggregat.getSøker();
+        var personopplysning = personopplysningerAggregat.getSøker();
         var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId());
         if (opplysningAdresser != null) {
             opplysningAdresser.forEach(adresse -> personopplysninger.getAdresse().add(lagAdresse(adresse)));

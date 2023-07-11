@@ -244,7 +244,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private void setAdresse(PersonopplysningerSvangerskapspenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
-        final var personopplysning = personopplysningerAggregat.getSøker();
+        var personopplysning = personopplysningerAggregat.getSøker();
         var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId());
         if (opplysningAdresser != null) {
             opplysningAdresser.forEach(adresse -> personopplysninger.getAdresse().add(lagAdresse(personopplysning, adresse)));

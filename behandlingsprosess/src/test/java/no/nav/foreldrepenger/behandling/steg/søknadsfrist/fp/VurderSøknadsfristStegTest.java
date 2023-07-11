@@ -97,7 +97,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
-        final var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
+        var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         var fagsak = behandling.getFagsak();
         // Act
@@ -140,7 +140,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
-        final var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
+        var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
         var fagsak = behandling.getFagsak();
@@ -160,9 +160,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
     }
 
     private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato, Behandling behandling) {
-        final var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
-                .medAntallBarn(1)
-                .medFødselsDato(fødselsdato);
+        var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling).medAntallBarn(1).medFødselsDato(fødselsdato);
         familieHendelseRepository.lagre(behandling, søknadHendelse);
 
         return new SøknadEntitet.Builder()

@@ -81,9 +81,8 @@ class DatavarehusRepositoryTest {
         var vedtakUtbetalingDvh = DatavarehusTestUtils.byggVedtakUtbetalingDvh();
         var id = datavarehusRepository.lagre(vedtakUtbetalingDvh);
         entityManager.flush();
-        final var oppdatertXml = vedtakUtbetalingDvh.getXmlClob() + vedtakUtbetalingDvh.getXmlClob();
-        var idOppdatert = datavarehusRepository.oppdater(vedtakUtbetalingDvh.getBehandlingId(),
-            vedtakUtbetalingDvh.getVedtakId(), oppdatertXml);
+        var oppdatertXml = vedtakUtbetalingDvh.getXmlClob() + vedtakUtbetalingDvh.getXmlClob();
+        var idOppdatert = datavarehusRepository.oppdater(vedtakUtbetalingDvh.getBehandlingId(), vedtakUtbetalingDvh.getVedtakId(), oppdatertXml);
         assertThat(id).isEqualTo(idOppdatert);
     }
 

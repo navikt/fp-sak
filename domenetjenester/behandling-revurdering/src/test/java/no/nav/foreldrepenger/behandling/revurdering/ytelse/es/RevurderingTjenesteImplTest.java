@@ -55,9 +55,8 @@ class RevurderingTjenesteImplTest {
     @Test
     void skal_opprette_automatisk_revurdering_basert_på_siste_innvilgede_behandling() {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
-        final var revurdering = revurderingTjeneste
-                .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
-                        BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, new OrganisasjonsEnhet("1234", "Test"));
+        var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+            BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, new OrganisasjonsEnhet("1234", "Test"));
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
         assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType())
@@ -68,9 +67,8 @@ class RevurderingTjenesteImplTest {
     void skal_opprette_manuell_behandling_med_saksbehandler_som_historikk_aktør() {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
         var enhet = new OrganisasjonsEnhet("4806", "Nye Nav FP");
-        final var revurdering = revurderingTjeneste
-                .opprettManuellRevurdering(behandlingSomSkalRevurderes.getFagsak(),
-                        BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, enhet);
+        var revurdering = revurderingTjeneste.opprettManuellRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+            BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, enhet);
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
         assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType())

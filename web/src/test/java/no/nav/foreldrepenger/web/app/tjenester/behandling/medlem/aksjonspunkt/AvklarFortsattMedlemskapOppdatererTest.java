@@ -63,8 +63,8 @@ class AvklarFortsattMedlemskapOppdatererTest {
         var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder();
         when(historikkTjenesteAdapter.tekstBuilder()).thenReturn(historikkInnslagTekstBuilder);
 
-        final var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
-                repositoryProvider, historikkTjenesteAdapter, lagMockYtelseSkjæringstidspunktTjeneste(LocalDate.now()));
+        var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, historikkTjenesteAdapter,
+            lagMockYtelseSkjæringstidspunktTjeneste(LocalDate.now()));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
         // Act

@@ -140,7 +140,7 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     }
 
     private boolean harEktefelleSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
-        final var ektefelle = personopplysningerAggregat.getEktefelle().map(PersonopplysningEntitet::getAktørId);
+        var ektefelle = personopplysningerAggregat.getEktefelle().map(PersonopplysningEntitet::getAktørId);
         return ektefelle.filter(ektefelleAktør -> personopplysningerAggregat.søkerHarSammeAdresseSom(ektefelleAktør, RelasjonsRolleType.EKTE)).isPresent();
     }
 }

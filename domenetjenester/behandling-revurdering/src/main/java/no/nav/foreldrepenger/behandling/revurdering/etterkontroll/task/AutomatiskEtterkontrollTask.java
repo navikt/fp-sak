@@ -80,7 +80,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         }
 
         List<FødtBarnInfo> barnFødtIPeriode = new ArrayList<>();
-        final var familieHendelseGrunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
+        var familieHendelseGrunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
         if (familieHendelseGrunnlag != null) {
             var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
             barnFødtIPeriode.addAll(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getAktørId(), intervaller));

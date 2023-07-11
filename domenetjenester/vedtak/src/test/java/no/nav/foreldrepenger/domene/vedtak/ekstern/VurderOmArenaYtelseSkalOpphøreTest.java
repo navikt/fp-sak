@@ -372,11 +372,12 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         entityManager.clear();
 
         // Legg til vedtak
-        final var behandlingVedtak = BehandlingVedtak.builder()
+        var behandlingVedtak = BehandlingVedtak.builder()
             .medBehandlingsresultat(behandlingsresultat)
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medVedtakstidspunkt(vedtakstidspunkt)
-            .medAnsvarligSaksbehandler("asdf").build();
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(behandling));
     }
 

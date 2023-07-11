@@ -45,7 +45,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
     public OppdateringResultat oppdater(AvklarFaktaForForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        final var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         oppdaterAksjonspunktGrunnlag(dto, behandling);
         var skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
@@ -57,7 +57,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForForeldreansvarAksjonspunktDto dto, Behandling behandling) {
 
-        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)

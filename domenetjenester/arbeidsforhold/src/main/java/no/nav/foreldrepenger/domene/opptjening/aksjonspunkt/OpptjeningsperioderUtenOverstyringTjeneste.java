@@ -80,7 +80,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
         List<OpptjeningsperiodeForSaksbehandling> oppgittOpptjeningPerioder = new ArrayList<>();
         if (oppgittOpptjening.isPresent()) {
             // map
-            final var opptjening = oppgittOpptjening.get();
+            var opptjening = oppgittOpptjening.get();
             for (var annenAktivitet : opptjening.getAnnenAktivitet().stream()
                     .collect(Collectors.groupingBy(OppgittAnnenAktivitet::getArbeidType)).entrySet()) {
                 oppgittOpptjeningPerioder.addAll(mapAnnenAktivitet(annenAktivitet, mapArbeidOpptjening));
@@ -96,12 +96,12 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
 
     private OpptjeningsperiodeForSaksbehandling mapOppgittArbeidsforholdUtenOverstyring(OppgittArbeidsforhold oppgittArbeidsforhold,
             Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening) {
-        final var type = utledOpptjeningType(mapArbeidOpptjening, oppgittArbeidsforhold.getArbeidType());
+        var type = utledOpptjeningType(mapArbeidOpptjening, oppgittArbeidsforhold.getArbeidType());
         return mapOppgittArbeidsperiode(oppgittArbeidsforhold, type);
     }
 
     private OpptjeningsperiodeForSaksbehandling mapOppgittArbeidsperiode(OppgittArbeidsforhold oppgittArbeidsforhold, OpptjeningAktivitetType type) {
-        final var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny();
+        var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny();
         var periode = oppgittArbeidsforhold.getPeriode();
         builder.medOpptjeningAktivitetType(type)
                 .medPeriode(periode)
@@ -130,8 +130,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
     }
 
     private OpptjeningsperiodeForSaksbehandling mapEgenNæring(OppgittEgenNæring egenNæring) {
-        final var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
-                .medOpptjeningAktivitetType(NÆRING);
+        var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny().medOpptjeningAktivitetType(NÆRING);
         builder.medPeriode(egenNæring.getPeriode());
         if (egenNæring.getOrgnr() != null) {
             builder.medOpptjeningsnøkkel(new Opptjeningsnøkkel(null, egenNæring.getOrgnr(), null))

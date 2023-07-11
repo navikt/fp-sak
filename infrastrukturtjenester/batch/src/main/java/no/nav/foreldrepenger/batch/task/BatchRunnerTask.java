@@ -47,7 +47,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
             LOG.warn("Kjører ikke batch {}", logMessage);
             return;
         }
-        final var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
+        var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
         if (batchTjeneste == null) {
             throw new TekniskException("FP-630260", "Ugyldig job-navn " + batchName);
         }

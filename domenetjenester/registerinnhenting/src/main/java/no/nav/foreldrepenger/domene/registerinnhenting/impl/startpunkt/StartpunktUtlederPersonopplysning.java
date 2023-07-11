@@ -50,7 +50,7 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     // Finn endringer per aggregat under grunnlaget og map dem mot startpunkt. Dekker bruker og TPS-relaterte personer (barn, ekte). Bør spisses der det er behov.
     private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref,
                                                                          PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
-        final var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
         var aktørId = ref.aktørId();
 
         var poDiff = new PersonopplysningGrunnlagDiff(aktørId, grunnlag1, grunnlag2);

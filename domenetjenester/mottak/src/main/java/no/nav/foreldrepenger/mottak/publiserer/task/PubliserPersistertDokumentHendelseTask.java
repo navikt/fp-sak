@@ -60,8 +60,7 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
             if (årsak == null || InntektsmeldingInnsendingsårsak.UDEFINERT.equals(årsak)) {
                 årsak = InntektsmeldingInnsendingsårsak.NY;
             }
-            final var hendelse = new InntektsmeldingV1.Builder()
-                .medAktørId(data.getAktørId())
+            var hendelse = new InntektsmeldingV1.Builder().medAktørId(data.getAktørId())
                 .medArbeidsgiverId(inntektsmelding.getArbeidsgiver().getIdentifikator())
                 .medInnsendingsÅrsak(årsak.getKode())
                 .medInnsendingsTidspunkt(inntektsmelding.getInnsendingstidspunkt())

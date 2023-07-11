@@ -71,11 +71,11 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
         var dto = new BekreftOppholdsrettVurderingDto("test", List.of(bekreftetPeriode));
 
         // Act
-        final var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider,
-                mock(HentMedlemskapFraRegister.class), repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste,
-                personopplysningTjeneste, mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
-        final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
-                repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
+        var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider, mock(HentMedlemskapFraRegister.class),
+            repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste, personopplysningTjeneste,
+            mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
+        var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
+            skjæringstidspunktTjeneste);
 
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftOppholdsrettVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);
@@ -113,11 +113,11 @@ class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
         var dto = new BekreftLovligOppholdVurderingDto("test", List.of(bekreftetPeriode));
 
         // Act
-        final var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider,
-                mock(HentMedlemskapFraRegister.class), repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste,
-                personopplysningTjeneste, mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
-        final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
-                repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
+        var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider, mock(HentMedlemskapFraRegister.class),
+            repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste, personopplysningTjeneste,
+            mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
+        var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
+            skjæringstidspunktTjeneste);
 
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer.BekreftLovligOppholdVurderingOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste);

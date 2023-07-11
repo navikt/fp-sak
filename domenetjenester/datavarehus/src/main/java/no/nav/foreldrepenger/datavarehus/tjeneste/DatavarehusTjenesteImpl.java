@@ -207,7 +207,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandlingVedtakOpt.isPresent()) {
             var vedtakXml = dvhVedtakXmlTjeneste.opprettDvhVedtakXml(behandlingId);
-            final var hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+            var hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                 .map(FamilieHendelseEntitet::getType)
                 .orElse(FamilieHendelseType.UDEFINERT);

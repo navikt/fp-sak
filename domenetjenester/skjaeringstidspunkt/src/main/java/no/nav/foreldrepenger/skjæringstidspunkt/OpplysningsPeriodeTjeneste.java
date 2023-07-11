@@ -66,7 +66,7 @@ public class OpplysningsPeriodeTjeneste {
     }
 
     private SimpleLocalDateInterval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {
-        final var skjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return beregnIntervalFP(behandlingId, skjæringstidspunkt, tilOgMedIdag);
         }

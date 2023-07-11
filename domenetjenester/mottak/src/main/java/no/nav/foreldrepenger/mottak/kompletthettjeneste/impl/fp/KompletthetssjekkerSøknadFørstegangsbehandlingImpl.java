@@ -52,7 +52,7 @@ public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends Komple
      */
     @Override
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
-        final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
+        var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
         var dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.saksnummer(), LocalDate.MIN);
         var manglendeVedlegg = identifiserManglendeVedlegg(søknad, dokumentTypeIds);
 

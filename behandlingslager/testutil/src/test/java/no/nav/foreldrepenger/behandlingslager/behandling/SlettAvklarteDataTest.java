@@ -35,7 +35,7 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
     @Test
     void skal_slette_avklarte_omsorgsovertakelsedata() {
         // Arrange
-        final var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse(scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(LocalDate.now())).leggTilBarn(LocalDate.now().minusYears(5)).medAntallBarn(1));
@@ -52,7 +52,7 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
         familieHendelseRepository.slettAvklarteData(behandling.getId(), lås);
 
         // Assert
-        final var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         assertThat(grunnlag).isNotNull();
         assertThat(grunnlag.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon)).isNotPresent();
         assertThat(grunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn)).isNotPresent();
@@ -86,7 +86,7 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
         familieHendelseRepository.slettAvklarteData(behandling.getId(), lås);
 
         // Assert
-        final var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         assertThat(grunnlag).isNotNull();
         assertThat(grunnlag.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse)).isNotPresent();
         assertThat(grunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn)).isNotPresent();
@@ -96,14 +96,13 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
     @Test
     void skal_slette_avklarte_adopsjonsdata() {
         // Arrange
-        final var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        final var familieHendelseBuilder = scenario.medSøknadHendelse();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1)
             .medFødselsDato(LocalDate.now())
             .medAdopsjon(familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse()
-            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now()))
+            .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()))
             .leggTilBarn(new UidentifisertBarnEntitet(LocalDate.now(), 1)));
 
         var behandling = lagre(scenario);
@@ -115,8 +114,7 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
         familieHendelseRepository.slettAvklarteData(behandling.getId(), lås);
 
         // Assert
-        final var adopsjon = familieHendelseRepository.hentAggregat(behandling.getId())
-            .getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
+        var adopsjon = familieHendelseRepository.hentAggregat(behandling.getId()).getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
         assertThat(adopsjon).isNotPresent();
     }
 
@@ -124,7 +122,7 @@ class SlettAvklarteDataTest extends EntityManagerAwareTest {
     void skal_slette_avklarte_medlemskapdata() {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        final var familieHendelseBuilder = scenario.medSøknadHendelse();
+        var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1)
             .medFødselsDato(LocalDate.now())
             .medAdopsjon(familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));

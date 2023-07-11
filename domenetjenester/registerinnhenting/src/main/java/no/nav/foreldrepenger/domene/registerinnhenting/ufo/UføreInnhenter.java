@@ -99,13 +99,16 @@ public class UføreInnhenter {
 
     private LocalDate førsteUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordeling) {
 
-        final var førsteUttaksdagSøknad = ytelseFordeling.map(YtelseFordelingAggregat::getGjeldendeFordeling)
-            .map(OppgittFordelingEntitet::getPerioder).orElse(Collections.emptyList()).stream()
+        var førsteUttaksdagSøknad = ytelseFordeling.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
             .map(OppgittPeriodeEntitet::getFom)
-            .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
+            .min(Comparator.naturalOrder())
+            .orElse(Tid.TIDENES_ENDE);
 
-        final var førsteUttaksdagForrigeVedtak = finnFørsteDatoIUttakResultat(behandling).orElse(Tid.TIDENES_ENDE);
-        final var førsteUttaksdag = førsteUttaksdagSøknad.isBefore(førsteUttaksdagForrigeVedtak) ? førsteUttaksdagSøknad : førsteUttaksdagForrigeVedtak;
+        var førsteUttaksdagForrigeVedtak = finnFørsteDatoIUttakResultat(behandling).orElse(Tid.TIDENES_ENDE);
+        var førsteUttaksdag = førsteUttaksdagSøknad.isBefore(førsteUttaksdagForrigeVedtak) ? førsteUttaksdagSøknad : førsteUttaksdagForrigeVedtak;
         return førsteUttaksdag.equals(Tid.TIDENES_ENDE) ? LocalDate.now() : førsteUttaksdag;
     }
 

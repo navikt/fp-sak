@@ -7,12 +7,11 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -62,8 +61,8 @@ class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
         var dto = new BekreftErMedlemVurderingDto("test", List.of(bekreftetPeriode));
 
         // Act
-        final var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
-                repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
+        var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
+            skjæringstidspunktTjeneste);
         new BekreftErMedlemVurderingOppdaterer(repositoryProvider, lagMockHistory(), medlemskapTjeneste)
                 .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 

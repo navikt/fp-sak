@@ -136,11 +136,11 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
                 && OrgNummer.erKunstig(overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
             return true;
         }
-        final var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
+        var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.isEmpty() || (registerAktivitet == null)) {
             return false;
         }
-        final var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.get().getFom(), opptjening.get().getTom());
+        var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.get().getFom(), opptjening.get().getTom());
         return girAksjonspunkt(filter, opptjeningPeriode, registerAktivitet);
     }
 }

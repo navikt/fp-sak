@@ -44,7 +44,7 @@ class BarnetsDødsdatoEndringIdentifisererTest {
 
     @Test
     void testDødsdatoUendret() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato, true);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -55,7 +55,7 @@ class BarnetsDødsdatoEndringIdentifisererTest {
 
     @Test
     void testBarnDør() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(null, true);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -66,7 +66,7 @@ class BarnetsDødsdatoEndringIdentifisererTest {
 
     @Test
     void testDødsdatoEndret() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato.minusDays(1), true);
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
@@ -78,7 +78,7 @@ class BarnetsDødsdatoEndringIdentifisererTest {
     @Test
     void skal_detektere_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
         // Arrange
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var personopplysningGrunnlag1 = opprettTomtPersonopplysningGrunnlag();
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
 
@@ -91,7 +91,7 @@ class BarnetsDødsdatoEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(LocalDate dødsdatoBarn, boolean registrerMedBarn) {
-        final var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         if (registrerMedBarn) {
             builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)).medDødsdato(dødsdatoBarn));

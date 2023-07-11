@@ -77,9 +77,9 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     private void utledVilkår(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        final var hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
-                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getType);
+        var hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getType);
         var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, hendelseType);
         opprettVilkår(utledeteVilkår, behandling, kontekst.getSkriveLås());
     }

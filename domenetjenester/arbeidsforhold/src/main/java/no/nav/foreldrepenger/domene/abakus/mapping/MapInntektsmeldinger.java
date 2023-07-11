@@ -206,7 +206,7 @@ public class MapInntektsmeldinger {
         }
 
         private InntektsmeldingDto map(InntektsmeldingBuilder builder) {
-            final var im = builder.build(true);
+            var im = builder.build(true);
             var arbeidsgiver = mapAktør(im.getArbeidsgiver());
             var journalpostId = new JournalpostId(im.getJournalpostId().getVerdi());
             var innsendingstidspunkt = im.getInnsendingstidspunkt();

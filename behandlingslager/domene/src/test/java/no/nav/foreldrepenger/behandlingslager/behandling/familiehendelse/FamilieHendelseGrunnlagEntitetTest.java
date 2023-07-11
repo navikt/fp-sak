@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 class FamilieHendelseGrunnlagEntitetTest {
 
@@ -16,9 +16,9 @@ class FamilieHendelseGrunnlagEntitetTest {
     @Test
     void endring_av_bekreftet_omsorg_familie_hendelse_ved_registerinnhenting() {
         // Grunnlag
-        final var fhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
+        var fhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
 
-        final var builderSøknad = opprettNyOmsorgovertagelseFamilieHendelse();
+        var builderSøknad = opprettNyOmsorgovertagelseFamilieHendelse();
 
         fhGrunnlagBuilder.medSøknadVersjon(builderSøknad);
         fhGrunnlagBuilder.medBekreftetVersjon(builderSøknad);
@@ -40,11 +40,11 @@ class FamilieHendelseGrunnlagEntitetTest {
     }
 
     private FamilieHendelseBuilder opprettNyOmsorgovertagelseFamilieHendelse() {
-        final var familieHendelseBuilder = FamilieHendelseBuilder.ny(HendelseVersjonType.SØKNAD);
-        final var antallBarn = 1;
+        var familieHendelseBuilder = FamilieHendelseBuilder.ny(HendelseVersjonType.SØKNAD);
+        var antallBarn = 1;
         var ommsorgsovertakelseDato = LocalDate.of(2015, 7, 12);
 
-        final var adopsjonBuilder = familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(ommsorgsovertakelseDato);
+        var adopsjonBuilder = familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(ommsorgsovertakelseDato);
 
         familieHendelseBuilder.erOmsorgovertagelse();
         familieHendelseBuilder.medAdopsjon(adopsjonBuilder);

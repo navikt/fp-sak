@@ -36,10 +36,10 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
     // Legg til aksjonspunktutledere som er felles for Førstegangsbehandling og
     // Revurdering
     protected List<AksjonspunktUtleder> leggTilFellesutledere(BehandlingReferanse ref) {
-        final var utlederHolder = new AksjonspunktUtlederHolder();
+        var utlederHolder = new AksjonspunktUtlederHolder();
 
         var behandlingId = ref.behandlingId();
-        final var hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
+        var hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (hendelseGrunnlag.isEmpty()) {
             throw VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes(behandlingId);
         }

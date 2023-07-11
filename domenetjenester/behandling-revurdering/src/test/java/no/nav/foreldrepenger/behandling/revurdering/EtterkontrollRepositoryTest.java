@@ -154,7 +154,7 @@ class EtterkontrollRepositoryTest {
 
     @Test
     void skal_hente_ut_siste_vedtak_til_revurdering(EntityManager entityManager) {
-        final var grunnlagRepository = new FamilieHendelseRepository(entityManager);
+        var grunnlagRepository = new FamilieHendelseRepository(entityManager);
         var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
         var terminDato = LocalDate.now().minusDays(revurderingDagerTilbake + 2);
 
@@ -163,18 +163,18 @@ class EtterkontrollRepositoryTest {
         var revurderingsBehandling = revurderingBuilder.build();
 
         var behandlingsresultat = Behandlingsresultat.builder()
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-                .buildFor(revurderingsBehandling);
-        final var behandlingVedtak = BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medBehandlingsresultat(behandlingsresultat)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medAnsvarligSaksbehandler("asdf")
-                .build();
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+            .buildFor(revurderingsBehandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
         revurderingsBehandling.avsluttBehandling();
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurderingsBehandling.getId());
-        final var oppdatere = grunnlagRepository.opprettBuilderFor(revurderingsBehandling);
+        var oppdatere = grunnlagRepository.opprettBuilderFor(revurderingsBehandling);
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
                 .medTermindato(terminDato)
                 .medNavnPå("Lege Legsen")
@@ -225,15 +225,13 @@ class EtterkontrollRepositoryTest {
                 .medAntallBarn(1);
 
         var behandling = scenario.lagre(repositoryProvider);
-        var behandlingsresultat = Behandlingsresultat.builder()
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-                .buildFor(behandling);
-        final var behandlingVedtak = BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now().minusDays(1))
-                .medBehandlingsresultat(behandlingsresultat)
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medAnsvarligSaksbehandler("asdf")
-                .build();
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now().minusDays(1))
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
 
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));

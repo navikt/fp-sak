@@ -47,19 +47,16 @@ class AksjonspunktUtlederForOmsorgsovertakelseTest {
 
         var farSøkerAdopsjonScenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
-        farSøkerAdopsjonScenario.medSøknad()
-            .medFarSøkerType(farSøkerType);
-        farSøkerAdopsjonScenario.medSøknadHendelse()
-            .medFødselsDato(FØDSELSDATO_BARN);
+        farSøkerAdopsjonScenario.medSøknad().medFarSøkerType(farSøkerType);
+        farSøkerAdopsjonScenario.medSøknadHendelse().medFødselsDato(FØDSELSDATO_BARN);
         if (farSøkerType.equals(FarSøkerType.ADOPTERER_ALENE)) {
             farSøkerAdopsjonScenario.medSøknadHendelse()
-                .medAdopsjon(farSøkerAdopsjonScenario.medSøknadHendelse().getAdopsjonBuilder()
-                    .medAdoptererAlene(true));
+                .medAdopsjon(farSøkerAdopsjonScenario.medSøknadHendelse().getAdopsjonBuilder().medAdoptererAlene(true));
         }
 
-        final var behandling = farSøkerAdopsjonScenario.lagMocked();
-        final var repositoryProvider = farSøkerAdopsjonScenario.mockBehandlingRepositoryProvider();
-        final var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        var behandling = farSøkerAdopsjonScenario.lagMocked();
+        var repositoryProvider = farSøkerAdopsjonScenario.mockBehandlingRepositoryProvider();
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         aksjonspunktUtleder = new AksjonspunktUtlederForOmsorgsovertakelse(familieHendelseTjeneste);
         return behandling;
     }

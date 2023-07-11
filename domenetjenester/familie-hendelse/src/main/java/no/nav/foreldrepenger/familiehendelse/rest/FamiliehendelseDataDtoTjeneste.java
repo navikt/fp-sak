@@ -138,7 +138,7 @@ public class FamiliehendelseDataDtoTjeneste {
             mapTerminbekreftelse(hendelse, dto, vedtaksdato);
             mapFødsler(hendelse, dto);
             if (grunnlag.getHarOverstyrteData() && grunnlag.getOverstyrtVersjon().get().getType().equals(FamilieHendelseType.FØDSEL)) {
-                final var brukAntallBarnFraTps = harValgtSammeSomBekreftet(grunnlag);
+                var brukAntallBarnFraTps = harValgtSammeSomBekreftet(grunnlag);
                 dto.setBrukAntallBarnFraTps(brukAntallBarnFraTps);
                 dto.setErOverstyrt(grunnlag.getHarOverstyrteData());
             }
@@ -159,8 +159,8 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static boolean harValgtSammeSomBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {
-        final var bekreftet = grunnlag.getBekreftetVersjon();
-        final var overstyrt = grunnlag.getOverstyrtVersjon().orElseThrow();
+        var bekreftet = grunnlag.getBekreftetVersjon();
+        var overstyrt = grunnlag.getOverstyrtVersjon().orElseThrow();
 
         var antallBarnLike = false;
         var fødselsdatoLike = false;

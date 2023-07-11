@@ -68,8 +68,8 @@ public abstract class BekreftOppholdOppdaterer implements AksjonspunktOppdaterer
             .medBegrunnelse(begrunnelse, !Objects.equals(begrunnelse, begrunnelseOrg))
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
 
-        final var adapter = new BekreftOppholdVurderingAksjonspunktDto(bekreftet.getOppholdsrettVurdering(),
-            bekreftet.getLovligOppholdVurdering(), bekreftet.getErEosBorger(), bekreftet.getBegrunnelse());
+        var adapter = new BekreftOppholdVurderingAksjonspunktDto(bekreftet.getOppholdsrettVurdering(), bekreftet.getLovligOppholdVurdering(),
+            bekreftet.getErEosBorger(), bekreftet.getBegrunnelse());
 
         medlemskapAksjonspunktTjeneste.aksjonspunktBekreftOppholdVurdering(behandlingId, adapter);
 

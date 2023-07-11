@@ -54,13 +54,13 @@ class GrensesnittavstemmingBatchTjenesteTest {
     @Test
     void avstemmingUtenOppdragSkalIkkeSendeAvstemmingsmeldinger() {
         // Arrange
-        final var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
+        var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
         argMap.setProperty("tom", LocalDate.of(2017, Month.AUGUST, 23).toString());
         argMap.setProperty("fom", LocalDate.of(2017, Month.AUGUST, 17).toString());
         argMap.setProperty("fagomrade", "FP");
 
         // Act
-        final var launch = grensesnittavstemmingApplikasjonTjeneste.launch(argMap.getProperties());
+        var launch = grensesnittavstemmingApplikasjonTjeneste.launch(argMap.getProperties());
         assertThat(launch).startsWith(grensesnittavstemmingApplikasjonTjeneste.getBatchName());
 
         // Assert
@@ -76,7 +76,7 @@ class GrensesnittavstemmingBatchTjenesteTest {
     void avstemmingSkalSendeAvstemmingsmeldingerUtenParametere() {
         // Arrange
         setupOppdragsliste();
-        final var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
+        var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
         argMap.setProperty("fagomrade", "REFUTG");
 
         // Act
@@ -90,7 +90,7 @@ class GrensesnittavstemmingBatchTjenesteTest {
     void avstemmingSkalSendeAvstemmingsmeldinger() {
         // Arrange
         setupOppdragsliste();
-        final var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
+        var argMap = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
         argMap.setProperty("tom", LocalDate.of(2017, Month.AUGUST, 23).toString());
         argMap.setProperty("fom", LocalDate.of(2017, Month.AUGUST, 17).toString());
         argMap.setProperty("fagomrade", "REFUTG");

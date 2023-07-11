@@ -99,7 +99,7 @@ class BarnFinnerTest {
 
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForFødsel(int antallBarn) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        final var hendelseBuilder = scenario.medBekreftetHendelse().medAntallBarn(antallBarn);
+        var hendelseBuilder = scenario.medBekreftetHendelse().medAntallBarn(antallBarn);
         IntStream.range(0, antallBarn).forEach(it -> hendelseBuilder.leggTilBarn(LocalDate.now()));
         scenario.medBekreftetHendelse(hendelseBuilder);
         return scenario;
@@ -107,12 +107,13 @@ class BarnFinnerTest {
 
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForTermin(int antallBarn) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        final var familieHendelseBuilder = scenario.medBekreftetHendelse()
-                .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                        .medTermindato(LocalDate.now())
-                        .medNavnPå("LEGEN MIN")
-                        .medUtstedtDato(LocalDate.now()))
-                .medAntallBarn(antallBarn);
+        var familieHendelseBuilder = scenario.medBekreftetHendelse()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now())
+                .medNavnPå("LEGEN MIN")
+                .medUtstedtDato(LocalDate.now()))
+            .medAntallBarn(antallBarn);
         scenario.medBekreftetHendelse(familieHendelseBuilder);
 
         return scenario;
@@ -133,14 +134,14 @@ class BarnFinnerTest {
         scenario.medRegisterOpplysninger(søker);
 
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        final var adopsjonBuilder = scenario.medSøknadHendelse().getAdopsjonBuilder();
+        var adopsjonBuilder = scenario.medSøknadHendelse().getAdopsjonBuilder();
         scenario.medSøknadHendelse().erOmsorgovertagelse().medAdopsjon(adopsjonBuilder.medOmsorgsovertakelseDato(LocalDate.now()));
         return scenario;
     }
 
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForAdopsjon(List<LocalDate> adopsjonsdatoer, LocalDate overtakelseDato) {
         var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
-        final var hendelseBuilder = scenario.medBekreftetHendelse().medAntallBarn(adopsjonsdatoer.size());
+        var hendelseBuilder = scenario.medBekreftetHendelse().medAntallBarn(adopsjonsdatoer.size());
         hendelseBuilder.medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(overtakelseDato));
 

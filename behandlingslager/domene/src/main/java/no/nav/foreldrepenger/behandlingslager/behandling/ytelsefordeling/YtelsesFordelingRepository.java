@@ -70,7 +70,7 @@ public class YtelsesFordelingRepository {
 
     private Optional<YtelseFordelingGrunnlagEntitet> hentAktivtGrunnlag(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        final var query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "FROM YtelseFordelingGrunnlag gr " + "WHERE gr.behandlingId = :behandlingId " + "AND gr.aktiv = :aktivt",
             YtelseFordelingGrunnlagEntitet.class);
         query.setParameter("behandlingId", behandlingId);
@@ -79,10 +79,10 @@ public class YtelsesFordelingRepository {
     }
 
     private void lagreOgFlush(Long behandlingId, YtelseFordelingAggregat aggregat) {
-        final var eksisterendeGrunnlag = hentAktivtGrunnlag(behandlingId);
+        var eksisterendeGrunnlag = hentAktivtGrunnlag(behandlingId);
         var nyGrunnlagEntitet = mapTilGrunnlagEntitet(behandlingId, aggregat);
         if (eksisterendeGrunnlag.isPresent()) {
-            final var eksisterendeGrunnlag1 = eksisterendeGrunnlag.get();
+            var eksisterendeGrunnlag1 = eksisterendeGrunnlag.get();
             eksisterendeGrunnlag1.setAktiv(false);
             entityManager.persist(eksisterendeGrunnlag1);
             entityManager.flush();
@@ -122,7 +122,7 @@ public class YtelsesFordelingRepository {
     }
 
     private YtelseFordelingGrunnlagEntitet mapTilGrunnlagEntitet(Long behandlingId, YtelseFordelingAggregat aggregat) {
-        final var grunnlag = new YtelseFordelingGrunnlagEntitet();
+        var grunnlag = new YtelseFordelingGrunnlagEntitet();
         grunnlag.setBehandling(behandlingId);
         grunnlag.setOppgittDekningsgrad(aggregat.getOppgittDekningsgrad());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());

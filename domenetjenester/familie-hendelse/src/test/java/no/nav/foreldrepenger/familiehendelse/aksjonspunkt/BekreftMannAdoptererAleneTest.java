@@ -53,7 +53,7 @@ class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
                 .medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE,
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        final var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         // Dto
         var dto = new BekreftMannAdoptererAksjonspunktDto("begrunnelse", oppdatertMannAdoptererAlene);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());

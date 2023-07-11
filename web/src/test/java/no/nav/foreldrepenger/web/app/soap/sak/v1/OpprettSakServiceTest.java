@@ -101,7 +101,7 @@ class OpprettSakServiceTest {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1L;
-        final var expectedSakId = new Saksnummer("02");
+        var expectedSakId = new Saksnummer("02");
 
         var fagsak = mockFagsak(FAGSAKID, expectedSakId);
         when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
@@ -117,7 +117,7 @@ class OpprettSakServiceTest {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
         final Long FAGSAKID = 1L;
-        final var expectedSakId = new Saksnummer("02");
+        var expectedSakId = new Saksnummer("02");
 
         var fagsak = mockFagsak(FAGSAKID, expectedSakId);
         when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
@@ -172,7 +172,7 @@ class OpprettSakServiceTest {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_FOD);
 
         final Long FAGSAKID = 1L;
-        final var expectedSakId = new Saksnummer("02");
+        var expectedSakId = new Saksnummer("02");
 
         var fagsak = mockFagsak(FAGSAKID, expectedSakId);
         when(fagsak.getStatus()).thenReturn(FagsakStatus.AVSLUTTET);
@@ -200,7 +200,7 @@ class OpprettSakServiceTest {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_ADP);
 
         final Long FAGSAKID = 1L;
-        final var expectedSakId = new Saksnummer("02");
+        var expectedSakId = new Saksnummer("02");
 
         var fagsak = mockFagsak(FAGSAKID, expectedSakId);
         when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
@@ -225,7 +225,7 @@ class OpprettSakServiceTest {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_GEN);
 
         final Long FAGSAKID = 1L;
-        final var expectedSakId = new Saksnummer("02");
+        var expectedSakId = new Saksnummer("02");
 
         var fagsak = mockFagsak(FAGSAKID, expectedSakId);
         when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
@@ -241,7 +241,7 @@ class OpprettSakServiceTest {
         var request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_GEN);
 
         final Long FAGSAKID = 1L;
-        final var expectedSakId = new Saksnummer("02");
+        var expectedSakId = new Saksnummer("02");
 
         var fagsak = mockFagsak(FAGSAKID, expectedSakId);
         when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);

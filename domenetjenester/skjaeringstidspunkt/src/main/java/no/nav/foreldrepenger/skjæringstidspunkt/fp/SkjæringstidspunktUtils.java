@@ -48,10 +48,10 @@ public class SkjæringstidspunktUtils {
     }
 
     LocalDate utledSkjæringstidspunktRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
-        final var gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon().getGjelderFødsel()
-            ? familieHendelseAggregat.finnGjeldendeFødselsdato()
-            : familieHendelseAggregat.getGjeldendeVersjon().getSkjæringstidspunkt();
-        final var oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
+        var gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon()
+            .getGjelderFødsel() ? familieHendelseAggregat.finnGjeldendeFødselsdato() : familieHendelseAggregat.getGjeldendeVersjon()
+            .getSkjæringstidspunkt();
+        var oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
 
         if (erEndringIPerioden(oppgittHendelseDato, gjeldendeHendelseDato)) {
             LOG.info("STP registerinnhenting endring i perioden for fhgrunnlag {}", familieHendelseAggregat.getId());
@@ -69,12 +69,12 @@ public class SkjæringstidspunktUtils {
     }
 
     private boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiEtter) {
-        final var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
+        var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
         return !avstand.isNegative() && størreEnn(avstand, grenseverdiEtter);
     }
 
     private boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiFør) {
-        final var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
+        var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
         return !avstand.isNegative() && størreEnn(avstand, grenseverdiFør);
     }
 
@@ -97,9 +97,9 @@ public class SkjæringstidspunktUtils {
 
     private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
                                                           FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato, boolean utenMinsterett) {
-        final var gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon().getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato()
-            : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
-        final var gjeldendeTermindato = fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
+        var gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon()
+            .getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato() : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
+        var gjeldendeTermindato = fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
         var fagsakÅrsak = finnFagsakÅrsak(fhGrunnlag.getGjeldendeVersjon());
         var søkerRolle =  finnFagsakSøkerRolle(behandling);
@@ -117,8 +117,8 @@ public class SkjæringstidspunktUtils {
             .medTerminDato(gjeldendeTermindato.orElse(null))
             .medMorsMaksdato(morsMaksDato.orElse(null));
 
-        final var fastsettPeriode = new RegelFastsettOpptjeningsperiode();
-        final var periode = new OpptjeningsPeriode();
+        var fastsettPeriode = new RegelFastsettOpptjeningsperiode();
+        var periode = new OpptjeningsPeriode();
         fastsettPeriode.evaluer(grunnlag, periode);
 
         return periode.getOpptjeningsperiodeTom().plusDays(1);
@@ -137,7 +137,7 @@ public class SkjæringstidspunktUtils {
     }
 
     private FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet gjeldendeVersjon) {
-        final var type = gjeldendeVersjon.getType();
+        var type = gjeldendeVersjon.getType();
         if (gjeldendeVersjon.getGjelderFødsel()) {
             return FagsakÅrsak.FØDSEL;
         }

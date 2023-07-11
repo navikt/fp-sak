@@ -140,7 +140,7 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     private void lagreOgFlush(Behandling behandling, MedlemskapVilkårPeriodeGrunnlagEntitet nyttGrunnlag) {
-        final var eksisterendeGrunnlag = hentAktivtGrunnlag(behandling);
+        var eksisterendeGrunnlag = hentAktivtGrunnlag(behandling);
         var nyGrunnlagEntitet = tilGrunnlagEntitet(getBehandlingsresultat(behandling).getVilkårResultat(), nyttGrunnlag);
         if (eksisterendeGrunnlag.isPresent()) {
             if (!erEndret(eksisterendeGrunnlag.get(), nyGrunnlagEntitet, true)) {

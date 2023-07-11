@@ -23,7 +23,7 @@ public class AksjonspunktUtlederHolder {
     }
 
     private AksjonspunktUtleder hentUtleder(Class<? extends AksjonspunktUtleder> aksjonspunktUtlederClass) {
-        final var instance = CDI.current().select(aksjonspunktUtlederClass);
+        var instance = CDI.current().select(aksjonspunktUtlederClass);
 
         if (instance.isAmbiguous()) {
             throw new TekniskException("FP-191205", "Mer enn en implementasjon funnet for aksjonspunktutleder "

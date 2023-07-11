@@ -79,7 +79,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     private List<AksjonspunktResultat> utled(BehandlingReferanse ref) {
-        final var aksjonspunktUtleders = utlederTjeneste.utledUtledereFor(ref);
+        var aksjonspunktUtleders = utlederTjeneste.utledUtledereFor(ref);
         List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
         for (var aksjonspunktUtleder : aksjonspunktUtleders) {
             aksjonspunktResultater.addAll(aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref)));

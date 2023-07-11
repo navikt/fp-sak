@@ -35,9 +35,7 @@ public class KlageRepository {
     public Optional<KlageResultatEntitet> hentKlageResultatHvisEksisterer(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
 
-        final var query = entityManager.createQuery(
-            " FROM KlageResultat WHERE klageBehandlingId = :behandlingId",
-            KlageResultatEntitet.class);
+        var query = entityManager.createQuery(" FROM KlageResultat WHERE klageBehandlingId = :behandlingId", KlageResultatEntitet.class);
 
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
@@ -46,8 +44,7 @@ public class KlageRepository {
     private List<KlageVurderingResultat> hentVurderingsResultaterForKlageBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
 
-        final var query = entityManager.createQuery(
-            " FROM KlageVurderingResultat WHERE klageResultat.klageBehandlingId = :behandlingId",
+        var query = entityManager.createQuery(" FROM KlageVurderingResultat WHERE klageResultat.klageBehandlingId = :behandlingId",
             KlageVurderingResultat.class);
 
         query.setParameter("behandlingId", behandlingId);
@@ -57,8 +54,7 @@ public class KlageRepository {
     private List<KlageFormkravEntitet> hentKlageFormkravForKlageBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
 
-        final var query = entityManager.createQuery(
-            " FROM KlageFormkrav WHERE klageResultat.klageBehandlingId = :behandlingId",
+        var query = entityManager.createQuery(" FROM KlageFormkrav WHERE klageResultat.klageBehandlingId = :behandlingId",
             KlageFormkravEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return query.getResultList();

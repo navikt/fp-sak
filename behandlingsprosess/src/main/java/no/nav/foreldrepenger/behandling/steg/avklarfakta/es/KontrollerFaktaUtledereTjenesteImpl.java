@@ -36,10 +36,10 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
     @Override
     public List<AksjonspunktUtleder> utledUtledereFor(BehandlingReferanse ref) {
 
-        final var utlederHolder = new AksjonspunktUtlederHolder();
+        var utlederHolder = new AksjonspunktUtlederHolder();
 
         var behandlingId = ref.behandlingId();
-        final var hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
+        var hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (hendelseGrunnlag.isEmpty()) {
             throw VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes(behandlingId);
         }

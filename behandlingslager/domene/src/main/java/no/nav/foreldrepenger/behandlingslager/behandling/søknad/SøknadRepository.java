@@ -34,15 +34,14 @@ public class SøknadRepository {
         if (behandlingId == null) {
             return null;
         }
-        final var query = entityManager.createQuery(
-            "FROM SøknadGrunnlag s " +
-                    "WHERE s.behandling.id = :behandlingId AND s.aktiv = true", SøknadGrunnlagEntitet.class);
+        var query = entityManager.createQuery("FROM SøknadGrunnlag s " + "WHERE s.behandling.id = :behandlingId AND s.aktiv = true",
+            SøknadGrunnlagEntitet.class);
 
         query.setParameter("behandlingId", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query).map(SøknadGrunnlagEntitet::getSøknad)
                 .orElseGet(() -> {
-                    final var originalId = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId)
+                    var originalId = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId)
                         .flatMap(Behandling::getOriginalBehandlingId);
                     return originalId.map(this::hentSøknad).orElse(null);
                 });
@@ -61,9 +60,9 @@ public class SøknadRepository {
     }
 
     public SøknadEntitet hentFørstegangsSøknad(Behandling behandling) {
-        final var førstegangsSøknad = utledSisteFørstegangsbehandlingSomIkkeErHenlagt(behandling);
+        var førstegangsSøknad = utledSisteFørstegangsbehandlingSomIkkeErHenlagt(behandling);
         if (førstegangsSøknad.isPresent()) {
-            final var søknad = hentSøknadHvisEksisterer(førstegangsSøknad.get().getId());
+            var søknad = hentSøknadHvisEksisterer(førstegangsSøknad.get().getId());
             if (søknad.isPresent()) {
                 return søknad.get();
             }
@@ -86,26 +85,25 @@ public class SøknadRepository {
 
     public void lagreOgFlush(Behandling behandling, SøknadEntitet søknad) {
         Objects.requireNonNull(behandling, "behandling");
-        final var søknadGrunnlagEntitet = hentEksisterendeGrunnlag(behandling.getId());
+        var søknadGrunnlagEntitet = hentEksisterendeGrunnlag(behandling.getId());
         if (søknadGrunnlagEntitet.isPresent()) {
             // deaktiver eksisterende grunnlag
 
-            final var søknadGrunnlagEntitet1 = søknadGrunnlagEntitet.get();
+            var søknadGrunnlagEntitet1 = søknadGrunnlagEntitet.get();
             søknadGrunnlagEntitet1.setAktiv(false);
             entityManager.persist(søknadGrunnlagEntitet1);
             entityManager.flush();
         }
 
-        final var grunnlagEntitet = new SøknadGrunnlagEntitet(behandling, søknad);
+        var grunnlagEntitet = new SøknadGrunnlagEntitet(behandling, søknad);
         entityManager.persist(søknad);
         entityManager.persist(grunnlagEntitet);
         entityManager.flush();
     }
 
     private Optional<SøknadGrunnlagEntitet> hentEksisterendeGrunnlag(Long behandlingId) {
-        final var query = entityManager.createQuery(
-            "FROM SøknadGrunnlag s " +
-                    "WHERE s.behandling.id = :behandlingId AND s.aktiv = true", SøknadGrunnlagEntitet.class);
+        var query = entityManager.createQuery("FROM SøknadGrunnlag s " + "WHERE s.behandling.id = :behandlingId AND s.aktiv = true",
+            SøknadGrunnlagEntitet.class);
 
         query.setParameter("behandlingId", behandlingId);
 

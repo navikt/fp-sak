@@ -23,7 +23,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_parse_antall_dager() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(ANTALL_DAGER, "5");
         argMap.setProperty(FAGOMRÅDE, "FP");
         assertDoesNotThrow(() -> mock.launch(argMap));
@@ -31,7 +31,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_parse_antall_8_dager() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(ANTALL_DAGER, "8");
         argMap.setProperty(FAGOMRÅDE, "FP");
         assertDoesNotThrow(() -> mock.launch(argMap));
@@ -39,7 +39,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_parse_antall_9_dager_utover_max() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FAGOMRÅDE, "FP");
         argMap.setProperty(ANTALL_DAGER, "9");
         assertThrows(IllegalArgumentException.class, () -> mock.launch(argMap));
@@ -47,7 +47,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_parse_dato() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(TOM, "2014-11-07");
         argMap.setProperty(FAGOMRÅDE, "FP");
@@ -56,7 +56,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_parse_dato_periode_utover_max() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(TOM, "2014-11-09");
         argMap.setProperty(FAGOMRÅDE, "FP");
@@ -65,7 +65,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_parse_dato_periode_7_dager() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(TOM, "2014-11-07");
         argMap.setProperty(FAGOMRÅDE, "FP");
@@ -74,7 +74,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_feile_ved_satt_for_mange_properties() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(TOM, "2014-11-20");
         argMap.setProperty(ANTALL_DAGER, "5");
@@ -84,7 +84,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_feile_fordi_satt_parametre_er_ikke_entydig() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(ANTALL_DAGER, "5");
         argMap.setProperty(FAGOMRÅDE, "FP");
@@ -93,7 +93,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_feile_fordi_fagområde_er_ikke_satt() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(ANTALL_DAGER, "5");
         assertThrows(NullPointerException.class, () -> mock.launch(argMap));
@@ -101,7 +101,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_feile_fordi_fagområde_er_feil() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(FOM, "2014-11-01");
         argMap.setProperty(ANTALL_DAGER, "5");
         argMap.setProperty(FAGOMRÅDE, "blabla");
@@ -110,7 +110,7 @@ class GrensesnittavstemmingBatchArgumentsTest {
 
     @Test
     void skal_feile_fordi_fagområde_er_null() {
-        final var argMap = new Properties();
+        var argMap = new Properties();
         argMap.setProperty(ANTALL_DAGER, "8");
         assertThrows(NullPointerException.class, () -> mock.launch(argMap));
     }

@@ -72,7 +72,7 @@ public final class MapBeregningsgrunnlagFraVLTilRegel {
 
     // Ikke ATFL og TY, de har separat mapping
     private static BeregningsgrunnlagPrStatus mapVLBGPStatusForAlleAktivietetStatuser(BeregningsgrunnlagPrStatusOgAndel vlBGPStatus) {
-        final var regelAktivitetStatus = AktivitetStatusMapper.fraVLTilRegel(vlBGPStatus.getAktivitetStatus());
+        var regelAktivitetStatus = AktivitetStatusMapper.fraVLTilRegel(vlBGPStatus.getAktivitetStatus());
         return new BeregningsgrunnlagPrStatus(regelAktivitetStatus, vlBGPStatus.getRedusertBrukersAndelPrÅr(),
             InntektskategoriMapper.fraVLTilRegel(vlBGPStatus.getGjeldendeInntektskategori()));
     }

@@ -81,7 +81,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
 
-        final var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
+        var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
@@ -94,10 +94,9 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
             .forEach(arkivDokumentTypeIds::add);
         arkivDokumentTypeIds.addAll(DokumentTypeId.ekvivalenter(arkivDokumentTypeIds));
 
-        final var manglendeVedlegg = new ArrayList<>(identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds));
-        var oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(YtelseFordelingAggregat::getOppgittFordeling);
-        final var manglendeVedleggUtsettelse = identifiserManglendeVedleggSomFølgerAvUtsettelse(oppgittFordeling, arkivDokumentTypeIds);
+        var manglendeVedlegg = new ArrayList<>(identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds));
+        var oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId).map(YtelseFordelingAggregat::getOppgittFordeling);
+        var manglendeVedleggUtsettelse = identifiserManglendeVedleggSomFølgerAvUtsettelse(oppgittFordeling, arkivDokumentTypeIds);
         manglendeVedlegg.addAll(manglendeVedleggUtsettelse);
 
         if (!manglendeVedlegg.isEmpty()) {

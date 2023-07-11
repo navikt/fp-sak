@@ -59,8 +59,8 @@ class BekreftBosattVurderingOppdatererTest extends EntityManagerAwareTest {
         var dto = new BekreftBosattVurderingDto("test", List.of(bekreftetPeriode));
 
         // Act
-        final var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
-                repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
+        var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(repositoryProvider, mock(HistorikkTjenesteAdapter.class),
+            skjæringstidspunktTjeneste);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         new BekreftBosattVurderingOppdaterer(repositoryProvider, lagMockHistory(), medlemskapTjeneste).oppdater(dto,
                 new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));

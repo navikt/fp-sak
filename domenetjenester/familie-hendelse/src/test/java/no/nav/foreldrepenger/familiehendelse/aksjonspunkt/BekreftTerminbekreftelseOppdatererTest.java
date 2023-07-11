@@ -138,10 +138,9 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
         // Assert
-        final var familieHendelseGrunnlag = repositoryProvider.getFamilieHendelseRepository()
-            .hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
 
-        final var terminbekreftelse = familieHendelseGrunnlag.getGjeldendeVersjon().getTerminbekreftelse();
+        var terminbekreftelse = familieHendelseGrunnlag.getGjeldendeVersjon().getTerminbekreftelse();
 
         assertThat(terminbekreftelse).isPresent();
         assertThat(familieHendelseGrunnlag.getGjeldendeVersjon().getAntallBarn()).isEqualTo(1);

@@ -53,10 +53,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Override
     public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
-        final var familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
+        var familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
 
-        final var oppgittSkjæringstidspunkt = utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat);
-        final var bekreftetSkjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat);
+        var oppgittSkjæringstidspunkt = utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat);
+        var bekreftetSkjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat);
 
         if (endringTjeneste.erEndringIPerioden(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt.orElse(null))) {
             return bekreftetSkjæringstidspunkt.orElseThrow(IllegalStateException::new);

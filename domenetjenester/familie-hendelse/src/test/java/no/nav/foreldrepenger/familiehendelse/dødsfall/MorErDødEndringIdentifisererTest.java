@@ -33,7 +33,7 @@ class MorErDødEndringIdentifisererTest {
 
     @Test
     void testMorDør() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
 
         var orginaltGrunnlag = opprettPersonopplysning(null);
         var oppdatertGrunnlag = opprettPersonopplysning(dødsdato);//Oppdater opplysninger med dødsdato og lagre på behandlingen.
@@ -45,7 +45,7 @@ class MorErDødEndringIdentifisererTest {
 
     @Test
     void testDødsdatoEndret() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
 
         var orginaltGrunnlag = opprettPersonopplysning(dødsdato);
         var oppdatertGrunnlag = opprettPersonopplysning(dødsdato.minusDays(1));//Oppdater dødsdato og lagre på behandlingen.
@@ -57,7 +57,7 @@ class MorErDødEndringIdentifisererTest {
 
     @Test
     void testDødsdatoUendret() {
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
 
         var orginaltGrunnlag = opprettPersonopplysning(dødsdato);
         var oppdatertGrunnlag = opprettPersonopplysning(dødsdato);//Oppdater dødsdato og lagre på behandlingen.
@@ -70,7 +70,7 @@ class MorErDødEndringIdentifisererTest {
     @Test
     void skal_detektere_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
         // Arrange
-        final var dødsdato = LocalDate.now().minusDays(10);
+        var dødsdato = LocalDate.now().minusDays(10);
         var orginaltGrunnlag = opprettTomtPersonopplysningGrunnlag();
         var oppdatertGrunnlag = opprettPersonopplysning(dødsdato);//Oppdater opplysninger med dødsdato og lagre på behandlingen.
 
@@ -83,7 +83,7 @@ class MorErDødEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysning(LocalDate dødsdatoMor) {
-        final var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_MOR).medFødselsdato(LocalDate.now().minusYears(28)).medDødsdato(dødsdatoMor));
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusYears(1)));

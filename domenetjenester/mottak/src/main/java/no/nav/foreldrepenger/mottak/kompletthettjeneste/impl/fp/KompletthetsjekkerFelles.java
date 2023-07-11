@@ -88,7 +88,7 @@ public class KompletthetsjekkerFelles {
         var søknad = søknadRepository.hentSøknad(behandlingId);
         Objects.requireNonNull(søknad, "søknad kan ikke være null");
 
-        final var ønsketFrist = søknad.getMottattDato().plusWeeks(VENTEFRIST_ETTERSENDELSE_FRA_MOTATT_DATO_UKER);
+        var ønsketFrist = søknad.getMottattDato().plusWeeks(VENTEFRIST_ETTERSENDELSE_FRA_MOTATT_DATO_UKER);
         return finnVentefrist(ønsketFrist);
     }
 
@@ -166,22 +166,22 @@ public class KompletthetsjekkerFelles {
     private Optional<LocalDateTime> finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = ref.getUtledetSkjæringstidspunkt();
-        final var muligFrist = permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
-        final var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
+        var muligFrist = permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
+        var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
-        final var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);
+        var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);
         return finnVentefrist(ønsketFrist);
     }
 
     private Optional<LocalDateTime> finnVentefristForEtterlysning(BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = ref.getUtledetSkjæringstidspunkt();
-        final var muligFrist = LocalDate.now()
+        var muligFrist = LocalDate.now()
             .isBefore(permisjonsstart.minusWeeks(TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER)) ? LocalDate.now() : permisjonsstart.minusWeeks(
             TIDLIGST_VENTEFRIST_FØR_UTTAKSDATO_UKER);
-        final var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
+        var annenMuligFrist = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .map(s -> s.getMottattDato().plusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
-        final var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);
+        var ønsketFrist = annenMuligFrist.filter(muligFrist::isBefore).orElse(muligFrist);
         return finnVentefrist(ønsketFrist.plusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER));
     }
 

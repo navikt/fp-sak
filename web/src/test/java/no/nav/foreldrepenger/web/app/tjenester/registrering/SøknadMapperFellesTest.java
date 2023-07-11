@@ -94,14 +94,14 @@ class SøknadMapperFellesTest {
 
     @Test
     void test_mapAdopsjon() {
-        final var omsorgsovertakelsesdato = LocalDate.now();
-        final var fødselssdato = LocalDate.now().minusMonths(3);
-        final var ankomstDato = LocalDate.now().minusDays(4);
+        var omsorgsovertakelsesdato = LocalDate.now();
+        var fødselssdato = LocalDate.now().minusMonths(3);
+        var ankomstDato = LocalDate.now().minusDays(4);
         LocalDate.now().minusMonths(2);
-        final var antallBarn = 1;
+        var antallBarn = 1;
 
-        var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON,
-                omsorgsovertakelsesdato, fødselssdato, antallBarn, ankomstDato);
+        var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.ADOPSJON, omsorgsovertakelsesdato, fødselssdato, antallBarn,
+            ankomstDato);
         var adopsjon = SøknadMapperFelles.mapAdopsjon(manuellRegistreringEngangsstonadDto);
         assertThat(adopsjon).isNotNull();
         assertThat(adopsjon.getOmsorgsovertakelsesdato()).isEqualTo(omsorgsovertakelsesdato);
@@ -120,12 +120,12 @@ class SøknadMapperFellesTest {
 
     @Test
     void test_mapOmsorg() {
-        final var omsorgsovertakelsesdato = LocalDate.now();
-        final var fødselsdato = LocalDate.now().minusDays(10);
-        final var antallBarn = 1;
+        var omsorgsovertakelsesdato = LocalDate.now();
+        var fødselsdato = LocalDate.now().minusDays(10);
+        var antallBarn = 1;
 
-        var manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG,
-                omsorgsovertakelsesdato, RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, fødselsdato);
+        var manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, omsorgsovertakelsesdato,
+            RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, fødselsdato);
         var omsorgsovertakelse = SøknadMapperFelles.mapOmsorgsovertakelse(manuellRegistreringEngangsstonadDto);
         assertThat(omsorgsovertakelse).isNotNull();
         assertThat(omsorgsovertakelse.getOmsorgsovertakelsesdato()).isEqualTo(omsorgsovertakelsesdato);
@@ -145,8 +145,8 @@ class SøknadMapperFellesTest {
 
     @Test
     void test_mapFødsel() {
-        final var fødselssdato = LocalDate.now().minusMonths(3);
-        final var antallBarn = 1;
+        var fødselssdato = LocalDate.now().minusMonths(3);
+        var antallBarn = 1;
 
         var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         oppdaterDtoForFødsel(manuellRegistreringEngangsstonadDto, true, fødselssdato, antallBarn);
@@ -166,9 +166,9 @@ class SøknadMapperFellesTest {
 
     @Test
     void test_mapTermin() {
-        final var terminbekreftelseDato = LocalDate.now();
-        final var termindato = LocalDate.now().plusMonths(3);
-        final var antallBarn = 1;
+        var terminbekreftelseDato = LocalDate.now();
+        var termindato = LocalDate.now().plusMonths(3);
+        var antallBarn = 1;
 
         var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         manuellRegistreringEngangsstonadDto.setTerminbekreftelseDato(terminbekreftelseDato);
@@ -183,11 +183,11 @@ class SøknadMapperFellesTest {
 
     @Test
     void test_mapAnnenForelder() {
-        final var omsorgsovertakelsesdato = LocalDate.now();
-        final var antallBarn = 1;
+        var omsorgsovertakelsesdato = LocalDate.now();
+        var antallBarn = 1;
 
-        var manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG,
-                omsorgsovertakelsesdato, RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, LocalDate.now());
+        var manuellRegistreringEngangsstonadDto = opprettOmsorgDto(FamilieHendelseType.OMSORG, omsorgsovertakelsesdato,
+            RettigheterDto.OVERTA_FORELDREANSVARET_ALENE, antallBarn, LocalDate.now());
 
         manuellRegistreringEngangsstonadDto.setAnnenForelder(opprettAnnenForelderDto(true, true, true));
         var annenForelder = SøknadMapperFelles.mapAnnenForelder(manuellRegistreringEngangsstonadDto, personinfoAdapter);
@@ -259,7 +259,7 @@ class SøknadMapperFellesTest {
     @Test
     void testMapperMedlemskapFP_med_TidligereUtenlandsopphold() {
 
-        final var land = "FRA";
+        var land = "FRA";
         LocalDate periodeFom = LocalDate.now().minusMonths(6), periodeTom = LocalDate.now().minusMonths(3);
 
         var registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();

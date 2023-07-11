@@ -68,7 +68,7 @@ public class FamilieHendelseTjeneste {
     }
 
     public List<LocalDateInterval> forventetFødselsIntervaller(Long behandlingId) {
-        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
     }
 
@@ -149,8 +149,7 @@ public class FamilieHendelseTjeneste {
             return;
         }
 
-        final var hendelseBuilder = familieGrunnlagRepository.opprettBuilderForregister(behandling)
-            .tilbakestillBarn();
+        var hendelseBuilder = familieGrunnlagRepository.opprettBuilderForregister(behandling).tilbakestillBarn();
 
         bekreftetTps.forEach(barn -> hendelseBuilder.leggTilBarn(barn.fødselsdato(), barn.getDødsdato().orElse(null)));
         hendelseBuilder.medAntallBarn(bekreftetTps.size());
@@ -159,7 +158,7 @@ public class FamilieHendelseTjeneste {
 
         var sisteRegistrertFødselsdato = hentRegisterFødselsdato(behandling.getId()).orElse(null);
 
-        final var familieHendelseGrunnlag = hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = hentAggregat(behandling.getId());
         if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
             familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FØDSEL::equals).orElse(Boolean.FALSE)) {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandling, tidligereRegistrertFødselsdato, sisteRegistrertFødselsdato);
@@ -179,7 +178,7 @@ public class FamilieHendelseTjeneste {
 
         var sisteGjeldendeFødselsdato = hentGjeldendeBekreftetFødselsdato(behandling.getId()).orElse(null);
 
-        final var familieHendelseGrunnlag = hentAggregat(behandling.getId());
+        var familieHendelseGrunnlag = hentAggregat(behandling.getId());
         if (TERMIN.equals(familieHendelseGrunnlag.getSøknadVersjon().getType()) &&
             familieHendelseGrunnlag.getOverstyrtVersjon().map(FamilieHendelseEntitet::getType).filter(FØDSEL::equals).isPresent()) {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandling, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
@@ -216,7 +215,7 @@ public class FamilieHendelseTjeneste {
 
     public List<PersonopplysningEntitet> finnBarnSøktStønadFor(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
         var behandlingId = ref.behandlingId();
-        final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         var fødselsintervall = utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
 
         return personopplysninger.getRelasjoner().stream()
@@ -278,7 +277,7 @@ public class FamilieHendelseTjeneste {
     }
 
     static LocalDateTimeline<Boolean> utledTidslineFraGrunnlag(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        final var søknadVersjon = familieHendelseGrunnlag.getSøknadVersjon();
+        var søknadVersjon = familieHendelseGrunnlag.getSøknadVersjon();
         // Tar med bekreftet / overstyrt barn hvis finnes
         List<LocalDateSegment<Boolean>> intervaller = new ArrayList<>(familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
             .map(FamilieHendelseTjeneste::intervallerForUidentifisertBarn).orElse(List.of()));

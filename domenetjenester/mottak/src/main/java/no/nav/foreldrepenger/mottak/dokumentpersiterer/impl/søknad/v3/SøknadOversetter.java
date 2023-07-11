@@ -228,7 +228,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
 
         //Kopier og oppdater søknadsfelter.
-        final var søknadBuilder = kopierSøknad(behandling);
+        var søknadBuilder = kopierSøknad(behandling);
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, gjelderFra);
         var henlagteBehandlingerEtterInnvilget = behandlingRevurderingRepository.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(
             behandling.getFagsakId());
@@ -241,7 +241,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, mottattDato);
         }
         søknadBuilder.medErEndringssøknad(true);
-        final var søknad = søknadBuilder.build();
+        var søknad = søknadBuilder.build();
 
         søknadRepository.lagreOgFlush(behandling, søknad);
     }
@@ -252,8 +252,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var mottattDato = mottattDokument.getMottattDato();
         var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
         var loggFør = loggFamilieHendelseForFørstegangPåRevurdering(behandling, "FØR");
-        final var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling);
-        final var søknadBuilder = new SøknadEntitet.Builder();
+        var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling);
+        var søknadBuilder = new SøknadEntitet.Builder();
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, Optional.empty());
         var behandlingId = behandling.getId();
         var aktørId = behandling.getAktørId();
@@ -274,14 +274,13 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             } else if (soekersRelasjonTilBarnet instanceof Adopsjon adopsjon) {
                 byggAdopsjonsrelaterteFelter(adopsjon, hendelseBuilder);
             } else if (soekersRelasjonTilBarnet instanceof Omsorgsovertakelse omsorgsovertakelse) {
-                byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder,
-                    søknadBuilder);
+                byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder, søknadBuilder);
             }
         }
         familieHendelseRepository.lagre(behandling, hendelseBuilder);
         søknadBuilder.medErEndringssøknad(false);
-        final var relasjonsRolleType = utledRolle(wrapper.getBruker(), behandlingId, aktørId);
-        final var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
+        var relasjonsRolleType = utledRolle(wrapper.getBruker(), behandlingId, aktørId);
+        var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         fagsakRepository.oppdaterRelasjonsRolle(behandling.getFagsakId(), søknad.getRelasjonsRolleType());
         if (loggFør) {
@@ -860,8 +859,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var fødselsdatoene = omsorgsovertakelse.getFoedselsdato();
 
         hendelseBuilder.tilbakestillBarn().medAntallBarn(omsorgsovertakelse.getAntallBarn());
-        final var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(omsorgsovertakelse.getOmsorgsovertakelsesdato());
+        var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelse.getOmsorgsovertakelsesdato());
         for (var localDate : fødselsdatoene) {
             hendelseBuilder.leggTilBarn(localDate);
         }
@@ -881,7 +879,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var fødselsdatoene = adopsjon.getFoedselsdato();
 
         hendelseBuilder.tilbakestillBarn().medAntallBarn(adopsjon.getAntallBarn());
-        final var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
+        var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
             .medAnkomstDato(adopsjon.getAnkomstdato())
             .medErEktefellesBarn(adopsjon.isAdopsjonAvEktefellesBarn())
             .medOmsorgsovertakelseDato(adopsjon.getOmsorgsovertakelsesdato());

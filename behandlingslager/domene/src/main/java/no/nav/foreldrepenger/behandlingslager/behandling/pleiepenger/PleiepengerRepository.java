@@ -55,10 +55,8 @@ public class PleiepengerRepository {
     }
 
     public Optional<PleiepengerGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
-        final var query = entityManager.createQuery(
-            "FROM PleiepengerGrunnlag p WHERE p.behandlingId = :behandlingId AND p.aktiv = true",
-                    PleiepengerGrunnlagEntitet.class)
-            .setParameter("behandlingId", behandlingId);
+        var query = entityManager.createQuery("FROM PleiepengerGrunnlag p WHERE p.behandlingId = :behandlingId AND p.aktiv = true",
+            PleiepengerGrunnlagEntitet.class).setParameter("behandlingId", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }

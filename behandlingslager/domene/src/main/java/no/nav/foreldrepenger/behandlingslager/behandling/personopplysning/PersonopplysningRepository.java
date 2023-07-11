@@ -54,7 +54,7 @@ public class PersonopplysningRepository {
     public void kopierGrunnlagFraEksisterendeBehandling(Long eksisterendeBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = getAktivtGrunnlag(eksisterendeBehandlingId);
 
-        final var builder = PersonopplysningGrunnlagBuilder.oppdatere(eksisterendeGrunnlag);
+        var builder = PersonopplysningGrunnlagBuilder.oppdatere(eksisterendeGrunnlag);
 
         lagreOgFlush(nyBehandlingId, builder);
     }
@@ -63,7 +63,7 @@ public class PersonopplysningRepository {
     public void kopierGrunnlagFraEksisterendeBehandlingUtenVurderinger(Long eksisterendeBehandlingId, Long nyBehandlingId) {
         var eksisterendeGrunnlag = getAktivtGrunnlag(eksisterendeBehandlingId);
 
-        final var builder = PersonopplysningGrunnlagBuilder.oppdatere(eksisterendeGrunnlag);
+        var builder = PersonopplysningGrunnlagBuilder.oppdatere(eksisterendeGrunnlag);
         builder.medOverstyrtVersjon(null);
 
         lagreOgFlush(nyBehandlingId, builder);
@@ -136,11 +136,11 @@ public class PersonopplysningRepository {
         Objects.requireNonNull(behandlingId, "behandlingId");
         Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder");
 
-        final var aktivtGrunnlag = getAktivtGrunnlag(behandlingId);
+        var aktivtGrunnlag = getAktivtGrunnlag(behandlingId);
 
-        final var diffEntity = personopplysningDiffer();
+        var diffEntity = personopplysningDiffer();
 
-        final var build = grunnlagBuilder.build();
+        var build = grunnlagBuilder.build();
         build.setBehandlingId(behandlingId);
 
         if (diffEntity.areDifferent(aktivtGrunnlag.orElse(null), build)) {
@@ -188,7 +188,7 @@ public class PersonopplysningRepository {
         Objects.requireNonNull(behandlingId, "behandling");
         Objects.requireNonNull(builder, "søknadAnnenPartBuilder");
 
-        final var nyttGrunnlag = getGrunnlagBuilderFor(behandlingId);
+        var nyttGrunnlag = getGrunnlagBuilderFor(behandlingId);
 
         if (builder.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
             nyttGrunnlag.medRegistrertVersjon(builder);
@@ -201,7 +201,7 @@ public class PersonopplysningRepository {
     }
 
     private PersonopplysningGrunnlagBuilder getGrunnlagBuilderFor(Long behandlingId) {
-        final var aktivtGrunnlag = getAktivtGrunnlag(behandlingId);
+        var aktivtGrunnlag = getAktivtGrunnlag(behandlingId);
         return PersonopplysningGrunnlagBuilder.oppdatere(aktivtGrunnlag);
     }
 
@@ -210,7 +210,7 @@ public class PersonopplysningRepository {
         Objects.requireNonNull(behandlingId, "behandlingId");
         Objects.requireNonNull(oppgittAnnenPart, "oppgittAnnenPart");
 
-        final var nyttGrunnlag = getGrunnlagBuilderFor(behandlingId);
+        var nyttGrunnlag = getGrunnlagBuilderFor(behandlingId);
 
         nyttGrunnlag.medOppgittAnnenPart(oppgittAnnenPart);
 
@@ -219,7 +219,7 @@ public class PersonopplysningRepository {
 
 
     public PersonInformasjonBuilder opprettBuilderForRegisterdata(Long behandlingId) {
-        final var aktivtGrunnlag = getAktivtGrunnlag(behandlingId);
+        var aktivtGrunnlag = getAktivtGrunnlag(behandlingId);
         return PersonInformasjonBuilder.oppdater(aktivtGrunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon),
             PersonopplysningVersjonType.REGISTRERT);
     }

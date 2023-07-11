@@ -200,7 +200,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest extend
             .medNavnPå("LEGEN MIN"));
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagre(repositoryProvider);
-        final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         lagAktørArbeid(inntektArbeidYtelseAggregatBuilder, GITT_AKTØR_ID, ORG_NR, tilOgMed);
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
         return behandling;

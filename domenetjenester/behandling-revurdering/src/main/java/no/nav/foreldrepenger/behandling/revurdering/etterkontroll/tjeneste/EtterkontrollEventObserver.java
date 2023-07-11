@@ -70,10 +70,11 @@ public class EtterkontrollEventObserver {
 
         LOG.info("Etterkontroll Behandlingvedtakevent inngang behandling {}", event.getBehandlingId());
 
-        final var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (grunnlag.isPresent()) {
-            final var hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                    .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+            var hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .map(FamilieHendelseEntitet::getType)
+                .orElse(FamilieHendelseType.UDEFINERT);
             if (Set.of(TERMIN, FØDSEL).contains(hendelseType)) {
                 markerForEtterkontroll(behandling, grunnlag.get());
             }

@@ -113,8 +113,12 @@ class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         morsBehandling.avsluttBehandling();
         lagre(morsBehandling);
 
-        final var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
-            .medVedtakResultatType(VedtakResultatType.INNVILGET).medAnsvarligSaksbehandler("mor vedtak").build();
+        var behandlingVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medAnsvarligSaksbehandler("mor vedtak")
+            .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(morsBehandling));
 
         var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);

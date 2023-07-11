@@ -34,7 +34,7 @@ public final class MottattDokumentXmlParser {
     @SuppressWarnings("rawtypes")
     public static MottattDokumentWrapper unmarshallXml(String xml) {
         final Object mottattDokument;
-        final var namespace = hentNamespace(xml);
+        var namespace = hentNamespace(xml);
 
         try {
             var dokumentParserKonfig = SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.get(namespace);

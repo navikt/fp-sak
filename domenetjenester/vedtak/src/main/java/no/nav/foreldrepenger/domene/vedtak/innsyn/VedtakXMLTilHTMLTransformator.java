@@ -116,7 +116,7 @@ public class VedtakXMLTilHTMLTransformator {
     // HACK: hardkodet systemutledning basert på elementer i xml, kilde for info bør egentlig legges på xml feltattributter, og transformeres
     // med xslt
     private static String lagKildeoversikt(String vedtakXml) throws JAXBException, XMLStreamException, SAXException {
-        final var namespace = retrieveNameSpaceOfXML(vedtakXml);
+        var namespace = retrieveNameSpaceOfXML(vedtakXml);
         if (!VedtakConstants.NAMESPACE.equals(namespace)) {
             return null; // håndterer bare versjon 2
         }

@@ -43,9 +43,9 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_en_dag_før_tom_en_dag_etter_dersom_fødselsdato_er_oppgitt() {
-        final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().leggTilBarn(FØDSELSDATO_BARN);
-        final var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
         var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
@@ -57,13 +57,13 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_16_uker_før_tom_4_uker_etter_termindato_dersom_termindato_er_oppgitt() {
         // Arrange
         var termindato = NÅ.plusWeeks(16);
-        final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medNavnPå("LEGENS ISNDASD ASD")
                 .medUtstedtDato(termindato)
                 .medTermindato(termindato));
-        final var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
         var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
@@ -78,12 +78,12 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         // Arrange
         var fødselsdatoBarn = NÅ;
         var fødselsdatoBarn2 = NÅ.minusYears(2);
-        final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(NÅ))
             .leggTilBarn(fødselsdatoBarn).leggTilBarn(fødselsdatoBarn2);
-        final var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
         var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
@@ -101,8 +101,8 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     @Test
     void skal_uttrekke_tom_liste_for_gyldige_perioder_dersom_fødselsdato_ikke_er_oppgitt() {
         // Arrange
-        final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        final var behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
         var actually = tjeneste.forventetFødselsIntervaller(lagRef(behandling));
@@ -115,7 +115,7 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     void lagre_bekreftet_når_finnes_ovst_fødsel() {
         // Arrange
         var tdato = LocalDate.now().minusDays(2);
-        final var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
@@ -125,7 +125,7 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
         scenario.medOverstyrtHendelse(scenario.medOverstyrtHendelse()
             .medFødselsDato(tdato)
             .medAntallBarn(1));
-        final var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
         tjeneste.oppdaterFødselPåGrunnlag(behandling, List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
@@ -140,24 +140,21 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void sjekk_intervaller_bekreftet_termin() {
-        final var grunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
-        final var søknadHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        var grunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
+        var søknadHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         var termindato = LocalDate.of(2018, Month.MAY, 6);
-        søknadHendelseBuilder
-            .medAntallBarn(1)
-            .medTerminbekreftelse(søknadHendelseBuilder.getTerminbekreftelseBuilder()
-                .medTermindato(termindato)
-                .medUtstedtDato(LocalDate.of(2018, Month.FEBRUARY, 6)));
+        søknadHendelseBuilder.medAntallBarn(1)
+            .medTerminbekreftelse(
+                søknadHendelseBuilder.getTerminbekreftelseBuilder().medTermindato(termindato).medUtstedtDato(LocalDate.of(2018, Month.FEBRUARY, 6)));
         grunnlagBuilder.medSøknadVersjon(søknadHendelseBuilder);
-        final var saksbehandlerHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.OVERSTYRT);
-        saksbehandlerHendelseBuilder
-            .medAntallBarn(1)
+        var saksbehandlerHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.OVERSTYRT);
+        saksbehandlerHendelseBuilder.medAntallBarn(1)
             .medTerminbekreftelse(saksbehandlerHendelseBuilder.getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.of(2018, Month.FEBRUARY, 6)));
         grunnlagBuilder.medOverstyrtVersjon(saksbehandlerHendelseBuilder);
 
-        final var grunnlag = grunnlagBuilder.build();
+        var grunnlag = grunnlagBuilder.build();
 
         var intervaller = FamilieHendelseTjeneste.utledPerioderForRegisterinnhenting(grunnlag);
 

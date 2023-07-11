@@ -173,7 +173,7 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, null, false);
 
         // Assert
-        final var behandling1 = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
+        var behandling1 = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
         assertThat(behandling1.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.KONTROLLER_FAKTA);
     }
 
@@ -220,7 +220,7 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .utledDiffOgReposisjonerBehandlingVedEndringer(behandling, snapshotFør, false);
 
         // Assert
-        final var behandling1 = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
+        var behandling1 = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
         assertThat(behandling1.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.KONTROLLER_FAKTA);
     }
 

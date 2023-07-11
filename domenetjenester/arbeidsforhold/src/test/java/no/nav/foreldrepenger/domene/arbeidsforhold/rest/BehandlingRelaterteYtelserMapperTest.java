@@ -144,7 +144,7 @@ class BehandlingRelaterteYtelserMapperTest {
         assertThat(resultatListe.get(0).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.FORELDREPENGER.getKode());
         assertThat(resultatListe.get(0).getTilgrensendeYtelserListe()).hasSize(1);
         assertThat(resultatListe.get(2).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.SYKEPENGER.getKode());
-        final var sykepengerYtelserListe = resultatListe.get(2).getTilgrensendeYtelserListe();
+        var sykepengerYtelserListe = resultatListe.get(2).getTilgrensendeYtelserListe();
         assertThat(sykepengerYtelserListe).hasSize(6);
         assertThat(sykepengerYtelserListe.get(0).getPeriodeFraDato()).isNull();
         assertThat(sykepengerYtelserListe.get(1).getPeriodeFraDato()).isEqualTo(I_DAG.minusDays(5));
@@ -179,7 +179,7 @@ class BehandlingRelaterteYtelserMapperTest {
 
         assertThat(resultatListe).hasSize(2);
         assertThat(resultatListe.get(0).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.FORELDREPENGER.getKode());
-        final var foreldrepengerYtelserListe = resultatListe.get(0).getTilgrensendeYtelserListe();
+        var foreldrepengerYtelserListe = resultatListe.get(0).getTilgrensendeYtelserListe();
         assertThat(foreldrepengerYtelserListe).hasSize(6);
         assertThat(foreldrepengerYtelserListe.get(0).getPeriodeFraDato()).isNull();
         assertThat(foreldrepengerYtelserListe.get(1).getPeriodeFraDato()).isEqualTo(I_DAG.plusMonths(5));

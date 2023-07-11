@@ -20,7 +20,7 @@ class BarnFinner {
 
     int finnAntallBarn(Long behandlingId, int maksStønadsalderAdopsjon) {
 
-        final var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         var barnSøktFor = getBarnInfoer(grunnlag);
         return finnAntallBarn(maksStønadsalderAdopsjon, grunnlag, barnSøktFor);
     }
@@ -61,7 +61,7 @@ class BarnFinner {
     }
 
     private List<BarnInfo> getBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        final var type = familieHendelseGrunnlag.getGjeldendeVersjon().getType();
+        var type = familieHendelseGrunnlag.getGjeldendeVersjon().getType();
         if (Objects.equals(FamilieHendelseType.FØDSEL, type) || Objects.equals(FamilieHendelseType.TERMIN, type)) {
             return fødselsvilkårTilBarnInfoer(familieHendelseGrunnlag);
         }
@@ -75,13 +75,11 @@ class BarnFinner {
     }
 
     private List<BarnInfo> fødselsvilkårTilBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        final var gjeldendeVersjon = familieHendelseGrunnlag.getGjeldendeVersjon();
-        final var gjeldendeBarn = familieHendelseGrunnlag.getGjeldendeBarna();
+        var gjeldendeVersjon = familieHendelseGrunnlag.getGjeldendeVersjon();
+        var gjeldendeBarn = familieHendelseGrunnlag.getGjeldendeBarna();
 
         if (FamilieHendelseType.FØDSEL.equals(gjeldendeVersjon.getType()) && !gjeldendeBarn.isEmpty()) {
-            return gjeldendeBarn.stream()
-                    .map(it -> new BarnInfo(it.getBarnNummer(), it.getFødselsdato(), null))
-                    .toList();
+            return gjeldendeBarn.stream().map(it -> new BarnInfo(it.getBarnNummer(), it.getFødselsdato(), null)).toList();
         }
         var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
         if (gjeldendeTerminbekreftelse.isPresent()) {

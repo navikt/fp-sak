@@ -61,7 +61,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     }
 
     private LocalDateTimeline<BeregningsresultatPeriode> intersectTimelines(LocalDateTimeline<BeregningsgrunnlagPeriode> grunnlagTimeline, LocalDateTimeline<UttakResultatPeriode> uttakTimeline, Map<String, Object> resultater) {
-        final var i = new int[]{0}; //Periode-teller til regelsporing
+        var i = new int[]{0}; //Periode-teller til regelsporing
         return grunnlagTimeline.intersection(uttakTimeline, (dateInterval, grunnlagSegment, uttakSegment) ->
         {
             var resultatPeriode = new BeregningsresultatPeriode(dateInterval);
@@ -263,7 +263,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     }
 
     private static long årsbeløpTilDagsats(BigDecimal årsbeløp) {
-        final var toHundreSeksti = BigDecimal.valueOf(260);
+        var toHundreSeksti = BigDecimal.valueOf(260);
         return årsbeløp.divide(toHundreSeksti, 0, RoundingMode.HALF_UP).longValue();
     }
 }

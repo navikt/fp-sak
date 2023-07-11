@@ -49,10 +49,8 @@ public class UføretrygdRepository {
     }
 
     public Optional<UføretrygdGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
-        final var query = entityManager.createQuery(
-            "FROM UforetrygdGrunnlag u WHERE u.behandlingId = :behandlingId AND u.aktiv = true",
-                    UføretrygdGrunnlagEntitet.class)
-            .setParameter("behandlingId", behandlingId);
+        var query = entityManager.createQuery("FROM UforetrygdGrunnlag u WHERE u.behandlingId = :behandlingId AND u.aktiv = true",
+            UføretrygdGrunnlagEntitet.class).setParameter("behandlingId", behandlingId);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }

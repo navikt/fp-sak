@@ -122,7 +122,7 @@ public class InntektArbeidYtelseAggregatBuilder {
      */
     public AktørInntektBuilder getAktørInntektBuilder(AktørId aktørId) {
         var aktørInntekt = kladd.getAktørInntekt().stream().filter(aa -> aktørId.equals(aa.getAktørId())).findFirst();
-        final var oppdatere = AktørInntektBuilder.oppdatere(aktørInntekt);
+        var oppdatere = AktørInntektBuilder.oppdatere(aktørInntekt);
         oppdatere.medAktørId(aktørId);
         return oppdatere;
     }
