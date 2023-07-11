@@ -153,7 +153,7 @@ public class UttakRevurderingTestUtil {
         scenario.medFordeling(defaultFordeling());
 
         var uttak = new UttakResultatPerioderEntitet();
-        perioder.forEach(p -> uttak.leggTilPeriode(p));
+        perioder.forEach(uttak::leggTilPeriode);
         scenario.medUttak(uttak);
 
         return lagre(scenario);

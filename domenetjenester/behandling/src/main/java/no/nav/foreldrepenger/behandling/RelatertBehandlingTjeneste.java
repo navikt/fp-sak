@@ -94,8 +94,8 @@ public class RelatertBehandlingTjeneste {
      */
     private List<BehandlingVedtak> sortertPåVedtakstidspunkt(List<Behandling> behandlinger) {
         return behandlinger.stream()
-                .map(b -> vedtakForBehandling(b))
-                .sorted((v1, v2) -> compare(v1, v2))
+                .map(this::vedtakForBehandling)
+                .sorted(this::compare)
                 .toList();
     }
 

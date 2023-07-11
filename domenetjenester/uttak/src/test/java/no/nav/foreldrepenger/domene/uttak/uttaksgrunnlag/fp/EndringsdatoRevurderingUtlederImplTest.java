@@ -763,7 +763,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     private UttakInput lagInput(Behandling behandling) {
         var årsaker = behandling.getBehandlingÅrsaker()
             .stream()
-            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+            .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .collect(Collectors.toSet());
         return lagInput(behandling,
             FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1)).medBehandlingÅrsaker(årsaker);
@@ -783,7 +783,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     private UttakInput lagInput(Behandling behandling, LocalDate startdatoNySak) {
         var årsaker = behandling.getBehandlingÅrsaker()
             .stream()
-            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+            .map(BehandlingÅrsak::getBehandlingÅrsakType)
             .collect(Collectors.toSet());
         return lagInput(behandling,
             FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1), startdatoNySak).medBehandlingÅrsaker(årsaker);

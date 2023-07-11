@@ -90,7 +90,7 @@ public class KontoerGrunnlagBygger {
         var flerbarnsdager = stønadskontoer.stream()
             .filter(k -> StønadskontoType.FLERBARNSDAGER.equals(k.getStønadskontoType()))
             .findFirst()
-            .map(stønadskonto -> stønadskonto.getMaxDager())
+            .map(Stønadskonto::getMaxDager)
             .orElse(0);
         var builder = new Kontoer.Builder()
             .flerbarnsdager(flerbarnsdager);

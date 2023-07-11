@@ -4,6 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -74,7 +75,7 @@ public class SkalKopiereUttakTjeneste {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(
             uttakInput.getBehandlingReferanse().behandlingId());
         var avklarteDatoer = ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer);
-        return avklarteDatoer.map(ad -> ad.getFørsteUttaksdato()).orElse(null) != null;
+        return avklarteDatoer.map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null) != null;
     }
 
 }

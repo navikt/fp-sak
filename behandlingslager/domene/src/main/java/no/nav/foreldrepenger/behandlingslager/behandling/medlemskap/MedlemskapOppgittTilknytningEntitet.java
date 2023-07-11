@@ -156,7 +156,7 @@ public class MedlemskapOppgittTilknytningEntitet extends BaseEntitet {
         }
 
         public Builder medOpphold(List<MedlemskapOppgittLandOppholdEntitet> opphold) {
-            mal.opphold = opphold.stream().map(o -> new MedlemskapOppgittLandOppholdEntitet(o)).collect(Collectors.toCollection(LinkedHashSet::new));
+            mal.opphold = opphold.stream().map(MedlemskapOppgittLandOppholdEntitet::new).collect(Collectors.toCollection(LinkedHashSet::new));
             return this;
         }
 

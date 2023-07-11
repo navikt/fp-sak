@@ -52,7 +52,7 @@ public class YtelsesFordelingRepository {
     }
 
     public YtelseFordelingAggregat hentYtelsesFordelingPåId(Long aggregatId) {
-        return hentGrunnlagPåId(aggregatId).map(g -> mapEntitetTilAggregat(g)).orElseThrow();
+        return hentGrunnlagPåId(aggregatId).map(this::mapEntitetTilAggregat).orElseThrow();
     }
 
     private YtelseFordelingAggregat mapEntitetTilAggregat(YtelseFordelingGrunnlagEntitet ytelseFordelingGrunnlagEntitet) {

@@ -174,9 +174,8 @@ public class PersonopplysningerAggregat {
      */
     public Optional<PersonstatusEntitet> getOrginalPersonstatusFor(AktørId søkerAktørId) {
         return orginalPersonstatus.stream()
-                .filter(ss -> ss.getAktørId().equals(søkerAktørId))
-                .sorted(Comparator.comparing(PersonstatusEntitet::getPeriode).reversed())
-                .findFirst();
+            .filter(ss -> ss.getAktørId().equals(søkerAktørId))
+            .max(Comparator.comparing(PersonstatusEntitet::getPeriode));
     }
 
     public List<PersonAdresseEntitet> getAdresserFor(AktørId aktørId) {

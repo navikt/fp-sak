@@ -249,7 +249,7 @@ class FastsettOpptjeningsperiodeStegTest {
                 ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
                 : VilkårResultat.builder();
         typeList
-                .forEach(vilkårType -> vilkårBuilder.leggTilVilkårIkkeVurdert(vilkårType));
+                .forEach(vilkårBuilder::leggTilVilkårIkkeVurdert);
         var vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, skriveLås);
     }

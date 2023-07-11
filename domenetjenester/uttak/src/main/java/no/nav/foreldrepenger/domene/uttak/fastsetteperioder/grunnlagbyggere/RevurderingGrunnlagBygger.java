@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderRevurderingUtil;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -79,7 +80,7 @@ public class RevurderingGrunnlagBygger {
             .resultatÅrsak(UttakEnumMapper.mapTilFastsattPeriodeÅrsak(periode.getResultatÅrsak()))
             .utsettelse(periode.isUtsettelse())
             .periodeResultatType(UttakEnumMapper.map(resultatType))
-            .mottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
+            .mottattDato(periode.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null))
             .build();
     }
 

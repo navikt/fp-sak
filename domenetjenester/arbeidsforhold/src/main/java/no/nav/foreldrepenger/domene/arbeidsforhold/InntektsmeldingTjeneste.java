@@ -17,10 +17,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +24,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
@@ -36,6 +33,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -252,7 +250,7 @@ public class InntektsmeldingTjeneste {
                 .orElse(Collections.emptyList());
 
         return inntektsmeldinger.stream()
-                .collect(Collectors.toMap(im -> im.getIndexKey(), im -> im));
+                .collect(Collectors.toMap(Inntektsmelding::getIndexKey, im -> im));
     }
 
     private List<Inntektsmelding> hentUtAlleInntektsmeldingeneFraBehandlingene(Collection<Long> behandlingIder) {

@@ -31,7 +31,9 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingOversetter;
@@ -96,9 +98,9 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         assertThat(naturalYtelser.size()).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.")
             .isEqualTo(4);
 
-        assertThat(naturalYtelser.stream().map(e -> e.getType()).toList()).containsOnly(
+        assertThat(naturalYtelser.stream().map(NaturalYtelse::getType).toList()).containsOnly(
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS, ELEKTRISK_KOMMUNIKASJON);
-        assertThat(naturalYtelser.stream().map(e -> e.getBeloepPerMnd())).containsOnly(new Beløp(100));
+        assertThat(naturalYtelser.stream().map(NaturalYtelse::getBeloepPerMnd)).containsOnly(new Beløp(100));
     }
 
     @Test
@@ -119,7 +121,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         var innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
-            .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
+            .flatMap(e -> e.stream().map(Inntektsmelding::getInnsendingstidspunkt))
             .toList()
             .stream()
             .findFirst();
@@ -157,7 +159,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         var innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
-            .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
+            .flatMap(e -> e.stream().map(Inntektsmelding::getInnsendingstidspunkt))
             .toList()
             .stream()
             .findFirst();
@@ -198,7 +200,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         var innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
-            .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
+            .flatMap(e -> e.stream().map(Inntektsmelding::getInnsendingstidspunkt))
             .toList()
             .stream()
             .findFirst();

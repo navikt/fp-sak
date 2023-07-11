@@ -195,7 +195,7 @@ public class SøknadDtoTjeneste {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
         var oppgittStartdato = getFørsteUttaksdagHvisOppgitt(skjæringstidspunkter)
-            .or(() -> skjæringstidspunkter.getSkjæringstidspunktHvisUtledet());
+            .or(skjæringstidspunkter::getSkjæringstidspunktHvisUtledet);
         if (RelasjonsRolleType.MORA.equals(rolleType)) {
             var evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
                 .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag)

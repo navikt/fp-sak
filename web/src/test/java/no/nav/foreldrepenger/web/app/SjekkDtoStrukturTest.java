@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ class SjekkDtoStrukturTest {
                 .filter(f -> f.getAnnotation(JsonProperty.class) == null)
                 .filter(f -> f.getAnnotation(JsonValue.class) == null)
                 .filter(f -> f.getAnnotation(JsonIgnore.class) == null)
-                .map(f -> f.getName()).collect(Collectors.toSet());
+                .map(Field::getName).collect(Collectors.toSet());
 
         if (!fieldNames.isEmpty()) {
             for (var prop : Introspector.getBeanInfo(c, c.getSuperclass()).getPropertyDescriptors()) {

@@ -103,7 +103,7 @@ class FaktaUttakFellesTjeneste {
     private LocalDate førsteUttaksdagIBehandling(Long behandlingId) {
         return hentGjeldendeFordeling(behandlingId)
             .stream()
-            .map(p -> p.getFom())
+            .map(OppgittPeriodeEntitet::getFom)
             .min(LocalDate::compareTo)
             .orElse(LocalDate.MIN);
     }
@@ -128,7 +128,7 @@ class FaktaUttakFellesTjeneste {
     }
 
     private boolean erEndret(FaktaUttakPeriodeDto p, List<FaktaUttakPeriodeDto> gjeldendePerioder) {
-        return gjeldendePerioder.stream().noneMatch(gp -> p.equals(gp));
+        return gjeldendePerioder.stream().noneMatch(p::equals);
     }
 
     private void validerReutledetAksjonspunkt(Long behandlingId) {
@@ -143,7 +143,7 @@ class FaktaUttakFellesTjeneste {
 
     private void validerFørsteUttaksdag(List<OppgittPeriodeEntitet> overstyrtePerioder, Behandling behandling) {
         //Burde overstyre første uttaksdag i Fakta om saken
-        var førsteOverstyrt = overstyrtePerioder.stream().filter(p -> !p.isUtsettelse()).map(p -> p.getFom()).min(Comparator.naturalOrder());
+        var førsteOverstyrt = overstyrtePerioder.stream().filter(p -> !p.isUtsettelse()).map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());
         if (førsteOverstyrt.isPresent()) {
             var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(behandling).orElseThrow();
             if (førsteOverstyrt.get().isBefore(førsteUttaksdato)) {
@@ -171,7 +171,8 @@ class FaktaUttakFellesTjeneste {
         var begrunnelse = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER || gjeldendeSomOmslutter.isEmpty() ? null : gjeldendeSomOmslutter.get()
             .getBegrunnelse()
             .orElse(null);
-        var dokumentasjonVurdering = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : gjeldendeSomOmslutter.map(op -> op.getDokumentasjonVurdering()).orElse(null);
+        var dokumentasjonVurdering = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER ? null : gjeldendeSomOmslutter.map(
+            OppgittPeriodeEntitet::getDokumentasjonVurdering).orElse(null);
         var builder = OppgittPeriodeBuilder.ny().medPeriode(dto.fom(), dto.tom())
             .medPeriodeKilde(periodeKilde)
             .medMottattDato(gjeldendeSomOmslutter.map(OppgittPeriodeEntitet::getMottattDato).orElseGet(LocalDate::now))
@@ -229,7 +230,7 @@ class FaktaUttakFellesTjeneste {
     private void oppdaterEndringsdato(List<OppgittPeriodeEntitet> perioder, Long behandlingId) {
         var avklarteDatoer = ytelseFordelingTjeneste.hentAggregat(behandlingId).getAvklarteDatoer();
         if (avklarteDatoer.isPresent()) {
-            var førsteDag = perioder.stream().map(p -> p.getFom()).min(Comparator.naturalOrder()).orElseThrow();
+            var førsteDag = perioder.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
             if (førsteDag.isBefore(avklarteDatoer.get().getGjeldendeEndringsdato())) {
                 var nyeAvklarteDatoer = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer).medJustertEndringsdato(førsteDag).build();
                 var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)

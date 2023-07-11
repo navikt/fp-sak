@@ -172,7 +172,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
             @Override
             public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
-                return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(e -> e.getValue())
+                return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(Map.Entry::getValue)
                         .findFirst();
             }
 

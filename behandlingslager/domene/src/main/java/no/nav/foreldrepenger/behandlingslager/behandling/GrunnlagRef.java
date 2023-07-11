@@ -116,7 +116,7 @@ public @interface GrunnlagRef {
         }
 
         private static List<String> coalesce(String... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().toList();
+            return Arrays.stream(vals).filter(Objects::nonNull).distinct().toList();
         }
 
     }

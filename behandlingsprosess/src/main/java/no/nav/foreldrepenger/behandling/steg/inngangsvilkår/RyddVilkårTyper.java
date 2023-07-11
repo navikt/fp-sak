@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType.IKKE_FASTSATT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKARET_FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
@@ -120,7 +119,7 @@ class RyddVilkårTyper {
                 var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
                     .filter(v -> vilkårTyper.contains(v.getVilkårType()))
                     .filter(v -> !v.erOverstyrt())
-                    .collect(toList());
+                    .toList();
                 if (!vilkårSomSkalNullstilles.isEmpty()) {
                     var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
                     vilkårSomSkalNullstilles.forEach(v -> builder.nullstillVilkår(v, nullstillManueltAvklartVilkår));

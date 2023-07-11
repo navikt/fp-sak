@@ -31,7 +31,7 @@ public class AktørYtelse extends BaseEntitet implements IndexKey {
      */
     AktørYtelse(AktørYtelse aktørYtelse) {
         this.aktørId = aktørYtelse.getAktørId();
-        this.ytelser = aktørYtelse.getAlleYtelser().stream().map(ytelse -> new Ytelse(ytelse)).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.ytelser = aktørYtelse.getAlleYtelser().stream().map(Ytelse::new).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override

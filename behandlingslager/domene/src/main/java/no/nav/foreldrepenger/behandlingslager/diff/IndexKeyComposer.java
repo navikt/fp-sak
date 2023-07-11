@@ -40,7 +40,7 @@ final class IndexKeyComposer {
             return (String) obj;
         }
         if (Number.class.isAssignableFrom(objClass)) {
-            return ((Number) obj).toString();
+            return obj.toString();
         }
         if (IndexKey.class.isAssignableFrom(objClass)) {
             return ((IndexKey) obj).getIndexKey();

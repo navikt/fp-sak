@@ -56,9 +56,9 @@ public class ForeldrepengerUttakTjeneste {
 
     private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeEntitet entitet, boolean ignoreDok) {
         var aktiviteter = entitet.getAktiviteter().stream()
-            .map(a -> map(a))
+            .map(ForeldrepengerUttakTjeneste::map)
             .toList();
-        var mottattDato = entitet.getPeriodeSøknad().map(se -> se.getMottattDato()).orElse(null);
+        var mottattDato = entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null);
         var periodeBuilder = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(entitet.getFom(), entitet.getTom()))
             .medAktiviteter(aktiviteter)
@@ -79,7 +79,7 @@ public class ForeldrepengerUttakTjeneste {
             .medMorsAktivitet(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet).orElse(MorsAktivitet.UDEFINERT))
             .medOpprinneligSendtTilManuellBehandling(!ignoreDok && entitet.opprinneligSendtTilManuellBehandling())
             .medErFraSøknad(entitet.getPeriodeSøknad().isPresent())
-            .medDokumentasjonVurdering(entitet.getPeriodeSøknad().map(s -> s.getDokumentasjonVurdering()).orElse(null))
+            .medDokumentasjonVurdering(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getDokumentasjonVurdering).orElse(null))
             .medManueltBehandlet(entitet.isManueltBehandlet());
         return periodeBuilder.build();
     }

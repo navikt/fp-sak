@@ -36,7 +36,7 @@ public class DokumentasjonVurderingBehovDtoTjeneste {
         return utleder.utledDokumentasjonVurderingBehov(uttakInput)
             .stream()
             .filter(b -> b.behov() != null)
-            .map(b -> DokumentasjonVurderingBehovDto.from(b))
+            .map(DokumentasjonVurderingBehovDto::from)
             .toList();
     }
 }

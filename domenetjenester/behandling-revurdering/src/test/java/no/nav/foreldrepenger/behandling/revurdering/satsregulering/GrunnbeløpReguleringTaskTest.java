@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -104,7 +105,7 @@ class GrunnbeløpReguleringTaskTest {
         var behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
         var årsaker = behandlingÅrsaker.stream()
-                .map(bå -> bå.getBehandlingÅrsakType())
+                .map(BehandlingÅrsak::getBehandlingÅrsakType)
                 .toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
     }

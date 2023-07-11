@@ -24,7 +24,7 @@ public class EndreUttakUtil {
             }
         }
         var msg = String.format("Fant ikke gjeldende periode for ny periode fom %s tom %s i %s",
-            nyPeriode.getFomDato(), nyPeriode.getTomDato(), gjeldende.stream().map(p -> p.getTidsperiode())
+            nyPeriode.getFomDato(), nyPeriode.getTomDato(), gjeldende.stream().map(ForeldrepengerUttakPeriode::getTidsperiode)
                 .toList());
         throw new TekniskException("FP-817091", msg);
     }

@@ -122,7 +122,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
         if (!ytelser.isEmpty()) {
             var relaterteYtelser = personopplysningDvhObjectFactory
                 .createPersonopplysningerDvhForeldrepengerRelaterteYtelser();
-            ytelser.stream().forEach(ytelse -> relaterteYtelser.getRelatertYtelse().add(konverterFraDomene(ytelse)));
+            ytelser.forEach(ytelse -> relaterteYtelser.getRelatertYtelse().add(konverterFraDomene(ytelse)));
             personopplysninger.setRelaterteYtelser(relaterteYtelser);
         }
     }
@@ -148,7 +148,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     private void setYtelsesStørrelse(RelatertYtelse relatertYtelseKontrakt, Optional<YtelseGrunnlag> ytelseGrunnlagDomene) {
         if (ytelseGrunnlagDomene.isPresent()) {
             var ytelseGrunnlag = ytelseGrunnlagDomene.get();
-            var ytelseStorrelser = ytelseGrunnlag.getYtelseStørrelse().stream().map(ys -> konverterFraDomene(ys))
+            var ytelseStorrelser = ytelseGrunnlag.getYtelseStørrelse().stream().map(this::konverterFraDomene)
                 .toList();
             relatertYtelseKontrakt.getYtelsesstorrelse().addAll(ytelseStorrelser);
         }

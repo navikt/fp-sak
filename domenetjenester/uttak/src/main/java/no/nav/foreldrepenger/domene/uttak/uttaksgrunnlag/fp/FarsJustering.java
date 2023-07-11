@@ -101,7 +101,7 @@ class FarsJustering implements ForelderFødselJustering {
         if (!erFedrekvoteRundtTermin(førstePeriode) || !likTermindato(førstePeriode.getFom())) {
             return false;
         }
-        return oppgittePerioder.stream().filter(op -> liggerIIntervalletRundtTermin(op)).count() == 1;
+        return oppgittePerioder.stream().filter(this::liggerIIntervalletRundtTermin).count() == 1;
     }
 
     private boolean likTermindato(LocalDate dato) {

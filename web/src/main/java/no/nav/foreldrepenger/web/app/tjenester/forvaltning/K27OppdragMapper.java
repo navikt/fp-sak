@@ -61,7 +61,7 @@ final class K27OppdragMapper {
             .medOppdragGjelderId(oppdrag110.getOppdragGjelderId())
             .medFagSystemId(oppdrag110.getFagsystemId())
             .medSaksbehId(oppdrag110.getSaksbehId());
-        oppdrag110.getOmpostering116().ifPresent(ompostering -> nyOppdrag110.medOmpostering116(ompostering));
+        oppdrag110.getOmpostering116().ifPresent(nyOppdrag110::medOmpostering116);
 
         return nyOppdrag110.build();
     }

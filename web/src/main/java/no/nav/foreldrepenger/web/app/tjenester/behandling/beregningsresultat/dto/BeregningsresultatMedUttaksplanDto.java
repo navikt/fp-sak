@@ -15,8 +15,8 @@ public class BeregningsresultatMedUttaksplanDto {
     private BeregningsresultatMedUttaksplanDto(Builder builder) {
         this.sokerErMor = builder.sokerErMor;
         this.opphoersdato = builder.opphoersdato;
-        this.perioder = builder.perioder.stream().toArray(BeregningsresultatPeriodeDto[]::new);
-        this.utbetPerioder = builder.utbetPerioder == null ? null : builder.utbetPerioder.stream().toArray(BeregningsresultatPeriodeDto[]::new);
+        this.perioder = builder.perioder.toArray(BeregningsresultatPeriodeDto[]::new);
+        this.utbetPerioder = builder.utbetPerioder == null ? null : builder.utbetPerioder.toArray(BeregningsresultatPeriodeDto[]::new);
         this.skalHindreTilbaketrekk = builder.skalHindreTilbaketrekk;
     }
 

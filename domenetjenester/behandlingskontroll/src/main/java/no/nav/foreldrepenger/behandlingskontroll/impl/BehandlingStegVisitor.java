@@ -310,7 +310,7 @@ class BehandlingStegVisitor {
 
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
         if (!åpneAksjonspunkter.isEmpty()) {
-            var aksjonspunkter = åpneAksjonspunkter.stream().map(a -> a.getAksjonspunktDefinisjon()).toList();
+            var aksjonspunkter = åpneAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).toList();
             var nesteBehandlingStegModell = behandlingModell.finnTidligsteStegForAksjonspunktDefinisjon(aksjonspunkter);
             var nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(),
                     aksjonspunkter);

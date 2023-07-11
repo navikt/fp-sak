@@ -154,7 +154,7 @@ public class PipRepository {
         }
         var sql = "SELECT fagsak_id FROM JOURNALPOST WHERE journalpost_id in (:journalpostId)";
         var query = entityManager.createNativeQuery(sql);
-        query.setParameter("journalpostId", journalpostId.stream().map(j -> j.getVerdi()).toList());
+        query.setParameter("journalpostId", journalpostId.stream().map(JournalpostId::getVerdi).toList());
 
         var result = (List<BigDecimal>) query.getResultList();
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));

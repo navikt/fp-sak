@@ -90,8 +90,8 @@ public class PersonInformasjonBuilder {
 
     private void ryddBortGamlePersonopplysninger() {
         if (gjelderOppdatering() && søkerAktørId != null) {
-            var aktørerIRelasjoner = kladd.getRelasjoner().stream().map(e -> e.getAktørId()).collect(Collectors.toSet());
-            aktørerIRelasjoner.addAll(kladd.getRelasjoner().stream().map(e -> e.getTilAktørId()).collect(Collectors.toSet()));
+            var aktørerIRelasjoner = kladd.getRelasjoner().stream().map(PersonRelasjonEntitet::getAktørId).collect(Collectors.toSet());
+            aktørerIRelasjoner.addAll(kladd.getRelasjoner().stream().map(PersonRelasjonEntitet::getTilAktørId).collect(Collectors.toSet()));
 
             var personer = kladd.getPersonopplysninger()
                     .stream()

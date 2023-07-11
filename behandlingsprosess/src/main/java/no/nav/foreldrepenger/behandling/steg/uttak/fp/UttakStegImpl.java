@@ -75,7 +75,7 @@ public class UttakStegImpl implements UttakSteg {
         fastsettePerioderTjeneste.fastsettePerioder(input);
 
         var aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(input)
-            .stream().map(ad -> AksjonspunktResultat.opprettForAksjonspunkt(ad)).toList();
+            .stream().map(AksjonspunktResultat::opprettForAksjonspunkt).toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 

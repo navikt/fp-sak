@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -168,7 +169,7 @@ public class BeregningUttakTjeneste {
             tom = gradertPeriode.getTom();
         }
         var arbeidsgiver = gradertAktivitet.getArbeidsgiver()
-                .map((no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver a) -> mapArbeidsgiver(a));
+                .map(IAYMapperTilKalkulus::mapArbeidsgiver);
         return new PeriodeMedGradering(gradertPeriode.getFom(), tom, gradertAktivitet.getArbeidsprosent(),
                 mapAktivitetStatus(gradertAktivitet.getUttakArbeidType()),
                 arbeidsgiver.orElse(null));

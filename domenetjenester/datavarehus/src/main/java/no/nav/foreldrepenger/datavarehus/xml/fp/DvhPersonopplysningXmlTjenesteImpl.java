@@ -158,7 +158,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
     private void setYtelsesStørrelse(RelatertYtelse relatertYtelseKontrakt, Optional<YtelseGrunnlag> ytelseGrunnlagDomene) {
         if (ytelseGrunnlagDomene.isPresent()) {
             var ytelseGrunnlag = ytelseGrunnlagDomene.get();
-            var ytelseStorrelser = ytelseGrunnlag.getYtelseStørrelse().stream().map(ys -> konverterFraDomene(ys))
+            var ytelseStorrelser = ytelseGrunnlag.getYtelseStørrelse().stream().map(this::konverterFraDomene)
                 .toList();
             relatertYtelseKontrakt.getYtelsesstorrelse().addAll(ytelseStorrelser);
         }
@@ -452,7 +452,7 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private void setAdresse(PersonopplysningerDvhForeldrepenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
         final var personopplysning = personopplysningerAggregat.getSøker();
-        personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId()).stream()
+        personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId())
             .forEach(adresse -> personopplysninger.getAdresse().add(lagAdresse(adresse)));
     }
 

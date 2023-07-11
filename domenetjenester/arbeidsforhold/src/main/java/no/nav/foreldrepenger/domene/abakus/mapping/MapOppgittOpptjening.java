@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 class MapOppgittOpptjening {
 
     private static final Comparator<OppgittFrilansoppdragDto> COMP_FRILANSOPPDRAG = Comparator
-            .comparing((OppgittFrilansoppdragDto dto) -> dto.getOppdragsgiver(), Comparator.nullsLast(Comparator.naturalOrder()))
+            .comparing(OppgittFrilansoppdragDto::getOppdragsgiver, Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
@@ -49,7 +49,7 @@ class MapOppgittOpptjening {
             .thenComparing(dto -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getLandkode() == null ? null : dto.getLandkode().getKode(), Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getVirksomhetNavn(), Comparator.nullsLast(Comparator.naturalOrder()));
+            .thenComparing(OppgittArbeidsforholdDto::getVirksomhetNavn, Comparator.nullsLast(Comparator.naturalOrder()));
 
     private static final Comparator<OppgittEgenNæringDto> COMP_OPPGITT_EGEN_NÆRING = Comparator
             .comparing((OppgittEgenNæringDto dto) -> dto.getVirksomhetTypeDto() == null ? null : dto.getVirksomhetTypeDto().getKode(),
@@ -59,7 +59,7 @@ class MapOppgittOpptjening {
             .thenComparing(dto -> dto.getVirksomhet() == null ? null : dto.getVirksomhet().getIdent(),
                     Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getLandkode() == null ? null : dto.getLandkode().getKode(), Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getVirksomhetNavn(), Comparator.nullsLast(Comparator.naturalOrder()));
+            .thenComparing(OppgittEgenNæringDto::getVirksomhetNavn, Comparator.nullsLast(Comparator.naturalOrder()));
 
     OppgittOpptjeningDto mapTilDto(OppgittOpptjening oppgittOpptjening) {
         return MapTilDto.map(oppgittOpptjening);

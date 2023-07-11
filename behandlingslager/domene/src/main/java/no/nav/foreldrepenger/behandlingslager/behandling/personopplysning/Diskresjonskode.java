@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -54,7 +54,7 @@ public enum Diskresjonskode implements Kodeverdi, MedOffisiellKode {
         if (diskresjonskode == null) {
             return Diskresjonskode.UDEFINERT;
         }
-        return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, diskresjonskode)).findFirst().orElse(UDEFINERT);
+        return Stream.of(values()).filter(k -> Objects.equals(k.offisiellKode, diskresjonskode)).findFirst().orElse(UDEFINERT);
     }
 
 }

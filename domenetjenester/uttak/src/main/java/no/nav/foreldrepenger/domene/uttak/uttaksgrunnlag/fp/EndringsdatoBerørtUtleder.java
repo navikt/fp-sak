@@ -148,7 +148,7 @@ public final class EndringsdatoBerørtUtleder {
     private static LocalDateTimeline<Boolean> lagTidslinje(ForeldrepengerUttak uttak, Predicate<ForeldrepengerUttakPeriode> periodefilter,
                                                     Function<ForeldrepengerUttakPeriode, LocalDateSegment<Boolean>> segmentMapper) {
         var segmenter = uttak.getGjeldendePerioder().stream()
-            .filter(p -> isAktivtUttak(p))
+            .filter(EndringsdatoBerørtUtleder::isAktivtUttak)
             .filter(periodefilter)
             .map(segmentMapper)
             .toList();

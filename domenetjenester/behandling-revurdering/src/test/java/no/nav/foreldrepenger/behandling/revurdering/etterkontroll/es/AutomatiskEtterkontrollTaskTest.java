@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
@@ -115,7 +116,7 @@ class AutomatiskEtterkontrollTaskTest {
         var behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
         var årsaker = behandlingÅrsaker.stream()
-                .map(bå -> bå.getBehandlingÅrsakType())
+                .map(BehandlingÅrsak::getBehandlingÅrsakType)
                 .toList();
         assertThat(årsaker).contains(behandlingÅrsakType);
     }

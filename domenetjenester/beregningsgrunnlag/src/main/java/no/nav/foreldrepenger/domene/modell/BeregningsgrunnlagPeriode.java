@@ -49,8 +49,8 @@ public class BeregningsgrunnlagPeriode {
 
     public BigDecimal getBeregnetPrÅr() {
         return beregningsgrunnlagPrStatusOgAndelList.stream()
-                .filter(bgpsa -> bgpsa.getBeregnetPrÅr() != null)
                 .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
     }

@@ -64,7 +64,7 @@ class IndexFeil {
     public List<AnnotationInstance> getAnnotationInstances(Class<?>... feilAnnotation) {
         Set<AnnotationInstance> annotations = new LinkedHashSet<>(1000);
 
-        Arrays.asList(feilAnnotation).stream().forEach(ft -> {
+        Arrays.asList(feilAnnotation).forEach(ft -> {
             var search = DotName.createSimple(ft.getName());
             annotations.addAll(getIndex().getAnnotations(search));
         });
