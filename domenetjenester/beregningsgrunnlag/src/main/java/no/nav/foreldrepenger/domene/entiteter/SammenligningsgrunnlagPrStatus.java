@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -37,10 +36,8 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
     private long versjon;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "sammenligningsperiode_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "sammenligningsperiode_tom"))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "sammenligningsperiode_fom"))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "sammenligningsperiode_tom"))
     private DatoIntervallEntitet sammenligningsperiode;
 
     @Convert(converter = SammenligningsgrunnlagType.KodeverdiConverter.class)

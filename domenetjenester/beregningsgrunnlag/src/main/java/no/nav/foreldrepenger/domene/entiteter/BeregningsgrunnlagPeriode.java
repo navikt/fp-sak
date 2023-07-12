@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -62,10 +61,8 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     private List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList = new ArrayList<>();
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "bg_periode_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "bg_periode_tom"))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "bg_periode_fom"))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "bg_periode_tom"))
     private ÅpenDatoIntervallEntitet periode;
 
     @Column(name = "brutto_pr_aar")

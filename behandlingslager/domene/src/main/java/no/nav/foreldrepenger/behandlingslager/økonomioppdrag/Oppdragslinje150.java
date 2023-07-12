@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -57,11 +56,12 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     private KodeKlassifik kodeKlassifik;
 
     @Embedded
-    @AttributeOverrides({@AttributeOverride(name = "fomDato", column = @Column(name = "dato_vedtak_fom", nullable = false)), @AttributeOverride(name = "tomDato", column = @Column(name = "dato_vedtak_tom", nullable = false))})
+    @AttributeOverride(name = "fomDato", column = @Column(name = "dato_vedtak_fom", nullable = false))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "dato_vedtak_tom", nullable = false))
     private DatoIntervallEntitet vedtakPeriode;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "sats", column = @Column(name = "sats", nullable = false)))
+    @AttributeOverride(name = "sats", column = @Column(name = "sats", nullable = false))
     private Sats sats;
 
     @Enumerated(EnumType.STRING)

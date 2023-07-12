@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -77,7 +76,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     private Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> regelSporingMap = new HashMap<>();
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "grunnbeloep")))
+    @AttributeOverride(name = "verdi", column = @Column(name = "grunnbeloep"))
     @ChangeTracked
     private Beløp grunnbeløp;
 

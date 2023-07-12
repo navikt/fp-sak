@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -44,10 +43,8 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     private Landkoder land = Landkoder.UDEFINERT;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom"))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
     private DatoIntervallEntitet periode;
 
     @Convert(converter = BooleanToStringConverter.class)

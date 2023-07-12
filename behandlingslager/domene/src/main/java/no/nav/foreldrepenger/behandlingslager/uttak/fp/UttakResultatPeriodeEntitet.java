@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -58,10 +57,8 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     private List<UttakResultatDokRegelEntitet> dokRegel = new ArrayList<>();
 
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "fomDato", column = @Column(name = "fom", nullable = false)),
-            @AttributeOverride(name = "tomDato", column = @Column(name = "tom", nullable = false))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "fom", nullable = false))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "tom", nullable = false))
     private DatoIntervallEntitet tidsperiode;
 
     @Column(name = "begrunnelse")

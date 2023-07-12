@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -41,7 +40,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     private Long behandlingId;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", updatable = false, nullable=false)))
+    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", updatable = false, nullable=false))
     private Saksnummer saksnummer;
 
     @Column(name = "startdato", nullable = false)

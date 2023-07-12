@@ -39,7 +39,7 @@ class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var bruker = NavBruker.opprettNyNB(AktørId.dummy());
 
-        var vergeBuilder = new VergeBuilder()
+        var vergeBuilder = new VergeEntitet.Builder()
                 .medVergeType(VergeType.BARN)
                 .medBruker(bruker);
 

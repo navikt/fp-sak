@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -40,12 +39,12 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
 
     @Embedded
     @ChangeTracked
-    @AttributeOverrides(@AttributeOverride(name = "saksnummer", column = @Column(name = "psb_saksnummer")))
+    @AttributeOverride(name = "saksnummer", column = @Column(name = "psb_saksnummer"))
     private Saksnummer pleiepengerSaksnummer;
 
     @Embedded
     @ChangeTracked
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "PLEIETRENGENDE_AKTOER_ID", nullable = false, updatable = false)))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "PLEIETRENGENDE_AKTOER_ID", nullable = false, updatable = false))
     private AktørId pleietrengendeAktørId;
 
 

@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -42,11 +41,9 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
     private Set<MedlemskapsvilkårPerioderEntitet> perioder = new HashSet<>();
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "overstyringsdato", column = @Column(name = "overstyringsdato")),
-        @AttributeOverride(name = "vilkårUtfall", column = @Column(name = "overstyrt_utfall")),
-        @AttributeOverride(name = "avslagsårsak", column = @Column(name = "avslagsarsak"))
-    })
+    @AttributeOverride(name = "overstyringsdato", column = @Column(name = "overstyringsdato"))
+    @AttributeOverride(name = "vilkårUtfall", column = @Column(name = "overstyrt_utfall"))
+    @AttributeOverride(name = "avslagsårsak", column = @Column(name = "avslagsarsak"))
     @ChangeTracked
     private OverstyrtLøpendeMedlemskap overstyrtLøpendeMedlemskap = new OverstyrtLøpendeMedlemskap();
 

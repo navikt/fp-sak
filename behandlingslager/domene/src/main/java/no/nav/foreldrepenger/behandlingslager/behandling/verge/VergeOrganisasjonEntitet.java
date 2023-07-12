@@ -22,15 +22,16 @@ public class VergeOrganisasjonEntitet extends BaseCreateableEntitet {
     private Long id;
 
     @Column(name = "orgnr")
-    String organisasjonsnummer;
+    private String organisasjonsnummer;
 
     @Column(name = "navn")
-    String navn;
+    private String navn;
 
     @OneToOne(mappedBy = "vergeOrganisasjon")
-    VergeEntitet verge;
+    private VergeEntitet verge;
 
-    protected VergeOrganisasjonEntitet() {}
+    protected VergeOrganisasjonEntitet() {
+    }
 
     // deep copy
     VergeOrganisasjonEntitet(VergeOrganisasjonEntitet vergeOrganisasjon, VergeEntitet verge) {
@@ -83,4 +84,31 @@ public class VergeOrganisasjonEntitet extends BaseCreateableEntitet {
         return Objects.hash(organisasjonsnummer, navn);
     }
 
+    public static class Builder {
+        private final VergeOrganisasjonEntitet kladd;
+
+        public Builder() {
+            kladd = new VergeOrganisasjonEntitet();
+        }
+
+        public Builder medOrganisasjonsnummer(String organisasjonsnummer) {
+            kladd.organisasjonsnummer = organisasjonsnummer;
+            return this;
+        }
+
+        public Builder medNavn(String navn) {
+            kladd.navn = navn;
+            return this;
+        }
+
+        public Builder medVerge(VergeEntitet verge) {
+            kladd.verge = verge;
+            return this;
+        }
+
+        public VergeOrganisasjonEntitet build() {
+            Objects.requireNonNull(kladd.organisasjonsnummer, "organisasjonsnummer");
+            return kladd;
+        }
+    }
 }

@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -46,7 +45,7 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     private LocalDate opptjeningsår;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "aarsbeloep", nullable = false)))
+    @AttributeOverride(name = "verdi", column = @Column(name = "aarsbeloep", nullable = false))
     @ChangeTracked
     private Beløp årsbeløp;
 

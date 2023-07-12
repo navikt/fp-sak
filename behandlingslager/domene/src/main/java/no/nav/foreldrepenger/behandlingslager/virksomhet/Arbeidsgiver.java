@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
@@ -32,7 +31,7 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
      */
     @ChangeTracked
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "arbeidsgiver_aktor_id", updatable = false)))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "arbeidsgiver_aktor_id", updatable = false))
     private AktørId arbeidsgiverAktørId;
 
     @SuppressWarnings("unused")

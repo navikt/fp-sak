@@ -47,11 +47,11 @@ class VergeRepositoryTest extends EntityManagerAwareTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var vergeOrganisasjon = new VergeOrganisasjonBuilder()
+        var vergeOrganisasjon = new VergeOrganisasjonEntitet.Builder()
                 .medNavn(VERGE_ORGNAVN)
                 .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
                 .build();
-        var vergeBuilder = new VergeBuilder()
+        var vergeBuilder = new VergeEntitet.Builder()
                 .medVergeType(VergeType.BARN)
                 .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
                 .medVergeOrganisasjon(vergeOrganisasjon);
@@ -85,11 +85,11 @@ class VergeRepositoryTest extends EntityManagerAwareTest {
         var nyBehandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
         behandlingRepository.lagre(nyBehandling, behandlingRepository.taSkriveLås(nyBehandling));
 
-        var vergeOrganisasjon = new VergeOrganisasjonBuilder()
+        var vergeOrganisasjon = new VergeOrganisasjonEntitet.Builder()
                 .medNavn(VERGE_ORGNAVN)
                 .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
                 .build();
-        var vergeBuilder = new VergeBuilder()
+        var vergeBuilder = new VergeEntitet.Builder()
                 .medVergeType(VergeType.BARN)
                 .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
                 .medVergeOrganisasjon(vergeOrganisasjon);

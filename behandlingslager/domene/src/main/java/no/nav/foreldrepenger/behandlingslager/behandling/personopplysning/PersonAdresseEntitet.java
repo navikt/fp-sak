@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -34,7 +33,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     private Long id;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false)))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false))
     private AktørId aktørId;
 
     @Embedded

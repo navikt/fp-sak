@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -53,10 +52,8 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     private List<BeregningsresultatAndel> beregningsresultatAndelList = new ArrayList<>();
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "br_periode_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "br_periode_tom"))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "br_periode_fom"))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "br_periode_tom"))
     private DatoIntervallEntitet periode;
 
     public BeregningsresultatPeriode(BeregningsresultatPeriode kopi) {

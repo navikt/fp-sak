@@ -30,7 +30,7 @@ public class VergeRepository {
         return hentVerge(getAktivtBehandlingsgrunnlag(behandlingId));
     }
 
-    public void lagreOgFlush(Long behandlingId, VergeBuilder vergeBuilder) {
+    public void lagreOgFlush(Long behandlingId, VergeEntitet.Builder vergeBuilder) {
         Objects.requireNonNull(behandlingId);
         var verge = vergeBuilder.build();
         var grunnlag = new VergeGrunnlagEntitet(behandlingId, verge);

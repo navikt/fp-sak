@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -41,10 +40,8 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
     private PeriodeIkkeOppfyltÅrsak periodeIkkeOppfyltÅrsak = PeriodeIkkeOppfyltÅrsak.INGEN;
 
     @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "fomDato", column = @Column(name = "fom", nullable = false)),
-            @AttributeOverride(name = "tomDato", column = @Column(name = "tom", nullable = false))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "fom", nullable = false))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "tom", nullable = false))
     private DatoIntervallEntitet tidsperiode;
 
     @Lob

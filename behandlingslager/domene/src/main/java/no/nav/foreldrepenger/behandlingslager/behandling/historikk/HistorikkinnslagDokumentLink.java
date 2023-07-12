@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -34,7 +33,7 @@ public class HistorikkinnslagDokumentLink extends BaseEntitet implements IndexKe
     private Historikkinnslag historikkinnslag;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", updatable=false)))
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", updatable=false))
     private JournalpostId journalpostId;
 
     @Column(name = "dokument_id", updatable=false)

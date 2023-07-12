@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -33,20 +32,21 @@ public class VergeEntitet extends BaseCreateableEntitet {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "bruker_id")
-    NavBruker bruker;
+    private NavBruker bruker;
 
     @Embedded
-    @AttributeOverrides({@AttributeOverride(name = "fomDato", column = @Column(name = "gyldig_fom")), @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom"))})
-    DatoIntervallEntitet gyldigPeriode;
+    @AttributeOverride(name = "fomDato", column = @Column(name = "gyldig_fom"))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom"))
+    private DatoIntervallEntitet gyldigPeriode;
 
     @Convert(converter = VergeType.KodeverdiConverter.class)
     @Column(name = "verge_type", nullable = false)
-    VergeType vergeType;
+    private VergeType vergeType;
 
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organisasjon_id")
-    VergeOrganisasjonEntitet vergeOrganisasjon;
+    private VergeOrganisasjonEntitet vergeOrganisasjon;
 
     public VergeEntitet() {
     }
@@ -101,5 +101,44 @@ public class VergeEntitet extends BaseCreateableEntitet {
 
     public Optional<VergeOrganisasjonEntitet> getVergeOrganisasjon() {
         return Optional.ofNullable(vergeOrganisasjon);
+    }
+
+    public static class Builder {
+        private final VergeEntitet kladd;
+
+        public Builder() {
+            kladd = new VergeEntitet();
+        }
+
+        public Builder gyldigPeriode(LocalDate gyldigFom, LocalDate gyldigTom) {
+            if (gyldigTom != null) {
+                kladd.gyldigPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(gyldigFom, gyldigTom);
+            } else {
+                kladd.gyldigPeriode = DatoIntervallEntitet.fraOgMed(gyldigFom);
+            }
+            return this;
+        }
+
+        public Builder medVergeType(VergeType vergeType) {
+            kladd.vergeType = vergeType;
+            return this;
+        }
+
+        public Builder medBruker(NavBruker bruker) {
+            kladd.bruker = bruker;
+            return this;
+        }
+
+        public Builder medVergeOrganisasjon(VergeOrganisasjonEntitet vergeOrganisasjon) {
+            vergeOrganisasjon.setVerge(kladd);
+            kladd.vergeOrganisasjon = vergeOrganisasjon;
+            return this;
+        }
+
+        public VergeEntitet build() {
+            //verifiser oppbyggingen til objektet
+            Objects.requireNonNull(kladd.vergeType, "vergeType");
+            return kladd;
+        }
     }
 }
