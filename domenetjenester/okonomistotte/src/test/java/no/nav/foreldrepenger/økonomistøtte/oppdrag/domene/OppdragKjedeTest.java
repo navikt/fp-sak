@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 
@@ -9,10 +10,10 @@ import org.junit.jupiter.api.Test;
 
 class OppdragKjedeTest {
 
-    LocalDate nå = LocalDate.now();
-    Periode p1 = Periode.of(nå, nå.plusDays(5));
-    Periode p2 = Periode.of(nå.plusDays(6), nå.plusDays(10));
-    Periode p3 = Periode.of(nå.plusDays(11), nå.plusDays(11));
+    private final LocalDate nå = LocalDate.now();
+    private final Periode p1 = Periode.of(nå, nå.plusDays(5));
+    private final Periode p2 = Periode.of(nå.plusDays(6), nå.plusDays(10));
+    private final Periode p3 = Periode.of(nå.plusDays(11), nå.plusDays(11));
 
     @Test
     void skal_konvertere_enkel_kjede_til_ytelse() {
@@ -95,10 +96,10 @@ class OppdragKjedeTest {
 
     @Test
     void skal_kreve_at_oppdragslinjer_i_kjeden_peker_på_hverandre() {
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Satsen.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).build())
-            .build());
+        var linje1 = OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build();
+        var linje2 = OppdragLinje.builder().medPeriode(p2).medSats(Satsen.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).build();
+        var kjede = OppdragKjede.builder().medOppdragslinje(linje1);
+        var exception = assertThrows(IllegalArgumentException.class, () -> kjede.medOppdragslinje(linje2));
 
         assertThat(exception.getMessage()).isEqualTo("Oppdragslinje med delytelseId FOO001002 er ikke først i kjeden, og må referere til forrige oppdragslinje (delytelseId FOO001001)");
     }

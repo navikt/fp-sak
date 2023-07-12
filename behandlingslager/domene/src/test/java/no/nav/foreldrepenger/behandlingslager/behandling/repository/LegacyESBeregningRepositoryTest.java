@@ -21,12 +21,13 @@ class LegacyESBeregningRepositoryTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         var repository = new LegacyESBeregningRepository(entityManager);
 
-        var sats = new BeregningSats(BeregningSatsType.ENGANG, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(1)), 123L);
-        var satsSomOverlapperEksisterendeSats = new BeregningSats(BeregningSatsType.ENGANG, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusDays(1)), 123L);
+        var dato = LocalDate.now();
+        var sats = new BeregningSats(BeregningSatsType.ENGANG, DatoIntervallEntitet.fraOgMed(dato.minusMonths(1)), 123L);
+        var satsSomOverlapperEksisterendeSats = new BeregningSats(BeregningSatsType.ENGANG, DatoIntervallEntitet.fraOgMed(dato.minusDays(1)), 123L);
         entityManager.persist(sats);
         entityManager.persist(satsSomOverlapperEksisterendeSats);
         entityManager.flush();
 
-        assertThrows(TekniskException.class, () -> repository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()));
+        assertThrows(TekniskException.class, () -> repository.finnEksaktSats(BeregningSatsType.ENGANG, dato));
     }
 }

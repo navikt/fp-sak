@@ -42,7 +42,8 @@ class SimuleringIntegrasjonTjenesteTest {
         var oppdragskontroll = mock(Oppdragskontroll.class);
         when(oppdragskontroll.getBehandlingId()).thenReturn(null);
         when(oppdragskontroll.getOppdrag110Liste()).thenReturn(List.of());
-        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll)));
+        var oppdragskontrollOpt = Optional.of(oppdragskontroll);
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt));
     }
 
     @Test
@@ -50,7 +51,8 @@ class SimuleringIntegrasjonTjenesteTest {
         var oppdragskontroll = mock(Oppdragskontroll.class);
         when(oppdragskontroll.getBehandlingId()).thenReturn(BEHANDLING_ID);
         when(oppdragskontroll.getOppdrag110Liste()).thenReturn(null);
-        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll)));
+        var oppdragskontrollOpt = Optional.of(oppdragskontroll);
+        assertThrows(NullPointerException.class, () -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt));
     }
 
     @Test
@@ -72,7 +74,8 @@ class SimuleringIntegrasjonTjenesteTest {
         doThrow(new OppdragForventetNedetidException())
             .when(restKlientMock).startSimulering(any());
         var oppdragskontroll = oppdragskontrollMedOppdrag(new Saksnummer("123456"), BEHANDLING_ID);
-        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(Optional.of(oppdragskontroll)))
+        var oppdragskontrollOpt = Optional.of(oppdragskontroll);
+        assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(oppdragskontrollOpt))
             .isInstanceOf(IntegrasjonException.class)
             .hasMessageContaining(OppdragForventetNedetidException.MELDING);
         verify(restKlientMock, atLeastOnce()).startSimulering(any());

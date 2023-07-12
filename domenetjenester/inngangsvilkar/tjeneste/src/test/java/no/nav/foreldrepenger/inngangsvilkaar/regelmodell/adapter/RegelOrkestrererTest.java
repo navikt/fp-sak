@@ -270,7 +270,8 @@ class RegelOrkestrererTest {
 
     @Test
     void skal_kaste_feil_dersom_vilkårsresultat_ikke_kan_utledes() {
-        assertThrows(TekniskException.class, () -> VilkårResultatType.utledInngangsvilkårUtfall(Set.of()));
+        Set<VilkårUtfallType> utfall = Set.of();
+        assertThrows(TekniskException.class, () -> VilkårResultatType.utledInngangsvilkårUtfall(utfall));
     }
 
     private Behandling byggBehandlingMedVilkårresultat(VilkårResultatType vilkårResultatType, VilkårType vilkårType) {

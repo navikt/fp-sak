@@ -29,8 +29,6 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
 
     private static final int FNR_LENGDE = 11;
 
-    private static final int PERSONNR_LENGDE = 5;
-
     @JsonValue
     private final String ident;
 

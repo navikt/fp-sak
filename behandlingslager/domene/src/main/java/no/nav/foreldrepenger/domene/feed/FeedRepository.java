@@ -40,7 +40,7 @@ public class FeedRepository {
 
     }
 
-    public <V extends UtgåendeHendelse> boolean harHendelseMedKildeId(String kildeId) {
+    public boolean harHendelseMedKildeId(String kildeId) {
         Objects.requireNonNull(kildeId);
 
         var query = entityManager

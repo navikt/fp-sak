@@ -5,27 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 
 class UttakResultatPerioderEntitetTest {
 
-    private LocalDate start;
-    private UttakResultatPerioderEntitet perioder;
-
-    @BeforeEach
-    public void oppsett() {
-        start = LocalDate.now();
-        perioder = new UttakResultatPerioderEntitet();
-        perioder.leggTilPeriode(lagPeriode(start, start.plusWeeks(6).minusDays(1)));
-        perioder.leggTilPeriode(lagPeriode(start.plusWeeks(6), start.plusWeeks(16).minusDays(1)));
-    }
-
     @Test
     void periode_skal_sorteres_når_de_hentes_ut() {
-        perioder = new UttakResultatPerioderEntitet();
+        var start = LocalDate.now();
+        var perioder = new UttakResultatPerioderEntitet();
         // Legger til periodene i feil rekkefølge
         perioder.leggTilPeriode(lagPeriode(start.plusWeeks(2), start.plusWeeks(3).minusDays(1)));
         perioder.leggTilPeriode(lagPeriode(start.plusWeeks(1), start.plusWeeks(2).minusDays(1)));
@@ -43,10 +32,11 @@ class UttakResultatPerioderEntitetTest {
 
     @Test
     void skal_feile_dersom_det_blir_lagt_til_overlappende_perioder() {
-        start = LocalDate.now();
-        perioder = new UttakResultatPerioderEntitet();
+        var start = LocalDate.now();
+        var perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(lagPeriode(start, start.plusWeeks(6)));
-        assertThrows(IllegalArgumentException.class, () -> perioder.leggTilPeriode(lagPeriode(start.plusWeeks(6), start.plusWeeks(16).minusDays(1))));
+        var nyPeriodeSomOverlapper = lagPeriode(start.plusWeeks(6), start.plusWeeks(16).minusDays(1));
+        assertThrows(IllegalArgumentException.class, () -> perioder.leggTilPeriode(nyPeriodeSomOverlapper));
     }
 
     private UttakResultatPeriodeEntitet lagPeriode(LocalDate fom, LocalDate tom) {

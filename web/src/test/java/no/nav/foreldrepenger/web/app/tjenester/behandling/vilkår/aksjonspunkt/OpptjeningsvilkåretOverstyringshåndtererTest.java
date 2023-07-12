@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -116,17 +118,15 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
+        var behandlingId = behandling.getId();
         // Dto
         var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true,
                 "test av overstyring opptjeningsvilkåret", "1035");
+        Collection<OverstyringAksjonspunktDto> dto = Set.of(overstyringspunktDto);
 
-        // Act
-        try {
-            aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
-            fail("Skal kaste exception");
-        } catch (FunksjonellException e) {
-            assertThat(e).hasMessage(
-                    "FP-093923:Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
-        }
+        //Act
+        assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandlingId))
+            .isInstanceOf(FunksjonellException.class)
+            .hasMessage("FP-093923:Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
     }
 }
