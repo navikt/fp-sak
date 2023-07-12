@@ -96,13 +96,12 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var utledetResultat = utledFødselsdata(dto, grunnlag);
         var originalDokumentasjonForeligger = hentOrginalDokumentasjonForeligger(grunnlag);
         var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.DOKUMENTASJON_FORELIGGER,
-            originalDokumentasjonForeligger, dto.getDokumentasjonForeligger());
-
-        int gjeldendeAntallBarn;
+            originalDokumentasjonForeligger.orElse(null), dto.getDokumentasjonForeligger());
 
         erEndret = sjekkFødselsDatoOgAntallBarnEndret(grunnlag, utledetResultat, erEndret);
-        gjeldendeAntallBarn = dto.getDokumentasjonForeligger() ? dto.getUidentifiserteBarn()
-            .size() : grunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
+        var gjeldendeAntallBarn = dto.getDokumentasjonForeligger() ? dto.getUidentifiserteBarn().size() : grunnlag.getBekreftetVersjon()
+            .map(FamilieHendelseEntitet::getAntallBarn)
+            .orElse(0);
 
         opprettetInnslagforFeltBrukAntallBarnITps(dto, behandling);
 
@@ -133,7 +132,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             .collect(Collectors.toList()); //NOSONAR
     }
 
-    private Boolean hentOrginalDokumentasjonForeligger(FamilieHendelseGrunnlagEntitet grunnlag) {
+    private Optional<Boolean> hentOrginalDokumentasjonForeligger(FamilieHendelseGrunnlagEntitet grunnlag) {
         var overstyrtVersjon = grunnlag.getOverstyrtVersjon();
         var overstyrt = overstyrtVersjon.orElse(null);
 
@@ -143,11 +142,11 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                 var familieHendelse = bekreftet.get();
                 var antallBarnLike = Objects.equals(familieHendelse.getAntallBarn(), overstyrt.getAntallBarn());
                 var fødselsdatoLike = Objects.equals(familieHendelse.getFødselsdato(), overstyrt.getFødselsdato());
-                return antallBarnLike && fødselsdatoLike;
+                return Optional.of(antallBarnLike && fødselsdatoLike);
             }
-            return !overstyrt.getBarna().isEmpty();
+            return Optional.of(!overstyrt.getBarna().isEmpty());
         }
-        return null;
+        return Optional.empty();
     }
 
     private Integer getAntallBarnVedSøknadFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {

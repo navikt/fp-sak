@@ -31,18 +31,18 @@ public class VurderEtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregnin
 
     private void lagHistorikkForVurdering(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
         var vurderDto = dto.getVurderEtterlønnSluttpakke();
-        var opprinneligVerdiEtterlønnSLuttpakke = forrigeBg.map(this::hentOpprinneligVerdiErEtterlønnSluttpakke).orElse(null);
-        lagHistorikkinnslagVurderEtterlønnSluttpakke(vurderDto, opprinneligVerdiEtterlønnSLuttpakke, tekstBuilder);
+        var opprinneligVerdiEtterlønnSLuttpakke = forrigeBg.flatMap(this::hentOpprinneligVerdiErEtterlønnSluttpakke);
+        lagHistorikkinnslagVurderEtterlønnSluttpakke(vurderDto, opprinneligVerdiEtterlønnSLuttpakke.orElse(null), tekstBuilder);
     }
 
-    private Boolean hentOpprinneligVerdiErEtterlønnSluttpakke(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+    private Optional<Boolean> hentOpprinneligVerdiErEtterlønnSluttpakke(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         var etterlønnSluttpakkeAndeler = finnEtterlønnSluttpakkeAndel(beregningsgrunnlag);
         if (!etterlønnSluttpakkeAndeler.isEmpty()) {
-            return etterlønnSluttpakkeAndeler.stream()
-                .anyMatch(a -> Boolean.TRUE.equals(a.getFastsattAvSaksbehandler()) && a.getBeregnetPrÅr() != null &&
-                    a.getBeregnetPrÅr().compareTo(BigDecimal.ZERO)!=0);
+            return Optional.of(etterlønnSluttpakkeAndeler.stream()
+                .anyMatch(a -> Boolean.TRUE.equals(a.getFastsattAvSaksbehandler()) && a.getBeregnetPrÅr() != null
+                    && a.getBeregnetPrÅr().compareTo(BigDecimal.ZERO) != 0));
         }
-        return null;
+        return Optional.empty();
     }
 
     private void lagHistorikkinnslagVurderEtterlønnSluttpakke(VurderEtterlønnSluttpakkeDto dto, Boolean opprinneligVerdiErEtterlønnSluttpakke, HistorikkInnslagTekstBuilder tekstBuilder) {
