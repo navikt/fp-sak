@@ -99,7 +99,7 @@ public class InaktiveArbeidsforholdUtleder {
 
     private static boolean harMottattIMFraAG(Arbeidsgiver arbeidsgiverSomSjekkes, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
         return inntektArbeidYtelseGrunnlag.getInntektsmeldinger()
-            .map(im -> im.getInntektsmeldingerFor(arbeidsgiverSomSjekkes).size() > 0)
+            .map(im -> !im.getInntektsmeldingerFor(arbeidsgiverSomSjekkes).isEmpty())
             .orElse(false);
     }
 

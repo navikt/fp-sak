@@ -118,7 +118,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
     }
 
     private static Predicate<BRNøkkelMedAndeler> harNøkkelAvsluttetArbeidsforhold(LocalDate startdatoArbeid, LocalDate skjæringstidspunkt, Collection<Yrkesaktivitet> yrkesaktiviteter) {
-        return nøkkel -> nøkkel.getBrukersAndelerTilknyttetNøkkel().size() > 0 &&
+        return nøkkel -> !nøkkel.getBrukersAndelerTilknyttetNøkkel().isEmpty() &&
             nøkkel.getBrukersAndelerTilknyttetNøkkel()
                 .stream()
                 .filter(beregningsresultatAndel -> beregningsresultatAndel.getArbeidsgiver().isPresent())

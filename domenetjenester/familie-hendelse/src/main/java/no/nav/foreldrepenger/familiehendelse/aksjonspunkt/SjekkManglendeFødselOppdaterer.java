@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -160,7 +159,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                                                        boolean erEndret) {
         var erEndretTemp = erEndret;
         var orginalFødselsdato = getFødselsdato(behandlingsgrunnlag);
-        erEndretTemp = 0 == dto.size() || oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato, dto.get(0).getFødselsdato())
+        erEndretTemp = dto.isEmpty() || oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato, dto.get(0).getFødselsdato())
             || erEndretTemp;
         var opprinneligAntallBarn = getAntallBarnVedSøknadFødsel(behandlingsgrunnlag);
         erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, dto.size())
@@ -169,12 +168,18 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     }
 
     private void opprettetInnslagforFeltBrukAntallBarnITps(SjekkManglendeFodselDto dto, Behandling behandling) {
-        var feltNavn = dto.isBrukAntallBarnITps() ? HistorikkEndretFeltType.BRUK_ANTALL_I_TPS : BehandlingType.REVURDERING.equals(
-            behandling.getType()) ? HistorikkEndretFeltType.BRUK_ANTALL_I_VEDTAKET : HistorikkEndretFeltType.BRUK_ANTALL_I_SOKNAD;
+        var feltNavn = utledFeltNavn(dto, behandling);
 
         if (dto.getDokumentasjonForeligger()) {
             historikkAdapter.tekstBuilder().medEndretFelt(feltNavn, null, true);
         }
+    }
+
+    private static HistorikkEndretFeltType utledFeltNavn(SjekkManglendeFodselDto dto, Behandling behandling) {
+        if (dto.isBrukAntallBarnITps()) {
+            return HistorikkEndretFeltType.BRUK_ANTALL_I_TPS;
+        }
+        return behandling.erRevurdering() ? HistorikkEndretFeltType.BRUK_ANTALL_I_VEDTAKET : HistorikkEndretFeltType.BRUK_ANTALL_I_SOKNAD;
     }
 
     private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
