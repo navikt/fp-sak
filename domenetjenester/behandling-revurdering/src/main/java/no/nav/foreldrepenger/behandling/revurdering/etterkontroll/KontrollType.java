@@ -20,14 +20,10 @@ public enum KontrollType implements Kodeverdi {
     private static final String KODEVERK = "ETTERKONTROLL_TYPE";
     private static final Map<String, KontrollType> KODER = new LinkedHashMap<>();
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    KontrollType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     KontrollType(String kode, String navn) {
         this.kode = kode;

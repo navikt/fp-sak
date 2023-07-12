@@ -25,13 +25,9 @@ public enum VilkårUtfallType implements Kodeverdi {
     public static final String KODEVERK = "VILKAR_UTFALL_TYPE";
 
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    VilkårUtfallType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     VilkårUtfallType(String kode, String navn) {
         this.kode = kode;

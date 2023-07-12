@@ -34,14 +34,10 @@ public enum AnkeVurdering implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    AnkeVurdering(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     AnkeVurdering(String kode, String navn) {
         this.kode = kode;

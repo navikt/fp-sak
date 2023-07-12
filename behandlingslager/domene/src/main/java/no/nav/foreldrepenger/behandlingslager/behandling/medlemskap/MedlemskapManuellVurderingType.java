@@ -25,16 +25,12 @@ public enum MedlemskapManuellVurderingType implements Kodeverdi {
 
     public static final String KODEVERK = "MEDLEMSKAP_MANUELL_VURD";
 
-    private String navn;
+    private final String navn;
 
-    private boolean visForGui;
+    private final boolean visForGui;
 
     @JsonValue
-    private String kode;
-
-    MedlemskapManuellVurderingType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     MedlemskapManuellVurderingType(String kode, String navn, boolean visGui) {
         this.kode = kode;

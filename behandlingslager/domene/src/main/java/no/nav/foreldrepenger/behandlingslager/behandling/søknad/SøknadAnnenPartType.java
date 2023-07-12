@@ -33,20 +33,14 @@ public enum SøknadAnnenPartType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    SøknadAnnenPartType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     SøknadAnnenPartType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }
-
-
 
     public static Map<String, SøknadAnnenPartType> kodeMap() {
         return Collections.unmodifiableMap(KODER);

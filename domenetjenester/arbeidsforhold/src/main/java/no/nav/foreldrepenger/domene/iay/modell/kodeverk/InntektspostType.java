@@ -31,14 +31,10 @@ public enum InntektspostType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-    private String offisiellKode;
-
-    InntektspostType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
+    private final String offisiellKode;
 
     InntektspostType(String kode, String navn, String offisiellKode) {
         this.kode = kode;

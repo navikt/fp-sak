@@ -42,14 +42,10 @@ public enum HistorikkAvklartSoeknadsperiodeType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    HistorikkAvklartSoeknadsperiodeType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     HistorikkAvklartSoeknadsperiodeType(String kode, String navn) {
         this.kode = kode;

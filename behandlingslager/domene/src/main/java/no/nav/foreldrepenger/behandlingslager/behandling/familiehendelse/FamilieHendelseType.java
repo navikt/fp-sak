@@ -25,14 +25,10 @@ public enum FamilieHendelseType implements Kodeverdi {
 
     public static final String KODEVERK = "FAMILIE_HENDELSE_TYPE";
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    FamilieHendelseType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     FamilieHendelseType(String kode, String navn) {
         this.kode = kode;

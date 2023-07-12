@@ -31,14 +31,10 @@ public enum MedlemskapType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    MedlemskapType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     MedlemskapType(String kode, String navn) {
         this.kode = kode;

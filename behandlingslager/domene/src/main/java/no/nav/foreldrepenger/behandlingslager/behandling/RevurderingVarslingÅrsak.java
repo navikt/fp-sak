@@ -33,14 +33,10 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    RevurderingVarslingÅrsak(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     RevurderingVarslingÅrsak(String kode, String navn) {
         this.kode = kode;

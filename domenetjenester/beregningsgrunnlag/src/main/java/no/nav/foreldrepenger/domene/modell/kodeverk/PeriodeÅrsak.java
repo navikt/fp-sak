@@ -38,14 +38,10 @@ public enum PeriodeÅrsak implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    PeriodeÅrsak(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     PeriodeÅrsak(String kode, String navn) {
         this.kode = kode;

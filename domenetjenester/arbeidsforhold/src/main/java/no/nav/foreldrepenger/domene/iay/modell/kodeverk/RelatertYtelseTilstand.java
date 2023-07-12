@@ -29,14 +29,10 @@ public enum RelatertYtelseTilstand implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    RelatertYtelseTilstand(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     RelatertYtelseTilstand(String kode, String navn) {
         this.kode = kode;

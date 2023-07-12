@@ -97,18 +97,14 @@ public enum StartpunktType implements Kodeverdi {
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.TILKJENT_YTELSE).add(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
     }
 
-    private BehandlingStegType behandlingSteg;
+    private final BehandlingStegType behandlingSteg;
 
-    private int rangering;
+    private final int rangering;
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    StartpunktType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     StartpunktType(String kode, String navn, int rangering, BehandlingStegType stegType) {
         this.kode = kode;

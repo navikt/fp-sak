@@ -30,15 +30,10 @@ public enum ReferanseType implements Kodeverdi {
         }
     }
 
-
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    ReferanseType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     ReferanseType(String kode, String navn) {
         this.kode = kode;

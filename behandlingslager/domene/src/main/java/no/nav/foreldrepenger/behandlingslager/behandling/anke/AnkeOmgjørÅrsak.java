@@ -32,14 +32,10 @@ public enum AnkeOmgjørÅrsak implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    AnkeOmgjørÅrsak(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     AnkeOmgjørÅrsak(String kode, String navn) {
         this.kode = kode;

@@ -30,14 +30,10 @@ public enum TilretteleggingType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    TilretteleggingType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     TilretteleggingType(String kode, String navn) {
         this.kode = kode;

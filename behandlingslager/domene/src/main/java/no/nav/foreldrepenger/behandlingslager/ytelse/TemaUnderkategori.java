@@ -48,14 +48,11 @@ public enum TemaUnderkategori implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-    private String offisiellKode;
+    private final String kode;
 
-    TemaUnderkategori(String kode) {
-        this.kode = kode;
-    }
+    private final String offisiellKode;
 
     TemaUnderkategori(String kode, String navn, String offisiellKode) {
         this.kode = kode;

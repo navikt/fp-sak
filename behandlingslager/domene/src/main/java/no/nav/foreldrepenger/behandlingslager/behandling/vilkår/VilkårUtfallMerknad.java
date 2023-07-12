@@ -53,13 +53,9 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
 
     public static final String KODEVERK = "VILKAR_UTFALL_MERKNAD";
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    VilkårUtfallMerknad(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     VilkårUtfallMerknad(String kode, String navn) {
         this.kode = kode;

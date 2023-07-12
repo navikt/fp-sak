@@ -34,16 +34,12 @@ public enum InntektPeriodeType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-    private String offisiellKode;
-    private Period periode;
-
-    InntektPeriodeType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
+    private final String offisiellKode;
+    private final Period periode;
 
     InntektPeriodeType(String kode, String navn, String offisiellKode, Period periode) {
         this.kode = kode;

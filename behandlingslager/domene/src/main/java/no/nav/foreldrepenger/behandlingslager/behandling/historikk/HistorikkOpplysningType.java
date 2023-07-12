@@ -34,13 +34,9 @@ public enum HistorikkOpplysningType implements Kodeverdi {
     }
 
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    HistorikkOpplysningType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     HistorikkOpplysningType(String kode, String navn) {
         this.kode = kode;

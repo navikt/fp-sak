@@ -27,14 +27,10 @@ public enum VedtakResultatType implements Kodeverdi {
 
     public static final String KODEVERK = "VEDTAK_RESULTAT_TYPE";
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    VedtakResultatType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     VedtakResultatType(String kode, String navn) {
         this.kode = kode;

@@ -31,14 +31,10 @@ public enum InnsynResultatType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    InnsynResultatType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     InnsynResultatType(String kode, String navn) {
         this.kode = kode;

@@ -35,14 +35,10 @@ public enum FagsakYtelseType implements Kodeverdi {
         ES, FP, SVP;
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    FagsakYtelseType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     FagsakYtelseType(String kode, String navn) {
         this.kode = kode;

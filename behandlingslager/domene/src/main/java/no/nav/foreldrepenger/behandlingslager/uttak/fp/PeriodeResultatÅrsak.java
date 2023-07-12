@@ -390,23 +390,23 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
     }
 
     @JsonValue
-    private String kode;
+    private final String kode;
 
-    private String sortering;
+    private final String sortering;
 
-    private String navn;
+    private final String navn;
 
-    private String lovHjemmel;
+    private final String lovHjemmel;
 
-    private UtfallType utfallType;
+    private final UtfallType utfallType;
 
-    private Set<UttakType> uttakTyper;
+    private final Set<UttakType> uttakTyper;
 
-    private Set<StønadskontoType> valgbarForKonto;
+    private final Set<StønadskontoType> valgbarForKonto;
 
-    private Set<LovEndring> gyldigForLovendringer;
+    private final Set<LovEndring> gyldigForLovendringer;
 
-    private Set<SynligFor> synligForRolle;
+    private final Set<SynligFor> synligForRolle;
 
     PeriodeResultatÅrsak(String kode,
                          String sortering,

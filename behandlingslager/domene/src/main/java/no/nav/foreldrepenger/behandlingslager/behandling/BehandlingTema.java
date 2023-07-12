@@ -27,16 +27,11 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
 
     public static final String KODEVERK = "BEHANDLING_TEMA";
 
-    private String navn;
+    private final String navn;
 
-    private String offisiellKode;
+    private final String offisiellKode;
     @JsonValue
-    private String kode;
-
-
-    BehandlingTema(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     BehandlingTema(String kode, String navn, String offisiellKode) {
         this.kode = kode;

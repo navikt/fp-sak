@@ -26,14 +26,10 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
 
     public static final String KODEVERK = "OMSORGSOVERTAKELSE_VILKAR";
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    OmsorgsovertakelseVilkårType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     OmsorgsovertakelseVilkårType(String kode, String navn) {
         this.kode = kode;

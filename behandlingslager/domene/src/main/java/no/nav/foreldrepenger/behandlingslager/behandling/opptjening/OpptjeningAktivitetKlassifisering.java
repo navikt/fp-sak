@@ -32,14 +32,10 @@ public enum OpptjeningAktivitetKlassifisering implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    OpptjeningAktivitetKlassifisering(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     OpptjeningAktivitetKlassifisering(String kode, String navn) {
         this.kode = kode;

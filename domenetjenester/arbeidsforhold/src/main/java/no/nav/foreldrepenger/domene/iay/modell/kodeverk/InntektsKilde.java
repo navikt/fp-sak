@@ -31,14 +31,10 @@ public enum InntektsKilde implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-    private String offisiellKode;
-
-    InntektsKilde(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
+    private final String offisiellKode;
 
     InntektsKilde(String kode, String navn, String offisiellKode) {
         this.kode = kode;

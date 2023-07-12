@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -26,10 +25,10 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class AvklarOmSøkerOppholderSegINorge {
 
-    private FamilieHendelseRepository familieGrunnlagRepository;
-    private SøknadRepository søknadRepository;
-    private PersonopplysningTjeneste personopplysningTjeneste;
-    private InntektArbeidYtelseTjeneste iayTjeneste;
+    private final FamilieHendelseRepository familieGrunnlagRepository;
+    private final SøknadRepository søknadRepository;
+    private final PersonopplysningTjeneste personopplysningTjeneste;
+    private final InntektArbeidYtelseTjeneste iayTjeneste;
 
     public AvklarOmSøkerOppholderSegINorge(BehandlingRepositoryProvider repositoryProvider,
                                            PersonopplysningTjeneste personopplysningTjeneste,
@@ -141,14 +140,6 @@ public class AvklarOmSøkerOppholderSegINorge {
             return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.behandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
         }
         return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.behandlingId(), vurderingsdato) ? JA : NEI;
-    }
-
-    private Utfall harTermindatoPassertMed14Dager(Long behandlingId) {
-        var dagensDato = LocalDate.now();
-        var termindato = familieGrunnlagRepository.hentAggregat(behandlingId)
-            .getGjeldendeTerminbekreftelse()
-            .map(TerminbekreftelseEntitet::getTermindato);
-        return termindato.filter(localDate -> localDate.plusDays(14L).isBefore(dagensDato)).map(localDate -> JA).orElse(NEI);
     }
 
     private Region getRegion(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {

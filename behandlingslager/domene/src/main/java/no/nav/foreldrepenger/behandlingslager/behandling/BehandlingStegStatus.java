@@ -44,13 +44,9 @@ public enum BehandlingStegStatus implements Kodeverdi {
 
     public static final String KODEVERK = "BEHANDLING_STEG_STATUS";
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    BehandlingStegStatus(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     BehandlingStegStatus(String kode, String navn) {
         this.kode = kode;
