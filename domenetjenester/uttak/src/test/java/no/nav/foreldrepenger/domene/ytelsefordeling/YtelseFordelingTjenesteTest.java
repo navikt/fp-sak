@@ -18,8 +18,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 class YtelseFordelingTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
-    private final YtelseFordelingTjeneste tjeneste = new YtelseFordelingTjeneste(
-        repositoryProvider.getYtelsesFordelingRepository());
+    private final YtelseFordelingTjeneste tjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
 
     @Test
     void test_bekreft_aksjonspunkt_annenforelder_har_ikke_rett() {
@@ -28,11 +27,9 @@ class YtelseFordelingTjenesteTest {
 
         tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null, null);
 
-        var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
-            behandling.getId()).getAnnenForelderRettAvklaring();
+        var perioderAnnenforelderHarRett = tjeneste.hentAggregat(behandling.getId()).getAnnenForelderRettAvklaring();
 
-        assertThat(perioderAnnenforelderHarRett).isNotNull();
-        assertThat(perioderAnnenforelderHarRett).isFalse();
+        assertThat(perioderAnnenforelderHarRett).isNotNull().isFalse();
     }
 
     @Test
@@ -42,11 +39,9 @@ class YtelseFordelingTjenesteTest {
 
         tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), true, null, null);
 
-        var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
-            behandling.getId()).getAnnenForelderRettAvklaring();
+        var perioderAnnenforelderHarRett = tjeneste.hentAggregat(behandling.getId()).getAnnenForelderRettAvklaring();
 
-        assertThat(perioderAnnenforelderHarRett).isNotNull();
-        assertThat(perioderAnnenforelderHarRett).isTrue();
+        assertThat(perioderAnnenforelderHarRett).isNotNull().isTrue();
     }
 
     @Test
@@ -55,8 +50,8 @@ class YtelseFordelingTjenesteTest {
         var periode1 = mødrekvote(LocalDate.now(), LocalDate.now().plusWeeks(1));
         var periode2 = mødrekvote(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(2));
         var perioder = List.of(periode1, periode2);
-        assertThrows(IllegalArgumentException.class,
-            () -> tjeneste.overstyrSøknadsperioder(behandling.getId(), perioder));
+        var behandlingId = behandling.getId();
+        assertThrows(IllegalArgumentException.class, () -> tjeneste.overstyrSøknadsperioder(behandlingId, perioder));
     }
 
     private OppgittPeriodeEntitet mødrekvote(LocalDate fom, LocalDate tom) {

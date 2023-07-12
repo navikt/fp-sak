@@ -32,7 +32,8 @@ class AvslagØverføringValideringTest {
         var validering = new AvslagØverføringValidering();
 
         var periode = avslåttOverføring(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE);
-        assertThrows(TekniskException.class, () -> validering.utfør(List.of(periode)));
+        var perioder = List.of(periode);
+        assertThrows(TekniskException.class, () -> validering.utfør(perioder));
     }
 
     @Test

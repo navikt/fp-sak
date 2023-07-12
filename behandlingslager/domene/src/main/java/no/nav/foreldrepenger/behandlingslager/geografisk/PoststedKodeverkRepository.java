@@ -16,8 +16,6 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 @ApplicationScoped
 public class PoststedKodeverkRepository {
 
-    private static final String SYNK_POSTNUMMER = "SYNK";
-
     private EntityManager entityManager;
 
     PoststedKodeverkRepository() {

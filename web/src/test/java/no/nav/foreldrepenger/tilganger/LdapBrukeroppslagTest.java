@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.naming.LimitExceededException;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
@@ -42,7 +41,7 @@ class LdapBrukeroppslagTest {
     }
 
     @Test
-    void skal_liste_ut_brukernavn_når_det_er_i_resultatet() throws Exception {
+    void skal_liste_ut_brukernavn_når_det_er_i_resultatet() {
         var attributes = new BasicAttributes();
         attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("cn", "L999999");
@@ -52,7 +51,7 @@ class LdapBrukeroppslagTest {
     }
 
     @Test
-    void skal_liste_ut_gruppene_når_det_er_i_resultatet() throws Exception {
+    void skal_liste_ut_gruppene_når_det_er_i_resultatet() {
         var attributes = new BasicAttributes();
         attributes.put("displayName", "Lars Saksbehandler");
         attributes.put("cn", "L999999");
@@ -71,7 +70,8 @@ class LdapBrukeroppslagTest {
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
                 .thenReturn(heleResultatet);
 
-        assertThrows(IntegrasjonException.class, () -> new LdapBrukeroppslag(context, baseSearch).hentBrukerinformasjon("L999999"));
+        var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
+        assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
     }
 
     @Test
@@ -79,7 +79,8 @@ class LdapBrukeroppslagTest {
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
                 .thenThrow(new LimitExceededException("This is a test"));
 
-        var e = assertThrows(IntegrasjonException.class, () -> new LdapBrukeroppslag(context, baseSearch).hentBrukerinformasjon("L999999"));
+        var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
+        var e = assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
         assertEquals("F-137440", e.getKode());
 
     }
@@ -94,12 +95,13 @@ class LdapBrukeroppslagTest {
         Mockito.when(context.search(ArgumentMatchers.eq(baseSearch), ArgumentMatchers.eq("(cn=L999999)"), ArgumentMatchers.any(SearchControls.class)))
                 .thenReturn(heleResultatet);
 
-        var e = assertThrows(IntegrasjonException.class, () -> new LdapBrukeroppslag(context, baseSearch).hentBrukerinformasjon("L999999"));
+        var ldapBrukeroppslag = new LdapBrukeroppslag(context, baseSearch);
+        var e = assertThrows(IntegrasjonException.class, () -> ldapBrukeroppslag.hentBrukerinformasjon("L999999"));
         assertTrue(e.getMessage().contains("Resultat fra LDAP manglet påkrevet attributtnavn displayName"));
     }
 
     @Test
-    void skal_gi_exception_når_det_søkes_med_spesialtegn() throws Exception {
+    void skal_gi_exception_når_det_søkes_med_spesialtegn() {
         var ldap = new LdapBrukeroppslag(context, baseSearch);
         var e = assertThrows(TekniskException.class, () -> ldap.hentBrukerinformasjon("L999999) or (cn=A*"));
         assertEquals("F-271934", e.getKode());
@@ -109,24 +111,24 @@ class LdapBrukeroppslagTest {
     private static class SearchMock implements NamingEnumeration<SearchResult> {
 
         private int index = 0;
-        private List<SearchResult> resultList;
+        private final List<SearchResult> resultList;
 
         SearchMock(List<SearchResult> resultList) {
             this.resultList = resultList;
         }
 
         @Override
-        public SearchResult next() throws NamingException {
+        public SearchResult next() {
             throw new IllegalArgumentException("Test---not implemented");
         }
 
         @Override
-        public boolean hasMore() throws NamingException {
+        public boolean hasMore() {
             throw new IllegalArgumentException("Test---not implemented");
         }
 
         @Override
-        public void close() throws NamingException {
+        public void close() {
 
         }
 

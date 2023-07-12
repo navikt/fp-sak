@@ -48,16 +48,14 @@ import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteI
 @ExtendWith(MockitoExtension.class)
 class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
-
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private final LocalDate now = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider;
     private HistorikkInnslagTekstBuilder tekstBuilder;
 
-    private DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
     @Mock
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
@@ -187,9 +185,9 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         // Assert
         var del = historikkInnslagDeler.get(0);
 
-        assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, formatterer.format(opprinneligFødseldato), formatterer.format(avklartFødseldato));
+        assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, TIME_FORMATTER.format(opprinneligFødseldato), TIME_FORMATTER.format(avklartFødseldato));
         assertFelt(del, HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, avklartAntallBarn);
-        assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, formatterer.format(opprinneligFødseldato), formatterer.format(avklartFødseldato));
+        assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, TIME_FORMATTER.format(opprinneligFødseldato), TIME_FORMATTER.format(avklartFødseldato));
 
         var opplysningOpt = del.getOpplysning(HistorikkOpplysningType.ANTALL_BARN);
         assertThat(opplysningOpt).as("opplysningOpt").hasValueSatisfying(opplysning -> {
@@ -388,8 +386,8 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var oppdaterer = new SjekkManglendeFødselOppdaterer(lagMockHistory(),
             skjæringstidspunktTjeneste, familieHendelseTjeneste, repositoryProvider.getBehandlingRepository());
-        assertThrows(KanIkkeUtledeGjeldendeFødselsdatoException.class, () -> oppdaterer
-            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt)));
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt);
+        assertThrows(KanIkkeUtledeGjeldendeFødselsdatoException.class, () -> oppdaterer.oppdater(dto, param));
     }
 
     private void assertFelt(HistorikkinnslagDel historikkinnslagDel, HistorikkEndretFeltType historikkEndretFeltType, Object fraVerdi, Object tilVerdi) {

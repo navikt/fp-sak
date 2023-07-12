@@ -19,28 +19,23 @@ class BeregningsresultatAndelTest {
 
     @BeforeEach
     public void oppsett() {
-        var beregningsresultat = BeregningsresultatEntitet.builder()
-                .medRegelInput("clob1")
-                .medRegelSporing("clob2")
-                .build();
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         periode = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(
-                        LocalDate.of(2018, 8, 22),
-                        LocalDate.of(2018, 9, 22))
-                .build(beregningsresultat);
+            .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2018, 8, 22), LocalDate.of(2018, 9, 22))
+            .build(beregningsresultat);
     }
 
     @Test
     void andel_hvor_alle_feltene_er_satt_uten_arbeidsgiver() {
         var andel = BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(80))
-                .medDagsatsFraBg(450)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(null)
-                .build(periode);
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(80))
+            .medDagsatsFraBg(450)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(null)
+            .build(periode);
         assertThat(andel.erBrukerMottaker()).isTrue();
         assertThat(andel.getDagsats()).isEqualTo(550);
         assertThat(andel.getStillingsprosent()).isEqualTo(BigDecimal.valueOf(100));
@@ -53,14 +48,14 @@ class BeregningsresultatAndelTest {
     @Test
     void andel_hvor_alle_feltene_er_satt_med_arbeidsgiver() {
         var andel = BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(false)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medDagsatsFraBg(450)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .build(periode);
+            .medBrukerErMottaker(false)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medDagsatsFraBg(450)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .build(periode);
         assertThat(andel.erBrukerMottaker()).isFalse();
         assertThat(andel.getDagsats()).isEqualTo(550);
         assertThat(andel.getStillingsprosent()).isEqualTo(BigDecimal.valueOf(100));
@@ -73,14 +68,14 @@ class BeregningsresultatAndelTest {
     @Test
     void andel_hvor_brukerErMottaker_er_true_og_arbeidsgiver_er_satt() {
         var andel = BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(0))
-                .medDagsatsFraBg(450)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .build(periode);
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(0))
+            .medDagsatsFraBg(450)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+            .build(periode);
         assertThat(andel.erBrukerMottaker()).isTrue();
         assertThat(andel.getDagsats()).isEqualTo(550);
         assertThat(andel.getStillingsprosent()).isEqualTo(BigDecimal.valueOf(100));
@@ -92,126 +87,126 @@ class BeregningsresultatAndelTest {
 
     @Test
     void andel_hvor_brukerErMottaker_er_false_og_arbeidsgiver_er_null() {
-        assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(false)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(80))
-                .medDagsatsFraBg(450)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(false)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(80))
+            .medDagsatsFraBg(450)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(null);
+        assertThrows(NullPointerException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_brukerErMottaker_ikke_er_satt() {
-        assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medDagsatsFraBg(550)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medDagsatsFraBg(550)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(null);
+        assertThrows(NullPointerException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_dagsats_ikke_er_satt() {
-        assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medDagsatsFraBg(550)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medDagsatsFraBg(550)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(null);
+        assertThrows(NullPointerException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_stillingsprosent_ikke_er_satt() {
-        assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medDagsatsFraBg(550)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medDagsatsFraBg(550)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(null);
+        assertThrows(NullPointerException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_utbetalingsgrad_ikke_er_satt() {
-        assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medDagsatsFraBg(550)
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medDagsatsFraBg(550)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(null);
+        assertThrows(NullPointerException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_dagsatsFraBg_ikke_er_satt() {
-        assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medArbeidsgiver(null);
+        assertThrows(NullPointerException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_inntektskategori_ikke_er_satt() {
-        assertThrows(NullPointerException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medDagsatsFraBg(550)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medDagsatsFraBg(550)
+            .medArbeidsgiver(null);
+        assertThrows(NullPointerException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_utbetalingsgraden_er_minus_1() {
-        assertThrows(IllegalStateException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(-1))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medDagsatsFraBg(550)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(-1))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medDagsatsFraBg(550)
+            .medArbeidsgiver(null);
+        assertThrows(IllegalStateException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_utbetalingsgraden_er_101() {
-        assertThrows(IllegalStateException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(101))
-                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-                .medDagsatsFraBg(550)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(101))
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medDagsatsFraBg(550)
+            .medArbeidsgiver(null);
+        assertThrows(IllegalStateException.class, () -> builder.build(periode));
     }
 
     @Test
     void andel_hvor_inntektskategorien_er_udefinert() {
-        assertThrows(IllegalStateException.class, () -> BeregningsresultatAndel.builder()
-                .medBrukerErMottaker(true)
-                .medDagsats(550)
-                .medStillingsprosent(BigDecimal.valueOf(100))
-                .medUtbetalingsgrad(BigDecimal.valueOf(100))
-                .medInntektskategori(Inntektskategori.UDEFINERT)
-                .medDagsatsFraBg(550)
-                .medArbeidsgiver(null)
-                .build(periode));
+        var builder = BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medDagsats(550)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medInntektskategori(Inntektskategori.UDEFINERT)
+            .medDagsatsFraBg(550)
+            .medArbeidsgiver(null);
+        assertThrows(IllegalStateException.class, () -> builder.build(periode));
     }
 
 }

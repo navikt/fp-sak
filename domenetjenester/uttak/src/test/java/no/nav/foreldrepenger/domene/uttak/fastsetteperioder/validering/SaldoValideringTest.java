@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.vedtak.exception.TekniskException;
@@ -122,7 +123,8 @@ class SaldoValideringTest {
         var validering = new SaldoValidering(saldoUtregning, false, false);
 
         assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
-        assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> validering.utfør(List.of()));
+        List<ForeldrepengerUttakPeriode> perioder = List.of();
+        assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> validering.utfør(perioder));
     }
 
     @Test
@@ -136,7 +138,8 @@ class SaldoValideringTest {
         var validering = new SaldoValidering(saldoUtregning, false, false);
 
         assertThat(validering.valider(FORELDREPENGER).isGyldig()).isTrue();
-        assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> validering.utfør(List.of()));
+        List<ForeldrepengerUttakPeriode> perioder = List.of();
+        assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> validering.utfør(perioder));
     }
 
     @Test

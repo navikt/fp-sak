@@ -83,7 +83,7 @@ class BarnFinnerTest {
         var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
 
         // Assert
-        assertThat(2).isEqualTo(funnetAntallBarn);
+        assertThat(funnetAntallBarn).isEqualTo(2);
     }
 
     @Test
@@ -94,7 +94,8 @@ class BarnFinnerTest {
 
         // Act
         var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
-        assertThrows(FunksjonellException.class, () -> barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder));
+        var behandlingId = behandling.getId();
+        assertThrows(FunksjonellException.class, () -> barnFinner.finnAntallBarn(behandlingId, maksStønadsalder));
     }
 
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForFødsel(int antallBarn) {

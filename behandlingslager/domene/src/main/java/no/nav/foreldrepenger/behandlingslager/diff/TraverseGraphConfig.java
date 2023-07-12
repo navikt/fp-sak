@@ -26,12 +26,7 @@ import javassist.Modifier;
 public class TraverseGraphConfig {
 
     /** Return alltid true, dvs. vil aldri filtrere bort noe. */
-    public static final Function<Object, Boolean> NO_FILTER = new Function<Object, Boolean>() {
-        @Override
-        public Boolean apply(Object t) {
-            return Boolean.TRUE;
-        }
-    };
+    public static final Function<Object, Boolean> NO_FILTER = t -> Boolean.TRUE;
 
     /** Final klasser som ikke trenger videre forklaring. For raskest oppslag. */
     private static final Set<Class<?>> LEAVES_FINAL = Set.of(

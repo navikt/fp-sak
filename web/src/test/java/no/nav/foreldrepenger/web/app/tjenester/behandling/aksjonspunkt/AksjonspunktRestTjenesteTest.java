@@ -43,14 +43,13 @@ class AksjonspunktRestTjenesteTest {
     private static final LocalDate fødselsdato = now.plusDays(40);
     private static final LocalDate termindato = now.plusDays(30);
     private static final LocalDate utstedtdato = now.minusDays(10);
-    private static final int antallBarn = 1;
+    private final AksjonspunktTjeneste aksjonspunktTjenesteMock = mock(AksjonspunktTjeneste.class);
+    private final BehandlingsutredningTjeneste behandlingsutredningTjenesteMock = mock(BehandlingsutredningTjeneste.class);
+    private final BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
+    private final BehandlingsresultatRepository behandlingsresultatRepository = mock(BehandlingsresultatRepository.class);
+    private final Behandling behandling = mock(Behandling.class);
+    private final TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
     private AksjonspunktRestTjeneste aksjonspunktRestTjeneste;
-    private AksjonspunktTjeneste aksjonspunktTjenesteMock = mock(AksjonspunktTjeneste.class);
-    private BehandlingsutredningTjeneste behandlingsutredningTjenesteMock = mock(BehandlingsutredningTjeneste.class);
-    private BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
-    private BehandlingsresultatRepository behandlingsresultatRepository = mock(BehandlingsresultatRepository.class);
-    private Behandling behandling = mock(Behandling.class);
-    private TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
 
     @BeforeEach
     public void setUp() {
@@ -59,22 +58,18 @@ class AksjonspunktRestTjenesteTest {
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
         when(behandling.getStatus()).thenReturn(BehandlingStatus.OPPRETTET);
         doNothing().when(behandlingsutredningTjenesteMock).kanEndreBehandling(any(), anyLong());
-        aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktTjenesteMock, behandlingRepository,
-            behandlingsresultatRepository, behandlingsutredningTjenesteMock, totrinnTjeneste);
+        aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktTjenesteMock, behandlingRepository, behandlingsresultatRepository,
+            behandlingsutredningTjenesteMock, totrinnTjeneste);
 
     }
 
     @Test
     void skal_bekrefte_terminbekreftelse() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(
-                new BekreftTerminbekreftelseAksjonspunktDto(
-                        begrunnelse,
-                        termindato,
-                        utstedtdato,
-                        antallBarn));
+        aksjonspunkt.add(new BekreftTerminbekreftelseAksjonspunktDto(begrunnelse, termindato, utstedtdato, 1));
 
-        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -83,14 +78,10 @@ class AksjonspunktRestTjenesteTest {
     void skal_bekrefte_fødsel() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsdato, null)};
-        aksjonspunkt.add(
-                new SjekkManglendeFodselDto(
-                        begrunnelse,
-                        true,
-                        false,
-                        List.of(uidentifiserteBarn)));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(begrunnelse, true, false, List.of(uidentifiserteBarn)));
 
-        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -98,14 +89,10 @@ class AksjonspunktRestTjenesteTest {
     @Test
     void skal_bekrefte_antall_barn() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(
-                new SjekkManglendeFodselDto(
-                        begrunnelse,
-                        false,
-                        false,
-                        new ArrayList<>()));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(begrunnelse, false, false, new ArrayList<>()));
 
-        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
 
@@ -116,14 +103,12 @@ class AksjonspunktRestTjenesteTest {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos = new ArrayList<>();
-        var godkjentAksjonspunkt = opprettetGodkjentAksjonspunkt(true);
+        var godkjentAksjonspunkt = opprettetGodkjentAksjonspunkt();
         aksjonspunktGodkjenningDtos.add(godkjentAksjonspunkt);
-        aksjonspunkt.add(
-                new FatterVedtakAksjonspunktDto(
-                        begrunnelse,
-                        aksjonspunktGodkjenningDtos));
+        aksjonspunkt.add(new FatterVedtakAksjonspunktDto(begrunnelse, aksjonspunktGodkjenningDtos));
 
-        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class),
+            BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -132,20 +117,16 @@ class AksjonspunktRestTjenesteTest {
     void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        aksjonspunkt.add(
-                new SjekkManglendeFodselDto(
-                        begrunnelse,
-                        false,
-                        false,
-                        new ArrayList<>()));
-        assertThrows(FunksjonellException.class,
-                () -> aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt)));
+        aksjonspunkt.add(new SjekkManglendeFodselDto(begrunnelse, false, false, new ArrayList<>()));
+        var dto = BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt);
+        var request = mock(HttpServletRequest.class);
+        assertThrows(FunksjonellException.class, () -> aksjonspunktRestTjeneste.bekreft(request, dto));
     }
 
-    private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt(boolean godkjent) {
+    private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt() {
         var endretDto = new AksjonspunktGodkjenningDto();
         endretDto.setAksjonspunktKode(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
-        endretDto.setGodkjent(godkjent);
+        endretDto.setGodkjent(true);
         return endretDto;
     }
 

@@ -322,7 +322,8 @@ class FaktaUttakFellesTjenesteTest {
             .medFødselAdopsjonsdato(opprinneligFom)
             .lagre(repositoryProvider);
         var mødrekvoteDto = mødrekvote(opprinneligFom.minusWeeks(1), opprinneligFom.plusWeeks(2), SØKNAD);
-        assertThatThrownBy(() -> kjørOppdaterer(behandling, List.of(mødrekvoteDto))).isInstanceOf(IllegalArgumentException.class);
+        var perioder = List.of(mødrekvoteDto);
+        assertThatThrownBy(() -> kjørOppdaterer(behandling, perioder)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

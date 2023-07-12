@@ -68,11 +68,11 @@ class EndringssøknadSøknadMapperTest {
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
         var oppgittPeriodeMottattDatoTjeneste = new SøknadDataFraTidligereVedtakTjeneste(
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(repositoryProvider.getEntityManager()),
-            repositoryProvider.getBehandlingRepository(), new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider));
-        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider,
-            virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste,
-            new AnnenPartOversetter(personinfoAdapter));
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
+            new FpUttakRepository(repositoryProvider.getEntityManager()), repositoryProvider.getBehandlingRepository(),
+            new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider));
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
+            datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste, new AnnenPartOversetter(personinfoAdapter));
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -80,16 +80,15 @@ class EndringssøknadSøknadMapperTest {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        var mottattDokumentBuilder = new MottattDokument.Builder().medDokumentType(
-            DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
+        var mottattDokumentBuilder = new MottattDokument.Builder().medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
             .medMottattDato(LocalDate.now())
             .medFagsakId(fagsak.getId())
             .medElektroniskRegistrert(true);
 
         var wrapper = (SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad);
-        assertThrows(IllegalArgumentException.class,
-            () -> oversetter.trekkUtDataOgPersister(wrapper, mottattDokumentBuilder.build(), behandling,
-                Optional.empty()));
+        var mottattDokument = mottattDokumentBuilder.build();
+        Optional<LocalDate> gjelderFra = Optional.empty();
+        assertThrows(IllegalArgumentException.class, () -> oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, gjelderFra));
     }
 
 }
