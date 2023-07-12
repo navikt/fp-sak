@@ -4,6 +4,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 
 public final class AnkeVurderingBehandlingResultat {
 
+    private AnkeVurderingBehandlingResultat() {
+    }
+
     public static BehandlingResultatType tolkBehandlingResultatType(AnkeVurdering vurdering, AnkeVurderingOmgjør omgjør) {
         return switch (vurdering) {
             case UDEFINERT -> null;

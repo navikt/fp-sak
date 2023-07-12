@@ -7,6 +7,9 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 
 public class SaksnummerAbacSupplier {
 
+    private SaksnummerAbacSupplier() {
+    }
+
     public static class Supplier implements Function<Object, AbacDataAttributter> {
 
         @Override

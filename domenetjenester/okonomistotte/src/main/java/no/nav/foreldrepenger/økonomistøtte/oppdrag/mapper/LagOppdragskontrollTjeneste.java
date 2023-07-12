@@ -4,6 +4,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 
 class LagOppdragskontrollTjeneste {
 
+    private LagOppdragskontrollTjeneste() {
+    }
+
     static Oppdragskontroll hentEllerOpprettOppdragskontroll(OppdragInput input, Oppdragskontroll oppdragskontrollFraFør) {
         if (oppdragskontrollFraFør != null) {
             oppdragskontrollFraFør.setVenterKvittering(Boolean.TRUE);

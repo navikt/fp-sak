@@ -6,8 +6,10 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 
-//TODO(OJR) skal fjernes
 public class MapBehandlingRef {
+
+    private MapBehandlingRef() {
+    }
 
     public static KoblingReferanse mapRef(BehandlingReferanse behandlingReferanse) {
         return KoblingReferanse.fra(FagsakYtelseType.fraKode(behandlingReferanse.fagsakYtelseType().getKode()),

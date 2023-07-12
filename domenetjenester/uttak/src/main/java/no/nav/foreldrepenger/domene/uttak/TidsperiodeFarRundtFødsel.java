@@ -12,6 +12,8 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public final class TidsperiodeFarRundtFødsel {
 
+    private TidsperiodeFarRundtFødsel() {
+    }
 
     public static Optional<LocalDateInterval> intervallFarRundtFødsel(UttakInput uttakInput) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();

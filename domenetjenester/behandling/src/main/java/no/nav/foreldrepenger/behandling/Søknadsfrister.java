@@ -12,6 +12,9 @@ public final class Søknadsfrister {
     private static final Period FRIST_ENGANGS = Period.ofMonths(6);
     private static final Period FRIST_DAGYTELSE = Period.ofMonths(3);
 
+    private Søknadsfrister() {
+    }
+
     public static LocalDate søknadsfristEngangsbeløp(LocalDate rettUtløstDato) {
         return rettUtløstDato.plus(FRIST_ENGANGS);
     }

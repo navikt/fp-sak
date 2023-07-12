@@ -6,9 +6,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.datavarehus.domene.AnkeVurderingResultatDvh;
 
-public class AnkeVurderingResultatDvhMapper {
+class AnkeVurderingResultatDvhMapper {
 
-    public static AnkeVurderingResultatDvh map(AnkeVurderingResultatEntitet ankevurderingresultat) {
+    private AnkeVurderingResultatDvhMapper() {
+    }
+
+    static AnkeVurderingResultatDvh map(AnkeVurderingResultatEntitet ankevurderingresultat) {
         return AnkeVurderingResultatDvh.builder()
             .medAnkeOmgjørÅrsak(ankevurderingresultat.getAnkeOmgjørÅrsak().getKode())
             .medAnkeBehandlingId(ankevurderingresultat.getAnkeResultat().getAnkeBehandlingId())

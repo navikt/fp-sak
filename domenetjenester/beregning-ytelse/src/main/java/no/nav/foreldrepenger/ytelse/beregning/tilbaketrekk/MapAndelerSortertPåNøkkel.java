@@ -8,8 +8,12 @@ import java.util.Map;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 
-public class MapAndelerSortertPåNøkkel {
-    public static List<BRNøkkelMedAndeler> map(List<BeregningsresultatAndel> resultatandeler) {
+class MapAndelerSortertPåNøkkel {
+
+    private MapAndelerSortertPåNøkkel() {
+    }
+
+    static List<BRNøkkelMedAndeler> map(List<BeregningsresultatAndel> resultatandeler) {
         var nøkkelMap = lagMapSorertPåNøkkel(resultatandeler);
         return lagListeMedSammenligningsandeler(nøkkelMap);
     }

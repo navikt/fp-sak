@@ -40,6 +40,9 @@ public class InaktiveArbeidsforholdUtleder {
     private static final int AKTIVE_MÅNEDER_FØR_STP = 6;
     private static final int NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND = 4;
 
+    private InaktiveArbeidsforholdUtleder() {
+    }
+
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, BehandlingReferanse referanse) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
 

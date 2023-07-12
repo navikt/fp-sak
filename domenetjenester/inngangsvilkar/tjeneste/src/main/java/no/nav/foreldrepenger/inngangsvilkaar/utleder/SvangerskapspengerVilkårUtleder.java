@@ -18,6 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 public final class SvangerskapspengerVilkårUtleder  {
 
+    private SvangerskapspengerVilkårUtleder() {
+    }
+
     private static final List<VilkårType> STANDARDVILKÅR = asList(
         MEDLEMSKAPSVILKÅRET,
         SØKERSOPPLYSNINGSPLIKT,

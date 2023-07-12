@@ -24,6 +24,9 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseTyp
 public class HåndterePermisjoner {
     private static final int PERMISJON_PROSENTSATS_NØDVENDIG_FOR_Å_UTLØSTE_AKSJONSPUNKT = 100;
 
+    private HåndterePermisjoner() {
+    }
+
     public static List<ArbeidsforholdMangel> finnArbForholdMedPermisjonUtenSluttdatoMangel(BehandlingReferanse behandlingReferanse,
                                                                                            InntektArbeidYtelseGrunnlag iayGrunnlag) {
         List<ArbeidsforholdMangel> arbForholdMedPermUtenSluttdato = new ArrayList<>();

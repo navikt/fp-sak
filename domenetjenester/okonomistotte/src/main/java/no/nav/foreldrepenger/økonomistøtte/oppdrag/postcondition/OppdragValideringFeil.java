@@ -2,7 +2,10 @@ package no.nav.foreldrepenger.økonomistøtte.oppdrag.postcondition;
 
 import no.nav.vedtak.exception.TekniskException;
 
-public class OppdragValideringFeil {
+class OppdragValideringFeil {
+
+    private OppdragValideringFeil() {
+    }
 
     static TekniskException valideringsfeil(String detaljer) {
         return new TekniskException("FP-767898", String.format("Validering av oppdrag feilet: %s", detaljer));

@@ -35,6 +35,9 @@ public final class ForeldrepengerVilkårUtleder  {
         OPPTJENINGSVILKÅRET,
         BEREGNINGSGRUNNLAGVILKÅR);
 
+    private ForeldrepengerVilkårUtleder() {
+    }
+
     public static Set<VilkårType> utledVilkårFor(Behandling behandling, Optional<FamilieHendelseType> hendelseType) {
         if (!FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             throw new IllegalArgumentException("Ulovlig ytelsetype " + behandling.getFagsakYtelseType() + " ventet SVP");

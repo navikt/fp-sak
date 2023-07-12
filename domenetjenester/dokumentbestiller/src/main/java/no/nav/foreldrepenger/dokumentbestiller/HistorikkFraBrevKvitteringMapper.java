@@ -11,7 +11,10 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 import no.nav.vedtak.exception.TekniskException;
 
-public class HistorikkFraBrevKvitteringMapper {
+class HistorikkFraBrevKvitteringMapper {
+
+    private HistorikkFraBrevKvitteringMapper() {
+    }
 
     static Historikkinnslag opprettHistorikkInnslag(DokumentProdusertDto kvittering, long behandlingId, long fagsakId) {
         var nyttHistorikkInnslag = new Historikkinnslag.Builder()

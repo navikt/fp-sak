@@ -12,9 +12,12 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 
-public class DagpengerGirBesteberegning {
+class DagpengerGirBesteberegning {
     private static final List<Arbeidskategori> ARBEIDSKATEGORI_DAGPENGER = List.of(Arbeidskategori.DAGPENGER,
         Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);
+
+    private DagpengerGirBesteberegning() {
+    }
 
     /**
      * Utleder om det er dagpenger i opptjening på eller intill (en dag før) skjæringstidsptunktet,
@@ -27,9 +30,9 @@ public class DagpengerGirBesteberegning {
      * eller om det finnes sykepenger basert på dagpenger denne dagen.
      * False om dette ikke finnes.
      */
-    public static boolean harDagpengerPåEllerIntillSkjæringstidspunkt(OpptjeningAktiviteter aktiviteter,
-                                                                      Collection<Ytelse> ytelser,
-                                                                      LocalDate skjæringstidspunkt) {
+    static boolean harDagpengerPåEllerIntillSkjæringstidspunkt(OpptjeningAktiviteter aktiviteter,
+                                                               Collection<Ytelse> ytelser,
+                                                               LocalDate skjæringstidspunkt) {
         var datoSomMåHaDagpenger = finnDatoSomSkalSjekkesForDPEllerSP(skjæringstidspunkt);
         return harDagpengerPåEllerOppTilSkjæringstidspunktet(aktiviteter, datoSomMåHaDagpenger)
             || harSykepengerMedOvergangFraDagpengerPåEllerOppTilSkjæringstidspunktet(ytelser, datoSomMåHaDagpenger);

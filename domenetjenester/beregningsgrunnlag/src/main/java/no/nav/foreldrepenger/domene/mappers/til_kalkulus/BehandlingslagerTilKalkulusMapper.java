@@ -39,6 +39,8 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 public class BehandlingslagerTilKalkulusMapper {
 
+    private BehandlingslagerTilKalkulusMapper() {
+    }
 
     public static BeregningsgrunnlagDto mapBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlagFraFpsak) {
         var builder = BeregningsgrunnlagDto.builder();

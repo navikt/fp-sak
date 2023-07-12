@@ -7,9 +7,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.datavarehus.domene.FagsakDvh;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class FagsakDvhMapper {
+class FagsakDvhMapper {
 
-    public static FagsakDvh map(Fagsak fagsak, Optional<AktørId> annenPartAktørId) {
+    private FagsakDvhMapper() {
+    }
+
+    static FagsakDvh map(Fagsak fagsak, Optional<AktørId> annenPartAktørId) {
         return FagsakDvh.builder()
             .fagsakId(fagsak.getId())
             .brukerId(fagsak.getNavBruker().getId())

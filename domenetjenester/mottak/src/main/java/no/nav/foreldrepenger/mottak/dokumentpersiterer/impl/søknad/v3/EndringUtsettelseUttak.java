@@ -18,6 +18,9 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 @NamespaceRef(SøknadConstants.NAMESPACE)
 public class EndringUtsettelseUttak {
 
+    private EndringUtsettelseUttak() {
+    }
+
     public static SøknadUtsettelseUttakDato ekstraherUtsettelseUttakFra(SøknadWrapper wrapper) {
         List<LukketPeriodeMedVedlegg> perioder = new ArrayList<>();
         if (wrapper.getOmYtelse() instanceof Foreldrepenger foreldrepenger) {

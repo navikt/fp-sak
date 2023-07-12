@@ -4,6 +4,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 
 public final class KlageVurderingBehandlingResultat {
 
+    private KlageVurderingBehandlingResultat() {
+    }
+
     public static BehandlingResultatType tolkBehandlingResultatType(KlageVurdering vurdering, KlageVurderingOmgjør omgjør, boolean erPåklagdEksternBehandling) {
         if (erPåklagdEksternBehandling && KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
             return BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET;

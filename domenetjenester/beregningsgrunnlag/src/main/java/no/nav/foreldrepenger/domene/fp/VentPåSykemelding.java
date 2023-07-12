@@ -12,10 +12,12 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 
-public class VentPåSykemelding {
+class VentPåSykemelding {
     private static final List<Arbeidskategori> ARBEIDSKATEGORIER_DAGPENGER = List.of(Arbeidskategori.DAGPENGER,
         Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);
 
+    private VentPåSykemelding() {
+    }
 
     /**
      * Utleder om vi skal vente på å motta siste sykemelding fra søker dersom søker går på sykepenger som er løpende

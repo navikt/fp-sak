@@ -5,9 +5,12 @@ import java.util.List;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 
-public class SammenlignBeregningsresultat {
+class SammenlignBeregningsresultat {
 
-    public static boolean erLike(BeregningsresultatEntitet res1, BeregningsresultatEntitet res2) {
+    private SammenlignBeregningsresultat() {
+    }
+
+    static boolean erLike(BeregningsresultatEntitet res1, BeregningsresultatEntitet res2) {
         return perioderErlike(res1.getBeregningsresultatPerioder(), res2.getBeregningsresultatPerioder());
     }
 

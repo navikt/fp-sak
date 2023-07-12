@@ -9,9 +9,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 
-public class AksjonspunktDvhMapper {
+class AksjonspunktDvhMapper {
 
-    public static AksjonspunktDvh map(Aksjonspunkt aksjonspunkt, Behandling behandling, Optional<BehandlingStegTilstand> behandlingStegTilstand, boolean aksjonspunktGodkjennt) {
+    private AksjonspunktDvhMapper() {
+    }
+
+    static AksjonspunktDvh map(Aksjonspunkt aksjonspunkt, Behandling behandling, Optional<BehandlingStegTilstand> behandlingStegTilstand, boolean aksjonspunktGodkjennt) {
         return AksjonspunktDvh.builder()
             .aksjonspunktDef(aksjonspunkt.getAksjonspunktDefinisjon().getKode())
             .aksjonspunktId(aksjonspunkt.getId())

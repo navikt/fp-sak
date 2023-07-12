@@ -14,4 +14,6 @@ public class HistorikkinnslagMal {
     public static final String MAL_TYPE_10 = "TYPE10";
     public static final String MAL_TYPE_11 = "TYPE11";
 
+    private HistorikkinnslagMal() {
+    }
 }

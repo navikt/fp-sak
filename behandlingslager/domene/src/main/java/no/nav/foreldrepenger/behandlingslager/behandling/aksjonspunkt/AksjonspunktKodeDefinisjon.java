@@ -168,4 +168,6 @@ public class AksjonspunktKodeDefinisjon {
     //  "7021"  "7022"  "7023"  "7024"  "7025"  "7026"  "7027"  "7028"  "7029"
     //  "7032"  "7034"  "7035"  "7036"  "7038"  "7041"
 
+    private AksjonspunktKodeDefinisjon() {
+    }
 }
