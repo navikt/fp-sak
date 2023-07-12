@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -40,7 +39,7 @@ public class Oppdragskontroll extends BaseEntitet {
      * Offisielt tildelt saksnummer fra GSAK.
      */
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", unique = true, nullable = false, updatable = false)))
+    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", unique = true, nullable = false, updatable = false))
     private Saksnummer saksnummer;
 
     @Convert(converter = BooleanToStringConverter.class)

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -40,17 +39,15 @@ public class OverlappVedtak extends BaseEntitet {
     private long versjon;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", nullable = false)))
+    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", nullable = false))
     private Saksnummer saksnummer;
 
     @Column(name = "BEHANDLING_ID", nullable = false, updatable = false)
     private Long behandlingId;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "FOM", nullable = false)),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "TOM", nullable = false))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "FOM", nullable = false))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "TOM", nullable = false))
     private ÅpenDatoIntervallEntitet periode;
 
     @Column(name = "HENDELSE", nullable = false)

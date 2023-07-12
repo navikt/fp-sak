@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-class VergeBuilderTest {
+class BuilderTest {
 
     private NavBruker vergeBruker = NavBruker.opprettNyNB(AktørId.dummy());
 
     @Test
     void ska_opprette_verge() {
         // Act
-        var vergeEntitet = new VergeBuilder()
+        var vergeEntitet = new VergeEntitet.Builder()
             .medVergeType(VergeType.BARN)
             .medBruker(vergeBruker)
             .gyldigPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
@@ -31,7 +31,7 @@ class VergeBuilderTest {
     @Test
     void skal_støtte_at_TOM_er_null_og_sette_tidenes_ende() {
         // Act
-        var vergeEntitet = new VergeBuilder()
+        var vergeEntitet = new VergeEntitet.Builder()
             .medVergeType(VergeType.BARN)
             .medBruker(vergeBruker)
             .gyldigPeriode(LocalDate.now().minusDays(1), null)

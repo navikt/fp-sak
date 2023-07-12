@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -31,12 +30,12 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
     private Long id;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "fra_aktoer_id", updatable = false, nullable=false)))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "fra_aktoer_id", updatable = false, nullable=false))
     @ChangeTracked
     private AktørId fraAktørId;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "til_aktoer_id", updatable = false, nullable=false)))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "til_aktoer_id", updatable = false, nullable=false))
     @ChangeTracked
     private AktørId tilAktørId;
 

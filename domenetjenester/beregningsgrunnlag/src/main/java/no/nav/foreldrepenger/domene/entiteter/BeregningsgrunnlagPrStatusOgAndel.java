@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -64,10 +63,8 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     private AktivitetStatus aktivitetStatus;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "beregningsperiode_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "beregningsperiode_tom"))
-    })
+    @AttributeOverride(name = "fomDato", column = @Column(name = "beregningsperiode_fom"))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "beregningsperiode_tom"))
     private ÅpenDatoIntervallEntitet beregningsperiode;
 
     @Convert(converter = OpptjeningAktivitetType.KodeverdiConverter.class)
@@ -129,7 +126,7 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     private BigDecimal pgi3;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "aarsbeloep_tilstoetende_ytelse")))
+    @AttributeOverride(name = "verdi", column = @Column(name = "aarsbeloep_tilstoetende_ytelse"))
     @ChangeTracked
     private Beløp årsbeløpFraTilstøtendeYtelse;
 

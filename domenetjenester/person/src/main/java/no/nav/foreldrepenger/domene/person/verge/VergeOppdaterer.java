@@ -14,8 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
@@ -56,7 +55,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     public OppdateringResultat oppdater(AvklarVergeDto dto, AksjonspunktOppdaterParameter param) {
 
         var behandlingId = param.getBehandlingId();
-        var vergeBuilder = new VergeBuilder()
+        var vergeBuilder = new VergeEntitet.Builder()
             .gyldigPeriode(dto.getGyldigFom(), dto.getGyldigTom())
             .medVergeType(dto.getVergeType());
         // Verge må enten være oppgitt med fnr (hent ut fra TPS), eller orgnr
@@ -82,7 +81,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     }
 
     private VergeOrganisasjonEntitet opprettVergeOrganisasjon(AvklarVergeDto adapter) {
-        return new VergeOrganisasjonBuilder()
+        return new VergeOrganisasjonEntitet.Builder()
             .medOrganisasjonsnummer(adapter.getOrganisasjonsnummer())
             .medNavn(adapter.getNavn())
             .build();

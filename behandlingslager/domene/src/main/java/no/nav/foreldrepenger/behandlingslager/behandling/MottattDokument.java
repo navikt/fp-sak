@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -41,7 +40,7 @@ public class MottattDokument extends BaseEntitet {
     private Long id;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id")))
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id"))
     private JournalpostId journalpostId;
 
     @Column(name = "forsendelse_id")

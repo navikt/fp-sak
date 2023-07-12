@@ -492,7 +492,7 @@ public class BeregningsgrunnlagPrStatusOgAndel {
 
         public Builder medFastsattAvSaksbehandler(Boolean fastsattAvSaksbehandler) {
             verifiserKanModifisere();
-            kladd.fastsattAvSaksbehandler = fastsattAvSaksbehandler == null?false: fastsattAvSaksbehandler;
+            kladd.fastsattAvSaksbehandler = fastsattAvSaksbehandler != null && fastsattAvSaksbehandler;
             return this;
         }
 

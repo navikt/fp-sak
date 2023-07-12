@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -32,7 +31,7 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
     private Long id;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable=false)))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false, nullable=false))
     private AktørId aktørId;
 
     @Embedded

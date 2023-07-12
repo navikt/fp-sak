@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.MappedSuperclass;
@@ -15,7 +14,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public abstract class Aktør extends BaseEntitet {
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", unique=true, nullable = false, updatable = false)))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", unique=true, nullable = false, updatable = false))
     private AktørId aktørId;
 
     @SuppressWarnings("unused")

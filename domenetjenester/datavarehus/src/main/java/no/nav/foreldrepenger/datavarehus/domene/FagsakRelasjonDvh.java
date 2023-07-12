@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -31,7 +30,7 @@ public class FagsakRelasjonDvh extends DvhBaseEntitet {
     @Column(name = "FAGSAK_TO_ID")
     private Long fagsakNrTo;
 
-    @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "dekningsgrad", nullable = false)))
+    @AttributeOverride(name = "verdi", column = @Column(name = "dekningsgrad", nullable = false))
     @Embedded
     private Dekningsgrad dekningsgrad;
 

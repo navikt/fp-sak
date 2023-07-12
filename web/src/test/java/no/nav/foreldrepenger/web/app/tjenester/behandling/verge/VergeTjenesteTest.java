@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -88,7 +88,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
 
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        var vergeBuilder = new VergeBuilder().medVergeType(VergeType.BARN)
+        var vergeBuilder = new VergeEntitet.Builder().medVergeType(VergeType.BARN)
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
@@ -165,7 +165,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        var vergeBuilder = new VergeBuilder().medVergeType(VergeType.BARN)
+        var vergeBuilder = new VergeEntitet.Builder().medVergeType(VergeType.BARN)
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
@@ -202,7 +202,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
-        var vergeBuilder = new VergeBuilder().medVergeType(VergeType.BARN)
+        var vergeBuilder = new VergeEntitet.Builder().medVergeType(VergeType.BARN)
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 

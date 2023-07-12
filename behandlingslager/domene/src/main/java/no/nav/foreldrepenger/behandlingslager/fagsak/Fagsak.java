@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -58,7 +57,7 @@ public class Fagsak extends BaseEntitet {
      * Offisielt tildelt saksnummer fra GSAK.
      */
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer")))
+    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer"))
     private Saksnummer saksnummer;
 
     @Convert(converter = BooleanToStringConverter.class)

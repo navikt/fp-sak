@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -37,7 +36,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     private UUID bestillingUuid;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id")))
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id"))
     private JournalpostId journalpostId;
 
     public BehandlingDokumentBestiltEntitet() {

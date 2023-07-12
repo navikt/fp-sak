@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -45,11 +44,11 @@ public class FagsakRelasjon extends BaseEntitet {
     @JoinColumn(name = "overstyrt_konto_beregning_id")
     private Stønadskontoberegning overstyrtStønadskontoberegning;
 
-    @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "dekningsgrad", nullable = false)))
+    @AttributeOverride(name = "verdi", column = @Column(name = "dekningsgrad", nullable = false))
     @Embedded
     private Dekningsgrad dekningsgrad;
 
-    @AttributeOverrides(@AttributeOverride(name = "verdi", column = @Column(name = "overstyrt_dekningsgrad")))
+    @AttributeOverride(name = "verdi", column = @Column(name = "overstyrt_dekningsgrad"))
     @Embedded
     private Dekningsgrad overstyrtDekningsgrad;
 

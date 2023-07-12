@@ -119,7 +119,7 @@ public class MapInntektsmeldinger {
                 }
             }
 
-            var arbeidsforholdsDto = mapArbeidsforholdsId(im.getArbeidsgiver(), im.getArbeidsforholdRef(), eksternRef, validerArbeidsforholdId);
+            var arbeidsforholdsDto = mapArbeidsforholdsId(im.getArbeidsforholdRef(), eksternRef, validerArbeidsforholdId);
             var innsendingsårsak = KodeverkMapper.mapInntektsmeldingInnsendingsårsak(im.getInntektsmeldingInnsendingsårsak());
             var mottattDato = im.getMottattDato();
 
@@ -178,8 +178,9 @@ public class MapInntektsmeldinger {
                     : new Organisasjon(arbeidsgiver.getOrgnr());
         }
 
-        private ArbeidsforholdRefDto mapArbeidsforholdsId(@SuppressWarnings("unused") Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internRef,
-                EksternArbeidsforholdRef eksternRef, boolean validerArbeidsforholdId) {
+        private ArbeidsforholdRefDto mapArbeidsforholdsId(InternArbeidsforholdRef internRef,
+                                                          EksternArbeidsforholdRef eksternRef,
+                                                          boolean validerArbeidsforholdId) {
             if ((internRef == null || internRef.getReferanse() == null) && (eksternRef == null || eksternRef.getReferanse() == null)) {
                 return null;
             }
@@ -211,7 +212,7 @@ public class MapInntektsmeldinger {
             var journalpostId = new JournalpostId(im.getJournalpostId().getVerdi());
             var innsendingstidspunkt = im.getInnsendingstidspunkt();
             var eksternRef = builder.getEksternArbeidsforholdRef().orElse(null);
-            var arbeidsforholdsDto = mapArbeidsforholdsId(im.getArbeidsgiver(), im.getArbeidsforholdRef(), eksternRef, false);
+            var arbeidsforholdsDto = mapArbeidsforholdsId(im.getArbeidsforholdRef(), eksternRef, false);
             var innsendingsårsak = KodeverkMapper.mapInntektsmeldingInnsendingsårsak(im.getInntektsmeldingInnsendingsårsak());
             var mottattDato = im.getMottattDato();
 
@@ -286,7 +287,7 @@ public class MapInntektsmeldinger {
                     .medRefusjon(dto.getRefusjonsBeløpPerMnd(), dto.getRefusjonOpphører())
                     .medKanalreferanse(dto.getKanalreferanse())
                     .medInntektsmeldingaarsak(innsendingsårsak)
-                    .medNærRelasjon(dto.isNærRelasjon() == null ? false : dto.isNærRelasjon())
+                    .medNærRelasjon(dto.isNærRelasjon() != null && dto.isNærRelasjon())
                     .medKildesystem(dto.getKildesystem())
                     .medMottattDato(dto.getMottattDato());
 
