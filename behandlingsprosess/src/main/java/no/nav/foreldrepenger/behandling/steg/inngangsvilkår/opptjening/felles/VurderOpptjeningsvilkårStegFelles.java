@@ -24,7 +24,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
 
     private BehandlingRepositoryProvider repositoryProvider;
 
-    public VurderOpptjeningsvilkårStegFelles(BehandlingRepositoryProvider repositoryProvider,
+    protected VurderOpptjeningsvilkårStegFelles(BehandlingRepositoryProvider repositoryProvider,
                                              InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
                                              BehandlingStegType behandlingStegType) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
@@ -80,11 +80,14 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesFraSteg,
             BehandlingStegType hoppesTilSteg) {
         super.vedHoppOverFramover(kontekst, modell, hoppesFraSteg, hoppesTilSteg);
-        if (!repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId()).erRevurdering()) {
-            if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
+        if (!erRevurdering(kontekst.getBehandlingId()) && !erVilkårOverstyrt(kontekst.getBehandlingId())) {
                 new RyddOpptjening(repositoryProvider, kontekst).ryddOppAktiviteter();
-            }
+
         }
+    }
+
+    private boolean erRevurdering(Long behandlingId) {
+        return repositoryProvider.getBehandlingRepository().hentBehandling(behandlingId).erRevurdering();
     }
 
     @Override

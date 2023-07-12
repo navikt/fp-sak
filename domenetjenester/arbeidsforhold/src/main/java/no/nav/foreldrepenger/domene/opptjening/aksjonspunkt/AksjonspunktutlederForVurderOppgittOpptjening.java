@@ -167,12 +167,8 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             forventetFerdiglignet.add(stp.minusYears(1).getYear());
         }
 
-        if (inneholderSisteFerdiglignendeÅrNæringsinntekt(aktørId, inntektArbeidYtelseGrunnlag, forventetFerdiglignet, skjæringstidspunkt) == NEI) {
-            if (erDetRegistrertNæringEtterSisteFerdiglignendeÅr(oppgittOpptjening, forventetFerdiglignet) == NEI) {
-                return JA;
-            }
-        }
-        return NEI;
+        return inneholderSisteFerdiglignendeÅrNæringsinntekt(aktørId, inntektArbeidYtelseGrunnlag, forventetFerdiglignet, skjæringstidspunkt) == NEI
+            && erDetRegistrertNæringEtterSisteFerdiglignendeÅr(oppgittOpptjening, forventetFerdiglignet) == NEI ? JA : NEI;
     }
 
     private Utfall inneholderSisteFerdiglignendeÅrNæringsinntekt(AktørId aktørId,

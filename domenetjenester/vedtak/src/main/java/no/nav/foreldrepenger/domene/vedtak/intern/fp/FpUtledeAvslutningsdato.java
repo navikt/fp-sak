@@ -34,13 +34,12 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
 
     private static final int SØKNADSFRIST_I_MÅNEDER = 3;
 
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-    private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-
-    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-    private UttakInputTjeneste uttakInputTjeneste;
-    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
+    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private final BehandlingRepository behandlingRepository;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
+    private final StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+    private final UttakInputTjeneste uttakInputTjeneste;
+    private final MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
 
     @Inject
@@ -100,10 +99,9 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
 
                 if (behandlingErOpphørt(behandling) && !harKoblingTilAnnenPart(behandling.getFagsak())) {
                     return leggPåSøknadsfristMåneder(sisteUttaksdatoFraBeggeParterMedRestOgEnDag);
-                } else {
-                    return avslutningsdatoVedInnvilget(uttakInput, stønadRest,
-                        sisteUttaksdatoFraBeggeParterMedRestOgEnDag, maksDatoFraStp);
                 }
+                return avslutningsdatoVedInnvilget(uttakInput, stønadRest,
+                    sisteUttaksdatoFraBeggeParterMedRestOgEnDag, maksDatoFraStp);
             }
         }
         return Optional.ofNullable(avslutningsdato).orElseGet(() -> LocalDate.now().plusDays(1));

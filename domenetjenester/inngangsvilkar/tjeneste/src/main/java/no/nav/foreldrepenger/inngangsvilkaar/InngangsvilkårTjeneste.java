@@ -122,10 +122,8 @@ public class InngangsvilkårTjeneste {
             if (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak))
                 LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType, avslagsårsak);
             builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        } else if (utfall.equals(VilkårUtfallType.OPPFYLT)) {
-            if (!finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
-                builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
-            }
+        } else if (utfall.equals(VilkårUtfallType.OPPFYLT) && !finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
+            builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
         }
         var resultat = builder.buildFor(behandling);
         behandlingRepository.lagre(resultat, kontekst.getSkriveLås());

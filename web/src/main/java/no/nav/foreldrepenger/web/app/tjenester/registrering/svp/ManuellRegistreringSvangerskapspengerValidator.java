@@ -48,12 +48,14 @@ public class ManuellRegistreringSvangerskapspengerValidator {
 
 
     private static Optional<FeltFeilDto> validerFrilans(FrilansDto frilans) {
-        if (Boolean.TRUE.equals(frilans.getHarSokerPeriodeMedFrilans())) {
-            if (frilans.getPerioder() == null || frilans.getPerioder().isEmpty()) {
-                return Optional.of(new FeltFeilDto("frilans", PERIODER_MANGLER));
-            }
+        if (Boolean.TRUE.equals(frilans.getHarSokerPeriodeMedFrilans()) && empty(frilans.getPerioder())) {
+            return Optional.of(new FeltFeilDto("frilans", PERIODER_MANGLER));
         }
         return Optional.empty();
+    }
+
+    private static boolean empty(Collection<FrilansDto.Frilansperiode> perioder) {
+        return perioder == null || perioder.isEmpty();
     }
 
     private static List<FeltFeilDto> validerEgenVirksomhet(EgenVirksomhetDto egenVirksomhet) {
@@ -152,10 +154,9 @@ public class ManuellRegistreringSvangerskapspengerValidator {
     private static Optional<FeltFeilDto> validerMottattDato(ManuellRegistreringDto manuellRegistreringDto) {
         var feltnavn = "mottattDato";
         var mottattDato = manuellRegistreringDto.getMottattDato();
-        if (nonNull(mottattDato)) {
-            if (mottattDato.isAfter(LocalDate.now())) {
+        if (nonNull(mottattDato) && mottattDato.isAfter(LocalDate.now())) {
                 return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
-            }
+
         }
         if (isNull(mottattDato)) {
             return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));

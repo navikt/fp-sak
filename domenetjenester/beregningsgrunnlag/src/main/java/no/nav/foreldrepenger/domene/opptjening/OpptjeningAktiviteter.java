@@ -43,10 +43,8 @@ public class OpptjeningAktiviteter {
                 if (arbeidsgiverOrgNummer != null) {
                     throw new IllegalArgumentException("Kan ikke ha orgnummer dersom personlig arbeidsgiver: " + this);
                 }
-            } else if (arbeidsgiverOrgNummer == null) {
-                if (arbeidsforholdId != null) {
-                    throw new IllegalArgumentException("Kan ikke ha arbeidsforholdId dersom ikke har arbeidsgiver: " + this);
-                }
+            } else if (arbeidsgiverOrgNummer == null && arbeidsforholdId != null) {
+                throw new IllegalArgumentException("Kan ikke ha arbeidsforholdId dersom ikke har arbeidsgiver: " + this);
             }
         }
 

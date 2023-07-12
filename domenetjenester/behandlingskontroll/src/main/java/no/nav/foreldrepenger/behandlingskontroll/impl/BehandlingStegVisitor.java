@@ -213,12 +213,11 @@ class BehandlingStegVisitor {
             BehandlingStegStatus førsteStegStatus,
             BehandlingStegStatus nyStegStatus) {
         var behandlingStegTilstand = behandling.getBehandlingStegTilstand(stegType);
-        if (behandlingStegTilstand.isPresent()) {
-            if (erForskjellig(førsteStegStatus, nyStegStatus)) {
+        if (behandlingStegTilstand.isPresent() && erForskjellig(førsteStegStatus, nyStegStatus)) {
                 InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, stegType, nyStegStatus, BehandlingStegStatus.UTFØRT);
                 behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
                 eventPubliserer.fireEvent(kontekst, stegType, førsteStegStatus, nyStegStatus);
-            }
+
         }
     }
 
@@ -363,17 +362,10 @@ class BehandlingStegVisitor {
 
         List<Aksjonspunkt> gjenværendeÅpneAksjonspunkt = new ArrayList<>(behandling.getÅpneAksjonspunkter());
 
-        // TODO (FC): Denne bør håndteres med event ved overgang
         behandlingModell.hvertStegFraOgMed(aktivtBehandlingSteg)
                 .forEach(bsm -> filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt));
 
         if (!gjenværendeÅpneAksjonspunkt.isEmpty()) {
-            /*
-             * TODO (FC): Lagre og sett behandling på vent i stedet for å kaste exception?
-             * Exception mest nyttig i test og utvikling, men i prod bør heller sette
-             * behandling til side hvis det skulle være så galt at vurderingspunkt ikke er
-             * definert for et identifisert abstraktpunkt.
-             */
             throw new IllegalStateException(
                     "Utvikler-feil: Det er definert aksjonspunkt [" + gjenværendeÅpneAksjonspunkt + "] som ikke er håndtert av noe steg"
                             + (aktivtBehandlingSteg == null ? " i sekvensen " : " fra og med: " + aktivtBehandlingSteg));

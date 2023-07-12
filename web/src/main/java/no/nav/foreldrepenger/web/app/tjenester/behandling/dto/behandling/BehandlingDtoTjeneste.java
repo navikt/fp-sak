@@ -178,11 +178,9 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
         }
 
-        if (!BehandlingType.INNSYN.equals(behandling.getType())) {
-            // Totrinnsbehandling
-            if (BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
-                dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
-            }
+        // Totrinnsbehandling
+        if (!BehandlingType.INNSYN.equals(behandling.getType()) && BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
+            dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
         }
 
         // Brev
