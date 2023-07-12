@@ -8,6 +8,9 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class MedlemEndringIdentifiserer {
 
+    private MedlemEndringIdentifiserer() {
+    }
+
     public static boolean erEndretForPeriode(MedlemskapAggregat grunnlag1, MedlemskapAggregat grunnlag2, DatoIntervallEntitet periode) {
         var differ = new RegisterdataDiffsjekker(true);
         var medlemPerioder1 = grunnlag1.getRegistrertMedlemskapPerioder().stream()

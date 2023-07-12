@@ -52,6 +52,10 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelRedigerbarAndelDto;
 
 public class OppdatererDtoMapper {
+
+    private OppdatererDtoMapper() {
+    }
+
     public static no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBeregningsgrunnlagATFLDto mapFastsettBeregningsgrunnlagATFLDto(FastsettBeregningsgrunnlagATFLDto tilKalkulus) {
         return new no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.FastsettBeregningsgrunnlagATFLDto(mapTilInntektPrAndelListe(tilKalkulus.getInntektPrAndelList()), tilKalkulus.getInntektFrilanser());
     }

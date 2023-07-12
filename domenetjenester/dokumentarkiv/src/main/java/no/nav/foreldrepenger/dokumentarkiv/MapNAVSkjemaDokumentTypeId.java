@@ -4,7 +4,7 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 
-public class MapNAVSkjemaDokumentTypeId {
+class MapNAVSkjemaDokumentTypeId {
 
     public static final int GEN_RANK = 90;
     public static final int UDEF_RANK = 99;
@@ -84,21 +84,24 @@ public class MapNAVSkjemaDokumentTypeId {
             Map.entry(98, DokumentTypeId.ANNET),
             Map.entry(UDEF_RANK, DokumentTypeId.UDEFINERT));
 
-    public static DokumentTypeId mapBrevkode(NAVSkjema brevkode) {
+    private MapNAVSkjemaDokumentTypeId() {
+    }
+
+    static DokumentTypeId mapBrevkode(NAVSkjema brevkode) {
         if (brevkode == null) {
             return DokumentTypeId.UDEFINERT;
         }
         return BREVKODE_DOKUMENT_TYPE.getOrDefault(brevkode, DokumentTypeId.UDEFINERT);
     }
 
-    public static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {
+    static int dokumentTypeRank(DokumentTypeId dokumentTypeId) {
         if (dokumentTypeId == null) {
             return DOKUMENT_TYPE_RANK.get(DokumentTypeId.UDEFINERT);
         }
         return DOKUMENT_TYPE_RANK.getOrDefault(dokumentTypeId, GEN_RANK);
     }
 
-    public static DokumentTypeId dokumentTypeFromRank(int rank) {
+    static DokumentTypeId dokumentTypeFromRank(int rank) {
         return RANK_DOKUMENT_TYPE.getOrDefault(rank, DokumentTypeId.UDEFINERT);
     }
 }

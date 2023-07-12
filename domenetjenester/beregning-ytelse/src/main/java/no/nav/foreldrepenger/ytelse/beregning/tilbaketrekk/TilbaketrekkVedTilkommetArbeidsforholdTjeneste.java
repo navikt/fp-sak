@@ -21,6 +21,9 @@ import no.nav.vedtak.konfig.Tid;
 
 class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
 
+    private TilbaketrekkVedTilkommetArbeidsforholdTjeneste() {
+    }
+
     /**
      * Finner største tilbaketrekk i form av et entry for informasjon om tilbaketrekk for eit sett med tilkomne arbeidsforhold. Ein TilbaketrekkForTilkommetArbeidEntry inneheld informasjon om kva nøkler fra revurderingen som er tilkommet,
      * og hvilke nøkler fra revurderingen og originalbehandlingen som tilsvarer arbeidsforhold som er avsluttet og det kan gjøres tilbaketrekk fra (eventuelt hindre tilbaketrekk).

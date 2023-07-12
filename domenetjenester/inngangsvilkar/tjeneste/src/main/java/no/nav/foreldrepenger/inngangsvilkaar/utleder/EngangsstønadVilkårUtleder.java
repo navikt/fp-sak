@@ -31,6 +31,9 @@ public final class EngangsstønadVilkårUtleder  {
         SØKNADSFRISTVILKÅRET,
         SØKERSOPPLYSNINGSPLIKT);
 
+    private EngangsstønadVilkårUtleder() {
+    }
+
     public static Set<VilkårType> utledVilkårFor(Behandling behandling, Optional<FamilieHendelseType> hendelseType) {
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             throw new IllegalArgumentException("Ulovlig ytelsetype " + behandling.getFagsakYtelseType() + " ventet SVP");

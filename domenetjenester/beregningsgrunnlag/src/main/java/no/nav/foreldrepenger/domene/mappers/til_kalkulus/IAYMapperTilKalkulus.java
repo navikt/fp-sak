@@ -79,6 +79,9 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class IAYMapperTilKalkulus {
 
+    private IAYMapperTilKalkulus() {
+    }
+
     public static InternArbeidsforholdRefDto mapArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
         return InternArbeidsforholdRefDto.ref(arbeidsforholdRef.getReferanse());
     }

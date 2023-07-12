@@ -6,6 +6,9 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class OppdragskontrollPostConditionCheck {
 
+    private OppdragskontrollPostConditionCheck() {
+    }
+
     public static void valider(Oppdragskontroll oppdragskontroll) {
         for (var oppdrag110 : oppdragskontroll.getOppdrag110Liste()) {
             valider(oppdrag110);

@@ -13,6 +13,9 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 
 class FinnEndringerIResultatForTilkommetArbeidsforhold {
 
+    private FinnEndringerIResultatForTilkommetArbeidsforhold() {
+    }
+
     public static List<EndringIBeregningsresultat> finnEndringer(List<BeregningsresultatAndel> originaleAndeler,
                                                                  List<BeregningsresultatAndel> revurderingAndeler,
                                                                  Collection<Yrkesaktivitet> yrkesaktiviteter,

@@ -3,9 +3,12 @@ package no.nav.foreldrepenger.datavarehus.tjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
 import no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh;
 
-public class KlageFormkravDvhMapper {
+class KlageFormkravDvhMapper {
 
-    public static KlageFormkravDvh map(KlageFormkravEntitet klageFormkrav) {
+    private KlageFormkravDvhMapper() {
+    }
+
+    static KlageFormkravDvh map(KlageFormkravEntitet klageFormkrav) {
         return KlageFormkravDvh.builder()
             .medErFristOverholdt(klageFormkrav.erFristOverholdt())
             .medErKlagerPart(klageFormkrav.erKlagerPart())

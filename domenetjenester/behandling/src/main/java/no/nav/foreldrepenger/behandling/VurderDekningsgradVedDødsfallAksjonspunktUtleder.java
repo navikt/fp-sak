@@ -11,6 +11,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtleder {
     private static final int ANTALL_LEVEUKER = 6;
     private static final int DEKNINGSGRAD_80 = 80;
 
+    private VurderDekningsgradVedDødsfallAksjonspunktUtleder() {
+    }
+
     public static boolean utled(int dekningsgradFraFagsakRelasjon, List<UidentifisertBarn> barnList) {
         return utledAksjonspunktVedDødfødselOgDekningsgradUlik100(dekningsgradFraFagsakRelasjon, barnList);
     }

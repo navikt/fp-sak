@@ -7,6 +7,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 
 class BeregningAksjonspunktResultatMapper {
 
+    private BeregningAksjonspunktResultatMapper() {
+    }
+
     static AksjonspunktResultat map(BeregningAvklaringsbehovResultat beregningResultat) {
         var apDef = mapTilAksjonspunkt(beregningResultat);
         if (beregningResultat.harFrist()) {

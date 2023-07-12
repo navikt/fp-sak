@@ -11,8 +11,11 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 class FinnAktivitetsavtalerForUtbetalingsgrad {
 
+    private FinnAktivitetsavtalerForUtbetalingsgrad() {
+    }
+
     static List<AktivitetsAvtale> finnAktivitetsavtalerSomSkalBrukes(Collection<AktivitetsAvtale> avtalerAAreg, LocalDate jordmorsdato,
-            LocalDate termindato) {
+                                                                     LocalDate termindato) {
         var avtalerSomOverlapperMedPeriode = avtalerAAreg
                 .stream()
                 .filter(a -> a.getProsentsats() != null)

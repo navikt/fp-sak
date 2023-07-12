@@ -6,6 +6,9 @@ import no.nav.vedtak.exception.TekniskException;
 
 public class AvslagsårsakMapper {
 
+    private AvslagsårsakMapper() {
+    }
+
     public static Avslagsårsak finnAvslagsårsak(Vilkår vilkår) {
         return vilkår.getGjeldendeAvslagsårsak().orElseGet(() -> fraVilkår(vilkår));
     }

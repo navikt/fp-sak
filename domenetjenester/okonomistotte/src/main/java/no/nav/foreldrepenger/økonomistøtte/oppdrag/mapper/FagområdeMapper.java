@@ -5,6 +5,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 
 public class FagområdeMapper {
 
+    private FagområdeMapper() {
+    }
+
     public static KodeFagområde tilFagområde(FagsakYtelseType ytelseType, Boolean gjelderRefusjon) {
         return gjelderRefusjon
             ? tilFagområdeRefusjon(ytelseType)

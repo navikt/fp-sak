@@ -11,6 +11,9 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Ref
 
 public final class MapBeregningsresultatFraRegelTilVL {
 
+    private MapBeregningsresultatFraRegelTilVL() {
+    }
+
     public static BeregningsresultatEntitet mapFra(Beregningsresultat resultat, BeregningsresultatEntitet eksisterendeResultat) {
         if (eksisterendeResultat.getBeregningsresultatPerioder().isEmpty()) {
             resultat.getBeregningsresultatPerioder().forEach(p -> mapFraPeriode(p, eksisterendeResultat));

@@ -4,6 +4,9 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.MottakerOp
 
 class OmposteringUtil {
 
+    private OmposteringUtil() {
+    }
+
     /**
      * Sjekker om en mottaker har utbetalinger fra tidligere.
      *

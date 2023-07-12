@@ -24,6 +24,9 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class OpptjeningMapperTilKalkulus {
     private static final Logger LOG = LoggerFactory.getLogger(OpptjeningMapperTilKalkulus.class);
 
+    private OpptjeningMapperTilKalkulus() {
+    }
+
     public static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(OpptjeningAktiviteter opptjeningAktiviteter,
                                                                     InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse ref) {
         var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger()

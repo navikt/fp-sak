@@ -9,7 +9,10 @@ import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 
 class VedtakUtbetalingDvhMapper {
 
-    public static VedtakUtbetalingDvh map(String xmlClob, Behandling behandling, BehandlingVedtak behandlingVedtak, FamilieHendelseType hendelseType) {
+    private VedtakUtbetalingDvhMapper() {
+    }
+
+    static VedtakUtbetalingDvh map(String xmlClob, Behandling behandling, BehandlingVedtak behandlingVedtak, FamilieHendelseType hendelseType) {
         return VedtakUtbetalingDvh.builder()
             .xmlClob(xmlClob)
             .fagsakId(behandling.getFagsakId())

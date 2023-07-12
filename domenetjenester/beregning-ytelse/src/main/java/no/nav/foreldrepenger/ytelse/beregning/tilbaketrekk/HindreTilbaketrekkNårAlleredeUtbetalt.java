@@ -10,6 +10,8 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class HindreTilbaketrekkNårAlleredeUtbetalt {
 
+    private HindreTilbaketrekkNårAlleredeUtbetalt() {
+    }
 
     /**
      * Vi har utbetalt beregningsresultat (uten endringsdato eller feriepenger)

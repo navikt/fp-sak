@@ -12,6 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 
 public class SettOpphørOgIkkeRett {
 
+    private SettOpphørOgIkkeRett() {
+    }
+
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat, Vedtaksbrev vedtaksbrev) {
         return RevurderingBehandlingsresultatutlederFelles.buildBehandlingsresultat(revurdering, behandlingsresultat,
             BehandlingResultatType.OPPHØR, RettenTil.HAR_IKKE_RETT_TIL_FP,

@@ -6,9 +6,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 
-public class BehandlingVedtakDvhMapper {
+class BehandlingVedtakDvhMapper {
 
-    public static BehandlingVedtakDvh map(BehandlingVedtak behandlingVedtak, Behandling behandling) {
+    private BehandlingVedtakDvhMapper() {
+    }
+
+    static BehandlingVedtakDvh map(BehandlingVedtak behandlingVedtak, Behandling behandling) {
         return BehandlingVedtakDvh.builder()
                 .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
                 .ansvarligSaksbehandler(behandlingVedtak.getAnsvarligSaksbehandler())

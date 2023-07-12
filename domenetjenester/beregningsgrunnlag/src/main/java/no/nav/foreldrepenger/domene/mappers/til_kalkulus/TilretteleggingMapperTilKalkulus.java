@@ -16,6 +16,9 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class TilretteleggingMapperTilKalkulus {
 
+    private TilretteleggingMapperTilKalkulus() {
+    }
+
     public static List<UtbetalingsgradPrAktivitetDto> mapTilretteleggingerMedUtbetalingsgrad(List<TilretteleggingMedUtbelingsgrad> tilretteleggingMedUtbelingsgrad) {
         return tilretteleggingMedUtbelingsgrad.stream().
             map(TilretteleggingMapperTilKalkulus::mapTilretteleggingMedUtbetalingsgrad)

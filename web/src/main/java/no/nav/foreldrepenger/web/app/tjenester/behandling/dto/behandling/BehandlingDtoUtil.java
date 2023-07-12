@@ -16,7 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 
-public final class BehandlingDtoUtil {
+final class BehandlingDtoUtil {
+
+    private BehandlingDtoUtil() {
+    }
 
     static void settStandardfelterUtvidet(Behandling behandling,
                                           Behandlingsresultat behandlingsresultat,

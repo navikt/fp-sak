@@ -7,9 +7,12 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh;
 
-public class BehandlingStegDvhMapper {
+class BehandlingStegDvhMapper {
 
-    public static BehandlingStegDvh map(BehandlingStegTilstandSnapshot behandlingStegTilstand, Long behandlingId) {
+    private BehandlingStegDvhMapper() {
+    }
+
+    static BehandlingStegDvh map(BehandlingStegTilstandSnapshot behandlingStegTilstand, Long behandlingId) {
         return BehandlingStegDvh.builder()
             .behandlingId(behandlingId)
             .behandlingStegId(behandlingStegTilstand.getId())

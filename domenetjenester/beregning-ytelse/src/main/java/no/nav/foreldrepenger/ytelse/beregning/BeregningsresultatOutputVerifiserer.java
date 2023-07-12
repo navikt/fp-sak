@@ -9,9 +9,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.vedtak.exception.TekniskException;
 
-public final class BeregningsresultatOutputVerifiserer {
+final class BeregningsresultatOutputVerifiserer {
 
-    public static void verifiserOutput(BeregningsresultatEntitet beregningsresultat) {
+    private BeregningsresultatOutputVerifiserer() {
+    }
+
+    static void verifiserOutput(BeregningsresultatEntitet beregningsresultat) {
         Objects.requireNonNull(beregningsresultat, "Beregningsresultat");
         Objects.requireNonNull(beregningsresultat.getRegelInput(), "Regelinput beregningsresultat");
         Objects.requireNonNull(beregningsresultat.getRegelSporing(), "Regelsporing beregningsresultat");

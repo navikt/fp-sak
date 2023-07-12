@@ -7,6 +7,9 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 
 public class BehandlingAbacSuppliers {
 
+    private BehandlingAbacSuppliers() {
+    }
+
     public static class BehandlingIdAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override

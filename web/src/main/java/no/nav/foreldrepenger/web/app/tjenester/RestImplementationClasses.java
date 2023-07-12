@@ -72,6 +72,9 @@ import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 public class RestImplementationClasses {
 
+    private RestImplementationClasses() {
+    }
+
     public static Collection<Class<?>> getImplementationClasses() {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(InitielleLinksRestTjeneste.class);

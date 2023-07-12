@@ -11,6 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 
 class BeregnTilrettleggingsdato {
 
+    private BeregnTilrettleggingsdato() {
+    }
+
     static LocalDate beregnFraTilrettelegging(SvpTilretteleggingEntitet tilrettelegging) {
         return beregnFraTilrettelegging(tilrettelegging, true);
     }
