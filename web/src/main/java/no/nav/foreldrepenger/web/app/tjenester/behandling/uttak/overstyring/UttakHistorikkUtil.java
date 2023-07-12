@@ -27,8 +27,8 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public final class UttakHistorikkUtil {
 
-    private HistorikkinnslagType historikkinnslagTypeSplitt;
-    private HistorikkinnslagType historikkinnslagTypeEndring;
+    private final HistorikkinnslagType historikkinnslagTypeSplitt;
+    private final HistorikkinnslagType historikkinnslagTypeEndring;
 
     private static final KodeMapper<OppholdÅrsak, StønadskontoType> oppholdÅrsakMapper = initOppholdÅrsakMapper();
 
@@ -116,10 +116,8 @@ public final class UttakHistorikkUtil {
                                                                  UttakResultatPeriodeLagreDto periode,
                                                                  List<ForeldrepengerUttakPeriode> gjeldende) {
         List<Historikkinnslag> list = new ArrayList<>();
-        if (erOppholdsPeriode(periode)) {
-            if (periodeHarEndringer(gjeldende, periode)) {
-                list.add(lagHistorikkinnslagForOppholdsperiode(behandling, gjeldende, periode));
-            }
+        if (erOppholdsPeriode(periode) && periodeHarEndringer(gjeldende, periode)) {
+            list.add(lagHistorikkinnslagForOppholdsperiode(behandling, gjeldende, periode));
         }
         for (var aktivitet : periode.getAktiviteter()) {
             if (aktivitetHarEndringer(gjeldende, periode, aktivitet)) {

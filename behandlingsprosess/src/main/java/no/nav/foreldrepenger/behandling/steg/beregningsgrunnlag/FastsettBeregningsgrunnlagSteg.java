@@ -30,16 +30,16 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
 
-    protected FastsettBeregningsgrunnlagSteg() {
+    FastsettBeregningsgrunnlagSteg() {
         // for CDI proxy
     }
 
     @Inject
     public FastsettBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
-            BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-            RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
-            BehandlingsresultatRepository behandlingsresultatRepository,
-            BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+                                          BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+                                          RyddDekningsgradTjeneste ryddDekningsgradTjeneste,
+                                          BehandlingsresultatRepository behandlingsresultatRepository,
+                                          BeregningsgrunnlagInputProvider inputTjenesteProvider) {
 
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
@@ -58,8 +58,10 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if (behandlingsresultatRepository.hent(behandling.getId()).isEndretDekningsgrad()) {
             ryddDekningsgradTjeneste.rydd(behandling);
@@ -67,16 +69,17 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     }
 
     @Override
-    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType fraSteg,
-            BehandlingStegType tilSteg) {
+    public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
+                                    BehandlingStegModell modell,
+                                    BehandlingStegType fraSteg,
+                                    BehandlingStegType tilSteg) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        if (tilSteg.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)) {
-            if (behandling.erRevurdering()) {
-                // Kopier beregningsgrunnlag fra original, da uttaksresultat avhenger av denne
-                behandling.getOriginalBehandlingId()
-                        .ifPresent(originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalId,
-                                behandling.getId()));
-            }
+        if (tilSteg.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER) && behandling.erRevurdering()) {
+            // Kopier beregningsgrunnlag fra original, da uttaksresultat avhenger av denne
+            behandling.getOriginalBehandlingId()
+                .ifPresent(originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalId,
+                    behandling.getId()));
+
         }
         ryddDekningsgrad(behandling);
     }

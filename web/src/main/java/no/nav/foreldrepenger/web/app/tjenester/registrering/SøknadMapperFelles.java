@@ -291,15 +291,11 @@ public class SøknadMapperFelles {
         var oppholdNorge = opprettOppholdNorge(registreringDto.getMottattDato(), !harFremtidigOppholdUtenlands, !harTidligereOppholdUtenlands);//Ikke utenlandsopphold tolkes som opphold i norge
         medlemskap.getOppholdNorge().addAll(oppholdNorge);
         medlemskap.setINorgeVedFoedselstidspunkt(registreringDto.getOppholdINorge());
-        if (harFremtidigOppholdUtenlands) {
-            if (!erTomListe(registreringDto.getFremtidigeOppholdUtenlands())) {
-                medlemskap.getOppholdUtlandet().addAll(mapUtenlandsopphold(registreringDto.getFremtidigeOppholdUtenlands()));
-            }
+        if (harFremtidigOppholdUtenlands && !erTomListe(registreringDto.getFremtidigeOppholdUtenlands())) {
+            medlemskap.getOppholdUtlandet().addAll(mapUtenlandsopphold(registreringDto.getFremtidigeOppholdUtenlands()));
         }
-        if (harTidligereOppholdUtenlands) {
-            if (!erTomListe(registreringDto.getTidligereOppholdUtenlands())) {
-                medlemskap.getOppholdUtlandet().addAll(mapUtenlandsopphold(registreringDto.getTidligereOppholdUtenlands()));
-            }
+        if (harTidligereOppholdUtenlands && !erTomListe(registreringDto.getTidligereOppholdUtenlands())) {
+            medlemskap.getOppholdUtlandet().addAll(mapUtenlandsopphold(registreringDto.getTidligereOppholdUtenlands()));
         }
 
         return medlemskap;
@@ -326,11 +322,11 @@ public class SøknadMapperFelles {
             return periode;
         }).toList());
 
-        frilans.setErNyoppstartet(getNullBooleanAsFalse(dto.getErNyoppstartetFrilanser()));
-        frilans.setNaerRelasjon(getNullBooleanAsFalse(dto.getHarHattOppdragForFamilie()));
-        frilans.setHarInntektFraFosterhjem(getNullBooleanAsFalse(dto.getHarInntektFraFosterhjem()));
+        frilans.setErNyoppstartet(TRUE.equals(dto.getErNyoppstartetFrilanser()));
+        frilans.setNaerRelasjon(TRUE.equals(dto.getHarHattOppdragForFamilie()));
+        frilans.setHarInntektFraFosterhjem(TRUE.equals(dto.getHarInntektFraFosterhjem()));
 
-        if (getNullBooleanAsFalse(dto.getHarHattOppdragForFamilie())) {
+        if (TRUE.equals(dto.getHarHattOppdragForFamilie())) {
             var frilansoppdrag = dto.getOppdragPerioder().stream().map(SøknadMapperFelles::mapAlleFrilansOppdragperioder).toList();
             frilans.getFrilansoppdrag().addAll(frilansoppdrag);
         }
@@ -403,8 +399,8 @@ public class SøknadMapperFelles {
             utenlandskOrganisasjon.setRegistrertILand(getLandkode(virksomhetDto.getLandJobberFra()));
             egenNaering = utenlandskOrganisasjon;
         }
-        egenNaering.setNaerRelasjon(getNullBooleanAsFalse(virksomhetDto.getFamilieEllerVennerTilknyttetNaringen()));
-        egenNaering.setErNyIArbeidslivet(getNullBooleanAsFalse(virksomhetDto.getErNyIArbeidslivet()));
+        egenNaering.setNaerRelasjon(TRUE.equals(virksomhetDto.getFamilieEllerVennerTilknyttetNaringen()));
+        egenNaering.setErNyIArbeidslivet(TRUE.equals(virksomhetDto.getErNyIArbeidslivet()));
         egenNaering.setOppstartsdato(virksomhetDto.getOppstartsdato());
 
         if (TRUE.equals(virksomhetDto.getHarRegnskapsforer())) {
@@ -416,19 +412,15 @@ public class SøknadMapperFelles {
 
         if (TRUE.equals(virksomhetDto.getVarigEndretEllerStartetSisteFireAr())) {
             egenNaering.setBeskrivelseAvEndring(virksomhetDto.getBeskrivelseAvEndring());
-            egenNaering.setErVarigEndring(getNullBooleanAsFalse(virksomhetDto.getHarVarigEndring()));
+            egenNaering.setErVarigEndring(TRUE.equals(virksomhetDto.getHarVarigEndring()));
             egenNaering.setEndringsDato(virksomhetDto.getVarigEndringGjeldendeFom());
             if (virksomhetDto.getInntekt() != null) {
                 egenNaering.setNaeringsinntektBrutto(BigInteger.valueOf(virksomhetDto.getInntekt()));
             }
-            egenNaering.setErNyoppstartet(getNullBooleanAsFalse(virksomhetDto.getErNyoppstartet()));
+            egenNaering.setErNyoppstartet(TRUE.equals(virksomhetDto.getErNyoppstartet()));
         }
         finnTypeVirksomhet(virksomhetDto, egenNaering);
         return egenNaering;
-    }
-
-    private static Boolean getNullBooleanAsFalse(Boolean booleanInn) {
-        return booleanInn != null ? booleanInn : false;
     }
 
     private static void finnTypeVirksomhet(VirksomhetDto virksomhetDto, EgenNaering egenNaering) {

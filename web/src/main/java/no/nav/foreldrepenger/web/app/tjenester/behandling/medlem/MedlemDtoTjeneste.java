@@ -126,10 +126,10 @@ public class MedlemDtoTjeneste {
 
             /* Ingen endringer i personopplysninger (siden siste vedtatte medlemskapsperiode),
             så vi setter gjeldende f.o.m fra nyeste endring i personstatus. Denne vises b.a. ifm. aksjonspunkt 5022 */
-            if (fom.isPresent() && personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()) != null) {
-                if (fom.get().isBefore(personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()).getPeriode().getFomDato())) {
+            if (fom.isPresent() && personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()) != null
+                && fom.get().isBefore(personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()).getPeriode().getFomDato())) {
                     return Optional.ofNullable(personopplysningerAggregat.get().getPersonstatusFor(ref.aktørId()).getPeriode().getFomDato());
-                }
+
             }
         }
         return fom;

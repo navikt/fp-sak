@@ -46,12 +46,14 @@ public class FastsettOpptjeningsperiodeSteg extends FastsettOpptjeningsperiodeSt
                                     BehandlingStegModell modell,
                                     BehandlingStegType førsteSteg,
                                     BehandlingStegType sisteSteg) {
-        var behandlingRepository = repositoryProvider.getBehandlingRepository();
-        if (!behandlingRepository.hentBehandling(kontekst.getBehandlingId()).erRevurdering()) {
-            if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
+        if (!erRevurdering(kontekst.getBehandlingId()) && !erVilkårOverstyrt(kontekst.getBehandlingId())) {
                 super.vedHoppOverFramover(kontekst, modell, førsteSteg, sisteSteg);
                 new RyddOpptjening(repositoryProvider, kontekst).ryddOpp();
-            }
+
         }
+    }
+
+    private boolean erRevurdering(Long behandlingId) {
+        return repositoryProvider.getBehandlingRepository().hentBehandling(behandlingId).erRevurdering();
     }
 }

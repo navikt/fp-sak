@@ -37,7 +37,7 @@ public class FaktaBeregningHistorikkHåndterer {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
 
-    public FaktaBeregningHistorikkHåndterer() {
+    FaktaBeregningHistorikkHåndterer() {
         // For CDI
     }
 
@@ -144,12 +144,11 @@ public class FaktaBeregningHistorikkHåndterer {
                                  boolean endretBegrunnelse) {
         var erBegrunnelseSatt = historikkDeler.stream()
             .anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
-        if (!erBegrunnelseSatt) {
-            if (endretBegrunnelse) {
-                tekstBuilder.medBegrunnelse(begrunnelse, endretBegrunnelse);
+        if (!erBegrunnelseSatt && endretBegrunnelse) {
+                tekstBuilder.medBegrunnelse(begrunnelse, true);
                 settSkjermlenkeOmIkkjeSatt(historikkDeler, tekstBuilder);
                 tekstBuilder.ferdigstillHistorikkinnslagDel();
-            }
+
         }
     }
 

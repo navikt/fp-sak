@@ -23,16 +23,17 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 class BekreftOpptjeningPeriodeAksjonspunkt {
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private AksjonspunktutlederForVurderOppgittOpptjening vurderOpptjening;
+    private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private final AksjonspunktutlederForVurderOppgittOpptjening vurderOpptjening;
 
     BekreftOpptjeningPeriodeAksjonspunkt(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-            AksjonspunktutlederForVurderOppgittOpptjening vurderOpptjening) {
+                                         AksjonspunktutlederForVurderOppgittOpptjening vurderOpptjening) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.vurderOpptjening = vurderOpptjening;
     }
 
-    void oppdater(Long behandlingId, AktørId aktørId,
+    void oppdater(Long behandlingId,
+                  AktørId aktørId,
                   Collection<BekreftOpptjeningPeriodeDto> bekreftedeOpptjeningsaktiviteter,
                   Skjæringstidspunkt skjæringstidspunkt) {
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
@@ -43,19 +44,19 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         var kodeRelasjonMap = OpptjeningAktivitetType.hentTilArbeidTypeRelasjoner();
 
         var ugyldigePerioder = bekreftedeOpptjeningsaktiviteter.stream()
-                .filter(it -> !kanOverstyresOgSkalKunneLagreResultat(behandlingId, aktørId, iayGrunnlag, kodeRelasjonMap, it, skjæringstidspunkt))
+            .filter(it -> !kanOverstyresOgSkalKunneLagreResultat(behandlingId, aktørId, iayGrunnlag, kodeRelasjonMap, it, skjæringstidspunkt))
             .toList();
 
-        if (ugyldigePerioder.size() > 0) {
-            throw new IllegalStateException("Det finnes saksbehandlede perioder som ikke er åpne for saksbehandling. Ugyldige perioder: " + ugyldigePerioder);
+        if (!ugyldigePerioder.isEmpty()) {
+            throw new IllegalStateException(
+                "Det finnes saksbehandlede perioder som ikke er åpne for saksbehandling. Ugyldige perioder: " + ugyldigePerioder);
         }
 
         for (var periode : bekreftedeOpptjeningsaktiviteter) {
             var yrkesaktivitetBuilder = getYrkesaktivitetBuilder(behandlingId, aktørId, iayGrunnlag, overstyrtBuilder, periode,
-                    kodeRelasjonMap.get(periode.getAktivitetType()));
+                kodeRelasjonMap.get(periode.getAktivitetType()));
             if (periode.getErGodkjent()) {
-                var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder
-                        .getAktivitetsAvtaleBuilder(getPeriode(periode), true);
+                var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(getPeriode(periode), true);
 
                 håndterPeriodeForAnnenOpptjening(periode, yrkesaktivitetBuilder, aktivitetsAvtaleBuilder);
                 aktivitetsAvtaleBuilder.medBeskrivelse(periode.getBegrunnelse());
@@ -73,23 +74,25 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingId, builder);
     }
 
-    private void håndterPeriodeForAnnenOpptjening(BekreftOpptjeningPeriodeDto periode, YrkesaktivitetBuilder yrkesaktivitetBuilder,
-            AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder) {
-        if (OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(periode.getAktivitetType())
-                || periode.getAktivitetType().equals(OpptjeningAktivitetType.NÆRING)) {
-            if (periode.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)) {
-                if (periode.getArbeidsgiverNavn() != null) {
-                    yrkesaktivitetBuilder.medArbeidsgiverNavn(periode.getArbeidsgiverNavn());
-                }
+    private void håndterPeriodeForAnnenOpptjening(BekreftOpptjeningPeriodeDto periode,
+                                                  YrkesaktivitetBuilder yrkesaktivitetBuilder,
+                                                  AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder) {
+        if (OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(periode.getAktivitetType()) || periode.getAktivitetType()
+            .equals(OpptjeningAktivitetType.NÆRING)) {
+            if (periode.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD) && periode.getArbeidsgiverNavn() != null) {
+                yrkesaktivitetBuilder.medArbeidsgiverNavn(periode.getArbeidsgiverNavn());
             }
             var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(), periode.getOpptjeningTom());
             aktivitetsAvtaleBuilder.medPeriode(aktivitetsPeriode);
         }
     }
 
-    private boolean kanOverstyresOgSkalKunneLagreResultat(Long behandlingId, AktørId aktørId, Optional<InntektArbeidYtelseGrunnlag> iayg,
-            Map<OpptjeningAktivitetType, Set<ArbeidType>> kodeRelasjonMap, BekreftOpptjeningPeriodeDto periode,
-            Skjæringstidspunkt skjæringstidspunkt) {
+    private boolean kanOverstyresOgSkalKunneLagreResultat(Long behandlingId,
+                                                          AktørId aktørId,
+                                                          Optional<InntektArbeidYtelseGrunnlag> iayg,
+                                                          Map<OpptjeningAktivitetType, Set<ArbeidType>> kodeRelasjonMap,
+                                                          BekreftOpptjeningPeriodeDto periode,
+                                                          Skjæringstidspunkt skjæringstidspunkt) {
         if (!kodeRelasjonMap.containsKey(periode.getAktivitetType())) {
             return false;
         }
@@ -97,15 +100,19 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         return kanSaksbehandles(behandlingId, aktørId, iayg, arbeidTypes, periode, skjæringstidspunkt);
     }
 
-    private boolean kanSaksbehandles(Long behandlingId, AktørId aktørId, Optional<InntektArbeidYtelseGrunnlag> iaygOpt, Set<ArbeidType> arbeidTypes,
-            BekreftOpptjeningPeriodeDto periode, Skjæringstidspunkt skjæringstidspunkt) {
+    private boolean kanSaksbehandles(Long behandlingId,
+                                     AktørId aktørId,
+                                     Optional<InntektArbeidYtelseGrunnlag> iaygOpt,
+                                     Set<ArbeidType> arbeidTypes,
+                                     BekreftOpptjeningPeriodeDto periode,
+                                     Skjæringstidspunkt skjæringstidspunkt) {
         if (OpptjeningAktivitetType.ARBEID.equals(periode.getAktivitetType())) {
             if (iaygOpt.isEmpty()) {
                 return false;
             }
             var iayg = iaygOpt.get();
-            var filter = new YrkesaktivitetFilter(iayg.getArbeidsforholdInformasjon(), iayg.getAktørArbeidFraRegister(aktørId))
-                    .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
+            var filter = new YrkesaktivitetFilter(iayg.getArbeidsforholdInformasjon(), iayg.getAktørArbeidFraRegister(aktørId)).før(
+                skjæringstidspunkt.getUtledetSkjæringstidspunkt());
             return harGittAksjonspunktForArbeidsforhold(filter, arbeidTypes, periode);
         }
         if (OpptjeningAktivitetType.NÆRING.equals(periode.getAktivitetType())) {
@@ -118,29 +125,28 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         return OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(periode.getAktivitetType());
     }
 
-    private boolean harGittAksjonspunktForArbeidsforhold(YrkesaktivitetFilter filter, Set<ArbeidType> arbeidTypes,
-            BekreftOpptjeningPeriodeDto periode) {
+    private boolean harGittAksjonspunktForArbeidsforhold(YrkesaktivitetFilter filter,
+                                                         Set<ArbeidType> arbeidTypes,
+                                                         BekreftOpptjeningPeriodeDto periode) {
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
         if (yrkesaktiviteter.isEmpty()) {
             return false;
         }
         // Sjekk om 0%
-        return yrkesaktiviteter
+        return yrkesaktiviteter.stream().anyMatch(it -> {
+            var erNullProsent = filter.getAktivitetsAvtalerForArbeid(it)
                 .stream()
-                .anyMatch(it -> {
-                    var erNullProsent = filter.getAktivitetsAvtalerForArbeid(it)
-                        .stream()
-                        .anyMatch(aa -> aa.getProsentsats() == null || aa.getProsentsats().erNulltall());
-                    var erKunstig = it.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(it.getArbeidsgiver().getOrgnr());
-                    return arbeidTypes.contains(it.getArbeidType())
-                            && it.getArbeidsgiver().getIdentifikator().equals(periode.getArbeidsgiverReferanse())
-                            && (erNullProsent
-                                    || erKunstig);
-                });
+                .anyMatch(aa -> aa.getProsentsats() == null || aa.getProsentsats().erNulltall());
+            var erKunstig = it.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(it.getArbeidsgiver().getOrgnr());
+            return arbeidTypes.contains(it.getArbeidType()) && it.getArbeidsgiver().getIdentifikator().equals(periode.getArbeidsgiverReferanse()) && (
+                erNullProsent || erKunstig);
+        });
     }
 
-    private boolean harGittAksjonspunktForNæring(Long behandlingId, AktørId aktørId, InntektArbeidYtelseGrunnlag iayg,
-            Skjæringstidspunkt skjæringstidspunkt) {
+    private boolean harGittAksjonspunktForNæring(Long behandlingId,
+                                                 AktørId aktørId,
+                                                 InntektArbeidYtelseGrunnlag iayg,
+                                                 Skjæringstidspunkt skjæringstidspunkt) {
         return vurderOpptjening.girAksjonspunktForOppgittNæring(behandlingId, aktørId, iayg, skjæringstidspunkt);
     }
 
@@ -148,48 +154,60 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         return DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(), periode.getOpptjeningTom());
     }
 
-    private YrkesaktivitetBuilder getYrkesaktivitetBuilder(Long behandlingId, AktørId aktørId,
-            Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
-            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder overstyrtBuilder,
-            BekreftOpptjeningPeriodeDto periodeDto,
-            Set<ArbeidType> arbeidType) {
+    private YrkesaktivitetBuilder getYrkesaktivitetBuilder(Long behandlingId,
+                                                           AktørId aktørId,
+                                                           Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
+                                                           InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder overstyrtBuilder,
+                                                           BekreftOpptjeningPeriodeDto periodeDto,
+                                                           Set<ArbeidType> arbeidType) {
         if (arbeidType == null || arbeidType.isEmpty()) {
             throw new IllegalStateException("Støtter ikke " + periodeDto.getAktivitetType().getKode());
         }
-        YrkesaktivitetBuilder builder;
         if (periodeDto.getAktivitetType().equals(OpptjeningAktivitetType.ARBEID)) {
-            Opptjeningsnøkkel nøkkel;
-            var id = periodeDto.getArbeidsforholdRef();
-            var ref = id == null ? null : InternArbeidsforholdRef.ref(id);
-            if (OrganisasjonsNummerValidator.erGyldig(periodeDto.getArbeidsgiverReferanse())
-                    || Organisasjonstype.erKunstig(periodeDto.getArbeidsgiverReferanse())) {
-                nøkkel = new Opptjeningsnøkkel(ref, periodeDto.getArbeidsgiverReferanse(), null);
-            } else {
-                nøkkel = new Opptjeningsnøkkel(ref, null, periodeDto.getArbeidsgiverReferanse());
-            }
-            builder = overstyrtBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel, arbeidType);
-
-            if (!builder.getErOppdatering()) {
-                if (Organisasjonstype.erKunstig(periodeDto.getArbeidsgiverReferanse())) {
-                    builder = kopierVerdierForFiktivtArbeidsforhold(iayGrunnlag, builder);
-                } else {
-                    // Bør få med all informasjon om arbeidsforholdet over i overstyrt slik at
-                    // ingenting blir mistet.
-                    builder = getRegisterBuilder(behandlingId, aktørId).getYrkesaktivitetBuilderForNøkkelAvType(nøkkel, arbeidType)
-                            .migrerFraRegisterTilOverstyrt();
-                }
-            }
-            builder.medArbeidsforholdId(ref);
+            return getYrkesaktivitetBuilderForArbeid(behandlingId, aktørId, iayGrunnlag, overstyrtBuilder, periodeDto, arbeidType);
         } else {
-            builder = overstyrtBuilder.getYrkesaktivitetBuilderForType(arbeidType.stream().findFirst().orElse(ArbeidType.UDEFINERT));
+            return overstyrtBuilder.getYrkesaktivitetBuilderForType(arbeidType.stream().findFirst().orElse(ArbeidType.UDEFINERT));
         }
+    }
+
+    private YrkesaktivitetBuilder getYrkesaktivitetBuilderForArbeid(Long behandlingId,
+                                                                    AktørId aktørId,
+                                                                    Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
+                                                                    InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder overstyrtBuilder,
+                                                                    BekreftOpptjeningPeriodeDto periodeDto,
+                                                                    Set<ArbeidType> arbeidType) {
+        var id = periodeDto.getArbeidsforholdRef();
+        var ref = id == null ? null : InternArbeidsforholdRef.ref(id);
+        var nøkkel = utledOpptjeningsnøkkel(periodeDto, ref);
+        var builder = overstyrtBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel, arbeidType);
+
+        if (!builder.getErOppdatering()) {
+            if (Organisasjonstype.erKunstig(periodeDto.getArbeidsgiverReferanse())) {
+                kopierVerdierForFiktivtArbeidsforhold(iayGrunnlag, builder);
+            } else {
+                // Bør få med all informasjon om arbeidsforholdet over i overstyrt slik at
+                // ingenting blir mistet.
+                builder = getRegisterBuilder(behandlingId, aktørId).getYrkesaktivitetBuilderForNøkkelAvType(nøkkel, arbeidType)
+                    .migrerFraRegisterTilOverstyrt();
+            }
+        }
+        builder.medArbeidsforholdId(ref);
         return builder;
     }
 
-    private YrkesaktivitetBuilder kopierVerdierForFiktivtArbeidsforhold(Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
-            YrkesaktivitetBuilder builder) {
-        var arbeidsforholdInformasjon = iayGrunnlag
-                .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
+    private static Opptjeningsnøkkel utledOpptjeningsnøkkel(BekreftOpptjeningPeriodeDto periodeDto, InternArbeidsforholdRef ref) {
+        Opptjeningsnøkkel nøkkel;
+        if (OrganisasjonsNummerValidator.erGyldig(periodeDto.getArbeidsgiverReferanse()) || Organisasjonstype.erKunstig(
+            periodeDto.getArbeidsgiverReferanse())) {
+            nøkkel = new Opptjeningsnøkkel(ref, periodeDto.getArbeidsgiverReferanse(), null);
+        } else {
+            nøkkel = new Opptjeningsnøkkel(ref, null, periodeDto.getArbeidsgiverReferanse());
+        }
+        return nøkkel;
+    }
+
+    private void kopierVerdierForFiktivtArbeidsforhold(Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag, YrkesaktivitetBuilder builder) {
+        var arbeidsforholdInformasjon = iayGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
         if (arbeidsforholdInformasjon.isPresent()) {
             // Det finnes kun en overstyring om vi har et fiktivt arbeidsforhold
             var overstyringer = arbeidsforholdInformasjon.get().getOverstyringer();
@@ -200,7 +218,6 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
             builder.medArbeidsgiver(fiktivOverstyring.getArbeidsgiver());
             builder.medArbeidsgiverNavn(fiktivOverstyring.getArbeidsgiverNavn());
         }
-        return builder;
     }
 
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder getRegisterBuilder(Long behandlingId, AktørId aktørId) {
