@@ -173,7 +173,7 @@ public final class KalkulusTilBGMapper {
             return faktaAktør.map(vurdering -> mapVurdering(vurdering.getHarFLMottattYtelse()));
         }
         if (fraKalkulus.getAktivitetStatus().erArbeidstaker() && faktaArbeidsforhold.isPresent()) {
-            return Optional.of(mapVurdering(faktaArbeidsforhold.get().getHarMottattYtelse()));
+            return Optional.ofNullable(mapVurdering(faktaArbeidsforhold.get().getHarMottattYtelse()));
         }
         return Optional.empty();
     }
