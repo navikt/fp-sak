@@ -47,8 +47,8 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 @ExtendWith(MockitoExtension.class)
 class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
-    private static final LocalDate START_PERIODEDAG_LØPENDE_BEHANDLING = VirkedagUtil.fomVirkedag(LocalDate.now().minusWeeks(50));
-    private static final LocalDate SISTE_PERIODEDAG_LØPENDE_BEHANDLING = START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(6);
+    private static final LocalDate START_PERIODEDAG_LØPENDE_BEHANDLING = VirkedagUtil.fomVirkedag(LocalDate.now().minusWeeks(100));
+    private static final LocalDate SISTE_PERIODEDAG_LØPENDE_BEHANDLING = START_PERIODEDAG_LØPENDE_BEHANDLING.plusWeeks(50);
 
     private static final LocalDate START_PERIODEDAG_OVERLAPP = VirkedagUtil.fomVirkedag(START_PERIODEDAG_LØPENDE_BEHANDLING.minusWeeks(1));
     private static final LocalDate SISTE_PERIODEDAG_OVERLAPP = START_PERIODEDAG_OVERLAPP.plusWeeks(6);
