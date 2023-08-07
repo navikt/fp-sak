@@ -49,8 +49,6 @@ public enum KlageHjemmel implements Kodeverdi {
 
     public static final String KODEVERK = "KLAGE_HJEMMEL";
 
-    public static final String FOLKETRYGDLOVEN = "FOLKETRYGDLOVEN";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -60,17 +58,13 @@ public enum KlageHjemmel implements Kodeverdi {
     }
 
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
+    private final String kode;
 
-    private String kabal;
-    private Set<FagsakYtelseType.YtelseType> ytelser;
-
-    KlageHjemmel(String kode) {
-        this.kode = kode;
-    }
+    private final String kabal;
+    private final Set<FagsakYtelseType.YtelseType> ytelser;
 
     KlageHjemmel(String kode, String navn, String kabal, Set<FagsakYtelseType.YtelseType> ytelser) {
         this.kode = kode;

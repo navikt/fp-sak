@@ -36,16 +36,12 @@ public enum GraderingAvslagÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
+    private final String kode;
 
-    private String lovHjemmelData;
-
-    GraderingAvslagÅrsak(String kode) {
-        this.kode = kode;
-    }
+    private final String lovHjemmelData;
 
     GraderingAvslagÅrsak(String kode, String navn, String lovHjemmel) {
         this.kode = kode;

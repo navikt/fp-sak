@@ -44,13 +44,9 @@ public enum ArbeidsforholdHandlingType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    ArbeidsforholdHandlingType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     ArbeidsforholdHandlingType(String kode, String navn) {
         this.kode = kode;

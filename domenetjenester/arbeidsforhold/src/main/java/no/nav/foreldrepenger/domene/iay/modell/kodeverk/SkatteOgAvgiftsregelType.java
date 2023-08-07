@@ -43,15 +43,11 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi, MedOffisiellKode {
     }
 
     @JsonIgnore
-    private String navn;
+    private final String navn;
 
-    private String kode;
+    private final String kode;
     @JsonIgnore
-    private String offisiellKode;
-
-    SkatteOgAvgiftsregelType(String kode) {
-        this.kode = kode;
-    }
+    private final String offisiellKode;
 
     SkatteOgAvgiftsregelType(String kode, String navn, String offisiellKode) {
         this.kode = kode;

@@ -40,13 +40,9 @@ public enum Arbeidskategori implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    Arbeidskategori(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     Arbeidskategori(String kode, String navn) {
         this.kode = kode;

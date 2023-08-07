@@ -52,13 +52,9 @@ public enum RelatertYtelseType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    RelatertYtelseType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     RelatertYtelseType(String kode, String navn) {
         this.kode = kode;

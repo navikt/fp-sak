@@ -41,16 +41,12 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     }
 
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
+    private final String kode;
 
-    private String lovHjemmel;
-
-    KlageAvvistÅrsak(String kode) {
-        this.kode = kode;
-    }
+    private final String lovHjemmel;
 
     KlageAvvistÅrsak(String kode, String navn, String lovHjemmel) {
         this.kode = kode;

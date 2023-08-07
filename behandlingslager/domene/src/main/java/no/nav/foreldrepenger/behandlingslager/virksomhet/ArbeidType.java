@@ -80,17 +80,13 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
     }
 
     @JsonValue
-    private String kode;
+    private final String kode;
 
-    private String navn;
+    private final String navn;
 
-    private String offisiellKode;
+    private final String offisiellKode;
 
-    private boolean visGui;
-
-    ArbeidType(String kode) {
-        this.kode = kode;
-    }
+    private final boolean visGui;
 
     ArbeidType(String kode, String navn, String offisiellKode, boolean visGui) {
         this.kode = kode;

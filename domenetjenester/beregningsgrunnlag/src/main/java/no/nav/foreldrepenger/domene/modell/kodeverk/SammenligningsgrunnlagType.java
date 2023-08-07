@@ -39,14 +39,10 @@ public enum SammenligningsgrunnlagType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    SammenligningsgrunnlagType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     SammenligningsgrunnlagType(String kode, String navn) {
         this.kode = kode;

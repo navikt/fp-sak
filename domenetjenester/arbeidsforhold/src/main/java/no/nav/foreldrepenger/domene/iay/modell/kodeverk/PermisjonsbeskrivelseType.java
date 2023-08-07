@@ -50,15 +50,11 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-    private String offisiellKode;
-
-    PermisjonsbeskrivelseType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
+    private final String offisiellKode;
 
     PermisjonsbeskrivelseType(String kode, String navn, String offisiellKode) {
         this.kode = kode;

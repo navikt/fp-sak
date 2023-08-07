@@ -74,13 +74,9 @@ public enum BehandlingResultatType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    BehandlingResultatType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     BehandlingResultatType(String kode, String navn) {
         this.kode = kode;

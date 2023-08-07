@@ -32,13 +32,9 @@ public enum FarSøkerType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    FarSøkerType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     FarSøkerType(String kode, String navn) {
         this.kode = kode;

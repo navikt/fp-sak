@@ -13,11 +13,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -133,34 +131,6 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
 
     private SkjermlenkeType getSkjermlenkeType(AksjonspunktDefinisjon apDef) {
         return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(apDef) ? SkjermlenkeType.KLAGE_BEH_NFP : SkjermlenkeType.KLAGE_BEH_NK;
-    }
-
-    private HistorikkResultatType konverterKlageVurderingTilResultatType(KlageVurdering vurdering, boolean erNfpAksjonspunkt, KlageVurderingOmgjør klageVurderingOmgjør) {
-        if (KlageVurdering.AVVIS_KLAGE.equals(vurdering)) {
-            return HistorikkResultatType.AVVIS_KLAGE;
-        }
-        if (KlageVurdering.MEDHOLD_I_KLAGE.equals(vurdering)) {
-            if (KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
-                return HistorikkResultatType.DELVIS_MEDHOLD_I_KLAGE;
-            }
-            if (KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
-                return HistorikkResultatType.UGUNST_MEDHOLD_I_KLAGE;
-            }
-            return HistorikkResultatType.MEDHOLD_I_KLAGE;
-        }
-        if (KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(vurdering)) {
-            return HistorikkResultatType.OPPHEVE_VEDTAK;
-        }
-        if (KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(vurdering)) {
-            return HistorikkResultatType.KLAGE_HJEMSENDE_UTEN_OPPHEVE;
-        }
-        if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
-            if (erNfpAksjonspunkt) {
-                return HistorikkResultatType.OPPRETTHOLDT_VEDTAK;
-            }
-            return HistorikkResultatType.STADFESTET_VEDTAK;
-        }
-        return null;
     }
 
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {

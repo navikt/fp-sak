@@ -34,19 +34,11 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
 
     private static final Map<String, Fagsystem> KODER = new LinkedHashMap<>();
 
-    private String navn;
+    private final String navn;
 
-    private String offisiellKode;
+    private final String offisiellKode;
     @JsonValue
-    private String kode;
-
-    Fagsystem() {
-        // Hibernate trenger den
-    }
-
-    Fagsystem(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     Fagsystem(String kode, String navn, String offisiellKode) {
         this.kode = kode;

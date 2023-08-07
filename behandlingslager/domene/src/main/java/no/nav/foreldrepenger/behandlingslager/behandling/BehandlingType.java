@@ -50,18 +50,14 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
-    private int behandlingstidFristUker;
+    private final int behandlingstidFristUker;
 
-    private String navn;
+    private final String navn;
 
-    private String offisiellKode;
+    private final String offisiellKode;
 
     @JsonValue
-    private String kode;
-
-    BehandlingType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     BehandlingType(String kode,
                    String navn,

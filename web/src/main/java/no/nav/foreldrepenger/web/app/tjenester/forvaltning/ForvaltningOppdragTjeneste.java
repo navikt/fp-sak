@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighets
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.vedtak.task.SendØkonomiOppdragTask;
-import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
@@ -39,13 +38,13 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 class ForvaltningOppdragTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ForvaltningOppdragTjeneste.class);
 
-    private BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste;
-    private ØkonomioppdragRepository økonomioppdragRepository;
-    private BehandlingRepository behandlingRepository;
-    private PersoninfoAdapter personinfoAdapter;
-    private ProsessTaskTjeneste taskTjeneste;
-    private EntityManager entityManager;
-    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private final BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste;
+    private final ØkonomioppdragRepository økonomioppdragRepository;
+    private final BehandlingRepository behandlingRepository;
+    private final PersoninfoAdapter personinfoAdapter;
+    private final ProsessTaskTjeneste taskTjeneste;
+    private final EntityManager entityManager;
+    private final BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
     public ForvaltningOppdragTjeneste(final BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste,
@@ -197,20 +196,6 @@ class ForvaltningOppdragTjeneste {
         }
     }
 
-    private void kvitterBortEksisterendeOppdrag(Oppdragskontroll oppdragskontroll, long fagsystemId) {
-        var oppdrag = oppdragskontroll.getOppdrag110Liste().stream()
-            .filter(oppdrag110 -> oppdrag110.getFagsystemId() == fagsystemId).findFirst().orElseThrow(() -> new IllegalStateException("Forventer å finne oppdrag."));
-
-        var oppdragKvittering = oppdrag.getOppdragKvittering();
-        oppdragKvittering.setAlvorlighetsgrad(Alvorlighetsgrad.FEIL);
-        oppdragKvittering.setBeskrMelding("Erstattes med nytt oppdrag pga feil max dato.");
-        økonomioppdragRepository.lagre(oppdragKvittering);
-
-        LOG.info(
-            "Eksisterende oppdrag for behandlingId={} fagsystemId={} som har kvittering, ble kvittert med feilkode slik at oppdraget ikke tas i betraktning i senere behandlinger og sendes på nytt.",
-            oppdragskontroll.getBehandlingId(), fagsystemId);
-    }
-
     private void byttStatusTilVenterPåKvittering(ProsessTaskData task) {
         task.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         taskTjeneste.lagre(task);
@@ -234,14 +219,6 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
             behandling.getId(),
             behandling.getAktørId().getId());
-        taskTjeneste.lagre(sendØkonomiOppdrag);
-    }
-
-    private void lagVurderOgSendØkonomioppdragTask(Behandling behandling) {
-        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(VurderOgSendØkonomiOppdragTask.class);
-        sendØkonomiOppdrag.setCallIdFraEksisterende();
-        sendØkonomiOppdrag.setProperty("patchet", "refusjonsinfo-maxDato"); // for sporing
-        sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 

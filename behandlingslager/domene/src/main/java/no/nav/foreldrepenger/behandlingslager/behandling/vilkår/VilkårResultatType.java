@@ -26,14 +26,10 @@ public enum VilkårResultatType implements Kodeverdi {
 
     public static final String KODEVERK = "VILKAR_RESULTAT_TYPE";
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    VilkårResultatType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     VilkårResultatType(String kode, String navn) {
         this.kode = kode;

@@ -32,14 +32,10 @@ public enum VergeType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    VergeType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     VergeType(String kode, String navn) {
         this.kode = kode;

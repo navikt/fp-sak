@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -238,15 +237,6 @@ class FaktaUttakFellesTjeneste {
                 ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
             }
         }
-    }
-
-    // Initiell versjon. Kan utvides til erOmsluttetAv eller man kan bruke DokVurderingKopierer til å koperier alt ...
-    private static DokumentasjonVurdering  utledDokumentasjonsVurdering(DatoIntervallEntitet intervall, List<OppgittPeriodeEntitet> gjeldende) {
-        return gjeldende.stream()
-            .filter(p -> intervall.equals(p.getTidsperiode()))
-            .findFirst()
-            .map(OppgittPeriodeEntitet::getDokumentasjonVurdering)
-            .orElse(null);
     }
 
     private static Optional<OppgittPeriodeEntitet> gjeldendeSomOmslutter(DatoIntervallEntitet intervall, List<OppgittPeriodeEntitet> gjeldende) {

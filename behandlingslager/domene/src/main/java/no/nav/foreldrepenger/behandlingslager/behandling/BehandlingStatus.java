@@ -32,13 +32,9 @@ public enum BehandlingStatus implements Kodeverdi {
 
     private static final Set<BehandlingStatus> FERDIGBEHANDLET_STATUS = Set.of(AVSLUTTET, IVERKSETTER_VEDTAK);
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    BehandlingStatus(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     BehandlingStatus(String kode, String navn) {
         this.kode = kode;

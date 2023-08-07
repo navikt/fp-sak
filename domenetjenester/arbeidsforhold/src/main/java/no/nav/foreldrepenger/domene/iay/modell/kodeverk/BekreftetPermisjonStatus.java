@@ -34,14 +34,10 @@ public enum BekreftetPermisjonStatus implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    BekreftetPermisjonStatus(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     BekreftetPermisjonStatus(String kode, String navn) {
         this.kode = kode;

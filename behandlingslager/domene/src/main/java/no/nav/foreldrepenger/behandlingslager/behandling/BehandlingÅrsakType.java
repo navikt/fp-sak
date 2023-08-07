@@ -102,15 +102,10 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     private static final Map<String, BehandlingÅrsakType> KODER = new LinkedHashMap<>();
 
-
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    BehandlingÅrsakType(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     BehandlingÅrsakType(String kode, String navn) {
         this.kode = kode;

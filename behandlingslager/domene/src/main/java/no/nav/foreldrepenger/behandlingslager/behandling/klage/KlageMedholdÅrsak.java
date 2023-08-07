@@ -32,14 +32,10 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    KlageMedholdÅrsak(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     KlageMedholdÅrsak(String kode, String navn) {
         this.kode = kode;

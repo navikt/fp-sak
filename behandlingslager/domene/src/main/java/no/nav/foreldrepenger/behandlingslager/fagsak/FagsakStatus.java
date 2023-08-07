@@ -32,13 +32,9 @@ public enum FagsakStatus implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
-
-    FagsakStatus(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     FagsakStatus(String kode, String navn) {
         this.kode = kode;

@@ -29,17 +29,10 @@ public enum NavBrukerKjønn implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
-
-    NavBrukerKjønn() {
-    }
-
-    NavBrukerKjønn(String kode) {
-        this.kode = kode;
-    }
+    private final String kode;
 
     NavBrukerKjønn(String kode, String navn) {
         this.kode = kode;
