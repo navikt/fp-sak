@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
 
@@ -36,8 +38,8 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         var gammelBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
         var nyBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
 
-        var opprTilrettelegging = opprettTilrettelegging(OM_TO_DAGER);
-        var ovstTilrettelegging = opprettTilrettelegging(OM_TRE_DAGER);
+        var opprTilrettelegging = opprettTilrettelegging(OM_TO_DAGER, null);
+        var ovstTilrettelegging = opprettTilrettelegging(OM_TRE_DAGER, UUID.randomUUID());
 
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
             .medBehandlingId(gammelBehandling.getId())
@@ -53,14 +55,15 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         var kopiertGrunnlag = repository.hentGrunnlag(nyBehandling.getId());
         assertThat(kopiertGrunnlag).isPresent();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe()).hasSize(1);
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getInternArbeidsforholdRef()).isEmpty();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getMottattTidspunkt()).isEqualTo(I_GÅR);
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TRE_DAGER);
         assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger()).isNull();
     }
 
-    private SvpTilretteleggingEntitet opprettTilrettelegging(LocalDate fom) {
-        return new SvpTilretteleggingEntitet.Builder()
+    private SvpTilretteleggingEntitet opprettTilrettelegging(LocalDate fom, UUID randomUuid) {
+        var builder = new SvpTilretteleggingEntitet.Builder()
             .medKopiertFraTidligereBehandling(false)
             .medMottattTidspunkt(I_GÅR)
             .medBehovForTilretteleggingFom(fom)
@@ -71,7 +74,11 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
             .medAvklartOpphold(SvpAvklartOpphold.Builder.nytt()
                 .medOppholdPeriode(fom, fom.plusWeeks(1))
                 .medOppholdÅrsak(SvpOppholdÅrsak.SYKEPENGER)
-                .build())
-            .build();
+                .build());
+
+        if (randomUuid != null) {
+            builder.medInternArbeidsforholdRef(InternArbeidsforholdRef.ref(randomUuid));
+        }
+        return builder.build();
     }
 }

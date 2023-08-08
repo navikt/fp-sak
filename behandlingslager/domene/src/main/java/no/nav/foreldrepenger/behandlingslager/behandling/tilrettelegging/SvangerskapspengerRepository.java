@@ -69,7 +69,9 @@ public class SvangerskapspengerRepository {
             .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
             .orElse(Collections.emptyList()).stream()
-            .map(ot -> new SvpTilretteleggingEntitet.Builder(ot).medKopiertFraTidligereBehandling(true).build())
+            .map(ot -> new SvpTilretteleggingEntitet.Builder(ot)
+                .medKopiertFraTidligereBehandling(true)
+                .medInternArbeidsforholdRef(null).build())
             .toList();
 
             if(!kopiGjeldendeGrunnlag.isEmpty()) {
