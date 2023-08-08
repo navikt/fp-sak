@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_MANGLER_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_SATS_REGULERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VARSEL_REVURDERING_MANUELL;
 
@@ -68,7 +69,8 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
             return BehandleStegResultat.utførtMedAksjonspunktResultat(resultat);
         }
 
-        if (behandling.harBehandlingÅrsak(RE_HENDELSE_FØDSEL)) {
+        // Kunne sjekket på om behandling.erManueltOpprettet() er false - men se an tilfelle av automatisering av ES
+        if (behandling.harBehandlingÅrsak(RE_HENDELSE_FØDSEL) || behandling.harBehandlingÅrsak(RE_SATS_REGULERING)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
