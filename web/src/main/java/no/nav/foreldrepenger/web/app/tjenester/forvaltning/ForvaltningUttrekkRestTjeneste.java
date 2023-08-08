@@ -150,6 +150,7 @@ public class ForvaltningUttrekkRestTjeneste {
             where ytelse_type = 'ES' and behandling_type = 'BT-004' and behandling_status <> 'AVSLU'
             and not exists (select * from fpsak.behandling_arsak ba where ba.behandling_id = b.id and manuelt_opprettet = 'J')
             and exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def = '5026' and aksjonspunkt_status = 'OPPR')
+            FETCH FIRST 500 ROWS ONLY
              """);
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
