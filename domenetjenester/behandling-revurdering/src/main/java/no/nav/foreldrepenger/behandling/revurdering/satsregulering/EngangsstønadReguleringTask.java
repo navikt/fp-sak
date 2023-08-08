@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
@@ -22,7 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -44,6 +45,7 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
     private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private final PersoninfoAdapter personinfoAdapter;
     private final BehandlingRepository behandlingRepository;
+    private final FagsakRepository fagsakRepository;
     private final FamilieHendelseTjeneste familieHendelseTjeneste;
     private final BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
@@ -59,6 +61,7 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.revurderingTjeneste = revurderingTjeneste;
         this.esBeregningRepository = esBeregningRepository;
@@ -69,19 +72,18 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         LOG.info("ESregulering fagsak med fagsakId = {}", fagsakId);
 
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) ||
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) ||
             behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
             return;
         }
 
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
+
         familieHendelseTjeneste.finnAggregat(behandling.getId())
             .flatMap(g -> utledRevurderingsbehovMedÅrsak(behandling, g))
-            .ifPresent(årsak -> {
-                var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
-                opprettRevurdering(behandling, årsak, enhet);
-            });
+            .ifPresent(årsak -> opprettRevurdering(fagsak, årsak));
     }
 
     public Optional<BehandlingÅrsakType> utledRevurderingsbehovMedÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag) {
@@ -102,8 +104,9 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
         return Optional.empty();
     }
 
-    private void opprettRevurdering(Behandling behandling, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering) {
-        var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandling.getFagsak(), årsak, enhetForRevurdering);
+    private void opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType årsak) {
+        var enhetForRevurdering = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
+        var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, årsak, enhetForRevurdering);
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
     }
 
