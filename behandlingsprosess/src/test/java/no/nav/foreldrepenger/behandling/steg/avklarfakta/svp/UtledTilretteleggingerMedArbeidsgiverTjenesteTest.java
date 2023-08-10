@@ -39,6 +39,10 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, 8, 1);
     private static final Arbeidsgiver DEFAULT_VIRKSOMHET = Arbeidsgiver.virksomhet("123");
+    private static final Arbeidsgiver VIRKSOMHET_2 = Arbeidsgiver.virksomhet("456");
+    private static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF_1 = InternArbeidsforholdRef.nyRef();
+    private static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF_2 = InternArbeidsforholdRef.nyRef();
+    private static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF_3 = InternArbeidsforholdRef.nyRef();
 
     private Behandling behandling;
     private Skjæringstidspunkt skjæringstidspunkt;
@@ -74,7 +78,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     void skal_lage_en_tilrettelegging_selv_med_flere_yrkesaktiviteter_hvis_IM_mottatt_på_virksomhet_uten_intern_arbeidsforhold_ref() {
 
         // Arrange
-        var tilrettelegging = lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        var tilrettelegging = lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null);
 
         when(iayTjeneste.hentGrunnlag(anyLong())).thenReturn(lagGrunnlag(behandling, List.of(
                 lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, InternArbeidsforholdRef.nyRef(),
@@ -102,7 +106,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Arrange
         var tilrettelegginger = List.of(
-                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null));
 
         var ref_1 = InternArbeidsforholdRef.nyRef();
         var ref_2 = InternArbeidsforholdRef.nyRef();
@@ -138,7 +142,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
         // Arrange
         var person = Arbeidsgiver.person(AktørId.dummy());
         var tilrettelegginger = List.of(
-                lagTilrettelegging(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+                lagTilrettelegging(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null));
 
         var ref_1 = InternArbeidsforholdRef.nyRef();
         var ref_2 = InternArbeidsforholdRef.nyRef();
@@ -168,7 +172,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Arrange
         var tilrettelegginger = List.of(
-                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null));
 
         var ref_1 = InternArbeidsforholdRef.nyRef();
         var ref_2 = InternArbeidsforholdRef.nyRef();
@@ -206,7 +210,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Arrange
         var tilrettelegginger = List.of(
-                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null));
 
         var ref_1 = InternArbeidsforholdRef.nyRef();
         var ref_2 = InternArbeidsforholdRef.nyRef();
@@ -239,7 +243,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Arrange
         var tilrettelegginger = List.of(
-                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE));
+                lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, null));
 
         var ref_1 = InternArbeidsforholdRef.nyRef();
 
@@ -267,8 +271,8 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
         var person = Arbeidsgiver.person(AktørId.dummy());
 
         var tilrettelegginger = List.of(
-                lagTilrettelegging(virksomhet, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD),
-                lagTilrettelegging(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+                lagTilrettelegging(virksomhet, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null),
+                lagTilrettelegging(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, null));
 
         var ref_1 = InternArbeidsforholdRef.nyRef();
         var ref_2 = InternArbeidsforholdRef.nyRef();
@@ -307,12 +311,98 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
     }
 
-    private SvpTilretteleggingEntitet lagTilrettelegging(Arbeidsgiver arbeidsgiver, ArbeidType arbeidType) {
-        return new SvpTilretteleggingEntitet.Builder()
-                .medArbeidType(arbeidType)
-                .medArbeidsgiver(arbeidsgiver)
-                .build();
+    @Test
+    void skal_oppdatere_tilrettelegginger_med_nye_arforholdsIder_når_nye_IMer_med_nye_arbeidsforholdsIder_uten_at_det_blir_duplikater() {
+
+        // Arrange
+        var tilrettelegginger = List.of(
+            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1),
+            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2),
+            lagTilrettelegging(VIRKSOMHET_2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_3));
+
+        var ref_1 = InternArbeidsforholdRef.nyRef();
+        var ref_2 = InternArbeidsforholdRef.nyRef();
+
+        when(iayTjeneste.hentGrunnlag(anyLong())).thenReturn(lagGrunnlag(behandling, List.of(
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
+
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_1),
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_2),
+            lagInntektsmelding(VIRKSOMHET_2, INTERN_ARBEIDSFORHOLD_REF_3)));
+
+        // Act
+        var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
+
+        // Assert
+        assertThat(result).hasSize(3);
+        assertThat(result).anySatisfy(r -> {
+            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_1));
+            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
+        });
+        assertThat(result).anySatisfy(r -> {
+            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_2));
+            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
+        });
+        assertThat(result).anySatisfy(r -> {
+            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_3));
+            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(VIRKSOMHET_2));
+        });
+
     }
+
+    @Test
+    void skal_ikke_gjøre_noe_med_tilrettelegginger_hvor_det_ikke_er_endringer_på_im() {
+
+        // Arrange
+        var tilrettelegginger = List.of(
+            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1),
+            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2),
+            lagTilrettelegging(VIRKSOMHET_2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_3));
+
+
+        when(iayTjeneste.hentGrunnlag(anyLong())).thenReturn(lagGrunnlag(behandling, List.of(
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
+
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_1),
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_2),
+            lagInntektsmelding(VIRKSOMHET_2, INTERN_ARBEIDSFORHOLD_REF_3)));
+
+        // Act
+        var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
+
+        // Assert
+        assertThat(result).hasSize(3);
+        assertThat(result).anySatisfy(r -> {
+            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_1));
+            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
+        });
+        assertThat(result).anySatisfy(r -> {
+            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_2));
+            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
+        });
+        assertThat(result).anySatisfy(r -> {
+            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_3));
+            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(VIRKSOMHET_2));
+        });
+
+    }
+
+    private SvpTilretteleggingEntitet lagTilrettelegging(Arbeidsgiver arbeidsgiver, ArbeidType arbeidType,
+                                                         InternArbeidsforholdRef internArbeidsforholdRef) {
+        var builder = new SvpTilretteleggingEntitet.Builder()
+                .medArbeidType(arbeidType)
+                .medArbeidsgiver(arbeidsgiver);
+        if (internArbeidsforholdRef != null) {
+            builder.medInternArbeidsforholdRef(internArbeidsforholdRef);
+        }
+
+        return builder.build();
+    }
+
 
     private Inntektsmelding lagInntektsmelding(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {
         return InntektsmeldingBuilder.builder()
