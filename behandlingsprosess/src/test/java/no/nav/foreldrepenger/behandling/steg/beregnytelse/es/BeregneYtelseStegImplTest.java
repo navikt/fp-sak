@@ -198,16 +198,16 @@ class BeregneYtelseStegImplTest {
 
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         var søknadVersjon = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandling)
+            .opprettBuilderFor(behandling.getId())
             .medFødselsDato(fødselsdato, antallBarn)
             .medAntallBarn(antallBarn);
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadVersjon);
+        repositoryProvider.getFamilieHendelseRepository().lagre(behandling.getId(), søknadVersjon);
         var bekreftetVersjon = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandling)
+            .opprettBuilderFor(behandling.getId())
             .medAntallBarn(antallBarn)
             .tilbakestillBarn();
         IntStream.range(0, antallBarn).forEach(it -> bekreftetVersjon.leggTilBarn(fødselsdato));
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandling, bekreftetVersjon);
+        repositoryProvider.getFamilieHendelseRepository().lagre(behandling.getId(), bekreftetVersjon);
         var søknad = new SøknadEntitet.Builder()
                 .medSøknadsdato(LocalDate.now())
                 .build();

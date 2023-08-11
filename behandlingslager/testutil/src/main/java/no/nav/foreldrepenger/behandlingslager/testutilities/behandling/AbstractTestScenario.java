@@ -385,8 +385,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public void lagre(Behandling behandling, FamilieHendelseBuilder hendelseBuilder) {
-                var behandlingId = behandling.getId();
+            public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
                 var kladd = hentAggregatHvisEksisterer(behandlingId);
                 var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 var type = utledTypeForMock(kladd);
@@ -401,7 +400,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public void lagreRegisterHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
+            public void lagreRegisterHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
                 var kladd = hentAggregatHvisEksisterer(behandling.getId());
                 var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 aggregatBuilder.medBekreftetVersjon(hendelse);
@@ -427,7 +426,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
+            public void lagreOverstyrtHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
                 var kladd = hentAggregatHvisEksisterer(behandling.getId());
                 var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 oppdatere.medOverstyrtVersjon(hendelse);
@@ -471,8 +470,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
-                var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(hentAggregatHvisEksisterer(behandling.getId()));
+            public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId, boolean register) {
+                var aggregatBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(hentAggregatHvisEksisterer(behandlingId));
                 return opprettBuilderFor(aggregatBuilder);
             }
 
@@ -925,12 +924,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private FamilieHendelseRepository opprettHendelseGrunnlag(BehandlingRepositoryProvider repositoryProvider) {
         var grunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
-        grunnlagRepository.lagre(behandling, medSøknadHendelse());
+        grunnlagRepository.lagre(behandling.getId(), medSøknadHendelse());
         if (bekreftetHendelseBuilder != null) {
-            grunnlagRepository.lagre(behandling, bekreftetHendelseBuilder);
+            grunnlagRepository.lagre(behandling.getId(), bekreftetHendelseBuilder);
         }
         if (overstyrtHendelseBuilder != null) {
-            grunnlagRepository.lagre(behandling, overstyrtHendelseBuilder);
+            grunnlagRepository.lagre(behandling.getId(), overstyrtHendelseBuilder);
         }
         resetBuilders();
         return grunnlagRepository;

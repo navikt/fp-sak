@@ -602,16 +602,12 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
         lagreBehandling(behandling);
         var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandling)
+            .opprettBuilderFor(behandling.getId())
             .medAntallBarn(1)
             .medFødselsDato(fødselsdato);
-        repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
+        repositoryProvider.getFamilieHendelseRepository().lagre(behandling.getId(), søknadHendelse);
 
-        var søknad = new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
-            .medMottattDato(mottattDato)
-            .medElektroniskRegistrert(true)
-            .build();
+        var søknad = new SøknadEntitet.Builder().medSøknadsdato(LocalDate.now()).medMottattDato(mottattDato).medElektroniskRegistrert(true).build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
         return behandling;

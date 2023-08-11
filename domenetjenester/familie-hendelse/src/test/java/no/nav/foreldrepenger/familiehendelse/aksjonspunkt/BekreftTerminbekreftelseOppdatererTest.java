@@ -81,8 +81,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
             skjæringstidspunktTjeneste,
             familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")),
-            repositoryProvider.getBehandlingRepository());
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
         var historikkinnslag = new Historikkinnslag();
@@ -132,8 +131,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
             skjæringstidspunktTjeneste,
             familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")),
-            repositoryProvider.getBehandlingRepository());
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
@@ -168,8 +166,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
             skjæringstidspunktTjeneste,
             familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")),
-            repositoryProvider.getBehandlingRepository());
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
 
@@ -183,8 +180,7 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
             skjæringstidspunktTjeneste,
             familieHendelseTjeneste,
-            new BekreftTerminbekreftelseValidator(Period.parse("P25D")),
-            repositoryProvider.getBehandlingRepository());
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
 
         var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto,
             aksjonspunkt));

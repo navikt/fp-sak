@@ -136,7 +136,7 @@ public class RegisterdataInnhenter {
         var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
         var filtrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getAktørId(), fødselsIntervall);
         innhentPersoninformasjon(behandling, filtrertFødselFREG);
-        innhentFamiliehendelse(behandling, filtrertFødselFREG);
+        innhentFamiliehendelse(behandling.getId(), filtrertFødselFREG);
         innhentPleiepenger(behandling, filtrertFødselFREG);
         // Logikk avhengig av familiehendelse som bør være innhentet
         stønadsperioderInnhenter.innhentNesteSak(behandling);
@@ -153,8 +153,8 @@ public class RegisterdataInnhenter {
         personopplysningRepository.lagre(behandling.getId(), informasjonBuilder);
     }
 
-    private void innhentFamiliehendelse(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
-        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandling, filtrertFødselFREG);
+    private void innhentFamiliehendelse(Long behandlingId, List<FødtBarnInfo> filtrertFødselFREG) {
+        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandlingId, filtrertFødselFREG);
     }
 
     private void innhentPleiepenger(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {

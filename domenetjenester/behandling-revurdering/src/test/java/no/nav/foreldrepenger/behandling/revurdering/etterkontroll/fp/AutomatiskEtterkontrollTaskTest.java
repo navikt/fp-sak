@@ -258,19 +258,19 @@ class AutomatiskEtterkontrollTaskTest {
 
         var termindato = LocalDate.now().minusDays(70);
 
-        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling);
+        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling.getId());
         var søknadHendelse = familieHendelseBuilder.medAntallBarn(1)
             .medTerminbekreftelse(
                 familieHendelseBuilder.getTerminbekreftelseBuilder().medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
-        repositoryProvider.getFamilieHendelseRepository().lagre(morsBehandling, søknadHendelse);
+        repositoryProvider.getFamilieHendelseRepository().lagre(morsBehandling.getId(), søknadHendelse);
 
-        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(farsBehandling);
+        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(farsBehandling.getId());
         var søknadHendelseFar = familieHendelseBuilderFar.medAntallBarn(1)
             .medTerminbekreftelse(familieHendelseBuilderFar.getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("Doktor"));
-        repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling, søknadHendelseFar);
+        repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling.getId(), søknadHendelseFar);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskData.setBehandling(morsBehandling.getFagsakId(), morsBehandling.getId(),
@@ -367,22 +367,22 @@ class AutomatiskEtterkontrollTaskTest {
 
         var termindato = LocalDate.now().minusDays(70);
 
-        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling);
+        var familieHendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling.getId());
         var søknadHendelse = familieHendelseBuilder.medAntallBarn(1)
             .medTerminbekreftelse(
                 familieHendelseBuilder.getTerminbekreftelseBuilder().medTermindato(termindato).medUtstedtDato(LocalDate.now()).medNavnPå("Doktor"));
-        repositoryProvider.getFamilieHendelseRepository().lagre(morsBehandling, søknadHendelse);
-        var familieHendelseBuilderFødsel = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling);
+        repositoryProvider.getFamilieHendelseRepository().lagre(morsBehandling.getId(), søknadHendelse);
+        var familieHendelseBuilderFødsel = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(morsBehandling.getId());
         var bekreftetHendelse = familieHendelseBuilderFødsel.medAntallBarn(1).medFødselsDato(termindato);
-        repositoryProvider.getFamilieHendelseRepository().lagreRegisterHendelse(morsBehandling, bekreftetHendelse);
+        repositoryProvider.getFamilieHendelseRepository().lagreRegisterHendelse(morsBehandling.getId(), bekreftetHendelse);
 
-        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(farsBehandling);
+        var familieHendelseBuilderFar = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(farsBehandling.getId());
         var søknadHendelseFar = familieHendelseBuilderFar.medAntallBarn(1)
             .medTerminbekreftelse(familieHendelseBuilderFar.getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("Doktor"));
-        repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling, søknadHendelseFar);
+        repositoryProvider.getFamilieHendelseRepository().lagre(farsBehandling.getId(), søknadHendelseFar);
 
         var prosessTaskDataFar = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
         prosessTaskDataFar.setBehandling(farsBehandling.getFagsakId(), farsBehandling.getId(),

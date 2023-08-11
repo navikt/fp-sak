@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
@@ -107,11 +106,6 @@ public class FamilieHendelseRepository {
         }
     }
 
-    public void lagre(Behandling behandling, FamilieHendelseBuilder hendelseBuilder) {
-        Objects.requireNonNull(behandling, "behandling");
-        lagre(behandling.getId(), hendelseBuilder);
-    }
-
     public void lagre(Long behandlingId, FamilieHendelseBuilder hendelseBuilder) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(hendelseBuilder, "hendelseBuilder");
@@ -127,11 +121,11 @@ public class FamilieHendelseRepository {
         lagreOgFlush(behandlingId, aggregatBuilder.build());
     }
 
-    public void lagreRegisterHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
-        Objects.requireNonNull(behandling, "behandling");
+    public void lagreRegisterHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
+        Objects.requireNonNull(behandlingId, "behandlingId");
         Objects.requireNonNull(hendelse, "hendelse");
 
-        var aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
+        var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         // Fjern overstyr manglende fødsel i tilfelle første innhenting. Bevarer senere justering av dato
         if (erFørsteFødselRegistreringHarTidligereOverstyrtFødsel(aggregatBuilder.getKladd())) {
             aggregatBuilder.medOverstyrtVersjon(null);
@@ -146,7 +140,7 @@ public class FamilieHendelseRepository {
         if (harOverstyrtTerminOgOvergangTilFødsel(aggregatBuilder.getKladd())) {
             aggregatBuilder.medOverstyrtVersjon(null);
         }
-        lagreOgFlush(behandling.getId(), aggregatBuilder.build());
+        lagreOgFlush(behandlingId, aggregatBuilder.build());
     }
 
     private boolean skalBeholdeOverstyrtVedEndring(FamilieHendelseGrunnlagEntitet kladd, FamilieHendelseEntitet forrige) {
@@ -171,13 +165,13 @@ public class FamilieHendelseRepository {
         return kladd.getHarOverstyrteData() && FamilieHendelseType.TERMIN.equals(overstyrtType) && FamilieHendelseType.FØDSEL.equals(registerType);
     }
 
-    public void lagreOverstyrtHendelse(Behandling behandling, FamilieHendelseBuilder hendelse) {
-        Objects.requireNonNull(behandling, "behandling");
+    public void lagreOverstyrtHendelse(Long behandlingId, FamilieHendelseBuilder hendelse) {
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(hendelse, "hendelse");
 
-        var aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
+        var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         aggregatBuilder.medOverstyrtVersjon(hendelse);
-        lagreOgFlush(behandling.getId(), aggregatBuilder.build());
+        lagreOgFlush(behandlingId, aggregatBuilder.build());
     }
 
     private void fjernBekreftetData(Long behandlingId) {
@@ -248,18 +242,15 @@ public class FamilieHendelseRepository {
         return FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
     }
 
-    public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
-        var familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
-        var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
-        Objects.requireNonNull(oppdatere, "oppdatere");
-        return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), false);
+    public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId) {
+        return opprettBuilderFor(behandlingId, false);
     }
 
-    public FamilieHendelseBuilder opprettBuilderForregister(Behandling behandling) {
-        var familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
+    public FamilieHendelseBuilder opprettBuilderFor(Long behandlingId, boolean register) {
+        var familieHendelseAggregat = hentAggregatHvisEksisterer(behandlingId);
         var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
         Objects.requireNonNull(oppdatere, "oppdatere");
-        return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), true);
+        return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), register);
     }
 
     /**

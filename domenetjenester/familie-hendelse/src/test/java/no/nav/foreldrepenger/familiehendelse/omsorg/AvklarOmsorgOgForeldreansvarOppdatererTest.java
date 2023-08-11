@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Omsorgs
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -112,17 +110,6 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         if (delresultat.getVilkårResultatType() != null) {
             vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());
         }
-    }
-
-
-    private PersonInformasjonEntitet getSøkerPersonopplysning(Long behandlingId) {
-        var grunnlag = getPersonopplysninger(behandlingId);
-        return grunnlag.getGjeldendeVersjon();
-    }
-
-    private PersonopplysningGrunnlagEntitet getPersonopplysninger(Long behandlingId) {
-        return repositoryProvider.getPersonopplysningRepository()
-            .hentPersonopplysninger(behandlingId);
     }
 
     @Test

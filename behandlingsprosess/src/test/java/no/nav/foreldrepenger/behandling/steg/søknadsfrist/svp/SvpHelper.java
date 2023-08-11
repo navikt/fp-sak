@@ -41,9 +41,9 @@ class SvpHelper {
         return scenario.lagre(behandlingRepositoryProvider);
     }
 
-    void lagreTerminbekreftelse(Behandling behandling, LocalDate termindato, LocalDate... fødselsdatoer) {
+    void lagreTerminbekreftelse(LocalDate termindato, Long behandlingId, LocalDate... fødselsdatoer) {
         var familieHendelseBuilder = byggAggregat(termindato, fødselsdatoer);
-        behandlingRepositoryProvider.getFamilieHendelseRepository().lagre(behandling, familieHendelseBuilder);
+        behandlingRepositoryProvider.getFamilieHendelseRepository().lagre(behandlingId, familieHendelseBuilder);
     }
 
     void lagreIngenTilrettelegging(Behandling behandling, LocalDate jordmorsdato, LocalDate tidligstMottattDato) {
