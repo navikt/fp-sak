@@ -42,12 +42,8 @@ public class FastsettUttaksgrunnlagSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
-
-        // Fastsett uttaksgrunnlag - vurder å lage input på nytt (potensiell sideeffekt fra frist)
         var input = uttakInputTjeneste.lagInput(behandlingId);
         fastsettUttaksgrunnlagTjeneste.fastsettUttaksgrunnlag(input);
-
-        // Returner eventuelt aksjonspunkt ifm søknadsfrist
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
