@@ -40,7 +40,8 @@ record FpSak(String saksnummer,
 
             enum Årsak {
                 ANNET,
-                AVSLAG_HULL_I_UTTAKSPLAN
+                AVSLAG_HULL_I_UTTAKSPLAN,
+                AVSLAG_FRATREKK_PLEIEPENGER
             }
         }
 

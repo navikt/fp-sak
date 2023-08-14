@@ -331,6 +331,7 @@ public class FpDtoTjeneste {
         }).collect(Collectors.toSet());
         var årsak = switch (periode.getResultatÅrsak()) {
             case HULL_MELLOM_FORELDRENES_PERIODER, BARE_FAR_RETT_IKKE_SØKT -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_HULL_I_UTTAKSPLAN;
+            case FRATREKK_PLEIEPENGER -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_FRATREKK_PLEIEPENGER;
             default -> FpSak.Uttaksperiode.Resultat.Årsak.ANNET;
         };
         var trekkerMinsterett = trekkerMinsterett(periode);
