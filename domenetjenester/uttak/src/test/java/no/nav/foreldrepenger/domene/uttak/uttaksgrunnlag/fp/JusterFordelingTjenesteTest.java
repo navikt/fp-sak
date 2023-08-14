@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.ARBEID;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.FERIE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -1345,6 +1346,16 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder).hasSize(1);
         assertThat(justertePerioder.get(0).getFom()).isEqualTo(fp.getFom());
         assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+    }
+
+    @Test
+    void bare_en_periode_fpff_som_justeres_bort_skal_kaste_exception() {
+        var termindato = LocalDate.of(2023, 8, 30);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, LocalDate.of(2023, 8, 10), termindato.minusDays(1));
+        var oppgittePerioder = List.of(fpff);
+
+        var fødselsdato = LocalDate.of(2023, 8, 5);
+        assertThatThrownBy(() -> juster(oppgittePerioder, termindato, fødselsdato)).isInstanceOf(IllegalStateException.class);
     }
 
     static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {

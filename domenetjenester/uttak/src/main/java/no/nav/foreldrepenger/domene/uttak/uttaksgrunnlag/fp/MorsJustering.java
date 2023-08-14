@@ -163,6 +163,9 @@ class MorsJustering implements ForelderFødselJustering {
 
     private List<OppgittPeriodeEntitet> fyllHullSkaptAvIkkeFlyttbarePerioder(List<OppgittPeriodeEntitet> justertePerioder,
                                                                              List<OppgittPeriodeEntitet> oppgittePerioder) {
+        if (justertePerioder.isEmpty()) {
+            throw new IllegalStateException("Må ha minst en justert periode");
+        }
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
 
         for (var i = 0; i < justertePerioder.size() - 1; i++) {
