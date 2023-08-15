@@ -123,8 +123,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
         tilrMedArbeidsforholdsIdPerArbeidsgiverMap.forEach( (key, value) -> {
             var arbeidsgiver = Arbeidsgiver.virksomhet(key);
             var alleIderHarMatchendeIm = value.stream().map(SvpTilretteleggingEntitet::getInternArbeidsforholdRef)
-                .allMatch(internArbeidsforholdRef -> finnesIdIListenAvInntektsmeldingerForArbeidsgiver(arbeidsgiver, kobledeInntektsmeldinger, internArbeidsforholdRef
-                    .orElse(null)));
+                .allMatch(internArbeidsforholdRef -> finnesIdIListenAvInntektsmeldingerForArbeidsgiver(arbeidsgiver, kobledeInntektsmeldinger, internArbeidsforholdRef.orElse(null)));
             if (!alleIderHarMatchendeIm) {
                 tilrSomMåvurderesPåNytt.addAll(value);
             }
