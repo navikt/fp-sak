@@ -137,8 +137,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
             return false;
         }
         return inntektsmeldinger.stream()
-            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgvier)).
-                map(Inntektsmelding::getArbeidsforholdRef)
+            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgvier)).map(Inntektsmelding::getArbeidsforholdRef)
             .anyMatch( imInternArbeidsforholdRef -> imInternArbeidsforholdRef.equals(internArbeidsforholdRef));
     }
 

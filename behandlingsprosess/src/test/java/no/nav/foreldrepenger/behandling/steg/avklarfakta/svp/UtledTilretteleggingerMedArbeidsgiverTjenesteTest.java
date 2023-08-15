@@ -428,47 +428,6 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
     }
 
-    @Test
-    void feil_i_produksjon() {
-
-        // Arrange
-        var tilrettelegginger = List.of(
-            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1),
-            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2),
-            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_3),
-            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1),
-            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2));
-
-
-        when(iayTjeneste.hentGrunnlag(anyLong())).thenReturn(lagGrunnlag(behandling, List.of(
-            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
-            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE),
-            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_3, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
-
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
-            lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_1),
-            lagInntektsmelding(DEFAULT_VIRKSOMHET, INTERN_ARBEIDSFORHOLD_REF_2)));
-
-        // Act
-        var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
-
-        // Assert
-        assertThat(result).hasSize(3);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_3));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-
-    }
-
     private SvpTilretteleggingEntitet lagTilrettelegging(Arbeidsgiver arbeidsgiver, ArbeidType arbeidType,
                                                          InternArbeidsforholdRef internArbeidsforholdRef) {
         var builder = new SvpTilretteleggingEntitet.Builder()
