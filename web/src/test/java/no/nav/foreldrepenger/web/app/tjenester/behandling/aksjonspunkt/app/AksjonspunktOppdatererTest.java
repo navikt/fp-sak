@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.FatterVedtakAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AksjonspunktGodkjenningDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.FatterVedtakAksjonspunktOppdaterer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslaVedtakAksjonspunktDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslåVedtakAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.ForeslåVedtakAksjonspunktOppdaterer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.OpprettToTrinnsgrunnlag;
 
@@ -100,7 +100,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.medSøknadHendelse().medFødselsDato(now);
         var behandling = scenario.lagre(repositoryProvider);
-        var dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
+        var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, null, null, false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
@@ -128,7 +128,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(now);
         var behandling = scenario.lagre(repositoryProvider);
 
-        var dto = new ForeslaVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
+        var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, OVERSKRIFT, FRITEKST, true);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
@@ -160,7 +160,7 @@ class AksjonspunktOppdatererTest extends EntityManagerAwareTest {
                 .build();
         behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);
 
-        var dto = new ForeslaVedtakAksjonspunktDto(null, null, null, false);
+        var dto = new ForeslåVedtakAksjonspunktDto(null, null, null, false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(
                 behandlingRepository, behandlingsresultatRepository, mock(HistorikkTjenesteAdapter.class),
                 opprettTotrinnsgrunnlag,
