@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.PersonoversiktHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
@@ -36,7 +37,7 @@ class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         producer = mock(SakOgBehandlingHendelseProducer.class);
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        observer = new SakOgBehandlingTask(producer, mock(PersonoversiktHendelseProducer.class), repositoryProvider);
+        observer = new SakOgBehandlingTask(producer, mock(PersonoversiktHendelseProducer.class), mock(PersoninfoAdapter.class), repositoryProvider);
     }
 
     @Test

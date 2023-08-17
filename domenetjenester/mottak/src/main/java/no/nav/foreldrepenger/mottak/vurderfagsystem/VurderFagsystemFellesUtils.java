@@ -299,7 +299,7 @@ public class VurderFagsystemFellesUtils {
         }
         var tvilssaker = sakerOpprettetInnenTvilsintervall(sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MISMATCH, List.of()));
         if (!tvilssaker.isEmpty()) {
-            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} startdatoIM {} saker {}", SorteringSaker.GRUNNLAG_MISMATCH, startdatoIM, tvilssaker);
+            LOG.info("VurderFagsystem FP IM {} manuell pga nylige saker av type {} startdatoIM {} saker {}", vurderFagsystem.getJournalpostId(), SorteringSaker.GRUNNLAG_MISMATCH, startdatoIM, tvilssaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_DATO_MATCH, List.of()).isEmpty()) {
@@ -307,7 +307,7 @@ public class VurderFagsystemFellesUtils {
         }
         var tvilssakerIM = sakerOpprettetInnenTvilsintervall(sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_MISMATCH, List.of()));
         if (!tvilssakerIM.isEmpty()) {
-            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} startdatoIM {} im-saker {}", SorteringSaker.INNTEKTSMELDING_MISMATCH, startdatoIM, tvilssakerIM);
+            LOG.info("VurderFagsystem FP IM {} manuell pga nylige saker av type {} startdatoIM {} im-saker {}", vurderFagsystem.getJournalpostId(), SorteringSaker.INNTEKTSMELDING_MISMATCH, startdatoIM, tvilssakerIM);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         return sorterteSaker.getOrDefault(SorteringSaker.TOM_SAK, List.of()).isEmpty() ?  new BehandlendeFagsystem(VEDTAKSLØSNING) :
@@ -319,21 +319,21 @@ public class VurderFagsystemFellesUtils {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, saker.get(0).getSaksnummer());
         }
         if (saker.size() > 1) {
-            LOG.info("VurderFagsystem FP IM manuell pga flere saker av type {} for {}", sortering, vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP IM {} manuell pga flere saker av type {} for {}", vurderFagsystem.getJournalpostId(), sortering, vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         throw new IllegalArgumentException("Utviklerfeil skal ikke kalles med tom liste");
     }
 
     private SorteringSaker sorterFagsakForStartdatoIM(Fagsak fagsak, LocalDate startdatoIM) {
-        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream()
-            .findFirst().orElseGet(() -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null));
-        if (behandling == null) {
+        var sisteBehandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream().findFirst()
+            .orElseGet(() -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null));
+        if (sisteBehandling == null) {
             return SorteringSaker.TOM_SAK;
         }
-        var fhGrunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId());
+        var fhGrunnlag = familieHendelseTjeneste.finnAggregat(sisteBehandling.getId());
         if (fhGrunnlag.isEmpty()) {
-            var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(behandling.getFagsak().getSaksnummer());
+            var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(fagsak.getSaksnummer());
             var match = alleInntektsmeldinger.values().stream().flatMap(Collection::stream).map(Inntektsmelding::getStartDatoPermisjon).flatMap(Optional::stream)
                 .anyMatch(d -> startdatoIM.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(d) && startdatoIM.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(d));
             if (match) {
@@ -343,19 +343,20 @@ public class VurderFagsystemFellesUtils {
         }
         // Her har vi registrert søknad. Vurder å sjekke tilkjent framfor skjæringstidspunkter (som kan gi exception ved totalopphør)
         try {
-            var førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
+            var førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(sisteBehandling.getId()).getFørsteUttaksdato();
             var referanseDatoForSaker = LocalDate.now().isBefore(startdatoIM) ? LocalDate.now() : startdatoIM;
             if (førsteDagBehandling.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(startdatoIM) && førsteDagBehandling.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(startdatoIM)) {
                 return SorteringSaker.GRUNNLAG_DATO_MATCH;
             }
-            if (fagsak.erÅpen() && harBehandlingTilkjentRundtIM(behandling, referanseDatoForSaker)) {
+            var innvilgetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
+            if (fagsak.erÅpen() && innvilgetBehandling != null && harBehandlingTilkjentRundtIM(innvilgetBehandling, referanseDatoForSaker)) {
                 return SorteringSaker.GRUNNLAG_MULIG_MATCH;
             }
-            if (erÅpenBehandlingMedSøknadRundtIM(behandling, referanseDatoForSaker)) {
+            if (erÅpenBehandlingMedSøknadRundtIM(sisteBehandling, referanseDatoForSaker)) {
                 return SorteringSaker.GRUNNLAG_MULIG_MATCH;
             }
             if (fagsak.erÅpen() && harSakOpprettetInnenIntervallForIM(List.of(fagsak), referanseDatoForSaker)
-                || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
+                || erBehandlingAvsluttetFørOpplysningspliktIntervall(sisteBehandling)) {
                 return SorteringSaker.GRUNNLAG_MULIG_MATCH;
             }
             return SorteringSaker.GRUNNLAG_MISMATCH;
@@ -409,7 +410,7 @@ public class VurderFagsystemFellesUtils {
             return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING, åpneFagsaker.get(0).getSaksnummer()));
         }
         if (åpneFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem ustrukturert søknad flere åpne saker {}", åpneFagsaker.stream().map(Fagsak::getSaksnummer).toList());
+            LOG.info("VurderFagsystem ustrukturert dokument flere åpne saker {}", åpneFagsaker.stream().map(Fagsak::getSaksnummer).toList());
             return Optional.of(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
         var avslagDokumentasjon = harSakMedAvslagGrunnetManglendeDok(sakerTilVurdering);

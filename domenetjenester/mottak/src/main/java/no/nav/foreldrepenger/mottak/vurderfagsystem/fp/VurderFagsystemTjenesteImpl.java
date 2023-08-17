@@ -49,7 +49,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.get(0));
         }
         if (matchendeFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad flere matchende saker {}", matchendeFagsaker);
+            LOG.info("VurderFagsystem FP strukturert søknad {} flere matchende saker {}", vurderFagsystem.getJournalpostId(), matchendeFagsaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -62,13 +62,13 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0));
         }
         if (relevanteFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad flere relevante saker {}", relevanteFagsaker);
+            LOG.info("VurderFagsystem FP strukturert søknad {} flere relevante saker {}", vurderFagsystem.getJournalpostId(), relevanteFagsaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
         var åpneSaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType).stream().map(Fagsak::getSaksnummer).toList();
         if (åpneSaker.size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad mer enn 1 åpen sak {}", åpneSaker);
+            LOG.info("VurderFagsystem FP strukturert søknad {} mer enn 1 åpen sak {}", vurderFagsystem.getJournalpostId(), åpneSaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType).stream()
@@ -81,7 +81,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
                 new BehandlendeFagsystem(VEDTAKSLØSNING, potensiellImSak.getSaksnummer()) :  new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
         if (!sakOpprettetInnenIntervall.isEmpty()) {
-            LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", sakOpprettetInnenIntervall);
+            LOG.info("VurderFagsystem FP strukturert søknad {} nyere sak enn 10mnd for {}", vurderFagsystem.getJournalpostId(), sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -104,13 +104,13 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId()) || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
             // Inntil videre kan man ikke se periode. OBS på forskjell mot ES: FP-saker lever mye lenger.
-            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling a for {}", vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling a for {}", vurderFagsystem.getJournalpostId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
         var vurdering = fellesUtils.standardUstrukturertDokumentVurdering(kompatibleFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         if (MANUELL_VURDERING.equals(vurdering.behandlendeSystem())) {
-            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling b for {}", vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling b for {}", vurderFagsystem.getJournalpostId());
         }
         return vurdering;
     }

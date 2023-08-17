@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.BehandlingStatusDto;
@@ -50,6 +51,7 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
     private PersonoversiktHendelseProducer aivenProducer;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
+    private PersoninfoAdapter personinfoAdapter;
 
 
     SakOgBehandlingTask() {
@@ -59,10 +61,12 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
     @Inject
     public SakOgBehandlingTask(SakOgBehandlingHendelseProducer producer,
                                PersonoversiktHendelseProducer aivenProducer,
+                               PersoninfoAdapter personinfoAdapter,
                                BehandlingRepositoryProvider repositoryProvider) {
         super();
         this.producer = producer;
         this.aivenProducer = aivenProducer;
+        this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
@@ -123,6 +127,8 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
 
         if (Cluster.DEV_FSS.equals(CLUSTER)) {
             try {
+                // Ny topic vil gjerne ha FNR siden Infotrygd bruker det
+                personinfoAdapter.hentFnr(dto.getAktørId()).ifPresent(ident -> builder.aktoerREF(List.of(new Aktoer(ident.getIdent()))));
                 aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
             } catch (Exception e) {
                 LOG.info("SOBKAFKA AIVEN ga feil for {}", dto, e);
