@@ -127,8 +127,8 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
 
         if (Cluster.DEV_FSS.equals(CLUSTER)) {
             try {
-                // Ny topic vil gjerne ha FNR siden Infotrygd bruker det
-                personinfoAdapter.hentFnr(dto.getAktørId()).ifPresent(ident -> builder.aktoerREF(List.of(new Aktoer(ident.getIdent()))));
+                // Ny topic vil gjerne ha FNR siden Infotrygd bruker det. Men de skal oppdatere kontrakt i et eierløst repo ....
+                //personinfoAdapter.hentFnr(dto.getAktørId()).ifPresent(ident -> builder.aktoerREF(List.of(new Aktoer(ident.getIdent()))));
                 aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
             } catch (Exception e) {
                 LOG.info("SOBKAFKA AIVEN ga feil for {}", dto, e);
