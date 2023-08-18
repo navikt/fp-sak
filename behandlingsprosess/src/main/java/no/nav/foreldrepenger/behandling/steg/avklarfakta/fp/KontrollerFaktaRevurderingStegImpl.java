@@ -163,7 +163,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
         var startpunkt = initieltStartPunkt(ref, revurdering);
-        startpunkt = sjekkÅpneOverstyringer(ref, revurdering, startpunkt);
+        startpunkt = sjekkÅpneAksjonspunkt(ref, revurdering, startpunkt);
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
@@ -197,7 +197,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return startpunkt;
     }
 
-    private StartpunktType sjekkÅpneOverstyringer(BehandlingReferanse ref, Behandling revurdering, StartpunktType gjeldendeStartpunkt) {
+    private StartpunktType sjekkÅpneAksjonspunkt(BehandlingReferanse ref, Behandling revurdering, StartpunktType gjeldendeStartpunkt) {
         var stegForÅpneAksjonspunktFørStartpunkt = revurdering.getÅpneAksjonspunkter().stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .map(AksjonspunktDefinisjon::getBehandlingSteg)
