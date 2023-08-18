@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,6 +38,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -160,6 +163,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
         var startpunkt = initieltStartPunkt(ref, revurdering);
+        startpunkt = sjekkÅpneAksjonspunkt(ref, revurdering, startpunkt);
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
@@ -191,6 +195,28 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP : StartpunktType.UTTAKSVILKÅR;
         }
         return startpunkt;
+    }
+
+    private StartpunktType sjekkÅpneAksjonspunkt(BehandlingReferanse ref, Behandling revurdering, StartpunktType gjeldendeStartpunkt) {
+        var stegForÅpneAksjonspunktFørStartpunkt = revurdering.getÅpneAksjonspunkter().stream()
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .map(AksjonspunktDefinisjon::getBehandlingSteg)
+            .filter(behandlingSteg -> sammenlignRekkefølge(ref, gjeldendeStartpunkt, behandlingSteg) > 0)
+            .toList();
+        if (stegForÅpneAksjonspunktFørStartpunkt.isEmpty()) {
+            return gjeldendeStartpunkt;
+        }
+        return Arrays.stream(StartpunktType.values())
+            .filter(stp -> !StartpunktType.UDEFINERT.equals(stp))
+            .filter(stp -> stp.getRangering() >= DEFAULT_STARTPUNKT.getRangering()) // Se bort fra helt tidlige startpunkt her i KOFAK
+            .filter(stp -> stegForÅpneAksjonspunktFørStartpunkt.stream().allMatch(steg -> sammenlignRekkefølge(ref, stp, steg) <= 0))
+            .max(Comparator.comparing(StartpunktType::getRangering))
+            .orElse(gjeldendeStartpunkt);
+    }
+
+    private int sammenlignRekkefølge(BehandlingReferanse ref, StartpunktType startpunkt, BehandlingStegType behandlingSteg) {
+        return behandlingskontrollTjeneste.sammenlignRekkefølge(ref.fagsakYtelseType(), ref.behandlingType(),
+            startpunkt.getBehandlingSteg(), behandlingSteg);
     }
 
     private boolean inneholderEndringssøknadPerioderFørSkjæringstidspunkt(Behandling revurdering, BehandlingReferanse ref) {
