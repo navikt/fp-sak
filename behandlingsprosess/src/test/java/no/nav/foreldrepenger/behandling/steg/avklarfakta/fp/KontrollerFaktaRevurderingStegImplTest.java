@@ -14,9 +14,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
-import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -36,10 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personstatus;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Statsborgerskap;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -69,7 +62,7 @@ class KontrollerFaktaRevurderingStegImplTest {
         var aksjonspunkter = steg.utførSteg(kontekst).getAksjonspunktListe();
 
         // Assert
-        assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD);
+        assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
         // Må verifisere at startpunkt er før aksjonpunktet for at assert ovenfor skal
         // ha mening
         assertThat(behandling.getStartpunkt()).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
@@ -183,6 +176,25 @@ class KontrollerFaktaRevurderingStegImplTest {
     }
 
     @Test
+    void skal_gå_til_nærmeste_startpunkt_før_åpen_overstyring() {
+        var behandling = opprettAutomatiskRevurderingMedÅpenOverstyring();
+        var fagsak = behandling.getFagsak();
+        // Arrange
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+
+        // Act
+        var aksjonspunkter = steg.utførSteg(kontekst).getAksjonspunktListe();
+
+        // Assert
+        assertThat(aksjonspunkter).isEmpty();
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO)).isPresent();
+        // Må verifisere at startpunkt er før aksjonpunktet for at assert ovenfor skal
+        // ha mening
+        assertThat(behandling.getStartpunkt()).isEqualTo(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
+    }
+
+    @Test
     void feriepenge_berørt_hopper_til_tilkjent() {
         var behandling = opprettRevurdering(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         var fagsak = behandling.getFagsak();
@@ -290,9 +302,34 @@ class KontrollerFaktaRevurderingStegImplTest {
         return revurdering;
     }
 
+    private Behandling opprettAutomatiskRevurderingMedÅpenOverstyring() {
+        var førstegangsbehandling = opprettFørstegangsbehandling(new Behandlingsresultat.Builder());
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(førstegangsbehandling, LocalDate.now().minusYears(1), LocalDate.now(),
+            false);
+
+        var fordeling = new OppgittFordelingEntitet(List.of(), true);
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)
+            .medFordeling(fordeling);
+        revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        revurderingScenario.medDefaultOppgittTilknytning();
+
+        revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
+        revurderingScenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().minusDays(10));
+        revurderingScenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO, null);
+
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
+
+        // Nødvendig å sette aktivt steg for KOFAK revurdering
+        forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
+        var behandlingLås = behandlingRepository.taSkriveLås(revurdering);
+        behandlingRepository.lagre(revurdering, behandlingLås);
+
+        return revurdering;
+    }
+
     private Behandling opprettFørstegangsbehandling(Behandlingsresultat.Builder behandlingsresultat) {
-        var fødselsdato = LocalDate.now().minusYears(20);
-        var aktørId = AktørId.dummy();
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
@@ -301,34 +338,8 @@ class KontrollerFaktaRevurderingStegImplTest {
 
         var søkerAktørId = førstegangScenario.getDefaultBrukerAktørId();
 
-        var personInformasjon = førstegangScenario
-                .opprettBuilderForRegisteropplysninger()
-                .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.SAMBOER).statsborgerskap(Landkoder.USA)
-                .build();
-
-        førstegangScenario.medRegisterOpplysninger(personInformasjon);
-
         førstegangScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
 
-        var personopplysningBuilder = førstegangScenario.opprettBuilderForRegisteropplysninger();
-        personopplysningBuilder.leggTilPersonopplysninger(
-                Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
-                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie"))
-                .leggTilAdresser(
-                        PersonAdresse.builder()
-                                .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
-                                .adresseType(AdresseType.POSTADRESSE_UTLAND)
-                                .periode(fødselsdato, LocalDate.now()))
-                .leggTilPersonstatus(
-                        Personstatus.builder().aktørId(aktørId).personstatus(PersonstatusType.UTVA)
-                                .periode(fødselsdato, LocalDate.now()))
-                .leggTilStatsborgerskap(
-                        Statsborgerskap.builder().aktørId(aktørId)
-                                .periode(fødselsdato, LocalDate.now())
-                                .statsborgerskap(Landkoder.USA));
-
-        førstegangScenario.medRegisterOpplysninger(personopplysningBuilder.build());
         førstegangScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
 
         return førstegangScenario.lagre(repositoryProvider);
@@ -361,24 +372,6 @@ class KontrollerFaktaRevurderingStegImplTest {
 
         førstegangScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
 
-        var personopplysningBuilder = førstegangScenario.opprettBuilderForRegisteropplysninger();
-        personopplysningBuilder.leggTilPersonopplysninger(
-                Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
-                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie"))
-                .leggTilAdresser(
-                        PersonAdresse.builder()
-                                .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
-                                .adresseType(AdresseType.POSTADRESSE_UTLAND)
-                                .periode(fødselsdato, LocalDate.now()))
-                .leggTilPersonstatus(
-                        Personstatus.builder().aktørId(aktørId).personstatus(PersonstatusType.UTVA)
-                                .periode(fødselsdato, LocalDate.now()))
-                .leggTilStatsborgerskap(
-                        Statsborgerskap.builder().aktørId(aktørId)
-                                .periode(fødselsdato, LocalDate.now())
-                                .statsborgerskap(Landkoder.USA));
-
-        førstegangScenario.medRegisterOpplysninger(personopplysningBuilder.build());
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medFørsteUttaksdato(LocalDate.now())
                 .build();
@@ -402,7 +395,6 @@ class KontrollerFaktaRevurderingStegImplTest {
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medRegisterOpplysninger(personopplysningBuilder.build())
                 .medOriginalBehandling(originalBehandling, årsak);
         revurderingScenario.medDefaultOppgittTilknytning();
 

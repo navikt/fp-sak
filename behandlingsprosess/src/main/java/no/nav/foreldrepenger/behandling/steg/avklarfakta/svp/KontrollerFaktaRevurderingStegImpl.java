@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
@@ -33,6 +36,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -70,6 +75,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private static final StartpunktType DEFAULT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingRepository behandlingRepository;
     private KontrollerFaktaTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -92,6 +98,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     @Inject
     KontrollerFaktaRevurderingStegImpl(BehandlingRepositoryProvider repositoryProvider,
+                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                        BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                        HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
@@ -102,6 +109,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste,
                                        MottatteDokumentTjeneste mottatteDokumentTjeneste) {
         this.repositoryProvider = repositoryProvider;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -146,6 +154,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
         var startpunkt = initieltStartPunkt(ref, revurdering);
+        startpunkt = sjekkÅpneOverstyringer(ref, revurdering, startpunkt);
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
@@ -182,6 +191,28 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             return StartpunktType.UTTAKSVILKÅR;
         }
         return startpunkt;
+    }
+
+    private StartpunktType sjekkÅpneOverstyringer(BehandlingReferanse ref, Behandling revurdering, StartpunktType gjeldendeStartpunkt) {
+        var stegForÅpneAksjonspunktFørStartpunkt = revurdering.getÅpneAksjonspunkter().stream()
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .map(AksjonspunktDefinisjon::getBehandlingSteg)
+            .filter(behandlingSteg -> sammenlignRekkefølge(ref, gjeldendeStartpunkt, behandlingSteg) > 0)
+            .toList();
+        if (stegForÅpneAksjonspunktFørStartpunkt.isEmpty()) {
+            return gjeldendeStartpunkt;
+        }
+        return Arrays.stream(StartpunktType.values())
+            .filter(stp -> !StartpunktType.UDEFINERT.equals(stp))
+            .filter(stp -> stp.getRangering() >= DEFAULT_STARTPUNKT.getRangering()) // Se bort fra helt tidlige startpunkt her i KOFAK
+            .filter(stp -> stegForÅpneAksjonspunktFørStartpunkt.stream().allMatch(steg -> sammenlignRekkefølge(ref, stp, steg) <= 0))
+            .max(Comparator.comparing(StartpunktType::getRangering))
+            .orElse(gjeldendeStartpunkt);
+    }
+
+    private int sammenlignRekkefølge(BehandlingReferanse ref, StartpunktType startpunkt, BehandlingStegType behandlingSteg) {
+        return behandlingskontrollTjeneste.sammenlignRekkefølge(ref.fagsakYtelseType(), ref.behandlingType(),
+            startpunkt.getBehandlingSteg(), behandlingSteg);
     }
 
     private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Behandling revurdering) {
