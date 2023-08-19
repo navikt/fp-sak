@@ -7,16 +7,17 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.Collections;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import contract.sob.dto.BehandlingAvsluttet;
 import contract.sob.dto.BehandlingOpprettet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.PersonoversiktHendelseProducer;
@@ -24,32 +25,28 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehan
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
+@ExtendWith(MockitoExtension.class)
+class SakOgBehandlingKafkaTaskTest {
 
     private SakOgBehandlingTask observer;
     private BehandlingRepositoryProvider repositoryProvider;
-
+    @Mock
     private SakOgBehandlingHendelseProducer producer;
 
-    @BeforeEach
-    public void setup() {
-
-        producer = mock(SakOgBehandlingHendelseProducer.class);
-
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        observer = new SakOgBehandlingTask(producer, mock(PersonoversiktHendelseProducer.class), mock(PersoninfoAdapter.class), repositoryProvider);
-    }
 
     @Test
     void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErOpprettet() {
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
-
-        var behandling = scenario.lagre(repositoryProvider);
+        scenario.medBehandlendeEnhet("4867");
+        var behandling = scenario.lagMocked();
         var fagsak = behandling.getFagsak();
         var task = ProsessTaskData.forProsessTask(SakOgBehandlingTask.class);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
+
+        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        observer = new SakOgBehandlingTask(producer, mock(PersonoversiktHendelseProducer.class), mock(PersoninfoAdapter.class), repositoryProvider);
 
         var captorKey = ArgumentCaptor.forClass(String.class);
         var captorVal = ArgumentCaptor.forClass(String.class);
@@ -65,8 +62,9 @@ class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
     void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErAvsluttet() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
-
-        var behandling = scenario.lagre(repositoryProvider);
+        scenario.medBehandlendeEnhet("4867");
+        var behandling = scenario.lagMocked();
+        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
@@ -74,12 +72,13 @@ class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         var task = ProsessTaskData.forProsessTask(SakOgBehandlingTask.class);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
 
+        observer = new SakOgBehandlingTask(producer, mock(PersonoversiktHendelseProducer.class), mock(PersoninfoAdapter.class), repositoryProvider);
+
         var captorKey = ArgumentCaptor.forClass(String.class);
         var captorVal = ArgumentCaptor.forClass(String.class);
         observer.doTask(task);
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
-        var key = captorKey.getValue();
         var value = captorVal.getValue();
         var roundtrip = StandardJsonConfig.fromJson(value, BehandlingAvsluttet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());

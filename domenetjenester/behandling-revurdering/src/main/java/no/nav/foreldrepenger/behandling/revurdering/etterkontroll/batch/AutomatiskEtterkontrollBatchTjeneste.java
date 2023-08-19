@@ -1,14 +1,16 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.batch;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -32,20 +34,26 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
 
     private static final String BATCHNAME = "BVL002";
-    private ProsessTaskTjeneste taskTjeneste;
-    private EtterkontrollRepository etterkontrollRepository;
+    private final ProsessTaskTjeneste taskTjeneste;
+    private final EtterkontrollRepository etterkontrollRepository;
+    private final BehandlingRepository behandlingRepository;
 
     @Inject
     public AutomatiskEtterkontrollBatchTjeneste(ProsessTaskTjeneste taskTjeneste,
-            EtterkontrollRepository etterkontrollRepository) {
+                                                EtterkontrollRepository etterkontrollRepository,
+                                                BehandlingRepository behandlingRepository) {
         this.taskTjeneste = taskTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public String launch(Properties properties) {
         // Etterkontrolltidspunkt er allerede satt 60D fram i EK-repo
-        var kontrollKandidater = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var kontrollKandidater = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll().stream()
+            .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
+            .flatMap(Optional::stream)
+            .toList();
 
         var callId = (MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId()) + "_";
 

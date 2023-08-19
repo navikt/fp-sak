@@ -6,14 +6,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
 /**
  * Demonstrerer lookup med repeatble annotations.
  */
-@CdiDbAwareTest
+@ExtendWith(CdiAwareExtension.class)
 class FagsakYtelseTypeRefTest {
 
     @Test

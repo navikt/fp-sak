@@ -2,14 +2,16 @@ package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -21,11 +23,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
 
-class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(MockitoExtension.class)
+class BehandlendeEnhetTjenesteTest {
 
     private static final AktørId MOR_AKTØR_ID = AktørId.dummy();
 
@@ -34,18 +36,14 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
     private static final OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4867", "NAV Foreldrepenger");
     private static final OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
 
-    private BehandlingRepositoryProvider repositoryProvider;
+    @Mock
     private EnhetsTjeneste enhetsTjeneste;
+    @Mock
+    private FagsakEgenskapRepository egenskapRepository;
+    @Mock
+    private BehandlingEnhetEventPubliserer eventPubliserer;
+    private BehandlingRepositoryProvider repositoryProvider;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-
-    @BeforeEach
-    public void oppsett() {
-        enhetsTjeneste = mock(EnhetsTjeneste.class);
-        var eventPubliserer = mock(BehandlingEnhetEventPubliserer.class);
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var egenskapRepository = new FagsakEgenskapRepository(getEntityManager());
-        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
-    }
 
     @Test
     void finn_mors_enhet_normal_sak() {
@@ -78,8 +76,8 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
     @Test
     void finn_enhet_etter_kobling_far_relasjon_kode6() {
         // Oppsett
-        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(),any())).thenReturn(Optional.empty());
+        lenient().when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
+        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(),any())).thenReturn(Optional.empty());
 
         var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate.now(),1,  FAR_AKTØR_ID);
         behandlingMor.setBehandlendeEnhet(enhetNormal);
@@ -89,7 +87,7 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
 
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
+        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
 
         var oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor);
 
@@ -107,7 +105,10 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
             .medTermindato(termindato)
             .medNavnPå("LEGEN MIN"));
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
-        return scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagMocked();
+        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
+        return behandling;
     }
 
     private Behandling opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate fødselsdato, int antallBarn, AktørId annenPart) {
@@ -117,7 +118,10 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
             .medFødselsDato(fødselsdato)
             .medAntallBarn(antallBarn);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
-        return scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagMocked();
+        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
+        return behandling;
     }
 
 
@@ -128,7 +132,10 @@ class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
             .medFødselsDato(fødseldato)
             .medAntallBarn(antallBarnSøknad);
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
-        return scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagMocked();
+        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
+        return behandling;
     }
 
 

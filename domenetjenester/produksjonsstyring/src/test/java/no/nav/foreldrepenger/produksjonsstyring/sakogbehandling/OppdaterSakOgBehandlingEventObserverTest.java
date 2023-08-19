@@ -1,15 +1,16 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.util.Collections;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
@@ -18,7 +19,6 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.Be
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer.OppdaterSakOgBehandlingEventObserver;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
@@ -26,20 +26,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
-class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
+@ExtendWith(MockitoExtension.class)
+class OppdaterSakOgBehandlingEventObserverTest {
 
     private OppdaterSakOgBehandlingEventObserver observer;
     private BehandlingRepositoryProvider repositoryProvider;
 
+    @Mock
     private ProsessTaskTjeneste taskTjenesteMock;
-
-    @BeforeEach
-    public void setup() {
-        taskTjenesteMock = mock(ProsessTaskTjeneste.class);
-
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
-    }
 
     @Test
     void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErOpprettet() {
@@ -47,8 +41,11 @@ class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
-        var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagMocked();
         var fagsak = behandling.getFagsak();
+
+        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
 
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 scenario.taSkriveLåsForBehandling());
@@ -68,8 +65,12 @@ class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
-        var behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagMocked();
         var fagsak = behandling.getFagsak();
+
+        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        observer = new OppdaterSakOgBehandlingEventObserver(repositoryProvider, taskTjenesteMock);
+
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 scenario.taSkriveLåsForBehandling());
         BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(kontekst, BehandlingStatus.AVSLUTTET);

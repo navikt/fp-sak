@@ -6,8 +6,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.impl.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 
 
 @ApplicationScoped

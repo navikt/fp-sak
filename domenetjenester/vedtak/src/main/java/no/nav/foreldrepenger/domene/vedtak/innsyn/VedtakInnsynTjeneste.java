@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.innsyn;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
 
 @ApplicationScoped
 public class VedtakInnsynTjeneste {

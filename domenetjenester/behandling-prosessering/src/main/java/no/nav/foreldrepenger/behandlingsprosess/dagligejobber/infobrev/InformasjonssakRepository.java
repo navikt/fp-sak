@@ -290,46 +290,4 @@ public class InformasjonssakRepository {
         return toOverlappData(resultatList);
     }
 
-    public List<Long> finnSakerSomKanMerkesNæring() {
-        var query =  entityManager.createNativeQuery("""
-           select distinct b.fagsak_id
-           from FPSAK.behandling b join fpsak.aksjonspunkt ap on b.id = ap.behandling_id join fpsak.fagsak f on b.fagsak_id = f.id
-           where f.fagsak_status <> 'AVSLU'
-           and ap.aksjonspunkt_def in ('5039', '5049')
-           and b.fagsak_id not in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value is not null)
-        """);
-        @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        return resultatList.stream().map(BigDecimal::longValue).toList();
-    }
-
-    public List<Long> finnAktiveNæringBehandlingerSomSkalOppdateres() {
-        var query =  entityManager.createNativeQuery("""
-           select distinct b.id
-           from FPSAK.behandling b join fpsak.aksjonspunkt ap on b.id = ap.behandling_id
-           where b.BEHANDLING_TYPE in ('BT-002', 'BT-004', 'BT-003')
-           and ap.aksjonspunkt_status = 'OPPR'
-           and ap.aksjonspunkt_def < '7000'
-           and b.id not in (select vap.BEHANDLING_ID from fpsak.AKSJONSPUNKT vap where vap.AKSJONSPUNKT_STATUS = 'OPPR' and vap.AKSJONSPUNKT_DEF > '7000')
-           and b.fagsak_id in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value in ('SELVSTENDIG_NÆRING'))
-        """);
-        @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        return resultatList.stream().map(BigDecimal::longValue).toList();
-    }
-
-    public List<Long> finnAktiveUtlandBehandlingerSomSkalOppdateres() {
-        var query =  entityManager.createNativeQuery("""
-           select distinct b.id
-           from FPSAK.behandling b
-           where b.BEHANDLING_TYPE in ('BT-002', 'BT-004', 'BT-003')
-           and b.BEHANDLING_STATUS <> 'AVSLU'
-           and b.BEHANDLENDE_ENHET = '4867'
-           and b.id not in (select behandling_id from fpsak.AKSJONSPUNKT where AKSJONSPUNKT_DEF in ('7008', '7003') and AKSJONSPUNKT_STATUS = 'OPPR')
-           and b.fagsak_id in (select fagsak_id from fpsak.fagsak_egenskap fe where egenskap_key = 'FAGSAK_MARKERING' and egenskap_value in ('BOSATT_UTLAND'))
-        """);
-        @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        return resultatList.stream().map(BigDecimal::longValue).toList();
-    }
 }

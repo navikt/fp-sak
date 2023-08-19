@@ -6,7 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamiliehendelseEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.FamiliehendelseEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 
 

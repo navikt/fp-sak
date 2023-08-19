@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -52,8 +52,8 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     @Override
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
         var fagsakRelasjon = mock(FagsakRelasjon.class);
-        when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsak);
-        when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(dekningsgrad);
+        lenient().when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsak);
+        lenient().when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(dekningsgrad);
         map.put(fagsak.getSaksnummer(), fagsakRelasjon);
         return fagsakRelasjon;
     }
@@ -72,11 +72,11 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
         var eksisterendeEn = finnRelasjonFor(fagsakEn).getDekningsgrad();
         var fagsakRelasjon = mock(FagsakRelasjon.class);
-        when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsakEn);
-        when(fagsakRelasjon.getFagsakNrTo()).thenReturn(Optional.of(fagsakTo));
-        when(fagsakRelasjon.getRelatertFagsak(fagsakEn)).thenReturn(Optional.of(fagsakTo));
-        when(fagsakRelasjon.getRelatertFagsak(fagsakTo)).thenReturn(Optional.of(fagsakEn));
-        when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(eksisterendeEn);
+        lenient().when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsakEn);
+        lenient().when(fagsakRelasjon.getFagsakNrTo()).thenReturn(Optional.of(fagsakTo));
+        lenient().when(fagsakRelasjon.getRelatertFagsak(fagsakEn)).thenReturn(Optional.of(fagsakTo));
+        lenient().when(fagsakRelasjon.getRelatertFagsak(fagsakTo)).thenReturn(Optional.of(fagsakEn));
+        lenient().when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(eksisterendeEn);
         map.put(fagsakEn.getSaksnummer(), fagsakRelasjon);
         map.put(fagsakTo.getSaksnummer(), fagsakRelasjon);
         return Optional.of(fagsakRelasjon);
