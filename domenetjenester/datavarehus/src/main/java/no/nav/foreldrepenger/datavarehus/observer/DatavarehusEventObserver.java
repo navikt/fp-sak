@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEvent;
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
-import no.nav.foreldrepenger.behandling.impl.BehandlingEnhetEvent;
-import no.nav.foreldrepenger.behandling.impl.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokumentPersistertEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 
 @ApplicationScoped

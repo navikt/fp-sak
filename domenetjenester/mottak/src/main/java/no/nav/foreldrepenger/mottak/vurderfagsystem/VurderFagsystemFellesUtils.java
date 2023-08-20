@@ -299,7 +299,7 @@ public class VurderFagsystemFellesUtils {
         }
         var tvilssaker = sakerOpprettetInnenTvilsintervall(sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MISMATCH, List.of()));
         if (!tvilssaker.isEmpty()) {
-            LOG.info("VurderFagsystem FP IM {} manuell pga nylige saker av type {} startdatoIM {} saker {}", vurderFagsystem.getJournalpostId(), SorteringSaker.GRUNNLAG_MISMATCH, startdatoIM, tvilssaker);
+            LOG.info("VurderFagsystem FP IM {} manuell pga nylige saker av type {} startdatoIM {} saker {}", vurderFagsystem.getJournalpostIdLog(), SorteringSaker.GRUNNLAG_MISMATCH, startdatoIM, tvilssaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_DATO_MATCH, List.of()).isEmpty()) {
@@ -307,7 +307,7 @@ public class VurderFagsystemFellesUtils {
         }
         var tvilssakerIM = sakerOpprettetInnenTvilsintervall(sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_MISMATCH, List.of()));
         if (!tvilssakerIM.isEmpty()) {
-            LOG.info("VurderFagsystem FP IM {} manuell pga nylige saker av type {} startdatoIM {} im-saker {}", vurderFagsystem.getJournalpostId(), SorteringSaker.INNTEKTSMELDING_MISMATCH, startdatoIM, tvilssakerIM);
+            LOG.info("VurderFagsystem FP IM {} manuell pga nylige saker av type {} startdatoIM {} im-saker {}", vurderFagsystem.getJournalpostIdLog(), SorteringSaker.INNTEKTSMELDING_MISMATCH, startdatoIM, tvilssakerIM);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         return sorterteSaker.getOrDefault(SorteringSaker.TOM_SAK, List.of()).isEmpty() ?  new BehandlendeFagsystem(VEDTAKSLØSNING) :
@@ -319,7 +319,7 @@ public class VurderFagsystemFellesUtils {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, saker.get(0).getSaksnummer());
         }
         if (saker.size() > 1) {
-            LOG.info("VurderFagsystem FP IM {} manuell pga flere saker av type {} for {}", vurderFagsystem.getJournalpostId(), sortering, vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP IM {} manuell pga flere saker av type {}", vurderFagsystem.getJournalpostIdLog(), sortering);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         throw new IllegalArgumentException("Utviklerfeil skal ikke kalles med tom liste");

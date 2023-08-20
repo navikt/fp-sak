@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.BehandlingStatusDto;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.PersonoversiktBehandlingStatusDto;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.PersonoversiktHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -127,9 +128,11 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
 
         if (Cluster.DEV_FSS.equals(CLUSTER)) {
             try {
-                // Ny topic vil gjerne ha FNR siden Infotrygd bruker det. Men de skal oppdatere kontrakt i et eierløst repo ....
-                //personinfoAdapter.hentFnr(dto.getAktørId()).ifPresent(ident -> builder.aktoerREF(List.of(new Aktoer(ident.getIdent()))));
-                aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
+                var ident = personinfoAdapter.hentFnr(dto.getAktørId()).orElse(null);
+                var personSoB = erAvsluttet ? new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingAvsluttetDto(callId, dto, ident) :
+                    new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingOpprettetDto(callId, dto, ident);
+                aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()),
+                    StandardJsonConfig.toJson(personSoB));
             } catch (Exception e) {
                 LOG.info("SOBKAFKA AIVEN ga feil for {}", dto, e);
             }

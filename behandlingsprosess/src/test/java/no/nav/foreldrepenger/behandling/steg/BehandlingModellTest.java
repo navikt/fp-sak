@@ -9,19 +9,20 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
 /**
  * Sjekk at alle konfigurasjoner fungerer og har definerte steg
  * implementasjoner.
  */
-@CdiDbAwareTest
+@ExtendWith(CdiAwareExtension.class)
 class BehandlingModellTest {
 
     @ParameterizedTest

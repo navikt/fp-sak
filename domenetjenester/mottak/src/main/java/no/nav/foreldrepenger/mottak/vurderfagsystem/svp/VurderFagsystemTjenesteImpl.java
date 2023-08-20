@@ -68,7 +68,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         if (relevanteFagsaker.size() > 1) {
             var saksnumre = relevanteFagsaker.stream().map(Fagsak::getSaksnummer).toList();
-            LOG.info("VurderFagsystem SV strukturert søknad {} flere relevante saker {}", vurderFagsystem.getJournalpostId(), saksnumre);
+            LOG.info("VurderFagsystem SV strukturert søknad {} flere relevante saker {}", vurderFagsystem.getJournalpostIdLog(), saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (relevanteFagsaker.isEmpty()) {
@@ -82,7 +82,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, relevanteFagsaker.get(0)) ?
                 new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
-        LOG.info("VurderFagsystem SV strukturert søknad {} 1 relevant saker som ikke matchet {}", vurderFagsystem.getJournalpostId(), relevanteFagsaker.get(0).getSaksnummer());
+        LOG.info("VurderFagsystem SV strukturert søknad {} 1 relevant saker som ikke matchet {}", vurderFagsystem.getJournalpostIdLog(), relevanteFagsaker.get(0).getSaksnummer());
         return new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 
@@ -95,7 +95,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         var åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
             var saksnumre = åpneFagsaker.stream().map(Fagsak::getSaksnummer).toList();
-            LOG.info("VurderFagsystem SV IM {} flere åpne saker {}", vurderFagsystem.getJournalpostId(), saksnumre);
+            LOG.info("VurderFagsystem SV IM {} flere åpne saker {}", vurderFagsystem.getJournalpostIdLog(), saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (åpneFagsaker.size() == 1) {
@@ -107,7 +107,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .toList();
         if (aktuelleSakerForMatch.size() > 1) {
             var saksnumre = aktuelleSakerForMatch.stream().map(Fagsak::getSaksnummer).toList();
-            LOG.info("VurderFagsystem SV IM {} flere aktuelle saker {}", vurderFagsystem.getJournalpostId(), saksnumre);
+            LOG.info("VurderFagsystem SV IM {} flere aktuelle saker {}", vurderFagsystem.getJournalpostIdLog(), saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (aktuelleSakerForMatch.size() == 1) {
@@ -133,7 +133,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         var åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
             var saksnumre = åpneFagsaker.stream().map(Fagsak::getSaksnummer).toList();
-            LOG.info("VurderFagsystem SV strukturert søknad gammel {} flere åpne saker {}", vurderFagsystem.getJournalpostId(), saksnumre);
+            LOG.info("VurderFagsystem SV strukturert søknad gammel {} flere åpne saker {}", vurderFagsystem.getJournalpostIdLog(), saksnumre);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (åpneFagsaker.size() == 1) {
@@ -145,7 +145,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .map(Fagsak::getSaksnummer)
             .toList();
         if (!aktuelleSakerForMatch.isEmpty()) {
-            LOG.info("VurderFagsystem SV strukturert søknad gammel {} flere aktuelle saker {}", vurderFagsystem.getJournalpostId(), aktuelleSakerForMatch);
+            LOG.info("VurderFagsystem SV strukturert søknad gammel {} flere aktuelle saker {}", vurderFagsystem.getJournalpostIdLog(), aktuelleSakerForMatch);
         }
         return aktuelleSakerForMatch.isEmpty() ? new BehandlendeFagsystem(VEDTAKSLØSNING) : new BehandlendeFagsystem(MANUELL_VURDERING);
     }
@@ -157,7 +157,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         if (fellesUtils.finnGjeldendeFamilieHendelseSVP(fagsak).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE)) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
         }
-        LOG.info("VurderFagsystem SV strukturert søknad førstegang {} gir manuell {}", vurderFagsystem.getJournalpostId(), fagsak.getSaksnummer());
+        LOG.info("VurderFagsystem SV strukturert søknad førstegang {} gir manuell {}", vurderFagsystem.getJournalpostIdLog(), fagsak.getSaksnummer());
         return new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 

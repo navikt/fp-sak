@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokumentPersistertEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 
 @ApplicationScoped
 public class MottattDokumentPersistertPubliserer {

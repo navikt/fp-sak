@@ -4,7 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.jsonfeed.HendelsePublisererTjeneste;
 
 @ApplicationScoped

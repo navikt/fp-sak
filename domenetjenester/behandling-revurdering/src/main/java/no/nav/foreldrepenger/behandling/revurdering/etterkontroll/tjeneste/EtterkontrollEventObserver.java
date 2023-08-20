@@ -15,17 +15,17 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.Etterkontroll;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.events.FamiliehendelseEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamiliehendelseEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.etterkontroll.Etterkontroll;
+import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
+import no.nav.foreldrepenger.behandlingslager.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 

@@ -10,8 +10,6 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.es.UtledVedtakResultatTypeES;
-import no.nav.foreldrepenger.behandling.fp.UtledVedtakResultatType;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -25,13 +23,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.UtledVedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
-import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 
 @ApplicationScoped
 public class VedtakTjeneste {
@@ -167,7 +165,7 @@ public class VedtakTjeneste {
         Long behandlingId = behandling.getId();
         var behandlingResultatType = behandlingsresultatRepository.hent(behandlingId).getBehandlingResultatType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            return UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingResultatType);
+            return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
         }
         if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
             var original = behandling.getOriginalBehandlingId()

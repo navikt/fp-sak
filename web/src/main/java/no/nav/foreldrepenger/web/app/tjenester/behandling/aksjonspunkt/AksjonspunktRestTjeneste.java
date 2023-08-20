@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;

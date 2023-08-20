@@ -529,6 +529,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             Long id = a.getArgument(0);
             return behandlingMap.getOrDefault(id, null);
         });
+        lenient().when(behandlingRepository.hentBehandlingReadOnly(any(Long.class))).thenAnswer(a -> {
+            Long id = a.getArgument(0);
+            return behandlingMap.getOrDefault(id, null);
+        });
         lenient().when(behandlingRepository.hentBehandling(any(UUID.class))).thenAnswer(a -> behandlingMap.entrySet().stream().filter(e -> {
             UUID uuid = a.getArgument(0);
             return Objects.equals(e.getValue().getUuid(), uuid);
@@ -1419,6 +1423,15 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             return personopplysningMap.getOrDefault(behandlingId, null);
+        }
+
+        @Override
+        public Optional<OppgittAnnenPartEntitet> hentOppgittAnnenPartHvisEksisterer(Long behandlingId) {
+            if (personopplysningMap.isEmpty() || personopplysningMap.get(behandlingId) == null || !personopplysningMap.containsKey(behandlingId)) {
+                throw new IllegalStateException("Fant ingen personopplysninger for angitt behandling");
+            }
+
+            return personopplysningMap.getOrDefault(behandlingId, null).getOppgittAnnenPart();
         }
 
         @Override

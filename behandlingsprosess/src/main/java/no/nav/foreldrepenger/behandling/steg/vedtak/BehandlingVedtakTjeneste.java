@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.es.UtledVedtakResultatTypeES;
-import no.nav.foreldrepenger.behandling.fp.UtledVedtakResultatType;
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -20,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.UtledVedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
@@ -73,7 +72,7 @@ public class BehandlingVedtakTjeneste {
     private VedtakResultatType utledVedtakResultatType(Behandling behandling) {
         var behandlingResultatType = getBehandlingsresultat(behandling.getId()).getBehandlingResultatType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            return UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingResultatType);
+            return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
         }
         if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
             var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)

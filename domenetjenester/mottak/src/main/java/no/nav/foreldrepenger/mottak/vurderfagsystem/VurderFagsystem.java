@@ -46,6 +46,10 @@ public class VurderFagsystem {
         return Optional.ofNullable(journalpostId);
     }
 
+    public String getJournalpostIdLog() {
+        return Optional.ofNullable(journalpostId).map(JournalpostId::getVerdi).orElse("n/a");
+    }
+
     public void setJournalpostId(JournalpostId journalpostId) {
         this.journalpostId = journalpostId;
     }

@@ -16,8 +16,8 @@ import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
 import no.nav.foreldrepenger.datavarehus.xml.FatteVedtakXmlTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;

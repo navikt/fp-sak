@@ -59,7 +59,7 @@
             <artifactId>prosesstask</artifactId>
         </dependency>
 
-		<!-- Test avhengigheter -->
+		<!-- testutilTest avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>

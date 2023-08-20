@@ -15,8 +15,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.impl.HendelseForBehandling;
-import no.nav.foreldrepenger.behandling.impl.PubliserBehandlingHendelseTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -199,14 +197,6 @@ public class ForretningshendelseMottak {
     private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        return prosessTaskData;
-    }
-
-    private ProsessTaskData opprettLosProsessTask(Behandling behandling) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId());
-        prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
         prosessTaskData.setCallIdFraEksisterende();
         return prosessTaskData;
     }
