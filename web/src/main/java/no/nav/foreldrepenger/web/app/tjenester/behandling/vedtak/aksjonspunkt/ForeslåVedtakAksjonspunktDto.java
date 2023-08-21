@@ -5,14 +5,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.FORESLÅ_VEDTAK_KODE)
-public class ForeslaVedtakAksjonspunktDto extends VedtaksbrevOverstyringDto {
+public class ForeslåVedtakAksjonspunktDto extends VedtaksbrevOverstyringDto {
 
 
-    ForeslaVedtakAksjonspunktDto() {
+    ForeslåVedtakAksjonspunktDto() {
         // for jackson
     }
 
-    public ForeslaVedtakAksjonspunktDto(String begrunnelse, String overskrift, String fritekst,
+    public ForeslåVedtakAksjonspunktDto(String begrunnelse, String overskrift, String fritekst,
                                         boolean skalBrukeOverstyrendeFritekstBrev) {
         super(begrunnelse, overskrift, fritekst, skalBrukeOverstyrendeFritekstBrev);
     }

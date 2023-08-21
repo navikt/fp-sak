@@ -90,7 +90,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             VurderingspunktType.UT, VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.OPPLYSNINGSPLIKT, ENTRINN, EnumSet.of(ES, FP, SVP)),
     VEDTAK_UTEN_TOTRINNSKONTROLL(
             AksjonspunktKodeDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL_KODE, AksjonspunktType.MANUELL, "Foreslå vedtak uten totrinnskontroll",
-            BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
+            BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.VEDTAK, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_LOVLIG_OPPHOLD(AksjonspunktKodeDefinisjon.AVKLAR_LOVLIG_OPPHOLD_KODE,
             AksjonspunktType.MANUELL, "Avklar lovlig opphold.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
             VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -487,7 +487,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         }
     }
 
-    private static final Set<AksjonspunktDefinisjon> ENTRINN_VEDTAK = Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
     private static final Set<AksjonspunktDefinisjon> DYNAMISK_SKJERMLENKE = Set.of(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE,
         AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE, AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
 
@@ -620,7 +619,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     public boolean kanSetteTotrinnBehandling() {
-        return SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType) && !ENTRINN_VEDTAK.contains(this) || DYNAMISK_SKJERMLENKE.contains(this);
+        return SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType) || DYNAMISK_SKJERMLENKE.contains(this);
     }
 
     public Period getFristPeriod() {
