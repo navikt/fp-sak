@@ -56,7 +56,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
         oppdaterBegrunnelse(behandling, begrunnelse);
         var builder = OppdateringResultat.utenTransisjon()
-            .medTotrinnHvis(toTrinn);
+            .medTotrinnHvis(dto.isSkalBrukeOverstyrendeFritekstBrev());
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
             oppdaterFritekstVedtaksbrev(dto, param);
         } else {
