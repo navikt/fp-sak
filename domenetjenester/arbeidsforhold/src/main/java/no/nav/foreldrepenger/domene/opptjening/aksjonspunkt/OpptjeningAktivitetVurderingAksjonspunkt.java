@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -31,17 +32,17 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
             Yrkesaktivitet overstyrtAktivitet,
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             boolean harVærtSaksbehandlet) {
-        return vurderStatus(type, behandlingReferanse, null, overstyrtAktivitet, iayGrunnlag, harVærtSaksbehandlet);
+        return vurderStatus(type, behandlingReferanse, overstyrtAktivitet, iayGrunnlag, harVærtSaksbehandlet, null, null);
     }
 
     @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-            BehandlingReferanse behandlingReferanse,
-            Yrkesaktivitet registerAktivitet,
-            Yrkesaktivitet overstyrtAktivitet,
-            InntektArbeidYtelseGrunnlag iayGrunnlag,
-            boolean harVærtSaksbehandlet) {
-
+                                         BehandlingReferanse behandlingReferanse,
+                                         Yrkesaktivitet overstyrtAktivitet,
+                                         InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                         boolean harVærtSaksbehandlet,
+                                         Yrkesaktivitet registerAktivitet,
+                                         AktivitetsAvtale ansettelsesPeriode) {
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
         if (OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(type)) {
             return vurderAnnenOpptjening(overstyrtAktivitet, harVærtSaksbehandlet);
@@ -51,7 +52,7 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
             return vurderNæring(behandlingReferanse, overstyrtAktivitet, iayGrunnlag, skjæringstidspunkt, harVærtSaksbehandlet);
         }
         if (OpptjeningAktivitetType.ARBEID.equals(type)) {
-            return vurderArbeid(filter, registerAktivitet, overstyrtAktivitet, harVærtSaksbehandlet, behandlingReferanse);
+            return vurderArbeid(filter, registerAktivitet, overstyrtAktivitet, harVærtSaksbehandlet, behandlingReferanse, ansettelsesPeriode);
         }
         return VurderingsStatus.GODKJENT;
     }
@@ -64,9 +65,9 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
      * @return vurderingsstatus
      */
     private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter, Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet,
-            boolean harVærtSaksbehandlet, BehandlingReferanse behandlingReferanse) {
-        if (vurderBekreftetOpptjening.girAksjonspunktForArbeidsforhold(filter, behandlingReferanse.behandlingId(), registerAktivitet,
-                overstyrtAktivitet)) {
+            boolean harVærtSaksbehandlet, BehandlingReferanse behandlingReferanse, AktivitetsAvtale ansettelsesPeriode) {
+        if (vurderBekreftetOpptjening.girAksjonspunktForAnsettelsesperiode(filter, behandlingReferanse.behandlingId(), registerAktivitet,
+                overstyrtAktivitet, ansettelsesPeriode)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.GODKJENT;
             }

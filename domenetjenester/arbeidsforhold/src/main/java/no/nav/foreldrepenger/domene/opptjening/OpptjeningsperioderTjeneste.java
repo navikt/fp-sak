@@ -196,7 +196,7 @@ public class OpptjeningsperioderTjeneste {
                 .medVurderingsStatus(vurderOpptjening.vurderStatus(type, behandlingReferanse, yr, grunnlag, grunnlag.harBlittSaksbehandlet()));
         getStillingsprosentVedDato(yr, skjæringstidspunkt).ifPresent(builder::medStillingsandel);
         MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.settArbeidsgiverInformasjon(yr, builder);
-        harSaksbehandlerVurdert(builder, type, behandlingReferanse, null, vurderOpptjening, grunnlag);
+        harSaksbehandlerVurdert(builder, type, behandlingReferanse, vurderOpptjening, grunnlag);
         builder.medErManueltRegistrert();
         perioder.add(builder.build());
     }
@@ -294,9 +294,8 @@ public class OpptjeningsperioderTjeneste {
     }
 
     private void harSaksbehandlerVurdert(OpptjeningsperiodeForSaksbehandling.Builder builder, OpptjeningAktivitetType type,
-            BehandlingReferanse behandlingReferanse, Yrkesaktivitet registerAktivitet,
-            OpptjeningAktivitetVurdering vurderForSaksbehandling, InntektArbeidYtelseGrunnlag grunnlag) {
-        if (vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, registerAktivitet, grunnlag, false)
+            BehandlingReferanse behandlingReferanse, OpptjeningAktivitetVurdering vurderForSaksbehandling, InntektArbeidYtelseGrunnlag grunnlag) {
+        if (vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, null, grunnlag, false)
                 .equals(VurderingsStatus.TIL_VURDERING)) {
             builder.medErManueltBehandlet();
         }

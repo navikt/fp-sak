@@ -71,7 +71,7 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
         var overstyrt = filter.getYrkesaktiviteter().iterator().next();
         // Act
-        var girAksjonspunkt = aksjonspunktutleder.girAksjonspunktForArbeidsforhold(filter, behandling.getId(), null, overstyrt);
+        var girAksjonspunkt = aksjonspunktutleder.girAksjonspunktForAnsettelsesperiode(filter, behandling.getId(), null, overstyrt, null);
         // Assert
         assertThat(girAksjonspunkt).isTrue();
     }

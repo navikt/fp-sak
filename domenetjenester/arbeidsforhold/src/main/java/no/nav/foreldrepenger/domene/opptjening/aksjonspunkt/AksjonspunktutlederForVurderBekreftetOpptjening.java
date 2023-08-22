@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -116,24 +117,27 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         return NEI;
     }
 
+    // Denne kalles bare dersom det ikke er nok annen opptjening. Trenger ikke se på perioder av 0% og N% i samme yrkesaktivitet
     private boolean girAksjonspunkt(YrkesaktivitetFilter filter, DatoIntervallEntitet opptjeningPeriode, Yrkesaktivitet yrkesaktivitet) {
         if (filter.getAnsettelsesPerioder(yrkesaktivitet).stream().noneMatch(asp -> opptjeningPeriode.overlapper(asp.getPeriode()))) {
             return false;
         }
-        var avtaler = filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet);
-        for (var aktivitetsAvtale : avtaler) {
-            if ((aktivitetsAvtale.getProsentsats() == null || aktivitetsAvtale.getProsentsats().getVerdi().compareTo(BigDecimal.ZERO) == 0)
-                && opptjeningPeriode.overlapper(aktivitetsAvtale.getPeriode())) {
-                return true;
-            }
+        if (yrkesaktivitet.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(yrkesaktivitet.getArbeidsgiver().getOrgnr())) {
+            return true;
         }
-        return yrkesaktivitet.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(yrkesaktivitet.getArbeidsgiver().getOrgnr());
+        return filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet).stream()
+            .anyMatch(aa -> girAksjonspunktForAktivitetsavtale(opptjeningPeriode, aa));
     }
 
-    boolean girAksjonspunktForArbeidsforhold(YrkesaktivitetFilter filter, Long behandlingId, Yrkesaktivitet registerAktivitet,
-            Yrkesaktivitet overstyrtAktivitet) {
-        if (overstyrtAktivitet != null && overstyrtAktivitet.getArbeidsgiver() != null && OrgNummer.erKunstig(
-            overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
+    private boolean girAksjonspunktForAktivitetsavtale(DatoIntervallEntitet opptjeningPeriode, AktivitetsAvtale aktivitetsAvtale) {
+        return (aktivitetsAvtale.getProsentsats() == null || aktivitetsAvtale.getProsentsats().getVerdi().compareTo(BigDecimal.ZERO) == 0)
+            && opptjeningPeriode.overlapper(aktivitetsAvtale.getPeriode());
+    }
+
+    // Ansettelsesperioder skal være knekt opp iht 0%-perioder slik at de overlapper helt eller ikke overlapper.
+    boolean girAksjonspunktForAnsettelsesperiode(YrkesaktivitetFilter filter, Long behandlingId, Yrkesaktivitet registerAktivitet,
+                                                 Yrkesaktivitet overstyrtAktivitet, AktivitetsAvtale ansettelsesPeriode) {
+        if (overstyrtAktivitet != null && overstyrtAktivitet.getArbeidsgiver() != null && OrgNummer.erKunstig(overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
             return true;
         }
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
@@ -141,6 +145,13 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
             return false;
         }
         var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.get().getFom(), opptjening.get().getTom());
-        return girAksjonspunkt(filter, opptjeningPeriode, registerAktivitet);
+        if (!opptjeningPeriode.overlapper(ansettelsesPeriode.getPeriode())) {
+            return false;
+        }
+        if (registerAktivitet.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(registerAktivitet.getArbeidsgiver().getOrgnr())) {
+            return true;
+        }
+        return filter.getAktivitetsAvtalerForArbeid(registerAktivitet).stream()
+            .anyMatch(p -> p.getPeriode().overlapper(ansettelsesPeriode.getPeriode()) && girAksjonspunktForAktivitetsavtale(opptjeningPeriode, p));
     }
 }

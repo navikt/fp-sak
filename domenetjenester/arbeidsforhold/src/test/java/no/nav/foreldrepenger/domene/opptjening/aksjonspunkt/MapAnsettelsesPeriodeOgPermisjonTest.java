@@ -53,7 +53,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().build();
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).containsExactly(ap1.build());
@@ -79,7 +79,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(C, D);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).hasSize(2);
@@ -115,7 +115,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(A, B);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).hasSize(1);
@@ -146,7 +146,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(E, Tid.TIDENES_ENDE);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).hasSize(1);
@@ -177,7 +177,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(A, Tid.TIDENES_ENDE);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -202,7 +202,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().build();
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).containsExactlyInAnyOrder(ap1.build(), ap2.build());
@@ -232,7 +232,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(B, D);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).hasSize(2);
@@ -278,7 +278,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
                 LocalDate.of(2019, Month.MARCH, 31));
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).hasSize(4);
@@ -328,7 +328,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(A, D);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).hasSize(1);
@@ -363,7 +363,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(E, Tid.TIDENES_ENDE);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).hasSize(2);
@@ -403,7 +403,7 @@ class MapAnsettelsesPeriodeOgPermisjonTest {
         var grunnlag = grunnlagMedBekreftetPermisjon(A, Tid.TIDENES_ENDE);
 
         // Act
-        var resultat = MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, yrkesaktivitet);
+        var resultat = MapAnsettelsesPeriodeOgPermisjon.ansettelsesPerioderUtenomFullPermisjon(grunnlag, yrkesaktivitet);
 
         // Assert
         assertThat(resultat).isEmpty();
