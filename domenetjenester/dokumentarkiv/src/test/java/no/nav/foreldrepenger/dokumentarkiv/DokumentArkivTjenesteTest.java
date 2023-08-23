@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
-import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.DEFAULT_CONTENT_DISPOSITION_SAF;
 import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.DEFAULT_CONTENT_TYPE_SAF;
 import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.tilDokumentRespons;

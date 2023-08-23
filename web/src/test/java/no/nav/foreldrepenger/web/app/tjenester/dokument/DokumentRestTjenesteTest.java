@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.dokument;
 
-import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste.tilRespons;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 @ExtendWith(MockitoExtension.class)
 class DokumentRestTjenesteTest {
