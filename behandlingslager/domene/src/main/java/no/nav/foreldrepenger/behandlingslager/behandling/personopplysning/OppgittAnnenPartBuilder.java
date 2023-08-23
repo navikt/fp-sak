@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class OppgittAnnenPartBuilder implements Serializable {
-    private OppgittAnnenPartEntitet søknadAnnenPartMal;
+    private final OppgittAnnenPartEntitet søknadAnnenPartMal;
 
     public OppgittAnnenPartBuilder() {
         søknadAnnenPartMal = new OppgittAnnenPartEntitet();
@@ -31,11 +31,6 @@ public class OppgittAnnenPartBuilder implements Serializable {
         return this;
     }
 
-    public OppgittAnnenPartBuilder medBegrunnelse(String begrunnelse) {
-        søknadAnnenPartMal.setBegrunnelse(begrunnelse);
-        return this;
-    }
-
     public OppgittAnnenPartBuilder medType(SøknadAnnenPartType type) {
         søknadAnnenPartMal.setType(type);
         return this;
@@ -48,11 +43,6 @@ public class OppgittAnnenPartBuilder implements Serializable {
 
     public OppgittAnnenPartBuilder medUtenlandskFnrLand(Landkoder utenlandskFnrLand) {
         søknadAnnenPartMal.setUtenlandskPersonidentLand(utenlandskFnrLand);
-        return this;
-    }
-
-    public OppgittAnnenPartBuilder medÅrsak(String årsak) {
-        søknadAnnenPartMal.setÅrsak(årsak);
         return this;
     }
 
