@@ -26,8 +26,8 @@ jobs:
     with:
       runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
       t-2c: '-T 2C' # default:
-      build-image: ${{ github.ref_name == 'master' }} # default: true
-      push-image: ${{ github.ref_name == 'master' }} # default: false
+      build-image: ${{ github.ref_name == 'jakarta_ee9' }} # default: true
+      push-image: ${{ github.ref_name == 'jakarta_ee9' }} # default: false
     secrets: inherit
 
   fpsak-tester:
