@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;

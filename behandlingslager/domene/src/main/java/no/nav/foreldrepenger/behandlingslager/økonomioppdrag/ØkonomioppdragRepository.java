@@ -64,9 +64,10 @@ public class ØkonomioppdragRepository {
     public Oppdrag110 hentOppdragUtenKvittering(long fagsystemId, long behandlingId) {
         var typedQuery = entityManager
             .createQuery("""
-                    from Oppdrag110 as o110
+                    from Oppdrag110 as o110 left join OppdragKvittering kvitto on o110.id = kvitto.oppdrag110.id
                     where o110.oppdragskontroll.behandlingId = :behandlingId
                     and o110.fagsystemId = :fagsystemId
+                    and kvitto is null
                     """, Oppdrag110.class)
             .setParameter("fagsystemId", fagsystemId)
             .setParameter("behandlingId", behandlingId)
