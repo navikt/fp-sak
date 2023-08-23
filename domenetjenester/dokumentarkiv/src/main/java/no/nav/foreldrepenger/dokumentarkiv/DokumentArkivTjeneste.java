@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
+import java.net.http.HttpHeaders;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -43,18 +44,24 @@ import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 import no.nav.vedtak.util.LRUCache;
 
+import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+
 @ApplicationScoped
 public class DokumentArkivTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(DokumentArkivTjeneste.class);
-    static final String FP_DOK_TYPE = "fp_innholdtype";
-
-    private Saf safKlient;
 
     private static final VariantFormat VARIANT_FORMAT_ARKIV = VariantFormat.ARKIV;
     private static final Set<Journalstatus> EKSKLUDER_STATUS = Set.of(Journalstatus.UTGAAR);
 
     private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
     private static final LRUCache<String, List<ArkivJournalPost>> SAK_JOURNAL_CACHE = new LRUCache<>(500, CACHE_ELEMENT_LIVE_TIME_MS);
+
+    static final String DEFAULT_CONTENT_DISPOSITION_SAF = "filename=innhold.pdf";
+    static final String DEFAULT_CONTENT_TYPE_SAF = "application/pdf";
+    static final String FP_DOK_TYPE = "fp_innholdtype";
+
+    private Saf safKlient;
 
 
     DokumentArkivTjeneste() {
@@ -66,9 +73,22 @@ public class DokumentArkivTjeneste {
         this.safKlient = safTjeneste;
     }
 
-    public byte[] hentDokument(@SuppressWarnings("unused") Saksnummer saksnummer, JournalpostId journalpostId, String dokumentId) {
+    public DokumentRespons hentDokumentRespons(JournalpostId journalpostId, String dokumentId) {
         var query = new HentDokumentQuery(journalpostId.getVerdi(), dokumentId, VARIANT_FORMAT_ARKIV.getOffisiellKode());
-        return safKlient.hentDokument(query);
+        var httpResponse = safKlient.hentDokumentResponse(query);
+        return tilDokumentRespons(httpResponse.body(), httpResponse.headers());
+    }
+
+    static DokumentRespons tilDokumentRespons(byte[] innhold, HttpHeaders headers) {
+        return new DokumentRespons(innhold,
+                headers.firstValue(CONTENT_TYPE).orElse(DEFAULT_CONTENT_TYPE_SAF),
+                headers.firstValue(CONTENT_DISPOSITION).orElse(DEFAULT_CONTENT_DISPOSITION_SAF));
+    }
+
+    public DokumentRespons hentDokument(JournalpostId journalpostId, String dokumentId) {
+        var query = new HentDokumentQuery(journalpostId.getVerdi(), dokumentId, VARIANT_FORMAT_ARKIV.getOffisiellKode());
+        var innhold = safKlient.hentDokument(query);
+        return new DokumentRespons(innhold, DEFAULT_CONTENT_TYPE_SAF, DEFAULT_CONTENT_DISPOSITION_SAF);
     }
 
     public String hentStrukturertDokument(JournalpostId journalpostId, String dokumentId) {

@@ -1,18 +1,30 @@
 package no.nav.foreldrepenger.web.app.tjenester.dokument;
 
+import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste.tilRespons;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import no.nav.foreldrepenger.dokumentarkiv.DokumentRespons;
+import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.JournalpostIdDto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +53,8 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
+import javax.ws.rs.core.Response;
+
 @ExtendWith(MockitoExtension.class)
 class DokumentRestTjenesteTest {
 
@@ -54,11 +68,11 @@ class DokumentRestTjenesteTest {
     @Mock
     private MottatteDokumentRepository mottatteDokumentRepository;
     @Mock
-    private DokumentRestTjeneste tjeneste;
-    @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
     @Mock
     private BehandlingRepository behandlingRepository;
+
+    private DokumentRestTjeneste tjeneste;
 
     @BeforeEach
     public void setUp() {
@@ -149,4 +163,17 @@ class DokumentRestTjenesteTest {
         assertThat(imdto.get().getBehandlinger()).hasSize(1);
     }
 
+    @Test
+    void verifisererKorrektMappingFraDokumentResponsTilResponsObjekt() {
+        final byte[] bytesExpected = { 1, 2, 7 };
+        var contentType = "application/pdf";
+        var contentDisp = "filename=test.pdf";
+        var dokumentRespons = new DokumentRespons(bytesExpected, contentType, contentDisp);
+
+        var response = tilRespons(dokumentRespons);
+
+        assertThat(((ByteArrayInputStream) response.getEntity()).readAllBytes()).isEqualTo(bytesExpected);
+        assertThat(response.getHeaders().getFirst(CONTENT_TYPE)).hasToString(contentType);
+        assertThat(response.getHeaders().getFirst(CONTENT_DISPOSITION)).hasToString(contentDisp);
+    }
 }

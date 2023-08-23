@@ -1,9 +1,15 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
+import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.DEFAULT_CONTENT_DISPOSITION_SAF;
+import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.DEFAULT_CONTENT_TYPE_SAF;
+import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.tilDokumentRespons;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.net.http.HttpHeaders;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +18,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +41,7 @@ import no.nav.saf.Variantformat;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
 @ExtendWith(MockitoExtension.class)
-class DokumentArkivSafTest {
+class DokumentArkivTjenesteTest {
 
     private static final JournalpostId JOURNAL_ID = new JournalpostId("42");
     private static final Saksnummer SAF_SAK = new Saksnummer("987123456");
@@ -139,8 +146,9 @@ class DokumentArkivSafTest {
 
         var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, LocalDate.MIN);
 
-        assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
-        assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.DOK_INNLEGGELSE);
+        assertThat(arkivDokumentTypeIds)
+                .contains(DokumentTypeId.LEGEERKLÆRING)
+                .contains(DokumentTypeId.DOK_INNLEGGELSE);
     }
 
     @Test
@@ -167,16 +175,44 @@ class DokumentArkivSafTest {
     @Test
     void skal_kalle_web_service_og_oversette_fra_() {
         // Arrange
-
         final byte[] bytesExpected = { 1, 2, 7 };
         when(saf.hentDokument(any())).thenReturn(bytesExpected);
 
         // Act
-
-        var bytesActual = dokumentApplikasjonTjeneste.hentDokument(SAF_SAK, new JournalpostId("123"), "456");
+        var dokumentRespons = dokumentApplikasjonTjeneste.hentDokument(new JournalpostId("123"), "456");
 
         // Assert
-        assertThat(bytesActual).isEqualTo(bytesExpected);
+        assertThat(dokumentRespons.innhold()).isEqualTo(bytesExpected);
+        assertThat(dokumentRespons.contentType()).isEqualTo(DEFAULT_CONTENT_TYPE_SAF);
+        assertThat(dokumentRespons.contentDisp()).isEqualTo(DEFAULT_CONTENT_DISPOSITION_SAF);
+    }
+
+
+    @Test
+    void skalBrukeHeadereHvisSatt() {
+        final byte[] bytesForventet = { 1, 2, 7 };
+        var contentTypeForventet = "application/jpeg";
+        var contentDispForventet = "filename=bilde.jpeg";
+        var headers = HttpHeaders.of(Map.of(
+                CONTENT_TYPE, List.of(contentTypeForventet),
+                CONTENT_DISPOSITION, List.of(contentDispForventet)
+        ), (x, y) -> true);
+
+        var dokumentrespons = tilDokumentRespons(bytesForventet, headers);
+        assertThat(dokumentrespons.innhold()).isEqualTo(bytesForventet);
+        assertThat(dokumentrespons.contentType()).isEqualTo(contentTypeForventet);
+        assertThat(dokumentrespons.contentDisp()).isEqualTo(contentDispForventet);
+    }
+
+    @Test
+    void skalBrukePDFSomDefaultNårHeadereIkkeErSatt() {
+        final byte[] bytesForventet = { 1, 2, 7 };
+        var headers = HttpHeaders.of(Map.of(), (x, y) -> true);
+
+        var dokumentrespons = tilDokumentRespons(bytesForventet, headers);
+        assertThat(dokumentrespons.innhold()).isEqualTo(bytesForventet);
+        assertThat(dokumentrespons.contentType()).isEqualTo(DEFAULT_CONTENT_TYPE_SAF);
+        assertThat(dokumentrespons.contentDisp()).isEqualTo(DEFAULT_CONTENT_DISPOSITION_SAF);
     }
 
     private Dokumentoversikt lagResponse() {
