@@ -32,7 +32,7 @@ jobs:
 
   fpsak-tester:
     name: Fpsak tester
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'jakarta_ee9'
     needs: build-app
     uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
@@ -41,7 +41,7 @@ jobs:
 
   verdikjede-tester:
     name: Verdikjedetester
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'jakarta_ee9'
     needs: build-app
     uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
@@ -61,7 +61,7 @@ jobs:
 
   deploy-dev:
     name: Deploy dev
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'jakarta_ee9'
     needs: [build-app, fpsak-tester, verdikjede-tester]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
