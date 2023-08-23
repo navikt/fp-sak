@@ -126,7 +126,7 @@ public class InformasjonssakRepository {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
-                    .ny(((BigDecimal) resultat[POS_FAGSAKID]).longValue())
+                    .ny(Long.parseLong(resultat[POS_FAGSAKID].toString()))
                     .medAktørIdAnnenPart((String) resultat[POS_AKTORID])
                     .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate())
                     .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate())
@@ -201,7 +201,7 @@ public class InformasjonssakRepository {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
-                .ny(((BigDecimal) resultat[0]).longValue())
+                .ny(Long.parseLong(resultat[0].toString()))
                 .medAktørIdAnnenPart((String) resultat[1])
                 .medEnhet((String) resultat[2]);
             returnList.add(builder.build());

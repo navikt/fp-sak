@@ -134,12 +134,12 @@
 
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-                <artifactId>kalkulus-kalkulator</artifactId>
+                <artifactId>kalkulus-kalkulator-jakarta</artifactId>
                 <version>${kalkulus.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-                <artifactId>kalkulus-kontrakt</artifactId>
+                <artifactId>kalkulus-kontrakt-jakarta</artifactId>
                 <version>${kalkulus.version}</version>
             </dependency>
 

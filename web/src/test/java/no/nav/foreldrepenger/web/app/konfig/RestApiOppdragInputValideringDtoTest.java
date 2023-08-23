@@ -149,7 +149,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         }
         Set<Class<?>> filtreteParametre = new TreeSet<>(Comparator.comparing(Class::getName));
         for (var klasse : parametre) {
-            if (klasse.getName().startsWith("java")) {
+            if (klasse.getName().startsWith("java") || klasse.isInterface()) {
                 // ikke sjekk nedover i innebygde klasser, det skal brukes annoteringer på tidligere tidspunkt
                 continue;
             }

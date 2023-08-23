@@ -105,7 +105,7 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
@@ -130,7 +130,7 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
@@ -150,7 +150,7 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger Arena-regulering og det ikke finnes åpen behandling */
@@ -171,7 +171,7 @@ public class SatsReguleringRepository {
         setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
     private void setStandardParametersFP(Query query, LocalDate gjeldendeFom) {
@@ -246,7 +246,7 @@ public class SatsReguleringRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
@@ -272,7 +272,7 @@ public class SatsReguleringRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
@@ -292,7 +292,7 @@ public class SatsReguleringRepository {
         setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
     private static final String REGULERING_SELECT_STD_ES = """
@@ -347,7 +347,7 @@ public class SatsReguleringRepository {
             .setParameter("engang", BeregningSatsType.ENGANG.getKode());
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).toList();
+        return resultatList.stream().map(row -> new FagsakIdAktørId(Long.parseLong(row[0].toString()), new AktørId((String) row[1]))).toList();
     }
 
 }
