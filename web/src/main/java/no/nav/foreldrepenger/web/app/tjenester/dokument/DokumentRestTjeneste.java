@@ -23,6 +23,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.dokumentarkiv.DokumentRespons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,7 @@ public class DokumentRestTjeneste {
     private static final String DOKUMENTER_PART_PATH = "/hent-dokumentliste";
     public static final String DOKUMENTER_PATH = BASE_PATH + DOKUMENTER_PART_PATH;
     private static final String DOKUMENT_PART_PATH = "/hent-dokument";
+    private static final String DOKUMENT_PART_V2_PATH = "/hent-dokument/v2";
 
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -153,25 +155,46 @@ public class DokumentRestTjeneste {
 
     @GET
     @Path(DOKUMENT_PART_PATH)
-    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = "Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId.", tags = "dokument")
+    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = "Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId (bare pdf)", tags = "dokument")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response hentDokument(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,
             @TilpassetAbacAttributt(supplierClass = JournalIdAbacSupplier.class) @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
             @TilpassetAbacAttributt(supplierClass = DokumentIdAbacSupplier.class) @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
         try {
-            var responseBuilder = Response.ok(
-                    new ByteArrayInputStream(
-                            dokumentArkivTjeneste.hentDokument(new Saksnummer(saksnummer.getVerdi()), new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId())));
-            responseBuilder.type("application/pdf");
-            responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
-            return responseBuilder.build();
+            return tilRespons(dokumentArkivTjeneste.hentDokument(new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId()));
         } catch (TekniskException e) {
             var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
                 journalpostId.getJournalpostId(), dokumentId.getDokumentId());
             LOG.warn(feilmelding, e);
             return notFound(feilmelding);
         }
+    }
+
+
+    @GET
+    @Path(DOKUMENT_PART_V2_PATH)
+    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = "Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId (jpeg/png/pdf).", tags = "dokument")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response hentDokumentV2(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+            @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,
+            @TilpassetAbacAttributt(supplierClass = JournalIdAbacSupplier.class) @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
+            @TilpassetAbacAttributt(supplierClass = DokumentIdAbacSupplier.class) @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
+        try {
+            return tilRespons(dokumentArkivTjeneste.hentDokumentRespons(new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId()));
+        } catch (TekniskException e) {
+            var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
+                journalpostId.getJournalpostId(), dokumentId.getDokumentId());
+            LOG.warn(feilmelding, e);
+            return notFound(feilmelding);
+        }
+    }
+
+    static Response tilRespons(DokumentRespons dokumentRespons) {
+        var responseBuilder = Response.ok(new ByteArrayInputStream(dokumentRespons.innhold()));
+        responseBuilder.type(dokumentRespons.contentType());
+        responseBuilder.header("Content-Disposition", dokumentRespons.contentDisp());
+        return responseBuilder.build();
     }
 
     public static class DokumentIdAbacSupplier implements Function<Object, AbacDataAttributter> {
