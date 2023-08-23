@@ -50,7 +50,7 @@ public class PipRepository {
         var query = entityManager.createNativeQuery(sql, "PipDataResult");
         query.setParameter("behandlingId", behandlingId);
 
-        @SuppressWarnings("rawtypes") var resultater = query.getResultList();
+        var resultater = query.getResultList();
         if (resultater.isEmpty()) {
             return Optional.empty();
         }
@@ -155,9 +155,7 @@ public class PipRepository {
         var sql = "SELECT fagsak_id FROM JOURNALPOST WHERE journalpost_id in (:journalpostId)";
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("journalpostId", journalpostId.stream().map(JournalpostId::getVerdi).toList());
-
-        var result = (List<BigDecimal>) query.getResultList();
-        return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
+        return new LinkedHashSet<>((List<Long>)query.getResultList());
     }
 
     public static boolean harAksjonspunktTypeOverstyring(Collection<AksjonspunktDefinisjon> aksjonspunktKoder) {
@@ -175,8 +173,7 @@ public class PipRepository {
         var sql = "SELECT f.id from FAGSAK f join BRUKER b on (f.bruker_id = b.id) where b.aktoer_id in (:aktørId)";
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("aktørId", aktørId.stream().map(AktørId::getId).toList());
-        var result = (List<BigDecimal>) query.getResultList();
-        return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
+        return new LinkedHashSet<>((List<Long>) query.getResultList());
     }
 
     @SuppressWarnings({ "unchecked", "cast" })
@@ -187,8 +184,7 @@ public class PipRepository {
         var sql = "SELECT id from FAGSAK where saksnummer in (:saksnummre) ";
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("saksnummre", saksnummre);
-        var result = (List<BigDecimal>) query.getResultList();
-        return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
+        return new LinkedHashSet<>((List<Long>) query.getResultList());
     }
 
     public Set<Long> behandlingsIdForUuid(Set<UUID> behandlingsUUIDer) {

@@ -12,6 +12,10 @@ import jakarta.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
+import org.hibernate.annotations.JavaType;
+import org.hibernate.type.descriptor.java.LongJavaType;
+import org.hibernate.type.descriptor.java.spi.BasicCollectionJavaType;
+
 @MappedSuperclass
 @Table(name = "UTGAAENDE_HENDELSE")
 @DiscriminatorColumn(name = "OUTPUT_FEED_KODE")

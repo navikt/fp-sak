@@ -69,7 +69,7 @@ public class FeedRepository {
             var resultObjects = (Object[]) object;
 
             if (resultObjects.length > 0) {
-                var hendelse = hentUtgåendeHendelse(((BigDecimal) resultObjects[0]).longValue());
+                var hendelse = hentUtgåendeHendelse(Long.parseLong(resultObjects[0].toString()));
                 hendelse.ifPresent(h -> hendelser .add((V) h));
             }
         }
