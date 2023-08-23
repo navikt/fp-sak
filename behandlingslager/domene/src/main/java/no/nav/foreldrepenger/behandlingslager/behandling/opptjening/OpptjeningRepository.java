@@ -15,7 +15,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -89,7 +89,7 @@ public class OpptjeningRepository {
 
         if (readOnly) {
             // returneres read-only, kan kun legge til nye ved skriving uten å oppdatere
-            query.setHint(QueryHints.HINT_READONLY, "true");
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         }
         return HibernateVerktøy.hentUniktResultat(query);
     }

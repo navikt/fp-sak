@@ -44,8 +44,8 @@ import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 import no.nav.vedtak.util.LRUCache;
 
-import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
 @ApplicationScoped
 public class DokumentArkivTjeneste {

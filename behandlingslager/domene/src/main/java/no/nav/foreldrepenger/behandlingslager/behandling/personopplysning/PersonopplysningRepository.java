@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
@@ -93,7 +93,7 @@ public class PersonopplysningRepository {
         var query = entityManager.createQuery(
             "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id AND pbg.aktiv = true",
             PersonopplysningGrunnlagEntitet.class)
-                .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
+                .setHint(HibernateHints.HINT_CACHE_MODE, "IGNORE")
                 .setParameter("behandling_id", behandlingId);
 
         var resultat = HibernateVerktøy.hentUniktResultat(query);

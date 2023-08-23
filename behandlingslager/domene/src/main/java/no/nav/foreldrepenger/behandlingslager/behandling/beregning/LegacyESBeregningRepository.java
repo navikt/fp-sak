@@ -10,7 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -64,7 +64,7 @@ public class LegacyESBeregningRepository {
 
         query.setParameter("satsType", satsType);
         query.setParameter("dato", dato);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         query.getResultList();
         return hentEksaktResultat(query);
     }

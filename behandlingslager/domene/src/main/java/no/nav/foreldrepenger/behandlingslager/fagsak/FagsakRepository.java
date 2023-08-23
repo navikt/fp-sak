@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 import org.hibernate.query.NativeQuery;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -58,7 +58,7 @@ public class FagsakRepository {
     public Fagsak finnEksaktFagsakReadOnly(long fagsakId) {
         var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class)
             .setParameter("fagsakId", fagsakId)
-            .setHint(QueryHints.HINT_READONLY, "true");
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
         return fagsak;

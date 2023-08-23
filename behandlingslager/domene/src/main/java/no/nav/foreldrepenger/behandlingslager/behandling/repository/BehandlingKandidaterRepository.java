@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -50,7 +50,7 @@ public class BehandlingKandidaterRepository {
                  WHERE ap.status IN (:aapneAksjonspunktKoder)
                    AND ap.fristTid < :naa
                 """, Behandling.class)
-            .setHint(QueryHints.HINT_READONLY, "true")
+            .setHint(HibernateHints.HINT_READ_ONLY, "true")
             .setParameter("naa", LocalDateTime.now())
             .setParameter("aapneAksjonspunktKoder", AksjonspunktStatus.getÅpneAksjonspunktStatuser());
         return query.getResultList();
@@ -66,7 +66,7 @@ public class BehandlingKandidaterRepository {
 
         query.setParameter("enhet", enhetId);
         query.setParameter(AVSLUTTENDE_KEY, AVSLUTTENDE_STATUS);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
@@ -80,7 +80,7 @@ public class BehandlingKandidaterRepository {
 
         query.setParameter(AVSLUTTENDE_KEY, AVSLUTTENDE_STATUS);
         query.setParameter("status", AksjonspunktStatus.OPPRETTET);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 }

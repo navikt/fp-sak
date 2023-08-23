@@ -18,7 +18,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -94,14 +94,14 @@ public class BehandlingRepository {
     public Behandling hentBehandlingReadOnly(Long behandlingId) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         var query = lagBehandlingQuery(behandlingId);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return hentEksaktResultat(query);
     }
 
     public Behandling hentBehandlingReadOnly(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, BEHANDLING_UUID);
         var query = lagBehandlingQuery(behandlingUuid);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return hentEksaktResultat(query);
     }
 
@@ -180,7 +180,7 @@ public class BehandlingRepository {
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("status", BehandlingStatus.AVSLUTTET);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
@@ -197,7 +197,7 @@ public class BehandlingRepository {
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
@@ -211,8 +211,8 @@ public class BehandlingRepository {
                 Long.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
-        query.setHint(QueryHints.HINT_READONLY, "true");
-        query.setHint(QueryHints.HINT_CACHE_MODE, "IGNORE");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
+        query.setHint(HibernateHints.HINT_CACHE_MODE, "IGNORE");
         return query.getResultList();
     }
 
@@ -242,7 +242,7 @@ public class BehandlingRepository {
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
         query.setParameter("ytelseTyper", BehandlingType.getYtelseBehandlingTyper());
         if (readonly) {
-            query.setHint(QueryHints.HINT_READONLY, "true");
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         }
         return query.getResultList();
     }
@@ -304,7 +304,7 @@ public class BehandlingRepository {
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("avsluttetOgIverkKode", BehandlingStatus.getFerdigbehandletStatuser());
         query.setParameter("inluderteTyper", inkluder);
-        query.setHint(QueryHints.HINT_READONLY, true);
+        query.setHint(HibernateHints.HINT_READ_ONLY, true);
         return query.getResultList();
     }
 
@@ -400,7 +400,7 @@ public class BehandlingRepository {
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("behandlingType", behandlingType);
         if (readOnly) {
-            query.setHint(QueryHints.HINT_READONLY, "true");
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         }
         return optionalFirst(query.getResultList());
     }
@@ -549,7 +549,7 @@ public class BehandlingRepository {
                 BehandlingÅrsak.class);
 
         query.setParameter("behandling", behandling);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
@@ -560,7 +560,7 @@ public class BehandlingRepository {
                 BehandlingÅrsakType.class);
 
         query.setParameter("behandling", behandling);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 

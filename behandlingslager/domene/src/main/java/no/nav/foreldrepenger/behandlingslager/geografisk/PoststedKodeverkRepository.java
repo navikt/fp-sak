@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -36,7 +36,7 @@ public class PoststedKodeverkRepository {
     public Optional<Poststed> finnPoststedReadOnly(String postnummer) {
         var query = entityManager.createQuery("from Poststed p where poststednummer = :postnr", Poststed.class)
             .setParameter("postnr", postnummer)
-            .setHint(QueryHints.HINT_READONLY, "true");
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return HibernateVerktøy.hentUniktResultat(query);
     }
 

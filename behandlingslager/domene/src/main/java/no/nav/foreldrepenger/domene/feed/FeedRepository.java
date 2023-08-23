@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.EntityManager;
 
-import org.hibernate.jpa.QueryHints;
+import org.hibernate.jpa.HibernateHints;
 
 @ApplicationScoped
 public class FeedRepository {
@@ -46,7 +46,7 @@ public class FeedRepository {
         var query = entityManager
             .createNativeQuery("SELECT count(1) FROM UTGAAENDE_HENDELSE where kilde_id = :kildeId")
             .setParameter("kildeId", kildeId)
-            .setHint(QueryHints.HINT_READONLY, "true");
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
 
         var antall = (BigDecimal) query.getSingleResult();
         return antall.compareTo(BigDecimal.ZERO) > 0;
