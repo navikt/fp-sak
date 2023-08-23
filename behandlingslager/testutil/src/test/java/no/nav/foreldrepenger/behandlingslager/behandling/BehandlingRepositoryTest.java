@@ -94,6 +94,20 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         assertThat(resultat).isNotNull();
     }
 
+    @Test
+    void skal_finne_behandling_gitt_uuid() {
+
+        // Arrange
+        var behandling = opprettBuilderForBehandling().build();
+        lagreBehandling(behandling);
+
+        // Act
+        var resultat = behandlingRepository.hentBehandling(behandling.getUuid());
+
+        // Assert
+        assertThat(resultat).isNotNull();
+    }
+
     private void lagreBehandling(Behandling... behandlinger) {
         for (var behandling : behandlinger) {
             var lås = behandlingRepository.taSkriveLås(behandling);
@@ -549,6 +563,28 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         assertThat(avsluttetDatoResultat).isEqualTo(avsluttetDato.withNano(0)); // Oracle is not returning milliseconds.
         assertThat(avsluttetDatoResultat).isNotEqualTo(avsluttetDato);
+    }
+
+    @Test
+    public void test_hentAbsoluttAlleBehandlingerForFagsak() throws Exception {
+        // Arrange
+        var behandling = opprettBuilderForBehandling().build();
+        lagreBehandling(behandling);
+
+        var fagsak = behandling.getFagsak();
+        var saksnummer = fagsak.getSaksnummer();
+        assertThat(fagsak.getId()).isNotNull();
+        assertThat(saksnummer).isNotNull();
+
+        // Act
+        var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
+
+        // Assert
+        assertThat(behandlinger).hasSize(1).map(Behandling::getId).containsOnly(behandling.getId());
+        var beh1 = behandlinger.get(0);
+        assertThat(beh1.getFagsak()).isNotNull();
+        assertThat(beh1.getFagsak().getSaksnummer()).isEqualTo(saksnummer);
+
     }
 
     private Behandling opprettBehandlingForAutomatiskGjenopptagelse() {

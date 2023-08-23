@@ -99,9 +99,10 @@ public class BehandlingRepository {
      */
     public List<Behandling> hentAbsoluttAlleBehandlingerForSaksnummer(Saksnummer saksnummer) {
         Objects.requireNonNull(saksnummer, "saksnummer");
+        Objects.requireNonNull(saksnummer.getVerdi());
 
         var query = entityManager.createQuery(
-                "SELECT beh from Behandling AS beh, Fagsak AS fagsak WHERE beh.fagsak.id=fagsak.id AND fagsak.saksnummer=:saksnummer",
+                "SELECT beh from Behandling AS beh JOIN FETCH beh.fagsak WHERE beh.fagsak.saksnummer=:saksnummer",
                 Behandling.class);
         query.setParameter("saksnummer", saksnummer);
         return query.getResultList();
@@ -116,7 +117,7 @@ public class BehandlingRepository {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
 
         var query = entityManager.createQuery(
-                "SELECT beh from Behandling AS beh, Fagsak AS fagsak WHERE beh.fagsak.id=fagsak.id AND fagsak.id=:fagsakId",
+                "SELECT beh from Behandling AS beh JOIN FETCH beh.fagsak where beh.fagsak.id=:fagsakId",
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         return query.getResultList();
@@ -381,7 +382,7 @@ public class BehandlingRepository {
         Objects.requireNonNull(behandlingType, "behandlingType");
 
         var query = entityManager.createQuery(
-                "from Behandling where fagsak.id=:fagsakId and behandlingType in (:behandlingType) order by opprettetTidspunkt desc",
+                "SELECT b from Behandling b where b.fagsak.id=:fagsakId and behandlingType in (:behandlingType) order by b.opprettetTidspunkt desc",
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("behandlingType", behandlingType);
