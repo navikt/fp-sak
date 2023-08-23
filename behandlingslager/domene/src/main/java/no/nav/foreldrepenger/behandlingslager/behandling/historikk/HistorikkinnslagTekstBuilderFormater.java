@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public final class HistorikkinnslagTekstBuilderFormater {
 

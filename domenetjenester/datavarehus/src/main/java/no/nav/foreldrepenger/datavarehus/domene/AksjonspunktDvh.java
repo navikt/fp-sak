@@ -1,17 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
+import jakarta.persistence.*;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "AksjonspunktDvh")
 @Table(name = "AKSJONSPUNKT_DVH")

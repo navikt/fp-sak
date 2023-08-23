@@ -1,18 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 public enum Språkkode implements Kodeverdi, MedOffisiellKode {
 

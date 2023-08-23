@@ -1,14 +1,9 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.*;
 
 public enum DokumentMalType implements Kodeverdi {
 

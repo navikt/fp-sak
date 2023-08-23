@@ -1,12 +1,8 @@
 
 package no.nav.foreldrepenger.domene.medlem.kontrollerfakta;
 
-import java.util.EnumMap;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
@@ -14,6 +10,9 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
+
+import java.util.EnumMap;
+import java.util.List;
 
 @ApplicationScoped
 public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements AksjonspunktUtleder {

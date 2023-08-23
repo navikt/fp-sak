@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.historikk;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
+import no.nav.vedtak.exception.TekniskException;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
-import no.nav.vedtak.exception.TekniskException;
 
 final class HistorikkInnsalgFeil {
 

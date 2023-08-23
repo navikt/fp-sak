@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.person.verge;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -13,11 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.*;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;

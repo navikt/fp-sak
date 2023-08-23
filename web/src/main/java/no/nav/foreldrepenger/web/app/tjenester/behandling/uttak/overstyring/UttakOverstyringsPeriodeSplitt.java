@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class UttakOverstyringsPeriodeSplitt {
     private LocalDateInterval opprinnelig;

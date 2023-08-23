@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.medlem.medl2;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MedlemskapsunntakTest {
 

@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
-
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * En basis {@link Entity} klasse som håndtere felles standarder for utformign

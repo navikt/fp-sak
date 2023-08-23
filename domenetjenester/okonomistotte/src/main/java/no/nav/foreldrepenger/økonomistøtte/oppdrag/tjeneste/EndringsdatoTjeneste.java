@@ -1,24 +1,14 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.function.Function;
-
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.SatsType;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelseVerdi;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.SetUtil;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Function;
 
 public class EndringsdatoTjeneste {
 

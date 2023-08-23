@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.medlem.api;
 
-import java.util.Map;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
+
+import java.util.Map;
 
 public class MedlemskapsperiodeKoder {
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap;
+
+import java.util.Objects;
 
 public class StatsborgerskapPeriode {
 

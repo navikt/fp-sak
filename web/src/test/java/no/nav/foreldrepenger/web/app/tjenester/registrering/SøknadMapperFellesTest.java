@@ -1,28 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
-import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettAdosjonDto;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettAnnenForelderDto;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettNorskVirksomhetMedEndringUtenRegnskapsfører;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettOmsorgDto;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettTestdataForAndreYtelser;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettUtenlandskArbeidsforholdDto;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettUtenlandskVirksomhetMedEndringUtenRegnskapsfører;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
-
-import java.time.LocalDate;
-import java.util.Collections;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
@@ -35,16 +12,25 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.RettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.es.ManuellRegistreringEngangsstonadDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.ManuellRegistreringForeldrepengerDto;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Bruker;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Omsorgsovertakelse;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Termin;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.UkjentForelder;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.*;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.NorskOrganisasjon;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskArbeidsforhold;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskOrganisasjon;
 import no.nav.vedtak.konfig.Tid;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.util.Collections;
+
+import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class SøknadMapperFellesTest {

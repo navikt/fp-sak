@@ -1,22 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
-import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.util.Objects;
 
 @Entity(name = "YtelseFordelingGrunnlag")
 @Table(name = "GR_YTELSES_FORDELING")

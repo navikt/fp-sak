@@ -1,15 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBException;
-
-import org.xml.sax.SAXException;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
@@ -37,6 +32,9 @@ import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory;
+import org.xml.sax.SAXException;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = ManuellRegistreringDto.class, adapter = AksjonspunktOppdaterer.class)

@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
+
+import java.util.List;
 
 public class OppdragKvitteringTestUtil {
     public static List<OppdragKvittering> lagPositiveKvitteringer(Oppdragskontroll oppdragskontroll) {

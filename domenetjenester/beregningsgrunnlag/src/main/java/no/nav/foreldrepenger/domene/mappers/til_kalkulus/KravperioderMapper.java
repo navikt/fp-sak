@@ -1,16 +1,5 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.PerioderForKravDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonsperiodeDto;
@@ -19,17 +8,17 @@ import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.*;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.konfig.Tid;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class KravperioderMapper {
 

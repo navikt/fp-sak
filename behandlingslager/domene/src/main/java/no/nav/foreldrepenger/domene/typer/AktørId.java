@@ -1,17 +1,15 @@
 package no.nav.foreldrepenger.domene.typer;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra

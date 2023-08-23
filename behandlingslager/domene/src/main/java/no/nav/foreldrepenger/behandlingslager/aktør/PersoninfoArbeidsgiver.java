@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import static java.util.Objects.requireNonNull;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import static java.util.Objects.requireNonNull;
 
 public class PersoninfoArbeidsgiver {
 

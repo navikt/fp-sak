@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+
+import java.util.List;
 
 public interface LagAndelTjeneste {
 

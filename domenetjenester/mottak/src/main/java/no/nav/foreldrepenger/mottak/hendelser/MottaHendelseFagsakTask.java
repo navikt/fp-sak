@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.mottak.hendelser;
 
-import java.util.List;
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -14,6 +10,9 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+
+import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 @ProsessTask("hendelser.håndterHendelsePåFagsak")

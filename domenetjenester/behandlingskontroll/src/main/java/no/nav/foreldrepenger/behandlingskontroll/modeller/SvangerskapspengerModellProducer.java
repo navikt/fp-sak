@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingskontroll.modeller;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;

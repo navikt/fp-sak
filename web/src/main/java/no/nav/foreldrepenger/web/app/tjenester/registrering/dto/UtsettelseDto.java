@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
-import java.time.LocalDate;
-
 import jakarta.validation.constraints.NotNull;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+
+import java.time.LocalDate;
 
 public class UtsettelseDto {
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import java.net.URI;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.UriBuilder;
+
+import java.net.URI;
 
 public class HistorikkRequestPath {
 

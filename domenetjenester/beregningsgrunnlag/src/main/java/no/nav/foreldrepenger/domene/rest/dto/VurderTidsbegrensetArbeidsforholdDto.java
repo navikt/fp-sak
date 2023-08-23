@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VurderTidsbegrensetArbeidsforholdDto {
 

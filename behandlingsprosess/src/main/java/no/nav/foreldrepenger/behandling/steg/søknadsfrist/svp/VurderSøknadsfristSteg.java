@@ -1,19 +1,13 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
 
-import static java.util.Collections.singletonList;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
+
+import static java.util.Collections.singletonList;
 
 @BehandlingStegRef(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
 @BehandlingTypeRef

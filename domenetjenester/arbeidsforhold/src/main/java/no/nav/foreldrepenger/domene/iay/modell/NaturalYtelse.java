@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
 
 public class NaturalYtelse extends BaseEntitet implements IndexKey {
 

@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
+import jakarta.validation.constraints.NotNull;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import jakarta.validation.constraints.NotNull;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 
 /**
  * Tilpasset versjon av V3 https://kabal-api.dev.intern.nav.no/swagger-ui/?urls.primaryName=external#/kabal-api-external/sendInnSakV3UsingPOST

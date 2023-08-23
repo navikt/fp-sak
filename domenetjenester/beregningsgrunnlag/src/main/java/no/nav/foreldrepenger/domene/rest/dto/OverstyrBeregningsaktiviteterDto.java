@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
-import java.util.List;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+
+import java.util.List;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNINGSAKTIVITETER_KODE)
 public class OverstyrBeregningsaktiviteterDto extends OverstyringAksjonspunktDto {

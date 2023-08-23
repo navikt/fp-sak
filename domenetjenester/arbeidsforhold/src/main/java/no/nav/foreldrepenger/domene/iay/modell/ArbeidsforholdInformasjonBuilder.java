@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.util.Optional;
 
 public class ArbeidsforholdInformasjonBuilder {
 

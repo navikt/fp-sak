@@ -1,16 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
-import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+
+import java.util.Objects;
 
 //TODO bør forenkles og flyttes ned til VERGE siden det kun er BRUKER_ID eller orgnr + navn
 @Entity(name = "VergeOrganisasjon")

@@ -1,23 +1,18 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.domene.uttak.input.*;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.PersonopplysningerForUttakStub;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.domene.uttak.input.Barn;
-import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
-import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.PersonopplysningerForUttakStub;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AvklarteDatoerTjenesteTest {
     private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();

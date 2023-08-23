@@ -2,10 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -16,6 +12,8 @@ import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTje
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.PrematurukerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @ApplicationScoped

@@ -1,36 +1,21 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.FORENKLET_OPPGJØRSORDNING;
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.MARITIMT_ARBEIDSFORHOLD;
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.*;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.*;
 
 public class InntektsmeldingUtenArbeidsforholdTjeneste {
     private static final Integer MND_FØR_STP_INNTEKT_ER_RELEVANT = 6;

@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.web.app;
 
+import org.jboss.jandex.AnnotationTarget.Kind;
+import org.jboss.jandex.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,15 +19,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
-
-import org.jboss.jandex.AnnotationTarget.Kind;
-import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.DotName;
-import org.jboss.jandex.Index;
-import org.jboss.jandex.IndexReader;
-import org.jboss.jandex.Indexer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Henter persistert index (hvis generert) eller genererer index for angitt

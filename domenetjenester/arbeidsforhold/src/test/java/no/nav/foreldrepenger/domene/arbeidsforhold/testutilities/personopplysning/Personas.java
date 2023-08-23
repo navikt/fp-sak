@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysning;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.time.LocalDate;
 
 public class Personas {
     private Builder builder;

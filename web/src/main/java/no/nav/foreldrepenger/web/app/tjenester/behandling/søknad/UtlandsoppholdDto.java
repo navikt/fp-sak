@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
+
 import java.time.LocalDate;
 import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 
 public class UtlandsoppholdDto {
     private String landNavn;

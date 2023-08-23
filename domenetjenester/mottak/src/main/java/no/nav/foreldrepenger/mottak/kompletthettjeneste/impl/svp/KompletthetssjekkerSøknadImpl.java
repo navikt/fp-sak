@@ -1,15 +1,7 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.svp;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
@@ -20,6 +12,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)

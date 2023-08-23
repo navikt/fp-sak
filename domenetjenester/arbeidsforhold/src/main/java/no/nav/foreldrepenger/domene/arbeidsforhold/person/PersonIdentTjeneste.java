@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.person;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class PersonIdentTjeneste {

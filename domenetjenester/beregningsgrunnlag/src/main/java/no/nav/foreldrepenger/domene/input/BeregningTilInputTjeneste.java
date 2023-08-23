@@ -1,18 +1,17 @@
 package no.nav.foreldrepenger.domene.input;
 
-import java.util.function.Supplier;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
+
+import java.util.function.Supplier;
 
 @ApplicationScoped
 public class BeregningTilInputTjeneste {

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandling;
 
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 /**
  * Inneholder relevante fristrelaterte datoer for en behandling

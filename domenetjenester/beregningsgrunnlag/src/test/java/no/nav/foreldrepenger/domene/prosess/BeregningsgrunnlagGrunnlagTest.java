@@ -1,23 +1,18 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.*;
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetAggregatDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringerDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDtoBuilder;
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
+import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
+import static org.assertj.core.api.Assertions.assertThat;
 class BeregningsgrunnlagGrunnlagTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();

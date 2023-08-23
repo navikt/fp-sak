@@ -1,21 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-
-import org.hibernate.jpa.HibernateHints;
-
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+import org.hibernate.jpa.HibernateHints;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Dette er et Repository for håndtering av alle persistente endringer i en Personopplysning graf.

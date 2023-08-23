@@ -1,23 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
-import java.time.LocalDate;
-import java.util.Objects;
-
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
+import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "SVP_UTTAK_PERIODE")

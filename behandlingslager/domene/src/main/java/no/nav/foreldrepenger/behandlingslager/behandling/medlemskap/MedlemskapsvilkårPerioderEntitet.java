@@ -1,24 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 @Entity(name = "MedlemskapsvilkårPerioder")
 @Table(name = "MEDLEMSKAP_VILKAR_PERIODER")

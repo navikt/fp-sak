@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak;
 
-import java.time.LocalDateTime;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+
+import java.time.LocalDateTime;
 
 /**
  * Oppretter videre tasks for gjenoppta og oppdater registerdata

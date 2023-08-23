@@ -1,15 +1,6 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.persistence.Convert;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
@@ -21,6 +12,10 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class Inntektsmelding extends BaseEntitet implements IndexKey {
 

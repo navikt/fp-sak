@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.datavarehus.task;
 
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Properties;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDefDvh;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  *  Batchservice som finner alle behandlinger som skal gjenopptas, og lager en ditto prosess task for hver.

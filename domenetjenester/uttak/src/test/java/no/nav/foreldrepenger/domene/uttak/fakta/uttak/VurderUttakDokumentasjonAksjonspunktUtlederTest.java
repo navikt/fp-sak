@@ -1,13 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -25,6 +17,13 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 

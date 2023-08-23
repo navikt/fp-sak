@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+
 import java.time.LocalDate;
 import java.util.Optional;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 
 public class OppgittFordelingDto {
     private Optional<LocalDate> startDatoForPermisjon;

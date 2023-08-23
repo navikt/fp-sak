@@ -1,13 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import static no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType.AVSLÅTT;
-import static no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType.INNVILGET;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -21,6 +13,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType.AVSLÅTT;
+import static no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType.INNVILGET;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OpphørUttakTjenesteTest {
 

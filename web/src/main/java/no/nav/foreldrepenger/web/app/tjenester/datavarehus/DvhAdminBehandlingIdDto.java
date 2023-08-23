@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.datavarehus;
 
-import java.util.UUID;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.QueryParam;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
+
+import java.util.UUID;
 
 /**
  * Forenklet versjon som tillater regenerering for alle behandlinger

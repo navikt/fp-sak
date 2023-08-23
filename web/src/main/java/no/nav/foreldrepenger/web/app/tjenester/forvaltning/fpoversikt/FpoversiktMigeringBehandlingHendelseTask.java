@@ -1,18 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.fpoversikt;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.UUID;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -21,6 +11,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.hendelser.behandling.Hendelse;
 import no.nav.vedtak.hendelser.behandling.v1.BehandlingHendelseV1;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
 
 @Dependent
 @ProsessTask(value = "fpoversikt.migrering", maxFailedRuns = 1)

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;

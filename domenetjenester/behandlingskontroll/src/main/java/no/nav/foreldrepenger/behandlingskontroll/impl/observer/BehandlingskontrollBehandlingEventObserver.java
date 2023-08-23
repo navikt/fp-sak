@@ -1,20 +1,18 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl.observer;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * Observerer og propagerer / håndterer events internt i Behandlingskontroll

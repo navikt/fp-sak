@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.fp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.MapTilOpptjeningAktiviteter;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.felles.VurderOpptjeningsvilkårStegFelles;
@@ -22,6 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_OPPTJENINGSVILKÅR)
 @BehandlingTypeRef

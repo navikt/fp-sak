@@ -1,22 +1,20 @@
 package no.nav.foreldrepenger.behandling.steg;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
-
+import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Sjekk at alle konfigurasjoner fungerer og har definerte steg

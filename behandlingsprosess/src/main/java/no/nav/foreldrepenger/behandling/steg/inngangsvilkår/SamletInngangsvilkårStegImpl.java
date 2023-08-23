@@ -1,12 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -17,6 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 // Steget sikrer at vilkårne blir vurdert samlet som inngangsvilkår
 @BehandlingStegRef(BehandlingStegType.VURDER_SAMLET)

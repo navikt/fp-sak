@@ -1,18 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.register;
 
-import java.net.URI;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
-
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.felles.integrasjon.rest.*;
+
+import java.net.URI;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "arbeid.og.inntekt.base.url", endpointDefault = "https://arbeid-og-inntekt.nais.adeo.no")

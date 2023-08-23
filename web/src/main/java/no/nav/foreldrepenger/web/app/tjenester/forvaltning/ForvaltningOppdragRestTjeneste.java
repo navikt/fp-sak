@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -12,18 +12,16 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.K27PatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.KvitteringDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path("/forvaltningOppdrag")
 @ApplicationScoped

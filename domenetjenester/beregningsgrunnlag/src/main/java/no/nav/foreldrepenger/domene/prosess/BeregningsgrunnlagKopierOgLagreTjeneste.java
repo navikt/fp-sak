@@ -1,36 +1,8 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.BESTEBEREGNET;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT_INN;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_2;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_2_UT;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FORESLÅTT_UT;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.KOFAKBER_UT;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.VURDERT_VILKÅR;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
-import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
-import no.nav.folketrygdloven.kalkulator.input.FortsettForeslåBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.*;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
@@ -42,15 +14,25 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
-import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.BesteberegningMapper;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.BesteberegningMapper;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.*;
 
 /**
  * Fasade tjeneste for å delegere alle kall fra steg

@@ -6,13 +6,12 @@ package no.nav.foreldrepenger.historikk;
  * </p>
  */
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum VurderArbeidsforholdHistorikkinnslag implements Kodeverdi {
 

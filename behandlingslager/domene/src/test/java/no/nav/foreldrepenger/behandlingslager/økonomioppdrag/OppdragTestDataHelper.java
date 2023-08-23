@@ -1,14 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import java.time.LocalDate;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.*;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.time.LocalDate;
 
 
 public class OppdragTestDataHelper {

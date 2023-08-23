@@ -1,31 +1,26 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgSmåBokstaver;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgSmåBokstaver;
 
 @ApplicationScoped
 public class PersonopplysningDtoTjeneste {

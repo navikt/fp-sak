@@ -1,14 +1,7 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
@@ -19,6 +12,11 @@ import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskap;
 import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskapsunntak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.exception.IntegrasjonException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @ApplicationScoped
 public class HentMedlemskapFraRegister {

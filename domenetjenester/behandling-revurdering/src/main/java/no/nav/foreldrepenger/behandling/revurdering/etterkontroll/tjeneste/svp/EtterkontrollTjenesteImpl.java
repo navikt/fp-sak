@@ -1,10 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.svp;
 
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
-
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -13,6 +9,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
+import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)

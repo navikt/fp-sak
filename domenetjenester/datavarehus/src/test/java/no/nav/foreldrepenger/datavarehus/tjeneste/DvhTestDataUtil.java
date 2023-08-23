@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDateTime;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -9,6 +7,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.time.LocalDateTime;
 
 class DvhTestDataUtil {
 

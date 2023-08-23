@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
 
 public final class PersonInformasjon {
 

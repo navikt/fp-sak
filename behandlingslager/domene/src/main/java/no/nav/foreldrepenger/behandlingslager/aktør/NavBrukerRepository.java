@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 @ApplicationScoped
 public class NavBrukerRepository {

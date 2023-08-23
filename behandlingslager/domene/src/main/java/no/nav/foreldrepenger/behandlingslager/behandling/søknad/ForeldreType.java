@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /** @deprecated: Er et tynt subsett av RelasjonRolleType, men kodene er i bruk i SøknadXML så kan ikke bare slettes. */
 @Deprecated

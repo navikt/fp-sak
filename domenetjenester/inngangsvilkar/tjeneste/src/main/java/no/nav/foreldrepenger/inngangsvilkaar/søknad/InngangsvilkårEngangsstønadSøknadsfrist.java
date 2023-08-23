@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.inngangsvilkaar.søknad;
 
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -15,6 +12,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SøknadsperiodeFristTjeneste;
+
+import java.util.List;
 
 @ApplicationScoped
 @VilkårTypeRef(VilkårType.SØKNADSFRISTVILKÅRET)

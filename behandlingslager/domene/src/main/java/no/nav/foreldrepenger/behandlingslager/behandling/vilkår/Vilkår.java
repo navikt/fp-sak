@@ -1,27 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import static java.util.Arrays.asList;
+import jakarta.persistence.*;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import static java.util.Arrays.asList;
 
 @Entity(name = "Vilkar")
 @Table(name = "VILKAR")

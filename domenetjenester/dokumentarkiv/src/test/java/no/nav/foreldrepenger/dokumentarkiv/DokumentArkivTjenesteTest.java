@@ -28,19 +28,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.saf.DokumentInfo;
-import no.nav.saf.Dokumentoversikt;
-import no.nav.saf.Dokumentvariant;
-import no.nav.saf.Journalpost;
-import no.nav.saf.Journalposttype;
-import no.nav.saf.Journalstatus;
-import no.nav.saf.Tema;
-import no.nav.saf.Tilleggsopplysning;
-import no.nav.saf.Variantformat;
-import no.nav.vedtak.felles.integrasjon.saf.Saf;
+import java.net.http.HttpHeaders;
+import java.time.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DokumentArkivTjenesteTest {

@@ -1,19 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
-
-import org.hibernate.jpa.HibernateHints;
-import org.hibernate.query.NativeQuery;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -23,6 +13,14 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+import org.hibernate.jpa.HibernateHints;
+import org.hibernate.query.NativeQuery;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @ApplicationScoped
 public class FagsakRepository {

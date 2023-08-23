@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
-
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class SokefeltDto {

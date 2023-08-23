@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.datavarehus.xml.es;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,6 +24,9 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped

@@ -1,21 +1,7 @@
 package no.nav.foreldrepenger.domene.fp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseperiode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -29,6 +15,15 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BesteberegningYtelsegrunnlagMapperTest {
     private static final LocalDate STP = LocalDate.of(2021,1,1);

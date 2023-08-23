@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.etterkontroll;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Oppdatering av tilstand for etterkontroll av behandling.

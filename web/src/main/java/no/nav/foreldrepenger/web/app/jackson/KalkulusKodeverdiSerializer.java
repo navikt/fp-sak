@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.web.app.jackson;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import no.nav.folketrygdloven.kalkulus.kodeverk.Kodeverdi;
+
+import java.io.IOException;
 
 
 /**

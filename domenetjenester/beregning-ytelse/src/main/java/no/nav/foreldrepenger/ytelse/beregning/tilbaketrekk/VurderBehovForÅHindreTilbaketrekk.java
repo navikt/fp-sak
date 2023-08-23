@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import static no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.TilbaketrekkVedTilkommetArbeidsforholdTjeneste.finnStørsteTilbaketrekkForTilkomneArbeidsforhold;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -8,10 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import static no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.TilbaketrekkVedTilkommetArbeidsforholdTjeneste.finnStørsteTilbaketrekkForTilkomneArbeidsforhold;
 
 /**
  * Tar inn en tidslinje over allerede utbetalt ytelse og ny beregnet ytelse

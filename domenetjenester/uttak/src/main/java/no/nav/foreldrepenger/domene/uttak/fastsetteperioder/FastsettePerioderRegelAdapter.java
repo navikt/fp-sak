@@ -1,14 +1,8 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
 
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
@@ -16,6 +10,10 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePerioderRege
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
 import no.nav.fpsak.nare.json.JsonOutput;
 import no.nav.fpsak.nare.json.NareJsonException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 @ApplicationScoped
 public class FastsettePerioderRegelAdapter {

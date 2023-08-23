@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto;
 
-import java.util.List;
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.domene.uttak.UttakPeriodeEndringDto;
+
+import java.util.List;
+import java.util.Set;
 
 public class TotrinnskontrollAksjonspunkterDto {
 

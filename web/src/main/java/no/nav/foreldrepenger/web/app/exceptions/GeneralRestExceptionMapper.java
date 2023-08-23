@@ -4,11 +4,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.KanIkkeUtledeGjeldendeFødselsdatoException;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
@@ -20,6 +15,9 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.felles.jpa.TomtResultatException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 @Provider
 public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {

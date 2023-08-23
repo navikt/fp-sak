@@ -1,20 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
-import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.lagOppdrag110;
-import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.lagOppdragslinje150;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -25,6 +10,20 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje15
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
 import no.nav.foreldrepenger.xmlutils.DateUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.lagOppdrag110;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.lagOppdragslinje150;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ØkonomioppdragMapperTest {
 

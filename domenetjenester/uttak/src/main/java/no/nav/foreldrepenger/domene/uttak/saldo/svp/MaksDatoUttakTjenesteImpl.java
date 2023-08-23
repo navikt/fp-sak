@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.domene.uttak.saldo.svp;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)

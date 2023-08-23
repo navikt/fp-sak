@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class OppdragskontrollEntityTest {
     private Oppdragskontroll.Builder oppdragskontrollBuilder;

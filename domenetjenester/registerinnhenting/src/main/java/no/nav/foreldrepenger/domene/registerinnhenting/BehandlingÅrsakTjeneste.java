@@ -1,16 +1,10 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.Entity;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -21,6 +15,11 @@ import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHi
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak.BehandlingÅrsakUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak.EndringResultatType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Dependent
 public class BehandlingÅrsakTjeneste {

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+
+import java.util.Objects;
 
 public class FamilierelasjonVL {
     private PersonIdent personIdent;

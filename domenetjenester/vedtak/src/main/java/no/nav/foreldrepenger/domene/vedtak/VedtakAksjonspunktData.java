@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.domene.vedtak;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+
+import java.util.*;
 
 public class VedtakAksjonspunktData {
 

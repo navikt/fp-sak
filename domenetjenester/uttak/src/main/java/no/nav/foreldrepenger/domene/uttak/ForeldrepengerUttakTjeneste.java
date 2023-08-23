@@ -1,17 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.*;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class ForeldrepengerUttakTjeneste {

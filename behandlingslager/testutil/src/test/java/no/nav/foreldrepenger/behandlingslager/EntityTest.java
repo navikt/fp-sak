@@ -1,6 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.persistence.*;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.Type;
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -13,24 +20,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.Table;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.Type;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Sjekker alle entiteter er mappet korrekt. Ligger i web slik at den fanger

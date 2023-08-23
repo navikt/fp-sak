@@ -1,20 +1,18 @@
 package no.nav.foreldrepenger.domene.typer;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Optional;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 
 /**
  * Stillingsprosent slik det er oppgitt i arbeidsavtalen

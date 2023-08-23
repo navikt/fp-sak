@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.inngangsvilkaar.opptjening.svp;
 
-import java.time.LocalDate;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -16,6 +13,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsVilkårTjenes
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsgrunnlagAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
+
+import java.time.LocalDate;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)

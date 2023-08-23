@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.dokument.dto;
 
-import jakarta.validation.constraints.Digits;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Digits;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
 public class JournalpostIdDto {

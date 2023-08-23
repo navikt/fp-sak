@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon;
 
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.VurderUttakDokumentasjonAksjonspunktUtleder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+
+import java.util.List;
 
 @ApplicationScoped
 public class DokumentasjonVurderingBehovDtoTjeneste {

@@ -1,23 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag;
 
-import static no.nav.foreldrepenger.økonomistøtte.oppdrag.OppdragskontrollTestVerktøy.endreTilElleveSiffer;
-import static no.nav.foreldrepenger.økonomistøtte.oppdrag.OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy;
-import static no.nav.foreldrepenger.økonomistøtte.oppdrag.OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.assertj.core.util.Sets;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -31,6 +13,21 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
+import org.assertj.core.util.Sets;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static no.nav.foreldrepenger.økonomistøtte.oppdrag.OppdragskontrollTestVerktøy.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenesteTestBase {
 

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.revurdering.aksjonspunkt;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;

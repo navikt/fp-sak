@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class OmsorgDto {
     @Min(1)

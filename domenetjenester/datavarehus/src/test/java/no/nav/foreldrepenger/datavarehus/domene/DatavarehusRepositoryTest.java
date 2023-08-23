@@ -1,14 +1,12 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import jakarta.persistence.EntityManager;
-
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(JpaExtension.class)
 class DatavarehusRepositoryTest {

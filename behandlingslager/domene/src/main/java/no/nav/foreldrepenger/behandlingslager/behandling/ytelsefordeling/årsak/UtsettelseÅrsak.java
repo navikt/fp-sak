@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public enum UtsettelseÅrsak implements Årsak {

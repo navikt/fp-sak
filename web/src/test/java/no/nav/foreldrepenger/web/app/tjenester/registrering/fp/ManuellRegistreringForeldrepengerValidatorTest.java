@@ -1,15 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -18,6 +8,15 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.DekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ManuellRegistreringForeldrepengerValidatorTest {
 

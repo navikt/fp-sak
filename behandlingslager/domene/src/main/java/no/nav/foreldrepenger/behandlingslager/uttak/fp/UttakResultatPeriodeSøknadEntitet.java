@@ -1,24 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Table(name = "UTTAK_RESULTAT_PERIODE_SOKNAD")

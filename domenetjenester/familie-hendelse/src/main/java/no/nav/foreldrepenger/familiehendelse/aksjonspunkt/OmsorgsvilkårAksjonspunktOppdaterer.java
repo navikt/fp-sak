@@ -1,15 +1,8 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.*;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -24,6 +17,8 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.Foreldreansvarsvil
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.exception.FunksjonellException;
+
+import java.util.Objects;
 
 /**
  * Håndterer oppdatering av omsorgsvilkåret.

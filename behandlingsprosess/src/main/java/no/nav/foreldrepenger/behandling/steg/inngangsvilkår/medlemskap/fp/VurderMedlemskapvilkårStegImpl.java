@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.medlemskap.fp;
 
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -21,6 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+import java.util.List;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR)
 @BehandlingTypeRef

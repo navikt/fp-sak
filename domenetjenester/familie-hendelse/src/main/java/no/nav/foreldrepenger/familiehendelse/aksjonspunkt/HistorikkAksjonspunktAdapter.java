@@ -1,10 +1,5 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import org.jboss.weld.exceptions.UnsupportedOperationException;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -16,6 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import org.jboss.weld.exceptions.UnsupportedOperationException;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Lager historikk innslag for endringer på felt, og setter Aksjonspunkt til totrinnskontroll hvis endret.

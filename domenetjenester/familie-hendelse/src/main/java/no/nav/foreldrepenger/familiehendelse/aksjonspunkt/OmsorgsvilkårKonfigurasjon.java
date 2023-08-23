@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+
+import java.util.Set;
 
 final class OmsorgsvilkårKonfigurasjon {
 

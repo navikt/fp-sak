@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.medlem.api;
 
-import java.time.LocalDate;
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+
+import java.time.LocalDate;
+import java.util.Objects;
 
 public class Medlemskapsperiode {
     private LocalDate fom;

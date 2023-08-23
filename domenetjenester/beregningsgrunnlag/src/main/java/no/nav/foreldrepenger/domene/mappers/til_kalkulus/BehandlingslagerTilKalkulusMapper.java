@@ -1,41 +1,17 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.*;
+import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
+import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.kodeverk.*;
+import no.nav.foreldrepenger.domene.entiteter.*;
+import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetAggregatDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringerDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonOverstyringDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonOverstyringerDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonPeriodeDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDtoBuilder;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
-import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaVurderingKilde;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
-import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonPeriodeEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 public class BehandlingslagerTilKalkulusMapper {
 

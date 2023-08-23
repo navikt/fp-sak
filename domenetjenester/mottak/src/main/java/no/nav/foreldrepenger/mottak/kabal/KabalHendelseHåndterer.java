@@ -1,17 +1,9 @@
 package no.nav.foreldrepenger.mottak.kabal;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.kabal.KabalHendelse;
 import no.nav.foreldrepenger.behandling.kabal.MottaFraKabalTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -24,6 +16,12 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.UUID;
 
 
 @Transactional

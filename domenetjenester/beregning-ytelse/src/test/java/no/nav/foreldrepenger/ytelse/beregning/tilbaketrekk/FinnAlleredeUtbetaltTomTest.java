@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class FinnAlleredeUtbetaltTomTest {
 

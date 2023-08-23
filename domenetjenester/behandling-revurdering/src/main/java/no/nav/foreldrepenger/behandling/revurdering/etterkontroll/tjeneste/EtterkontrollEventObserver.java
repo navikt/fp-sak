@@ -1,20 +1,8 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.TERMIN;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Optional;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.FamiliehendelseEvent;
@@ -28,6 +16,16 @@ import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollReposit
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Optional;
+import java.util.Set;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.TERMIN;
 
 @ApplicationScoped
 public class EtterkontrollEventObserver {

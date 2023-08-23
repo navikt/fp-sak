@@ -1,34 +1,22 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
+import no.nav.abakus.iaygrunnlag.Organisasjon;
+import no.nav.abakus.iaygrunnlag.Periode;
+import no.nav.abakus.iaygrunnlag.kodeverk.Landkode;
+import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.*;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder.EgenNæringBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-
-import no.nav.abakus.iaygrunnlag.Organisasjon;
-import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.abakus.iaygrunnlag.kodeverk.Landkode;
-import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittAnnenAktivitetDto;
-import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittArbeidsforholdDto;
-import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittEgenNæringDto;
-import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittFrilansDto;
-import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittFrilansoppdragDto;
-import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittOpptjeningDto;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilans;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilansoppdrag;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder.EgenNæringBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittUtenlandskVirksomhet;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 class MapOppgittOpptjening {
 

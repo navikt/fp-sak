@@ -1,19 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.FlushModeType;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class FamilieHendelseRepository {

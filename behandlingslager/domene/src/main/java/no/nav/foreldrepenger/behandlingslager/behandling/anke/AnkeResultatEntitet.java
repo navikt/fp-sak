@@ -1,16 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 
+import jakarta.persistence.*;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+
 import java.util.Objects;
 import java.util.Optional;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 
 @Entity(name = "AnkeResultat")

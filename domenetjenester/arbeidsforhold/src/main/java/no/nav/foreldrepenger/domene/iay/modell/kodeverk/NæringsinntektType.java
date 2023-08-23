@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 public enum NæringsinntektType implements Kodeverdi, MedOffisiellKode, YtelseType {
 

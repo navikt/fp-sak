@@ -1,28 +1,23 @@
 package no.nav.foreldrepenger.domene.person;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
+import no.nav.foreldrepenger.domene.person.pdl.*;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class PersoninfoAdapterTest {

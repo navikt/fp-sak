@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.poststed;
 
-import java.util.Properties;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.batch.BatchTjeneste;
+
+import java.util.Properties;
+import java.util.UUID;
 /**
  * Henter ned offisielle kodeverk fra NAV som brukes i løsningen og synker den til egen kodeverk-tabell.
  */

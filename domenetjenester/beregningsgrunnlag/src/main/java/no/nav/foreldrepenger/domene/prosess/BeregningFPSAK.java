@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell.FraEntitetTilBehandlingsmodellMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class BeregningFPSAK implements BeregningAPI {

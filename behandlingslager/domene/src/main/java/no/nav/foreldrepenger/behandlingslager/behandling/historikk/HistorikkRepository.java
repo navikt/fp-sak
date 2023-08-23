@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import java.util.List;
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class HistorikkRepository {

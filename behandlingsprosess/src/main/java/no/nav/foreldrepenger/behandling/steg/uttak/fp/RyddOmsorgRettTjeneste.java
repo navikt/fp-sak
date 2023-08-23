@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+
+import java.util.Optional;
 
 @ApplicationScoped
 class RyddOmsorgRettTjeneste {

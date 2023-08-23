@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import java.util.Objects;
-
 import jakarta.persistence.LockModeType;
+
+import java.util.Objects;
 
 /**
  * Lås, fungerer som token som indikerer at write-lock er tatt ut. Kreves av lagre metoder.

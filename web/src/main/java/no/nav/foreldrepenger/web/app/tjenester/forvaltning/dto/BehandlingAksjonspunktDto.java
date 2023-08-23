@@ -1,18 +1,16 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
-import java.util.UUID;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.QueryParam;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
+
+import java.util.UUID;
 
 public class BehandlingAksjonspunktDto implements AbacDto {
 

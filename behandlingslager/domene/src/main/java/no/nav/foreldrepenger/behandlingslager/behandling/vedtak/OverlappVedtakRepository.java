@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @ApplicationScoped
 public class OverlappVedtakRepository {

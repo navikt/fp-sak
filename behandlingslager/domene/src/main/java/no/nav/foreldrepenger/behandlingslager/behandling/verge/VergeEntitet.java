@@ -1,26 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 @Entity(name = "Verge")
 @Table(name = "VERGE")

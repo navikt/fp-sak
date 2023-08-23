@@ -1,14 +1,7 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,16 +10,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
@@ -37,6 +22,12 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class KabalTjeneste {

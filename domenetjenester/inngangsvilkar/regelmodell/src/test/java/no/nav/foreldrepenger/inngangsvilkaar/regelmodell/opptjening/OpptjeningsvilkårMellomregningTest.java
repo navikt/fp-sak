@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OpptjeningsvilkårMellomregningTest {
 

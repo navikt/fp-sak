@@ -1,21 +1,15 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp;
 
-import java.util.Arrays;
-
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Oppfylt;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårMellomregning;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårParametre;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.SjekkInntektSamsvarerMedArbeidAktivitet;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.SjekkTilstrekkeligOpptjening;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.SjekkTilstrekkeligOpptjeningInklAntatt;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.*;
 import no.nav.fpsak.nare.RuleService;
 import no.nav.fpsak.nare.Ruleset;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.SequenceSpecification;
 import no.nav.fpsak.nare.specification.Specification;
+
+import java.util.Arrays;
 
 /**
  * Regeltjeneste for vurdering av OpptjeningsVilkåret.

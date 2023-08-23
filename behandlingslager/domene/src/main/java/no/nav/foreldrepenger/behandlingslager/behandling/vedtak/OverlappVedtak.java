@@ -1,20 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
-import java.util.Objects;
-
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.util.Objects;
 
 @Entity(name = "OverlappVedtak")
 @Table(name = "OVERLAPP_VEDTAK")

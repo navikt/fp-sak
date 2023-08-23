@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
+
+import java.util.Objects;
 
 public class OppholdstillatelsePeriode {
 

@@ -1,23 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
+import jakarta.validation.constraints.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class GraderingDto {
 

@@ -1,14 +1,5 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -16,6 +7,14 @@ import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.Identliste;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 class AktørTjenesteTest {
 

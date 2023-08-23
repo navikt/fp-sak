@@ -1,32 +1,15 @@
 package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BGAndelArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagAktivitetStatusDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPeriodeDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPrStatusOgAndelDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.*;
 import no.nav.folketrygdloven.kalkulator.modell.typer.FaktaVurdering;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
-import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType;
+import no.nav.foreldrepenger.domene.entiteter.*;
+import no.nav.foreldrepenger.domene.modell.kodeverk.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public final class KalkulusTilBGMapper {
 

@@ -1,15 +1,6 @@
 
 package no.nav.foreldrepenger.domene.medlem.impl;
 
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
-
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
@@ -28,6 +19,15 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
+
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 
 public class AvklarOmErBosatt {
     //Setter den til 364 for å unngå skuddårproblemer, (365 og 366 blir da "større" enn et år)

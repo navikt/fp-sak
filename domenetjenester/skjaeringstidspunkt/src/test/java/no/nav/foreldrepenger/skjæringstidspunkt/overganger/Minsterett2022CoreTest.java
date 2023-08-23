@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class Minsterett2022CoreTest {
 

@@ -1,12 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
@@ -27,6 +22,10 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.håndterOverlappPleiepenger", maxFailedRuns = 1)

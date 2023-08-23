@@ -1,13 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.intern.fp;
 
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.Comparator;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -27,6 +21,11 @@ import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.UtledeAvslutningsdatoFagsak;
 import no.nav.foreldrepenger.regler.uttak.UttakParametre;
+
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
+import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)

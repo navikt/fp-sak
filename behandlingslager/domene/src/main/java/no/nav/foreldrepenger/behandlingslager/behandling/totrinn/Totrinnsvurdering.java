@@ -1,27 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.totrinn;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity(name = "Totrinnsvurdering")
 @Table(name = "TOTRINNSVURDERING")

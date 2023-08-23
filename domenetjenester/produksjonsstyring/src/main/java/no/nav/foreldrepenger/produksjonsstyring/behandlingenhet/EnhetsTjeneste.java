@@ -1,16 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -25,6 +16,13 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPers
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @ApplicationScoped
 public class EnhetsTjeneste {

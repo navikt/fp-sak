@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndringBasertPåKonsekvenserForYtelsen;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;

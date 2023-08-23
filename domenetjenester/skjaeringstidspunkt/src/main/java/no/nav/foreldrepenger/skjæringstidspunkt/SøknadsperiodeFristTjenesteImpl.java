@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.Søknadsfristdatoer;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTjeneste {

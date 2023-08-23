@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class HentBekreftetPermisjon {
 

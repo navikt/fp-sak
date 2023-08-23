@@ -1,19 +1,18 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
+import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ArbeidsgiverHistorikkinnslag {

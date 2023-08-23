@@ -1,18 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging;
 
+import jakarta.persistence.*;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 @Entity
 @Table(name = "TILRETTELEGGING_FOM")

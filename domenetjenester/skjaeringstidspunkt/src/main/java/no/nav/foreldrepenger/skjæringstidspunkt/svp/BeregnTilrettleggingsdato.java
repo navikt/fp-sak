@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.svp;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 
 class BeregnTilrettleggingsdato {
 

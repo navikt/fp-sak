@@ -1,20 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import org.hibernate.jpa.HibernateHints;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import org.hibernate.jpa.HibernateHints;
-
-import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 @ApplicationScoped
 public class LagretVedtakRepository implements BehandlingslagerRepository {

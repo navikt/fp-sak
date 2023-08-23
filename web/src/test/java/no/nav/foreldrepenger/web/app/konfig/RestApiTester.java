@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Application;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Application;
-
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
 public class RestApiTester {
 

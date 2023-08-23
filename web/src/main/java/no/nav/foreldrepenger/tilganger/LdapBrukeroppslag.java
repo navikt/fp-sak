@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.tilganger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Pattern;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
 
 import javax.naming.InvalidNameException;
 import javax.naming.LimitExceededException;
@@ -13,9 +11,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
-
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.TekniskException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Pattern;
 
 
 public class LdapBrukeroppslag {

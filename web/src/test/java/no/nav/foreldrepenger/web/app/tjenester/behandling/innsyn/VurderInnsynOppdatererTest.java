@@ -1,20 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-
 import jakarta.inject.Inject;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
@@ -36,6 +22,18 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.aksjonspunkt.VurderInnsynDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.aksjonspunkt.VurderInnsynOppdaterer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @CdiDbAwareTest
 class VurderInnsynOppdatererTest {

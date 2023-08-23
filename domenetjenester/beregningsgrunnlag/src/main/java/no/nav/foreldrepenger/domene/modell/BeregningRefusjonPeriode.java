@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.modell;
 
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 
 public class BeregningRefusjonPeriode {

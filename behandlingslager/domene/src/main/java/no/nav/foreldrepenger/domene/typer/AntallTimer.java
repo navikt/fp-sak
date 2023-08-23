@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.domene.typer;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 
 /**
  * Antall timer slik det er oppgitt i arbeidsavtalen

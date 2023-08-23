@@ -1,21 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import java.time.Instant;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
+import no.nav.vedtak.felles.prosesstask.api.*;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskHandlerRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskLifecycleObserver;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskVeto;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskHandlerRef;
+import java.time.Instant;
 
 /**
  * Vetoer kjøring av prosesstasks som tilhører grupper som er senere enn tidligste prosesstaskgruppe for en fagsak.

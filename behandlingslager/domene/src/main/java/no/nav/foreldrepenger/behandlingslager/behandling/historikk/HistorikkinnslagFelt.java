@@ -1,23 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.Objects;
 
 @Entity(name = "HistorikkinnslagFelt")
 @Table(name = "HISTORIKKINNSLAG_FELT")

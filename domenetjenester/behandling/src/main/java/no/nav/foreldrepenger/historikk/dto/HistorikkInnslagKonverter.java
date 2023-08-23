@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.historikk.dto;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.ws.rs.core.UriBuilder;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public final class HistorikkInnslagKonverter {
 

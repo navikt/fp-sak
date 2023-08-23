@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
-import java.time.LocalDate;
-import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON_KODE)
 public class BekreftDokumentertDatoAksjonspunktDto extends BekreftetAksjonspunktDto implements OmsorgsOvertakelse {

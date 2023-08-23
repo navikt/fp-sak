@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp;
 
-import java.time.LocalDate;
-import java.util.Collection;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
@@ -18,6 +14,9 @@ import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.FastsettUttaksgrunnlagFeil;
+
+import java.time.LocalDate;
+import java.util.Collection;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)

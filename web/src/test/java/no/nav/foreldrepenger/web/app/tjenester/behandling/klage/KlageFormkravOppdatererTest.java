@@ -1,24 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.UUID;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
@@ -43,6 +25,22 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.Kla
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageTilbakekrevingDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class KlageFormkravOppdatererTest extends EntityManagerAwareTest {

@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.typer.Beløp;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class InntektsmeldingDto {
     private String arbeidsgiverReferanse;

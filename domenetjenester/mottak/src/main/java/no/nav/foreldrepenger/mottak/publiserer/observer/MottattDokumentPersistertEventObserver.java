@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.publiserer.observer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.mottak.publiserer.task.PubliserPersistertDokumentHendelseTask;

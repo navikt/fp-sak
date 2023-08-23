@@ -2,11 +2,9 @@ package no.nav.foreldrepenger.behandlingskontroll.impl.observer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 
 @ApplicationScoped
 public class BehandlingStatusEventLogger {

@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.vedtak.konfig.Tid;
+
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class BehandlingRelaterteYtelserMapper {
 

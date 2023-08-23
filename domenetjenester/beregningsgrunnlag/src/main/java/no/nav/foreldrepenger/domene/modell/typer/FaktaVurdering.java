@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.modell.typer;
 
+import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
 
 public class FaktaVurdering implements Serializable {
 

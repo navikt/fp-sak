@@ -1,9 +1,5 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -14,6 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class OppdateringResultat {
 

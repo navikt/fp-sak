@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.risikoklassifisering;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
@@ -18,6 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVur
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+
+import java.util.Objects;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderFaresignalerDto.class, adapter = AksjonspunktOppdaterer.class)

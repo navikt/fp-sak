@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import jakarta.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public enum HistorikkinnslagType implements Kodeverdi {
 

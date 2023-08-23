@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 final class UtsettelseDokumentasjonUtleder {
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+
 import java.time.LocalDate;
 import java.util.Optional;
-
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 
 public interface PersonopplysningerForUttak {
 

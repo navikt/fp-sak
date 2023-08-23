@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.time.LocalDate;
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+
+import java.time.LocalDate;
+import java.util.Objects;
 
 public class Permisjon extends BaseEntitet implements IndexKey {
 

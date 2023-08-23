@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.xml;
 
-import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
 import no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 public final class MottattDokumentXmlParser {
 

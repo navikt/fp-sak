@@ -1,25 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -46,6 +32,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
 /**
  * Bygger et sammensatt resultat av FagsakBehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.

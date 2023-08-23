@@ -1,22 +1,20 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import org.hibernate.jpa.HibernateHints;
 
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import org.hibernate.jpa.HibernateHints;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 @ApplicationScoped
 public class BeregningsresultatRepository {

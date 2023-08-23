@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap;
 
-import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
-import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 
 class ErInntektNærSkjæringstidspunkt {
 

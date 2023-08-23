@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.batch;
 
-import java.util.Optional;
-import java.util.Properties;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -14,6 +10,9 @@ import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollReposit
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Henter ut behandlinger som har fått innvilget engangsstønad på bakgrunn av

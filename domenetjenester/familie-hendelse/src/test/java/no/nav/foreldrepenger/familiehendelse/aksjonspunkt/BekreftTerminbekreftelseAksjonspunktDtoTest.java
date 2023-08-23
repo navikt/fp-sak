@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BekreftTerminbekreftelseAksjonspunktDtoTest {
 

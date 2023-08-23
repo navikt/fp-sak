@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BuilderTest {
 

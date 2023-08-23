@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.jboss.weld.exceptions.UnsupportedOperationException;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -13,19 +10,9 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.DelvisTilrettelegging;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Frilanser;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.HelTilrettelegging;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.IngenTilrettelegging;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.ObjectFactory;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.PrivatArbeidsgiver;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæringsdrivende;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Tilrettelegging;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.TilretteleggingListe;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.*;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
+import org.jboss.weld.exceptions.UnsupportedOperationException;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @BehandlingTypeRef

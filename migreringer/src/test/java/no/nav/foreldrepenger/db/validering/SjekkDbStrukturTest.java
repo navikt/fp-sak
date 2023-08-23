@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.db.validering;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tester at alle migreringer følger standarder for navn og god praksis.

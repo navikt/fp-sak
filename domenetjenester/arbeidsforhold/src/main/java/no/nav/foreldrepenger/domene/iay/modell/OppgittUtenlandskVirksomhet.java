@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.io.Serializable;
-
 import jakarta.persistence.Embeddable;
-
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+
+import java.io.Serializable;
 
 /**
  * Hibernate entitet som modellerer en utenlandsk virksomhet.

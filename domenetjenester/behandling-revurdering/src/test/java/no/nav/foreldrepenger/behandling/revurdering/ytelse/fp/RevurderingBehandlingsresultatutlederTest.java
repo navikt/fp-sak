@@ -1,44 +1,14 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
-import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.ORGNR;
-import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.SKJÆRINGSTIDSPUNKT_BEREGNING;
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.inject.Inject;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsresultatTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.felles.LagEnAndelTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerMotsattRekkefølgeTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.*;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -56,11 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.*;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
@@ -70,6 +36,22 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.ORGNR;
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.SKJÆRINGSTIDSPUNKT_BEREGNING;
+import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand.FASTSATT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @CdiDbAwareTest
 class RevurderingBehandlingsresultatutlederTest {

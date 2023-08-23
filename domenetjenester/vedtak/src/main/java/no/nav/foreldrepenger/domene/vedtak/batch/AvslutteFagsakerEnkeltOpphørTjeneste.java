@@ -1,17 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -29,6 +19,14 @@ import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 
 @ApplicationScoped

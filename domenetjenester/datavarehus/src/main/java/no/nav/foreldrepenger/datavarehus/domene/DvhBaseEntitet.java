@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @MappedSuperclass
 public class DvhBaseEntitet implements Serializable {

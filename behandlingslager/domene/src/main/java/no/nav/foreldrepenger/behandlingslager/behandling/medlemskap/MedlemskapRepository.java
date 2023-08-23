@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import java.util.Collection;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Dette er et Repository for håndtering av alle persistente endringer i en Medlemskap for søker.

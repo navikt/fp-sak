@@ -1,17 +1,7 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.svp;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.Søknadsfristdatoer;
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -20,15 +10,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.*;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SøknadsperiodeFristTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped

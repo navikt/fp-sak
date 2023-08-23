@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon;
 
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunkt;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunkt;
 
 @ApplicationScoped
 public class AksjonspunktUtlederForEngangsstønadAdopsjon implements AksjonspunktUtleder {

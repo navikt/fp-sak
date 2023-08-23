@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 class CommonDvhMapper {
     private CommonDvhMapper() {

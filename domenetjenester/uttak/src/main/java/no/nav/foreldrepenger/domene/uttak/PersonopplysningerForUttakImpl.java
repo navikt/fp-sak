@@ -1,22 +1,15 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.*;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
 public class PersonopplysningerForUttakImpl implements PersonopplysningerForUttak {

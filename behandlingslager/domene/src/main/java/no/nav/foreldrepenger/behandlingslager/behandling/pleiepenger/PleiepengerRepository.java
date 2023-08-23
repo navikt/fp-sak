@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class PleiepengerRepository {

@@ -1,14 +1,8 @@
 package no.nav.foreldrepenger.datavarehus.observer;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEvent;
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
@@ -19,6 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasj
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 @ApplicationScoped
 public class DatavarehusEventObserver {

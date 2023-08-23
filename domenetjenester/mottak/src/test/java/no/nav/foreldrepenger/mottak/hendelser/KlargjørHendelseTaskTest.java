@@ -1,19 +1,5 @@
 package no.nav.foreldrepenger.mottak.hendelser;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -33,13 +19,22 @@ import no.nav.foreldrepenger.mottak.hendelser.freg.DødForretningshendelse;
 import no.nav.foreldrepenger.mottak.hendelser.freg.DødfødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.hendelser.freg.FødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse;
-import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødForretningshendelseSaksvelger;
-import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødfødselForretningshendelseSaksvelger;
-import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
-import no.nav.foreldrepenger.mottak.hendelser.saksvelger.FødselForretningshendelseSaksvelger;
-import no.nav.foreldrepenger.mottak.hendelser.saksvelger.UtflyttingForretningshendelseSaksvelger;
+import no.nav.foreldrepenger.mottak.hendelser.saksvelger.*;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class KlargjørHendelseTaskTest {
 

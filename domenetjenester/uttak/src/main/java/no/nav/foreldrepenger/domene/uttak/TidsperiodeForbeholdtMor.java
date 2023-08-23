@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.regler.uttak.UttakParametre;
+
+import java.time.LocalDate;
 
 public final class TidsperiodeForbeholdtMor {
 

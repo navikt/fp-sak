@@ -1,21 +1,16 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.*;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OmfordelRevurderingsandelerSomHarFåttRefTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();

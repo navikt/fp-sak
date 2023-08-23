@@ -1,21 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -23,6 +8,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "UTTAK_RESULTAT_PERIODE_AKT")

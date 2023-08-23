@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+
+import java.util.List;
 
 public class Oppdrag110Dto extends SporingDto {
 

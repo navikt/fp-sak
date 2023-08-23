@@ -1,14 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -18,19 +11,18 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidPermHistorikkInnslagTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyrtePerioder;
-import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.*;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftArbeidMedPermisjonUtenSluttdatoDto.class, adapter = AksjonspunktOppdaterer.class)

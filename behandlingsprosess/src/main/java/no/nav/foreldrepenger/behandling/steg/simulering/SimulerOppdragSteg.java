@@ -1,24 +1,8 @@
 package no.nav.foreldrepenger.behandling.steg.simulering;
 
-import static java.util.Collections.singletonList;
-
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -33,6 +17,14 @@ import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpoppdragSystembr
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.vedtak.exception.IntegrasjonException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+
+import static java.util.Collections.singletonList;
 
 @BehandlingStegRef(BehandlingStegType.SIMULER_OPPDRAG)
 @BehandlingTypeRef

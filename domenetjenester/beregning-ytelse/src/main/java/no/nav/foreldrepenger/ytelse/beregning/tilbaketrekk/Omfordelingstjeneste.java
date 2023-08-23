@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 
 public final class Omfordelingstjeneste {
 

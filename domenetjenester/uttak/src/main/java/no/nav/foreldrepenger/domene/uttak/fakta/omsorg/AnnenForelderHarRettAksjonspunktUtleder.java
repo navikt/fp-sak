@@ -1,15 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.omsorg;
 
-import static java.lang.Boolean.TRUE;
-import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.annenForelderHarUttakMedUtbetaling;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -17,14 +9,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
-import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.*;
 import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static java.lang.Boolean.TRUE;
+import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.annenForelderHarUttakMedUtbetaling;
 
 /**
  * Aksjonspunkt for Avklar Annen forelder har rett

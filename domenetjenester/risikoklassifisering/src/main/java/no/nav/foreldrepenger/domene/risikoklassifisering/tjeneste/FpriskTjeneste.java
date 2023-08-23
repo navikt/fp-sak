@@ -1,25 +1,18 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
-import java.net.URI;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
-import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.felles.integrasjon.rest.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPRISK)

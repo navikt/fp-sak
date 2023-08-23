@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.innsyn;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
 public class InnsynRepository {

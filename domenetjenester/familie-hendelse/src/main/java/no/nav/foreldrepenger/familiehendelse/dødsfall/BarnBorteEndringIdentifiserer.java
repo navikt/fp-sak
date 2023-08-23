@@ -1,22 +1,17 @@
 package no.nav.foreldrepenger.familiehendelse.dødsfall;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 @Dependent
 public class BarnBorteEndringIdentifiserer {

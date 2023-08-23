@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.faresignaler.fp;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.steg.faresignaler.VurderFaresignalerStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;

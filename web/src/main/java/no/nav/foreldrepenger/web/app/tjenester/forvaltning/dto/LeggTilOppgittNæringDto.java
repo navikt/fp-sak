@@ -1,28 +1,22 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
-import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
-import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto.Utfall.JA;
-import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.FormParam;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.FormParam;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto.Utfall.JA;
+import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
 
 public class LeggTilOppgittNæringDto implements AbacDto {
 

@@ -1,36 +1,24 @@
 package no.nav.foreldrepenger.domene.person;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
+import no.nav.foreldrepenger.behandlingslager.aktør.*;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.krr.KrrSpråkKlient;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.*;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.util.LRUCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @ApplicationScoped
 public class PersoninfoAdapter {

@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnresultatgrunnlag;
@@ -14,9 +11,10 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderEnd
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakHistorikkinnslagTjeneste;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @ApplicationScoped
 public class UttakPeriodeEndringDtoTjeneste {

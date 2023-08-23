@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+
+import java.util.List;
 
 class HarSattUtbetalingsgradValidering implements OverstyrUttakPerioderValidering {
 

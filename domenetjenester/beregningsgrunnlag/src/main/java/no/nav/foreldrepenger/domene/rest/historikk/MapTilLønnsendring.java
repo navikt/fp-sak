@@ -1,20 +1,20 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
-import java.util.Optional;
-
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsmeldingAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.RedigerbarAndelDto;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
 
 public class MapTilLønnsendring {
 

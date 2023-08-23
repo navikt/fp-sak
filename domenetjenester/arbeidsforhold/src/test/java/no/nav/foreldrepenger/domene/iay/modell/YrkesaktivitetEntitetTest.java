@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.vedtak.konfig.Tid;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.vedtak.konfig.Tid;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class YrkesaktivitetEntitetTest {
 

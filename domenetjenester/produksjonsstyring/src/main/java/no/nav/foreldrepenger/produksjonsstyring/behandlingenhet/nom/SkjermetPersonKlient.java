@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom;
 
 import jakarta.enterprise.context.Dependent;
-
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.felles.integrasjon.skjerming.AbstractSkjermetPersonOnPremKlient;

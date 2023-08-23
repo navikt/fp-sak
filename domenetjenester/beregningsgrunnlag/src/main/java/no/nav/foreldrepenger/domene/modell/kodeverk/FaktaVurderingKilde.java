@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.modell.kodeverk;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Kodeverdi;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.folketrygdloven.kalkulus.kodeverk.Kodeverdi;
 
 public enum FaktaVurderingKilde implements Kodeverdi {
 

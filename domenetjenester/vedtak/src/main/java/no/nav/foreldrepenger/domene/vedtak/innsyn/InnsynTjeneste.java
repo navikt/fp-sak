@@ -2,12 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;

@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class FraEntitetTilBehandlingsmodellMapperTest {
 

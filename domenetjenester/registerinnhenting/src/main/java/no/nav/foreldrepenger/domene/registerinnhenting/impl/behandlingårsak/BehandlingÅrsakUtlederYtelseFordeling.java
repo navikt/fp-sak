@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak;
 
-import java.util.Collections;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
+
+import java.util.Collections;
+import java.util.Set;
 
 @ApplicationScoped
 @GrunnlagRef(NesteSakGrunnlagEntitet.GRUNNLAG_NAME)

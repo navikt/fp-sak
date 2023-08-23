@@ -1,19 +1,18 @@
 package no.nav.foreldrepenger.domene.arbeidsgiver;
 
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonstypeEReg;
 import no.nav.vedtak.util.LRUCache;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @ApplicationScoped
 public class VirksomhetTjeneste {

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.task;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -10,6 +8,8 @@ import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLåsRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+
+import java.util.Optional;
 
 /**
  * Task som utfører noe på en fagsakrelasjon, sikrer at relasjon låses fulgt av les behandling og skrivelås fagsak. Håper det unngår deadlock

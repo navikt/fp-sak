@@ -1,17 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -29,6 +19,14 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Tjenesten sjekker om det finnes løpende saker for den personen det innvilges foreldrepenger eller svangerskapsper på.

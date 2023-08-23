@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.ARBEIDSFORHOLDLISTE;
-import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.ORGNR;
-import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.SKJÆRINGSTIDSPUNKT_BEREGNING;
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.modell.*;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
+import no.nav.vedtak.konfig.Tid;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,17 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
-import no.nav.vedtak.konfig.Tid;
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ErEndringIBeregningTest {
 

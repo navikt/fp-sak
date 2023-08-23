@@ -1,19 +1,13 @@
 package no.nav.foreldrepenger.domene.medlem.medl2;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
+import no.nav.vedtak.felles.integrasjon.rest.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.UriBuilder;
-
-import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 /**
  *             Dokumentasjon https://github.com/navikt/medlemskap-medl/wiki/medl2-%E2%86%92-medlemskap-medl-api

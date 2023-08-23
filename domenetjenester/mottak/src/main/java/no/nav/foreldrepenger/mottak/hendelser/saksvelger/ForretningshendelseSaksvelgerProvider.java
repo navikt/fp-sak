@@ -4,7 +4,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 

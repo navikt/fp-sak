@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.domene.person.verge;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
@@ -12,6 +9,8 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class VergeDtoTjeneste {

@@ -1,4 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" name="Binding" targetNamespace="http://nav.no/tjeneste/virksomhet/behandleForeldrepengesak/v1/Binding" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://nav.no/tjeneste/virksomhet/behandleForeldrepengesak/v1/Binding" xmlns:wsdl_1="http://nav.no/tjeneste/virksomhet/behandleForeldrepengesak/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" name="Binding"
+                  targetNamespace="http://nav.no/tjeneste/virksomhet/behandleForeldrepengesak/v1/Binding"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tns="http://nav.no/tjeneste/virksomhet/behandleForeldrepengesak/v1/Binding"
+                  xmlns:wsdl_1="http://nav.no/tjeneste/virksomhet/behandleForeldrepengesak/v1">
     <wsdl:import location="behandleForeldrepengesak.wsdl" namespace="http://nav.no/tjeneste/virksomhet/behandleForeldrepengesak/v1"/>
     <wsdl:binding name="BehandleForeldrepengesak_v1Binding" type="wsdl_1:BehandleForeldrepengesak_v1">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>

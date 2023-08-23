@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
+
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
 

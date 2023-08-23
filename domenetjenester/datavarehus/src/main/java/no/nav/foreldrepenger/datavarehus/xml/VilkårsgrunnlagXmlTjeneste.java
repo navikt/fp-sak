@@ -1,10 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.xml;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -19,6 +14,11 @@ import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vilkaar;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 
 public abstract class VilkårsgrunnlagXmlTjeneste {
 

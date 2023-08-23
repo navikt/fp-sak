@@ -1,31 +1,23 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import static java.util.Set.of;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.FRITT_UTTAK;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.KREVER_SAMMENHENGENDE_UTTAK;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.MINSTERETT_2022;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.IKKE_MOR;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.MOR;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FELLESPERIODE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.MØDREKVOTE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTSETTELSE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTTAK;
+import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
+import static java.util.Set.of;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.LovEndring.*;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.IKKE_MOR;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.SynligFor.MOR;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.*;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTSETTELSE;
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTTAK;
 
 public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 

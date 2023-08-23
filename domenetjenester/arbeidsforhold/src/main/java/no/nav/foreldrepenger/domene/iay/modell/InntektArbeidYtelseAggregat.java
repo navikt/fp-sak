@@ -1,15 +1,10 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class InntektArbeidYtelseAggregat extends BaseEntitet {
 

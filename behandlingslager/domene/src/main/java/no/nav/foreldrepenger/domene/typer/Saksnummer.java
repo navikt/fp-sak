@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.typer;
 
-import java.util.Objects;
-import java.util.regex.Pattern;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Saksnummer refererer til saksnummer registret i GSAK.

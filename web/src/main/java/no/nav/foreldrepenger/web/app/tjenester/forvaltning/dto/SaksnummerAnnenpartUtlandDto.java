@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.QueryParam;
-
-import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;

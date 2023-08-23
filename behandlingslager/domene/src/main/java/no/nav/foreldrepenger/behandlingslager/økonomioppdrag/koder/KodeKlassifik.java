@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
 
 public enum KodeKlassifik {
 

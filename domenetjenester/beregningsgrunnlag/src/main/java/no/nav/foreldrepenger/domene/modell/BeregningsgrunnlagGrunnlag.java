@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+
+import java.util.Optional;
+import java.util.UUID;
 
 
 public class BeregningsgrunnlagGrunnlag {

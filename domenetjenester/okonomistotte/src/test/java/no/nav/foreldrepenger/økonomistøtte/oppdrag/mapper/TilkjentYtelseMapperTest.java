@@ -1,27 +1,17 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.*;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Utbetalingsgrad;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 
 class TilkjentYtelseMapperTest {

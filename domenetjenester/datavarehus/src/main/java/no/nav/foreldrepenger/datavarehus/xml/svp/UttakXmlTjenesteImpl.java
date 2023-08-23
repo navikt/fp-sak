@@ -1,31 +1,22 @@
 package no.nav.foreldrepenger.datavarehus.xml.svp;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.*;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
-import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.ObjectFactory;
-import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.Tilrettelegging;
-import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.UttakSvangerskapspenger;
-import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.UttaksResultatArbeidsforhold;
-import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.UttaksresultatPeriode;
+import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.*;
 import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 import no.nav.vedtak.felles.xml.vedtak.v2.Uttak;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped

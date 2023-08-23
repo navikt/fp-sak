@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -15,6 +8,9 @@ import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellImpl.TriFu
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 class DummySteg implements BehandlingSteg {
 

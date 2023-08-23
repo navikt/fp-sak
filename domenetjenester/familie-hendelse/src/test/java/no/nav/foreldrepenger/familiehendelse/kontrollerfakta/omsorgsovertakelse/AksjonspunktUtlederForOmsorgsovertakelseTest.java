@@ -1,17 +1,5 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorgsovertakelse;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType.ADOPTERER_ALENE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType.ANDRE_FORELDER_DØD;
-import static no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType.OVERTATT_OMSORG;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -19,6 +7,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AksjonspunktUtlederForOmsorgsovertakelseTest {
 

@@ -1,24 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.EntityManager;
-
-import no.nav.foreldrepenger.dbstoette.JpaExtension;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import org.junit.jupiter.api.extension.ExtendWith;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(JpaExtension.class)
 class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {

@@ -1,15 +1,7 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.fp;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -23,6 +15,12 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.Oppt
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Optional;
 
 @ApplicationScoped
 public class SkjæringstidspunktUtils {

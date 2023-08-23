@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.behandlingskontroll.spi;
 
-import java.util.Objects;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,6 +13,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Provider for å enklere å kunne hente ut ulike repository uten for mange

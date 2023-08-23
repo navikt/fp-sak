@@ -1,26 +1,17 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.DelytelseId;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EndringsdatoTjenesteTest {
 

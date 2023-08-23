@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.kompletthet;
 
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
-
-import java.time.LocalDateTime;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
+
+import java.time.LocalDateTime;
+
+import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 
 /**
  * Fellesklasse for gjenbrukte metode av subklasser for

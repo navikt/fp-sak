@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class Periode {

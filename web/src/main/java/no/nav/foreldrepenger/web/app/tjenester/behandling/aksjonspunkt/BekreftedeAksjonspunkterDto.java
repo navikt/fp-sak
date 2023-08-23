@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
-import java.util.Collection;
-import java.util.UUID;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+
+import java.util.Collection;
+import java.util.UUID;
 
 public class BekreftedeAksjonspunkterDto {
 

@@ -1,4 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://nav.no/tjeneste/virksomhet/foreldrepengesak/v1/meldinger" xmlns:informasjon="http://nav.no/tjeneste/virksomhet/foreldrepengesak/v1/informasjon" xmlns:meldinger="http://nav.no/tjeneste/virksomhet/foreldrepengesak/v1/meldinger">
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://nav.no/tjeneste/virksomhet/foreldrepengesak/v1/meldinger"
+            xmlns:informasjon="http://nav.no/tjeneste/virksomhet/foreldrepengesak/v1/informasjon">
     <xsd:import namespace="http://nav.no/tjeneste/virksomhet/foreldrepengesak/v1/informasjon" schemaLocation="../informasjon/informasjon.xsd"/>
     <xsd:complexType name="FinnSakListeRequest">
         <xsd:sequence>

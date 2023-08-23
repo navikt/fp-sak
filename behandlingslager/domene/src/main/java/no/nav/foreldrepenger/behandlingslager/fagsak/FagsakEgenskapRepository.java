@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 @ApplicationScoped
 public class FagsakEgenskapRepository {

@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.vedtak.intern.AutomatiskFagsakAvslutningTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 @ApplicationScoped
 public class AutomatiskFagsakAvslutningTjeneste {

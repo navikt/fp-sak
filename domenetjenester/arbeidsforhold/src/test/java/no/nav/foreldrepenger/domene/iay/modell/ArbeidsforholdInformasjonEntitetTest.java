@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ArbeidsforholdInformasjonEntitetTest {
 

@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak;
 
-import java.util.Properties;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.batch.BatchTjeneste;
+
+import java.util.Properties;
 
 /**
  * Batchservice som finner alle behandlinger som skal gjenopptas, og lager en

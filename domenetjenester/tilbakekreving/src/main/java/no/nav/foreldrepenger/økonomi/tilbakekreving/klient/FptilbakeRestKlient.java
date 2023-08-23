@@ -1,17 +1,11 @@
 package no.nav.foreldrepenger.økonomi.tilbakekreving.klient;
 
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
-
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.felles.integrasjon.rest.*;
+
+import java.util.UUID;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPTILBAKE)

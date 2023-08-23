@@ -1,19 +1,10 @@
 package no.nav.foreldrepenger.feil;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.*;
 import org.jboss.jandex.AnnotationTarget.Kind;
-import org.jboss.jandex.CompositeIndex;
-import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexReader;
-import org.jboss.jandex.IndexView;
+
+import java.io.IOException;
+import java.util.*;
 
 /** Henter persistert index (hvis generert) eller genererer index for angitt location (typisk matcher en jar/war fil). */
 class IndexFeil {

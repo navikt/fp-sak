@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.domene.typer;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 /**
  * Journalpostid refererer til journalpost registret i Joark.

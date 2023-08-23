@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.time.LocalDate;
 
 public class InformasjonssakData {
     private Long kildeFagsakId;

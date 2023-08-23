@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+
+import java.util.Optional;
 
 public interface BeregningAPI {
 

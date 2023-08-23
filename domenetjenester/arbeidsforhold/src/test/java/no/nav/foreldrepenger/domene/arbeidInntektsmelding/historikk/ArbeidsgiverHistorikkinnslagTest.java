@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ArbeidsgiverHistorikkinnslagTest {
 

@@ -1,17 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FEDREKVOTE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FELLESPERIODE;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.MØDREKVOTE;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
@@ -25,14 +13,17 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.input.Barn;
-import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
-import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
-import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.input.*;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BeregnStønadskontoerTjenesteTest {
 

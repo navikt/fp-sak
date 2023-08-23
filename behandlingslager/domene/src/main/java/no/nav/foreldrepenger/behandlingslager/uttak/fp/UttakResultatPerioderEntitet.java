@@ -1,19 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
+import jakarta.persistence.*;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import org.hibernate.annotations.BatchSize;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
-import org.hibernate.annotations.BatchSize;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 @Entity
 @Table(name = "UTTAK_RESULTAT_PERIODER")

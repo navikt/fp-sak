@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
@@ -16,6 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @ApplicationScoped
 public class YtelseFordelingDtoTjeneste {

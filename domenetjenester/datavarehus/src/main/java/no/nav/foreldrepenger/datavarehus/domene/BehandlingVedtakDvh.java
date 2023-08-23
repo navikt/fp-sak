@@ -1,15 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 @Entity(name = "BehandlingVedtakDvh")
 @Table(name = "BEHANDLING_VEDTAK_DVH")

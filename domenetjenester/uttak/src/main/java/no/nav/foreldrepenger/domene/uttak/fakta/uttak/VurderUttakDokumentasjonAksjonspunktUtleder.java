@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @ApplicationScoped
 public class VurderUttakDokumentasjonAksjonspunktUtleder {

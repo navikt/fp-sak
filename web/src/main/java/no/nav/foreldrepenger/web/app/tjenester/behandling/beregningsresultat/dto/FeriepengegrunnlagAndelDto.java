@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 

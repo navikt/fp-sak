@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.math.BigDecimal;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+
+import java.math.BigDecimal;
 
 public class YtelseStørrelseBuilder {
     private final YtelseStørrelse ytelseStørrelse;

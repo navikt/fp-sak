@@ -1,13 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.IntStream;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Hjelpeklasse som tilbyr bygging av en mapping mellom kodelisteinnslag og noe annet.

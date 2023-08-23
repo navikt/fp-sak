@@ -1,23 +1,10 @@
 package no.nav.foreldrepenger.behandling.steg.anke;
 
-import java.util.Comparator;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandling.kabal.SendTilKabalTask;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -27,16 +14,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Comparator;
+import java.util.Optional;
 
 @BehandlingStegRef(BehandlingStegType.ANKE)
 @BehandlingTypeRef

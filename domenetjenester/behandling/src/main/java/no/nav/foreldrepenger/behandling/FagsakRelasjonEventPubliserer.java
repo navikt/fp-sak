@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 
 @ApplicationScoped

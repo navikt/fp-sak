@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.familiehendelse.event;
 
-import java.time.LocalDate;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.events.FamiliehendelseEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+
+import java.time.LocalDate;
 
 
 @ApplicationScoped

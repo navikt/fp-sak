@@ -1,17 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
+import jakarta.validation.constraints.*;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -22,6 +12,10 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
 
 public class UttakResultatPeriodeAktivitetLagreDto {
 

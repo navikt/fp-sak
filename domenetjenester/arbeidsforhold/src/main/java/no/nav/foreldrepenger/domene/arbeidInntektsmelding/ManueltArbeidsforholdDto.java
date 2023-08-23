@@ -1,19 +1,13 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.vedtak.util.InputValideringRegex;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 public class ManueltArbeidsforholdDto {
     @JsonProperty("behandlingUuid")

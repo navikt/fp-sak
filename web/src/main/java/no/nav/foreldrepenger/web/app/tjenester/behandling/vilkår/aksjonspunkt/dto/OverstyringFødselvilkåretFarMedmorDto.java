@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto;
 
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.vedtak.util.InputValideringRegex;

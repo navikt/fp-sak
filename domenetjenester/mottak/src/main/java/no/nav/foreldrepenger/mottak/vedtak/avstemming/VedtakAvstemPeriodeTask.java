@@ -1,24 +1,19 @@
 package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
+import no.nav.vedtak.felles.prosesstask.api.*;
+import no.nav.vedtak.log.mdc.MDCOperations;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
-import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 @ProsessTask(value = "vedtak.overlapp.periode", maxFailedRuns = 1)

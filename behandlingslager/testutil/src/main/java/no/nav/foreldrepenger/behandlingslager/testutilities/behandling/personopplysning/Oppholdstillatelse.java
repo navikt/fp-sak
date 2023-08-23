@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning;
 
-import java.time.LocalDate;
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.time.LocalDate;
+import java.util.Objects;
 
 public class Oppholdstillatelse  {
 

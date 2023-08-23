@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
-import java.time.LocalDateTime;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.time.LocalDateTime;
 
 public class BehandlingStatusDto {
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.familiehendelse.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class AvklartDataFodselDto extends FamiliehendelseDto {

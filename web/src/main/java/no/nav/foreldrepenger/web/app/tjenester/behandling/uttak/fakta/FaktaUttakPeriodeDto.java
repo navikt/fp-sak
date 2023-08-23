@@ -1,16 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
+import jakarta.validation.constraints.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -21,6 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.vedtak.util.InputValideringRegex;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record FaktaUttakPeriodeDto(@NotNull LocalDate fom,
                                    @NotNull LocalDate tom,

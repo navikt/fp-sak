@@ -1,11 +1,8 @@
 package no.nav.foreldrepenger.domene.uttak;
 
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -16,6 +13,8 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+
+import java.util.Objects;
 
 @ApplicationScoped
 public class TapteDagerFpffTjeneste {

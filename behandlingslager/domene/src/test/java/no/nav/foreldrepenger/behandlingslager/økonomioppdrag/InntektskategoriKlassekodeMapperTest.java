@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InntektskategoriKlassekodeMapperTest {
 

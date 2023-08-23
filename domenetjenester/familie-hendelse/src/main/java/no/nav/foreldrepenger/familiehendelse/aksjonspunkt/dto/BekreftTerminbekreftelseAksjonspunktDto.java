@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
-import java.time.LocalDate;
-
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+
+import java.time.LocalDate;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_TERMINBEKREFTELSE_KODE)
 public class BekreftTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspunktDto {

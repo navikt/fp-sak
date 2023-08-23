@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 
 public class ArkivDokument {
     private String dokumentId;

@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
+
+import java.util.List;
 
 public record KlagebehandlingDto(KlageFormkravResultatDto klageFormkravResultatNFP,
                                  KlageVurderingResultatDto klageVurderingResultatNFP,

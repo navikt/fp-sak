@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
-import java.util.List;
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+
+import java.util.List;
+import java.util.Set;
 
 public class OppgittTilknytningDto {
 

@@ -1,14 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
-import java.time.LocalDate;
-
-import jakarta.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import jakarta.validation.constraints.NotNull;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
+
+import java.time.LocalDate;
 
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
 public class PeriodeDto implements AbacDto {

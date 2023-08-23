@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -19,6 +15,9 @@ import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 public class ForvaltningUttakTjeneste {

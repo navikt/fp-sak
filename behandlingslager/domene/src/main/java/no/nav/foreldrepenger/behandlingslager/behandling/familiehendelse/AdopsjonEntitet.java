@@ -1,22 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
-import java.time.LocalDate;
-import java.util.Objects;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * Entitetsklasse for bekreftet informasjon angående adopsjon.

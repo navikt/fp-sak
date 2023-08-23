@@ -1,28 +1,25 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
-import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
-import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
-
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.mapper.KontrollresultatMapper;
+import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
+import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
+import no.nav.foreldrepenger.kontrakter.risk.v1.LagreFaresignalVurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingRequestDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class RisikovurderingTjeneste {

@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OppdragKjedeTest {
 

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.medlem.api;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 
 public class BekreftedePerioderAdapter {
 

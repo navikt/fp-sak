@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.historikk.dto;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
+
+import java.util.List;
 
 public class HistorikkinnslagOpplysningDto {
 

@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.familiehendelse.rest;
 
-import java.time.LocalDate;
-import java.util.Map;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 public class AvklartDataOmsorgDto extends FamiliehendelseDto {
 

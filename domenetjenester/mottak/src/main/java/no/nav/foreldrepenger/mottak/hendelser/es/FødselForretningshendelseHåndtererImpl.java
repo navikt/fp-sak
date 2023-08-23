@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.mottak.hendelser.es;
 
-import java.time.LocalDate;
-import java.time.Period;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -17,6 +13,9 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererFelles;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+import java.time.LocalDate;
+import java.time.Period;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelseType.FØDSEL)

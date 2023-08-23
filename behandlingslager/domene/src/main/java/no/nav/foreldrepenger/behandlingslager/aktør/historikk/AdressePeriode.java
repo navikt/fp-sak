@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 
 public class AdressePeriode {
 

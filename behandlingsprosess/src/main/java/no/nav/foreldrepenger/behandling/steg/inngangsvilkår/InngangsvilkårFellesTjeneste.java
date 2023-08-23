@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -12,6 +9,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelOrkestrerer;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+import java.util.Set;
 
 @ApplicationScoped
 public class InngangsvilkårFellesTjeneste {

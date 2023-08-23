@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
 import jakarta.enterprise.context.Dependent;
-
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.AbstractArbeidsfordelingKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;

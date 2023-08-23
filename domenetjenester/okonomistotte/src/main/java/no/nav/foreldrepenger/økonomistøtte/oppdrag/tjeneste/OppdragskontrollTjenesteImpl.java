@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollPostConditionCheck;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
+
+import java.util.Optional;
 
 @Dependent
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {

@@ -1,40 +1,21 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.Comparator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.abakus.iaygrunnlag.Aktør;
-import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
-import no.nav.abakus.iaygrunnlag.ArbeidsforholdRefDto;
-import no.nav.abakus.iaygrunnlag.JournalpostId;
-import no.nav.abakus.iaygrunnlag.Organisasjon;
-import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.GraderingDto;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingDto;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.NaturalytelseDto;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonDto;
-import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.UtsettelsePeriodeDto;
+import no.nav.abakus.iaygrunnlag.*;
+import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.*;
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
-import no.nav.foreldrepenger.domene.iay.modell.Gradering;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
-import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
-import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
+import no.nav.foreldrepenger.domene.iay.modell.*;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.ZoneId;
+import java.util.Collection;
+import java.util.Comparator;
 
 public class MapInntektsmeldinger {
     private static final Comparator<RefusjonDto> COMP_ENDRINGER_REFUSJON = Comparator

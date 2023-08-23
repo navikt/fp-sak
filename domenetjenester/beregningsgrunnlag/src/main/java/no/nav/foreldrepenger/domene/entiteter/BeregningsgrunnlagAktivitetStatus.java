@@ -1,24 +1,12 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
-import java.util.Objects;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
+
+import java.util.Objects;
 
 @Entity(name = "BeregningsgrunnlagAktivitetStatus")
 @Table(name = "BG_AKTIVITET_STATUS")

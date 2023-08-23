@@ -1,41 +1,20 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppResultat;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunkt;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.*;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -50,6 +29,13 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 @ApplicationScoped
 public class AksjonspunktTjeneste {

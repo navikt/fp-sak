@@ -1,14 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
-
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -17,11 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.*;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -39,6 +29,11 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakNotatDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakHendelseDto;
 import no.nav.foreldrepenger.web.app.util.StringUtils;
+
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class FagsakFullTjeneste {

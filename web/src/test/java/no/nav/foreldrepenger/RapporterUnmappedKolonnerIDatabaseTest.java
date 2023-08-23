@@ -1,20 +1,8 @@
 package no.nav.foreldrepenger;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.model.relational.Database;
 import org.hibernate.boot.model.relational.Namespace;
@@ -28,7 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Denne testen rapporterer kun tabeller og kolonner som ikke er mappet i

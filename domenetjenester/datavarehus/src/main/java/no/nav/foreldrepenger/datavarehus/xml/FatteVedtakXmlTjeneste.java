@@ -5,9 +5,6 @@ import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBException;
-
-import org.xml.sax.SAXException;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -18,6 +15,7 @@ import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.felles.xml.vedtak.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
+import org.xml.sax.SAXException;
 
 @ApplicationScoped
 public class FatteVedtakXmlTjeneste {

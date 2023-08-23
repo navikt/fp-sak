@@ -1,19 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.diff;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
-
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
+
+import java.util.*;
 
 /**
  * Denne klassen kan traverse en Entity graph og trekk ut verdier som key/value.

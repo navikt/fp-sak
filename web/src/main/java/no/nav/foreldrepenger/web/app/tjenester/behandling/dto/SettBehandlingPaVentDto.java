@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
-import java.time.LocalDate;
-
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+
+import java.time.LocalDate;
 
 public class SettBehandlingPaVentDto extends DtoMedBehandlingId  {
 

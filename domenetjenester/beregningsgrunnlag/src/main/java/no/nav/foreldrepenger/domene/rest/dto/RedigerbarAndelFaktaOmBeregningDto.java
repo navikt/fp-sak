@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+
+import java.util.Optional;
 
 /**
  * For å kunne identifisere andeler i fakta om beregning.

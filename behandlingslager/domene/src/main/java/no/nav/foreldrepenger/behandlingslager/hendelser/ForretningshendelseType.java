@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum ForretningshendelseType implements Kodeverdi {
 

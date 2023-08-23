@@ -1,19 +1,14 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
+
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 
 /**
  * Filter for å hente inntekter og inntektsposter fra grunnlag. Tilbyr

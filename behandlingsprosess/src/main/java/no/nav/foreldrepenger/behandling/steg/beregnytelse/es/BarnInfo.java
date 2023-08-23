@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandling.steg.beregnytelse.es;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
+
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 
 public class BarnInfo implements UidentifisertBarn {
     private final LocalDate fødselsdato;

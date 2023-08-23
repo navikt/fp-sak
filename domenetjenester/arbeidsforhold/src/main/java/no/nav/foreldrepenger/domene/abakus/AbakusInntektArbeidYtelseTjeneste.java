@@ -1,30 +1,11 @@
 package no.nav.foreldrepenger.domene.abakus;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
-import no.nav.abakus.iaygrunnlag.request.Dataset;
-import no.nav.abakus.iaygrunnlag.request.InntektArbeidYtelseGrunnlagRequest;
-import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerMottattRequest;
-import no.nav.abakus.iaygrunnlag.request.InntektsmeldingerRequest;
-import no.nav.abakus.iaygrunnlag.request.KopierGrunnlagRequest;
-import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
+import no.nav.abakus.iaygrunnlag.request.*;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -37,19 +18,16 @@ import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.abakus.mapping.MapInntektsmeldinger;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYDiffsjekker;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
+import no.nav.foreldrepenger.domene.iay.modell.*;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @ApplicationScoped
 @Default

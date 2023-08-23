@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp;
 
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -21,6 +18,8 @@ import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+import java.util.Objects;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)

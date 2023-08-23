@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import java.time.LocalDateTime;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+
+import java.time.LocalDateTime;
 
 public class HistorikkinnslagTotrinnsvurdering {
     private int sekvensNr;

@@ -1,18 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
-import org.hibernate.jpa.HibernateHints;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import org.hibernate.jpa.HibernateHints;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Ulike spesialmetoder for å hente opp behandlinger som er kandidater for videre spesiell prosessering, slik som

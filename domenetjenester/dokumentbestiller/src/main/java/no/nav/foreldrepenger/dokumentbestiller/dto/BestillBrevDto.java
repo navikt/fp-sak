@@ -1,18 +1,13 @@
 package no.nav.foreldrepenger.dokumentbestiller.dto;
 
-import java.util.UUID;
-
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-
+import jakarta.validation.constraints.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
+
+import java.util.UUID;
 
 public class BestillBrevDto {
 

@@ -1,19 +1,17 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
-import static no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper.tilDto;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
+import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
+import static no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper.tilDto;
 
 @ApplicationScoped
 public class SimuleringIntegrasjonTjeneste {

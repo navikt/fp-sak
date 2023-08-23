@@ -1,26 +1,7 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
-import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.BiPredicate;
-import java.util.stream.Stream;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
@@ -31,15 +12,23 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRe
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
+import no.nav.foreldrepenger.domene.iay.modell.*;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.BiPredicate;
+import java.util.stream.Stream;
+
+import static java.util.Collections.emptyList;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
+import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 
 @ApplicationScoped
 public class AksjonspunktutlederForVurderOppgittOpptjening implements AksjonspunktUtleder {

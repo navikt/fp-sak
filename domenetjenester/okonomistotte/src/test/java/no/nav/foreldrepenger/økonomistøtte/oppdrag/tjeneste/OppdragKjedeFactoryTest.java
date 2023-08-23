@@ -1,21 +1,13 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.DelytelseId;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.FagsystemId;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OppdragKjedeFactoryTest {
 

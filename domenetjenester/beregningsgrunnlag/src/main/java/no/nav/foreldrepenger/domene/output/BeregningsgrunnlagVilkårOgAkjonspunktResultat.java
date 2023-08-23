@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.output;
 
-import java.util.Set;
-
 import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
+
+import java.util.Set;
 
 public class BeregningsgrunnlagVilkårOgAkjonspunktResultat {
     private final Set<BeregningAvklaringsbehovResultat> aksjonspunkter;

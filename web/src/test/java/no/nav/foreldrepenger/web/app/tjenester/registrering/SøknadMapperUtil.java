@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
@@ -17,17 +10,17 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.NaringsvirksomhetTypeDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.ArbeidsforholdDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OmsorgDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.RettigheterDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.*;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.es.ManuellRegistreringEngangsstonadDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.PermisjonPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.TidsromPermisjonDto;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 
 public class SøknadMapperUtil {
 

@@ -1,22 +1,16 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.HentBekreftetPermisjon;
+import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.HentBekreftetPermisjon;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 class MapAnsettelsesPeriodeOgPermisjon {
 

@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
-
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
+
+import java.util.List;
 
 public abstract class MedInntektArbeidYtelseRegistrering extends ManuellRegistreringDto {
 

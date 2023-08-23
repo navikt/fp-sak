@@ -1,19 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
+import jakarta.persistence.*;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
-
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 
 @Entity(name = "FagsakRelasjonDvh")
 @Table(name = "FAGSAK_RELASJON_DVH")

@@ -1,22 +1,20 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
-
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
-import org.hibernate.jpa.HibernateHints;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import org.hibernate.jpa.HibernateHints;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
+
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 @ApplicationScoped
 public class LegacyESBeregningRepository {

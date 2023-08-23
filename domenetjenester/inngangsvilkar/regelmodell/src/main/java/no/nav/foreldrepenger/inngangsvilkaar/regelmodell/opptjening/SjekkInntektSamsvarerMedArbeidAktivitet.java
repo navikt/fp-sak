@@ -1,15 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import java.time.LocalDate;
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
@@ -19,6 +9,11 @@ import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.LocalDateTimeline.JoinStyle;
 import no.nav.fpsak.tidsserie.StandardCombinators;
+
+import java.time.LocalDate;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * Regel som sjekker om det finnes registrerte inntekter for de periodene arbeid er innrapportert, for samme

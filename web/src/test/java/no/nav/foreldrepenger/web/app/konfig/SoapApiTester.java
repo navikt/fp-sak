@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
+import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-
-import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 class SoapApiTester {
 

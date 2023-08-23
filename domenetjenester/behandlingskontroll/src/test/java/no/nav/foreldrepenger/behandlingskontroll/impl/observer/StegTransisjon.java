@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl.observer;
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+
+import java.util.Objects;
 
 public class StegTransisjon {
     private BehandlingSteg.TransisjonType transisjonType;
