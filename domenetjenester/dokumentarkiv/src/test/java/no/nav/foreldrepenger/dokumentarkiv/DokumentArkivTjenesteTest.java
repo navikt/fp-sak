@@ -22,6 +22,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import no.nav.saf.DokumentInfo;
+import no.nav.saf.Dokumentoversikt;
+import no.nav.saf.Dokumentvariant;
+import no.nav.saf.Journalpost;
+import no.nav.saf.Journalposttype;
+import no.nav.saf.Journalstatus;
+import no.nav.saf.Tema;
+import no.nav.saf.Tilleggsopplysning;
+import no.nav.saf.Variantformat;
+
+import no.nav.vedtak.felles.integrasjon.saf.Saf;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +83,7 @@ class DokumentArkivTjenesteTest {
 
     @Test
     void skalRetunereDokumentListeMedJournalpostTypeUt() {
-        var response = lagResponse();
+        Dokumentoversikt response = lagResponse();
         response.getJournalposter().add(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.U));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
