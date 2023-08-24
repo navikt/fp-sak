@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.historikk.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HistorikkinnslagEndretFeltDto {
 

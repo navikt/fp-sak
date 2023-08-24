@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class VergeRepository {

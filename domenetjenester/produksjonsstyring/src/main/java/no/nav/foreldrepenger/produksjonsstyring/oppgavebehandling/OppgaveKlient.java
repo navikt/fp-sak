@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
-import javax.enterprise.context.Dependent;
-
+import jakarta.enterprise.context.Dependent;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.AbstractOppgaveKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;

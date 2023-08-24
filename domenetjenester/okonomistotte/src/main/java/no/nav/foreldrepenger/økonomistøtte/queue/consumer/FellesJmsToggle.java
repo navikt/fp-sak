@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.felles.jms.ToggleJms;
+import no.nav.foreldrepenger.konfig.Environment;
 
 class FellesJmsToggle implements ToggleJms {
 

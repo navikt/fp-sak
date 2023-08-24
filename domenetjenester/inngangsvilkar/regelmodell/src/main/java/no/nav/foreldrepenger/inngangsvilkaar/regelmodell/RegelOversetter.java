@@ -1,9 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
@@ -11,6 +7,10 @@ import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
 import no.nav.fpsak.nare.evaluation.summary.NareVersion;
 import no.nav.fpsak.nare.json.JsonOutput;
 import no.nav.fpsak.nare.json.NareJsonException;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RegelOversetter {
 

@@ -1,18 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 @ApplicationScoped
 public class ØkonomioppdragRepository {
@@ -62,14 +61,12 @@ public class ØkonomioppdragRepository {
     }
 
     public Oppdrag110 hentOppdragUtenKvittering(long fagsystemId, long behandlingId) {
-        Objects.requireNonNull(fagsystemId, "fagsystemId");
-        Objects.requireNonNull(behandlingId, "behandlingId");
         var typedQuery = entityManager
             .createQuery("""
-                    select o110 from Oppdrag110 as o110
+                    from Oppdrag110 as o110 left join OppdragKvittering kvitto on o110.id = kvitto.oppdrag110.id
                     where o110.oppdragskontroll.behandlingId = :behandlingId
-                        and o110.fagsystemId = :fagsystemId
-                        and o110.oppdragKvittering is empty
+                    and o110.fagsystemId = :fagsystemId
+                    and kvitto is null
                     """, Oppdrag110.class)
             .setParameter("fagsystemId", fagsystemId)
             .setParameter("behandlingId", behandlingId)

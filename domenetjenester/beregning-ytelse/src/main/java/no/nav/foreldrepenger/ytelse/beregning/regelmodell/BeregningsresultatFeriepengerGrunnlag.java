@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
-import java.util.List;
-import java.util.Set;
-
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
+
+import java.util.List;
+import java.util.Set;
 
 @RuleDocumentationGrunnlag
 public class BeregningsresultatFeriepengerGrunnlag {

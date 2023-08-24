@@ -1,18 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Entity(name = "AvklarteUttakDatoerEntitet")
 @Table(name = "YF_AVKLART_DATO")

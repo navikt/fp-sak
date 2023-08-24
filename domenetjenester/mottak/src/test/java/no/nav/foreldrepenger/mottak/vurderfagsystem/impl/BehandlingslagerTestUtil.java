@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.mottak.vurderfagsystem.impl;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
@@ -13,6 +10,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 public class BehandlingslagerTestUtil {
 

@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 class FinnAktivitetsavtalerForUtbetalingsgrad {
 

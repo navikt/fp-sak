@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.arbeidsgiver;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.time.LocalDate;
 
 public class ArbeidsgiverOpplysninger {
 

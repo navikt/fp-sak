@@ -1,14 +1,10 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.folketrygdloven.kalkulator.JsonMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,6 +15,8 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+
+import java.util.Optional;
 
 @ApplicationScoped
 @ProsessTask("vedtak.publiserHendelse")

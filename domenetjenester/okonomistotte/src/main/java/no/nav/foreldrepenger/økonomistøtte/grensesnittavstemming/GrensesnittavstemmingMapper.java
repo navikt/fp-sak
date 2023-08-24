@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming;
 
+import jakarta.xml.bind.JAXBException;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
@@ -8,10 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekompon
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.*;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
-
 import org.xml.sax.SAXException;
-
-import javax.xml.bind.JAXBException;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;

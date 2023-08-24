@@ -1,20 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+
+import java.util.Objects;
 
 @Entity(name = "BehandlingsresultatKonsekvensForYtelsen")
 @Table(name = "BEHANDLING_RESULTAT_YT_KONSEK")

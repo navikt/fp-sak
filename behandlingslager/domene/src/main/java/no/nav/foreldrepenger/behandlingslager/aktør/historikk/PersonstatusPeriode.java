@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+
+import java.util.Objects;
 
 public class PersonstatusPeriode {
 

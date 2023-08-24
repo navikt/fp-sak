@@ -1,16 +1,11 @@
 package no.nav.foreldrepenger.domene.opptjening;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.util.*;
 
 
 public class OpptjeningAktiviteter {

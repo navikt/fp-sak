@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import static no.nav.foreldrepenger.domene.uttak.PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
+import static no.nav.foreldrepenger.domene.uttak.PerioderUtenHelgUtil.datoerLikeNårHelgIgnoreres;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PerioderUtenHelgUtilTest {
 

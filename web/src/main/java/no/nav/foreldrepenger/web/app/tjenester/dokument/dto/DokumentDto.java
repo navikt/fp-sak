@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.dokument.dto;
 
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.Kommunikasjonsretning;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
-import no.nav.foreldrepenger.dokumentarkiv.Kommunikasjonsretning;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 public class DokumentDto {
     private JournalpostId journalpostId;

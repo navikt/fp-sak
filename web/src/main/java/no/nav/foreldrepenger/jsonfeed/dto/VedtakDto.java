@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.jsonfeed.dto;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedElement;
+
+import java.util.List;
 
 public class VedtakDto {
     private boolean harFlereElementer;
     private List<FeedElement> elementer;
-    
+
     public VedtakDto(boolean harFlereElementer, List<FeedElement> elementer) {
         super();
         this.harFlereElementer = harFlereElementer;
@@ -21,8 +21,8 @@ public class VedtakDto {
     public List<FeedElement> getElementer() {
         return elementer;
     }
-    
-    
-    
+
+
+
 
 }

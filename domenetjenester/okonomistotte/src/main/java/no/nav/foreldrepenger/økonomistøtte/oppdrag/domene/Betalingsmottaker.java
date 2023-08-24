@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import java.util.Comparator;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.konfig.Environment;
 
 public interface Betalingsmottaker {
     Bruker BRUKER = new Bruker();

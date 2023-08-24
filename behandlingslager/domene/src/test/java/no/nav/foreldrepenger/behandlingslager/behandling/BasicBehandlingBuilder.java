@@ -1,10 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-
+import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -14,6 +10,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /** Enkel builder for å lage en enkel behandling for internt bruk her. */
 public class BasicBehandlingBuilder {

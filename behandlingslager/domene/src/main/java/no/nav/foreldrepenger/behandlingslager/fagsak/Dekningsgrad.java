@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import java.util.Objects;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import java.util.Objects;
 
 /**
  * Dekningsgrad for foreldrepenger.

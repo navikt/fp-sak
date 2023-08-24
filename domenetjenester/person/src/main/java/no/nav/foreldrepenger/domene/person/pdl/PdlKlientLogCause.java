@@ -1,26 +1,19 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
 
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-
-import java.net.SocketTimeoutException;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.ProcessingException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.pdl.GeografiskTilknytning;
-import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
-import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.Person;
-import no.nav.pdl.PersonResponseProjection;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
+import no.nav.pdl.*;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.person.PdlException;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.SocketTimeoutException;
+
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 @ApplicationScoped
 public class PdlKlientLogCause {

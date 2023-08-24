@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.familiehendelse.rest;
 
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.time.LocalDate;
 
 public class AvklartBarnDto {
     private LocalDate fodselsdato;

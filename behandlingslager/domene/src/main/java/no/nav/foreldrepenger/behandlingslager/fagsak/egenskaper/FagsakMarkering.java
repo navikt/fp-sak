@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper;
 
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.fagsak.EgenskapNøkkel;
 import no.nav.foreldrepenger.behandlingslager.fagsak.EgenskapVerdi;
+
+import java.util.Set;
 
 public enum FagsakMarkering implements EgenskapVerdi {
 

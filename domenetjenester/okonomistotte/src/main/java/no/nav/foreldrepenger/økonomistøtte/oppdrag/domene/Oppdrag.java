@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 
 public class Oppdrag {
     private final KodeFagområde kodeFagområde;

@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 
 public class DagpengeAndelLagtTilBesteberegningDto {

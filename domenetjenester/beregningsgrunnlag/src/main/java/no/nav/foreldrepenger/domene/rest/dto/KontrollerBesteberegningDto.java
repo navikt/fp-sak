@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE)
 public class KontrollerBesteberegningDto extends BekreftetAksjonspunktDto {

@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.domene.typer;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
+
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.UUID;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 
 /**
  * Intern arbeidsforhold referanse.

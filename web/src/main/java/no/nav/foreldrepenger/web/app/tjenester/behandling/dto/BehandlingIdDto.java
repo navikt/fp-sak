@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
-import java.util.UUID;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.UUID;
 
 @JsonInclude(Include.NON_NULL)
 public class BehandlingIdDto  {

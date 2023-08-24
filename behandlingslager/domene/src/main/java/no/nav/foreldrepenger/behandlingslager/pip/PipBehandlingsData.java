@@ -10,6 +10,9 @@ public class PipBehandlingsData {
     private String ansvarligSaksbehandler;
     private Long fagsakId;
 
+    public PipBehandlingsData() {
+    }
+
     public PipBehandlingsData(String behandligStatus, String ansvarligSaksbehandler, BigDecimal fagsakId, String fagsakStatus) {
         this.behandligStatus = behandligStatus;
         this.fagsakId = fagsakId.longValue();

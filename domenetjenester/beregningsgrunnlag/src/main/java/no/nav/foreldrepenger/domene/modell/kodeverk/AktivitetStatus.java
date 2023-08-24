@@ -1,18 +1,11 @@
 package no.nav.foreldrepenger.domene.modell.kodeverk;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
+import java.util.*;
 
 
 public enum AktivitetStatus implements Kodeverdi {

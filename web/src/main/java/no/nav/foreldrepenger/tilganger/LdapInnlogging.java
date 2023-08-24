@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.tilganger;
 
-import static java.lang.String.format;
-
-import java.util.Hashtable;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.exception.TekniskException;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+import java.util.Hashtable;
 
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.exception.TekniskException;
+import static java.lang.String.format;
 
 public class LdapInnlogging {
 

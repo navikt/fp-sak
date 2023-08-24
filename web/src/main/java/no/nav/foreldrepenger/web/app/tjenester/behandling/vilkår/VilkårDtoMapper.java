@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår;
 
-import java.util.List;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+
+import java.util.List;
+import java.util.Optional;
 
 
 public final class VilkårDtoMapper {

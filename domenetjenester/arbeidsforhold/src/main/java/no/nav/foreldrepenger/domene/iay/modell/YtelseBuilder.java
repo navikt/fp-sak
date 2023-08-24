@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class YtelseBuilder {
 

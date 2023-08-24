@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+
+import java.time.LocalDate;
 
 public class RefusjonInfo156Dto extends SporingDto {
 

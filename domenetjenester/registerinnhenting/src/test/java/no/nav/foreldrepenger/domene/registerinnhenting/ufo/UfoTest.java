@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class UfoTest {
 

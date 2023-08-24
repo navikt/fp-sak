@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 public class Personhistorikkinfo {
 

@@ -1,19 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
-import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.util.Objects;
 
 @Entity(name = "OppgittRettighet")
 @Table(name = "SO_RETTIGHET")

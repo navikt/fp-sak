@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.dokument.dto;
 
-import javax.validation.constraints.Digits;
+import jakarta.validation.constraints.Digits;
 
 public class DokumentIdDto {
     @Digits(integer = 18, fraction = 0)

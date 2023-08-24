@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingskontroll.events;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -10,6 +8,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.util.Optional;
 
 /**
  * Event publiseres av {@link BehandlingskontrollTjeneste} når en

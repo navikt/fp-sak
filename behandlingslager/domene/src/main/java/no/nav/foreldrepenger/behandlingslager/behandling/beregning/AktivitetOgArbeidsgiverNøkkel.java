@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+
+import java.util.Objects;
 
 /**
  * Nøkkel som brukes av VurderBehovForÅHindreTilbaketrekkV2 for å unikt identifisere andeler uten å skille på ulike andeler hos samme arbeidsgiver

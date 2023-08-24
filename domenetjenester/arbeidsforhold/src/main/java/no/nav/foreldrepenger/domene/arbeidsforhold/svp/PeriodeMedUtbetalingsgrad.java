@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
-import java.math.BigDecimal;
-
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
+import java.math.BigDecimal;
 
 public class PeriodeMedUtbetalingsgrad {
     private DatoIntervallEntitet periode;

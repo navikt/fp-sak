@@ -1,20 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
-import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
-import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
-
-import java.time.LocalDate;
-
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.QueryParam;
-
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.QueryParam;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
+
+import java.time.LocalDate;
+
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
+import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
 
 public class SaksnummerFødselsdatoDto implements AbacDto {
 

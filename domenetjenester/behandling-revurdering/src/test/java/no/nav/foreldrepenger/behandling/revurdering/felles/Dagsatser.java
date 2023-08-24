@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.TOTAL_ANDEL_NORMAL;
-import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.TOTAL_ANDEL_OPPJUSTERT;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.TOTAL_ANDEL_NORMAL;
+import static no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil.TOTAL_ANDEL_OPPJUSTERT;
 
 public class Dagsatser {
     private BigDecimal dagsatsBruker;

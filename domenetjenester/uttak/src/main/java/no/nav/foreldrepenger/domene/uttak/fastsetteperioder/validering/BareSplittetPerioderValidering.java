@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+
 import java.time.LocalDate;
 import java.util.List;
-
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering {
 

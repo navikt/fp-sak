@@ -1,28 +1,18 @@
 package no.nav.foreldrepenger.batch.task;
 
-import static no.nav.foreldrepenger.batch.BatchTjeneste.FAGOMRÅDE_KEY;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.MonthDay;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+
+import java.time.*;
+import java.util.*;
+
+import static no.nav.foreldrepenger.batch.BatchTjeneste.FAGOMRÅDE_KEY;
 
 /**
  * Enkel scheduler for dagens situasjon der man kjører batcher mandag-fredag og

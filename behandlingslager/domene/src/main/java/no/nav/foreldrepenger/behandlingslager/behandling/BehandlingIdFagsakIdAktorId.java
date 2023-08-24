@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
 import java.util.Objects;
 import java.util.UUID;
-
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class BehandlingIdFagsakIdAktorId {
 

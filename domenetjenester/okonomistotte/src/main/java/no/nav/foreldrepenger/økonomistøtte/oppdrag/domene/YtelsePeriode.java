@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
-
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 public class YtelsePeriode {
 

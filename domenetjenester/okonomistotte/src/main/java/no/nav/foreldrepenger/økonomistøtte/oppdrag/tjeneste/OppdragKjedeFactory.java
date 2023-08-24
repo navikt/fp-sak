@@ -1,14 +1,9 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste;
 
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.DelytelseId;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.FagsystemId;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjedeFortsettelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
 
 public class OppdragKjedeFactory {
 

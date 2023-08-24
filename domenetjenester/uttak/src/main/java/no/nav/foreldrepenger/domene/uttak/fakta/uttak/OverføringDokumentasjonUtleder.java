@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
+
+import java.util.Optional;
 
 final class OverføringDokumentasjonUtleder {
 

@@ -32,6 +32,9 @@
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+
+                </dependencies>
             </plugin>
         </plugins>
     </build>

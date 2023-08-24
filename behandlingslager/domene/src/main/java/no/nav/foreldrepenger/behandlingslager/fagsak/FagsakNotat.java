@@ -1,17 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.util.Objects;
 
 @Entity(name = "FagsakNotat")
 @Table(name = "FAGSAK_NOTAT")

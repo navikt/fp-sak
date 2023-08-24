@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum AnkeAvvistÅrsak implements Kodeverdi {

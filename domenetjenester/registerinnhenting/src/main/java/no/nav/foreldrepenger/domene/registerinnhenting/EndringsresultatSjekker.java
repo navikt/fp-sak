@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
-import java.util.Objects;
-import java.util.UUID;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
@@ -22,6 +18,9 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+
+import java.util.Objects;
+import java.util.UUID;
 
 @Dependent
 public class EndringsresultatSjekker {

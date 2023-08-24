@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 public interface DatavarehusTjeneste {
 

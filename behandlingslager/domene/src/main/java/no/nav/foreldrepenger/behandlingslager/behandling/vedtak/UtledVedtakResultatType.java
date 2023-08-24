@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
-import java.util.Objects;
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+
+import java.util.Objects;
+import java.util.Set;
 
 public class UtledVedtakResultatType {
 

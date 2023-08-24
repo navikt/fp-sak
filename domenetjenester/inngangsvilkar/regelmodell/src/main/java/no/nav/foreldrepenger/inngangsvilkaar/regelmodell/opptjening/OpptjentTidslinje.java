@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import java.time.Period;
-
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+
+import java.time.Period;
 
 /** Beskriver opptjente dager og totalt beregnet periode opptjent. */
 public class OpptjentTidslinje {

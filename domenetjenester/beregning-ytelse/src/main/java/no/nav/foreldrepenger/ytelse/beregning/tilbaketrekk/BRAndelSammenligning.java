@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+
+import java.util.List;
 
 public class BRAndelSammenligning {
     private List<BeregningsresultatAndel> forrigeAndeler;

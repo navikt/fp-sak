@@ -1,21 +1,20 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 @ApplicationScoped
 public class FpUttakRepository {

@@ -1,51 +1,25 @@
 package no.nav.foreldrepenger.datavarehus.xml;
 
-import java.util.Comparator;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeAvvistÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
-import no.nav.vedtak.felles.xml.vedtak.v2.AnkeAvvistAarsak;
-import no.nav.vedtak.felles.xml.vedtak.v2.AnkeOmgjoerAarsak;
-import no.nav.vedtak.felles.xml.vedtak.v2.Ankevurdering;
-import no.nav.vedtak.felles.xml.vedtak.v2.Ankevurderingresultat;
-import no.nav.vedtak.felles.xml.vedtak.v2.Behandlingsresultat;
-import no.nav.vedtak.felles.xml.vedtak.v2.Behandlingstype;
-import no.nav.vedtak.felles.xml.vedtak.v2.KlageAvvistAarsak;
-import no.nav.vedtak.felles.xml.vedtak.v2.KlageMedholdAarsak;
 import no.nav.vedtak.felles.xml.vedtak.v2.KlageVurdertAv;
-import no.nav.vedtak.felles.xml.vedtak.v2.Klagevurdering;
-import no.nav.vedtak.felles.xml.vedtak.v2.Klagevurderingresultat;
-import no.nav.vedtak.felles.xml.vedtak.v2.ObjectFactory;
-import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
-import no.nav.vedtak.felles.xml.vedtak.v2.Vilkaar;
-import no.nav.vedtak.felles.xml.vedtak.v2.Vilkaarsutfall;
-import no.nav.vedtak.felles.xml.vedtak.v2.Vurderingsvariant;
+import no.nav.vedtak.felles.xml.vedtak.v2.*;
+
+import java.util.Comparator;
 
 @ApplicationScoped
 public class BehandlingsresultatXmlTjeneste {

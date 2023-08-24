@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
 
 @Embeddable
 public class Trekkdager {

@@ -1,18 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.time.LocalDate;
-
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.exception.TekniskException;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LegacyESBeregningRepositoryTest extends EntityManagerAwareTest {
 

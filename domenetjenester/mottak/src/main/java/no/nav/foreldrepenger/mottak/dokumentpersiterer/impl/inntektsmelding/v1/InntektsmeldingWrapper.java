@@ -1,32 +1,18 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import javax.xml.bind.JAXBElement;
-
+import jakarta.xml.bind.JAXBElement;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.InntektsmeldingKontaktinformasjon;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 import no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.Arbeidsforhold;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.Arbeidsgiver;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.AvtaltFerieListe;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.GjenopptakelseNaturalytelseListe;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.GraderingIForeldrepenger;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.GraderingIForeldrepengerListe;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.Kontaktinformasjon;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.NaturalytelseDetaljer;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.OpphoerAvNaturalytelseListe;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.Periode;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.Refusjon;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.UtsettelseAvForeldrepenger;
-import no.seres.xsd.nav.inntektsmelding_m._20180924.UtsettelseAvForeldrepengerListe;
+import no.seres.xsd.nav.inntektsmelding_m._20180924.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class InntektsmeldingWrapper extends MottattDokumentWrapper<InntektsmeldingM> implements InntektsmeldingKontaktinformasjon {
 

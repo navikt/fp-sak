@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.domene.fp;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @ApplicationScoped
 public class SykemeldingVentTjeneste {

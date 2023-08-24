@@ -1,21 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
-import java.util.Objects;
-import java.util.UUID;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
+
+import java.util.Objects;
+import java.util.UUID;
 
 @Entity(name = "BehandlingDokumentBestilt")
 @Table(name = "BEHANDLING_DOKUMENT_BESTILT")

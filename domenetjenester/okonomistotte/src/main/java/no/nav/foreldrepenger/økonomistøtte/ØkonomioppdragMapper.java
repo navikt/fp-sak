@@ -1,41 +1,26 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import jakarta.xml.bind.JAXBException;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.*;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Ompostering116;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.*;
+import no.nav.foreldrepenger.xmlutils.DateUtil;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
+import no.nav.vedtak.exception.TekniskException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Avstemming115;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.ObjectFactory;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Ompostering116;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsEnhet120;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
-import no.nav.foreldrepenger.xmlutils.DateUtil;
-import no.nav.foreldrepenger.xmlutils.JaxbHelper;
-import no.nav.vedtak.exception.TekniskException;
 
 
 // TODO: Flyttet til fp-ws-proxy og fjernet kvittering tester

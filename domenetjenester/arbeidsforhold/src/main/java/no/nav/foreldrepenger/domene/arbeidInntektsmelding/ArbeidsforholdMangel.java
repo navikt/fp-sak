@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;

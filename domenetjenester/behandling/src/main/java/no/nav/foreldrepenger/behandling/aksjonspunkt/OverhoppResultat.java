@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
+
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 
 public class OverhoppResultat {
     Set<OppdateringResultat> oppdatereResultater = new LinkedHashSet<>();

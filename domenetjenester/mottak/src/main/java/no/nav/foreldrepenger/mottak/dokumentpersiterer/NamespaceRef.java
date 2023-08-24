@@ -1,15 +1,10 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import jakarta.enterprise.inject.Stereotype;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.inject.Qualifier;
 
-import javax.enterprise.inject.Stereotype;
-import javax.enterprise.util.AnnotationLiteral;
-import javax.inject.Qualifier;
+import java.lang.annotation.*;
 
 /**
  * Annotasjon for å merke klasser som brukes for oversetting av søknader.

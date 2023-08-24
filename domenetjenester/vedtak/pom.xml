@@ -56,7 +56,7 @@
 		<!-- Kontrakter -->
 		<dependency>
             <groupId>no.nav.foreldrepenger.abakus</groupId>
-            <artifactId>abakus-kontrakt</artifactId>
+            <artifactId>abakus-kontrakt-jakarta</artifactId>
         </dependency>
 
         <dependency>

@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.historikk.dto;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 
 public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
     private Long behandlingId;

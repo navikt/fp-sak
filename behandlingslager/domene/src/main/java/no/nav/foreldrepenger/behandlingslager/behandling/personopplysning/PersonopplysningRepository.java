@@ -1,21 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
-import org.hibernate.jpa.QueryHints;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+import org.hibernate.jpa.HibernateHints;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Dette er et Repository for håndtering av alle persistente endringer i en Personopplysning graf.
@@ -93,7 +91,7 @@ public class PersonopplysningRepository {
         var query = entityManager.createQuery(
             "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id AND pbg.aktiv = true",
             PersonopplysningGrunnlagEntitet.class)
-                .setHint(QueryHints.HINT_CACHE_MODE, "IGNORE")
+                .setHint(HibernateHints.HINT_CACHE_MODE, "IGNORE")
                 .setParameter("behandling_id", behandlingId);
 
         var resultat = HibernateVerktøy.hentUniktResultat(query);

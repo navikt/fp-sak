@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+
 import java.time.LocalDate;
 import java.util.Optional;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public record SkjæringstidspunktDto(LocalDate dato, boolean kreverSammenhengendeUttak, boolean utenMinsterett) {

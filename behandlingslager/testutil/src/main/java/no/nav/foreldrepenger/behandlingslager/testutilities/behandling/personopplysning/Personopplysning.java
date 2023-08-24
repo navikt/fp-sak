@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.time.LocalDate;
 
 
 public final class Personopplysning {

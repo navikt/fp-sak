@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embeddable;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Embeddable
 public class OverstyrtLøpendeMedlemskap {

@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.opptjening;
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+
+import java.util.Objects;
 
 public class OpptjeningsperiodeForSaksbehandling {
 

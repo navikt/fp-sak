@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.db.validering;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
+import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tester at alle migreringer følger standarder for navn og god praksis.
@@ -36,7 +34,14 @@ class SjekkDbStrukturTest {
 
     @Test
     void sjekk_at_alle_tabeller_er_dokumentert() throws Exception {
-        var sql = "SELECT table_name FROM all_tab_comments WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT')) AND owner=sys_context('userenv', 'current_schema') AND table_name NOT LIKE 'schema_%' AND table_name not like '%_MOCK'";
+        var sql = """
+            SELECT table_name FROM all_tab_comments
+            WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT'))
+            AND owner=sys_context('userenv', 'current_schema')
+            AND table_name NOT LIKE 'schema_%'
+            AND table_name not like '%_MOCK'
+            AND table_name NOT LIKE 'HTE_%'
+            """;
         List<String> avvik = new ArrayList<>();
         try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
@@ -58,7 +63,7 @@ class SjekkDbStrukturTest {
                   FROM all_col_comments t
                  WHERE (t.comments IS NULL OR t.comments = '')
                    AND t.owner = sys_context('userenv','current_schema')
-                   AND ( upper(t.table_name) NOT LIKE 'SCHEMA_%' AND upper(t.table_name) NOT LIKE '%_MOCK')
+                   AND ( upper(t.table_name) NOT LIKE 'SCHEMA_%' AND upper(t.table_name) NOT LIKE '%_MOCK' AND upper(t.table_name) NOT LIKE 'HTE_%')
                    AND NOT EXISTS (SELECT 1 FROM all_constraints a, all_cons_columns b
                                     WHERE a.table_name = b.table_name
                                       AND b.table_name = t.table_name
@@ -136,7 +141,9 @@ class SjekkDbStrukturTest {
                 WHERE table_name
                  NOT IN ( SELECT ac.table_name FROM all_constraints ac
                          WHERE ac.constraint_type ='P' and at.owner=ac.owner and ac.constraint_name like 'PK_%')
-                AND at.owner=upper(?) and at.table_name not like 'schema_%'
+                AND at.owner=upper(?)
+                and at.table_name not like 'schema_%'
+                and at.table_name not like 'HTE_%'
                 """;
 
         List<String> avvik = new ArrayList<>();
@@ -200,6 +207,7 @@ class SjekkDbStrukturTest {
                  where table_owner=upper(?)
                  and index_name not like 'PK_%' and index_name not like 'IDX_%' and index_name not like 'UIDX_%'
                  and table_name not like 'schema_%'
+                 and table_name not like 'HTE_%'
                 """;
 
         List<String> avvik = new ArrayList<>();

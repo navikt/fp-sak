@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class SvpTilretteleggingDatoDto {
     private LocalDate fom;

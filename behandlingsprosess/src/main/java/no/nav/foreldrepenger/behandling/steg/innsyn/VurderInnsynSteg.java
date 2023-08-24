@@ -1,17 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.innsyn;
 
-import java.util.Collections;
-
-import javax.enterprise.context.ApplicationScoped;
-
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import jakarta.enterprise.context.ApplicationScoped;
+import no.nav.foreldrepenger.behandlingskontroll.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+
+import java.util.Collections;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_INNSYN)
 @BehandlingTypeRef

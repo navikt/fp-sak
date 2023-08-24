@@ -1,28 +1,21 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.opptjening;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
-import org.hibernate.jpa.QueryHints;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+import org.hibernate.jpa.HibernateHints;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class OpptjeningRepository {
@@ -89,7 +82,7 @@ public class OpptjeningRepository {
 
         if (readOnly) {
             // returneres read-only, kan kun legge til nye ved skriving uten å oppdatere
-            query.setHint(QueryHints.HINT_READONLY, "true");
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         }
         return HibernateVerktøy.hentUniktResultat(query);
     }

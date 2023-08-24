@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
 

@@ -1,23 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.totrinn;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @Entity(name = "Totrinnresultatgrunnlag")
 @Table(name = "TOTRINNRESULTATGRUNNLAG")

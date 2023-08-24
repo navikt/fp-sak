@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 class AksjonspunktDvhMapper {
 

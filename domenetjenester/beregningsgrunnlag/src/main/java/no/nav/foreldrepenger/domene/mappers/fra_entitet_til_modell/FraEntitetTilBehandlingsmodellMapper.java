@@ -1,38 +1,21 @@
 package no.nav.foreldrepenger.domene.mappers.fra_entitet_til_modell;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetOverstyringEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringer;
-import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.entiteter.*;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BesteberegningGrunnlag;
-import no.nav.foreldrepenger.domene.modell.BesteberegningInntekt;
-import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlag;
-import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
-import no.nav.foreldrepenger.domene.modell.FaktaAktør;
-import no.nav.foreldrepenger.domene.modell.FaktaArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.*;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
 import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class FraEntitetTilBehandlingsmodellMapper {
 

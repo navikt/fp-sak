@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl.transisjoner;
 
-import java.util.Arrays;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class Transisjoner {
 

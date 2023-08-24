@@ -1,11 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
+import jakarta.validation.constraints.*;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class HenleggBehandlingDto extends DtoMedBehandlingId  {

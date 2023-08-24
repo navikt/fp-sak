@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.NaturalId;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import org.hibernate.annotations.NaturalId;
 
 @Entity(name = "MottattHendelse")
 @Table(name = "MOTTATT_HENDELSE")

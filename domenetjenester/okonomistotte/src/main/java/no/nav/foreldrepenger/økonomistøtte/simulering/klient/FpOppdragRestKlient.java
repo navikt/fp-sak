@@ -1,31 +1,22 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
-import static java.net.HttpURLConnection.HTTP_MULT_CHOICE;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
-import static no.nav.vedtak.mapper.json.DefaultJsonMapper.fromJson;
-
-import java.net.URI;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.UriBuilder;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilDto;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilType;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.felles.integrasjon.rest.*;
+
+import java.net.URI;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.Optional;
+
+import static java.net.HttpURLConnection.*;
+import static no.nav.vedtak.mapper.json.DefaultJsonMapper.fromJson;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPOPPDRAG)

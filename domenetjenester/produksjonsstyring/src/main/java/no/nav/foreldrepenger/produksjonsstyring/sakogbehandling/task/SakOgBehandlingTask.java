@@ -1,23 +1,8 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import contract.sob.dto.Aktoer;
-import contract.sob.dto.Applikasjoner;
-import contract.sob.dto.Avslutningsstatuser;
-import contract.sob.dto.BehandlingAvsluttet;
-import contract.sob.dto.BehandlingOpprettet;
-import contract.sob.dto.Behandlingstemaer;
-import contract.sob.dto.Behandlingstyper;
-import contract.sob.dto.Sakstemaer;
+import contract.sob.dto.*;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
@@ -39,6 +24,12 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehan
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 @ProsessTask("behandlingskontroll.oppdatersakogbehandling")

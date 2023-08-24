@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.util;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+
 import java.util.Arrays;
 import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 
 public class ØkonomiKodeKlassifikSortering {
 

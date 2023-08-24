@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class PersonoversiktBehandlingStatusDto {
 

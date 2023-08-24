@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
-import java.util.UUID;
-
+import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import java.util.UUID;
 
 class FellesStartpunktUtlederLogger {
 

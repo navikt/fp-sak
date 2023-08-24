@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger;
 
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerPrÅr;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class BeregnFeriepengerForPeriode {
     private static final BigDecimal FERIEPENGER_SATS_PROSENT = BigDecimal.valueOf(0.102);

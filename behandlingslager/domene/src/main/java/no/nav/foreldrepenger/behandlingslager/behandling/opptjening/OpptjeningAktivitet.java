@@ -1,22 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.opptjening;
 
-import java.time.LocalDate;
-import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
+import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity(name = "OpptjeningAktivitet")
 @Table(name = "OPPTJENING_AKTIVITET")

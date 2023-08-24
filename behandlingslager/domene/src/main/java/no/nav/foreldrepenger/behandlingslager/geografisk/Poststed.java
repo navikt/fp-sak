@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 
 @Entity(name = "Poststed")

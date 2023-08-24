@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.revurdering.aksjonspunkt;
 
-import java.time.LocalDate;
-
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
+
+import java.time.LocalDate;
 
 public abstract class VarselRevurderingDto extends BekreftetAksjonspunktDto {
     private boolean sendVarsel;

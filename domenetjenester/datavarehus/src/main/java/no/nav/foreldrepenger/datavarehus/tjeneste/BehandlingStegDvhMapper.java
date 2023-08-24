@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 class BehandlingStegDvhMapper {
 

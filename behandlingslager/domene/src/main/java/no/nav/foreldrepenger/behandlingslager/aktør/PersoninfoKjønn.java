@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import static java.util.Objects.requireNonNull;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 import java.util.Objects;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static java.util.Objects.requireNonNull;
 
 public class PersoninfoKjønn {
 

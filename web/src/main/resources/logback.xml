@@ -49,6 +49,7 @@
     <logger name="com.zaxxer.hikari" level="${log.level.com.zaxxer.hikari:-WARN}" />
     <logger name="org.hibernate.type" level="${log.level.org.hibernate.type:-WARN}" />
     <logger name="org.hibernate" level="${log.level.org.hibernate:-WARN}" />
+    <logger name="org.hibernate.orm.deprecation" level="${log.level.org.hibernate.orm.deprecation:-ERROR}" />
     <logger name="ch.qos.logback" level="${log.level.ch.qos.logback:-WARN}" />
     <logger name="org.flywaydb" level="${log.level.org.flywaydb:-INFO}" />
     <logger name="org.apache" level="${log.level.org.apache:-ERROR}" />

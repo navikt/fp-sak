@@ -1,18 +1,13 @@
 package no.nav.foreldrepenger.domene.modell;
 
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.vedtak.konfig.Tid;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.*;
 
 
 public class BeregningsgrunnlagPeriode {

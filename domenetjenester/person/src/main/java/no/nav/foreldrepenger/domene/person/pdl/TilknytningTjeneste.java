@@ -1,24 +1,14 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.pdl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.pdl.Adressebeskyttelse;
-import no.nav.pdl.AdressebeskyttelseGradering;
-import no.nav.pdl.AdressebeskyttelseResponseProjection;
-import no.nav.pdl.Folkeregisterpersonstatus;
-import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
-import no.nav.pdl.GeografiskTilknytningResponseProjection;
-import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
-import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.PersonResponseProjection;
+import java.util.Set;
 
 @ApplicationScoped
 public class TilknytningTjeneste {

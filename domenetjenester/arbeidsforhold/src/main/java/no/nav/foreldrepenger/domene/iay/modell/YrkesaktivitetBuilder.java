@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.util.List;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import java.util.List;
+import java.util.Optional;
 
 public class YrkesaktivitetBuilder {
     private final Yrkesaktivitet kladd;

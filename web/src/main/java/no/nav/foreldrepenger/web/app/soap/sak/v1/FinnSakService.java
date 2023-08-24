@@ -1,15 +1,8 @@
 package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
-import java.util.List;
-import java.util.function.Function;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.jws.WebService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.jws.WebService;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -36,6 +29,11 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Webservice for å finne relevante fagsaker i VL.

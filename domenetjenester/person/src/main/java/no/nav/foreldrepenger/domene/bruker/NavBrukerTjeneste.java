@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.domene.bruker;
 
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.Optional;
 
 /*
  * For brukere med sak i VL - de som er lagret i Bruker-tabellen og mottar brev/meldinger

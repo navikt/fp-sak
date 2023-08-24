@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.poststed;
 
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
+import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
-import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @ApplicationScoped

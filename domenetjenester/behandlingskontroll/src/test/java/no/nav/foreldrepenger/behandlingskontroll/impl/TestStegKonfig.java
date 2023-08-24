@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
-import java.util.Collections;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
+import java.util.Collections;
+import java.util.List;
 
 public class TestStegKonfig {
     private final BehandlingStegType behandlingStegType;

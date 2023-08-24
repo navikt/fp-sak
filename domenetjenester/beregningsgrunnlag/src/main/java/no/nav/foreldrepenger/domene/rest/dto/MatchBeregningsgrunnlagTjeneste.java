@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
-
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 
 /**
  * Tjeneste som finner andeler basert på informasjon om andelen (arbeidsforholdId, andelsnr)

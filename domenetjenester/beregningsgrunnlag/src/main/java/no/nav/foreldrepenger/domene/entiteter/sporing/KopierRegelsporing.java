@@ -1,18 +1,13 @@
 package no.nav.foreldrepenger.domene.entiteter.sporing;
 
+import no.nav.foreldrepenger.domene.entiteter.*;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
+import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriodeRegelSporing;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRegelSporing;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
-import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 public class KopierRegelsporing {
 

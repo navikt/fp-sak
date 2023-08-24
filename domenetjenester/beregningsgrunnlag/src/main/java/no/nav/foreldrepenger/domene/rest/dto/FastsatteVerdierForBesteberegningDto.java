@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
-import java.math.BigDecimal;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+
+import java.math.BigDecimal;
 
 public class FastsatteVerdierForBesteberegningDto {
 

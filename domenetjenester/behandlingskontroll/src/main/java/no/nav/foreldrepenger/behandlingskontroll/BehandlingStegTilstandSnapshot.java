@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+
+import java.util.Objects;
 
 public class BehandlingStegTilstandSnapshot {
 

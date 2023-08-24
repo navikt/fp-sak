@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.inngangsvilkaar;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+
+import java.util.List;
 
 public record VilkårData(VilkårType vilkårType, VilkårUtfallType utfallType, VilkårUtfallMerknad vilkårUtfallMerknad,
             List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner, String regelEvaluering, String regelInput, Object ekstraVilkårresultat) {

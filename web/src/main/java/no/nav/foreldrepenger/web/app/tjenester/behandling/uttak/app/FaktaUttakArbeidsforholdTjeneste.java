@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
-import java.util.List;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
+
+import java.util.List;
+import java.util.Optional;
 
 public class FaktaUttakArbeidsforholdTjeneste {
 

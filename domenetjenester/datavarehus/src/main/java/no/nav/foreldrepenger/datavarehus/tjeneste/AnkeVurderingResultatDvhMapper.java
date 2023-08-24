@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.datavarehus.domene.AnkeVurderingResultatDvh;
+
+import java.time.LocalDate;
 
 class AnkeVurderingResultatDvhMapper {
 

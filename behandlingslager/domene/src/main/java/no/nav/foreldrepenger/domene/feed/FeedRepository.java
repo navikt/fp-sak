@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.domene.feed;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.EntityManager;
+import org.hibernate.jpa.HibernateHints;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.EntityManager;
-
-import org.hibernate.jpa.QueryHints;
 
 @ApplicationScoped
 public class FeedRepository {
@@ -46,7 +45,7 @@ public class FeedRepository {
         var query = entityManager
             .createNativeQuery("SELECT count(1) FROM UTGAAENDE_HENDELSE where kilde_id = :kildeId")
             .setParameter("kildeId", kildeId)
-            .setHint(QueryHints.HINT_READONLY, "true");
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
 
         var antall = (BigDecimal) query.getSingleResult();
         return antall.compareTo(BigDecimal.ZERO) > 0;
@@ -69,7 +68,7 @@ public class FeedRepository {
             var resultObjects = (Object[]) object;
 
             if (resultObjects.length > 0) {
-                var hendelse = hentUtgåendeHendelse(((BigDecimal) resultObjects[0]).longValue());
+                var hendelse = hentUtgåendeHendelse(Long.parseLong(resultObjects[0].toString()));
                 hendelse.ifPresent(h -> hendelser .add((V) h));
             }
         }

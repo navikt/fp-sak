@@ -1,14 +1,10 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
 
-import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
+
+import java.util.List;
 
 public class SettOpphørOgIkkeRett {
 

@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class RefusjonskravPrArbeidsgiverVurderingDto {

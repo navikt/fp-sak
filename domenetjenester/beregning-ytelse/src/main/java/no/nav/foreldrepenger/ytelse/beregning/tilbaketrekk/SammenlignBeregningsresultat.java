@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+
+import java.util.List;
 
 class SammenlignBeregningsresultat {
 

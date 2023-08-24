@@ -1,15 +1,7 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -17,6 +9,8 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+
+import java.util.*;
 
 /**
  * Modellerer ett behandlingssteg, inklusiv hvilke aksjonspunkter må løses

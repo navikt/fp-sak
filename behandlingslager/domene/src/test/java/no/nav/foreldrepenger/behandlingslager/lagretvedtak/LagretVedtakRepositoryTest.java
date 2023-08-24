@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.persistence.EntityManager;
-
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
 

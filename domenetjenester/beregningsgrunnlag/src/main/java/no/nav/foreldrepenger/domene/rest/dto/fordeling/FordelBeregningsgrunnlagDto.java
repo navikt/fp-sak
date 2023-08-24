@@ -1,14 +1,12 @@
 package no.nav.foreldrepenger.domene.rest.dto.fordeling;
 
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+
+import java.util.List;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.FORDEL_BEREGNINGSGRUNNLAG_KODE)
 public class FordelBeregningsgrunnlagDto extends BekreftetAksjonspunktDto {

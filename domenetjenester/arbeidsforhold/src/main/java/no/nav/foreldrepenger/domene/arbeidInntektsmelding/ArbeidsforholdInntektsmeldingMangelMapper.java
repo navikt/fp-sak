@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import java.util.Arrays;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -14,6 +11,9 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.vedtak.konfig.Tid;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Mapper som mapper saksbehandlers vurdering om til domeneobjekter og validerer valg som er tatt

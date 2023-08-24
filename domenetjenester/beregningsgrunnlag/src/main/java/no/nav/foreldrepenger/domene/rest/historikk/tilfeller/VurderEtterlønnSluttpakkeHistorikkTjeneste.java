@@ -1,11 +1,6 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-
+import jakarta.enterprise.context.ApplicationScoped;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -17,6 +12,10 @@ import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderEtterlønnSluttpakkeDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 @FaktaOmBeregningTilfelleRef(FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE)

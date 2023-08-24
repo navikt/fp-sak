@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Input for vurdering av opptjeningsvilkår.

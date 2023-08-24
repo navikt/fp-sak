@@ -1,14 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -32,15 +25,11 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.Risikovurderin
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.hendelser.behandling.Aksjonspunktstatus;
-import no.nav.vedtak.hendelser.behandling.AktørId;
-import no.nav.vedtak.hendelser.behandling.Behandlingsstatus;
-import no.nav.vedtak.hendelser.behandling.Behandlingstype;
-import no.nav.vedtak.hendelser.behandling.Behandlingsårsak;
-import no.nav.vedtak.hendelser.behandling.Kildesystem;
-import no.nav.vedtak.hendelser.behandling.Ytelse;
+import no.nav.vedtak.hendelser.behandling.*;
 import no.nav.vedtak.hendelser.behandling.los.LosBehandlingDto;
 import no.nav.vedtak.hendelser.behandling.los.LosFagsakEgenskaperDto;
+
+import java.util.*;
 
 /**
  * Returnerer behandlingsinformasjon tilpasset behov i FP-LOS

@@ -1,19 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.FRILANSER;
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER;
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
-import static no.nav.foreldrepenger.domene.arbeidsforhold.svp.FinnAktivitetsavtalerForUtbetalingsgrad.finnAktivitetsavtalerSomSkalBrukes;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
@@ -27,6 +13,17 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.*;
+import static no.nav.foreldrepenger.domene.arbeidsforhold.svp.FinnAktivitetsavtalerForUtbetalingsgrad.finnAktivitetsavtalerSomSkalBrukes;
 
 class UtbetalingsgradBeregner {
 

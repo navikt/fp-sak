@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Arrays;
-
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikogruppeDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class KontrollresultatMapperTest {
 

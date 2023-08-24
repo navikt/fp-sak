@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
+
+import java.time.LocalDate;
 
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public class UtsettelsePeriodeDto {

@@ -1,20 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import org.hibernate.jpa.HibernateHints;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
-import org.hibernate.jpa.QueryHints;
-
-import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 @ApplicationScoped
 public class LagretVedtakRepository implements BehandlingslagerRepository {
@@ -56,14 +54,14 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
     public LagretVedtak hentLagretVedtak(long lagretVedtakId) {
         var query = entityManager.createQuery("from LagretVedtak where id=:lagretVedtakId", LagretVedtak.class);
         query.setParameter("lagretVedtakId", lagretVedtakId);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return hentEksaktResultat(query);
     }
 
     public LagretVedtak hentLagretVedtakForBehandling(long behandlingId) {
         var query = entityManager.createQuery("from LagretVedtak where BEHANDLING_ID=:behandlingId", LagretVedtak.class);
         query.setParameter("behandlingId", behandlingId);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return hentEksaktResultat(query);
     }
 
@@ -76,7 +74,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
     public List<LagretVedtak> hentLagreteVedtakPåFagsak(long fagsakId) {
         var query = entityManager.createQuery("from LagretVedtak where FAGSAK_ID=:fagsakId", LagretVedtak.class);
         query.setParameter("fagsakId", fagsakId);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 

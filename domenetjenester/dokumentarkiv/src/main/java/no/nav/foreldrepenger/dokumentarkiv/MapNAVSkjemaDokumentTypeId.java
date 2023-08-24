@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
-import java.util.Map;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+
+import java.util.Map;
 
 class MapNAVSkjemaDokumentTypeId {
 

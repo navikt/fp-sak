@@ -1,29 +1,18 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Utbetalingsgrad;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TilkjentYtelseMapper {
 

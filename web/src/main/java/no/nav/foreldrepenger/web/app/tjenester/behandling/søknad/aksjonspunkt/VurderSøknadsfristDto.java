@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+
+import java.time.LocalDate;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST_KODE)
 public class VurderSøknadsfristDto extends BekreftetAksjonspunktDto {

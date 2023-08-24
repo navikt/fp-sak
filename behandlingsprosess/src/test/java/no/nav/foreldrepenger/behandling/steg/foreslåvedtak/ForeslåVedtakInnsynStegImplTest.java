@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ForeslåVedtakInnsynStegImplTest {
 

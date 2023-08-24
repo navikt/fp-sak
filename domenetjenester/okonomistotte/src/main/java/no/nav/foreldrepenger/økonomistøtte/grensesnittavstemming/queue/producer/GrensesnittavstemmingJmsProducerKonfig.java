@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.jms.JMSException;
-
+import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.FellesJmsKonfig;
-import no.nav.foreldrepenger.felles.jms.JmsKonfig;
 
 @ApplicationScoped
 public class GrensesnittavstemmingJmsProducerKonfig extends FellesJmsKonfig {

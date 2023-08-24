@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record ArbeidsforholdDto(String arbeidsgiverIdent,
                                 String internArbeidsforholdId,

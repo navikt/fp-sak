@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusTjeneste;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Observerer og propagerer / håndterer events internt i Behandlingskontroll

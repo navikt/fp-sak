@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import java.util.List;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+
+import java.util.List;
+import java.util.Optional;
 
 public class FinnNavnForManueltLagtTilArbeidsforholdTjeneste {
 

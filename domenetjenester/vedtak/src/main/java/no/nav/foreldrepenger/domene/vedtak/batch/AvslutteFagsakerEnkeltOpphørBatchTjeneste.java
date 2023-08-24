@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
-import java.util.Properties;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
+
+import java.util.Properties;
 
 /**
  * Henter ut fagsaker som har behandling med resultat opphør, som har kobling til annen part, som ikke har en gr_neste_sak (opphør pga nytt barn) og ingen åpne behandlinger.

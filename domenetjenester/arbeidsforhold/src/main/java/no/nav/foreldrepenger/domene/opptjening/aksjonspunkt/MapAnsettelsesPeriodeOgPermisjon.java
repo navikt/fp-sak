@@ -32,9 +32,12 @@ class MapAnsettelsesPeriodeOgPermisjon {
             return ansettelsesPerioder;
         }
         var bekreftetPermisjon = bekreftetPermisjonOpt.get();
-        var erFullPermisjon = yrkesaktivitet.getPermisjon().stream()
+        var erFullPermisjon = yrkesaktivitet.getPermisjon()
+            .stream()
             .filter(perm -> perm.getPeriode().equals(bekreftetPermisjon.getPeriode()))
-            .findFirst().map(perm -> perm.getProsentsats() != null && perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0).orElse(false);
+            .findFirst()
+            .map(perm -> perm.getProsentsats() != null && perm.getProsentsats().getVerdi().compareTo(BigDecimal.valueOf(100)) >= 0)
+            .orElse(false);
         if (bekreftetPermisjon.getStatus().equals(BekreftetPermisjonStatus.BRUK_PERMISJON) && erFullPermisjon) {
             // Fjerne delperioder fra ansettelsesperioder som overlapper med permisjon - knekkes opp ved behov
             // Vurder å lage ikke-overlappende ansettelsesperioder ved å slå sammen til tidslinje med coalesceLeft/Right
@@ -51,7 +54,8 @@ class MapAnsettelsesPeriodeOgPermisjon {
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(seg.getFom(), seg.getTom()))
             .medProsentsats(seg.getValue().getProsentsats())
             .medSisteLønnsendringsdato(seg.getValue().getSisteLønnsendringsdato())
-            .medBeskrivelse(seg.getValue().getBeskrivelse()).build();
+            .medBeskrivelse(seg.getValue().getBeskrivelse())
+            .build();
     }
 
     // Kan bli litt enklere dersom man lager en tidslinje (obs coalesceL/RHS) av ansettelsesperioder
@@ -60,7 +64,8 @@ class MapAnsettelsesPeriodeOgPermisjon {
             var permisjonSegment = new LocalDateSegment<>(permisjonPeriode.getFomDato(), permisjonPeriode.getTomDato(),
                 AktivitetsAvtaleBuilder.ny().medPeriode(permisjonPeriode).build());
             var permisjonTidslinje = new LocalDateTimeline<>(List.of(permisjonSegment));
-            var ansettelsesSegment = new LocalDateSegment<>(ansettelsesPeriode.getPeriode().getFomDato(), ansettelsesPeriode.getPeriode().getTomDato(), ansettelsesPeriode);
+            var ansettelsesSegment = new LocalDateSegment<>(ansettelsesPeriode.getPeriode().getFomDato(),
+                ansettelsesPeriode.getPeriode().getTomDato(), ansettelsesPeriode);
             var ansettelsesTidslinje = new LocalDateTimeline<>(List.of(ansettelsesSegment));
             return ansettelsesTidslinje.disjoint(permisjonTidslinje).stream().map(MapAnsettelsesPeriodeOgPermisjon::aktivitetsAvtaleFraSegment);
         } else {

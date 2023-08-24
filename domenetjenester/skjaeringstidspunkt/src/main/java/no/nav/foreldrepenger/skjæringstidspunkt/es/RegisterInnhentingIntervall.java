@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.es;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+
 import java.time.LocalDate;
 import java.time.Period;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class RegisterInnhentingIntervall {

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import java.time.LocalDateTime;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
+
+import java.time.LocalDateTime;
 
 class BehandlingVedtakDvhMapper {
 

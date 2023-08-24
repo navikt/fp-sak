@@ -1,15 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -28,11 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.*;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
@@ -43,6 +29,15 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
@@ -73,7 +68,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     private final LocalDateTime igår = LocalDateTime.now().minusDays(1);
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
@@ -94,6 +89,20 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         var resultat = behandlingRepository.hentBehandling(behandling.getId());
+
+        // Assert
+        assertThat(resultat).isNotNull();
+    }
+
+    @Test
+    void skal_finne_behandling_gitt_uuid() {
+
+        // Arrange
+        var behandling = opprettBuilderForBehandling().build();
+        lagreBehandling(behandling);
+
+        // Act
+        var resultat = behandlingRepository.hentBehandling(behandling.getUuid());
 
         // Assert
         assertThat(resultat).isNotNull();
@@ -554,6 +563,28 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         assertThat(avsluttetDatoResultat).isEqualTo(avsluttetDato.withNano(0)); // Oracle is not returning milliseconds.
         assertThat(avsluttetDatoResultat).isNotEqualTo(avsluttetDato);
+    }
+
+    @Test
+    void test_hentAbsoluttAlleBehandlingerForFagsak() throws Exception {
+        // Arrange
+        var behandling = opprettBuilderForBehandling().build();
+        lagreBehandling(behandling);
+
+        var fagsak = behandling.getFagsak();
+        var saksnummer = fagsak.getSaksnummer();
+        assertThat(fagsak.getId()).isNotNull();
+        assertThat(saksnummer).isNotNull();
+
+        // Act
+        var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId());
+
+        // Assert
+        assertThat(behandlinger).hasSize(1).map(Behandling::getId).containsOnly(behandling.getId());
+        var beh1 = behandlinger.get(0);
+        assertThat(beh1.getFagsak()).isNotNull();
+        assertThat(beh1.getFagsak().getSaksnummer()).isEqualTo(saksnummer);
+
     }
 
     private Behandling opprettBehandlingForAutomatiskGjenopptagelse() {

@@ -1,17 +1,12 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.postcondition;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OppdragPostConditionTjenesteTest {
 

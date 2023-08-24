@@ -1,35 +1,21 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.pdl.DoedfoedtBarn;
-import no.nav.pdl.DoedfoedtBarnResponseProjection;
-import no.nav.pdl.Doedsfall;
-import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Foedsel;
-import no.nav.pdl.FoedselResponseProjection;
-import no.nav.pdl.Folkeregisterpersonstatus;
-import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
-import no.nav.pdl.ForelderBarnRelasjon;
-import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
-import no.nav.pdl.ForelderBarnRelasjonRolle;
-import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.PersonResponseProjection;
+import no.nav.pdl.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class FødselTjeneste {

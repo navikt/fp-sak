@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Skal kun brukes av tester som av en eller annen grunn må tukle

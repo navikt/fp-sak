@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.aktør;
 
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +9,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 /**
  * Hent et tilfeldig gyldig men fiktivt Fødselsnummer.

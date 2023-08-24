@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
-import java.io.UnsupportedEncodingException;
+import no.nav.vedtak.exception.TekniskException;
 
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-
-import no.nav.vedtak.exception.TekniskException;
+import java.io.UnsupportedEncodingException;
 
 final class TransformerVedtakXmlFeil {
 

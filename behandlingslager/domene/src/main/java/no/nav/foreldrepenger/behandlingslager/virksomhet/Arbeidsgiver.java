@@ -1,19 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.virksomhet;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
-
-import java.io.Serializable;
-import java.util.Objects;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
-
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
 
 /** En arbeidsgiver (enten virksomhet eller personlig arbeidsgiver). */
 @Embeddable

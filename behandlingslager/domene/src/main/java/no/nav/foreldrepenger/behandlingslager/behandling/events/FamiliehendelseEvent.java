@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.events;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+
+import java.time.LocalDate;
 
 public class FamiliehendelseEvent  implements BehandlingEvent {
 

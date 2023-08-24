@@ -1,51 +1,29 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
-import java.net.http.HttpHeaders;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.saf.DokumentInfo;
-import no.nav.saf.DokumentInfoResponseProjection;
-import no.nav.saf.DokumentoversiktFagsakQueryRequest;
-import no.nav.saf.DokumentoversiktResponseProjection;
-import no.nav.saf.Dokumentvariant;
-import no.nav.saf.DokumentvariantResponseProjection;
-import no.nav.saf.FagsakInput;
-import no.nav.saf.Journalpost;
-import no.nav.saf.JournalpostQueryRequest;
-import no.nav.saf.JournalpostResponseProjection;
-import no.nav.saf.Journalposttype;
-import no.nav.saf.Journalstatus;
-import no.nav.saf.LogiskVedleggResponseProjection;
-import no.nav.saf.TilleggsopplysningResponseProjection;
-import no.nav.saf.Variantformat;
+import no.nav.saf.*;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 import no.nav.vedtak.util.LRUCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static javax.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import java.net.http.HttpHeaders;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_DISPOSITION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
 @ApplicationScoped
 public class DokumentArkivTjeneste {

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.input;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class MapHåndteringskodeTilTilstand {
 

@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class OpptjeningIUtlandDokStatusDtoTjeneste {

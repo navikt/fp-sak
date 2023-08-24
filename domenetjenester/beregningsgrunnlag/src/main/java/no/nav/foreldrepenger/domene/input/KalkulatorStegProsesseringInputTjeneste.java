@@ -1,31 +1,8 @@
 package no.nav.foreldrepenger.domene.input;
 
-import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilKalkulatorStegTilstand;
-import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilKalkulatorStegUtTilstand;
-import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilStegTilstand;
-import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.mapTilStegUtTilstand;
-
-import java.time.MonthDay;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
-import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;
-import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
-import no.nav.folketrygdloven.kalkulator.input.FortsettForeslåBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.FullføreBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.input.GrunnbeløpInput;
-import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
-import no.nav.folketrygdloven.kalkulator.input.VurderBeregningsgrunnlagvilkårInput;
-import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.folketrygdloven.kalkulator.input.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -38,6 +15,14 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.GrunnbeløpTjeneste;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+
+import java.time.MonthDay;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.domene.input.MapStegTilTilstand.*;
 
 @ApplicationScoped
 public class KalkulatorStegProsesseringInputTjeneste {

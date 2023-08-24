@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.domene.abakus;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class IAYRequestCacheTest {
 

@@ -1,10 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -18,6 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Dokumentmottaker for ytelsesrelaterte dokumenter har felles protokoll som fanges her
 // Variasjoner av protokollen håndteres utenfro

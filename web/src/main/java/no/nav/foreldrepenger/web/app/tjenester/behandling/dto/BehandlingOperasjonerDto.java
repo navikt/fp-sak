@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
-import java.util.UUID;
-
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
+
+import java.util.UUID;
 
 public class BehandlingOperasjonerDto {
 

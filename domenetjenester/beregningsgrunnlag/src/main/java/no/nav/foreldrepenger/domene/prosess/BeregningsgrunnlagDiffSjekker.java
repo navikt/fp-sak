@@ -1,21 +1,14 @@
 package no.nav.foreldrepenger.domene.prosess;
 
+import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
+import no.nav.foreldrepenger.domene.entiteter.*;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
-import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag;
-import no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 
 class BeregningsgrunnlagDiffSjekker {
 

@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
 
-import java.util.List;
-
-import javax.enterprise.context.ApplicationScoped;
-
+import jakarta.enterprise.context.ApplicationScoped;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederHolder;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaUtledere;
 import no.nav.foreldrepenger.domene.medlem.kontrollerfakta.AksjonspunktutlederForMedlemskapSkjæringstidspunkt;
 import no.nav.foreldrepenger.domene.medlem.kontrollerfakta.AksjonspunktutlederForSvangerskapspengerTilrettelegging;
+
+import java.util.List;
 
 @ApplicationScoped
 class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {

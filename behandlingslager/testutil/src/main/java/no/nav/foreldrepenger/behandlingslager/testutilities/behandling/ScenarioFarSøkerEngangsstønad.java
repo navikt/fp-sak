@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
+import java.time.LocalDate;
 
 /**
  * Default test scenario builder for Far søker Engangsstønad. Kan opprettes for fødsel eller adopsjon og brukes til å

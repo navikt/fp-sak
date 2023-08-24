@@ -1,23 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.nestesak;
 
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import jakarta.persistence.*;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 /*
  * Grunnlag med livssyklus gitt av saker som innvilger ny stønadsperiode som påvirker aktuell saks stønadsperiode

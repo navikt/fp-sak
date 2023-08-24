@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.InnsynVedtaksdokumentasjonDto;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.InnsynVedtaksdokumentasjonDto;
 
 public class InnsynsbehandlingDto {
 

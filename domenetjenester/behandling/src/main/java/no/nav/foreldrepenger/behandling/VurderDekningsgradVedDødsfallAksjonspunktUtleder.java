@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandling;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+
+import java.util.List;
 
 public class VurderDekningsgradVedDødsfallAksjonspunktUtleder {
 

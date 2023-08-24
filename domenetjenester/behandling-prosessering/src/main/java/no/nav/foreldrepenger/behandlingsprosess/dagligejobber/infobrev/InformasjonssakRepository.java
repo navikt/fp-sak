@@ -1,16 +1,9 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -19,6 +12,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Spesialmetoder for å hente opp saker og personer som er kandidat for å sende
@@ -126,7 +125,7 @@ public class InformasjonssakRepository {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
-                    .ny(((BigDecimal) resultat[POS_FAGSAKID]).longValue())
+                    .ny(Long.parseLong(resultat[POS_FAGSAKID].toString()))
                     .medAktørIdAnnenPart((String) resultat[POS_AKTORID])
                     .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate())
                     .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate())
@@ -201,7 +200,7 @@ public class InformasjonssakRepository {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
-                .ny(((BigDecimal) resultat[0]).longValue())
+                .ny(Long.parseLong(resultat[0].toString()))
                 .medAktørIdAnnenPart((String) resultat[1])
                 .medEnhet((String) resultat[2]);
             returnList.add(builder.build());

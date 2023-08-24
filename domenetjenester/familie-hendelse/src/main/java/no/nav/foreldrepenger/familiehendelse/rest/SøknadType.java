@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.familiehendelse.rest;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)

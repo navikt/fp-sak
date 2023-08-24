@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka;
 
-import java.util.Properties;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -13,9 +13,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.sikkerhet.kontekst.Systembruker;
+import java.util.Properties;
 
 @ApplicationScoped
 public class SakOgBehandlingHendelseProducer {

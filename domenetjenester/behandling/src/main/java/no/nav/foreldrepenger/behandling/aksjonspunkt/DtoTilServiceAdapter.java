@@ -1,18 +1,11 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import javax.enterprise.inject.Stereotype;
-import javax.enterprise.util.AnnotationLiteral;
-import javax.inject.Qualifier;
-
+import jakarta.enterprise.inject.Stereotype;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.inject.Qualifier;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter.ContainerOfDtoTilServiceAdapter;
+
+import java.lang.annotation.*;
 
 /**
  * Marker type definerer adapter for å transformere en Dto til et tjenestekall.

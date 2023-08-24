@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 
 public class DatavarehusTestUtils {
     protected static final String AKSJONSPUNKT_DEF = "aksjonspunktDef";

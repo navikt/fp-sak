@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
-import java.io.Serializable;
-import java.util.Comparator;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+
+import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Optional;
 
 class FagsakRevurdering {
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import java.util.Map;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+
+import java.util.Map;
 
 public class InntektskategoriKlassekodeMapper {
 

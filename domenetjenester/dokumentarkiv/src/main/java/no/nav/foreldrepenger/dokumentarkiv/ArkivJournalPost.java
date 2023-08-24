@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 public class ArkivJournalPost {
     private JournalpostId journalpostId;

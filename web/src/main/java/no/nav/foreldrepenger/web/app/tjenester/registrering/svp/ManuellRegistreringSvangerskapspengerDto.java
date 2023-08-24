@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import jakarta.validation.Valid;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.MedInntektArbeidYtelseRegistrering;
+
+import java.util.List;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER_KODE)
 public class ManuellRegistreringSvangerskapspengerDto extends MedInntektArbeidYtelseRegistrering {

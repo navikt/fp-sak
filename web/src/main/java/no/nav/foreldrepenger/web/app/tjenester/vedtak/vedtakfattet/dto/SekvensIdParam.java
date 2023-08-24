@@ -1,9 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
@@ -17,7 +16,7 @@ public class SekvensIdParam implements AbacDto{
     public SekvensIdParam(String sekvensId) {
         this.sekvensId = sekvensId;
     }
-    
+
     public Long get() {
        return Long.valueOf(sekvensId);
     }

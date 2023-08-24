@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
-import java.util.UUID;
-
-import javax.validation.Valid;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
+
+import java.util.UUID;
 
 public class UuidDto {
 

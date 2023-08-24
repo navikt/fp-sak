@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.validation.constraints.NotNull;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.

@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class YtelsePeriodeTest {
 

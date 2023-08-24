@@ -1,23 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
-import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_ARBEID_OG_UTDANNING;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_IKKE_OPPGITT;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_INNLAGT;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_INTROPROG;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_KVALPROG;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_TRENGER_HJELP;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.AKTIVITETSKRAV_UTDANNING;
-
-import java.util.Optional;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -28,6 +12,14 @@ import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
+import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
+import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov.Behov.Årsak.*;
 
 @ApplicationScoped
 public class AktivitetskravDokumentasjonUtleder {

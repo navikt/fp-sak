@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-            <artifactId>kalkulus-kalkulator</artifactId>
+            <artifactId>kalkulus-kalkulator-jakarta</artifactId>
         </dependency>
 
 

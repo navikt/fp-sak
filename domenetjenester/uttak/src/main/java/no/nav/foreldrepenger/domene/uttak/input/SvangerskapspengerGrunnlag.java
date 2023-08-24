@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak.input;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+
+import java.util.Optional;
 
 public class SvangerskapspengerGrunnlag implements YtelsespesifiktGrunnlag {
 

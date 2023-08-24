@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.exceptions;
 
+import no.nav.foreldrepenger.validering.FeltFeilDto;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-
-import no.nav.foreldrepenger.validering.FeltFeilDto;
 
 public class FeilDto implements Serializable {
 

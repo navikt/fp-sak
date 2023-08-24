@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
-import java.time.LocalDate;
-import java.time.Period;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
+
+import java.time.LocalDate;
+import java.time.Period;
 
 @ApplicationScoped
 public class OpplysningsPeriodeTjeneste {

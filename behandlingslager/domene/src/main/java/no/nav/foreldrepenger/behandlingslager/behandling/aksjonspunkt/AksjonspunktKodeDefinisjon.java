@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
-import java.time.Period;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+
+import java.time.Period;
 
 public class AksjonspunktKodeDefinisjon {
 

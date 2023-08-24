@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import java.util.Optional;
-
 import no.nav.vedtak.exception.TekniskException;
+
+import java.util.Optional;
 
 public class AvslagsårsakMapper {
 

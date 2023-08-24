@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class UttakBeregningsandelTjenesteTestUtil {
 

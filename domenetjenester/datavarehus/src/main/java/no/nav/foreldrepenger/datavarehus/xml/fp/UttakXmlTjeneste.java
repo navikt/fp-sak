@@ -1,12 +1,7 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,14 +19,13 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
-import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.FordelingPeriode;
-import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.ObjectFactory;
-import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.Stoenadskonto;
-import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.UttakForeldrepenger;
-import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.UttaksresultatPeriode;
-import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.UttaksresultatPeriodeAktivitet;
+import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.*;
 import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 import no.nav.vedtak.felles.xml.vedtak.v2.Uttak;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped

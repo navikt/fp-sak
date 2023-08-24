@@ -1,36 +1,22 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import org.hibernate.jpa.HibernateHints;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-
-import org.hibernate.jpa.QueryHints;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 @ApplicationScoped
 public class BehandlingRepository {
@@ -94,14 +80,14 @@ public class BehandlingRepository {
     public Behandling hentBehandlingReadOnly(Long behandlingId) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         var query = lagBehandlingQuery(behandlingId);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return hentEksaktResultat(query);
     }
 
     public Behandling hentBehandlingReadOnly(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, BEHANDLING_UUID);
         var query = lagBehandlingQuery(behandlingUuid);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return hentEksaktResultat(query);
     }
 
@@ -113,9 +99,10 @@ public class BehandlingRepository {
      */
     public List<Behandling> hentAbsoluttAlleBehandlingerForSaksnummer(Saksnummer saksnummer) {
         Objects.requireNonNull(saksnummer, "saksnummer");
+        Objects.requireNonNull(saksnummer.getVerdi());
 
         var query = entityManager.createQuery(
-                "SELECT beh from Behandling AS beh, Fagsak AS fagsak WHERE beh.fagsak.id=fagsak.id AND fagsak.saksnummer=:saksnummer",
+                "SELECT beh from Behandling AS beh JOIN FETCH beh.fagsak WHERE beh.fagsak.saksnummer=:saksnummer",
                 Behandling.class);
         query.setParameter("saksnummer", saksnummer);
         return query.getResultList();
@@ -130,7 +117,7 @@ public class BehandlingRepository {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
 
         var query = entityManager.createQuery(
-                "SELECT beh from Behandling AS beh, Fagsak AS fagsak WHERE beh.fagsak.id=fagsak.id AND fagsak.id=:fagsakId",
+                "SELECT beh from Behandling AS beh JOIN FETCH beh.fagsak where beh.fagsak.id=:fagsakId",
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         return query.getResultList();
@@ -180,7 +167,7 @@ public class BehandlingRepository {
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("status", BehandlingStatus.AVSLUTTET);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
@@ -197,7 +184,7 @@ public class BehandlingRepository {
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
@@ -211,8 +198,8 @@ public class BehandlingRepository {
                 Long.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
-        query.setHint(QueryHints.HINT_READONLY, "true");
-        query.setHint(QueryHints.HINT_CACHE_MODE, "IGNORE");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
+        query.setHint(HibernateHints.HINT_CACHE_MODE, "IGNORE");
         return query.getResultList();
     }
 
@@ -242,7 +229,7 @@ public class BehandlingRepository {
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
         query.setParameter("ytelseTyper", BehandlingType.getYtelseBehandlingTyper());
         if (readonly) {
-            query.setHint(QueryHints.HINT_READONLY, "true");
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         }
         return query.getResultList();
     }
@@ -304,7 +291,7 @@ public class BehandlingRepository {
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("avsluttetOgIverkKode", BehandlingStatus.getFerdigbehandletStatuser());
         query.setParameter("inluderteTyper", inkluder);
-        query.setHint(QueryHints.HINT_READONLY, true);
+        query.setHint(HibernateHints.HINT_READ_ONLY, true);
         return query.getResultList();
     }
 
@@ -395,12 +382,12 @@ public class BehandlingRepository {
         Objects.requireNonNull(behandlingType, "behandlingType");
 
         var query = entityManager.createQuery(
-                "from Behandling where fagsak.id=:fagsakId and behandlingType in (:behandlingType) order by opprettetTidspunkt desc",
+                "SELECT b from Behandling b where b.fagsak.id=:fagsakId and behandlingType in (:behandlingType) order by b.opprettetTidspunkt desc",
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
         query.setParameter("behandlingType", behandlingType);
         if (readOnly) {
-            query.setHint(QueryHints.HINT_READONLY, "true");
+            query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         }
         return optionalFirst(query.getResultList());
     }
@@ -549,7 +536,7 @@ public class BehandlingRepository {
                 BehandlingÅrsak.class);
 
         query.setParameter("behandling", behandling);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
@@ -560,7 +547,7 @@ public class BehandlingRepository {
                 BehandlingÅrsakType.class);
 
         query.setParameter("behandling", behandling);
-        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 

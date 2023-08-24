@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
-import javax.validation.Valid;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import jakarta.validation.Valid;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 

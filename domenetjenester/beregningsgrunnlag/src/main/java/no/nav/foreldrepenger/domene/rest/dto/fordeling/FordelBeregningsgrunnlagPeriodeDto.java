@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.rest.dto.fordeling;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 public class FordelBeregningsgrunnlagPeriodeDto {
 

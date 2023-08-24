@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import javax.persistence.Convert;
-
+import jakarta.persistence.Convert;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class OppgittFrilans extends BaseEntitet {
 

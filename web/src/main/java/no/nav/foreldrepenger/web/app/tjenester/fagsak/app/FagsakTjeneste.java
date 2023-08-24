@@ -1,12 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,12 +23,12 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktoerInfoDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakHendelseDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.*;
 import no.nav.foreldrepenger.web.app.util.StringUtils;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class FagsakTjeneste {

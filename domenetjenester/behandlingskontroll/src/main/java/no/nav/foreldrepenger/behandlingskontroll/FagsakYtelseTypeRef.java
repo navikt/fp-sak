@@ -1,27 +1,19 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Stereotype;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.inject.Qualifier;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef.ContainerOfFagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
+import java.lang.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Stereotype;
-import javax.enterprise.inject.spi.CDI;
-import javax.enterprise.util.AnnotationLiteral;
-import javax.inject.Qualifier;
-
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef.ContainerOfFagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 /**
  * Marker type som implementerer interface {@link BehandlingSteg} for å skille
