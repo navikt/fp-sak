@@ -17,7 +17,11 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktivitetVurdering;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
 import no.nav.foreldrepenger.domene.opptjening.VurderingsStatus;
@@ -26,9 +30,6 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-
-import java.time.LocalDate;
-import java.util.*;
 
 public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
 

@@ -68,7 +68,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     private final LocalDateTime igår = LocalDateTime.now().minusDays(1);
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
@@ -566,7 +566,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void test_hentAbsoluttAlleBehandlingerForFagsak() throws Exception {
+    void test_hentAbsoluttAlleBehandlingerForFagsak() throws Exception {
         // Arrange
         var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
