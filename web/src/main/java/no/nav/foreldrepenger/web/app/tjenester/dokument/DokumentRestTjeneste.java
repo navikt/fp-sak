@@ -76,7 +76,6 @@ public class DokumentRestTjeneste {
     private static final String DOKUMENTER_PART_PATH = "/hent-dokumentliste";
     public static final String DOKUMENTER_PATH = BASE_PATH + DOKUMENTER_PART_PATH;
     private static final String DOKUMENT_PART_PATH = "/hent-dokument";
-    private static final String DOKUMENT_PART_V2_PATH = "/hent-dokument/v2";
 
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -177,21 +176,6 @@ public class DokumentRestTjeneste {
         responseBuilder.header("Content-Disposition", dokumentRespons.contentDisp());
         return responseBuilder.build();
     }
-
-
-    @GET
-    @Deprecated
-    @Path(DOKUMENT_PART_V2_PATH)
-    @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = "Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId (jpeg/png/pdf).", tags = "dokument")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Response hentDokumentV2(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-            @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,
-            @TilpassetAbacAttributt(supplierClass = JournalIdAbacSupplier.class) @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
-            @TilpassetAbacAttributt(supplierClass = DokumentIdAbacSupplier.class) @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
-        return hentDokument(saksnummer, journalpostId, dokumentId);
-    }
-
-
 
     public static class DokumentIdAbacSupplier implements Function<Object, AbacDataAttributter> {
         @Override
