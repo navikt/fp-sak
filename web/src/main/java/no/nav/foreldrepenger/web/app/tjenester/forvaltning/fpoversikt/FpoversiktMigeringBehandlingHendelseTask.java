@@ -65,10 +65,9 @@ class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
         if (ytelseType != null) {
             query.setParameter("ytelseType", ytelseType);
         }
-        return query
-            .getResultList()
+        return query.getResultList()
             .stream()
-            .map(bd -> ((BigDecimal)bd).longValue())
+            .map(num -> Long.parseLong(num.toString()))
             .toList();
     }
 
