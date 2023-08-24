@@ -125,6 +125,54 @@ class OpptjeningsperioderTjenesteTest {
     }
 
     @Test
+    void kun_register_varierende_stillingsprosent_innen_arbeidsforhold() {
+        // Arrange
+        final var behandling = opprettBehandling();
+
+        var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusYears(1), skjæringstidspunkt.minusMonths(8).minusDays(1));
+        var periode2 = DatoIntervallEntitet.fraOgMed(skjæringstidspunkt.minusMonths(8));
+
+        final var navOrgnummer = "889640782";
+        final var virksomhet = Arbeidsgiver.virksomhet(navOrgnummer);
+        var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+
+        var aktørArbeidBuilder = builder.getAktørArbeidBuilder(AKTØRID);
+        var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
+            new Opptjeningsnøkkel(ARBEIDSFORHOLD_ID, virksomhet.getIdentifikator(), null), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(virksomhet)
+            .medArbeidsforholdId(ARBEIDSFORHOLD_ID);
+
+        var aktivitetsAvtale1 = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode1, false)
+            .medProsentsats(BigDecimal.ZERO).medSisteLønnsendringsdato(periode1.getFomDato());
+        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtale1);
+        var aktivitetsAvtale2 = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode2, false)
+            .medProsentsats(BigDecimal.TEN).medSisteLønnsendringsdato(periode2.getFomDato());
+        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtale2);
+        var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(skjæringstidspunkt.minusYears(1)), true);
+        yrkesaktivitetBuilder.leggTilAktivitetsAvtale(ansettelsesperiode);
+
+        var aktørArbeid = aktørArbeidBuilder
+            .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+
+        builder.leggTilAktørArbeid(aktørArbeid);
+
+        iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
+
+        opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusMonths(10), skjæringstidspunkt.minusDays(1), false);
+
+        // Act
+        var behandlingRef = BehandlingReferanse.fra(behandling, medUtledetSkjæringstidspunkt(skjæringstidspunkt));
+        var perioder = forSaksbehandlingTjeneste
+            .hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingRef);
+
+        // Assert
+        assertThat(perioder).hasSize(2);
+        assertThat(perioder.stream().anyMatch(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT))).isTrue();
+        assertThat(perioder.stream().anyMatch(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING))).isTrue();
+    }
+
+    @Test
     void ytelse_skal_lage_sammehengende_liste() {
         // Arrange
         var behandling = opprettBehandling();
