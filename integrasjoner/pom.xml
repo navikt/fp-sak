@@ -19,7 +19,7 @@
     </modules>
 
     <properties>
-        <jaxws.version>3.0.2</jaxws.version>
+        <jaxws.version>4.0.1</jaxws.version>
     </properties>
 
     <dependencies>
