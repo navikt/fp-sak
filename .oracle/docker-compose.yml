@@ -5,12 +5,6 @@ services:
     environment:
       - ORACLE_RANDOM_PASSWORD=true
     shm_size: 4gb
-    deploy:
-      resources:
-        limits:
-          memory: 4gb
-        reservations:
-          memory: 4gb
     ports:
       - "1521:1521"
     volumes:
