@@ -73,7 +73,7 @@ public class DokumentArkivTjeneste {
         this.safKlient = safTjeneste;
     }
 
-    public DokumentRespons hentDokumentRespons(JournalpostId journalpostId, String dokumentId) {
+    public DokumentRespons hentDokument(JournalpostId journalpostId, String dokumentId) {
         var query = new HentDokumentQuery(journalpostId.getVerdi(), dokumentId, VARIANT_FORMAT_ARKIV.getOffisiellKode());
         var httpResponse = safKlient.hentDokumentResponse(query);
         return tilDokumentRespons(httpResponse.body(), httpResponse.headers());
@@ -83,12 +83,6 @@ public class DokumentArkivTjeneste {
         return new DokumentRespons(innhold,
                 headers.firstValue(CONTENT_TYPE).orElse(DEFAULT_CONTENT_TYPE_SAF),
                 headers.firstValue(CONTENT_DISPOSITION).orElse(DEFAULT_CONTENT_DISPOSITION_SAF));
-    }
-
-    public DokumentRespons hentDokument(JournalpostId journalpostId, String dokumentId) {
-        var query = new HentDokumentQuery(journalpostId.getVerdi(), dokumentId, VARIANT_FORMAT_ARKIV.getOffisiellKode());
-        var innhold = safKlient.hentDokument(query);
-        return new DokumentRespons(innhold, DEFAULT_CONTENT_TYPE_SAF, DEFAULT_CONTENT_DISPOSITION_SAF);
     }
 
     public String hentStrukturertDokument(JournalpostId journalpostId, String dokumentId) {

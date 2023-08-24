@@ -171,8 +171,16 @@ public class DokumentRestTjeneste {
         }
     }
 
+    static Response tilRespons(DokumentRespons dokumentRespons) {
+        var responseBuilder = Response.ok(new ByteArrayInputStream(dokumentRespons.innhold()));
+        responseBuilder.type(dokumentRespons.contentType());
+        responseBuilder.header("Content-Disposition", dokumentRespons.contentDisp());
+        return responseBuilder.build();
+    }
+
 
     @GET
+    @Deprecated
     @Path(DOKUMENT_PART_V2_PATH)
     @Operation(description = "Søk etter dokument på JOARK-identifikatorene journalpostId og dokumentId", summary = "Retunerer dokument som er tilknyttet saksnummer, journalpostId og dokumentId (jpeg/png/pdf).", tags = "dokument")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
@@ -180,22 +188,10 @@ public class DokumentRestTjeneste {
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummer,
             @TilpassetAbacAttributt(supplierClass = JournalIdAbacSupplier.class) @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
             @TilpassetAbacAttributt(supplierClass = DokumentIdAbacSupplier.class) @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
-        try {
-            return tilRespons(dokumentArkivTjeneste.hentDokumentRespons(new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId()));
-        } catch (TekniskException e) {
-            var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
-                journalpostId.getJournalpostId(), dokumentId.getDokumentId());
-            LOG.warn(feilmelding, e);
-            return notFound(feilmelding);
-        }
+        return hentDokument(saksnummer, journalpostId, dokumentId);
     }
 
-    static Response tilRespons(DokumentRespons dokumentRespons) {
-        var responseBuilder = Response.ok(new ByteArrayInputStream(dokumentRespons.innhold()));
-        responseBuilder.type(dokumentRespons.contentType());
-        responseBuilder.header("Content-Disposition", dokumentRespons.contentDisp());
-        return responseBuilder.build();
-    }
+
 
     public static class DokumentIdAbacSupplier implements Function<Object, AbacDataAttributter> {
         @Override

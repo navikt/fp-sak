@@ -7,9 +7,11 @@ import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.DEFAULT_
 import static no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste.tilDokumentRespons;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -175,14 +177,21 @@ class DokumentArkivTjenesteTest {
     @Test
     void skal_kalle_web_service_og_oversette_fra_() {
         // Arrange
-        final byte[] bytesExpected = { 1, 2, 7 };
-        when(saf.hentDokument(any())).thenReturn(bytesExpected);
+        final byte[] bytesForventet = { 1, 2, 7 };
+        var headers = HttpHeaders.of(Map.of(
+            CONTENT_TYPE, List.of(DEFAULT_CONTENT_TYPE_SAF),
+            CONTENT_DISPOSITION, List.of(DEFAULT_CONTENT_DISPOSITION_SAF)
+        ), (x, y) -> true);
+        var httpRespons = mock(HttpResponse.class);
+        when(httpRespons.body()).thenReturn(bytesForventet);
+        when(httpRespons.headers()).thenReturn(headers);
+        when(saf.hentDokumentResponse(any())).thenReturn(httpRespons);
 
         // Act
         var dokumentRespons = dokumentApplikasjonTjeneste.hentDokument(new JournalpostId("123"), "456");
 
         // Assert
-        assertThat(dokumentRespons.innhold()).isEqualTo(bytesExpected);
+        assertThat(dokumentRespons.innhold()).isEqualTo(bytesForventet);
         assertThat(dokumentRespons.contentType()).isEqualTo(DEFAULT_CONTENT_TYPE_SAF);
         assertThat(dokumentRespons.contentDisp()).isEqualTo(DEFAULT_CONTENT_DISPOSITION_SAF);
     }
