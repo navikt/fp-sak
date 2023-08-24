@@ -78,7 +78,7 @@ public class Behandling extends BaseEntitet {
     @Column(name = "uuid")
     private UUID uuid;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "fagsak_id", nullable = false, updatable = false)
     private Fagsak fagsak;
 
