@@ -91,7 +91,7 @@ public class ForvaltningUttrekkRestTjeneste {
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         var saker = resultatList.stream()
-            .map(row -> new FagsakTreff((String) row[0], ((BigDecimal) row[1]).longValue())).toList();
+            .map(row -> new FagsakTreff((String) row[0], Long.parseLong(row[1].toString()))).toList();
         saker.forEach(f -> fagsakRepository.oppdaterFagsakStatus(f.fagsakId(), FagsakStatus.UNDER_BEHANDLING));
         return Response.ok().build();
     }

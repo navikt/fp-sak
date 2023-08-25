@@ -216,7 +216,7 @@ public class InformasjonssakRepository {
                     .medYtelseType((String) resultat[1])
                     .medAktørId((String) resultat[2])
                     .medRolle((String) resultat[3])
-                    .medBehandlingId(((BigDecimal) resultat[4]).longValue())
+                    .medBehandlingId(Long.parseLong(resultat[4].toString()))
                     .medTidligsteDato(((Timestamp) resultat[5]).toLocalDateTime().toLocalDate());
             returnList.add(builder.build());
         });
