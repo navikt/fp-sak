@@ -1,10 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
@@ -30,15 +37,15 @@ import no.nav.foreldrepenger.mottak.registrerer.DokumentRegistrererTjeneste;
 import no.nav.foreldrepenger.mottak.registrerer.ManuellRegistreringAksjonspunktDto;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory;
-import org.xml.sax.SAXException;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = ManuellRegistreringDto.class, adapter = AksjonspunktOppdaterer.class)
 public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<ManuellRegistreringDto> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ManuellRegistreringOppdaterer.class);
 
     private FagsakRepository fagsakRepository;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
@@ -68,6 +75,13 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         var resultatBuilder = OppdateringResultat.utenTransisjon();
 
         if (dto.getUfullstendigSoeknad()) {
+            // Vurder å gå videre - retuerner resultatBuilder - men kan føre til automatisk vedtak. Foreslår manuell revurdering.
+            if (behandlingReferanse.erRevurdering() && !FagsakYtelseType.ENGANGSTØNAD.equals(behandlingReferanse.fagsakYtelseType())) {
+                LOG.warn("Papirsøknad ufullstendig for revurdering i sak {} ytelse {}. Si fra på daglig overvåkning",
+                    behandlingReferanse.saksnummer().getVerdi(), behandlingReferanse.fagsakYtelseType());
+                throw new FunksjonellException("FP-093926", "Kan ikke registrere mangelfull søknad i revurdering.",
+                    "Henlegg behandlingen og opprett eventuelt en revurdering fra meny.");
+            }
             var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
             dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, adapter)
                 .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
