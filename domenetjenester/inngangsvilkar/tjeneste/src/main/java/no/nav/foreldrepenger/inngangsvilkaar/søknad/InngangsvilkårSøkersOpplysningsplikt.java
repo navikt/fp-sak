@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
@@ -44,8 +43,8 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
 
         var ytelseType = ref.fagsakYtelseType();
         var behandlingType = ref.behandlingType();
-        if (BehandlingType.REVURDERING.equals(behandlingType) && !FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
-            // For revurdering FP + SVP skal det ikke utføres vilkårskontroll om opplysningsplikt (NOOP)
+        if (BehandlingType.REVURDERING.equals(behandlingType)) {
+            // For revurdering skal det ikke utføres vilkårskontroll om opplysningsplikt (NOOP)
             return oppfylt;
         }
 

@@ -76,7 +76,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
         if (dto.getUfullstendigSoeknad()) {
             // Vurder å gå videre - retuerner resultatBuilder - men kan føre til automatisk vedtak. Foreslår manuell revurdering.
-            if (behandlingReferanse.erRevurdering() && !FagsakYtelseType.ENGANGSTØNAD.equals(behandlingReferanse.fagsakYtelseType())) {
+            if (behandlingReferanse.erRevurdering()) {
                 LOG.warn("Papirsøknad ufullstendig for revurdering i sak {} ytelse {}. Si fra på daglig overvåkning",
                     behandlingReferanse.saksnummer().getVerdi(), behandlingReferanse.fagsakYtelseType());
                 throw new FunksjonellException("FP-093926", "Kan ikke registrere mangelfull søknad i revurdering.",
