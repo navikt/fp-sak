@@ -1,5 +1,22 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
@@ -7,7 +24,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -23,22 +45,8 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import no.nav.vedtak.exception.FunksjonellException;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.lenient;
 @ExtendWith(MockitoExtension.class)
 class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
@@ -182,6 +190,56 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, TIME_FORMATTER.format(opprinneligFødseldato), TIME_FORMATTER.format(avklartFødseldato));
         assertFelt(del, HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, avklartAntallBarn);
         assertFelt(del, HistorikkEndretFeltType.FODSELSDATO, TIME_FORMATTER.format(opprinneligFødseldato), TIME_FORMATTER.format(avklartFødseldato));
+
+        var opplysningOpt = del.getOpplysning(HistorikkOpplysningType.ANTALL_BARN);
+        assertThat(opplysningOpt).as("opplysningOpt").hasValueSatisfying(opplysning -> {
+            assertThat(opplysning.getNavn()).isEqualTo(HistorikkOpplysningType.ANTALL_BARN.getKode());
+            assertThat(opplysning.getTilVerdi()).isEqualTo(Integer.toString(avklartAntallBarn));
+        });
+    }
+
+    @Test
+    void skal_generere_historikkinnslag_ved_avklaring_av_manglende_fødsel_med_død() {
+        // Arrange
+        var opprinneligFødseldato = LocalDate.now();
+        var avklartDødsdato = opprinneligFødseldato.plusDays(1);
+        var opprinneligAntallBarn = 1;
+        var avklartAntallBarn = 1;
+
+        // Behandling
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknadHendelse()
+            .medFødselsDato(opprinneligFødseldato)
+            .medAntallBarn(opprinneligAntallBarn);
+        scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.lagre(repositoryProvider);
+
+        var behandling = scenario.getBehandling();
+
+        var uidentifisertBarnFeil = new UidentifisertBarnDto[]{new UidentifisertBarnDto(opprinneligFødseldato, opprinneligFødseldato.minusDays(2))};
+        var uidentifisertBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(opprinneligFødseldato, avklartDødsdato)};
+
+        // Dto
+
+        var dtoFeil = new SjekkManglendeFodselDto("begrunnelse", true, false, List.of(uidentifisertBarnFeil));
+        var dto = new SjekkManglendeFodselDto("begrunnelse", true, false, List.of(uidentifisertBarn));
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
+
+        // Ulovlig dato
+        assertThrows(FunksjonellException.class, () -> new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste)
+            .oppdater(dtoFeil, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dtoFeil, aksjonspunkt)));
+
+        // Act
+        new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste,familieHendelseTjeneste)
+            .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+
+        // Assert
+        var del = historikkInnslagDeler.get(0);
+
+        assertFelt(del, HistorikkEndretFeltType.DODSDATO, null, TIME_FORMATTER.format(avklartDødsdato));
 
         var opplysningOpt = del.getOpplysning(HistorikkOpplysningType.ANTALL_BARN);
         assertThat(opplysningOpt).as("opplysningOpt").hasValueSatisfying(opplysning -> {
