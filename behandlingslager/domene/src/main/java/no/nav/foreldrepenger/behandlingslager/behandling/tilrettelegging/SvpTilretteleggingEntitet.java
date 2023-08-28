@@ -215,32 +215,36 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medHelTilrettelegging(LocalDate helTilretteleggingFom, LocalDate tidligstMottatt) {
+        public Builder medHelTilrettelegging(LocalDate helTilretteleggingFom, LocalDate tidligstMottatt, SvpTilretteleggingFomKilde kilde) {
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.HEL_TILRETTELEGGING)
                 .medFomDato(helTilretteleggingFom)
                 .medTidligstMottattDato(tidligstMottatt)
+                .medKilde(kilde)
                 .build();
             mal.tilretteleggingFOMListe.add(tilretteleggingFOM);
             return this;
         }
 
-        public Builder medDelvisTilrettelegging(LocalDate delvisTilretteleggingFom, BigDecimal stillingsprosent, LocalDate tidligstMottatt) {
+        public Builder medDelvisTilrettelegging(LocalDate delvisTilretteleggingFom, BigDecimal stillingsprosent, LocalDate tidligstMottatt,
+                                                SvpTilretteleggingFomKilde kilde) {
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
                 .medFomDato(delvisTilretteleggingFom)
                 .medStillingsprosent(stillingsprosent)
                 .medTidligstMottattDato(tidligstMottatt)
+                .medKilde(kilde)
                 .build();
             mal.tilretteleggingFOMListe.add(tilretteleggingFOM);
             return this;
         }
 
-        public Builder medIngenTilrettelegging(LocalDate slutteArbeidFom, LocalDate tidligstMottatt) {
+        public Builder medIngenTilrettelegging(LocalDate slutteArbeidFom, LocalDate tidligstMottatt, SvpTilretteleggingFomKilde kilde) {
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
                 .medFomDato(slutteArbeidFom)
                 .medTidligstMottattDato(tidligstMottatt)
+                .medKilde(kilde)
                 .build();
             mal.tilretteleggingFOMListe.add(tilretteleggingFOM);
             return this;

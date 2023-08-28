@@ -229,7 +229,7 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
 
     private SvpTilretteleggingEntitet lagTilrettelegging(LocalDate termindato, ArbeidType arbeidType, Arbeidsgiver arbeidsgiver, boolean skalHaOpphold) {
         var tilrBuilder = new SvpTilretteleggingEntitet.Builder().medArbeidType(arbeidType)
-            .medDelvisTilrettelegging(termindato.minusWeeks(10), BigDecimal.valueOf(50), termindato.minusWeeks(10))
+            .medDelvisTilrettelegging(termindato.minusWeeks(10), BigDecimal.valueOf(50), termindato.minusWeeks(10), SvpTilretteleggingFomKilde.SØKNAD)
             .medOpplysningerOmRisikofaktorer("risk!")
             .medOpplysningerOmTilretteleggingstiltak("gjort tiltak!")
             .medBehovForTilretteleggingFom(termindato.minusWeeks(12))

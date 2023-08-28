@@ -32,7 +32,7 @@ class GrunnlagOppretter {
         var behovFraDato = LocalDate.of(2019, Month.APRIL, 1);
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
             .medBehovForTilretteleggingFom(behovFraDato)
-            .medIngenTilrettelegging(behovFraDato, behovFraDato)
+            .medIngenTilrettelegging(behovFraDato, behovFraDato, SvpTilretteleggingFomKilde.SØKNAD)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medKopiertFraTidligereBehandling(false)

@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -45,7 +44,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private HistorikkTjenesteAdapter historikkAdapter;
     private FamilieHendelseRepository familieHendelseRepository;
-    private TilgangerTjeneste tilgangerTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private StønadsperioderInnhenter stønadsperioderInnhenter;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
@@ -58,7 +56,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     @Inject
     public BekreftSvangerskapspengerOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                                BehandlingGrunnlagRepositoryProvider repositoryProvider,
-                                               TilgangerTjeneste tilgangerTjeneste,
                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                                StønadsperioderInnhenter stønadsperioderInnhenter,
                                                ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
@@ -66,7 +63,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.historikkAdapter = historikkAdapter;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.tilgangerTjeneste = tilgangerTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.stønadsperioderInnhenter = stønadsperioderInnhenter;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
@@ -299,25 +295,23 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .medInternArbeidsforholdRef(InternArbeidsforholdRef.ref(arbeidsforholdDto.getInternArbeidsforholdReferanse()))
             .medSkalBrukes(arbeidsforholdDto.getSkalBrukes());
 
-        //tilrettelegging fra datoer per arbeidsforhold nye
+        //nye tilrettelegging-fra-datoer per arbeidsforhold
         for (var datoDto : arbeidsforholdDto.getTilretteleggingDatoer()) {
-            if (arbeidsforholdDto.getSkalBrukes() && delvisTilretteleggingUtenStillingsprosent(datoDto)) {
-                throw new FunksjonellException("FP-128763", "Manlger Stillingsprosent ved delvis tilrettelegging",
-                    "Fyll ut stillingprosent");
+            if (arbeidsforholdDto.getSkalBrukes() && delvisTilretteleggingUtenStillingsprosentOgIkkeOverstyrt(datoDto)) {
+                throw new FunksjonellException("FP-128763", "Verken arbeidsprosent eller overstyrt utbetalingsgrad opgitt ved delvis tilrettelegging",
+                    "Fyll ut enten arbeidsprosent eller endre oppgitt utbetalingsgrad");
             }
-            //Sjekk om overstyring av utbetalingsgrad er lovlig
-            if (datoDto.getOverstyrtUtbetalingsgrad() != null && !sjekkOmOverstyringErLovlig()) {
-                throw new FunksjonellException("FP-682319", "Ansatt har ikke tilgang til å overstyre utbetalingsgrad.",
-                    "Ansatt med overstyring rolle må utføre denne endringen.");
-            }
-            var tilretteleggingFOM = new TilretteleggingFOM.Builder()
+
+            var nyTilretteleggingFOM= new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(datoDto.getType())
                 .medFomDato(datoDto.getFom())
                 .medStillingsprosent(datoDto.getStillingsprosent())
                 .medOverstyrtUtbetalingsgrad(datoDto.getOverstyrtUtbetalingsgrad())
                 .medTidligstMottattDato(utledTidligstMotattFraEks(datoDto, eksisterendeTilrettelegging))
+                .medKilde(datoDto.getKilde())
                 .build();
-            nyTilretteleggingEntitetBuilder.medTilretteleggingFom(tilretteleggingFOM);
+
+            nyTilretteleggingEntitetBuilder.medTilretteleggingFom(nyTilretteleggingFOM);
         }
 
         if (arbeidsforholdDto.getAvklarteOppholdPerioder() != null) {
@@ -349,15 +343,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .orElse(tidligstMotattDato);
     }
 
-    private boolean delvisTilretteleggingUtenStillingsprosent(SvpTilretteleggingDatoDto dto) {
-        return dto.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING) && dto.getStillingsprosent() == null;
+    private boolean delvisTilretteleggingUtenStillingsprosentOgIkkeOverstyrt(SvpTilretteleggingDatoDto dto) {
+        return dto.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING) && dto.getStillingsprosent() == null && dto.getOverstyrtUtbetalingsgrad() == null;
     }
-
-    private boolean sjekkOmOverstyringErLovlig() {
-        var innloggetBruker = tilgangerTjeneste.innloggetBruker();
-        return innloggetBruker.kanOverstyre();
-    }
-
 
     private void opprettHistorikkInnslagForEndringer(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
                                                      SvpTilretteleggingEntitet nyTilrettelegging) {

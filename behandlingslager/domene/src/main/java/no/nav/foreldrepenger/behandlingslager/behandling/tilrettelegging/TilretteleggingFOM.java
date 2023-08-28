@@ -31,6 +31,11 @@ public class TilretteleggingFOM extends BaseEntitet {
     @Column(name = "TIDLIGST_MOTATT_DATO")
     private LocalDate tidligstMotattDato;
 
+    @Column(name = "KILDE")
+    @Enumerated(EnumType.STRING)
+    private SvpTilretteleggingFomKilde kilde;
+
+
     public Long getId() {
         return id;
     }
@@ -55,6 +60,10 @@ public class TilretteleggingFOM extends BaseEntitet {
         return tidligstMotattDato;
     }
 
+    public SvpTilretteleggingFomKilde getKilde() {
+        return kilde;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -62,7 +71,9 @@ public class TilretteleggingFOM extends BaseEntitet {
         if (o == null || getClass() != o.getClass())
             return false;
         var that = (TilretteleggingFOM) o;
-        return type == that.type && Objects.equals(fomDato, that.fomDato) && Objects.equals(stillingsprosent, that.stillingsprosent)
+        return type == that.type
+            && Objects.equals(fomDato, that.fomDato)
+            && Objects.equals(stillingsprosent, that.stillingsprosent)
             && Objects.equals(overstyrtUtbetalingsgrad, that.overstyrtUtbetalingsgrad);
     }
 
@@ -81,8 +92,8 @@ public class TilretteleggingFOM extends BaseEntitet {
             mal.fomDato = tilretteleggingFOM.getFomDato();
             mal.stillingsprosent = tilretteleggingFOM.getStillingsprosent();
             mal.overstyrtUtbetalingsgrad = tilretteleggingFOM.getOverstyrtUtbetalingsgrad();
-            mal.tidligstMotattDato = tilretteleggingFOM.getTidligstMotattDato()
-            ;
+            mal.tidligstMotattDato = tilretteleggingFOM.getTidligstMotattDato();
+            mal.kilde = tilretteleggingFOM.kilde != null ? tilretteleggingFOM.kilde : null;
         }
 
         public Builder() {
@@ -90,11 +101,15 @@ public class TilretteleggingFOM extends BaseEntitet {
         }
 
         public Builder fraEksisterende(TilretteleggingFOM tilretteleggingFOM) {
-            return new Builder().medFomDato(tilretteleggingFOM.getFomDato())
+            var builder =  new Builder().medFomDato(tilretteleggingFOM.getFomDato())
                 .medTilretteleggingType(tilretteleggingFOM.getType())
                 .medStillingsprosent(tilretteleggingFOM.getStillingsprosent())
                 .medOverstyrtUtbetalingsgrad(tilretteleggingFOM.getOverstyrtUtbetalingsgrad())
                 .medTidligstMottattDato(tilretteleggingFOM.getTidligstMotattDato());
+            if (tilretteleggingFOM.kilde != null) {
+                builder.medKilde(tilretteleggingFOM.kilde);
+            }
+            return builder;
         }
 
         public Builder medTilretteleggingType(TilretteleggingType type) {
@@ -119,6 +134,10 @@ public class TilretteleggingFOM extends BaseEntitet {
 
         public Builder medTidligstMottattDato(LocalDate tidligstMotattDato) {
             mal.tidligstMotattDato = tidligstMotattDato;
+            return this;
+        }
+        public Builder medKilde(SvpTilretteleggingFomKilde kilde) {
+            mal.kilde = kilde;
             return this;
         }
 

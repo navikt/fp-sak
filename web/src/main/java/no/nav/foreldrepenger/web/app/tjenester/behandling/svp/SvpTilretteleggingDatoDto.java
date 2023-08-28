@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
-import no.nav.foreldrepenger.validering.ValidKodeverk;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class SvpTilretteleggingDatoDto {
     private LocalDate fom;
@@ -12,20 +13,27 @@ public class SvpTilretteleggingDatoDto {
     private TilretteleggingType type;
     private BigDecimal stillingsprosent;
     private BigDecimal overstyrtUtbetalingsgrad;
+    @ValidKodeverk
+    private SvpTilretteleggingFomKilde kilde;
+    private LocalDate mottattDato;
 
     public SvpTilretteleggingDatoDto() {
         //nix
     }
 
     SvpTilretteleggingDatoDto(LocalDate fom, TilretteleggingType type, BigDecimal stillingsprosent) {
-        this(fom, type, stillingsprosent, null);
+        this(fom, type, stillingsprosent, null, null, null);
     }
 
-    SvpTilretteleggingDatoDto(LocalDate fom, TilretteleggingType type, BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
+    SvpTilretteleggingDatoDto(LocalDate fom, TilretteleggingType type, BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad, SvpTilretteleggingFomKilde kilde,
+                              LocalDate mottattDato) {
         this.fom = fom;
         this.type = type;
         this.stillingsprosent = stillingsprosent;
         this.overstyrtUtbetalingsgrad = overstyrtUtbetalingsgrad;
+        this.kilde = kilde;
+        this.mottattDato = mottattDato;
+
     }
 
     public LocalDate getFom() {
@@ -58,6 +66,14 @@ public class SvpTilretteleggingDatoDto {
 
     public void setOverstyrtUtbetalingsgrad(BigDecimal overstyrtUtbetalingsgrad) {
         this.overstyrtUtbetalingsgrad = overstyrtUtbetalingsgrad;
+    }
+
+    public SvpTilretteleggingFomKilde getKilde() {
+        return kilde;
+    }
+
+    public LocalDate getMottattDato() {
+        return mottattDato;
     }
 
 }
