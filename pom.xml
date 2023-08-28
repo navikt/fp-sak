@@ -42,7 +42,7 @@
         <fp-tidsserie.version>2.6.8</fp-tidsserie.version>
         <fp-nare.version>2.5.4</fp-nare.version>
         <abakus-kontrakt.version>2.0.0</abakus-kontrakt.version>
-        <kalkulus.version>2.4.13</kalkulus.version>
+        <kalkulus.version>2.5.1</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
