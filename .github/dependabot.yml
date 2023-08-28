@@ -34,4 +34,4 @@ updates:
         patterns:
           - "no.nav.*"
         exclude-patterns:
-          - "no.nav.folketrygdloven.kalkulus.*"
+          - "no.nav.folketrygdloven.*"
