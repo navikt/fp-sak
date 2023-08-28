@@ -1,19 +1,19 @@
 package no.nav.foreldrepenger.inngangsvilkaar.søknad;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
-
-import java.util.List;
 
 @ApplicationScoped
 @VilkårTypeRef(VilkårType.SØKERSOPPLYSNINGSPLIKT)
@@ -43,9 +43,8 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
 
         var ytelseType = ref.fagsakYtelseType();
         var behandlingType = ref.behandlingType();
-        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType) &&
-            BehandlingType.REVURDERING.equals(behandlingType)) {
-            // For revurdering FP skal det ikke utføres vilkårskontroll om opplysningsplikt (NOOP)
+        if (BehandlingType.REVURDERING.equals(behandlingType)) {
+            // For revurdering skal det ikke utføres vilkårskontroll om opplysningsplikt (NOOP)
             return oppfylt;
         }
 

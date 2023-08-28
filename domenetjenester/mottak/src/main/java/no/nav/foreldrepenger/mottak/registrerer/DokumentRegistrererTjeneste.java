@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.mottak.registrerer;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -9,8 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class DokumentRegistrererTjeneste {
@@ -48,9 +49,11 @@ public class DokumentRegistrererTjeneste {
             mottatteDokumentRepository.lagre(dokument);
 
             return adapter.getErRegistrertVerge() ? Optional.of(AksjonspunktDefinisjon.AVKLAR_VERGE) : Optional.empty();
+        } else if (behandlingReferanse.erRevurdering()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU);
         }
-
-        return Optional.of(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU);
     }
 
 }
