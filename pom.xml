@@ -23,9 +23,7 @@
         <module>infrastrukturtjenester</module>
         <module>domenetjenester</module>
         <module>behandlingsprosess</module>
-        <!-- Web klient og server -->
         <module>web</module>
-
     </modules>
 
     <properties>
