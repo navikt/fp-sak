@@ -21,18 +21,19 @@ updates:
     open-pull-requests-limit: 20
     allow:
       - dependency-type: "all"
+    versioning-strategy: increase-if-necessary
+
     groups:
       prod-deps:
         dependency-type: "production"
         exclude-patterns:
-          - "no.nav.foreldrepenger.*"
-          - "no.nav.vedtak.*"
+          - "no.nav.*"
       dev-deps:
         dependency-type: "development"
         exclude-patterns:
-          - "no.nav.foreldrepenger.*"
-          - "no.nav.vedtak.*"
+          - "no.nav.*"
       interne-deps:
         patterns:
-          - "no.nav.foreldrepenger.*"
-          - "no.nav.vedtak.*"
+          - "no.nav.*"
+        exclude-patterns:
+          - "no.nav.folketrygdloven.kalkulus.*"
