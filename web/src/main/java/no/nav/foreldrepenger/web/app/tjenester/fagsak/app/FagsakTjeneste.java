@@ -1,11 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -23,12 +27,12 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.*;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktoerInfoDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakHendelseDto;
 import no.nav.foreldrepenger.web.app.util.StringUtils;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class FagsakTjeneste {
@@ -125,7 +129,7 @@ public class FagsakTjeneste {
 
     public List<Behandling> hentBehandlingerMedÅpentAksjonspunkt(Fagsak fagsak) {
         return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
-            .filter(b -> !b.getÅpneAksjonspunkter().isEmpty() && b.getÅpneAksjonspunkter().stream().noneMatch(Aksjonspunkt::erAutopunkt))
+            .filter(b -> !b.isBehandlingPåVent() && !b.getÅpneAksjonspunkter().isEmpty())
             .toList();
     }
 

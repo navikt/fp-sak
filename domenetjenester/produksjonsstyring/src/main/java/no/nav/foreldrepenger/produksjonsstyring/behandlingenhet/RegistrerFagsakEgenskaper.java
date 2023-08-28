@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -18,12 +25,6 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Dependent
 public class RegistrerFagsakEgenskaper {
@@ -59,7 +60,7 @@ public class RegistrerFagsakEgenskaper {
             return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
         }
         fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);
-        enhetTjeneste.sjekkSkalOppdatereEnhet(behandling, FagsakMarkering.BOSATT_UTLAND)
+        BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, FagsakMarkering.BOSATT_UTLAND)
             .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
         return FagsakMarkering.BOSATT_UTLAND;
     }
@@ -81,7 +82,7 @@ public class RegistrerFagsakEgenskaper {
         }
         if (!FagsakMarkering.NASJONAL.equals(saksmarkering)) {
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), saksmarkering);
-            enhetTjeneste.sjekkSkalOppdatereEnhet(behandling, saksmarkering)
+            BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, saksmarkering)
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysning"));
         }
         return saksmarkering;

@@ -1,22 +1,40 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.*;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BehandlendeEnhetTjeneste {
@@ -166,7 +184,7 @@ public class BehandlendeEnhetTjeneste {
         return sjekkSkalOppdatereEnhet(behandling, merking);
     }
 
-    public Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling, FagsakMarkering merking) {
+    public static Optional<OrganisasjonsEnhet> sjekkSkalOppdatereEnhet(Behandling behandling, FagsakMarkering merking) {
         var enhet = EnhetsTjeneste.velgEnhet(behandling.getBehandlendeOrganisasjonsEnhet(), merking);
         return Optional.ofNullable(enhet)
             .filter(e -> !Objects.equals(e.enhetId(), behandling.getBehandlendeEnhet()));
