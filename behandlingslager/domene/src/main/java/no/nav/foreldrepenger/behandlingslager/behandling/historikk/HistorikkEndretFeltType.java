@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum HistorikkEndretFeltType implements Kodeverdi {
 
@@ -26,6 +28,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     BRUK_ANTALL_I_TPS("BRUK_ANTALL_I_TPS", "Bruk antall fra folkeregisteret"),
     BRUK_ANTALL_I_VEDTAKET("BRUK_ANTALL_I_VEDTAKET", "Bruk antall fra vedtaket"),
     BRUTTO_NAERINGSINNTEKT("BRUTTO_NAERINGSINNTEKT", "Brutto næringsinntekt"),
+    DODSDATO("DODSDATO", "Dødsdato"),
     DOKUMENTASJON_FORELIGGER("DOKUMENTASJON_FORELIGGER", "Dokumentasjon foreligger"),
     EKTEFELLES_BARN("EKTEFELLES_BARN", "Ektefelles barn"),
     ENDRING_NAERING("ENDRING_NAERING", "Endring i næring"),

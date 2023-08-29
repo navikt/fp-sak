@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
@@ -20,14 +29,8 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFods
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.UidentifisertBarnDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = SjekkManglendeFodselDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -112,8 +115,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var bekreftetVersjon = grunnlag.getBekreftetVersjon();
 
         var brukAntallBarnISøknad = dto.getDokumentasjonForeligger() && !dto.isBrukAntallBarnITps();
-        var barn = brukAntallBarnISøknad ? konverterBarn(dto.getUidentifiserteBarn()) : bekreftetVersjon.map(
-            FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
+        var barn = brukAntallBarnISøknad ? konverterBarn(dto.getUidentifiserteBarn()) : bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(List.of());
         if (barn.stream().anyMatch(b -> null == b.getFødselsdato())) {
             throw kanIkkeUtledeGjeldendeFødselsdato();
         }
@@ -121,6 +123,10 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     }
 
     private List<UidentifisertBarn> konverterBarn(List<UidentifisertBarnDto> barn) {
+        if (barn.stream().anyMatch(b -> b.getDodsdato().isPresent() && b.getDodsdato().get().isBefore(b.getFodselsdato()))) {
+            // Finnes noen tilfelle i prod. Kan påvirke ytelsen
+            throw new FunksjonellException("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
+        }
         return barn.stream()
             .map(b -> new AntallBarnOgFødselsdato(b.getFodselsdato(), b.getDodsdato(), 0))
             .collect(Collectors.toList()); //NOSONAR
@@ -150,9 +156,14 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private boolean sjekkFødselsDatoOgAntallBarnEndret(FamilieHendelseGrunnlagEntitet behandlingsgrunnlag,
                                                        List<UidentifisertBarn> dto,
                                                        boolean erEndret) {
-        var erEndretTemp = erEndret;
-        var orginalFødselsdato = getFødselsdato(behandlingsgrunnlag);
-        erEndretTemp = dto.isEmpty() || oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato, dto.get(0).getFødselsdato())
+        var erEndretTemp = dto.isEmpty() || erEndret;
+        var orginalFødselsdato = behandlingsgrunnlag.getGjeldendeBarna().stream().map(UidentifisertBarn::getFødselsdato).min(LocalDate::compareTo).orElse(null);
+        var dtoFødselsdato = dto.stream().map(UidentifisertBarn::getFødselsdato).min(LocalDate::compareTo).orElse(null);
+        var originalDødsdatoer = behandlingsgrunnlag.getGjeldendeBarna().stream().map(UidentifisertBarn::getDødsdato).flatMap(Optional::stream)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        var dtoDødsdatoer = dto.stream().map(UidentifisertBarn::getDødsdato).flatMap(Optional::stream).collect(Collectors.toCollection(LinkedHashSet::new));
+        erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato, dtoFødselsdato)
+            || oppdaterVedEndretVerdi(HistorikkEndretFeltType.DODSDATO, originalDødsdatoer, dtoDødsdatoer)
             || erEndretTemp;
         var opprinneligAntallBarn = getAntallBarnVedSøknadFødsel(behandlingsgrunnlag);
         erEndretTemp = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, dto.size())
@@ -204,13 +215,17 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         return false;
     }
 
-    private LocalDate getFødselsdato(FamilieHendelseGrunnlagEntitet grunnlag) {
-        var fødselsdato = grunnlag.getGjeldendeBarna()
-            .stream()
-            .map(UidentifisertBarn::getFødselsdato)
-            .min(LocalDate::compareTo);
+    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType,
+                                           Set<LocalDate> original,
+                                           Set<LocalDate> bekreftet) {
+        var originalEndretMin = original.stream().filter(d -> !bekreftet.contains(d)).min(LocalDate::compareTo).orElse(null);
+        var dtoDødEndretMin = bekreftet.stream().filter(d -> !original.contains(d)).min(LocalDate::compareTo).orElse(null);
 
-        return fødselsdato.orElse(null);
+        if (!Objects.equals(bekreftet, original)) {
+            historikkAdapter.tekstBuilder().medEndretFelt(historikkEndretFeltType, originalEndretMin, dtoDødEndretMin);
+            return true;
+        }
+        return false;
     }
 
     private static TekniskException kanIkkeUtledeGjeldendeFødselsdato() {
