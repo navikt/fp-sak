@@ -1,9 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -14,10 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class SatsReguleringRepository {
@@ -317,7 +318,9 @@ public class SatsReguleringRepository {
             or
              exists (select * from fh_adopsjon ad where ad.familie_hendelse_id = fh.id and ad.omsorgsovertakelse_dato >= :fomdato)
             or
-             ( exists (select * from FH_TERMINBEKREFTELSE tb where tb.familie_hendelse_id = fh.id and tb.termindato > :termindato)
+             exists (select * from FH_TERMINBEKREFTELSE tb where tb.familie_hendelse_id = fh.id and tb.termindato > :maxtermindato and tb.termindato < :idag)
+            or
+             ( exists (select * from FH_TERMINBEKREFTELSE tb where tb.familie_hendelse_id = fh.id and tb.termindato > :mintermindato)
                and
               exists (select * from etterkontroll ek where ek.fagsak_id = f.id and behandlet='J' and kontroll_tid > :ekdato) )
           )
@@ -340,7 +343,9 @@ public class SatsReguleringRepository {
             .setParameter(STONAD_KEY, FagsakYtelseType.ENGANGSTØNAD.getKode())
             .setParameter(YTELSE_BEH_KEY, YTELSE_TYPER)
             .setParameter("innvilget", VRES_TYPER_REGULERES)
-            .setParameter("termindato", gjeldendeFom.minusMonths(1))
+            .setParameter("mintermindato", gjeldendeFom.minusMonths(1)) // Tar med fødsel inntil 4 uker etter termin
+            .setParameter("maxtermindato", gjeldendeFom.plusWeeks(18)) // Innvilget fram i tid - kan søke i uke 22 - legg på 18 uker
+            .setParameter("idag", LocalDate.now().plusDays(1))
             .setParameter("ekdato", gjeldendeFom.plusMonths(1))
             .setParameter("engang", BeregningSatsType.ENGANG.getKode());
         @SuppressWarnings("unchecked")
