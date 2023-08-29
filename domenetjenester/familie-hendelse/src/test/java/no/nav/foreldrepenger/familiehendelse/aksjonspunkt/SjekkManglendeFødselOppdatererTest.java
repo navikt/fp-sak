@@ -446,7 +446,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         assertThat(feltOpt).hasValueSatisfying(felt -> {
             assertThat(felt.getNavn()).as(historikkEndretFeltType + ".navn").isEqualTo(historikkEndretFeltType.getKode());
             assertThat(felt.getFraVerdi()).as(historikkEndretFeltType + ".fraVerdi").isEqualTo(fraVerdi != null ? fraVerdi.toString() : null);
-            assertThat(felt.getTilVerdi()).as(historikkEndretFeltType + ".tilVerdi").isEqualTo(tilVerdi.toString());
+            assertThat(felt.getTilVerdi()).as(historikkEndretFeltType + ".tilVerdi").isEqualTo(tilVerdi != null ? tilVerdi.toString() : null);
         });
     }
 
