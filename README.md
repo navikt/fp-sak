@@ -21,7 +21,6 @@ Dette er saksbehandlingsløsning på foreldrepengeområdet (Folketrygdloven kapi
 
 ### Preconditions:
 - Du er logget inn i docker (kommando: `docker login`) mot:
-  - repo.adeo.no: login med ADEO-ident
   - DockerHub: login med egen Docker-ID
   - GitHub package registry: login med eget personal access token fra GitHub. Token skal ha tilgang til read:packages og ha enablet SSO mot NAV.
 - Du har generert keystore og truststore i mappe '.modig' i brukermappe med egen CSR. Se [oppsett på Confluence - NAV intern](https://confluence.adeo.no/display/TVF/Sett+opp+keystore+og+truststore+for+lokal+test)
