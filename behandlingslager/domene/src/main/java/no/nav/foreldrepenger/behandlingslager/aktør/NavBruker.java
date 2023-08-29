@@ -1,6 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -20,7 +28,7 @@ public class NavBruker extends Person {
     @Column(name="sprak_kode", nullable = false)
     private Språkkode språkkode = Språkkode.NB;
 
-    private NavBruker() {
+    NavBruker() {
         super(null);
         // For Hibernate
     }

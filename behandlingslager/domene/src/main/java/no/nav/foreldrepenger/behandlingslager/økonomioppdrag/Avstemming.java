@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
@@ -20,7 +20,7 @@ public class Avstemming implements Comparable<Avstemming> {
     @Column(name = "nokkel_avstemming", nullable = false, updatable = false, length = 30)
     private String nøkkelAvstemming;
 
-    private Avstemming() {
+    Avstemming() {
         // for JPA
     }
 

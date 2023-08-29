@@ -1,9 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 @Entity(name = "LagretVedtak")
 @Table(name = "LAGRET_VEDTAK")
@@ -27,7 +35,7 @@ public class LagretVedtak extends BaseEntitet {
     @Column(name = "XML_CLOB", nullable = false)
     private String xmlClob;
 
-    private LagretVedtak() {
+    LagretVedtak() {
     }
 
     public Long getId() {

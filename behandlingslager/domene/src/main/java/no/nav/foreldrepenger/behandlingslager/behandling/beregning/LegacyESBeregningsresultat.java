@@ -1,13 +1,27 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import jakarta.persistence.*;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-
-import java.util.*;
-
-import static java.util.stream.Collectors.toSet;
 
 @Entity(name = "LegacyESBeregningResultat")
 @Table(name = "BR_LEGACY_ES_BEREGNING_RES")
@@ -24,7 +38,7 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    private LegacyESBeregningsresultat() {
+    LegacyESBeregningsresultat() {
         // for hibernate
     }
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-
-import java.util.Objects;
 
 /**
  * Dekningsgrad for foreldrepenger.
@@ -18,7 +18,7 @@ public class Dekningsgrad {
     private int verdi;
 
     @SuppressWarnings("unused")
-    private Dekningsgrad() {
+    Dekningsgrad() {
         // for hibernate
     }
 

@@ -1,11 +1,20 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @Entity(name = "BeregningSats")
 @Table(name = "BR_SATS")
@@ -29,7 +38,7 @@ public class BeregningSats extends BaseEntitet {
     private BeregningSatsType satsType = BeregningSatsType.UDEFINERT;
 
     @SuppressWarnings("unused")
-    private BeregningSats() {
+    BeregningSats() {
         // For hibernate
     }
 
