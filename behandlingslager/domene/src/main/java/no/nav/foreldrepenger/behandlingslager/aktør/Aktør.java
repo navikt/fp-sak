@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
+import java.util.Objects;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.MappedSuperclass;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.util.Objects;
 
 @MappedSuperclass
 public abstract class Aktør extends BaseEntitet {
@@ -17,7 +18,7 @@ public abstract class Aktør extends BaseEntitet {
     private AktørId aktørId;
 
     @SuppressWarnings("unused")
-    private Aktør() {
+    Aktør() {
         // For Hibernate
     }
 

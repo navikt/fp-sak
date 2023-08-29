@@ -1,18 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.virksomhet;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 /** En arbeidsgiver (enten virksomhet eller personlig arbeidsgiver). */
 @Embeddable
@@ -34,7 +35,7 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
     private AktørId arbeidsgiverAktørId;
 
     @SuppressWarnings("unused")
-    private Arbeidsgiver() {
+    Arbeidsgiver() {
         // for JPA
     }
 

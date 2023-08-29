@@ -1,13 +1,24 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "BehandlingVedtak")
 @Table(name = "BEHANDLING_VEDTAK")
@@ -49,7 +60,8 @@ public class BehandlingVedtak extends BaseEntitet {
     @Column(name = "iverksetting_status", nullable = false)
     private IverksettingStatus iverksettingStatus = IverksettingStatus.UDEFINERT;
 
-    private BehandlingVedtak() {
+    BehandlingVedtak() {
+        // Hibernate
     }
 
     public Long getId() {
