@@ -40,12 +40,6 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     @Column(name="utl_person_ident_land", nullable = false)
     private Landkoder utenlandskPersonidentLand = Landkoder.UDEFINERT;
 
-    @Column(name = "ARSAK")
-    private String årsak;
-
-    @Column(name = "begrunnelse")
-    private String begrunnelse;
-
     @Convert(converter = SøknadAnnenPartType.KodeverdiConverter.class)
     @Column(name = "type", nullable = false)
     private SøknadAnnenPartType type = SøknadAnnenPartType.UDEFINERT;
@@ -61,19 +55,13 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     void deepCopyFra(OppgittAnnenPartEntitet mal) {
         this.aktørId = mal.getAktørId();
         this.navn = mal.getNavn();
-        this.begrunnelse = mal.getBegrunnelse();
         this.utenlandskPersonident = mal.getUtenlandskPersonident();
-        this.årsak = mal.getÅrsak();
         this.setUtenlandskPersonidentLand(mal.getUtenlandskFnrLand());
         this.setType(mal.getType());
     }
 
     public Long getId() {
         return id;
-    }
-
-    public String getBegrunnelse() {
-        return begrunnelse;
     }
 
     @Override
@@ -93,10 +81,6 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
         return Objects.equals(utenlandskPersonidentLand, Landkoder.UDEFINERT) ? null : utenlandskPersonidentLand;
     }
 
-    public String getÅrsak() {
-        return årsak;
-    }
-
     public SøknadAnnenPartType getType() {
         return Objects.equals(SøknadAnnenPartType.UDEFINERT, type) ? null : type;
     }
@@ -113,20 +97,12 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
         this.utenlandskPersonidentLand = personidentLand == null ? Landkoder.UDEFINERT : personidentLand;
     }
 
-    void setÅrsak(String årsak) {
-        this.årsak = årsak;
-    }
-
     void setType(SøknadAnnenPartType type) {
         this.type = type == null ? SøknadAnnenPartType.UDEFINERT : type;
     }
 
     void setNavn(String navn) {
         this.navn = navn;
-    }
-
-    void setBegrunnelse(String begrunnelse) {
-        this.begrunnelse = begrunnelse;
     }
 
     @Override
@@ -138,16 +114,14 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
             return false;
         }
         return Objects.equals(this.aktørId, other.getAktørId())
-            && Objects.equals(this.begrunnelse, other.getBegrunnelse())
             && Objects.equals(this.getType(), other.getType())
             && Objects.equals(this.utenlandskPersonident, other.getUtenlandskPersonident())
-            && Objects.equals(this.getUtenlandskFnrLand(), other.getUtenlandskFnrLand())
-            && Objects.equals(this.årsak, other.getÅrsak());
+            && Objects.equals(this.getUtenlandskFnrLand(), other.getUtenlandskFnrLand());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aktørId, begrunnelse, getType(), utenlandskPersonident, getUtenlandskFnrLand(), årsak);
+        return Objects.hash(aktørId, getType(), utenlandskPersonident, getUtenlandskFnrLand());
     }
 
 }
