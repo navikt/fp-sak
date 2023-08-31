@@ -87,8 +87,8 @@ class BeregnTilrettleggingsperioderTjenesteTest {
 
         assertThat(periode1.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1)));
         assertThat(periode2.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminMinus3UkerOg1Dag));
-        assertThat(periode1.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100));
-        assertThat(periode2.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(50));
+        assertThat(periode1.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(periode2.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(50));
     }
 
     @Test
@@ -130,13 +130,13 @@ class BeregnTilrettleggingsperioderTjenesteTest {
 
         assertThat(arb1Periode1.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1)));
         assertThat(arb1Periode2.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminMinus3UkerOg1Dag));
-        assertThat(arb1Periode1.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100));
-        assertThat(arb1Periode2.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(33));
+        assertThat(arb1Periode1.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(arb1Periode2.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(33.33));
 
         assertThat(arb2Periode1.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1)));
         assertThat(arb2Periode2.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminMinus3UkerOg1Dag));
-        assertThat(arb2Periode1.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100));
-        assertThat(arb2Periode2.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(50));
+        assertThat(arb2Periode1.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(arb2Periode2.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(50));
     }
 
     @Test
@@ -176,8 +176,8 @@ class BeregnTilrettleggingsperioderTjenesteTest {
 
         assertThat(arb1Periode1.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1)));
         assertThat(arb1Periode2.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminMinus3UkerOg1Dag));
-        assertThat(arb1Periode1.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100));
-        assertThat(arb1Periode2.getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(38));
+        assertThat(arb1Periode1.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(arb1Periode2.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(37.50));
     }
 
     private SvpTilretteleggingEntitet opprettTilrettelegging(LocalDate jordmorsdato, LocalDate delvis, BigDecimal stillingsprosent,
