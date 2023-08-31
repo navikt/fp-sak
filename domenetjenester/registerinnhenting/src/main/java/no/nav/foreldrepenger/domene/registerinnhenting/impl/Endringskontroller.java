@@ -1,26 +1,34 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Denne klassen er en utvidelse av {@link BehandlingskontrollTjeneste} som håndterer oppdatering på åpen behandling.
@@ -37,6 +45,7 @@ public class Endringskontroller {
     private Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private Instance<StartpunktTjeneste> startpunktTjenester;
+    private TotrinnRepository totrinnRepository;
 
     Endringskontroller() {
         // For CDI proxy
@@ -44,14 +53,17 @@ public class Endringskontroller {
 
     @Inject
     public Endringskontroller(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                              @Any Instance<StartpunktTjeneste> startpunktTjenester, RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
+                              @Any Instance<StartpunktTjeneste> startpunktTjenester,
+                              RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste,
                               @Any Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenester,
-                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                              TotrinnRepository totrinnRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.startpunktTjenester = startpunktTjenester;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
         this.kontrollerFaktaTjenester = kontrollerFaktaTjenester;
+        this.totrinnRepository = totrinnRepository;
     }
 
     public boolean erRegisterinnhentingPassert(Behandling behandling) {
@@ -148,9 +160,11 @@ public class Endringskontroller {
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.fagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.fagsakYtelseType().getKode()))
             .utledAksjonspunkterFomSteg(ref, fomSteg);
+        var resultatDef = resultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
         var avbrytes = behandling.getÅpneAksjonspunkter().stream()
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))
-            .filter(ap -> resultater.isEmpty() || resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
+            .filter(ap -> !erReturBeslutter(ref, ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> !resultatDef.contains(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.fagsakYtelseType(), ref.behandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
             .toList();
         var opprettes = resultater.stream()
@@ -163,5 +177,11 @@ public class Endringskontroller {
         if (!opprettes.isEmpty()) {
             behandlingskontrollTjeneste.lagreAksjonspunktResultat(kontekst, BehandlingStegType.KONTROLLER_FAKTA, opprettes);
         }
+    }
+
+    private boolean erReturBeslutter(BehandlingReferanse ref, AksjonspunktDefinisjon apDef) {
+        return totrinnRepository.hentTotrinnaksjonspunktvurderinger(ref.behandlingId()).stream()
+            .anyMatch(v -> v.isAktiv() && !v.isGodkjent() && v.getAksjonspunktDefinisjon().equals(apDef));
+
     }
 }
