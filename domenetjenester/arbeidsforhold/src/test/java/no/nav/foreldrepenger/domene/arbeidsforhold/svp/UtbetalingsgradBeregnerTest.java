@@ -32,14 +32,14 @@ class UtbetalingsgradBeregnerTest {
         var test123 = Arbeidsgiver.virksomhet("922839204");
 
         var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
-            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(30)))
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(37.11)))
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(test123)
             .build();
 
         var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
         aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2020, 1, 1), LocalDate.of(9999, 12, 31)));
-        aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(80));
+        aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(89.57));
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
 
         // Act
@@ -47,7 +47,7 @@ class UtbetalingsgradBeregnerTest {
             .beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
 
         // Assert
-        assertThat(tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(62.5));
+        assertThat(tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(58.57));
     }
 
     @Test
