@@ -118,8 +118,9 @@ class UtbetalingsgradBeregner {
 
     private static BigDecimal finnSummertStillingsprosent(List<AktivitetsAvtale> aktiviteter) {
         // Stillingsprosent kan vere null her
+        var stillingsprosent = aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi();
         return aktiviteter.size() == 1
-                ? nullBlirTilHundre(aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi())
+                ? nullBlirTilHundre(stillingsprosent)
                 : aktiviteter.stream()
                         .map(AktivitetsAvtale::getProsentsats)
                         .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
@@ -137,7 +138,7 @@ class UtbetalingsgradBeregner {
             var opprinnelig = aareg.getValue();
             var ny = tilrettelegging.getValue().stillingsprosent;
             var sum = opprinnelig.compareTo(NULL_PROSENT) == 0 ? NULL_PROSENT : opprinnelig.subtract(ny)
-                .divide(opprinnelig, 2, RoundingMode.HALF_UP)
+                .divide(opprinnelig, 10, RoundingMode.HALF_UP)
                 .multiply(HUNDRE_PROSENT);
 
             // negativ sum blir satt til 0 utbetalingsgrad (Betaler ikke ut hvis man jobber
@@ -145,7 +146,7 @@ class UtbetalingsgradBeregner {
             if (sum.compareTo(BigDecimal.ZERO) < 0) {
                 sum = BigDecimal.ZERO;
             }
-            return new LocalDateSegment<>(di, sum.setScale(0, RoundingMode.HALF_UP));
+            return new LocalDateSegment<>(di, sum.setScale(2, RoundingMode.HALF_UP));
         }
         if (aareg == null) {
             return new LocalDateSegment<>(di, TUSEN);

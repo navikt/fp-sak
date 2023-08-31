@@ -24,6 +24,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UtbetalingsgradBeregnerTest {
 
     @Test
+    void case_der_grad_regnes_ut_med_desimaler() {
+        // Arrange
+        var jordmorsdato = LocalDate.of(2023, 8, 23);
+        var delvisTilrettelegging = LocalDate.of(2023, 8, 23);
+        var terminDato = LocalDate.of(2024, 1, 14);
+        var test123 = Arbeidsgiver.virksomhet("922839204");
+
+        var svpTilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(jordmorsdato)
+            .medTilretteleggingFom(delvisTilrettelegging(delvisTilrettelegging, BigDecimal.valueOf(30)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(test123)
+            .build();
+
+        var aktivitetsAvtaleBuilder = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder();
+        aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2020, 1, 1), LocalDate.of(9999, 12, 31)));
+        aktivitetsAvtaleBuilder.medProsentsats(BigDecimal.valueOf(80));
+        var aktivitetsAvtale = aktivitetsAvtaleBuilder.build();
+
+        // Act
+        var tilretteleggingMedUtbelingsgrad = UtbetalingsgradBeregner
+            .beregn(List.of(aktivitetsAvtale), svpTilrettelegging, terminDato, Collections.emptyList());
+
+        // Assert
+        assertThat(tilretteleggingMedUtbelingsgrad.getPeriodeMedUtbetalingsgrad().get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(62.5));
+    }
+
+    @Test
     void skal_ikke_ignorere_perioder_i_aareg_som_ligger_mellom_jordmor_og_termindato() {
         // Arrange
         var jordmorsdato = LocalDate.of(2019, 5, 28);
@@ -965,7 +992,7 @@ class UtbetalingsgradBeregnerTest {
 
         // Assert
         assertThat(resultat.get(førstePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(0));
-        assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(44));
+        assertThat(resultat.get(andrePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(43.75));
         assertThat(resultat.get(tredjePeriode).get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
     }
 
@@ -988,8 +1015,15 @@ class UtbetalingsgradBeregnerTest {
     }
 
     private TilretteleggingFOM delvisTilrettelegging(LocalDate delvisTilrettelegging, BigDecimal stillingsprosent) {
-        return new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING).medFomDato(delvisTilrettelegging)
+        return new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
+                .medFomDato(delvisTilrettelegging)
                 .medStillingsprosent(stillingsprosent).build();
+    }
+    private TilretteleggingFOM delvisTilrettelegging(LocalDate delvisTilrettelegging, BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
+        return new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
+            .medFomDato(delvisTilrettelegging)
+            .medOverstyrtUtbetalingsgrad(overstyrtUtbetalingsgrad)
+            .medStillingsprosent(stillingsprosent).build();
     }
 
     private TilretteleggingFOM helTilrettelegging(LocalDate helTilrettelegging) {
