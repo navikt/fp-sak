@@ -1,8 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -10,11 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
 
 public enum SkjermlenkeType implements Kodeverdi {
 
@@ -50,10 +52,10 @@ public enum SkjermlenkeType implements Kodeverdi {
     PUNKT_FOR_FOEDSEL("PUNKT_FOR_FOEDSEL", "Fødsel"),
     PUNKT_FOR_FORELDREANSVAR("PUNKT_FOR_FORELDREANSVAR", "Foreldreansvar"),
     PUNKT_FOR_MEDLEMSKAP("PUNKT_FOR_MEDLEMSKAP", "Medlemskap"),
-    PUNKT_FOR_MEDLEMSKAP_LØPENDE("PUNKT_FOR_MEDLEMSKAP_LØPENDE", "Punkt for medlemskap løpende"),
-    PUNKT_FOR_OMSORG("PUNKT_FOR_OMSORG", "Fakta om omsorg"),
+    PUNKT_FOR_MEDLEMSKAP_LØPENDE("PUNKT_FOR_MEDLEMSKAP_LØPENDE", "Løpende medlemskap"),
+    PUNKT_FOR_OMSORG("PUNKT_FOR_OMSORG", "Omsorg"),
     PUNKT_FOR_OPPTJENING("PUNKT_FOR_OPPTJENING", "Opptjening"),
-    PUNKT_FOR_SVANGERSKAPSPENGER("PUNKT_FOR_SVANGERSKAPSPENGER", "Kontroll av svangerskapspengervilkåret"),
+    PUNKT_FOR_SVANGERSKAPSPENGER("PUNKT_FOR_SVANGERSKAPSPENGER", "Svangerskapspenger"),
     PUNKT_FOR_SVP_INNGANG("PUNKT_FOR_SVP_INNGANG", "Fakta om fødsel og tilrettelegging"),
     SOEKNADSFRIST("SOEKNADSFRIST", "Søknadsfrist"),
     TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse"),
