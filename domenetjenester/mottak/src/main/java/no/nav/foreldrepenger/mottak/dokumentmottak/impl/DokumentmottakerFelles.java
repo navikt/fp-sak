@@ -115,7 +115,7 @@ public class DokumentmottakerFelles {
         var dokType = mottattDokument.getDokumentType();
         if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType) ||
             DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
-            historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), false,
+            historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), true,
                 mottattDokument.getElektroniskRegistrert(), false);
         } else {
             historikkinnslagTjeneste.opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), mottattDokument.getJournalpostId(),
