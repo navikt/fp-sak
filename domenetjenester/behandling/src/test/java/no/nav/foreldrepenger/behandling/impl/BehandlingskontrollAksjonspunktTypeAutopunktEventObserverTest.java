@@ -1,16 +1,13 @@
 package no.nav.foreldrepenger.behandling.impl;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,37 +15,57 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+
+@ExtendWith(MockitoExtension.class)
 class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
     private HistorikkInnslagForAksjonspunktEventObserver observer; // objectet vi tester
 
+    @Mock
     private BehandlingskontrollKontekst behandlingskontrollKontekst;
+    @Mock
     private Aksjonspunkt autopunkt;
+    @Mock
     private Aksjonspunkt manuellpunkt;
+    @Mock
     private HistorikkRepository historikkRepository;
+    @Mock
+    private BehandlingRepository behandlingRepository;
+    @Mock
+    private Fagsak fagsak;
+
     private Long behandlingId = 1L;
     private String PERIODE = "P2W";
     private LocalDate localDate = LocalDate.now().plus(Period.parse(PERIODE));
 
     @BeforeEach
     public void setup() {
-        manuellpunkt = Mockito.mock(Aksjonspunkt.class);
-        when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+        lenient().when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
 
-        autopunkt = Mockito.mock(Aksjonspunkt.class);
-        when(autopunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
-        when(autopunkt.getFristTid()).thenReturn(LocalDateTime.of(localDate, LocalDateTime.now().toLocalTime()));
-        when(autopunkt.erOpprettet()).thenReturn(true);
+        lenient().when(autopunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
+        lenient().when(autopunkt.getFristTid()).thenReturn(LocalDateTime.of(localDate, LocalDateTime.now().toLocalTime()));
+        lenient().when(autopunkt.erOpprettet()).thenReturn(true);
 
-        behandlingskontrollKontekst = mock(BehandlingskontrollKontekst.class);
-        when(behandlingskontrollKontekst.getBehandlingId()).thenReturn(behandlingId);
+        lenient().when(behandlingskontrollKontekst.getBehandlingId()).thenReturn(behandlingId);
 
-        historikkRepository = mock(HistorikkRepository.class);
-        observer = new HistorikkInnslagForAksjonspunktEventObserver(historikkRepository);
+        observer = new HistorikkInnslagForAksjonspunktEventObserver(historikkRepository, behandlingRepository);
     }
 
     @Test
@@ -67,6 +84,20 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt), null);
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
+
+        verify(historikkRepository, never()).lagre(any());
+    }
+
+    @Test
+    void skalIkkeOppretteHistorikkForManuellTattAvVent() {
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        behandling.setAnsvarligSaksbehandler("IDENT");
+        when(behandlingRepository.hentBehandlingReadOnly(anyLong())).thenReturn(behandling);
+        when(autopunkt.erUtført()).thenReturn(true);
+
+        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunkt), null);
+
+        observer.oppretteHistorikkForGjenopptattBehandling(event);
 
         verify(historikkRepository, never()).lagre(any());
     }

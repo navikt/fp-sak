@@ -1,21 +1,24 @@
 package no.nav.foreldrepenger.behandling.impl;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
  * Observerer Aksjonspunkt*Events og registrerer HistorikkInnslag for enkelte
@@ -25,10 +28,12 @@ import java.util.Optional;
 public class HistorikkInnslagForAksjonspunktEventObserver {
 
     private HistorikkRepository historikkRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
-    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository) {
+    public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository, BehandlingRepository behandlingRepository) {
         this.historikkRepository = historikkRepository;
+        this.behandlingRepository = behandlingRepository;
     }
 
     /**
@@ -81,8 +86,13 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.KØET_BEH_GJEN,
                     null, null);
             } else if (aksjonspunkt.erUtført() && aksjonspunkt.getFristTid() != null) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_GJEN, null,
-                    null);
+                // Unngå dobbelinnslag (innslag ved manuellTaAvVent) + konvensjon med påVent->SBH=null og manuellGjenoppta->SBH=ident
+                var manueltTattAvVent = Optional.ofNullable(behandlingRepository.hentBehandlingReadOnly(ktx.getBehandlingId()))
+                    .map(Behandling::getAnsvarligSaksbehandler).isPresent();
+                if (!manueltTattAvVent) {
+                    opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_GJEN,
+                        null, null);
+                }
             }
         }
     }
