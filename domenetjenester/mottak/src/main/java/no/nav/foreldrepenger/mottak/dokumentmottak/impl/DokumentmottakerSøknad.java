@@ -37,8 +37,6 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
 
     @Override
     public void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
-        dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
-
         var fagsak = behandling.getFagsak();
 
         if (dokumentmottakerFelles.harMottattSøknadTidligere(behandling.getId())) { //#S2
@@ -46,6 +44,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
             var nyBehandling = dokumentmottakerFelles.oppdatereViaHenleggelse(behandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             køKontroller.dekøFørsteBehandlingISakskompleks(nyBehandling);
         } else {
+            dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
             if (behandling.erRevurdering()) {
                 dokumentmottakerFelles.leggTilBehandlingsårsak(behandling, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
             }

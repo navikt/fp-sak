@@ -43,16 +43,17 @@ public class HistorikkinnslagTjeneste {
             return;
         }
 
+        var innslagType = BehandlingType.KLAGE.equals(behandling.getType()) ? HistorikkinnslagType.KLAGEBEH_STARTET : HistorikkinnslagType.BEH_STARTET;
+
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
-        historikkinnslag.setType(HistorikkinnslagType.BEH_STARTET);
+        historikkinnslag.setType(innslagType);
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());
 
         leggTilHistorikkinnslagDokumentlinker(behandling.getType(), journalpostId, historikkinnslag, elektronisk, erIM);
 
-        var builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(BehandlingType.KLAGE.equals(behandling.getType()) ? HistorikkinnslagType.KLAGEBEH_STARTET : HistorikkinnslagType.BEH_STARTET);
+        var builder = new HistorikkInnslagTekstBuilder().medHendelse(innslagType);
         builder.build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
