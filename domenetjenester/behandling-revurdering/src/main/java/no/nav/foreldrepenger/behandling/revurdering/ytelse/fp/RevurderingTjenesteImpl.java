@@ -112,6 +112,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             manueltOpprettet, enhet, opprettetAv);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
+        revurderingTjenesteFelles.opprettHistorikkInnslagForNyRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
 
         // Kopier vilkår (samme vilkår vurderes i Revurdering)
         revurderingTjenesteFelles.kopierVilkårsresultat(origBehandling, revurdering, kontekst);

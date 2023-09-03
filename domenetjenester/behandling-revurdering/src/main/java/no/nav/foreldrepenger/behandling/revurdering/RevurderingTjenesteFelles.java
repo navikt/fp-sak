@@ -74,8 +74,11 @@ public class RevurderingTjenesteFelles {
         if (manueltOpprettet && opprettetAv != null) {
             revurdering.setAnsvarligSaksbehandler(opprettetAv);
         }
-        revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
         return revurdering;
+    }
+
+    public void opprettHistorikkInnslagForNyRevurdering(Behandling revurdering, BehandlingÅrsakType revurderingsÅrsak, boolean manueltOpprettet) {
+        revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
     }
 
     public OppgittFordelingEntitet kopierOppgittFordelingFraForrigeBehandling(OppgittFordelingEntitet forrigeBehandlingFordeling) {
