@@ -76,26 +76,23 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
                                           BehandlingÅrsakType revurderingsÅrsak,
                                           boolean manueltOpprettet,
                                           OrganisasjonsEnhet enhet, String opprettetAv) {
-        var opprinneligBehandlingOptional = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(
-            fagsak.getId());
-        if (opprinneligBehandlingOptional.isEmpty()) {
-            throw RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId());
-        }
-        var opprinneligBehandling = opprinneligBehandlingOptional.get();
+        var origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .orElseThrow(() -> RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()));
+
         // lås original behandling først slik at ingen andre forsøker på samme
-        behandlingskontrollTjeneste.initBehandlingskontroll(opprinneligBehandling);
+        behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling);
 
         // deretter opprett kontekst for revurdering og opprett
-        var revurderingBehandling = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak,
-            opprinneligBehandling, manueltOpprettet, enhet, opprettetAv);
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurderingBehandling);
-        behandlingskontrollTjeneste.opprettBehandling(kontekst, revurderingBehandling);
+        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling, manueltOpprettet, enhet, opprettetAv);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
+        behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
+        revurderingTjenesteFelles.opprettHistorikkInnslagForNyRevurdering(revurdering, revurderingsÅrsak, manueltOpprettet);
 
         // Kopier søknadsdata
-        søknadRepository.hentSøknadHvisEksisterer(opprinneligBehandling.getId())
-            .ifPresent(s -> søknadRepository.lagreOgFlush(revurderingBehandling, s));
-        kopierAlleGrunnlagFraTidligereBehandling(opprinneligBehandling, revurderingBehandling);
-        return revurderingBehandling;
+        søknadRepository.hentSøknadHvisEksisterer(origBehandling.getId())
+            .ifPresent(s -> søknadRepository.lagreOgFlush(revurdering, s));
+        kopierAlleGrunnlagFraTidligereBehandling(origBehandling, revurdering);
+        return revurdering;
     }
 
     @Override
