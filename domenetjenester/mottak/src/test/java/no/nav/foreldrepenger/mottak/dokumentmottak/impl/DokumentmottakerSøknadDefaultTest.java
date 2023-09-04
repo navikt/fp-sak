@@ -562,7 +562,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // Assert
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument);
+        verify(dokumentmottakerFelles).opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(eq(behandling2), any(), eq(mottattDokument));
 
         verify(køKontroller).dekøFørsteBehandlingISakskompleks(behandling3);
     }
@@ -606,7 +606,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // Assert
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument);
+        verify(dokumentmottakerFelles).opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(eq(behandling2), any(), eq(mottattDokument));
 
         verify(køKontroller).dekøFørsteBehandlingISakskompleks(behandling3);
     }
