@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -17,13 +25,6 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
@@ -78,12 +79,11 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var behov = utleder.utledDokumentasjonVurderingBehov(input)
             .stream().sorted(Comparator.comparing(dokumentasjonVurderingBehov -> dokumentasjonVurderingBehov.oppgittPeriode().getFom()))
             .toList();
-        assertThat(behov).hasSize(5);
+        assertThat(behov).hasSize(4);
         assertThat(behov.get(0).måVurderes()).isTrue();
         assertThat(behov.get(1).måVurderes()).isTrue();
         assertThat(behov.get(2).måVurderes()).isTrue();
         assertThat(behov.get(3).måVurderes()).isTrue();
-        assertThat(behov.get(4).måVurderes()).isFalse(); //Fedrevoten
 
         assertThat(behov.get(0).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.TIDLIG_OPPSTART_FAR);
         assertThat(behov.get(0).behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.UTTAK);
@@ -96,8 +96,6 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
         assertThat(behov.get(3).behov().årsak()).isEqualTo(DokumentasjonVurderingBehov.Behov.Årsak.INNLEGGELSE_ANNEN_FORELDER);
         assertThat(behov.get(3).behov().type()).isEqualTo(DokumentasjonVurderingBehov.Behov.Type.OVERFØRING);
-
-        assertThat(behov.get(4).behov()).isNull();
     }
 
     @Test
