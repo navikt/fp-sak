@@ -1,10 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -20,10 +29,6 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 
 @ApplicationScoped
 public class BehandlingsprosessTjeneste {
@@ -131,7 +136,7 @@ public class BehandlingsprosessTjeneste {
      * @return gruppenavn (prosesstask) hvis noe startet asynkront.
      */
     public Optional<String> gjenopptaBehandling(Behandling behandling) {
-        opprettHistorikkinnslagForManueltGjenopptakelse(behandling, HistorikkinnslagType.BEH_MAN_GJEN);
+        opprettHistorikkinnslagForManueltGjenopptakelse(behandling);
         return Optional.of(asynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling));
     }
 
@@ -193,14 +198,13 @@ public class BehandlingsprosessTjeneste {
      * {@link no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent})
      * som eies av systembruker. Derfor velger vi her å legge på et innslag til med saksbehandler som eier slik at historikken blir korrekt.
      */
-    private void opprettHistorikkinnslagForManueltGjenopptakelse(Behandling behandling,
-                                                                 HistorikkinnslagType historikkinnslagType) {
+    private void opprettHistorikkinnslagForManueltGjenopptakelse(Behandling behandling) {
         var builder = new HistorikkInnslagTekstBuilder();
-        builder.medHendelse(historikkinnslagType);
+        builder.medHendelse(HistorikkinnslagType.BEH_MAN_GJEN);
 
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        historikkinnslag.setType(historikkinnslagType);
+        historikkinnslag.setType(HistorikkinnslagType.BEH_MAN_GJEN);
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());
         builder.build(historikkinnslag);
