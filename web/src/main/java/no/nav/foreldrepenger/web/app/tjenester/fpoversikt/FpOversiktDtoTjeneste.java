@@ -60,7 +60,7 @@ public class FpOversiktDtoTjeneste {
     public List<DokumentTypeId> hentmanglendeVedleggForSak(String saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer)).orElseThrow();
         var behandlingOpt = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
-        if (!behandlingOpt.isPresent()) {
+        if (behandlingOpt.isEmpty()) {
             return List.of();
         }
         var behandling = behandlingOpt.get();
