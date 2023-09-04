@@ -1,12 +1,18 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 
 public record DokumentasjonVurderingBehov(OppgittPeriodeEntitet oppgittPeriode, Behov behov, DokumentasjonVurdering vurdering) {
 
+    public DokumentasjonVurderingBehov {
+        Objects.requireNonNull(behov);
+    }
+
     public boolean måVurderes() {
-        return behov != null && vurdering == null;
+        return vurdering == null;
     }
 
     public record Behov(Behov.Type type, Behov.Årsak årsak) {
