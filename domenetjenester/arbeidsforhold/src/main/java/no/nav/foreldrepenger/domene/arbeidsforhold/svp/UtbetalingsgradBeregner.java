@@ -100,7 +100,7 @@ class UtbetalingsgradBeregner {
         }
 
         var stillingsprosentFraAareg = finnStillingsprosentFraAareg(velferdspermisjoner, summertStillingsprosent, startDato);
-        var segment = new LocalDateSegment<BigDecimal>(startDato, termindato, stillingsprosentFraAareg);
+        var segment = new LocalDateSegment<>(startDato, termindato, stillingsprosentFraAareg);
         return new LocalDateTimeline<>(List.of(segment));
 
     }
@@ -118,14 +118,14 @@ class UtbetalingsgradBeregner {
 
     private static BigDecimal finnSummertStillingsprosent(List<AktivitetsAvtale> aktiviteter) {
         // Stillingsprosent kan vere null her
-        var stillingsprosent = aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi();
-        return aktiviteter.size() == 1
-                ? nullBlirTilHundre(stillingsprosent)
-                : aktiviteter.stream()
-                        .map(AktivitetsAvtale::getProsentsats)
-                        .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
-                        .map(Stillingsprosent::getVerdi)
-                        .orElse(NULL_PROSENT);
+        if (aktiviteter.size()== 1) {
+            return nullBlirTilHundre(aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi());
+        }
+        return aktiviteter.stream()
+            .map(AktivitetsAvtale::getProsentsats)
+            .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
+            .map(Stillingsprosent::getVerdi)
+            .orElse(NULL_PROSENT);
     }
 
     private static LocalDateSegment<BigDecimal> regnUtUtbetalingsgrad(LocalDateInterval di,
