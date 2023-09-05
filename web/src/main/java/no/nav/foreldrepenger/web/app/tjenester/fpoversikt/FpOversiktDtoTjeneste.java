@@ -57,7 +57,7 @@ public class FpOversiktDtoTjeneste {
         };
     }
 
-    public List<DokumentTypeId> hentmanglendeVedleggForSak(String saksnummer) {
+    public List<DokumentTyperDto> hentmanglendeVedleggForSak(String saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer)).orElseThrow();
         var behandlingOpt = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
         if (behandlingOpt.isEmpty()) {
@@ -68,9 +68,43 @@ public class FpOversiktDtoTjeneste {
         return tilDto(kompletthetsjekker.utledAlleManglendeVedleggForForsendelse(BehandlingReferanse.fra(behandling)));
     }
 
-    private List<DokumentTypeId> tilDto(List<ManglendeVedlegg> manglendeVedleggs) {
+    private List<DokumentTyperDto> tilDto(List<ManglendeVedlegg> manglendeVedleggs) {
         return manglendeVedleggs.stream()
                 .map(ManglendeVedlegg::getDokumentType)
+                .map(FpOversiktDtoTjeneste::tilRelevantDokumenttypeID)
                 .toList();
+    }
+
+    private static DokumentTyperDto tilRelevantDokumenttypeID(DokumentTypeId dokumentTypeId) {
+        return switch (dokumentTypeId) {
+            case INNTEKTSOPPLYSNING_SELVSTENDIG -> DokumentTyperDto.I000007;
+            case LEGEERKLÆRING -> DokumentTyperDto.I000023;
+            case RESULTATREGNSKAP -> DokumentTyperDto.I000032;
+            case DOK_FERIE -> DokumentTyperDto.I000036;
+            case DOK_INNLEGGELSE -> DokumentTyperDto.I000037;
+            case DOK_MORS_UTDANNING_ARBEID_SYKDOM -> DokumentTyperDto.I000038;
+            case DOK_MILITÆR_SIVIL_TJENESTE -> DokumentTyperDto.I000039;
+            case DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL -> DokumentTyperDto.I000041;
+            case DOKUMENTASJON_AV_OMSORGSOVERTAKELSE -> DokumentTyperDto.I000042;
+            case DOK_ETTERLØNN -> DokumentTyperDto.I000044;
+            case BESKRIVELSE_FUNKSJONSNEDSETTELSE -> DokumentTyperDto.I000045;
+            case ANNET_SKJEMA_IKKE_NAV -> DokumentTyperDto.I000049;
+            case BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM -> DokumentTyperDto.I000051;
+            case ANNET -> DokumentTyperDto.I000060;
+            case BEKREFTELSE_FRA_STUDIESTED -> DokumentTyperDto.I000061;
+            case BEKREFTELSE_VENTET_FØDSELSDATO -> DokumentTyperDto.I000062;
+            case FØDSELSATTEST -> DokumentTyperDto.I000063;
+            case ELEVDOKUMENTASJON_LÆRESTED -> DokumentTyperDto.I000064;
+            case BEKREFTELSE_FRA_ARBEIDSGIVER -> DokumentTyperDto.I000065;
+            case KOPI_SKATTEMELDING -> DokumentTyperDto.I000066;
+            case I000109 -> DokumentTyperDto.I000109;
+            case I000110 -> DokumentTyperDto.I000110;
+            case I000111 -> DokumentTyperDto.I000111;
+            case I000112 -> DokumentTyperDto.I000112;
+            case DOK_HV -> DokumentTyperDto.I000116;
+            case DOK_NAV_TILTAK -> DokumentTyperDto.I000117;
+            default -> throw new IllegalStateException("Ukjent manglende vedlegg dokumentTypeId" + dokumentTypeId);
+        };
+
     }
 }
