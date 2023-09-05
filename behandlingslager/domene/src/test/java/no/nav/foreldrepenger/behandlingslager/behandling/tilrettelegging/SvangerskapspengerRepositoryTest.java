@@ -55,6 +55,7 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getMottattTidspunkt()).isEqualTo(I_GÅR);
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getBehovForTilretteleggingFom()).isEqualTo(OM_TRE_DAGER);
+        assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getTilretteleggingFOMListe().get(0).getKilde()).isEqualTo(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK);
         assertThat(kopiertGrunnlag.get().getOverstyrteTilrettelegginger()).isNull();
     }
 

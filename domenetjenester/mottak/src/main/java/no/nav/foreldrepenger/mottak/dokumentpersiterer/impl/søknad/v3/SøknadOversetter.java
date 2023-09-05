@@ -2,6 +2,24 @@ package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import static java.util.Objects.nonNull;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -63,16 +81,7 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæring
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.util.Objects.nonNull;
 
 @NamespaceRef(SøknadConstants.NAMESPACE)
 @ApplicationScoped
@@ -361,17 +370,18 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             if (tilrettelegging.getHelTilrettelegging() != null) {
                 tilrettelegging.getHelTilrettelegging()
                     .forEach(helTilrettelegging -> builder.medHelTilrettelegging(
-                        helTilrettelegging.getTilrettelagtArbeidFom(), brukMottattTidspunkt.toLocalDate()));
+                        helTilrettelegging.getTilrettelagtArbeidFom(), brukMottattTidspunkt.toLocalDate(), SvpTilretteleggingFomKilde.SØKNAD));
             }
             if (tilrettelegging.getDelvisTilrettelegging() != null) {
                 tilrettelegging.getDelvisTilrettelegging()
                     .forEach(delvisTilrettelegging -> builder.medDelvisTilrettelegging(
-                        delvisTilrettelegging.getTilrettelagtArbeidFom(), delvisTilrettelegging.getStillingsprosent(), brukMottattTidspunkt.toLocalDate()));
+                        delvisTilrettelegging.getTilrettelagtArbeidFom(), delvisTilrettelegging.getStillingsprosent(), brukMottattTidspunkt.toLocalDate(),
+                        SvpTilretteleggingFomKilde.SØKNAD));
             }
             if (tilrettelegging.getIngenTilrettelegging() != null) {
                 tilrettelegging.getIngenTilrettelegging()
                     .forEach(ingenTilrettelegging -> builder.medIngenTilrettelegging(
-                        ingenTilrettelegging.getSlutteArbeidFom(), brukMottattTidspunkt.toLocalDate()));
+                        ingenTilrettelegging.getSlutteArbeidFom(), brukMottattTidspunkt.toLocalDate(), SvpTilretteleggingFomKilde.SØKNAD));
             }
 
             for (var element : tilrettelegging.getVedlegg()) {
@@ -450,6 +460,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 .fraEksisterende(eksFom)
                 .medTidligstMottattDato(Optional.ofNullable(eksFom.getTidligstMotattDato())
                     .orElseGet(() -> eksisterendeTlr.getMottattTidspunkt().toLocalDate()))
+                    .medKilde(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK)
                 .build()));
 
         nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));

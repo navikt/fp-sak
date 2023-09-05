@@ -24,8 +24,6 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
-import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +41,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -55,9 +52,6 @@ class BekreftSvangerskapspengerOppdatererTest {
     public static final String ARBEIDSGIVER_IDENT = "12378694712";
     public static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.nyRef();
     public static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF2 = InternArbeidsforholdRef.nyRef();
-
-    @Mock
-    private TilgangerTjeneste tilgangerTjenesteMock;
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     private BekreftSvangerskapspengerOppdaterer oppdaterer;
@@ -74,8 +68,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
             inntektArbeidYtelseTjeneste);
-        oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider,
-            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
+        oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, grunnlagProvider, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
             repositoryProvider.getBehandlingRepository());
     }
 
@@ -139,8 +132,10 @@ class BekreftSvangerskapspengerOppdatererTest {
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
             svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
             true, null, null,
-            List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
-            new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(60), null)),
+            List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null, null, SvpTilretteleggingFomKilde.REGISTRERT_AV_SAKSBEHANDLER,
+                    null),
+            new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(60), null, SvpTilretteleggingFomKilde.SØKNAD,
+                null)),
             null);
 
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
@@ -210,7 +205,8 @@ class BekreftSvangerskapspengerOppdatererTest {
             svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
-                new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50), null)),
+                new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50), null, SvpTilretteleggingFomKilde.SØKNAD,
+                    null)),
             List.of(new SvpAvklartOppholdPeriodeDto(BEHOV_FRA_DATO,BEHOV_FRA_DATO.plusWeeks(1), SvpOppholdÅrsak.SYKEPENGER, false ),
                 new SvpAvklartOppholdPeriodeDto(TLR_FRA_2, TLR_FRA_2.plusWeeks(3), SvpOppholdÅrsak.FERIE, false)));
 
@@ -283,62 +279,6 @@ class BekreftSvangerskapspengerOppdatererTest {
     }
 
     @Test
-    void skal_kunne_overstyre_utbetalinsgrad_dersom_ansatt_har_rolle_overstyrer() {
-        settOppTilgangTilOverstyring(true);
-        var behandling = behandlingMedTilretteleggingAP();
-
-        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
-            VersjonType.REGISTER);
-        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
-
-        var svpGrunnlag = byggSøknadsgrunnlag(behandling, false, false);
-        var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
-            true, null, null,
-            List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING,
-                new BigDecimal("30.00"), new BigDecimal("40.00"))),
-            null);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
-
-        var resultat = oppdaterer.oppdater(dto, param);
-
-        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
-        var gjeldendeTilrettelegginger = grunnlagProvider.getSvangerskapspengerRepository().hentGrunnlag(behandling.getId())
-            .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
-            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
-            .orElseThrow();
-
-        assertThat(gjeldendeTilrettelegginger).hasSize(1);
-        var endretTilrettelegging = gjeldendeTilrettelegginger.get(0);
-        assertThat(endretTilrettelegging.getTilretteleggingFOMListe()).hasSize(1);
-
-        var endretTilretteleggingDato = endretTilrettelegging.getTilretteleggingFOMListe().get(0);
-        assertThat(endretTilretteleggingDato.getFomDato()).isEqualTo(BEHOV_FRA_DATO.plusWeeks(1));
-        assertThat(endretTilretteleggingDato.getType()).isEqualTo(TilretteleggingType.DELVIS_TILRETTELEGGING);
-        assertThat(endretTilretteleggingDato.getStillingsprosent()).isEqualByComparingTo(new BigDecimal("30.00"));
-        assertThat(endretTilretteleggingDato.getOverstyrtUtbetalingsgrad()).isEqualByComparingTo(
-            new BigDecimal("40.00"));
-    }
-
-    @Test
-    void skal_ikke_kunne_overstyre_utbetalinsgrad_dersom_ansatt_ikke_har_rolle_overstyrer() {
-        settOppTilgangTilOverstyring(false);
-        var behandling = behandlingMedTilretteleggingAP();
-
-        var svpGrunnlag = byggSøknadsgrunnlag(behandling, false, false);
-        var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
-            true, null, null,
-            List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING,
-                new BigDecimal("20.00"), new BigDecimal("40.00")))
-                ,null);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto);
-
-        assertThatThrownBy(() -> oppdaterer.oppdater(dto, param)).isInstanceOf(FunksjonellException.class)
-            .hasMessageContaining("FP-682319");
-    }
-
-    @Test
     void stillingsprosent_skal_kunne_være_null_når_arbeidsforholdet_ikke_skal_brukes() {
         var behandling = behandlingMedTilretteleggingAP();
         var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
@@ -362,20 +302,6 @@ class BekreftSvangerskapspengerOppdatererTest {
             BehandlingStegType.VURDER_TILRETTELEGGING);
         scenario.medDefaultBekreftetTerminbekreftelse();
         return scenario.lagre(repositoryProvider);
-    }
-
-    private void settOppTilgangTilOverstyring(boolean kanOverstyre) {
-        var dto = new InnloggetNavAnsattDto.Builder("mrOverstyrer", "Mr Overstyrer")
-            .kanBehandleKode6(false)
-            .kanBehandleKode7(false)
-            .kanBehandleKodeEgenAnsatt(false)
-            .kanOverstyre(kanOverstyre)
-            .kanBeslutte(true)
-            .kanVeilede(true)
-            .kanSaksbehandle(true)
-            .skalViseDetaljerteFeilmeldinger(true)
-            .build();
-        when(tilgangerTjenesteMock.innloggetBruker()).thenReturn(dto);
     }
 
     private SvpGrunnlagEntitet byggSøknadsgrunnlag(Behandling behandling, boolean flereFoms, boolean medAvklartOpphold) {

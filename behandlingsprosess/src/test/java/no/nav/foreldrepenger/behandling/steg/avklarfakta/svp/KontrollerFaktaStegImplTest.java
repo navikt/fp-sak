@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -123,7 +124,7 @@ class KontrollerFaktaStegImplTest {
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsdato)
-                .medIngenTilrettelegging(jordmorsdato, jordmorsdato)
+                .medIngenTilrettelegging(jordmorsdato, jordmorsdato, SvpTilretteleggingFomKilde.SØKNAD)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
                 .medMottattTidspunkt(LocalDateTime.now())

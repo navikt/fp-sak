@@ -55,7 +55,7 @@ public class RegelmodellSøknaderMapper {
             return new FullTilrettelegging(tl.getFomDato());
         }
         if (tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING)) {
-            return new DelvisTilrettelegging(tl.getFomDato(), tl.getStillingsprosent());
+            return new DelvisTilrettelegging(tl.getFomDato(), tl.getStillingsprosent(), tl.getOverstyrtUtbetalingsgrad());
         }
         if (tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING)) {
             return new IngenTilrettelegging(tl.getFomDato());

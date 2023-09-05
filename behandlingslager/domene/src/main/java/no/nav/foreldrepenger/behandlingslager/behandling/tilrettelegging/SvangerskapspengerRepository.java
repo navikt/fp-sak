@@ -68,14 +68,23 @@ public class SvangerskapspengerRepository {
             .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
             .orElse(Collections.emptyList()).stream()
-            .map(ot -> new SvpTilretteleggingEntitet.Builder(ot).medKopiertFraTidligereBehandling(true).build())
+            .map(ot -> new SvpTilretteleggingEntitet.Builder(ot)
+                .medKopiertFraTidligereBehandling(true)
+                .medTilretteleggingFraDatoer(fraDatoerMedKildeTidligereVedtak(ot)).build())
             .toList();
 
-            if(!kopiGjeldendeGrunnlag.isEmpty()) {
-                var nyttGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(nyBehandling.getId())
-                    .medOpprinneligeTilrettelegginger(kopiGjeldendeGrunnlag)
-                    .build();
-                lagreOgFlush(nyttGrunnlag);
-            }
+        if(!kopiGjeldendeGrunnlag.isEmpty()) {
+            var nyttGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(nyBehandling.getId())
+                .medOpprinneligeTilrettelegginger(kopiGjeldendeGrunnlag)
+                .build();
+            lagreOgFlush(nyttGrunnlag);
         }
+    }
+
+    private List<TilretteleggingFOM> fraDatoerMedKildeTidligereVedtak(SvpTilretteleggingEntitet eksTilrettelegging) {
+        return eksTilrettelegging.getTilretteleggingFOMListe().stream()
+            .map(tf -> new TilretteleggingFOM.Builder().fraEksisterende(tf).medKilde(SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK)
+                .build())
+            .toList();
+    }
 }

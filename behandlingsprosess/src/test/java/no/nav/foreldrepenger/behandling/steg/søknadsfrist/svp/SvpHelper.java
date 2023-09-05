@@ -49,7 +49,8 @@ class SvpHelper {
     void lagreIngenTilrettelegging(Behandling behandling, LocalDate jordmorsdato, LocalDate tidligstMottattDato) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsdato)
-                .medIngenTilrettelegging(jordmorsdato, tidligstMottattDato)
+                .medIngenTilrettelegging(jordmorsdato, tidligstMottattDato,
+                    no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde.SØKNAD)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
                 .medMottattTidspunkt(LocalDateTime.now())
@@ -65,7 +66,8 @@ class SvpHelper {
     void lagreDelvisTilrettelegging(Behandling behandling, LocalDate jordmorsdato, LocalDate tilretteleggingFom, BigDecimal arbeidsprosent) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
             .medBehovForTilretteleggingFom(jordmorsdato)
-            .medDelvisTilrettelegging(tilretteleggingFom, arbeidsprosent, jordmorsdato)
+            .medDelvisTilrettelegging(tilretteleggingFom, arbeidsprosent, jordmorsdato,
+                no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde.SØKNAD)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medMottattTidspunkt(LocalDateTime.now())
