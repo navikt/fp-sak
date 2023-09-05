@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
-public enum DokumentTyperDto {
+enum DokumentTyperDto {
     I000007,
     I000023,
     I000032,
