@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -20,15 +30,6 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
 
@@ -97,6 +98,49 @@ class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         assertFelt(del, HistorikkEndretFeltType.TERMINDATO, opprinneligTermindato.format(formatterer), avklartTermindato.format(formatterer));
         assertFelt(del, HistorikkEndretFeltType.UTSTEDTDATO, opprinneligUtstedtDato.format(formatterer), avklartUtstedtDato.format(formatterer));
         assertFelt(del, HistorikkEndretFeltType.ANTALL_BARN, Integer.toString(opprinneligAntallBarn), Integer.toString(avklartAntallBarn));
+    }
+
+    @Test
+    void skal_generere_historikkinnslag_ved_godkjent_terminbekreftelse() {
+        // Arrange
+        var opprinneligTermindato = LocalDate.now();
+        var opprinneligUtstedtDato = LocalDate.now().minusDays(20);
+        var opprinneligAntallBarn = 1;
+
+        // Behandling
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknad();
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                .medTermindato(opprinneligTermindato)
+                .medUtstedtDato(opprinneligUtstedtDato)
+                .medNavnPå("LEGEN MIN"))
+            .medAntallBarn(opprinneligAntallBarn);
+        scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        var behandling = scenario.lagre(repositoryProvider);
+        // Dto
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse",
+            opprinneligTermindato, opprinneligUtstedtDato, opprinneligAntallBarn);
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
+        // Act
+        var oppdaterer = new BekreftTerminbekreftelseOppdaterer(lagMockHistory(),
+            skjæringstidspunktTjeneste,
+            familieHendelseTjeneste,
+            new BekreftTerminbekreftelseValidator(Period.parse("P25D")));
+
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto, aksjonspunkt));
+        var historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+        var historikkInnslag = tekstBuilder.build(historikkinnslag);
+
+        // Assert
+
+        assertThat(historikkInnslag).hasSize(1);
+
+        var del = historikkInnslag.get(0);
+        var feltList = del.getEndredeFelt();
+        assertThat(feltList).hasSize(1);
+        assertFelt(del, HistorikkEndretFeltType.TERMINBEKREFTELSE, null, "godkjent");
     }
 
     private void assertFelt(HistorikkinnslagDel del, HistorikkEndretFeltType historikkEndretFeltType, String fraVerdi, String tilVerdi) {
