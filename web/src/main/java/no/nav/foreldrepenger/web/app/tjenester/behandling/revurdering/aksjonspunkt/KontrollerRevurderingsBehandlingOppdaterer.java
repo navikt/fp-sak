@@ -7,7 +7,10 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 
@@ -28,8 +31,16 @@ class KontrollerRevurderingsBehandlingOppdaterer implements AksjonspunktOppdater
 
     @Override
     public OppdateringResultat oppdater(KontrollerRevurderingsBehandlingDto dto, AksjonspunktOppdaterParameter param) {
-        historikkAdapter.tekstBuilder().medBegrunnelse("Vurder varsel om ugunst", true);
-        historikkAdapter.opprettHistorikkInnslag(param.getBehandlingId(), HistorikkinnslagType.OPPGAVE_VEDTAK);
+        var tekstBuilder = new HistorikkInnslagTekstBuilder()
+            .medHendelse(HistorikkinnslagType.OPPGAVE_VEDTAK)
+            .medBegrunnelse("Vurder varsel om ugunst", true);
+
+        var innslag = new Historikkinnslag();
+        innslag.setType(HistorikkinnslagType.OPPGAVE_VEDTAK);
+        innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
+        innslag.setBehandlingId(param.getBehandlingId());
+        tekstBuilder.build(innslag);
+        historikkAdapter.lagInnslag(innslag);
         return OppdateringResultat.utenOveropp();
     }
 
