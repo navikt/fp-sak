@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -16,9 +20,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
-
-import java.time.LocalDate;
-import java.util.Objects;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftTerminbekreftelseAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -69,6 +70,12 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             if (erEndret) {
                 opprettHistorikkinnslag(param, dto);
             }
+        }  else if (grunnlag.getOverstyrtVersjon().isEmpty()) {
+            historikkAdapter.tekstBuilder()
+                .medEndretFelt(HistorikkEndretFeltType.TERMINBEKREFTELSE, null, "godkjent")
+                .medBegrunnelse(dto.getBegrunnelse())
+                .medSkjermlenke(SkjermlenkeType.FAKTA_OM_FOEDSEL);
+            historikkAdapter.opprettHistorikkInnslag(param.getBehandlingId(), HistorikkinnslagType.FAKTA_ENDRET);
         }
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandlingId);

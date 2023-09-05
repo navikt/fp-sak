@@ -1,14 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import jakarta.persistence.Transient;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import jakarta.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum HistorikkinnslagType implements Kodeverdi {
 
@@ -38,6 +40,7 @@ public enum HistorikkinnslagType implements Kodeverdi {
     INNSYN_OPPR("INNSYN_OPPR", "Innsynsbehandling opprettet", HistorikkinnslagMal.MAL_TYPE_1),
     KØET_BEH_GJEN("KØET_BEH_GJEN", "Køet behandling er gjenopptatt", HistorikkinnslagMal.MAL_TYPE_1),
     ENDRET_DEKNINGSGRAD("ENDRET_DEKNINGSGRAD", "Dekningsgrad er endret", HistorikkinnslagMal.MAL_TYPE_1),
+    OPPGAVE_VEDTAK("OPPGAVE_VEDTAK", "Oppgave før vedtak", HistorikkinnslagMal.MAL_TYPE_1),
 
     // Mal Type 2
     VEDTAK_FATTET("VEDTAK_FATTET", "Vedtak fattet", HistorikkinnslagMal.MAL_TYPE_2),

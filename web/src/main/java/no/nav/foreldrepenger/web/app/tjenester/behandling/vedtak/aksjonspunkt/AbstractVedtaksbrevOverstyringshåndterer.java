@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -10,18 +12,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
-import java.util.Optional;
 
 public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
@@ -160,17 +157,10 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
         var historikkInnslagType = utledHistorikkInnslag(behandling, toTrinn);
 
-        var tekstBuilder = new HistorikkInnslagTekstBuilder()
+        historikkApplikasjonTjeneste.tekstBuilder()
                 .medResultat(vedtakResultatType)
-                .medSkjermlenke(SkjermlenkeType.VEDTAK)
-                .medHendelse(historikkInnslagType);
-
-        var innslag = new Historikkinnslag();
-        innslag.setType(historikkInnslagType);
-        innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        innslag.setBehandlingId(behandling.getId());
-        tekstBuilder.build(innslag);
-        historikkApplikasjonTjeneste.lagInnslag(innslag);
+                .medSkjermlenke(SkjermlenkeType.VEDTAK);
+        historikkApplikasjonTjeneste.opprettHistorikkInnslag(behandling.getId(), historikkInnslagType);
     }
 
     private HistorikkinnslagType utledHistorikkInnslag(Behandling behandling, boolean toTrinn) {

@@ -64,6 +64,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     SOKNADSFRIST("SOKNADSFRIST", "Søknadsfrist"),
     SOKNADSFRISTVILKARET("SOKNADSFRISTVILKARET", "Søknadsfristvilkåret"),
     STARTDATO_FRA_SOKNAD("STARTDATO_FRA_SOKNAD", "Startdato fra søknad"),
+    TERMINBEKREFTELSE("TERMINBEKREFTELSE", "Terminbekreftelse"),
     TERMINDATO("TERMINDATO", "Termindato"),
     UTSTEDTDATO("UTSTEDTDATO", "Utstedtdato"),
     VILKAR_SOM_ANVENDES("VILKAR_SOM_ANVENDES", "Vilkår som anvendes"),
