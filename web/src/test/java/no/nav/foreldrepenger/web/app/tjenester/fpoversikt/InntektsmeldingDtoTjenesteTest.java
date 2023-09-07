@@ -38,6 +38,6 @@ class InntektsmeldingDtoTjenesteTest {
         var im = inntektsmeldingerForSak.stream().findFirst().get();
         assertThat(im.arbeidsgiver().identifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
         assertThat(im.innsendingstidspunkt()).isEqualTo(innsendingstidspunkt);
-        assertThat(im.inntekt()).isEqualTo(inntekt);
+        assertThat(im.inntekt()).isEqualTo(inntekt.getVerdi());
     }
 }

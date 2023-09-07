@@ -34,6 +34,6 @@ class InntektsmeldingDtoTjeneste {
 
     private InntektsmeldingDto map(Inntektsmelding inntektsmelding) {
         var arbeidsgiver = new Arbeidsgiver(inntektsmelding.getArbeidsgiver().getIdentifikator());
-        return new InntektsmeldingDto(arbeidsgiver, inntektsmelding.getInnsendingstidspunkt(), inntektsmelding.getInntektBeløp());
+        return new InntektsmeldingDto(arbeidsgiver, inntektsmelding.getInnsendingstidspunkt(), inntektsmelding.getInntektBeløp().getVerdi());
     }
 }
