@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import java.util.List;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -10,13 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 @ApplicationScoped
-public class FpOversiktDtoTjeneste {
+class FpOversiktDtoTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(FpOversiktDtoTjeneste.class);
 
@@ -27,26 +30,29 @@ public class FpOversiktDtoTjeneste {
     private SvpDtoTjeneste svpDtoTjeneste;
     private EsDtoTjeneste esDtoTjeneste;
     private KompletthetsjekkerProvider kompletthetsjekkerProvider;
+    private InntektsmeldingDtoTjeneste inntektsmeldingTjeneste;
 
     @Inject
-    public FpOversiktDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
+    FpOversiktDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  FpDtoTjeneste fpDtoTjeneste,
                                  SvpDtoTjeneste svpDtoTjeneste,
                                  EsDtoTjeneste esDtoTjeneste,
-                                 KompletthetsjekkerProvider kompletthetsjekkerProvider) {
+                                 KompletthetsjekkerProvider kompletthetsjekkerProvider,
+                                 InntektsmeldingDtoTjeneste inntektsmeldingTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fpDtoTjeneste = fpDtoTjeneste;
         this.svpDtoTjeneste = svpDtoTjeneste;
         this.esDtoTjeneste = esDtoTjeneste;
         this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     FpOversiktDtoTjeneste() {
         //CDI
     }
 
-    public Sak hentSak(String saksnummer) {
+    Sak hentSak(String saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer)).orElseThrow();
         LOG.info("Henter sak {}", fagsak.getSaksnummer());
         return switch (fagsak.getYtelseType()) {
@@ -57,7 +63,11 @@ public class FpOversiktDtoTjeneste {
         };
     }
 
-    public List<DokumentTyperDto> hentmanglendeVedleggForSak(String saksnummer) {
+    Set<InntektsmeldingDto> hentInntektsmeldingerForSak(String saksnummer) {
+        return inntektsmeldingTjeneste.hentInntektsmeldingerForSak(new Saksnummer(saksnummer));
+    }
+
+    List<DokumentTyperDto> hentmanglendeVedleggForSak(String saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer)).orElseThrow();
         var behandlingOpt = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
         if (behandlingOpt.isEmpty()) {
