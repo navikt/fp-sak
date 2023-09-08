@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 class InntektsmeldingDtoTjenesteTest {
 
@@ -26,9 +27,11 @@ class InntektsmeldingDtoTjenesteTest {
         var innsendingstidspunkt = LocalDateTime.now();
         var inntekt = new Beløp(400000);
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        var journalpostId = new JournalpostId("456");
         var imBuilder = InntektsmeldingBuilder.builder()
             .medArbeidsgiver(arbeidsgiver)
             .medBeløp(inntekt.getVerdi())
+            .medJournalpostId(journalpostId)
             .medInnsendingstidspunkt(innsendingstidspunkt);
         iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of(imBuilder));
 
@@ -39,5 +42,6 @@ class InntektsmeldingDtoTjenesteTest {
         assertThat(im.arbeidsgiver().identifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
         assertThat(im.innsendingstidspunkt()).isEqualTo(innsendingstidspunkt);
         assertThat(im.inntekt()).isEqualTo(inntekt.getVerdi());
+        assertThat(im.journalpostId()).isEqualTo(journalpostId);
     }
 }
