@@ -66,7 +66,7 @@ class BeregneYtelseStegImplTest {
     void setup() {
         steg = new BeregneYtelseStegImpl(behandlingRepository,
                 beregningsresultatRepository,
-                beregnYtelseTjeneste, inntektArbeidYtelseTjeneste);
+                beregnYtelseTjeneste);
     }
 
     private BeregningsresultatEntitet opprettBeregningsresultat() {
