@@ -62,6 +62,8 @@ jobs:
 
   deploy-dev:
     name: Deploy dev
+    permissions:
+      id-token: write
     if: github.ref_name == 'master'
     needs: [build-app, fpsak-tester, verdikjede-tester]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
@@ -73,6 +75,8 @@ jobs:
 
   deploy-prod:
     name: Deploy prod
+    permissions:
+      id-token: write
     if: github.ref_name == 'master'
     needs: [build-app, fpsak-tester, verdikjede-tester, deploy-dev]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
