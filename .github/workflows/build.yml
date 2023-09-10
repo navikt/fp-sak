@@ -22,6 +22,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     uses: navikt/fp-gha-workflows/.github/workflows/build-app.yml@main
     with:
       runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
@@ -65,7 +66,8 @@ jobs:
     needs: [build-app, fpsak-tester, verdikjede-tester]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
-      image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
+      gar: true
+      image: ${{ needs.build-app.outputs.build-version }}
       cluster: dev-fss
     secrets: inherit
 
@@ -75,6 +77,7 @@ jobs:
     needs: [build-app, fpsak-tester, verdikjede-tester, deploy-dev]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
-      image: ghcr.io/${{ github.repository }}:${{ needs.build-app.outputs.build-version }}
+      gar: true
+      image: ${{ needs.build-app.outputs.build-version }}
       cluster: prod-fss
     secrets: inherit
