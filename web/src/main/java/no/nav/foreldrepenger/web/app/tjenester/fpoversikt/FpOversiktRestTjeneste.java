@@ -67,7 +67,7 @@ public class FpOversiktRestTjeneste {
     public List<DokumentTyperDto> hentmanglendeVedlegg(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
         try {
-            return dtoTjeneste.hentmanglendeVedleggForSak(saksnummer);
+            return dtoTjeneste.hentManglendeVedleggForSak(saksnummer);
         } catch (Exception e) {
             LOG.warn("Oppslag av manglende vedlegg på sak for fpoversikt feilet", e);
             throw e;

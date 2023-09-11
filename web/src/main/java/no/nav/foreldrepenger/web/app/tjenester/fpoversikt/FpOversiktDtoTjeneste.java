@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -67,9 +69,12 @@ class FpOversiktDtoTjeneste {
         return inntektsmeldingTjeneste.hentInntektsmeldingerForSak(new Saksnummer(saksnummer));
     }
 
-    List<DokumentTyperDto> hentmanglendeVedleggForSak(String saksnummer) {
+    List<DokumentTyperDto> hentManglendeVedleggForSak(String saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer)).orElseThrow();
-        var behandlingOpt = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        var behandlingOpt = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId())
+            .stream()
+            .filter(Behandling::erYtelseBehandling)
+            .max(Comparator.comparing(Behandling::getOpprettetTidspunkt));
         if (behandlingOpt.isEmpty()) {
             return List.of();
         }
