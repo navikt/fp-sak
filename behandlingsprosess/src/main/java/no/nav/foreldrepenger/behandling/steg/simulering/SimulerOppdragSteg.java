@@ -1,8 +1,24 @@
 package no.nav.foreldrepenger.behandling.steg.simulering;
 
+import static java.util.Collections.singletonList;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingskontroll.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -11,20 +27,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpoppdragSystembrukerRestKlient;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.vedtak.exception.IntegrasjonException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
-
-import static java.util.Collections.singletonList;
 
 @BehandlingStegRef(BehandlingStegType.SIMULER_OPPDRAG)
 @BehandlingTypeRef
@@ -42,7 +50,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
-    private FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlient;
+    private FpOppdragRestKlient fpOppdragRestKlient;
     private FptilbakeRestKlient fptilbakeRestKlient;
 
     SimulerOppdragSteg() {
@@ -51,18 +59,18 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     @Inject
     public SimulerOppdragSteg(BehandlingRepositoryProvider repositoryProvider,
-            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-            SimulerOppdragTjeneste simulerOppdragTjeneste,
-            SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
-            TilbakekrevingRepository tilbakekrevingRepository,
-            FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlient,
-            FptilbakeRestKlient fptilbakeRestKlient) {
+                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                              SimulerOppdragTjeneste simulerOppdragTjeneste,
+                              SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
+                              TilbakekrevingRepository tilbakekrevingRepository,
+                              FpOppdragRestKlient fpOppdragRestKlient,
+                              FptilbakeRestKlient fptilbakeRestKlient) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.simulerOppdragTjeneste = simulerOppdragTjeneste;
         this.simuleringIntegrasjonTjeneste = simuleringIntegrasjonTjeneste;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
-        this.fpoppdragSystembrukerRestKlient = fpoppdragSystembrukerRestKlient;
+        this.fpOppdragRestKlient = fpOppdragRestKlient;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
     }
 
@@ -90,7 +98,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
             BehandlingStegType fraSteg) {
         if (!BehandlingStegType.SIMULER_OPPDRAG.equals(tilSteg)) {
             var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-            fpoppdragSystembrukerRestKlient.kansellerSimulering(kontekst.getBehandlingId());
+            fpOppdragRestKlient.kansellerSimulering(kontekst.getBehandlingId());
             tilbakekrevingRepository.deaktiverEksisterendeTilbakekrevingValg(behandling);
             tilbakekrevingRepository.deaktiverEksisterendeTilbakekrevingInntrekk(behandling);
         }
@@ -120,10 +128,10 @@ public class SimulerOppdragSteg implements BehandlingSteg {
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
 
-            if (resultatDto.harFeilutbetaling()) {
+            if (SimuleringIntegrasjonTjeneste.harFeilutbetaling(resultatDto)) {
                 return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(AksjonspunktDefinisjon.VURDER_FEILUTBETALING));
             }
-            if (resultatDto.harInntrekkmulighet()) {
+            if (resultatDto.sumInntrekk() != null && resultatDto.sumInntrekk() != 0) {
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medAutomatiskInntrekk());
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
@@ -132,7 +140,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private void lagreBrukInntrekk(Behandling behandling, SimuleringResultatDto resultatDto) {
-        tilbakekrevingRepository.lagre(behandling, resultatDto.isSlåttAvInntrekk());
+        tilbakekrevingRepository.lagre(behandling, resultatDto.slåttAvInntrekk());
     }
 
     private LocalDateTime utledNesteKjøring() {
@@ -158,11 +166,11 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
         var harÅpenTilbakekreving = harÅpenTilbakekreving(behandling);
-        if (!harÅpenTilbakekreving && simuleringResultatDto.harFeilutbetaling()) {
+        if (!harÅpenTilbakekreving && SimuleringIntegrasjonTjeneste.harFeilutbetaling(simuleringResultatDto)) {
             LOG.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
-                behandling.getFagsak().getSaksnummer(), simuleringResultatDto.getSumFeilutbetaling(), simuleringResultatDto.getSumInntrekk(), simuleringResultatDto.isSlåttAvInntrekk());
+                behandling.getFagsak().getSaksnummer(), simuleringResultatDto.sumFeilutbetaling(), simuleringResultatDto.sumInntrekk(), simuleringResultatDto.slåttAvInntrekk());
         }
-        return harÅpenTilbakekreving && simuleringResultatDto.getSumFeilutbetaling() != 0;
+        return harÅpenTilbakekreving && simuleringResultatDto.sumFeilutbetaling() != 0;
     }
 
     private boolean harÅpenTilbakekreving(Behandling behandling) {

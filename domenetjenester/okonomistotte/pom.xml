@@ -36,6 +36,10 @@
 
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>simulering-resultat-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fp-ws-proxy-v1</artifactId>
         </dependency>
 		<dependency>

@@ -1,17 +1,19 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper.tilDto;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static no.nav.foreldrepenger.økonomistøtte.simulering.klient.OppdragsKontrollDtoMapper.tilDto;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 
 @ApplicationScoped
 public class SimuleringIntegrasjonTjeneste {
@@ -50,5 +52,9 @@ public class SimuleringIntegrasjonTjeneste {
     public Optional<SimuleringResultatDto> hentResultat(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "Utviklerfeil: behandlingId kan ikke være null");
         return restKlient.hentResultat(behandlingId);
+    }
+
+    public static boolean harFeilutbetaling(SimuleringResultatDto simuleringResultatDto) {
+        return simuleringResultatDto.sumFeilutbetaling() != null && simuleringResultatDto.sumFeilutbetaling() != 0;
     }
 }
