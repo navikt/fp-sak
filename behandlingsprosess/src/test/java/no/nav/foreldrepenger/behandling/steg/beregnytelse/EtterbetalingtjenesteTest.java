@@ -78,9 +78,58 @@ class EtterbetalingtjenesteTest {
         assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(2350L*virkedager));
     }
 
+    @Test
+    void flere_overlappende_perioder() {
+        lagOriginalPeriode(LocalDate.of(2023,8,14), LocalDate.of(2023,11,7), 785, false);
+        lagOriginalPeriode(LocalDate.of(2023,8,14), LocalDate.of(2023,11,7), 0, true);
+
+        lagOriginalPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 1963, false);
+
+        lagOriginalPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 1963, false);
+        lagOriginalPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 0, true);
+
+        lagOriginalPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 1963, false);
+
+        lagOriginalPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 0, true);
+        lagOriginalPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 1963, false);
+
+        lagOriginalPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 1963, false);
+        lagOriginalPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 0, true);
+
+        lagNyPeriode(LocalDate.of(2023,8,14), LocalDate.of(2023,11,7), 785, true);
+
+        lagNyPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 0, true);
+        lagNyPeriode(LocalDate.of(2023,6,5), LocalDate.of(2023,6,18), 1963, false);
+
+        lagNyPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 1963, false);
+        lagNyPeriode(LocalDate.of(2023,4,1), LocalDate.of(2023,6,2), 0, true);
+
+        lagNyPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 0, true);
+        lagNyPeriode(LocalDate.of(2023,2,20), LocalDate.of(2023,3,31), 1963, false);
+
+        lagNyPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 0, true);
+        lagNyPeriode(LocalDate.of(2023,1,30), LocalDate.of(2023,2,17), 1963, false);
+
+        lagNyPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 1963, false);
+        lagNyPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 0, true);
+
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 9, 11), originaltResultat, nyttResultat);
+        assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
+    }
+
     private void lagOriginalPeriode(LocalDate fom, LocalDate tom, int dagsats, boolean brukerErMottaker) {
-        var periode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(originaltResultat);
-        lagAndel(dagsats, brukerErMottaker, periode);
+        var eksisterende = originaltResultat.getBeregningsresultatPerioder()
+            .stream()
+            .filter(p -> p.getBeregningsresultatPeriodeFom().equals(fom))
+            .findFirst();
+        if (eksisterende.isPresent()) {
+            lagAndel(dagsats, brukerErMottaker, eksisterende.get());
+        } else {
+            var periode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(originaltResultat);
+            lagAndel(dagsats, brukerErMottaker, periode);
+        }
     }
 
     private void lagAndel(int dagsats, boolean brukerErMottaker, BeregningsresultatPeriode periode) {
@@ -96,8 +145,16 @@ class EtterbetalingtjenesteTest {
     }
 
     private void lagNyPeriode(LocalDate fom, LocalDate tom, int dagsats, boolean brukerErMottaker) {
-        var periode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(nyttResultat);
-        lagAndel(dagsats, brukerErMottaker, periode);
+        var eksisterende = nyttResultat.getBeregningsresultatPerioder()
+            .stream()
+            .filter(p -> p.getBeregningsresultatPeriodeFom().equals(fom))
+            .findFirst();
+        if (eksisterende.isPresent()) {
+            lagAndel(dagsats, brukerErMottaker, eksisterende.get());
+        } else {
+            var periode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(fom, tom).build(nyttResultat);
+            lagAndel(dagsats, brukerErMottaker, periode);
+        }
     }
 
 }
