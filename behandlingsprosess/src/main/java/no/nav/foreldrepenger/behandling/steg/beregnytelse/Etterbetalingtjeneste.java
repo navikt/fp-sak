@@ -30,7 +30,7 @@ public class Etterbetalingtjeneste {
      * @param nyttBeregningsresultat
      * @return
      */
-    public static EtterbetalingsKontroll finnSumSomVilBliEtterbetalt(LocalDate dagensDato, BeregningsresultatEntitet forrigeRes, BeregningsresultatEntitet nyttBeregningsresultat) {
+    public static EtterbetalingskontrollResultat finnSumSomVilBliEtterbetalt(LocalDate dagensDato, BeregningsresultatEntitet forrigeRes, BeregningsresultatEntitet nyttBeregningsresultat) {
         var sisteDagSomErUtbetalt = finnSisteUtbetalteDato(dagensDato);
         var originalUtbetaltTidslinje = lagUtbetaltTidslinje(sisteDagSomErUtbetalt, forrigeRes);
         var nyUtbetaltTidslinje = lagUtbetaltTidslinje(sisteDagSomErUtbetalt, nyttBeregningsresultat);
@@ -38,7 +38,7 @@ public class Etterbetalingtjeneste {
         var originalUtbetaling = BigDecimal.valueOf(summerDagsats(originalUtbetaltTidslinje));
         var nyUtbetaling = BigDecimal.valueOf(summerDagsats(nyUtbetaltTidslinje));
         var etterbetalingssum = nyUtbetaling.subtract(originalUtbetaling).max(BigDecimal.ZERO);
-        return new EtterbetalingsKontroll(etterbetalingssum, etterbetalingssum.compareTo(BigDecimal.valueOf(MAX_TILLATT_ETTERBETALING)) > 0);
+        return new EtterbetalingskontrollResultat(etterbetalingssum, etterbetalingssum.compareTo(BigDecimal.valueOf(MAX_TILLATT_ETTERBETALING)) > 0);
     }
 
     private static int summerDagsats(LocalDateTimeline<Integer> tidslinje) {
@@ -72,7 +72,4 @@ public class Etterbetalingtjeneste {
             .mapToInt(BeregningsresultatAndel::getDagsats)
             .sum();
     }
-
-    protected record EtterbetalingsKontroll(BigDecimal etterbetalingssum, boolean overstigerGrense) {}
-
 }

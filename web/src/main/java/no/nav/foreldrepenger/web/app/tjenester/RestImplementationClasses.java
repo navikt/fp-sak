@@ -126,6 +126,7 @@ public class RestImplementationClasses {
         classes.add(ForvaltningTekniskRestTjeneste.class);
         classes.add(ForvaltningUttrekkRestTjeneste.class);
         classes.add(ForvaltningOppdragRestTjeneste.class);
+        classes.add(ForvaltningTilkjentYtelseRestTjeneste.class);
         classes.add(ForvaltningOpptjeningRestTjeneste.class);
         classes.add(ForvaltningUttakRestTjeneste.class);
         classes.add(ForvaltningBehandlingRestTjeneste.class);
