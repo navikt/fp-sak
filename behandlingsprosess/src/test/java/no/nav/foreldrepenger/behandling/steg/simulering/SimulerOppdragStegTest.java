@@ -1,6 +1,20 @@
 package no.nav.foreldrepenger.behandling.steg.simulering;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import jakarta.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -21,21 +35,11 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
-import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpoppdragSystembrukerRestKlient;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
 
 @CdiDbAwareTest
 class SimulerOppdragStegTest {
@@ -46,7 +50,6 @@ class SimulerOppdragStegTest {
     private SimulerOppdragSteg steg;
     private final SimulerOppdragTjeneste simulerOppdragTjenesteMock = mock(SimulerOppdragTjeneste.class);
     private final FpOppdragRestKlient fpOppdragRestKlientMock = mock(FpOppdragRestKlient.class);
-    private final FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlientMock = mock(FpoppdragSystembrukerRestKlient.class);
     private final FptilbakeRestKlient fptilbakeRestKlientMock = mock(FptilbakeRestKlient.class);
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
 
@@ -148,7 +151,7 @@ class SimulerOppdragStegTest {
     void skal_kalle_kanseller_oppdrag_ved_tilbakehopp() {
         // Arrange
         steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
-                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpoppdragSystembrukerRestKlientMock,
+                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
                 fptilbakeRestKlientMock);
 
         mock(Behandling.class);
@@ -157,14 +160,14 @@ class SimulerOppdragStegTest {
         steg.vedHoppOverBakover(kontekst, null, null, null);
 
         // Verify
-        verify(fpoppdragSystembrukerRestKlientMock).kansellerSimulering(kontekst.getBehandlingId());
+        verify(fpOppdragRestKlientMock).kansellerSimulering(kontekst.getBehandlingId());
     }
 
     @Test
     void skal__ikke_kalle_kanseller_oppdrag_ved_tilbakehopp_tilSimulerOppdragSteget() {
         // Arrange
         steg = new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
-                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpoppdragSystembrukerRestKlientMock,
+                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
                 fptilbakeRestKlientMock);
 
         mock(Behandling.class);
@@ -173,7 +176,7 @@ class SimulerOppdragStegTest {
         steg.vedHoppOverBakover(kontekst, null, BehandlingStegType.SIMULER_OPPDRAG, null);
 
         // Verify
-        verify(fpoppdragSystembrukerRestKlientMock, never()).kansellerSimulering(kontekst.getBehandlingId());
+        verify(fpOppdragRestKlientMock, never()).kansellerSimulering(kontekst.getBehandlingId());
     }
 
     @Test
@@ -237,7 +240,7 @@ class SimulerOppdragStegTest {
 
     private SimulerOppdragSteg opprettSteg() {
         return new SimulerOppdragSteg(repositoryProvider, behandlingProsesseringTjeneste, simulerOppdragTjenesteMock,
-                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpoppdragSystembrukerRestKlientMock,
+                simuleringIntegrasjonTjeneste, tilbakekrevingRepository, fpOppdragRestKlientMock,
                 fptilbakeRestKlientMock);
     }
 

@@ -1,40 +1,56 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.UriBuilder;
-import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilDto;
-import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilType;
-import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.felles.integrasjon.rest.*;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_MULT_CHOICE;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
+import static no.nav.vedtak.mapper.json.DefaultJsonMapper.fromJson;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 
-import static java.net.HttpURLConnection.*;
-import static no.nav.vedtak.mapper.json.DefaultJsonMapper.fromJson;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriBuilder;
+
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilDto;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.error.FeilType;
+import no.nav.foreldrepenger.kontrakter.fpwsproxy.simulering.request.OppdragskontrollDto;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringDto;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPOPPDRAG)
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPOPPDRAG) // AzureCC pga kun les, kun pdl.getIdent kalles ut.
 public class FpOppdragRestKlient {
 
     private static final String FPOPPDRAG_HENT_RESULTAT = "/api/simulering/resultat";
+    private static final String FPOPPDRAG_HENT_RESULTAT_GUI = "/api/simulering/resultat-uten-inntrekk";
     private static final String FPOPPDRAG_START_SIMULERING = "/api/simulering/start";
+    private static final String FPOPPDRAG_KANSELLER_SIMULERING = "/api/simulering/kanseller";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriStartSimulering;
     private final URI uriHentResultat;
+    private final URI uriHentResultatGui;
+    private final URI uriKansellerSimulering;
 
     public FpOppdragRestKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(this.getClass());
         this.uriStartSimulering = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_START_SIMULERING).build();
         this.uriHentResultat = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_HENT_RESULTAT).build();
+        this.uriHentResultatGui = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_HENT_RESULTAT_GUI).build();
+        this.uriKansellerSimulering = UriBuilder.fromUri(restConfig.fpContextPath()).path(FPOPPDRAG_KANSELLER_SIMULERING).build();
     }
 
     /**
@@ -47,6 +63,11 @@ public class FpOppdragRestKlient {
         return restClient.sendReturnOptional(rrequest, SimuleringResultatDto.class);
     }
 
+    public Optional<SimuleringDto> hentSimuleringResultatMedOgUtenInntrekk(Long behandlingId) {
+        var rrequest = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriHentResultatGui, restConfig);
+        return restClient.sendReturnOptional(rrequest, SimuleringDto.class);
+    }
+
     /**
      * Starter en simulering for gitt behandling med oppdrag fra oppdragskontroll
      * @param oppdragskontrollDto med OppdragskontrollDto
@@ -54,6 +75,11 @@ public class FpOppdragRestKlient {
     public void startSimulering(OppdragskontrollDto oppdragskontrollDto) {
         var request = RestRequest.newPOSTJson(oppdragskontrollDto, uriStartSimulering, restConfig).timeout(Duration.ofSeconds(30));
         handleResponse(restClient.sendReturnUnhandled(request));
+    }
+
+    public void kansellerSimulering(Long behandlingId) {
+        var request = RestRequest.newPOSTJson(new BehandlingIdDto(behandlingId), uriKansellerSimulering, restConfig);
+        restClient.sendReturnOptional(request, String.class);
     }
 
     private static void handleResponse(HttpResponse<String> response) {
