@@ -1,19 +1,33 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsakTask;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -26,6 +40,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentT
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -33,8 +48,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("/forvaltningBehandling")
 @ApplicationScoped
@@ -71,7 +84,7 @@ public class ForvaltningBehandlingRestTjeneste {
     @Path("/henleggVentendeBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Ta behandling av vent og henlegg", tags = "FORVALTNING-behandling", responses = {
+    @Operation(description = "Ta alle behandlinger for sak av vent og henlegg", tags = "FORVALTNING-behandling", responses = {
             @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
@@ -88,6 +101,25 @@ public class ForvaltningBehandlingRestTjeneste {
         if (!behandlinger.isEmpty()) {
             LOG.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi());
             behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET));
+        }
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/henleggBehandlingTeknisk")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Ta en gitt behandling av vent og henlegg", tags = "FORVALTNING-behandling", responses = {
+        @ApiResponse(responseCode = "200", description = "Avslutter fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response henleggBehandlingTeknisk(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        if (!behandling.erSaksbehandlingAvsluttet()) {
+            LOG.info("Henlegger behandling for fagsak med saksnummer: {} ", behandling.getFagsak().getSaksnummer().getVerdi());
+            opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET);
         }
         return Response.ok().build();
     }
