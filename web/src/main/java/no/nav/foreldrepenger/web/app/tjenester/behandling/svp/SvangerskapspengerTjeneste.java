@@ -98,7 +98,7 @@ public class SvangerskapspengerTjeneste {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(BehandlingReferanse.fra(behandling), skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getSkjæringstidspunktOpptjening());
 
         gjeldendeTilrettelegginger.forEach(tilr -> {
-            var tilretteleggingDto = mapTilretteleggingsinfo(tilr, inntektsmeldinger, opprinneligeTilrettelegginger);
+            var tilretteleggingDto = mapTilretteleggingsinfo(tilr, inntektsmeldinger, opprinneligeTilrettelegginger, behandling);
             tilretteleggingDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(tilr, registerFilter, gjeldendeFilter));
             finnEksternRef(tilr, arbeidsforholdInformasjon).ifPresent(tilretteleggingDto::setEksternArbeidsforholdReferanse);
             tilretteleggingDto.setKanTilrettelegges(erTilgjengeligForBeregning(tilr, registerFilter));
@@ -137,11 +137,12 @@ public class SvangerskapspengerTjeneste {
         return aksjonspunkt.isPresent() && aksjonspunkt.get().erUtført();
     }
 
-    private SvpArbeidsforholdDto mapTilretteleggingsinfo(SvpTilretteleggingEntitet svpTilrettelegging, List<Inntektsmelding> inntektsmeldinger, List<SvpTilretteleggingEntitet> opprinneligeTilr) {
+    private SvpArbeidsforholdDto mapTilretteleggingsinfo(SvpTilretteleggingEntitet svpTilrettelegging, List<Inntektsmelding> inntektsmeldinger, List<SvpTilretteleggingEntitet> opprinneligeTilr,
+                                                         Behandling behandling) {
         var dto = new SvpArbeidsforholdDto();
         dto.setTilretteleggingId(svpTilrettelegging.getId());
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
-        dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging, opprinneligeTilr));
+        dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging, opprinneligeTilr, behandling));
         dto.setAvklarteOppholdPerioder(mapAvklartOppholdPeriode(svpTilrettelegging));
         // Ferie fra inntektsmelding skal vises til saksbehandler hvis finnes
         svpTilrettelegging.getArbeidsgiver()
@@ -221,11 +222,11 @@ public class SvangerskapspengerTjeneste {
         }
     }
 
-    private List<SvpTilretteleggingDatoDto> utledTilretteleggingDatoer(SvpTilretteleggingEntitet svpTilrettelegging, List<SvpTilretteleggingEntitet> opprinneligeTilr) {
+    private List<SvpTilretteleggingDatoDto> utledTilretteleggingDatoer(SvpTilretteleggingEntitet svpTilrettelegging, List<SvpTilretteleggingEntitet> opprinneligeTilr, Behandling behandling) {
         List<SvpTilretteleggingDatoDto> tilretteleggingDatoDtos = new ArrayList<>();
         svpTilrettelegging.getTilretteleggingFOMListe().forEach(fom -> {
             if (fom.getKilde()== null) {
-                var kilde = utledKildeForTilr(fom, svpTilrettelegging, opprinneligeTilr);
+                var kilde = utledKildeForTilr(fom, svpTilrettelegging, opprinneligeTilr, behandling);
                 tilretteleggingDatoDtos.add(new SvpTilretteleggingDatoDto(fom.getFomDato(), fom.getType(), fom.getStillingsprosent(), fom.getOverstyrtUtbetalingsgrad(), kilde, fom.getTidligstMotattDato()));
             } else {
                 tilretteleggingDatoDtos.add(
@@ -235,15 +236,18 @@ public class SvangerskapspengerTjeneste {
         return tilretteleggingDatoDtos;
     }
 
-    private SvpTilretteleggingFomKilde utledKildeForTilr(TilretteleggingFOM eksFom, SvpTilretteleggingEntitet svpTilrettelegging, List<SvpTilretteleggingEntitet> opprinneligeTilr) {
-        boolean tilrFomsErLikeSomOppr = opprinneligeTilr.stream()
+    private SvpTilretteleggingFomKilde utledKildeForTilr(TilretteleggingFOM eksFom, SvpTilretteleggingEntitet svpTilrettelegging, List<SvpTilretteleggingEntitet> opprinneligeTilr, Behandling behandling) {
+        Optional<TilretteleggingFOM> eksFomFinnesIOpprinneligGrunnlag = opprinneligeTilr.stream()
             .filter(opprTilr -> opprTilr.getId().equals(svpTilrettelegging.getId()))
             .flatMap(mathendeTilr -> mathendeTilr.getTilretteleggingFOMListe().stream())
-            .anyMatch(opprFom -> opprFom.equals(eksFom));
+            .filter(opprFom -> opprFom.equals(eksFom)).findFirst();
 
         if (Boolean.TRUE.equals(svpTilrettelegging.getKopiertFraTidligereBehandling())) {
+            if (behandling.erRevurdering() && eksFomFinnesIOpprinneligGrunnlag.isPresent() && behandling.getOpprettetDato().toLocalDate().equals(eksFomFinnesIOpprinneligGrunnlag.get().getTidligstMotattDato())) {
+                return SvpTilretteleggingFomKilde.SØKNAD;
+            }
             return SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK;
-        } else if (tilrFomsErLikeSomOppr) {
+        } else if (eksFomFinnesIOpprinneligGrunnlag.isPresent()) {
             return SvpTilretteleggingFomKilde.SØKNAD;
         } else {
             return SvpTilretteleggingFomKilde.ENDRET_AV_SAKSBEHANDLER;
