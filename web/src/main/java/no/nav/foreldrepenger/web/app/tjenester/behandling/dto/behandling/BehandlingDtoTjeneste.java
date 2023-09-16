@@ -51,7 +51,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -113,7 +112,6 @@ public class BehandlingDtoTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
-    private String fpoppdragOverrideProxyUrl;
     private TotrinnTjeneste totrinnTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
@@ -125,9 +123,7 @@ public class BehandlingDtoTjeneste {
                                  BeregningTjeneste beregningTjeneste,
                                  TilbakekrevingRepository tilbakekrevingRepository,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, BehandlingDokumentRepository behandlingDokumentRepository,
-                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                 @KonfigVerdi(value = "fpoppdrag.override.proxy.url", required = false) String fpoppdragOverrideProxyUrl,
-                                 TotrinnTjeneste totrinnTjeneste,
+                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste, TotrinnTjeneste totrinnTjeneste,
                                  DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
                                  FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
@@ -142,7 +138,6 @@ public class BehandlingDtoTjeneste {
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingDokumentRepository = behandlingDokumentRepository;
-        this.fpoppdragOverrideProxyUrl = fpoppdragOverrideProxyUrl;
         this.totrinnTjeneste = totrinnTjeneste;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
@@ -369,13 +364,11 @@ public class BehandlingDtoTjeneste {
                 dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
                 dto.setSjekkSimuleringResultat(true);
                 dto.leggTil(get(TilbakekrevingRestTjeneste.SIMULERING_PATH, "simulering-resultat", uuidDto));
-                lagSimuleringResultatLink(behandling).ifPresent(dto::leggTil);
             }
         } else {
             if (harSimuleringAksjonspunkt || beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).isPresent()) {
                 dto.setSjekkSimuleringResultat(true);
                 dto.leggTil(get(TilbakekrevingRestTjeneste.SIMULERING_PATH, "simulering-resultat", uuidDto));
-                lagSimuleringResultatLink(behandling).ifPresent(dto::leggTil);
             }
             dto.leggTil(get(YtelsefordelingRestTjeneste.YTELSESFORDELING_PATH, "ytelsefordeling", uuidDto));
             dto.leggTil(get(OpptjeningRestTjeneste.OPPTJENING_PATH, "opptjening", uuidDto));
@@ -511,12 +504,6 @@ public class BehandlingDtoTjeneste {
         return SkjæringstidspunktDto.fraSkjæringstidspunkt(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
-    private Optional<ResourceLink> lagSimuleringResultatLink(Behandling behandling) {
-        //fpoppdrag.override.proxy.url brukes ved testing lokalt og docker-compose
-        var baseUurl = fpoppdragOverrideProxyUrl != null ? fpoppdragOverrideProxyUrl : "/fpoppdrag/api";
-        return Optional.of(ResourceLink.post(baseUurl + "/simulering/resultat-uten-inntrekk", "simuleringResultat",
-            new InternBehandlingIdDto(behandling.getId())));
-    }
 
     private Optional<ResourceLink> lagTilbakekrevingValgLink(Behandling behandling) {
         var uuidDto = new UuidDto(behandling.getUuid());
@@ -527,9 +514,5 @@ public class BehandlingDtoTjeneste {
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
-    }
-
-    //Ikke bruk denne hvis ikke nødvendig, bruk BehandlingIdDto med UUID
-    private record InternBehandlingIdDto(Long behandlingId) {
     }
 }
