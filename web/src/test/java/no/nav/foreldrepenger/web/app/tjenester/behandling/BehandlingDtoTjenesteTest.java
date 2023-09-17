@@ -78,7 +78,7 @@ class BehandlingDtoTjenesteTest {
     @BeforeEach
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-                behandlingDokumentRepository, foreldrepengerUttakTjeneste, null, mock(TotrinnTjeneste.class),
+                behandlingDokumentRepository, foreldrepengerUttakTjeneste, mock(TotrinnTjeneste.class),
             dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste);
     }
 
