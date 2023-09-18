@@ -1,18 +1,20 @@
 package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import org.hibernate.jpa.HibernateHints;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import org.hibernate.jpa.HibernateHints;
+
+import no.nav.foreldrepenger.behandlingslager.BehandlingslagerRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class LagretVedtakRepository implements BehandlingslagerRepository {
@@ -50,29 +52,21 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
         return merge.getId();
     }
 
-
-    public LagretVedtak hentLagretVedtak(long lagretVedtakId) {
-        var query = entityManager.createQuery("from LagretVedtak where id=:lagretVedtakId", LagretVedtak.class);
-        query.setParameter("lagretVedtakId", lagretVedtakId);
-        query.setHint(HibernateHints.HINT_READ_ONLY, "true");
-        return hentEksaktResultat(query);
-    }
-
     public LagretVedtak hentLagretVedtakForBehandling(long behandlingId) {
-        var query = entityManager.createQuery("from LagretVedtak where BEHANDLING_ID=:behandlingId", LagretVedtak.class);
+        var query = entityManager.createQuery("from LagretVedtak where behandlingId=:behandlingId", LagretVedtak.class);
         query.setParameter("behandlingId", behandlingId);
         query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return hentEksaktResultat(query);
     }
 
     public LagretVedtak hentLagretVedtakForBehandlingForOppdatering(long behandlingId) {
-        var query = entityManager.createQuery("from LagretVedtak where BEHANDLING_ID=:behandlingId", LagretVedtak.class);
+        var query = entityManager.createQuery("from LagretVedtak where behandlingId=:behandlingId", LagretVedtak.class);
         query.setParameter("behandlingId", behandlingId);
         return hentEksaktResultat(query);
     }
 
     public List<LagretVedtak> hentLagreteVedtakPåFagsak(long fagsakId) {
-        var query = entityManager.createQuery("from LagretVedtak where FAGSAK_ID=:fagsakId", LagretVedtak.class);
+        var query = entityManager.createQuery("from LagretVedtak where fagsakId=:fagsakId", LagretVedtak.class);
         query.setParameter("fagsakId", fagsakId);
         query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();

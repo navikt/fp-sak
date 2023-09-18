@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
 
@@ -41,18 +43,29 @@ class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_finne_lagretVedtak_med_id() {
+    void skal_finne_lagretVedtak_med_behandling_id() {
+        lagreVedtak();
+
+        var lagretVedtak = lagretVedtakRepository.hentLagretVedtakForBehandling(BEHANDLING_ID);
+        assertThat(lagretVedtak).isNotNull();
+
+        var lagretVedtak2 = lagretVedtakRepository.hentLagretVedtakForBehandlingForOppdatering(BEHANDLING_ID);
+        assertThat(lagretVedtak2).isNotNull();
+    }
+
+    @Test
+    void skal_finne_lagretVedtak_med_fagsak_id() {
+        lagreVedtak();
+
+        var lagretVedtak = lagretVedtakRepository.hentLagreteVedtakPåFagsak(FAGSAK_ID);
+        assertThat(lagretVedtak).isNotNull();
+    }
+
+    private void lagreVedtak() {
         var lagretVedtakLagret = lagLagretVedtakMedPaakrevdeFelter();
         entityManager.persist(lagretVedtakLagret);
         entityManager.flush();
         entityManager.clear();
-        long idLagret = lagretVedtakLagret.getId();
-
-        var lagretVedtak = lagretVedtakRepository.hentLagretVedtak(idLagret);
-        assertThat(lagretVedtak).isNotNull();
-        assertThat(lagretVedtak.getFagsakId()).isEqualTo(FAGSAK_ID);
-        assertThat(lagretVedtak.getBehandlingId()).isEqualTo(BEHANDLING_ID);
-        assertThat(lagretVedtak.getXmlClob()).isEqualTo(STRING_XML);
     }
 
     private LagretVedtak lagLagretVedtakMedPaakrevdeFelter() {
