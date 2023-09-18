@@ -71,11 +71,11 @@ public class Endringskontroller {
         return behandling.getType().erYtelseBehandlingType() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP);
     }
 
-    // Kalles når behandlingen har ligget over natten (en dag) - selv om EndringsresultatDiff er tom.
+    // Kalles når behandlingen har ligget over natten (en dag) - selv om EndringsresultatDiff er tom. For å få med endringer i andre ytelser
     public void vurderNySimulering(Behandling behandling) {
-        // Engangsstønad påvirkes ikke av andre ytelser. Førstegangsbehandlinger skal normalt ikke ha feilutbetaling (utenom spesielle tilfelle)
+        // Engangsstønad påvirkes ikke av andre ytelser. Hvis det ikke ble feilutbetaling i forrige simulering så oppstår den ikke plutselig
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) ||
-            (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING))) {
+            !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING)) {
             return;
         }
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING) ||
