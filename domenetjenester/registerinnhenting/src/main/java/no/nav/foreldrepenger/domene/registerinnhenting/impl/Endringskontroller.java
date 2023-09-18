@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
@@ -72,8 +73,13 @@ public class Endringskontroller {
 
     // Kalles når behandlingen har ligget over natten (en dag) - selv om EndringsresultatDiff er tom.
     public void vurderNySimulering(Behandling behandling) {
-        // Vurder om man skal hoppe tilbake dersom ett av ForeslåVedtak-aksjonspunktene er åpne (og mer enn X dager gamle., evt ikke ES).
-        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING)) {
+        // Engangsstønad påvirkes ikke av andre ytelser. Førstegangsbehandlinger skal normalt ikke ha feilutbetaling (utenom spesielle tilfelle)
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) ||
+            (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && !behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING))) {
+            return;
+        }
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING) ||
+            !behandling.getÅpneAksjonspunkter(AksjonspunktDefinisjon.getForeslåVedtakAksjonspunkter()).isEmpty()) {
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
             doSpolTilSteg(kontekst, behandling, BehandlingStegType.SIMULER_OPPDRAG, null);
         }
