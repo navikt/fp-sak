@@ -1,11 +1,25 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -32,14 +46,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
 /**
  * Bygger et sammensatt resultat av FagsakBehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -208,29 +214,28 @@ public class FagsakBehandlingDtoTjeneste {
 
     private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {
         if (b.erSaksbehandlingAvsluttet()) {
-            return BehandlingOperasjonerDto.builder(b.getUuid()).build(); // Skal ikke foreta menyvalg lenger
+            return new BehandlingOperasjonerDto(b.getUuid()); // Skal ikke foreta menyvalg lenger
         }
         if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
             var tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(
                 KontekstHolder.getKontekst().getUid());
-            return BehandlingOperasjonerDto.builder(b.getUuid()).medTilGodkjenning(tilgokjenning).build();
+            return new BehandlingOperasjonerDto(b.getUuid(), tilgokjenning);
         }
         var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
             SpesialBehandling.erIkkeSpesialBehandling(b) && !b.erKøet() &&
             !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
         var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b.getId()).stream()
             .anyMatch(tt -> !tt.isGodkjent());
-        return BehandlingOperasjonerDto.builder(b.getUuid())
-            .medTilGodkjenning(false)
-            .medFraBeslutter(!b.isBehandlingPåVent() && totrinnRetur)
-            .medKanBytteEnhet(!b.erKøet())
-            .medKanHenlegges(SpesialBehandling.kanHenlegges(b))
-            .medKanSettesPaVent(!b.isBehandlingPåVent())
-            .medKanGjenopptas(b.isBehandlingPåVent() && !b.erKøet())
-            .medKanOpnesForEndringer(kanÅpnesForEndring)
-            .medKanSendeMelding(!b.isBehandlingPåVent())
-            .medVergemeny(vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny())
-            .build();
+        return new BehandlingOperasjonerDto(b.getUuid(),
+            !b.erKøet(), // Bytte enhet
+            SpesialBehandling.kanHenlegges(b), // Henlegges
+            b.isBehandlingPåVent() && !b.erKøet(), // Gjenopptas
+            kanÅpnesForEndring, // Åpnes for endring
+            !b.isBehandlingPåVent(), // Settes på vent
+            !b.isBehandlingPåVent(), // Sende melding
+            !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter
+            false, // Til godkjenning
+            vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny());
     }
 
 }
