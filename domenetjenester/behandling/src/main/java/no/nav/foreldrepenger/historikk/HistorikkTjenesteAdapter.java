@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.historikk;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -12,10 +17,6 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * RequestScoped fordi HistorikkInnslagTekstBuilder inneholder state og denne
@@ -45,7 +46,7 @@ public class HistorikkTjenesteAdapter {
 
     public List<HistorikkinnslagDto> hentAlleHistorikkInnslagForSak(Saksnummer saksnummer, URI dokumentPath) {
         var historikkinnslagList = Optional.ofNullable(historikkRepository.hentHistorikkForSaksnummer(saksnummer)).orElse(List.of());
-        var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSak(saksnummer).stream()
+        var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSakCached(saksnummer).stream()
                 .map(ArkivJournalPost::getJournalpostId)
                 .toList();
         return historikkinnslagList.stream()

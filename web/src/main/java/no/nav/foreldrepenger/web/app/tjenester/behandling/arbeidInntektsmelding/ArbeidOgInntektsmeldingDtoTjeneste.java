@@ -107,7 +107,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
         var motatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(referanse.fagsakId());
-        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterForVisning(referanse.saksnummer()).stream()
+        var alleInntektsmeldingerFraArkiv = dokumentArkivTjeneste.hentAlleDokumenterCached(referanse.saksnummer()).stream()
             .filter(this::gjelderInntektsmelding)
             .toList();
         return inntektsmeldinger.stream().map(im -> {

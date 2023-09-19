@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.kompletthet;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-
 import java.util.List;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 
 public interface Kompletthetsjekker {
     KompletthetResultat vurderSøknadMottatt(BehandlingReferanse ref);

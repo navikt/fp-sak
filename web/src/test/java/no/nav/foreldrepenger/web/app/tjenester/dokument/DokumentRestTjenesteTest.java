@@ -126,7 +126,7 @@ class DokumentRestTjenesteTest {
             .medHoveddokument(im)
             .build();
 
-        when(dokumentArkivTjeneste.hentAlleDokumenterForVisning(any())).thenReturn(List.of(søknadJP, søknadV, imJP));
+        when(dokumentArkivTjeneste.hentAlleDokumenterCached(any())).thenReturn(List.of(søknadJP, søknadV, imJP));
 
         var mds = new MottattDokument.Builder().medId(1001L).medJournalPostId(new JournalpostId("123"))
                 .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
