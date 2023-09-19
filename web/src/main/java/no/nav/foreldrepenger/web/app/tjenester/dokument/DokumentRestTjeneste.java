@@ -135,7 +135,7 @@ public class DokumentRestTjeneste {
                 .filter(mdok -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(mdok.getDokumentType().getKode()))
                 .collect(Collectors.groupingBy(MottattDokument::getJournalpostId));
 
-        var journalPostList = dokumentArkivTjeneste.hentAlleDokumenterForVisning(saksnummer);
+        var journalPostList = dokumentArkivTjeneste.hentAlleDokumenterCached(saksnummer);
         List<DokumentDto> dokumentResultat = new ArrayList<>();
         journalPostList.forEach(
                 arkivJournalPost -> dokumentResultat.addAll(mapFraArkivJournalPost(arkivJournalPost, mottatteIMDokument, inntektsMeldinger)));
