@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -247,6 +248,20 @@ public class FagsakRepository {
     public List<FagsakNotat> hentFagsakNotater(Long fagsakId) {
         var query = entityManager.createQuery("from FagsakNotat where fagsakId=:fagsakId AND aktiv = true order by opprettetTidspunkt asc", FagsakNotat.class)
             .setParameter("fagsakId", fagsakId);
+        return query.getResultList();
+    }
+
+
+    public List<Fagsak> finnLøpendeFagsakerFPForEnPeriode(DatoIntervallEntitet periode) {
+        var query = entityManager.createQuery("select f from Fagsak f " +
+                    "where f.fagsakStatus = :lopende and f.opprettetTidspunkt > :fom and f.opprettetTidspunkt < :tom and f.ytelseType in (:fp, :svp)",
+                Fagsak.class)
+            .setParameter("lopende", FagsakStatus.LØPENDE)
+            .setParameter("fom", periode.getFomDato())
+            .setParameter("tom", periode.getTomDato())
+            .setParameter("fp", FagsakYtelseType.FORELDREPENGER)
+            .setParameter("svp", FagsakYtelseType.SVANGERSKAPSPENGER);
+
         return query.getResultList();
     }
 
