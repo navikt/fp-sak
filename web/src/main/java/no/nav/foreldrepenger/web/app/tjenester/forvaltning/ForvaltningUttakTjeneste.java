@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -15,9 +19,6 @@ import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @ApplicationScoped
 public class ForvaltningUttakTjeneste {
@@ -75,18 +76,19 @@ public class ForvaltningUttakTjeneste {
 
     public void endreAnnenForelderHarRettEØS(UUID behandlingUUID, boolean annenForelderHarRettEØS, boolean annenForelderHarOppholdEØS) {
         var behandling = behandlingRepository.hentBehandling(behandlingUUID);
-        if (behandling.erRevurdering()) {
-            throw new ForvaltningException("Kan ikke endre EØS rett i revurdering. Hvis nødvendig må vi utvide tjenesten til å lagre bekreftet versjon");
-        }
         var behandlingId = behandling.getId();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
-        if (ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() != null) {
+        if (!behandling.erRevurdering() && ytelseFordelingAggregat.getAnnenForelderRettEØSAvklaring() != null) {
             throw new ForvaltningException("Kan ikke endre oppgitt EØS rett hvis rett og omsorg allerede er avklart i aksjonspunkt. "
                 + "Hopp behandlingen tilbake til tidligere steg for å fjerne avklaringen. Senest steg KONTROLLER_OMSORG_RETT");
         }
 
         var nyRettighet = new OppgittRettighetEntitet(false, false, false, annenForelderHarRettEØS, annenForelderHarOppholdEØS);
-        ytelseFordelingTjeneste.endreOppgittRettighet(behandlingId, nyRettighet);
+        if (ytelseFordelingAggregat.getOverstyrtRettighet().isEmpty()) {
+            ytelseFordelingTjeneste.endreOppgittRettighet(behandlingId, nyRettighet);
+        } else {
+            ytelseFordelingTjeneste.endreOverstyrtRettighet(behandlingId, nyRettighet);
+        }
         var begrunnelse = annenForelderHarRettEØS ? "FORVALTNING - Endret til at bruker har oppgitt at annen forelder har rett i EØS" :
             "FORVALTNING - Endret til at bruker har oppgitt at annen forelder ikke har rett i EØS";
         lagHistorikkinnslagRett(behandlingId, begrunnelse);

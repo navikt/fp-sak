@@ -1,16 +1,21 @@
 package no.nav.foreldrepenger.domene.ytelsefordeling;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 public class YtelseFordelingTjeneste {
@@ -101,6 +106,12 @@ public class YtelseFordelingTjeneste {
         var ytelseFordelingAggregatBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(oppgittRettighetEntitet);
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
+    }
+
+    public void endreOverstyrtRettighet(Long behandlingId, OppgittRettighetEntitet nyRettighet) {
+        var builder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOverstyrtRettighet(nyRettighet);
+        ytelsesFordelingRepository.lagre(behandlingId, builder.build());
     }
 
     public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett, Boolean annenForelderHarRettEØS, Boolean annenforelderMottarUføretrygd) {
