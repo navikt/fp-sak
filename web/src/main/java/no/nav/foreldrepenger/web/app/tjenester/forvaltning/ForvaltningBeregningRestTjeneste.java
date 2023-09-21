@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 import no.nav.foreldrepenger.behandling.revurdering.satsregulering.GrunnbeløpReguleringTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -21,9 +22,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
+import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -38,11 +54,17 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Path("/forvaltningBeregning")
 @ApplicationScoped
@@ -55,18 +77,24 @@ public class ForvaltningBeregningRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private InntektArbeidYtelseTjeneste iayTjeneste;
 
     @Inject
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
                                             BehandlingRepository behandlingRepository,
                                             BeregningsresultatRepository beregningsresultatRepository,
                                             FagsakRepository fagsakRepository,
-                                            BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
+                                            BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
+                                            BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                            InntektArbeidYtelseTjeneste iayTjeneste) {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.fagsakRepository = fagsakRepository;
         this.beregningsgrunnlagInputProvider = beregningsgrunnlagInputProvider;
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+        this.iayTjeneste = iayTjeneste;
     }
 
     public ForvaltningBeregningRestTjeneste() {
@@ -76,24 +104,21 @@ public class ForvaltningBeregningRestTjeneste {
     @GET
     @Path("/satsHentGjeldende")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent liste av gjeldende eller nyeste sats", tags = "FORVALTNING-beregning", responses = {
-            @ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))
-    })
+    @Operation(description = "Hent liste av gjeldende eller nyeste sats", tags = "FORVALTNING-beregning", responses = {@ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
     public List<BeregningSatsDto> hentGjeldendeSatser() {
-        return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT).stream()
-                .map(beregningsresultatRepository::finnGjeldendeSats)
-                .map(BeregningSatsDto::new)
-                .toList();
+        return Set.of(BeregningSatsType.ENGANG, BeregningSatsType.GRUNNBELØP, BeregningSatsType.GSNITT)
+            .stream()
+            .map(beregningsresultatRepository::finnGjeldendeSats)
+            .map(BeregningSatsDto::new)
+            .toList();
     }
 
     @POST
     @Path("/satsLagreNy")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagre ny sats", tags = "FORVALTNING-beregning", responses = {
-            @ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))
-    })
+    @Operation(description = "Lagre ny sats", tags = "FORVALTNING-beregning", responses = {@ApiResponse(responseCode = "200", description = "Gjeldende satser", content = @Content(array = @ArraySchema(arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = BeregningSatsDto.class)), mediaType = MediaType.APPLICATION_JSON))})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public List<BeregningSatsDto> lagreNySats(@BeanParam @Valid @NotNull BeregningSatsDto dto) {
         var type = dto.getSatsType();
@@ -129,29 +154,23 @@ public class ForvaltningBeregningRestTjeneste {
         if (!brukTom.isAfter(dto.getSatsFom()) || !dto.getSatsFom().isAfter(gjeldende.getPeriode().getFomDato()))
             return false;
         if (BeregningSatsType.GRUNNBELØP.equals(gjeldende.getSatsType())) {
-            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth())
-                    && dto.getSatsFom().getDayOfMonth() == 1;
+            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth()) && dto.getSatsFom().getDayOfMonth() == 1;
         }
         if (BeregningSatsType.ENGANG.equals(gjeldende.getSatsType())) {
             return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom());
         }
         // GSNITT skal være bounded
-        return dto.getSatsTom() != null && dto.getSatsFom().equals(gjeldende.getPeriode().getTomDato().plusDays(1))
-                && dto.getSatsTom().equals(dto.getSatsFom().plusYears(1).minusDays(1));
+        return dto.getSatsTom() != null && dto.getSatsFom().equals(gjeldende.getPeriode().getTomDato().plusDays(1)) && dto.getSatsTom()
+            .equals(dto.getSatsFom().plusYears(1).minusDays(1));
     }
 
     @POST
     @Path("/opprettGreguleringEnkeltSak")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Steng fagsak og flytt til Infotrygd", tags = "FORVALTNING-fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Flyttet fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-        @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
+    @Operation(description = "Steng fagsak og flytt til Infotrygd", tags = "FORVALTNING-fagsak", responses = {@ApiResponse(responseCode = "200", description = "Flyttet fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))), @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response opprettGreguleringEnkeltSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-                                                    @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response opprettGreguleringEnkeltSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
         var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
@@ -206,4 +225,115 @@ public class ForvaltningBeregningRestTjeneste {
         return Response.ok(kalkulatorInputDto).build();
     }
 
+    @POST
+    @Path("/sjekkDiffInntektRegisterMotInntektsmelding")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter ut behandlinger med diff på inntekt register og IM for en periode", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response hentInfOmBehandlingerMedDiff() {
+        LocalDate fraDato = LocalDate.now().minusMonths(2);
+        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, fraDato.plusDays(2));
+
+        //Hent alle behandlinger som er vedtatt på foreldrepegner og har 1 arbeidsforhold i perioden
+        List<Fagsak> fagsaker = fagsakRepository.finnLøpendeFagsakerFPForEnPeriode(periode);
+        List<DiffInntektIMData> resultatAvDiffInntektImData = new ArrayList<>();
+
+        fagsaker.forEach(fagsak -> {
+            Behandling behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElse(null);
+            List<DetaljerMedDiff> detaljerMedDiffs = new ArrayList<>();
+            int tellerDiff = 0;
+            int tellerUtenDiff = 0;
+
+            if (behandling != null) {
+                var behandlingId = behandling.getId();
+
+                var beregningsgrunnlagPerStatusOgAndelListe = getBeregningsgrunnlagPerStatusOgAndelForArbeidsgivere(behandlingId);
+                if (beregningsgrunnlagPerStatusOgAndelListe.size() == 1) {
+                    var beregningsgrunnlagPerStatusOgAndel = beregningsgrunnlagPerStatusOgAndelListe.get(0);
+                    var arbeidsgiver = beregningsgrunnlagPerStatusOgAndel.getArbeidsgiver().orElseThrow(() -> new IllegalStateException ("Arbeidsgiverandel mangler arbeidsgiver"));
+                        DatoIntervallEntitet beregningsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeFom(), beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeTom());
+                        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
+
+                        var beløpFraIM = hentBeregnetBeløpFraIm(inntektArbeidYtelseGrunnlag, arbeidsgiver);
+
+                        var inntekterIBeregningsperioden = hentInntekterFraAInntektIBeregningsperioden(behandling, arbeidsgiver, beregningsperiode,inntektArbeidYtelseGrunnlag);
+
+                        var sumInntekterAInntekt = inntekterIBeregningsperioden.stream().map(Inntektspost::getBeløp).reduce(Beløp::adder).orElseThrow(() -> new IllegalStateException("Mangler beløp fra A-inntekt"));
+
+                        if (beløpFraIM.compareTo(sumInntekterAInntekt) != 0) {
+                            tellerDiff++;
+                            detaljerMedDiffs.add(new DetaljerMedDiff(fagsak.getSaksnummer().getVerdi(), behandling.getUuid(), beregningsperiode,
+                                sumInntekterAInntekt.getVerdi().divide(BigDecimal.valueOf(3), 10, RoundingMode.HALF_EVEN), beløpFraIM.getVerdi(), beløpFraIM.subtract(sumInntekterAInntekt).getVerdi(),
+                                mapInntekter(inntekterIBeregningsperioden)));
+                        } else {
+                            tellerUtenDiff++;
+                        }
+                        resultatAvDiffInntektImData.add(new DiffInntektIMData(tellerUtenDiff, tellerDiff, detaljerMedDiffs));
+                }
+            }
+        });
+
+        if (resultatAvDiffInntektImData.isEmpty()) {
+            return Response.noContent().build();
+        }
+        return Response.ok(resultatAvDiffInntektImData).build();
+    }
+
+    private static List<Inntektspost> hentInntekterFraAInntektIBeregningsperioden(Behandling behandling,
+                                                                      Arbeidsgiver arbeidsgiver,
+                                                                      DatoIntervallEntitet beregningsperiode,
+                                                                      InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+        return inntektArbeidYtelseGrunnlag.getAktørInntektFraRegister(behandling.getAktørId())
+            .map(AktørInntekt::getInntekt)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(innt -> innt.getInntektsKilde().equals(InntektsKilde.INNTEKT_BEREGNING))
+            .filter(innt -> innt.getArbeidsgiver() != null && innt.getArbeidsgiver().equals(arbeidsgiver))
+            .map(Inntekt::getAlleInntektsposter)
+            .flatMap(Collection::stream)
+            .filter(inntektsposts -> inntektsposts.getPeriode().overlapper(beregningsperiode))
+            .filter(inntektspost -> !inntektspost.getBeløp().erNullEllerNulltall())
+            .toList();
+    }
+
+    private static Beløp hentBeregnetBeløpFraIm(InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, Arbeidsgiver arbeidsgiver) {
+        return inntektArbeidYtelseGrunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+            .stream()
+            .flatMap(Collection::stream)
+            .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver))
+            .findFirst()
+            .map(Inntektsmelding::getInntektBeløp)
+            .orElse(new Beløp(BigDecimal.ZERO));
+    }
+
+    private List<BeregningsgrunnlagPrStatusOgAndel> getBeregningsgrunnlagPerStatusOgAndelForArbeidsgivere(Long behandlingId) {
+        //filtrere på de som har en arbeidsgiver
+        return beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingId)
+            .map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+            .stream()
+            .findFirst()
+            .stream()
+            .flatMap(Collection::stream)
+            .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+            .flatMap(Collection::stream)
+            .filter(beregningsgrunnlagPrStatusOgAndel -> beregningsgrunnlagPrStatusOgAndel.getArbeidsgiver().isPresent())
+            .toList();
+    }
+
+    private List<InntektPerioderRegister> mapInntekter(List<Inntektspost> inntekterIBeregningsperioden) {
+        List<InntektPerioderRegister> inntekterFraRegister = new ArrayList<>();
+        inntekterIBeregningsperioden.forEach(inntektspost -> inntekterFraRegister.add(new InntektPerioderRegister(inntektspost.getPeriode(), inntektspost.getBeløp().getVerdi())));
+        return inntekterFraRegister;
+    }
+
+    record DiffInntektIMData(int antallUtendiff, int antallMedDiff, List<DetaljerMedDiff> listeOverAvvikeneIperioden) {
+    }
+
+    record DetaljerMedDiff(String saksnummer, UUID behandlingUuid, DatoIntervallEntitet beregningsperiode, BigDecimal gjennsnittAbakus, BigDecimal beløpFraIm, BigDecimal differanse, List<InntektPerioderRegister> inntPerioder) {
+    }
+
+    record InntektPerioderRegister(DatoIntervallEntitet periode, BigDecimal beløp) {
+    }
 }
