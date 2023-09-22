@@ -1,19 +1,41 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.revurdering.satsregulering.GrunnbeløpReguleringTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -51,20 +73,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 
 @Path("/forvaltningBeregning")
 @ApplicationScoped
@@ -232,11 +240,10 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Henter ut behandlinger med diff på inntekt register og IM for en periode", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response hentInfOmBehandlingerMedDiff() {
-        LocalDate fraDato = LocalDate.now().minusMonths(2);
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraDato, fraDato.plusDays(2));
+        LocalDateTime fraDatoTid = LocalDateTime.now().minusMonths(2);
 
         //Hent alle behandlinger som er vedtatt på foreldrepegner og har 1 arbeidsforhold i perioden
-        List<Fagsak> fagsaker = fagsakRepository.finnLøpendeFagsakerFPForEnPeriode(periode);
+        List<Fagsak> fagsaker = fagsakRepository.finnLøpendeFagsakerFPForEnPeriode(fraDatoTid, fraDatoTid.plusDays(2));
         List<DiffInntektIMData> resultatAvDiffInntektImData = new ArrayList<>();
 
         fagsaker.forEach(fagsak -> {
