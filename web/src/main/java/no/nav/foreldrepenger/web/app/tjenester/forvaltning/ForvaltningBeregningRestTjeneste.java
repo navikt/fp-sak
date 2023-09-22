@@ -246,6 +246,8 @@ public class ForvaltningBeregningRestTjeneste {
         List<Fagsak> fagsaker = fagsakRepository.finnLøpendeFagsakerFPForEnPeriode(fraDatoTid, fraDatoTid.plusDays(2));
         List<DiffInntektIMData> resultatAvDiffInntektImData = new ArrayList<>();
 
+        LOG.info("sjekkDiffInntektRegisterMotInntektsmelding: Antall saker funnet: {}", fagsaker.size());
+
         fagsaker.forEach(fagsak -> {
             Behandling behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElse(null);
             List<DetaljerMedDiff> detaljerMedDiffs = new ArrayList<>();
@@ -266,17 +268,22 @@ public class ForvaltningBeregningRestTjeneste {
 
                         var inntekterIBeregningsperioden = hentInntekterFraAInntektIBeregningsperioden(behandling, arbeidsgiver, beregningsperiode,inntektArbeidYtelseGrunnlag);
 
-                        var sumInntekterAInntekt = inntekterIBeregningsperioden.stream().map(Inntektspost::getBeløp).reduce(Beløp::adder).orElseThrow(() -> new IllegalStateException("Mangler beløp fra A-inntekt"));
+                        var sumInntekterAInntekt = inntekterIBeregningsperioden.stream().map(Inntektspost::getBeløp).filter(Objects::nonNull).reduce(Beløp::adder).orElse(Beløp.ZERO);
 
-                        if (beløpFraIM.compareTo(sumInntekterAInntekt) != 0) {
-                            tellerDiff++;
-                            detaljerMedDiffs.add(new DetaljerMedDiff(fagsak.getSaksnummer().getVerdi(), behandling.getUuid(), beregningsperiode,
-                                sumInntekterAInntekt.getVerdi().divide(BigDecimal.valueOf(3), 10, RoundingMode.HALF_EVEN), beløpFraIM.getVerdi(), beløpFraIM.subtract(sumInntekterAInntekt).getVerdi(),
-                                mapInntekter(inntekterIBeregningsperioden)));
+                        if (sumInntekterAInntekt == Beløp.ZERO) {
+                            LOG.info("Mangler beløp i A-inntekt for sak {}, beløp fra IM: {}", fagsak.getSaksnummer().getVerdi(), beløpFraIM);
                         } else {
-                            tellerUtenDiff++;
+                            if (beløpFraIM.compareTo(sumInntekterAInntekt) != 0) {
+                                tellerDiff++;
+                                detaljerMedDiffs.add(new DetaljerMedDiff(fagsak.getSaksnummer().getVerdi(), behandling.getUuid(), beregningsperiode,
+                                    sumInntekterAInntekt.getVerdi().divide(BigDecimal.valueOf(3), 10, RoundingMode.HALF_EVEN), beløpFraIM.getVerdi(),
+                                    beløpFraIM.subtract(sumInntekterAInntekt).getVerdi(), mapInntekter(inntekterIBeregningsperioden)));
+                            } else {
+                                tellerUtenDiff++;
+                            }
+                            resultatAvDiffInntektImData.add(new DiffInntektIMData(tellerUtenDiff, tellerDiff, detaljerMedDiffs));
+                            LOG.info("Resultat av sjekkDiffInntektRegisterMotInntektsmelding {}", resultatAvDiffInntektImData);
                         }
-                        resultatAvDiffInntektImData.add(new DiffInntektIMData(tellerUtenDiff, tellerDiff, detaljerMedDiffs));
                 }
             }
         });
