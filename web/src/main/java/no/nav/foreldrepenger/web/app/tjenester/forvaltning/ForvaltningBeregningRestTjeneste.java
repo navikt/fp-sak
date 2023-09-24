@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
@@ -67,6 +66,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -243,54 +243,52 @@ public class ForvaltningBeregningRestTjeneste {
         LocalDateTime fraDatoTid = LocalDateTime.now().minusMonths(2);
 
         //Hent alle behandlinger som er vedtatt på foreldrepegner og har 1 arbeidsforhold i perioden
-        List<Fagsak> fagsaker = fagsakRepository.finnLøpendeFagsakerFPForEnPeriode(fraDatoTid, fraDatoTid.plusDays(2));
+        List<Fagsak> fagsaker = fagsakRepository.finnLøpendeFagsakerFPForEnPeriode(fraDatoTid, fraDatoTid.plusDays(1));
         List<DiffInntektIMData> resultatAvDiffInntektImData = new ArrayList<>();
 
         LOG.info("sjekkDiffInntektRegisterMotInntektsmelding: Antall saker funnet: {}", fagsaker.size());
 
-        fagsaker.forEach(fagsak -> {
+        List<DetaljerMedDiff> detaljerMedDiffs = new ArrayList<>();
+        int tellerDiff = 0;
+        int tellerUtenDiff = 0;
+
+        for (var fagsak : fagsaker) {
             Behandling behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElse(null);
-            List<DetaljerMedDiff> detaljerMedDiffs = new ArrayList<>();
-            int tellerDiff = 0;
-            int tellerUtenDiff = 0;
 
             if (behandling != null) {
                 var behandlingId = behandling.getId();
-
                 var beregningsgrunnlagPerStatusOgAndelListe = getBeregningsgrunnlagPerStatusOgAndelForArbeidsgivere(behandlingId);
+
                 if (beregningsgrunnlagPerStatusOgAndelListe.size() == 1) {
-                    var beregningsgrunnlagPerStatusOgAndel = beregningsgrunnlagPerStatusOgAndelListe.get(0);
-                    var arbeidsgiver = beregningsgrunnlagPerStatusOgAndel.getArbeidsgiver().orElseThrow(() -> new IllegalStateException ("Arbeidsgiverandel mangler arbeidsgiver"));
+                    try {
+                        var beregningsgrunnlagPerStatusOgAndel = beregningsgrunnlagPerStatusOgAndelListe.get(0);
+                        var arbeidsgiver = beregningsgrunnlagPerStatusOgAndel.getArbeidsgiver().orElseThrow(() -> new IllegalStateException ("Arbeidsgiverandel mangler arbeidsgiver"));
                         DatoIntervallEntitet beregningsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeFom(), beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeTom());
                         InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
 
                         var beløpFraIM = hentBeregnetBeløpFraIm(inntektArbeidYtelseGrunnlag, arbeidsgiver);
-
-                        var inntekterIBeregningsperioden = hentInntekterFraAInntektIBeregningsperioden(behandling, arbeidsgiver, beregningsperiode,inntektArbeidYtelseGrunnlag);
-
+                        var inntekterIBeregningsperioden = hentInntekterFraAInntektIBeregningsperioden(behandling, arbeidsgiver, beregningsperiode, inntektArbeidYtelseGrunnlag);
                         var sumInntekterAInntekt = inntekterIBeregningsperioden.stream().map(Inntektspost::getBeløp).filter(Objects::nonNull).reduce(Beløp::adder).orElse(Beløp.ZERO);
 
-                        if (sumInntekterAInntekt == Beløp.ZERO) {
-                            LOG.info("Mangler beløp i A-inntekt for sak {}, beløp fra IM: {}", fagsak.getSaksnummer().getVerdi(), beløpFraIM);
-                        } else {
-                            if (beløpFraIM.compareTo(sumInntekterAInntekt) != 0) {
+                        if (sumInntekterAInntekt != Beløp.ZERO) {
+                            var gjennomsnittInntektAInntekt = sumInntekterAInntekt.getVerdi().divide(BigDecimal.valueOf(3), 10, RoundingMode.HALF_EVEN);
+                            if (beløpFraIM.compareTo(gjennomsnittInntektAInntekt) != 0 ) {
                                 tellerDiff++;
-                                detaljerMedDiffs.add(new DetaljerMedDiff(fagsak.getSaksnummer().getVerdi(), behandling.getUuid(), beregningsperiode,
-                                    sumInntekterAInntekt.getVerdi().divide(BigDecimal.valueOf(3), 10, RoundingMode.HALF_EVEN), beløpFraIM.getVerdi(),
-                                    beløpFraIM.subtract(sumInntekterAInntekt).getVerdi(), mapInntekter(inntekterIBeregningsperioden)));
+                                detaljerMedDiffs.add(new DetaljerMedDiff(fagsak.getSaksnummer().getVerdi(), behandling.getUuid(), beregningsperiode, gjennomsnittInntektAInntekt, beløpFraIM,  beløpFraIM.subtract(gjennomsnittInntektAInntekt), mapInntekter(inntekterIBeregningsperioden)));
                             } else {
                                 tellerUtenDiff++;
                             }
-                            resultatAvDiffInntektImData.add(new DiffInntektIMData(tellerUtenDiff, tellerDiff, detaljerMedDiffs));
-                            LOG.info("Resultat av sjekkDiffInntektRegisterMotInntektsmelding {}", resultatAvDiffInntektImData);
                         }
+                    } catch (ManglerTilgangException e){
+                        LOG.info("Mangler tilgang, fortsetter");
+                    }
                 }
             }
-        });
-
-        if (resultatAvDiffInntektImData.isEmpty()) {
-            return Response.noContent().build();
         }
+
+        resultatAvDiffInntektImData.add(new DiffInntektIMData(tellerUtenDiff, tellerDiff, detaljerMedDiffs));
+
+        LOG.info("Resultat av sjekkDiffInntektRegisterMotInntektsmelding {}", resultatAvDiffInntektImData);
         return Response.ok(resultatAvDiffInntektImData).build();
     }
 
@@ -311,15 +309,15 @@ public class ForvaltningBeregningRestTjeneste {
             .toList();
     }
 
-    private static Beløp hentBeregnetBeløpFraIm(InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, Arbeidsgiver arbeidsgiver) {
+    private static BigDecimal hentBeregnetBeløpFraIm(InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag, Arbeidsgiver arbeidsgiver) {
         return inntektArbeidYtelseGrunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
             .flatMap(Collection::stream)
             .filter(inntektsmelding -> inntektsmelding.getArbeidsgiver().equals(arbeidsgiver))
             .findFirst()
-            .map(Inntektsmelding::getInntektBeløp)
-            .orElse(new Beløp(BigDecimal.ZERO));
+            .map(inntektsmelding -> inntektsmelding.getInntektBeløp().getVerdi())
+            .orElse(BigDecimal.ZERO);
     }
 
     private List<BeregningsgrunnlagPrStatusOgAndel> getBeregningsgrunnlagPerStatusOgAndelForArbeidsgivere(Long behandlingId) {
