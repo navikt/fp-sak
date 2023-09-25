@@ -66,7 +66,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -258,34 +258,48 @@ public class ForvaltningBeregningRestTjeneste {
             if (behandling != null) {
                 var behandlingId = behandling.getId();
                 var beregningsgrunnlagPerStatusOgAndelListe = getBeregningsgrunnlagPerStatusOgAndelForArbeidsgivere(behandlingId);
-
+                //ønsker kun å hente de med 1 arbeidsforhold
                 if (beregningsgrunnlagPerStatusOgAndelListe.size() == 1) {
                     try {
                         var beregningsgrunnlagPerStatusOgAndel = beregningsgrunnlagPerStatusOgAndelListe.get(0);
-                        var arbeidsgiver = beregningsgrunnlagPerStatusOgAndel.getArbeidsgiver().orElseThrow(() -> new IllegalStateException ("Arbeidsgiverandel mangler arbeidsgiver"));
-                        DatoIntervallEntitet beregningsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeFom(), beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeTom());
+                        var arbeidsgiver = beregningsgrunnlagPerStatusOgAndel.getArbeidsgiver()
+                            .orElseThrow(() -> new IllegalStateException("Arbeidsgiverandel mangler arbeidsgiver"));
+                        DatoIntervallEntitet beregningsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(
+                            beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeFom(),
+                            beregningsgrunnlagPerStatusOgAndel.getBeregningsperiodeTom());
                         InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
 
                         var beløpFraIM = hentBeregnetBeløpFraIm(inntektArbeidYtelseGrunnlag, arbeidsgiver);
-                        var inntekterIBeregningsperioden = hentInntekterFraAInntektIBeregningsperioden(behandling, arbeidsgiver, beregningsperiode, inntektArbeidYtelseGrunnlag);
-                        var sumInntekterAInntekt = inntekterIBeregningsperioden.stream().map(Inntektspost::getBeløp).filter(Objects::nonNull).reduce(Beløp::adder).orElse(Beløp.ZERO);
+                        var inntekterIBeregningsperioden = hentInntekterFraAInntektIBeregningsperioden(behandling, arbeidsgiver, beregningsperiode,
+                            inntektArbeidYtelseGrunnlag);
+                        var sumInntekterAInntekt = inntekterIBeregningsperioden.stream()
+                            .map(Inntektspost::getBeløp)
+                            .filter(Objects::nonNull)
+                            .reduce(Beløp::adder)
+                            .orElse(Beløp.ZERO);
 
                         if (sumInntekterAInntekt != Beløp.ZERO) {
-                            var gjennomsnittInntektAInntekt = sumInntekterAInntekt.getVerdi().divide(BigDecimal.valueOf(3), 10, RoundingMode.HALF_EVEN);
-                            if (beløpFraIM.compareTo(gjennomsnittInntektAInntekt) != 0 ) {
+                            var gjennomsnittInntektAInntekt = sumInntekterAInntekt.getVerdi()
+                                .divide(BigDecimal.valueOf(3), 10, RoundingMode.HALF_EVEN);
+                            if (beløpFraIM.compareTo(gjennomsnittInntektAInntekt) != 0) {
                                 tellerDiff++;
-                                detaljerMedDiffs.add(new DetaljerMedDiff(fagsak.getSaksnummer().getVerdi(), behandling.getUuid(), beregningsperiode, gjennomsnittInntektAInntekt, beløpFraIM,  beløpFraIM.subtract(gjennomsnittInntektAInntekt), mapInntekter(inntekterIBeregningsperioden)));
+                                detaljerMedDiffs.add(new DetaljerMedDiff(fagsak.getSaksnummer().getVerdi(), behandling.getUuid(), beregningsperiode,
+                                    gjennomsnittInntektAInntekt, beløpFraIM, beløpFraIM.subtract(gjennomsnittInntektAInntekt),
+                                    mapInntekter(inntekterIBeregningsperioden)));
                             } else {
                                 tellerUtenDiff++;
                             }
                         }
-                    } catch (ManglerTilgangException e){
-                        LOG.info("Mangler tilgang, fortsetter");
+                    } catch (TekniskException e) {
+                        if (e.getMessage().contains("MANGLER_TILGANG_FEIL")) {
+                            LOG.info("Mangler tilgang, fortsetter");
+                        } else {
+                            throw e;
+                        }
                     }
                 }
             }
         }
-
         resultatAvDiffInntektImData.add(new DiffInntektIMData(tellerUtenDiff, tellerDiff, detaljerMedDiffs));
 
         LOG.info("Resultat av sjekkDiffInntektRegisterMotInntektsmelding {}", resultatAvDiffInntektImData);
