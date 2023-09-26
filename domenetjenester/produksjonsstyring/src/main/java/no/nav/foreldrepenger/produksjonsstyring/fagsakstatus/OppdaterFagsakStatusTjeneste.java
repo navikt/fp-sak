@@ -1,23 +1,34 @@
-package no.nav.foreldrepenger.domene.vedtak;
+package no.nav.foreldrepenger.produksjonsstyring.fagsakstatus;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.*;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class OppdaterFagsakStatusTjeneste {
 
-    protected FagsakRepository fagsakRepository;
-    protected FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
-    protected BehandlingsresultatRepository behandlingsresultatRepository;
-    protected BehandlingRepository behandlingRepository;
-    protected FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRepository fagsakRepository;
+    private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRepository behandlingRepository;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FptilbakeRestKlient fptilbakeRestKlient;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     public OppdaterFagsakStatusTjeneste() {
         //CDI
@@ -28,12 +39,16 @@ public class OppdaterFagsakStatusTjeneste {
                                         FagsakStatusEventPubliserer fagsakStatusEventPubliserer,
                                         BehandlingsresultatRepository behandlingsresultatRepository,
                                         BehandlingRepository behandlingRepository,
-                                        FagsakRelasjonRepository fagsakRelasjonRepository) {
+                                        FagsakRelasjonRepository fagsakRelasjonRepository,
+                                        ProsessTaskTjeneste prosessTaskTjeneste,
+                                        FptilbakeRestKlient fptilbakeRestKlient) {
         this.fagsakRepository = fagsakRepository;
         this.fagsakStatusEventPubliserer = fagsakStatusEventPubliserer;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
+        this.fptilbakeRestKlient = fptilbakeRestKlient;
     }
 
     public void oppdaterFagsakNårBehandlingOpprettet(Fagsak fagsak, Long behandlingId, BehandlingStatus nyStatus) {
@@ -46,14 +61,19 @@ public class OppdaterFagsakStatusTjeneste {
         }
     }
 
-    public void oppdaterFagsakNårBehandlingAvsluttet(Behandling behandling, BehandlingStatus nyStatus) {
-        //Fagsakstatus har som oftest under behandling
-        if (BehandlingStatus.AVSLUTTET.equals(nyStatus)) {
-            oppdaterFagsakStatusNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
+    public void oppdaterFagsakNårBehandlingAvsluttet(Fagsak fagsak, Long behandlingId) {
+        oppdaterFagsakStatusNårAlleBehandlingerErLukket(fagsak, behandlingId, false);
+    }
+
+    public void lagBehandlingAvsluttetTask(Fagsak fagsak, Long behandlingId) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(BehandlingAvsluttetHendelseTask.class);
+        if (behandlingId != null) {
+            prosessTaskData.setBehandling(fagsak.getId(), behandlingId, fagsak.getAktørId().getId());
         } else {
-            throw new IllegalStateException(String.format("Utviklerfeil: oppdaterFagsakNårBehandlingAvsluttet ble trigget for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
-                behandling.getId() ,nyStatus));
+            prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         }
+        prosessTaskData.setCallIdFraEksisterende();
+        prosessTaskTjeneste.lagre(prosessTaskData);
     }
 
     public FagsakStatusOppdateringResultat oppdaterFagsakStatusNårAutomatiskAvslBatch(Behandling behandling) {
@@ -61,7 +81,7 @@ public class OppdaterFagsakStatusTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             throw new IllegalStateException(String.format("Utviklerfeil: BehandlingId: %s med ytelsestype %s skal ikke trigges av AutomatiskFagsakAvslutningTask. Noe er galt.",  behandling.getId() ,behandling.getStatus()));
         } else {
-            if (alleAndreBehandlingerErLukket(fagsak, behandling)) {
+            if (alleAndreBehandlingerErLukket(fagsak, behandling.getId())) {
                 oppdaterFagsakStatus(fagsak, behandling.getId(), FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             }
@@ -70,17 +90,18 @@ public class OppdaterFagsakStatusTjeneste {
     }
 
     public void avsluttFagsakUtenAktiveBehandlinger(Fagsak fagsak) {
-        oppdaterFagsakStatusNårAlleBehandlingerErLukket(fagsak, null);
+        oppdaterFagsakStatusNårAlleBehandlingerErLukket(fagsak, null, true);
     }
 
-    public FagsakStatusOppdateringResultat oppdaterFagsakStatusNårAlleBehandlingerErLukket(Fagsak fagsak, Behandling behandling) {
-        var behandlingId = behandling != null ? behandling.getId() : null;
-        if (alleAndreBehandlingerErLukket(fagsak, behandling)) {
+    public FagsakStatusOppdateringResultat oppdaterFagsakStatusNårAlleBehandlingerErLukket(Fagsak fagsak,
+                                                                                           Long behandlingId,
+                                                                                           boolean tvingAvsluttSak) {
+        if (alleAndreBehandlingerErLukket(fagsak, behandlingId)) {
             if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
                 oppdaterFagsakStatus(fagsak,behandlingId, FagsakStatus.AVSLUTTET);
                 return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
             } else {
-                if (behandling == null || ingenLøpendeYtelseVedtak(behandling)) {
+                if ((behandlingId == null && tvingAvsluttSak) || ingenLøpendeYtelseVedtak(fagsak)) {
                     oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.AVSLUTTET);
                     return FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET;
                 }
@@ -91,8 +112,8 @@ public class OppdaterFagsakStatusTjeneste {
         return FagsakStatusOppdateringResultat.INGEN_OPPDATERING;
     }
 
-    private boolean ingenLøpendeYtelseVedtak(Behandling behandling) {
-        var sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
+    private boolean ingenLøpendeYtelseVedtak(Fagsak fagsak) {
+        var sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
 
         if (sisteYtelsesvedtak.isPresent()) {
             //avlutter fagsak når avslått da fagsakstatus er under behandling, og vil ikke plukkes opp av AutomatiskFagsakAvslutningBatchTjeneste
@@ -100,7 +121,7 @@ public class OppdaterFagsakStatusTjeneste {
 
             //Dersom saken har en avslutningsdato vil avslutning av saken hånderes av AutomatiskFagsakAvslutningBatchTjeneste
             //Hvis den ikke har en avslutningsdato skal den derfor avsluttes
-            return ingenAvslutningsdato(behandling.getFagsak());
+            return ingenAvslutningsdato(fagsak);
         }
         return true;
     }
@@ -125,11 +146,19 @@ public class OppdaterFagsakStatusTjeneste {
             .isPresent();
     }
 
-    private boolean alleAndreBehandlingerErLukket(Fagsak fagsak, Behandling behandling) {
-        return behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId())
+    private boolean alleAndreBehandlingerErLukket(Fagsak fagsak, Long behandlingId) {
+        var antallÅpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId())
             .stream()
-            .filter(b -> behandling == null || !b.getId().equals(behandling.getId()))
-            .count() <= 0;
+            .filter(b -> !b.getId().equals(behandlingId))
+            .count();
+        if (antallÅpneBehandlinger > 0) {
+            return false;
+        }
+        return harIngenÅpenTilbakeBehandling(fagsak);
+    }
+
+    private boolean harIngenÅpenTilbakeBehandling(Fagsak fagsak) {
+        return !fptilbakeRestKlient.harÅpenBehandling(fagsak.getSaksnummer());
     }
 
     private boolean ingenAvslutningsdato(Fagsak fagsak) {

@@ -94,10 +94,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>tilbakekreving</artifactId>
-        </dependency>
 
     </dependencies>
 </project>

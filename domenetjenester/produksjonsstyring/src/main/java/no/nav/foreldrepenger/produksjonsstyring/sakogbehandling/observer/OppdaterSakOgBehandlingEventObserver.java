@@ -3,9 +3,8 @@ package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingAvsluttetEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingOpprettetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
@@ -39,11 +38,11 @@ public class OppdaterSakOgBehandlingEventObserver {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
-    public void observerBehandlingStatus(@Observes BehandlingAvsluttetEvent event) {
+    public void observerBehandlingStatus(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
         oppdaterSakOgBehandlingVedBehandlingsstatusEndring(event);
     }
 
-    public void observerBehandlingStatus(@Observes BehandlingOpprettetEvent event) {
+    public void observerBehandlingStatus(@Observes BehandlingStatusEvent.BehandlingOpprettetEvent event) {
         oppdaterSakOgBehandlingVedBehandlingsstatusEndring(event);
     }
 
