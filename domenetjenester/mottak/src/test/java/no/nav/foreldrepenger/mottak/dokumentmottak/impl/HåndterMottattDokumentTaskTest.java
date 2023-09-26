@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
-import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
+import no.nav.foreldrepenger.mottak.publiserer.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

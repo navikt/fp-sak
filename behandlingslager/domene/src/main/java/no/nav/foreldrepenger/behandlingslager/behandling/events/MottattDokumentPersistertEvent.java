@@ -5,14 +5,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class MottattDokumentPersistertEvent implements BehandlingEvent {
-    private MottattDokument mottattDokument;
-    private Behandling behandling;
-
-    public MottattDokumentPersistertEvent(MottattDokument mottattDokument, Behandling behandling) {
-        this.mottattDokument = mottattDokument;
-        this.behandling = behandling;
-    }
+public record MottattDokumentPersistertEvent(MottattDokument mottattDokument, Behandling behandling) implements BehandlingEvent {
 
     @Override
     public Long getFagsakId() {
