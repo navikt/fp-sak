@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.publiserer.publish;
+package no.nav.foreldrepenger.mottak.publiserer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
