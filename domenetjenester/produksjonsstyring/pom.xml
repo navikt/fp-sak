@@ -31,6 +31,10 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>batch</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>tilbakekreving</artifactId>
+        </dependency>
 
         <!-- Integrasjon klient avhengigheter -->
         <dependency>

@@ -1,14 +1,15 @@
-package no.nav.foreldrepenger.domene.vedtak.batch;
+package no.nav.foreldrepenger.produksjonsstyring.fagsakstatus;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatusTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 
 /**
  * Observerer og propagerer / håndterer events internt i Behandlingskontroll
@@ -19,7 +20,6 @@ public class FagsakStatusEventObserver {
     private static final Logger LOG = LoggerFactory.getLogger(FagsakStatusEventObserver.class);
 
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
-    private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
 
     FagsakStatusEventObserver() {
@@ -28,10 +28,8 @@ public class FagsakStatusEventObserver {
 
     @Inject
     public FagsakStatusEventObserver(OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
-                                     BehandlingRepository behandlingRepository,
                                      FagsakRepository fagsakRepository) {
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
-        this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;
     }
 
@@ -42,8 +40,13 @@ public class FagsakStatusEventObserver {
     }
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
-        LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());
-        var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
-        oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(behandling, event.getNyStatus());
+        if (BehandlingStatus.AVSLUTTET.equals(event.getNyStatus())) {
+            LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());
+            var fagsak = fagsakRepository.finnEksaktFagsak(event.getFagsakId());
+            oppdaterFagsakStatusTjeneste.lagBehandlingAvsluttetTask(fagsak, event.getBehandlingId());
+        } else {
+            throw new IllegalStateException(String.format("Utviklerfeil: AvsluttetEvent for behandlingId %s med status %s. Det skal ikke skje og må følges opp",
+                event.getBehandlingId(), event.getNyStatus()));
+        }
     }
 }

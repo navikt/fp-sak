@@ -1,7 +1,17 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -15,18 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.vedtak.intern.AutomatiskFagsakAvslutningTask;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 
 @ApplicationScoped
@@ -37,7 +38,6 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
-    private FptilbakeRestKlient fptilbakeRestKlient;
 
 
     private static final Logger LOG = LoggerFactory.getLogger(AvslutteFagsakerEnkeltOpphørTjeneste.class);
@@ -52,15 +52,13 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
                                                 BehandlingsresultatRepository behandlingsresultatRepository,
                                                 BeregningsresultatRepository beregningsresultatRepository,
                                                 FagsakRepository fagsakRepository,
-                                                ProsessTaskTjeneste taskTjeneste,
-                                                FptilbakeRestKlient fptilbakeRestKlient) {
+                                                ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.fagsakRepository = fagsakRepository;
         this.taskTjeneste = taskTjeneste;
-        this.fptilbakeRestKlient = fptilbakeRestKlient;
     }
 
     public int avslutteSakerMedEnkeltOpphør() {
@@ -76,18 +74,14 @@ public class AvslutteFagsakerEnkeltOpphørTjeneste {
                 LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} oppfyller kriteriene. Opphørsdato + 3 måneder: {}", fagsak.getSaksnummer().toString(), leggPåSøknadsfristMåneder(opphørsdato));
 
                 if (LocalDate.now().isAfter(leggPåSøknadsfristMåneder(opphørsdato))) {
-                    if (!fptilbakeRestKlient.harÅpenTilbakekrevingsbehandling(fagsak.getSaksnummer())) {
-                        var callId = MDCOperations.getCallId();
-                        callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
+                    var callId = MDCOperations.getCallId();
+                    callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
-                        var avslutningstaskData = opprettFagsakAvslutningTask(fagsak, callId + fagsak.getSaksnummer());
-                        taskTjeneste.lagre(avslutningstaskData);
+                    var avslutningstaskData = opprettFagsakAvslutningTask(fagsak, callId + fagsak.getSaksnummer());
+                    taskTjeneste.lagre(avslutningstaskData);
 
-                        LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} vil avsluttes.", fagsak.getSaksnummer().toString());
-                        antallSakerSomSkalAvsluttes++;
-                    } else {
-                        LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} har åpen tilbakekrevingsbehandling.", fagsak.getSaksnummer().toString());
-                    }
+                    LOG.info("AvslutteFagsakerEnkeltOpphørTjeneste: Sak med {} vil avsluttes.", fagsak.getSaksnummer().toString());
+                    antallSakerSomSkalAvsluttes++;
                 }
             }
         }
