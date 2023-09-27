@@ -48,9 +48,9 @@ public class BehandlingHendelseHåndterer {
                 handleMessageIntern(hendelseV1);
             }
         } catch (VLException e) {
-            LOG.warn("FP-328773 Vedtatt-Ytelse Feil under parsing av vedtak. key={} payload={}", key, payload, e);
+            LOG.warn("FP-328773 Behandling-Hendelse Feil under parsing av vedtak. key={} payload={}", key, payload, e);
         } catch (Exception e) {
-            LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);
+            LOG.warn("Behandling-Hendelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);
         }
     }
 
@@ -58,8 +58,10 @@ public class BehandlingHendelseHåndterer {
     private void handleMessageIntern(BehandlingHendelseV1 mottattHendelse) {
         var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(mottattHendelse.getSaksnummer()), true).orElse(null);
         if (fagsak != null) {
-            if (Hendelse.AVSLUTTET.equals(mottattHendelse.getHendelse()) && !FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
-                fagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(fagsak, null);
+            if (Hendelse.AVSLUTTET.equals(mottattHendelse.getHendelse())) {
+                if (!FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
+                    fagsakStatusTjeneste.lagBehandlingAvsluttetTask(fagsak, null);
+                }
             } else if (!FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus())) {
                 fagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, null, BehandlingStatus.UTREDES);
             }
