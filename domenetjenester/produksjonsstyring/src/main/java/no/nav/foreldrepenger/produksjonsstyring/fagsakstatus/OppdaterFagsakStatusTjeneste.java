@@ -15,12 +15,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class OppdaterFagsakStatusTjeneste {
+
+    private static final boolean IS_LOCAL = Cluster.current().isLocal();
 
     private FagsakRepository fagsakRepository;
     private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
@@ -158,7 +161,7 @@ public class OppdaterFagsakStatusTjeneste {
     }
 
     private boolean harIngenÅpenTilbakeBehandling(Fagsak fagsak) {
-        return !fptilbakeRestKlient.harÅpenBehandling(fagsak.getSaksnummer());
+        return IS_LOCAL || !fptilbakeRestKlient.harÅpenBehandling(fagsak.getSaksnummer());
     }
 
     private boolean ingenAvslutningsdato(Fagsak fagsak) {
