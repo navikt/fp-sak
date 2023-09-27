@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 public abstract class PersonoversiktBehandlingStatusDto {
 
@@ -21,16 +23,18 @@ public abstract class PersonoversiktBehandlingStatusDto {
     private String ansvarligEnhetREF;
     private List<Ident> identREF;
 
-    protected PersonoversiktBehandlingStatusDto(String hendelseType, String hendelseId, BehandlingStatusDto behandling, PersonIdent ident) {
+    // OBS setter ikke feltet primaerBehandlingREF - etter diskusjon med SOB og Kvernstuen
+    // OBS applikasjonSakREF applikasjonBehandlingREF settes ikke - fordi de ikke var satt i MQ-tiden. Feedback fra SOB
+    protected PersonoversiktBehandlingStatusDto(String hendelseType, String hendelseId, Behandling behandling, LocalDateTime tidspunkt, BehandlingTema behandlingTema, PersonIdent ident) {
         this.hendelseType = hendelseType;
-        this.hendelsesTidspunkt = behandling.getHendelsesTidspunkt();
+        this.hendelsesTidspunkt = tidspunkt;
         this.hendelsesId = hendelseId;
-        this.ansvarligEnhetREF = behandling.getEnhet().enhetId();
+        this.ansvarligEnhetREF = behandling.getBehandlendeOrganisasjonsEnhet().enhetId();
         this.hendelsesprodusentREF = new PersonoversiktKode(Fagsystem.FPSAK.getOffisiellKode());
-        this.behandlingsID = String.format("%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandling.getBehandlingId());
-        this.behandlingstype = new PersonoversiktKode(behandling.getBehandlingType().getOffisiellKode());
+        this.behandlingsID = String.format("%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandling.getId());
+        this.behandlingstype = new PersonoversiktKode(behandling.getType().getOffisiellKode());
         this.sakstema = new PersonoversiktKode(Tema.FOR.getOffisiellKode());
-        this.behandlingstema = new PersonoversiktKode(behandling.getBehandlingTema().getOffisiellKode());
+        this.behandlingstema = new PersonoversiktKode(behandlingTema.getOffisiellKode());
         this.aktoerREF = List.of(new Aktoer(behandling.getAktørId().getId()));
         this.identREF = ident != null ?  List.of(new Ident(ident.getIdent())) : List.of();
     }
@@ -48,8 +52,8 @@ public abstract class PersonoversiktBehandlingStatusDto {
 
     public static class PersonoversiktBehandlingOpprettetDto extends PersonoversiktBehandlingStatusDto {
 
-        public PersonoversiktBehandlingOpprettetDto(String hendelseId, BehandlingStatusDto behandling, PersonIdent ident) {
-            super("behandlingOpprettet", hendelseId, behandling, ident);
+        public PersonoversiktBehandlingOpprettetDto(String hendelseId, Behandling behandling, LocalDateTime tidspunkt, BehandlingTema behandlingTema, PersonIdent ident) {
+            super("behandlingOpprettet", hendelseId, behandling, tidspunkt, behandlingTema, ident);
         }
 
         @Override
@@ -62,8 +66,8 @@ public abstract class PersonoversiktBehandlingStatusDto {
 
         private PersonoversiktKode avslutningsstatus;
 
-        public PersonoversiktBehandlingAvsluttetDto(String hendelseId, BehandlingStatusDto behandling, PersonIdent ident) {
-            super("behandlingAvsluttet", hendelseId, behandling, ident);
+        public PersonoversiktBehandlingAvsluttetDto(String hendelseId, Behandling behandling, LocalDateTime tidspunkt, BehandlingTema behandlingTema, PersonIdent ident) {
+            super("behandlingAvsluttet", hendelseId, behandling, tidspunkt, behandlingTema, ident);
             this.avslutningsstatus = new PersonoversiktKode("ok");
         }
 

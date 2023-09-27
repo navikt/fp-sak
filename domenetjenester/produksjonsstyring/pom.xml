@@ -42,11 +42,6 @@
             <artifactId>oppgave-rest-klient</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>no.nav.virksomhetsstyring.sakogbehandling-kafka-dto</groupId>
-            <artifactId>contract-sob-dto</artifactId>
-        </dependency>
-
         <!-- Prosjektinterne avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
