@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.konfig.Cluster;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @ApplicationScoped
 public class OppdaterFagsakStatusTjeneste {
 
-    private static final boolean IS_LOCAL = Cluster.current().isLocal();
+    private static final boolean IS_LOCAL = Environment.current().isLocal();
 
     private FagsakRepository fagsakRepository;
     private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
@@ -111,6 +111,9 @@ public class OppdaterFagsakStatusTjeneste {
                 oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.LØPENDE);
                 return FagsakStatusOppdateringResultat.FAGSAK_LØPENDE;
             }
+        } else if (!erFagsakOpprettetEllerUnderBehandling(fagsak.getStatus())) {
+            oppdaterFagsakStatus(fagsak, behandlingId, FagsakStatus.UNDER_BEHANDLING);
+            return FagsakStatusOppdateringResultat.FAGSAK_UNDER_BEHANDLING;
         }
         return FagsakStatusOppdateringResultat.INGEN_OPPDATERING;
     }
@@ -131,6 +134,10 @@ public class OppdaterFagsakStatusTjeneste {
 
     private boolean erBehandlingOpprettetEllerUnderBehandling(BehandlingStatus status) {
         return BehandlingStatus.OPPRETTET.equals(status) || BehandlingStatus.UTREDES.equals(status) ;
+    }
+
+    private boolean erFagsakOpprettetEllerUnderBehandling(FagsakStatus status) {
+        return FagsakStatus.OPPRETTET.equals(status) || FagsakStatus.UNDER_BEHANDLING.equals(status) ;
     }
 
     private void oppdaterFagsakStatus(Fagsak fagsak, Long behandlingId, FagsakStatus nyStatus) {
