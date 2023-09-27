@@ -454,13 +454,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- SoB -->
-            <dependency>
-                <groupId>no.nav.virksomhetsstyring.sakogbehandling-kafka-dto</groupId>
-                <artifactId>contract-sob-dto</artifactId>
-                <version>1.0.1</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 

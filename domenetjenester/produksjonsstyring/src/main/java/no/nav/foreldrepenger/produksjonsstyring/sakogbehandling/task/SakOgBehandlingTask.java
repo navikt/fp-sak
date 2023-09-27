@@ -1,11 +1,16 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task;
 
-import contract.sob.dto.*;
+import java.time.LocalDateTime;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -17,19 +22,11 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.konfig.Cluster;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.BehandlingStatusDto;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.PersonoversiktBehandlingStatusDto;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.PersonoversiktHendelseProducer;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 @ApplicationScoped
 @ProsessTask("behandlingskontroll.oppdatersakogbehandling")
@@ -39,7 +36,6 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(SakOgBehandlingTask.class);
     private static final Cluster CLUSTER = Environment.current().getCluster();
 
-    private SakOgBehandlingHendelseProducer producer;
     private PersonoversiktHendelseProducer aivenProducer;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -51,12 +47,10 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
     }
 
     @Inject
-    public SakOgBehandlingTask(SakOgBehandlingHendelseProducer producer,
-                               PersonoversiktHendelseProducer aivenProducer,
+    public SakOgBehandlingTask(PersonoversiktHendelseProducer aivenProducer,
                                PersoninfoAdapter personinfoAdapter,
                                BehandlingRepositoryProvider repositoryProvider) {
         super();
-        this.producer = producer;
         this.aivenProducer = aivenProducer;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -74,75 +68,28 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
         } else {
             tidspunkt = BehandlingStatus.OPPRETTET.equals(behandling.getStatus()) ? behandling.getOpprettetDato() : LocalDateTime.now();
         }
-        var dto = BehandlingStatusDto.getBuilder()
-            .medAktørId(behandling.getAktørId())
-            .medBehandlingId(behandlingId)
-            .medSaksnummer(behandling.getFagsak().getSaksnummer())
-            .medBehandlingStatus(behandling.getStatus())
-            .medBehandlingType(behandling.getType())
-            .medBehandlingTema(BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
-                .hentAggregatHvisEksisterer(behandlingId).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null)))
-            .medEnhet(behandling.getBehandlendeOrganisasjonsEnhet())
-            .medHendelsesTidspunkt(tidspunkt)
-            .build();
         try {
-            behandlingStatusEndret(dto);
+            var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
+                .hentAggregatHvisEksisterer(behandlingId).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
+            var erAvsluttet = behandling.erAvsluttet();
+
+            var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
+
+            LOG.info("SOBKAFKA sender behandlingsstatus {} for id {}", behandling.getStatus().getKode(), behandling.getId());
+
+            var ident = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
+            var personSoB = erAvsluttet ? new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingAvsluttetDto(callId, behandling, tidspunkt, behandlingTema, ident) :
+                new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingOpprettetDto(callId, behandling, tidspunkt, behandlingTema, ident);
+            aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
         } catch (Exception e) {
             LOG.info("SOBKAFKA noe gikk feil for behandling {}", behandlingId, e);
-            if (Cluster.PROD_FSS.equals(CLUSTER))
+            if (CLUSTER.isProd())
                 throw e;
         }
     }
 
-    // Skulle i teorien vært egen klasse for å understreke ACL i BehandlingStatusDto - men egenskapen er der.
-    private void behandlingStatusEndret(BehandlingStatusDto dto) {
-        var erAvsluttet = dto.erBehandlingAvsluttet();
-
-        var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
-
-        var builder = erAvsluttet ? BehandlingAvsluttet.builder().avslutningsstatus(Avslutningsstatuser.builder().value("ok").build()) : BehandlingOpprettet.builder();
-
-        builder.sakstema(Sakstemaer.builder().value(Tema.FOR.getOffisiellKode()).build())
-            .behandlingstema(Behandlingstemaer.builder().value(dto.getBehandlingTema().getOffisiellKode()).build())
-            .behandlingstype(Behandlingstyper.builder().value(dto.getBehandlingType().getOffisiellKode()).build())
-            .behandlingsID(createUniqueBehandlingsId(String.valueOf(dto.getBehandlingId())))
-            .aktoerREF(List.of(new Aktoer(dto.getAktørId().getId())))
-            .ansvarligEnhetREF(dto.getEnhet().enhetId())
-            .hendelsesId(callId)
-            .hendelsesprodusentREF(Applikasjoner.builder().value(Fagsystem.FPSAK.getOffisiellKode()).build())
-            .hendelsesTidspunkt(dto.getHendelsesTidspunkt());
-
-        // OBS setter ikke feltet primaerBehandlingREF - etter diskusjon med SOB og Kvernstuen
-        // OBS applikasjonSakREF applikasjonBehandlingREF settes ikke - fordi de ikke var satt i MQ-tiden. Feedback fra SOB
-
-        LOG.info("SOBKAFKA sender behandlingsstatus {}", dto);
-
-        if (Cluster.DEV_FSS.equals(CLUSTER)) {
-            try {
-                var ident = personinfoAdapter.hentFnr(dto.getAktørId()).orElse(null);
-                var personSoB = erAvsluttet ? new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingAvsluttetDto(callId, dto, ident) :
-                    new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingOpprettetDto(callId, dto, ident);
-                aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()),
-                    StandardJsonConfig.toJson(personSoB));
-            } catch (Exception e) {
-                LOG.info("SOBKAFKA AIVEN ga feil for {}", dto, e);
-            }
-
-        }
-        producer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(dto.getBehandlingId()), dto.getBehandlingStatusKode()), generatePayload(builder.build()));
-
-    }
-
-    private String createUniqueBehandlingsId(String behandlingsId) {
-        return String.format("%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandlingsId);
-    }
-
     private String createUniqueKey(String behandlingsId, String event) {
         return String.format("%s_%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandlingsId, event);
-    }
-
-    private String generatePayload(contract.sob.dto.BehandlingStatus hendelse) {
-        return StandardJsonConfig.toJson(hendelse);
     }
 
 }
