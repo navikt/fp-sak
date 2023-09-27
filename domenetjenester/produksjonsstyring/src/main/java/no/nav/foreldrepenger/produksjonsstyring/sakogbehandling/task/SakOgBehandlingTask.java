@@ -72,14 +72,14 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
             var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelseRepository
                 .hentAggregatHvisEksisterer(behandlingId).map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
             var erAvsluttet = behandling.erAvsluttet();
+            var hendelseTYpe = erAvsluttet ? "behandlingAvsluttet" : "behandlingOpprettet";
 
             var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
 
             LOG.info("SOBKAFKA sender behandlingsstatus {} for id {}", behandling.getStatus().getKode(), behandling.getId());
 
             var ident = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
-            var personSoB = erAvsluttet ? new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingAvsluttetDto(callId, behandling, tidspunkt, behandlingTema, ident) :
-                new PersonoversiktBehandlingStatusDto.PersonoversiktBehandlingOpprettetDto(callId, behandling, tidspunkt, behandlingTema, ident);
+            var personSoB = PersonoversiktBehandlingStatusDto.lagPersonoversiktBehandlingStatusDto(hendelseTYpe, callId, behandling, tidspunkt, behandlingTema, ident, erAvsluttet);
             aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
         } catch (Exception e) {
             LOG.info("SOBKAFKA noe gikk feil for behandling {}", behandlingId, e);

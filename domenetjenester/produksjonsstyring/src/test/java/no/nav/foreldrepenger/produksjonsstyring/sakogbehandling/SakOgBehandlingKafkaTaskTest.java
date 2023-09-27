@@ -13,8 +13,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import contract.sob.dto.BehandlingAvsluttet;
-import contract.sob.dto.BehandlingOpprettet;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -53,8 +54,16 @@ class SakOgBehandlingKafkaTaskTest {
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
         var value = captorVal.getValue();
-        var roundtrip = StandardJsonConfig.fromJson(value, BehandlingOpprettet.class);
-        assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
+        var roundtrip = StandardJsonConfig.fromJson(value, PersonoversiktBehandlingStatusDto.class);
+        assertThat(roundtrip.behandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
+        assertThat(roundtrip.behandlingstema().value()).isEqualToIgnoringCase(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode());
+        assertThat(roundtrip.behandlingstype().value()).isEqualToIgnoringCase(BehandlingType.FØRSTEGANGSSØKNAD.getOffisiellKode());
+        assertThat(roundtrip.avslutningsstatus()).isNull();
+        assertThat(roundtrip.hendelseType()).isEqualTo("behandlingOpprettet");
+        assertThat(roundtrip.hendelsesprodusentREF().value()).isEqualTo(Fagsystem.FPSAK.getOffisiellKode());
+        assertThat(roundtrip.sakstema().value()).isEqualTo(Tema.FOR.getOffisiellKode());
+        assertThat(roundtrip.aktoerREF().get(0).aktoerId()).isEqualTo(behandling.getAktørId().getId());
+        assertThat(roundtrip.ansvarligEnhetREF()).isEqualTo("4867");
     }
 
     @Test
@@ -79,9 +88,16 @@ class SakOgBehandlingKafkaTaskTest {
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
         var value = captorVal.getValue();
-        var roundtrip = StandardJsonConfig.fromJson(value, BehandlingAvsluttet.class);
-        assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
-        assertThat(roundtrip.getAvslutningsstatus().getValue()).isEqualTo("ok");
+        var roundtrip = StandardJsonConfig.fromJson(value, PersonoversiktBehandlingStatusDto.class);
+        assertThat(roundtrip.behandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
+        assertThat(roundtrip.avslutningsstatus().value()).isEqualTo("ok");
+        assertThat(roundtrip.behandlingstema().value()).isEqualToIgnoringCase(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode());
+        assertThat(roundtrip.behandlingstype().value()).isEqualToIgnoringCase(BehandlingType.FØRSTEGANGSSØKNAD.getOffisiellKode());
+        assertThat(roundtrip.hendelseType()).isEqualTo("behandlingAvsluttet");
+        assertThat(roundtrip.hendelsesprodusentREF().value()).isEqualTo(Fagsystem.FPSAK.getOffisiellKode());
+        assertThat(roundtrip.sakstema().value()).isEqualTo(Tema.FOR.getOffisiellKode());
+        assertThat(roundtrip.aktoerREF().get(0).aktoerId()).isEqualTo(behandling.getAktørId().getId());
+        assertThat(roundtrip.ansvarligEnhetREF()).isEqualTo("4867");
     }
 
 
