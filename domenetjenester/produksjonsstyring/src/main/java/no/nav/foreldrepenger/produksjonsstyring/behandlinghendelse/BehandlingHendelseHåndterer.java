@@ -10,11 +10,17 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.OppdaterPersonoversiktTask;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.hendelser.behandling.BehandlingHendelse;
 import no.nav.vedtak.hendelser.behandling.Hendelse;
 import no.nav.vedtak.hendelser.behandling.Kildesystem;
@@ -29,14 +35,18 @@ public class BehandlingHendelseHåndterer {
     private static final Logger LOG = LoggerFactory.getLogger(BehandlingHendelseHåndterer.class);
 
     private FagsakTjeneste fagsakTjeneste;
+    private ProsessTaskTjeneste taskTjeneste;
     private OppdaterFagsakStatusTjeneste fagsakStatusTjeneste;
 
     public BehandlingHendelseHåndterer() {
     }
 
     @Inject
-    public BehandlingHendelseHåndterer(FagsakTjeneste fagsakTjeneste, OppdaterFagsakStatusTjeneste fagsakStatusTjeneste) {
+    public BehandlingHendelseHåndterer(FagsakTjeneste fagsakTjeneste,
+                                       ProsessTaskTjeneste taskTjeneste,
+                                       OppdaterFagsakStatusTjeneste fagsakStatusTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
+        this.taskTjeneste = taskTjeneste;
         this.fagsakStatusTjeneste = fagsakStatusTjeneste;
     }
 
@@ -62,10 +72,42 @@ public class BehandlingHendelseHåndterer {
                 if (!FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
                     fagsakStatusTjeneste.lagBehandlingAvsluttetTask(fagsak, null);
                 }
-            } else if (!FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus())) {
+                lagPersonoversiktTask(fagsak, mottattHendelse);
+            } else if (Hendelse.OPPRETTET.equals(mottattHendelse.getHendelse())) {
+                if (!FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus())) {
+                    fagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, null, BehandlingStatus.UTREDES);
+                }
+                lagPersonoversiktTask(fagsak, mottattHendelse);
+            } else if (!FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus())){
                 fagsakStatusTjeneste.oppdaterFagsakNårBehandlingOpprettet(fagsak, null, BehandlingStatus.UTREDES);
             }
         }
+    }
+
+    private void lagPersonoversiktTask(Fagsak fagsak, BehandlingHendelseV1 hendelse) {
+        var behandlingType = switch (hendelse.getBehandlingstype()) {
+            case TILBAKEBETALING -> BehandlingType.TILBAKEKREVING;
+            case TILBAKEBETALING_REVURDERING -> BehandlingType.REVURDERING_TILBAKEKREVING;
+            default -> null;
+        };
+        var behandlingStatus = switch (hendelse.getHendelse()) {
+            case OPPRETTET -> BehandlingStatus.OPPRETTET;
+            case AVSLUTTET -> BehandlingStatus.AVSLUTTET;
+            default -> null;
+        };
+        if (behandlingType == null || behandlingStatus == null) {
+            return;
+        }
+        var behandlingRef = String.format("%s_T%s", Fagsystem.FPSAK.getOffisiellKode(), hendelse.getBehandlingUuid().toString());
+
+        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
+        prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, behandlingRef);
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, behandlingStatus.getKode());
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, hendelse.getTidspunkt().toString());
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, behandlingType.getKode());
+        prosessTaskData.setCallIdFraEksisterende();
+        taskTjeneste.lagre(prosessTaskData);
     }
 
 }

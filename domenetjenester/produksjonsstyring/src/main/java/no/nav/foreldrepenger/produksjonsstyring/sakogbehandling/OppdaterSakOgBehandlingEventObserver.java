@@ -1,4 +1,6 @@
-package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer;
+package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
+
+import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -7,13 +9,11 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -24,7 +24,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @ApplicationScoped
 public class OppdaterSakOgBehandlingEventObserver {
 
-    private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingRepository behandlingRepository;
     private ProsessTaskTjeneste taskTjeneste;
 
@@ -35,7 +34,6 @@ public class OppdaterSakOgBehandlingEventObserver {
                                                 ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.taskTjeneste = taskTjeneste;
-        this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
     public void observerBehandlingStatus(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
@@ -61,19 +59,17 @@ public class OppdaterSakOgBehandlingEventObserver {
     }
 
     private void sendMeldingTilSakOgBehandling(Behandling behandling, BehandlingStatus nyStatus) {
-        var behandlingTema = behandlingTemaFraBehandling(behandling);
-        if (behandlingTema.equals(BehandlingTema.UDEFINERT)) {
+        if (FagsakYtelseType.UDEFINERT.equals(behandling.getFagsakYtelseType())) {
             throw new IllegalStateException("Utviklerfeil: Finner ikke behandlingstema for fagsak");
         }
-
-        var prosessTaskData = ProsessTaskData.forProsessTask(SakOgBehandlingTask.class);
+        var behandlingRef = String.format("%s_%s", Fagsystem.FPSAK.getOffisiellKode(), behandling.getId());
+        var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterPersonoversiktTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, behandlingRef);
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, nyStatus.getKode());
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());
+        prosessTaskData.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, behandling.getType().getKode());
         prosessTaskData.setCallIdFraEksisterende();
         taskTjeneste.lagre(prosessTaskData);
-    }
-
-    private BehandlingTema behandlingTemaFraBehandling(Behandling sisteBehandling) {
-        var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteBehandling.getId());
-        return BehandlingTema.fraFagsak(sisteBehandling.getFagsak(), grunnlag.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
     }
 }

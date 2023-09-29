@@ -1,29 +1,31 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingAvsluttetEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingOpprettetEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer.OppdaterSakOgBehandlingEventObserver;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.TaskType;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingAvsluttetEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingOpprettetEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 class OppdaterSakOgBehandlingEventObserverTest {
@@ -55,7 +57,7 @@ class OppdaterSakOgBehandlingEventObserverTest {
 
         verify(taskTjenesteMock).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        verifiserProsessTaskData(scenario, prosessTaskData);
+        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.OPPRETTET);
 
     }
 
@@ -79,14 +81,18 @@ class OppdaterSakOgBehandlingEventObserverTest {
 
         verify(taskTjenesteMock).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        verifiserProsessTaskData(scenario, prosessTaskData);
+        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.AVSLUTTET);
     }
 
-    private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData) {
-        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(SakOgBehandlingTask.class));
+    private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData, BehandlingStatus expected) {
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterPersonoversiktTask.class));
         assertThat(new AktørId(prosessTaskData.getAktørId()))
                 .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
         assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());
+        assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_REF_KEY)).contains(scenario.getBehandling().getId().toString());
+        assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_STATUS_KEY)).isEqualTo(expected.getKode());
+        assertThat(LocalDateTime.parse(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TID_KEY), DateTimeFormatter.ISO_LOCAL_DATE_TIME)).isBefore(LocalDateTime.now());
+        assertThat(prosessTaskData.getPropertyValue(OppdaterPersonoversiktTask.PH_TYPE_KEY)).isEqualTo(BehandlingType.FØRSTEGANGSSØKNAD.getKode());
     }
 
 }

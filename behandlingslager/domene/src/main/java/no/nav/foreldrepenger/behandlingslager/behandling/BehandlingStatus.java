@@ -1,14 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * NB: Pass på! Ikke legg koder vilkårlig her
@@ -41,6 +43,17 @@ public enum BehandlingStatus implements Kodeverdi {
 
     public static Map<String, BehandlingStatus> kodeMap() {
         return Collections.unmodifiableMap(KODER);
+    }
+
+    public static BehandlingStatus fraKode(String kode) {
+        if (kode == null) {
+            return null;
+        }
+        var ad = KODER.get(kode);
+        if (ad == null) {
+            throw new IllegalArgumentException("Ukjent BehandlingStatus: " + kode);
+        }
+        return ad;
     }
 
     @Override
@@ -86,15 +99,5 @@ public enum BehandlingStatus implements Kodeverdi {
             return dbData == null ? null : fraKode(dbData);
         }
 
-        private static BehandlingStatus fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent BehandlingStatus: " + kode);
-            }
-            return ad;
-        }
     }
 }

@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
 
@@ -23,12 +25,9 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     ANKE("BT-008", "Anke", "ae0046", 0),
     INNSYN("BT-006", "Dokumentinnsyn", "ae0042", 1),
 
-    /** @deprecated fjern herfra. */
-    TILBAKEBETALING_ENDRING("BT-005", "Tilbakebetaling endring", "ae0043", 6),
-    /** @deprecated fjern herfra. */
-    TILBAKEKREVING("BT-007", "Tilbakekreving", null, 0),
-    /** @deprecated fjern herfra. */
-    REVURDERING_TILBAKEKREVING("BT-009", "Revurdering tilbakekreving", null, 0),
+    /** Tilbakekrevingene brukes mot personoversikt inntil videre. Kan vurdere ae0041 klage/tilbake */
+    TILBAKEKREVING("BT-007", "Tilbakekreving", "ae0054", 6),
+    REVURDERING_TILBAKEKREVING("BT-009", "Revurdering tilbakekreving", "ae0043", 6),
 
     UDEFINERT("-", "Ikke definert", null, 0),
     ;
