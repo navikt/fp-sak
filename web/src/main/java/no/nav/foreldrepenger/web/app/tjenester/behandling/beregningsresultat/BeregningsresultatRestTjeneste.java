@@ -12,8 +12,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.BeregningsresultatTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatEngangsstønadDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
@@ -38,7 +41,9 @@ public class BeregningsresultatRestTjeneste {
     private static final String ENGANGSTONAD_PART_PATH = "/engangsstonad";
     public static final String ENGANGSTONAD_PATH = BASE_PATH + ENGANGSTONAD_PART_PATH;
     private static final String FORELDREPENGER_PART_PATH = "/foreldrepenger";
+    private static final String SVANGERSKAPSPENGER_PART_PATH = "/svangerskapspenger";
     public static final String FORELDREPENGER_PATH = BASE_PATH + FORELDREPENGER_PART_PATH;
+    public static final String SVANGERSKAPSPENGER_PATH = BASE_PATH + SVANGERSKAPSPENGER_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatTjeneste beregningsresultatTjeneste;
@@ -61,6 +66,7 @@ public class BeregningsresultatRestTjeneste {
     public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        validerYtelsetype(behandling, FagsakYtelseType.ENGANGSTØNAD);
         return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
     }
 
@@ -71,6 +77,27 @@ public class BeregningsresultatRestTjeneste {
     public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        // Ta inn denne når SVP er over på nytt restkall
+        // validerYtelsetype(behandling, FagsakYtelseType.FORELDREPENGER);
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling).orElse(null);
     }
+
+    @GET
+    @Path(SVANGERSKAPSPENGER_PART_PATH)
+    @Operation(description = "Hent beregningsresultat med uttaksplan for svangerskapspenger behandling", summary = "Returnerer beregningsresultat med uttaksplan for behandling.", tags = "beregningsresultat")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatSvangerskapspenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+                                                                                   @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        validerYtelsetype(behandling, FagsakYtelseType.SVANGERSKAPSPENGER);
+        return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling).orElse(null);
+    }
+
+    private static void validerYtelsetype(Behandling behandling, FagsakYtelseType ytelsetype) {
+        if (!behandling.getFagsakYtelseType().equals(ytelsetype)) {
+            var feil = String.format("Prøver å hente resultat for %s for med behandling som ikke matcher ytelsen, behandling: %s", ytelsetype, behandling.getUuid());
+            throw new IllegalStateException(feil);
+        }
+    }
+
 }

@@ -413,6 +413,9 @@ public class BehandlingDtoTjeneste {
                 if (svangerskapspengerUttakResultatEntitet.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
                 }
+                if (tilkjentYtelse) {
+                    dto.leggTil(get(BeregningsresultatRestTjeneste.SVANGERSKAPSPENGER_PATH, "beregningsresultat-svangerskapspenger", uuidDto));
+                }
             } else {
                 var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
                 var harSattEndringsdato = yfAggregat
@@ -458,6 +461,11 @@ public class BehandlingDtoTjeneste {
             } else {
                 var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(originalBehandling.getId());
                 if (uttak.isPresent()) {
+                    if (originalBehandling.getFagsakYtelseType().equals(FagsakYtelseType.SVANGERSKAPSPENGER)) {
+                        dto.leggTil(
+                            get(BeregningsresultatRestTjeneste.SVANGERSKAPSPENGER_PATH, "beregningsresultat-svangerskapspenger-original-behandling",
+                                originalUuidDto));
+                    }
                     dto.leggTil(
                         get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling",
                             originalUuidDto));
