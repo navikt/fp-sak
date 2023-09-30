@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -30,11 +30,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-@ProsessTask("oppgavebehandling.oppdaterpersonoversikt")
+@ProsessTask("oppgavebehandling.personoversikttilbake")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class OppdaterPersonoversiktTask extends GenerellProsessTask {
+public class OppdaterPersonoversiktTilbakeTask extends GenerellProsessTask {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OppdaterPersonoversiktTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppdaterPersonoversiktTilbakeTask.class);
     private static final Cluster CLUSTER = Environment.current().getCluster();
 
     public static String PH_REF_KEY = "behandlingRef";
@@ -50,15 +50,15 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
     private BehandlendeEnhetTjeneste enhetTjeneste;
 
 
-    OppdaterPersonoversiktTask() {
+    OppdaterPersonoversiktTilbakeTask() {
         //for CDI proxy
     }
 
     @Inject
-    public OppdaterPersonoversiktTask(PersonoversiktHendelseProducer aivenProducer,
-                                      PersoninfoAdapter personinfoAdapter,
-                                      BehandlingRepositoryProvider repositoryProvider,
-                                      BehandlendeEnhetTjeneste enhetTjeneste) {
+    public OppdaterPersonoversiktTilbakeTask(PersonoversiktHendelseProducer aivenProducer,
+                                             PersoninfoAdapter personinfoAdapter,
+                                             BehandlingRepositoryProvider repositoryProvider,
+                                             BehandlendeEnhetTjeneste enhetTjeneste) {
         super();
         this.aivenProducer = aivenProducer;
         this.personinfoAdapter = personinfoAdapter;
