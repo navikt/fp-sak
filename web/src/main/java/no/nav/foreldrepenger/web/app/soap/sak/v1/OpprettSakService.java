@@ -1,9 +1,15 @@
 package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
+import java.util.function.Function;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.jws.WebService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -29,10 +35,6 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ServiceType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.function.Function;
 
 /**
  * Webservice for å opprette sak i VL ved manuelle journalføringsoppgaver.
@@ -87,6 +89,8 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         validerJournalpostId(journalpostId, behandlingTema, aktørId);
 
         var saksnummer = opprettSakOrchestrator.opprettSak(journalpostId, behandlingTema, aktørId);
+
+        LOG.info("FPSAK WS opprettet sak {} fra journalpost {}", saksnummer.getVerdi(), journalpostId.getVerdi());
 
         return lagResponse(saksnummer);
     }
