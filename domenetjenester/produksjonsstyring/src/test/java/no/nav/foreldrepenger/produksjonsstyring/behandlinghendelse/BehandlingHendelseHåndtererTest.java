@@ -83,7 +83,7 @@ class BehandlingHendelseHåndtererTest {
 
         verify(taskTjenesteMock).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.OPPRETTET, BehandlingType.TILBAKEKREVING);
+        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.OPPRETTET, BehandlingType.TILBAKEKREVING_ORDINÆR);
 
     }
 
@@ -119,7 +119,7 @@ class BehandlingHendelseHåndtererTest {
 
         verify(taskTjenesteMock).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.AVSLUTTET, BehandlingType.TILBAKEKREV_REVURDERING);
+        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.AVSLUTTET, BehandlingType.TILBAKEKREVING_REVURDERING);
     }
 
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData,
