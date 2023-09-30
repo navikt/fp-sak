@@ -27,7 +27,7 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
 
     /** Tilbakekrevingene brukes mot personoversikt inntil videre. Kan vurdere ae0041 klage/tilbake */
     TILBAKEKREVING("BT-007", "Tilbakekreving", "ae0054", 6),
-    REVURDERING_TILBAKEKREVING("BT-009", "Revurdering tilbakekreving", "ae0043", 6),
+    TILBAKEKREV_REVURDERING("BT-009", "Revurdering tilbakekreving", "ae0043", 6),
 
     UDEFINERT("-", "Ikke definert", null, 0),
     ;

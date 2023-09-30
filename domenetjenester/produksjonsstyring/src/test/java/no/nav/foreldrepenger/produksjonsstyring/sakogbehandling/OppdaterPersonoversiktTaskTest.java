@@ -176,7 +176,7 @@ class OppdaterPersonoversiktTaskTest {
         task.setProperty(OppdaterPersonoversiktTask.PH_REF_KEY, Fagsystem.FPSAK.getOffisiellKode() + "_T" + tbkUUID);
         task.setProperty(OppdaterPersonoversiktTask.PH_STATUS_KEY, BehandlingStatus.AVSLUTTET.getKode());
         task.setProperty(OppdaterPersonoversiktTask.PH_TID_KEY, LocalDateTime.now().toString());
-        task.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, BehandlingType.REVURDERING_TILBAKEKREVING.getKode());
+        task.setProperty(OppdaterPersonoversiktTask.PH_TYPE_KEY, BehandlingType.TILBAKEKREV_REVURDERING.getKode());
 
         when(enhetTjeneste.finnBehandlendeEnhetFra(any(Behandling.class))).thenReturn(new OrganisasjonsEnhet(NASJONAL, "Nasjonal"));
 
@@ -192,7 +192,7 @@ class OppdaterPersonoversiktTaskTest {
         assertThat(roundtrip.behandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_T" + tbkUUID);
         assertThat(roundtrip.avslutningsstatus().value()).isEqualTo("ok");
         assertThat(roundtrip.behandlingstema().value()).isEqualToIgnoringCase(BehandlingTema.ENGANGSSTØNAD_FØDSEL.getOffisiellKode());
-        assertThat(roundtrip.behandlingstype().value()).isEqualToIgnoringCase(BehandlingType.REVURDERING_TILBAKEKREVING.getOffisiellKode());
+        assertThat(roundtrip.behandlingstype().value()).isEqualToIgnoringCase(BehandlingType.TILBAKEKREV_REVURDERING.getOffisiellKode());
         assertThat(roundtrip.hendelseType()).isEqualTo("behandlingAvsluttet");
         assertThat(roundtrip.hendelsesprodusentREF().value()).isEqualTo(Fagsystem.FPSAK.getOffisiellKode());
         assertThat(roundtrip.sakstema().value()).isEqualTo(Tema.FOR.getOffisiellKode());

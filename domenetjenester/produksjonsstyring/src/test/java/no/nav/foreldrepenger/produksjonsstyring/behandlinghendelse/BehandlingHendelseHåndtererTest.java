@@ -119,7 +119,7 @@ class BehandlingHendelseHåndtererTest {
 
         verify(taskTjenesteMock).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.AVSLUTTET, BehandlingType.REVURDERING_TILBAKEKREVING);
+        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.AVSLUTTET, BehandlingType.TILBAKEKREV_REVURDERING);
     }
 
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData,

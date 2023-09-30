@@ -87,7 +87,7 @@ public class BehandlingHendelseHåndterer {
     private void lagPersonoversiktTask(Fagsak fagsak, BehandlingHendelseV1 hendelse) {
         var behandlingType = switch (hendelse.getBehandlingstype()) {
             case TILBAKEBETALING -> BehandlingType.TILBAKEKREVING;
-            case TILBAKEBETALING_REVURDERING -> BehandlingType.REVURDERING_TILBAKEKREVING;
+            case TILBAKEBETALING_REVURDERING -> BehandlingType.TILBAKEKREV_REVURDERING;
             default -> null;
         };
         var behandlingStatus = switch (hendelse.getHendelse()) {
