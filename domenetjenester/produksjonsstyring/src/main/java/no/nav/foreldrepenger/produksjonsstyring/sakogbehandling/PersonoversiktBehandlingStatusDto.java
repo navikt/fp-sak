@@ -5,8 +5,10 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 // OBS setter ikke feltet primaerBehandlingREF - etter diskusjon med SOB og Kvernstuen
@@ -42,6 +44,29 @@ public record PersonoversiktBehandlingStatusDto(String hendelseType,
             new PersonoversiktKode(behandlingTema.getOffisiellKode()),
             List.of(new Aktoer(behandling.getAktørId().getId())),
             behandling.getBehandlendeEnhet(),
+            ident != null ?  List.of(new Ident(ident.getIdent())) : List.of(),
+            avsluttet ?  new PersonoversiktKode("ok") : null);
+    }
+
+    public static PersonoversiktBehandlingStatusDto lagPersonoversiktBehandlingStatusDto(String hendelseType, String hendelseId,
+                                                                                         AktørId aktørId,
+                                                                                         LocalDateTime tidspunkt,
+                                                                                         BehandlingType behandlingType,
+                                                                                         String behandlingRef,
+                                                                                         BehandlingTema behandlingTema,
+                                                                                         String behandlendeEnhet,
+                                                                                         PersonIdent ident,
+                                                                                         boolean avsluttet) {
+        return new PersonoversiktBehandlingStatusDto(hendelseType,
+            hendelseId,
+            new PersonoversiktKode(Fagsystem.FPSAK.getOffisiellKode()),
+            tidspunkt,
+            behandlingRef,
+            new PersonoversiktKode(behandlingType.getOffisiellKode()),
+            new PersonoversiktKode(Tema.FOR.getOffisiellKode()),
+            new PersonoversiktKode(behandlingTema.getOffisiellKode()),
+            List.of(new Aktoer(aktørId.getId())),
+            behandlendeEnhet,
             ident != null ?  List.of(new Ident(ident.getIdent())) : List.of(),
             avsluttet ?  new PersonoversiktKode("ok") : null);
     }
