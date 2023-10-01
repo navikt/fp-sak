@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.tilganger;
 
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.TekniskException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.naming.InvalidNameException;
 import javax.naming.LimitExceededException;
@@ -11,13 +13,17 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
 
 
 public class LdapBrukeroppslag {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LdapBrukeroppslag.class);
 
     private final LdapContext context;
     private final LdapName searchBase;
@@ -35,6 +41,7 @@ public class LdapBrukeroppslag {
 
     public LdapBruker hentBrukerinformasjon(String ident) {
         var result = ldapSearch(ident);
+        evaluerAdresse(ident, result);
         return new LdapBruker(getDisplayName(result), getMemberOf(result));
     }
 
@@ -72,6 +79,22 @@ public class LdapBrukeroppslag {
             return displayName.get().toString();
         } catch (NamingException e) {
             throw new TekniskException("F-314006", String.format("Kunne ikke hente ut attributtverdi %s fra %s", attributeName, attributeName), e);
+        }
+    }
+
+    private void evaluerAdresse(String ident, SearchResult result) {
+        try {
+            var attributeName = "streetAddress";
+            var adresse = result.getAttributes().get(attributeName);
+            if (adresse != null && adresse.get() != null && !adresse.get().toString().isBlank()) {
+                LOG.info("LDAP adresse for {} er {}", ident, adresse.get().toString());
+            } else if (adresse == null) {
+                LOG.info("LDAP adresse for {} er NULL", ident);
+            } else if (adresse.get() == null) {
+                LOG.info("LDAP adresse for {} er TOM", ident);
+            }
+        } catch (Exception e) {
+            // NOTHING
         }
     }
 
