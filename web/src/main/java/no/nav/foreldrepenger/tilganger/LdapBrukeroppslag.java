@@ -41,7 +41,7 @@ public class LdapBrukeroppslag {
 
     public LdapBruker hentBrukerinformasjon(String ident) {
         var result = ldapSearch(ident);
-        evaluerAdresse(ident, result);
+        //evaluerAdresse(ident, result); Testformål
         return new LdapBruker(getDisplayName(result), getMemberOf(result));
     }
 
@@ -82,6 +82,7 @@ public class LdapBrukeroppslag {
         }
     }
 
+    // Denne gir korrekt enhetsId for ansattVed - fire siffer
     private void evaluerAdresse(String ident, SearchResult result) {
         try {
             var attributeName = "streetAddress";

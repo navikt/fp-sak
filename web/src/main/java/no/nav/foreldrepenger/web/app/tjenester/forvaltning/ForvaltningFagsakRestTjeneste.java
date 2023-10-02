@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
@@ -59,7 +59,7 @@ public class ForvaltningFagsakRestTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;
     private OpprettSakTjeneste opprettSakTjeneste;
-    private PersoninfoAdapter personinfoAdapter;
+    private AktørTjeneste aktørTjeneste;
     private NavBrukerTjeneste brukerTjeneste;
     private OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste;
 
@@ -71,7 +71,7 @@ public class ForvaltningFagsakRestTjeneste {
     public ForvaltningFagsakRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
             OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste,
             OpprettSakTjeneste opprettSakTjeneste,
-            PersoninfoAdapter personinfoAdapter,
+                                         AktørTjeneste aktørTjeneste,
             NavBrukerTjeneste brukerTjeneste,
             OverstyrDekningsgradTjeneste overstyrDekningsgradTjeneste,
             FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
@@ -82,7 +82,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.oppdaterFagsakStatusTjeneste = oppdaterFagsakStatusTjeneste;
         this.overstyrDekningsgradTjeneste = overstyrDekningsgradTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
-        this.personinfoAdapter = personinfoAdapter;
+        this.aktørTjeneste = aktørTjeneste;
         this.brukerTjeneste = brukerTjeneste;
     }
 
@@ -266,7 +266,8 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         var eksisterendeAktørId = fagsak.getAktørId();
-        var gjeldendeAktørId = personinfoAdapter.hentFnr(fagsak.getAktørId()).flatMap(personinfoAdapter::hentAktørForFnr)
+        var gjeldendeAktørId = aktørTjeneste.hentPersonIdentForAktørIdNonCached(fagsak.getAktørId())
+            .flatMap(aktørTjeneste::hentAktørIdForPersonIdentNonCached)
             .orElseThrow(() -> new IllegalStateException("Kan ikke mappe aktørId - ident - aktørId" + fagsak.getAktørId()));
         if (gjeldendeAktørId.equals(eksisterendeAktørId)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
