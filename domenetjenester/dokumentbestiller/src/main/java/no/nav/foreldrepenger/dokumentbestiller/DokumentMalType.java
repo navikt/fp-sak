@@ -31,6 +31,7 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJORT("KGEOMG"),
     KLAGE_OVERSENDT("KGEOVE"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
+    ENDRING_UTBETALING ("ENDUTB"), // Denne brukes kun for å utlede tittel når overstyrer vedtaksbrev pga fordeling av ytelsen
 
     // Må gjeninnføre for å flytte anker
     @Deprecated KLAGE_AVVIST_DOK("KLAGAV"),
@@ -157,6 +158,7 @@ public enum DokumentMalType implements Kodeverdi {
             case ANKE_OPPHEVET_FRITEKST -> "Ankebrev om beslutning om oppheving";
             case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
+            case ENDRING_UTBETALING -> "Endring i fordeling av ytelsen";
         };
     }
 }
