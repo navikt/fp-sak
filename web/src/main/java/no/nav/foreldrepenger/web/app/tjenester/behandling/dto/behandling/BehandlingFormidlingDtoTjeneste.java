@@ -189,7 +189,7 @@ public class BehandlingFormidlingDtoTjeneste {
                 if (svangerskapspengerUttakResultatEntitet.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.SVANGERSKAPSPENGER_PATH, "beregningsresultat-svangerskapspenger", uuidDto));
+                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
                 }
             } else {
                 var harAvklartAnnenForelderRett = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT)
@@ -214,7 +214,7 @@ public class BehandlingFormidlingDtoTjeneste {
                 if (uttakResultat.isPresent()) {
                     // FIXME: Bør ikke ha ytelsesspesifikk url her. Bør kun være beregningsresultat
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.SVANGERSKAPSPENGER_PATH, "beregningsresultat-svangerskapspenger", uuidDto));
+                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
                 }
 
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));
