@@ -31,6 +31,7 @@ import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittEgenNæringDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittFrilansDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittOpptjeningDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.*;
+import no.nav.vedtak.konfig.Tid;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -123,7 +124,7 @@ class MapTilKalkulatorInput {
         }
         if (ytelsespesifiktGrunnlag instanceof SvangerskapspengerGrunnlag svpGrunnlag) {
             var utbetalingsgradPrAktivitet = mapUtbetalingsgradPrAktivitet(svpGrunnlag.getUtbetalingsgradPrAktivitet());
-            return new no.nav.folketrygdloven.kalkulus.beregning.v1.SvangerskapspengerGrunnlag(utbetalingsgradPrAktivitet);
+            return new no.nav.folketrygdloven.kalkulus.beregning.v1.SvangerskapspengerGrunnlag(utbetalingsgradPrAktivitet, Tid.TIDENES_ENDE); // Inntill vi er klare for tilkommet inntekt
         }
         if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag) {
             var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
