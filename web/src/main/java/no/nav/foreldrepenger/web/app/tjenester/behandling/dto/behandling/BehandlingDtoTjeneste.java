@@ -400,6 +400,7 @@ public class BehandlingDtoTjeneste {
                 .anyMatch(p -> p.getDagsats() > 0);
             if (tilkjentYtelse) {
                 dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
+                dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
             }
 
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
@@ -461,6 +462,7 @@ public class BehandlingDtoTjeneste {
                     dto.leggTil(
                         get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling",
                             originalUuidDto));
+                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", originalUuidDto));
                 }
             }
         });
