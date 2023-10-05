@@ -462,7 +462,7 @@ public class BehandlingDtoTjeneste {
                     dto.leggTil(
                         get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling",
                             originalUuidDto));
-                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", uuidDto));
+                    dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", originalUuidDto));
                 }
             }
         });
