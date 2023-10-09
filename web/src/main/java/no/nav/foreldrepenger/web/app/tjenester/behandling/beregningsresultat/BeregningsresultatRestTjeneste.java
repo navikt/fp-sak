@@ -25,11 +25,15 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path(BeregningsresultatRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @ApplicationScoped
 @Transactional
 public class BeregningsresultatRestTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningsresultatRestTjeneste.class);
 
     static final String BASE_PATH = "/behandling/beregningsresultat";
     private static final String ENGANGSTONAD_PART_PATH = "/engangsstonad";
@@ -70,6 +74,7 @@ public class BeregningsresultatRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Kall på utgått endepunkt hentBeregningsresultatForeldrepenger"); // Legger på denne for å se at ingen kall går git før vi fjerner den
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling).orElse(null);
     }
