@@ -1,11 +1,22 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -44,10 +55,6 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
 
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-
 /**
  * Bygger en BehandlingBrevDto som skal brukes til å populere brev for behandlinger behandlet i fpsak.
  */
@@ -66,6 +73,7 @@ public class BehandlingFormidlingDtoTjeneste {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+    private DekningsgradTjeneste dekningsgradTjeneste;
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -73,7 +81,8 @@ public class BehandlingFormidlingDtoTjeneste {
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                            BehandlingDokumentRepository behandlingDokumentRepository,
                                            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                           ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                           ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                           DekningsgradTjeneste dekningsgradTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
@@ -85,6 +94,7 @@ public class BehandlingFormidlingDtoTjeneste {
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
+        this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     BehandlingFormidlingDtoTjeneste() {
@@ -246,6 +256,8 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.setRettenTil(behandlingsresultat.getRettenTil());
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
         dto.setErRevurderingMedUendretUtfall(erRevurderingMedUendretUtfall(behandling));
+        var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling));
+        dto.setEndretDekningsgrad(endretDekningsgrad);
 
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingDokument.isPresent()) {
