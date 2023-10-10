@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum Venteårsak implements Kodeverdi {
 
@@ -16,14 +18,13 @@ public enum Venteårsak implements Kodeverdi {
     /*
      * Disse er i bruk i koden i fpsak, frontend, eller kalkulus.
      */
-    ANKE_OVERSENDT_TIL_TRYGDERETTEN("ANKE_OVERSENDT_TIL_TRYGDERETTEN", "Venter på at saken blir behandlet hos Trygderetten"), // Frontend
-    ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER("ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER", "Venter på merknader fra bruker"), // Frontend
     AVV_DOK("AVV_DOK", "Avventer dokumentasjon"), // Frontend
     AVV_FODSEL("AVV_FODSEL", "Avventer fødsel"), // Frontend
-    AVV_RESPONS_REVURDERING("AVV_RESPONS_REVURDERING", "Avventer respons på varsel om revurdering"), // Frontend
     FOR_TIDLIG_SOKNAD("FOR_TIDLIG_SOKNAD", "Venter pga for tidlig søknad"), // Frontend
     SCANN("SCANN", "Venter på scanning"),
     UTV_FRIST("UTV_FRIST", "Utvidet frist"), // Frontend
+    VENT_PÅ_BRUKERTILBAKEMELDING("VENT_PÅ_BRUKERTILBAKEMELDING", "Venter på tilbakemelding fra bruker"), // Frontend
+    VENT_UTLAND_TRYGD("VENT_UTLAND_TRYGD", "Vent på utlandsk trygdemyndighet"), // Frontend
     VENT_INNTEKT_RAPPORTERINGSFRIST("VENT_INNTEKT_RAPPORTERINGSFRIST", "Inntekt rapporteringsfrist"), // Kalkulus
     VENT_MANGLENDE_SYKEMELDING("VENT_MANGLENDE_SYKEMELDING", "Venter på siste sykemelding for sykepenger basert på dagpenger"), // Kalkulus
     VENT_OPDT_INNTEKTSMELDING("VENT_OPDT_INNTEKTSMELDING", "Venter på inntektsmelding"), // Frontend
@@ -32,6 +33,14 @@ public enum Venteårsak implements Kodeverdi {
     VENT_SØKNAD_SENDT_INFORMASJONSBREV("VENT_SØKNAD_SENDT_INFORMASJONSBREV", "Sendt informasjonsbrev venter søknad."),
     VENT_ÅPEN_BEHANDLING("VENT_ÅPEN_BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
     VENT_KABAL("VENT_KABAL", "Klage / anke behandles av Klageinstans i egen løsning"),
+
+    /*
+     * Disse er på run-off
+     */
+    ANKE_OVERSENDT_TIL_TRYGDERETTEN("ANKE_OVERSENDT_TIL_TRYGDERETTEN", "Venter på at saken blir behandlet hos Trygderetten"), // Frontend
+    ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER("ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER", "Venter på merknader fra bruker"), // Frontend
+    AVV_RESPONS_REVURDERING("AVV_RESPONS_REVURDERING", "Avventer respons på varsel om revurdering"), // Frontend
+
     /*
      * Disse er i bruk i koden til interne formål rundt historikkinnslag, brukes ikke for aksjosnpunkt - men finnes i gamle aksjonspunkt.
      */
