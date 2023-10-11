@@ -1,5 +1,22 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -14,25 +31,14 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
@@ -120,6 +126,84 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
 
         // Act/Assert
         assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.BEREGNING);
+    }
+
+    @Test
+    void skal_returnere_beregning_dersom_endring_arbeidsforholdRef() {
+        // Arrange - opprette avsluttet førstegangsbehandling
+        var behandling = opprettFørstegangsbehandling();
+
+        var førsteUttaksdato = LocalDate.now();
+
+        var førstegangsbehandlingInntekt = new BigDecimal(30000);
+        var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+            førsteUttaksdato, ARBEIDSID_DEFAULT);
+        lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
+
+        // Arrange - opprette revurderingsbehandling
+        var revurdering = opprettRevurdering(behandling);
+
+        var inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+            førsteUttaksdato, InternArbeidsforholdRef.nullRef());
+        var ref = lagReferanse(revurdering, førsteUttaksdato);
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
+        lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
+
+        // Act/Assert
+        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.BEREGNING);
+    }
+
+    @Test
+    void skal_ikke_returnere_beregning_dersom_ingen_endring_arbeidsforholdRef() {
+        // Arrange - opprette avsluttet førstegangsbehandling
+        var behandling = opprettFørstegangsbehandling();
+
+        var førsteUttaksdato = LocalDate.now();
+
+        var førstegangsbehandlingInntekt = new BigDecimal(30000);
+        var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+            førsteUttaksdato, ARBEIDSID_DEFAULT);
+        lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
+
+        // Arrange - opprette revurderingsbehandling
+        var revurdering = opprettRevurdering(behandling);
+
+        var inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+            førsteUttaksdato, ARBEIDSID_DEFAULT);
+        var ref = lagReferanse(revurdering, førsteUttaksdato);
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
+        lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
+
+        // Act/Assert
+        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.UDEFINERT);
+    }
+
+    @Test
+    void skal_ikke_returnere_beregning_dersom_ingen_endring_arbeidsforholdNullRef() {
+        // Arrange - opprette avsluttet førstegangsbehandling
+        var behandling = opprettFørstegangsbehandling();
+
+        var førsteUttaksdato = LocalDate.now();
+
+        var førstegangsbehandlingInntekt = new BigDecimal(30000);
+        var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+            førsteUttaksdato, InternArbeidsforholdRef.nullRef());
+        lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
+
+        // Arrange - opprette revurderingsbehandling
+        var revurdering = opprettRevurdering(behandling);
+
+        var inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
+            førsteUttaksdato, InternArbeidsforholdRef.nullRef());
+        var ref = lagReferanse(revurdering, førsteUttaksdato);
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
+        lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
+
+        // Act/Assert
+        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.UDEFINERT);
     }
 
     @Test
