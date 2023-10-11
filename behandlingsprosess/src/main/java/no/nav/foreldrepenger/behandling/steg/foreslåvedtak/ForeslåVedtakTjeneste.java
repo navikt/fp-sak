@@ -60,6 +60,10 @@ class ForeslåVedtakTjeneste {
         }
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>(aksjonspunkterFraSteg);
+        if (behandling.harAvbruttAlleAksjonspunktAvTyper(AksjonspunktDefinisjon.getAvvikIBeregning())) {
+            dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
+        }
+
         if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling)) {
             if (klageAnkeVedtakTjeneste.erKlageResultatHjemsendt(behandling) || klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
                 behandling.nullstillToTrinnsBehandling();
