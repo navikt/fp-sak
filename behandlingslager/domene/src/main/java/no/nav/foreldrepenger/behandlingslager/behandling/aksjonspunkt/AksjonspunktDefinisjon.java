@@ -493,6 +493,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     private static final Set<AksjonspunktDefinisjon> FORESLÅ_VEDTAK_AP = Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
         AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
+    private static final Set<AksjonspunktDefinisjon> AVVIK_I_BEREGNING = Set.of(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS,
+        AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET, FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD,
+        AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
+
 
     private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
         Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
@@ -653,6 +657,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     public static Set<AksjonspunktDefinisjon> getForeslåVedtakAksjonspunkter() {
         return FORESLÅ_VEDTAK_AP;
+    }
+
+    public static Set<AksjonspunktDefinisjon> getAvvikIBeregning() {
+        return AVVIK_I_BEREGNING;
     }
 
     @Override

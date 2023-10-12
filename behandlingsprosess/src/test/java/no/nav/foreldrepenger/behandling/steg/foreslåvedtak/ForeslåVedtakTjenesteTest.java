@@ -1,9 +1,26 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -15,19 +32,12 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
 
 @CdiDbAwareTest
 class ForeslåVedtakTjenesteTest {
@@ -79,7 +89,7 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void oppretterAksjonspunktVedTotrinnskontrollOgSetterStegPåVent() {
         // Arrange
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true, false);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -93,7 +103,7 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void setterTotrinnskontrollPaBehandlingHvisIkkeSattFraFør() {
         // Arrange
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET, false);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET, false, false);
 
         // Act
         tjeneste.foreslåVedtak(behandling);
@@ -158,9 +168,22 @@ class ForeslåVedtakTjenesteTest {
     }
 
     @Test
+    void nullstillerFritekstfeltetDersomIkkeLengerRelevant() {
+        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true, false);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS, true, true);
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        verify(dokumentBehandlingTjeneste, times(1)).nullstillVedtakFritekstHvisFinnes(anyLong());
+    }
+
+    @Test
     void nullstillerIkkeFritekstfeltetDersomTotrinnskontroll() {
         // Arrange
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true, false);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -190,7 +213,7 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void lagerIkkeNyeAksjonspunkterNårAksjonspunkterAlleredeFinnes() {
         // Arrange
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, false);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, false, false);
         lenient().when(oppgaveTjeneste.harÅpneVurderKonsekvensOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
         lenient().when(oppgaveTjeneste.harÅpneVurderDokumentOppgaver(any(AktørId.class))).thenReturn(Boolean.TRUE);
 
@@ -277,7 +300,7 @@ class ForeslåVedtakTjenesteTest {
     void oppretterAksjonspunktVedTotrinnskontrollForRevurdering() {
         // Arrange
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET, true);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET, true, false);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -293,7 +316,7 @@ class ForeslåVedtakTjenesteTest {
         // Arrange
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = ScenarioKlageEngangsstønad.forHjemsendtNK(scenario).lagre(repositoryProvider, klageRepository);
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, true);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, true, false);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -303,12 +326,16 @@ class ForeslåVedtakTjenesteTest {
         assertThat(stegResultat.getAksjonspunktListe()).isEmpty();
     }
 
-    private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling) {
+    private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling, boolean settTilAvbrutt) {
         var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
         if (totrinnsbehandling) {
             AksjonspunktTestSupport.setToTrinnsBehandlingKreves(aksjonspunkt);
         }
-        AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
+        if (settTilAvbrutt) {
+            AksjonspunktTestSupport.setTilAvbrutt(aksjonspunkt);
+        } else {
+            AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
+        }
     }
 
 }

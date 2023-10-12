@@ -597,6 +597,16 @@ public class Behandling extends BaseEntitet {
             .anyMatch(Aksjonspunkt::erAvbrutt);
     }
 
+    public boolean harAvbruttAlleAksjonspunktAvTyper(Set<AksjonspunktDefinisjon> aksjonspunktTyper) {
+        var relevanteAksjonspunkter = getAksjonspunkter().stream()
+            .filter(ap -> aksjonspunktTyper.contains(ap.getAksjonspunktDefinisjon()))
+            .toList();
+        if (relevanteAksjonspunkter.isEmpty()) {
+            return false;
+        }
+        return relevanteAksjonspunkter.stream().allMatch(Aksjonspunkt::erAvbrutt);
+    }
+
     public boolean harÅpentEllerLøstAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon)
                 .map(ap -> ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) || ap.getStatus().equals(AksjonspunktStatus.UTFØRT)).orElse(false);
