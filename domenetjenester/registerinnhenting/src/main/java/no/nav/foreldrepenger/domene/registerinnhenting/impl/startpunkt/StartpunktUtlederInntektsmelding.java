@@ -138,7 +138,7 @@ class StartpunktUtlederInntektsmelding {
         }
 
         // Endring til/fra angitt arbeidsforholdId og ingen slik id
-        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && !nyIm.gjelderForEtSpesifiktArbeidsforhold()) ||
+        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && harFlereImFraSammeArbeidsgiver(nyIm, gamleIm) && !nyIm.gjelderForEtSpesifiktArbeidsforhold()) ||
             (!origIM.gjelderForEtSpesifiktArbeidsforhold() && nyIm.gjelderForEtSpesifiktArbeidsforhold())) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "im-arbeidsforhold", ref.behandlingId(), nyIm.getKanalreferanse());
             return true;
@@ -176,10 +176,16 @@ class StartpunktUtlederInntektsmelding {
 
     }
 
-    private Optional<Inntektsmelding> sisteInntektsmeldingForArbeidsforhold(Inntektsmelding ny, List<Inntektsmelding> origIM) {
-        return origIM.stream()
+    private Optional<Inntektsmelding> sisteInntektsmeldingForArbeidsforhold(Inntektsmelding ny, List<Inntektsmelding> gamleIm) {
+        return gamleIm.stream()
             .filter(ny::gjelderSammeArbeidsforhold)
             .max(COMP_REKKEFØLGE);
+    }
+
+    private boolean harFlereImFraSammeArbeidsgiver(Inntektsmelding ny, List<Inntektsmelding> gamleIm) {
+        return gamleIm.stream()
+            .filter(im -> Objects.equals(im.getArbeidsgiver(), ny.getArbeidsgiver()))
+            .count() > 1;
     }
 
     private boolean nyttArbForholdForEksisterendeArbgiver(Inntektsmelding ny, List<Inntektsmelding> origIM) {
