@@ -138,6 +138,8 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
         var førstegangsbehandlingInntekt = new BigDecimal(30000);
         var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
             førsteUttaksdato, ARBEIDSID_DEFAULT);
+        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, lagArbeidsgiver(),
+            ARBEIDSID_EKSTRA, førstegangsbehandlingIM);
         lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
         // Arrange - opprette revurderingsbehandling
@@ -265,6 +267,8 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
         // Arrange - opprette avsluttet førstegangsbehandling
         var behandling = opprettFørstegangsbehandling();
 
+        var ekstraArbeidsgiver = Arbeidsgiver.virksomhet("456");
+
         var førsteUttaksdato = LocalDate.now();
 
         var førstegangsbehandlingInntekt = new BigDecimal(30000);
@@ -272,7 +276,8 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
 
         var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt,
                 førsteUttaksdato, ARBEIDSID_DEFAULT);
-        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, ARBEIDSID_EKSTRA,
+        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, ekstraArbeidsgiver,
+            ARBEIDSID_EKSTRA,
                 førstegangsbehandlingIM);
         lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
@@ -281,7 +286,7 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
 
         var inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt,
                 førsteUttaksdato, ARBEIDSID_DEFAULT);
-        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ARBEIDSID_EKSTRA,
+        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, revurderingInntekt, førsteUttaksdato, ekstraArbeidsgiver, ARBEIDSID_EKSTRA,
                 inntektsmeldingerMottattEtterVedtak);
         var ref = lagReferanse(revurdering, førsteUttaksdato);
         lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
@@ -450,12 +455,13 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
     }
 
     private void lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak innsendingsårsak, BigDecimal beløp, LocalDate førsteUttaksdato,
-            InternArbeidsforholdRef arbeidID, List<Inntektsmelding> im) {
+                                          Arbeidsgiver arbeidsgiver,
+                                          InternArbeidsforholdRef arbeidID, List<Inntektsmelding> im) {
         var inntektsmelding = getInntektsmeldingBuilder()
                 .medBeløp(beløp)
                 .medArbeidsforholdId(arbeidID)
                 .medStartDatoPermisjon(førsteUttaksdato)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet("456"))
+                .medArbeidsgiver(arbeidsgiver)
                 .medJournalpostId(InntektsmeldingInnsendingsårsak.NY.equals(innsendingsårsak) ? "456" : "456E")
                 .medInntektsmeldingaarsak(innsendingsårsak)
                 .build();
