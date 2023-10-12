@@ -20,13 +20,16 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @Dependent
 class StartpunktUtlederInntektsmelding {
@@ -107,7 +110,7 @@ class StartpunktUtlederInntektsmelding {
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm)) {
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
-        if (erStartpunktForNyImBeregning(nyIm, gamleIm, ref)) {
+        if (erStartpunktForNyImBeregning(grunnlag, nyIm, gamleIm, ref)) {
             return StartpunktType.BEREGNING;
         }
         return StartpunktType.UDEFINERT;
@@ -130,7 +133,7 @@ class StartpunktUtlederInntektsmelding {
         return erIkkeVentetFraIAY || erIkkeVentetFraSaksbehandler;
     }
 
-    private boolean erStartpunktForNyImBeregning(Inntektsmelding nyIm, List<Inntektsmelding> gamleIm, BehandlingReferanse ref) {
+    private boolean erStartpunktForNyImBeregning(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> gamleIm, BehandlingReferanse ref) {
         var origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, gamleIm).orElse(null);
         if (origIM == null) { // Finnes ikke tidligere IM fra denne AG
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.behandlingId(), nyIm.getKanalreferanse());
@@ -138,8 +141,9 @@ class StartpunktUtlederInntektsmelding {
         }
 
         // Endring til/fra angitt arbeidsforholdId og ingen slik id
-        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && !nyIm.gjelderForEtSpesifiktArbeidsforhold() && harFlereImFraSammeArbeidsgiver(nyIm, gamleIm)) ||
-            (!origIM.gjelderForEtSpesifiktArbeidsforhold() && nyIm.gjelderForEtSpesifiktArbeidsforhold())) {
+        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && !nyIm.gjelderForEtSpesifiktArbeidsforhold()) ||
+            (!origIM.gjelderForEtSpesifiktArbeidsforhold() && nyIm.gjelderForEtSpesifiktArbeidsforhold()) &&
+                harFlereArbeidsforholdSammeArbeidsgiver(grunnlag, nyIm, ref.aktørId())) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "im-arbeidsforhold", ref.behandlingId(), nyIm.getKanalreferanse());
             return true;
         }
@@ -182,9 +186,13 @@ class StartpunktUtlederInntektsmelding {
             .max(COMP_REKKEFØLGE);
     }
 
-    private boolean harFlereImFraSammeArbeidsgiver(Inntektsmelding ny, List<Inntektsmelding> gamleIm) {
-        return gamleIm.stream()
-            .filter(im -> Objects.equals(im.getArbeidsgiver(), ny.getArbeidsgiver()))
+    private boolean harFlereArbeidsforholdSammeArbeidsgiver(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding ny, AktørId aktørId) {
+        return grunnlag.flatMap(g -> g.getAktørArbeidFraRegister(aktørId))
+            .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(List.of()).stream()
+            .filter(Yrkesaktivitet::erArbeidsforhold)
+            .filter(ya -> Objects.equals(ya.getArbeidsgiver(), ny.getArbeidsgiver()))
+            .map(Yrkesaktivitet::getArbeidsforholdRef)
+            .distinct()
             .count() > 1;
     }
 

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 
 import java.math.BigDecimal;
@@ -27,17 +28,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ExtendWith(MockitoExtension.class)
@@ -138,8 +143,6 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
         var førstegangsbehandlingInntekt = new BigDecimal(30000);
         var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt,
             førsteUttaksdato, ARBEIDSID_DEFAULT);
-        lagEkstraInntektsmelding(InntektsmeldingInnsendingsårsak.NY, førstegangsbehandlingInntekt, førsteUttaksdato, lagArbeidsgiver(),
-            ARBEIDSID_EKSTRA, førstegangsbehandlingIM);
         lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
 
         // Arrange - opprette revurderingsbehandling
@@ -151,6 +154,13 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
         lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
         lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(revurdering.getId())).thenReturn(Optional.of(revurderingGrunnlagIAY));
         lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
+        var arbeid = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
+            .medAktørId(AktørId.dummy())
+            .leggTilYrkesaktivitet(YrkesaktivitetBuilder.oppdatere(Optional.empty()).medArbeidsgiver(lagArbeidsgiver())
+                .medArbeidsforholdId(ARBEIDSID_DEFAULT).medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD))
+            .leggTilYrkesaktivitet(YrkesaktivitetBuilder.oppdatere(Optional.empty()).medArbeidsgiver(lagArbeidsgiver())
+                .medArbeidsforholdId(ARBEIDSID_EKSTRA).medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
+        lenient().when(revurderingGrunnlagIAY.getAktørArbeidFraRegister(any())).thenReturn(Optional.of(arbeid.build()));
 
         // Act/Assert
         assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.BEREGNING);
