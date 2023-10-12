@@ -138,7 +138,7 @@ class StartpunktUtlederInntektsmelding {
         }
 
         // Endring til/fra angitt arbeidsforholdId og ingen slik id
-        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && harFlereImFraSammeArbeidsgiver(nyIm, gamleIm) && !nyIm.gjelderForEtSpesifiktArbeidsforhold()) ||
+        if ((origIM.gjelderForEtSpesifiktArbeidsforhold() && !nyIm.gjelderForEtSpesifiktArbeidsforhold() && harFlereImFraSammeArbeidsgiver(nyIm, gamleIm)) ||
             (!origIM.gjelderForEtSpesifiktArbeidsforhold() && nyIm.gjelderForEtSpesifiktArbeidsforhold())) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "im-arbeidsforhold", ref.behandlingId(), nyIm.getKanalreferanse());
             return true;
