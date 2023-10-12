@@ -26,16 +26,18 @@ public final class VenteGruppe {
     );
 
     private static final Map<Venteårsak, VenteKategori> GRUPPERING_VENTEÅRSAK = Map.ofEntries(
-        Map.entry(Venteårsak.AVV_DOK, VenteKategori.VENT_BRUKER),
-        Map.entry(Venteårsak.VENT_PÅ_BRUKERTILBAKEMELDING, VenteKategori.VENT_BRUKER),
         Map.entry(Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER, VenteKategori.VENT_BRUKER),  // Run-off
+        Map.entry(Venteårsak.AVV_DOK, VenteKategori.VENT_BRUKER),
+        Map.entry(Venteårsak.AVV_FODSEL, VenteKategori.VENT_RAPPORTERING),
         Map.entry(Venteårsak.AVV_RESPONS_REVURDERING, VenteKategori.VENT_BRUKER),   // Run-off
+        Map.entry(Venteårsak.FOR_TIDLIG_SOKNAD, VenteKategori.VENT_TIDLIG),
+        Map.entry(Venteårsak.UTV_FRIST, VenteKategori.VENT_BRUKER),
+        Map.entry(Venteårsak.VENT_PÅ_BRUKERTILBAKEMELDING, VenteKategori.VENT_BRUKER),
         Map.entry(Venteårsak.VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT, VenteKategori.VENT_RAPPORTERING),
         Map.entry(Venteårsak.VENT_INNTEKT_RAPPORTERINGSFRIST, VenteKategori.VENT_RAPPORTERING),
         Map.entry(Venteårsak.VENT_OPPTJENING_OPPLYSNINGER, VenteKategori.VENT_RAPPORTERING),
         Map.entry(Venteårsak.VENT_MANGLENDE_SYKEMELDING, VenteKategori.VENT_RAPPORTERING),
         Map.entry(Venteårsak.VENT_OPDT_INNTEKTSMELDING, VenteKategori.VENT_ARBEIDSGIVER),
-        Map.entry(Venteårsak.FOR_TIDLIG_SOKNAD, VenteKategori.VENT_TIDLIG),
         Map.entry(Venteårsak.VENT_UTLAND_TRYGD, VenteKategori.VENT_UTLAND_TRYGD),
         Map.entry(Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV, VenteKategori.VENT_SØKNAD)
     );
