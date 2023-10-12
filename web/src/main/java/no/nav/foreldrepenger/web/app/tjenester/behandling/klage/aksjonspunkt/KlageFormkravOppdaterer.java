@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -17,7 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -25,24 +38,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KlageFormkravAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageFormkravAksjonspunktDto> {
 
     private static final String IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST = "Ikke påklagd et vedtak";
-
-    private static final Logger LOG = LoggerFactory.getLogger(KlageFormkravOppdaterer.class);
 
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
@@ -88,7 +89,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         opprettHistorikkinnslag(klageBehandling, apDefFormkrav, dto, klageFormkrav, klageResultat);
         var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
         if (optionalAvvistÅrsak.isPresent()) {
-            lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv);
+            lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv, dto.fritekstTilBrev());
             return OppdateringResultat.medFremoverHoppTotrinn(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK);
         }
         klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(apDefFormkrav)
@@ -153,10 +154,11 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         return Optional.empty();
     }
 
-    private void lagreKlageVurderingResultatMedAvvistKlage(Behandling klageBehandling, KlageVurdertAv vurdertAv) {
-        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, vurdertAv);
-        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(klageBehandling,
-            builder.medKlageVurdering(KlageVurdering.AVVIS_KLAGE), vurdertAv);
+    private void lagreKlageVurderingResultatMedAvvistKlage(Behandling klageBehandling, KlageVurdertAv vurdertAv, String fritekstTilBrev) {
+        var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, vurdertAv)
+            .medKlageVurdering(KlageVurdering.AVVIS_KLAGE)
+            .medFritekstTilBrev(fritekstTilBrev);
+        klageVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(klageBehandling, builder, vurdertAv);
     }
 
     private void opprettHistorikkinnslag(Behandling klageBehandling,
