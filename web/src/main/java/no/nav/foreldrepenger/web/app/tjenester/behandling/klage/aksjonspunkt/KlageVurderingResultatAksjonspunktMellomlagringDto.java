@@ -70,7 +70,6 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
         this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
         this.klageVurdering = klageVurdering;
-        this.begrunnelse = begrunnelse;
         this.fritekstTilBrev = fritekstTilBrev;
         this.klageMedholdArsak = klageMedholdArsak;
         this.klageVurderingOmgjoer = klageVurderingOmgjoer;

@@ -16,6 +16,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -25,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageFormKravAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
@@ -51,6 +54,8 @@ public class KlageRestTjeneste {
     public static final String KLAGE_V2_PATH = BASE_PATH + KLAGE_V2_PART_PATH;
     private static final String MELLOMLAGRE_PART_PATH = "/klage/mellomlagre-klage";
     public static final String MELLOMLAGRE_PATH = BASE_PATH + MELLOMLAGRE_PART_PATH;
+    private static final String MELLOMLAGRE_FORMKRAV_KLAGE_PART_PATH = "/klage/mellomlagre-formkrav-klage";
+    public static final String MELLOMLAGRE_FORMKRAV_KLAGE_PATH = BASE_PATH + MELLOMLAGRE_FORMKRAV_KLAGE_PART_PATH;
     private static final String MOTTATT_KLAGEDOKUMENT_V2_PART_PATH = "/klage/mottatt-klagedokument-v2";
     public static final String MOTTATT_KLAGEDOKUMENT_V2_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_V2_PART_PATH;
 
@@ -124,6 +129,61 @@ public class KlageRestTjeneste {
                 .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
                 .medKlageHjemmel(dto.getKlageHjemmel())
                 .medBegrunnelse(dto.getBegrunnelse());
+    }
+
+    @POST
+    @Path(MELLOMLAGRE_FORMKRAV_KLAGE_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Mellomlagring av fritekst til brev for avvist formkrav", tags = "klage")
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    public Response mellomlagreAvvistFormKrav(@TilpassetAbacAttributt(supplierClass = MellomlagreFormKravAbacSupplier.class)
+                                     @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageFormKravAksjonspunktMellomlagringDto apDto) {
+
+        var vurdertAv = AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
+            : KlageVurdertAv.NK;
+        var behandling = behandlingRepository.hentBehandling(apDto.behandlingUuid());
+        var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
+        var builderFormKrav = klageVurderingTjeneste.hentKlageFormkravBuilder(behandling, vurdertAv);
+        var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
+
+        if (KlageVurdertAv.NK.equals(vurdertAv)) {
+            throw new IllegalArgumentException("Klageinstans skal ikke lenger lagre klagevurderinger i fpsak");
+        }
+
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP)) {
+            oppdaterKlageresultat(apDto, klageResultat, behandling);
+            mapMellomlagreFormKrav(apDto, builderFormKrav, klageResultat );
+            klageVurderingTjeneste.lagreFormkrav(behandling, builderFormKrav);
+        }
+        vurderingResultatBuilder.medFritekstTilBrev(apDto.fritekstTilBrev());
+
+        klageVurderingTjeneste.lagreKlageVurderingResultat(behandling, vurderingResultatBuilder, vurdertAv);
+        return Response.ok().build();
+    }
+
+    private void oppdaterKlageresultat(KlageFormKravAksjonspunktMellomlagringDto apDto, KlageResultatEntitet klageResultat, Behandling behandling) {
+        if (apDto.erTilbakekreving()) {
+            klageVurderingTjeneste.oppdaterKlageMedPåklagetEksternBehandlingUuid(behandling.getId(),
+                apDto.klageTilbakekreving().tilbakekrevingUuid());
+            BehandlingÅrsak.builder(BehandlingÅrsakType.KLAGE_TILBAKEBETALING).buildFor(behandling);
+        } else {
+            var påKlagdBehandlingUuid = apDto.paKlagdBehandlingUuid();
+            if (påKlagdBehandlingUuid != null || apDto.hentpåKlagdEksternBehandlingUuId() == null
+                && klageResultat.getPåKlagdBehandlingId().isPresent()) {
+                klageVurderingTjeneste.oppdaterKlageMedPåklagetBehandling(behandling, påKlagdBehandlingUuid);
+            }
+        }
+    }
+
+    private static void mapMellomlagreFormKrav(KlageFormKravAksjonspunktMellomlagringDto apDto, KlageFormkravEntitet.Builder builder, KlageResultatEntitet klageResultat) {
+            builder.medErKlagerPart(apDto.erKlagerPart())
+                .medErFristOverholdt(apDto.erFristOverholdt())
+                .medErKonkret(apDto.erKonkret())
+                .medErSignert(apDto.erSignert())
+                .medErFristOverholdt(apDto.erFristOverholdt())
+                .medBegrunnelse(apDto.begrunnelse())
+                .medKlageResultat(klageResultat)
+                .medGjelderVedtak(apDto.paKlagdBehandlingUuid() != null);
     }
 
     @GET
@@ -220,6 +280,15 @@ public class KlageRestTjeneste {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
             return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+        }
+    }
+
+    public static class MellomlagreFormKravAbacSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (KlageFormKravAksjonspunktMellomlagringDto) obj;
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 

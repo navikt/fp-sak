@@ -73,6 +73,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVe
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageFormKravAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.KontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.opptjening.OpptjeningRestTjeneste;
@@ -254,6 +255,7 @@ public class BehandlingDtoTjeneste {
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
+            dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_FORMKRAV_KLAGE_PATH, "mellomlagre-formkrav-klage", new KlageFormKravAksjonspunktMellomlagringDto()));
         }
     }
 
