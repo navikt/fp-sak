@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -49,10 +50,8 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     private static final String TILBAKEKREVING_BEHANDLING_TYPE_NAVN = "Tilbakekreving";
     private static final String TILBAKEKREVING_BEHANDLING_TYPE = "BT-007";
 
-    private BehandlingRepository behandlingRepository;
     private KlageRepository klageRepository;
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
-    private KlageVurderingTjeneste klageVurderingTjeneste;
     @Mock
     private FptilbakeRestKlient mockFptilbakeRestKlient;
 
@@ -64,11 +63,11 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     @BeforeEach
     public void setup() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         klageRepository = new KlageRepository(getEntityManager());
         historikkTjenesteAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), mock(DokumentArkivTjeneste.class),
             behandlingRepository);
-        klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, null, behandlingRepository, klageRepository, null,
+        KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, null, behandlingRepository, klageRepository, null,
             repositoryProvider.getBehandlingsresultatRepository(), mock(BehandlingRelasjonEventPubliserer.class));
         klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter, behandlingRepository,
             repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient, mock(BehandlingskontrollTjeneste.class));
@@ -89,7 +88,8 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
-        var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
+        klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
+
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
 
@@ -104,7 +104,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(false, null);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
-        var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
+        klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
@@ -147,7 +147,8 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
-        var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
+
+        klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
@@ -197,7 +198,8 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
-        var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
+
+        klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
@@ -207,7 +209,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(
             new TilbakekrevingVedtakDto(1L, klageTilbakekrevingDto.tilbakekrevingVedtakDato(),
                 klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, null, "test", false, null);
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, null, "test", false, null, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
@@ -238,7 +240,8 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var klageFormkravAksjonspunktDto = lagKlageAksjonspunktDto(true, klageTilbakekrevingDto);
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageFormkravAksjonspunktDto,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
-        var oppdateringResultat = klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
+
+        klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         fellesKlageAssert();
         fellesKlageHistoriskAssert();
@@ -248,7 +251,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(
             new TilbakekrevingVedtakDto(1L, klageTilbakekrevingDto.tilbakekrevingVedtakDato(),
                 klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null);
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikkInnslager = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(behandling.getFagsak().getSaksnummer(),
@@ -272,6 +275,22 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
                     && BehandlingType.FØRSTEGANGSSØKNAD.getNavn().equals(historikkinnslagEndretFeltDto.getTilVerdi().toString().trim()))).isTrue();
     }
 
+    @Test
+    void skal_legge_på_fritekstTilBrev_på_avvist_klagebehandling() {
+        initKlage();
+        final String fritekstTilBrev = "Tester at fritekst lagres på vurderingsresulatet";
+
+        var klageAvvistMedFritekst = new KlageFormkravAksjonspunktDto(true, true, false, true, behandling.getUuid(), "test", false, null, fritekstTilBrev);
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageAvvistMedFritekst,
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
+
+        klageFormkravOppdaterer.oppdater(klageAvvistMedFritekst, aksjonspunktOppdaterParameter);
+
+        var klageResultatVurdering = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
+        assertThat(klageResultatVurdering).isPresent();
+        assertThat(klageResultatVurdering.map(KlageVurderingResultat::getFritekstTilBrev)).containsSame(fritekstTilBrev);
+    }
+
     private void fellesKlageAssert() {
         var klageFormkravEntitet = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NFP);
         assertThat(klageFormkravEntitet).isPresent();
@@ -291,7 +310,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     private KlageFormkravAksjonspunktDto lagKlageAksjonspunktDto(boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        return new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto);
+        return new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto, null);
     }
 
 }

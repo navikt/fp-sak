@@ -6,8 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.vedtak.util.InputValideringRegex;
 
 import java.util.UUID;
 
@@ -38,6 +42,11 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
     @Valid
     private UUID påKlagdBehandlingUuid;
 
+    @Size(max = 100000)
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
+    @JsonProperty("fritekstTilBrev")
+    private String fritekstTilBrev;
+
 
     KlageFormkravAksjonspunktDto() {
         // For Jackson
@@ -50,7 +59,8 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
                                         UUID påKlagdBehandlingUuid,
                                         String begrunnelse,
                                         boolean erTilbakekreving,
-                                        KlageTilbakekrevingDto klageTilbakekreving) {
+                                        KlageTilbakekrevingDto klageTilbakekreving,
+                                        String fritekstTilBrev) {
         super(begrunnelse);
         this.erKlagerPart = erKlagerPart;
         this.erFristOverholdt = erFristOverholdt;
@@ -59,6 +69,7 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
         this.påKlagdBehandlingUuid = påKlagdBehandlingUuid;
         this.erTilbakekreving = erTilbakekreving;
         this.klageTilbakekreving = klageTilbakekreving;
+        this.fritekstTilBrev = fritekstTilBrev;
     }
 
     public boolean erKlagerPart() {
@@ -93,6 +104,10 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
     @JsonProperty("tilbakekrevingInfo")
     public KlageTilbakekrevingDto getKlageTilbakekreving() {
         return klageTilbakekreving;
+    }
+
+    public String fritekstTilBrev() {
+        return fritekstTilBrev;
     }
 
 
