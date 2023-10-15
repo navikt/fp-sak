@@ -40,11 +40,6 @@ public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
     }
 
     @Override
-    public void lagreNedBehandlingStegTilstand(Long behandlingId, BehandlingStegTilstandSnapshot tilTilstand) {
-
-    }
-
-    @Override
     public void lagreNedBehandling(Long behandlingId) {
 
     }

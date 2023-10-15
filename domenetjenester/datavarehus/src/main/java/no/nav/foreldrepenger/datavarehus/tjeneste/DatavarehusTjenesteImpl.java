@@ -1,9 +1,26 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -32,17 +49,6 @@ import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
@@ -129,12 +135,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                 datavarehusRepository.lagre(aksjonspunktDvh);
             }
         }
-    }
-
-    @Override
-    public void lagreNedBehandlingStegTilstand(Long behandlingId, BehandlingStegTilstandSnapshot tilTilstand) {
-        var behandlingStegDvh = BehandlingStegDvhMapper.map(tilTilstand, behandlingId);
-        datavarehusRepository.lagre(behandlingStegDvh);
     }
 
     @Override

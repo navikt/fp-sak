@@ -1,9 +1,31 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import jakarta.enterprise.inject.spi.CDI;
-import no.nav.foreldrepenger.behandlingskontroll.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
 import no.nav.foreldrepenger.behandlingskontroll.impl.transisjoner.Transisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
@@ -15,11 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Modell av behandlingssteg, vurderingspunkter og aksjonspunkter som brukes i
@@ -61,12 +78,6 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
         this.fagsakYtelseType = fagsakYtelseType;
         this.behandlingType = behandlingType;
         this.lookup = (stegType, behType, ytType) -> new BehandlingStegModellImpl(this, lookup.apply(stegType, behType, ytType), stegType);
-    }
-
-    static BehandlingStegTilstandEndringEvent nyBehandlingStegTilstandEndring(BehandlingskontrollKontekst kontekst,
-            BehandlingStegTilstandSnapshot fraTilstand,
-            BehandlingStegTilstandSnapshot tilTilstand) {
-        return new BehandlingStegTilstandEndringEvent(kontekst, fraTilstand, tilTilstand);
     }
 
     static BehandlingStegTilstandSnapshot tilBehandlingsStegSnapshot(Optional<BehandlingStegTilstand> tilstand) {

@@ -1,20 +1,37 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
-import no.nav.foreldrepenger.behandlingskontroll.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegKonfigurasjon;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * Visitor for å traversere ett behandlingssteg.
@@ -131,13 +148,6 @@ class BehandlingStegVisitor {
         var transisjon = behandlingModell.finnTransisjon(stegResultat.getTransisjon());
         var tilSteg = finnFremoverhoppSteg(stegType, transisjon);
         eventPubliserer.fireEvent(opprettEvent(stegResultat, transisjon, stegTilstandFør.orElse(null), tilSteg));
-
-        // Publiser event om endring i stegets tilstand
-        var fraTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(stegTilstandFør);
-        var tilTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand());
-        var behandlingStegTilstandEndringEvent = BehandlingModellImpl.nyBehandlingStegTilstandEndring(kontekst,
-                fraTilstand, tilTilstand);
-        eventPubliserer.fireEvent(behandlingStegTilstandEndringEvent);
 
         // Publiser de funnede aksjonspunktene
         if (!funnetAksjonspunkter.isEmpty()) {

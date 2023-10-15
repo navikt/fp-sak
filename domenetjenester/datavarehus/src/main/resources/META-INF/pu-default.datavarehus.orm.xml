@@ -12,7 +12,6 @@
 
     <sequence-generator name="SEQ_FAGSAK_DVH" allocation-size="50" sequence-name="FPSAK_HIST.SEQ_FAGSAK_DVH"/>
     <sequence-generator name="SEQ_BEHANDLING_DVH" allocation-size="50" sequence-name="FPSAK_HIST.SEQ_BEHANDLING_DVH"/>
-    <sequence-generator name="SEQ_BEHANDLING_STEG_DVH" allocation-size="50" sequence-name="FPSAK_HIST.SEQ_BEHANDLING_STEG_DVH"/>
     <sequence-generator name="SEQ_BEHANDLING_VEDTAK_DVH" allocation-size="50" sequence-name="FPSAK_HIST.SEQ_BEHANDLING_VEDTAK_DVH"/>
     <sequence-generator name="SEQ_AKSJONSPUNKT_DVH" allocation-size="50" sequence-name="FPSAK_HIST.SEQ_AKSJONSPUNKT_DVH"/>
     <sequence-generator name="SEQ_VEDTAK_UTBETALING_DVH" allocation-size="50" sequence-name="FPSAK_HIST.SEQ_VEDTAK_UTBETALING_DVH"/>
@@ -23,11 +22,9 @@
 
     <entity class="no.nav.foreldrepenger.datavarehus.domene.FagsakDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh"/>
-    <entity class="no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDefDvh"/>
-    <entity class="no.nav.foreldrepenger.datavarehus.domene.KontrollDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh"/>
     <entity class="no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh"/>

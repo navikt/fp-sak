@@ -1,8 +1,33 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
+import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingskontroll.*;
+
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegKonfigurasjon;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
@@ -12,21 +37,23 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent.StoppetEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-
-import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner.FREMHOPP_TIL_IVERKSETT_VEDTAK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 
 /**
  * ALLE ENDRINGER I DENNE KLASSEN SKAL KLARERES OG KODE-REVIEWES MED ANSVARLIG
@@ -665,12 +692,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         getEventPubliserer().fireEvent(event);
     }
 
-    private void fireEventBehandlingStegTilstandEndring(BehandlingskontrollKontekst kontekst,
-            BehandlingStegTilstandSnapshot fraTilstand, BehandlingStegTilstandSnapshot tilTilstand) {
-        var event = BehandlingModellImpl.nyBehandlingStegTilstandEndring(kontekst, fraTilstand, tilTilstand);
-        getEventPubliserer().fireEvent(event);
-    }
-
     protected void oppdaterEksisterendeBehandlingStegStatusVedFramføringEllerTilbakeføring(Behandling behandling, BehandlingStegType revidertStegType,
             BehandlingStegStatus behandlingStegStatus,
             BehandlingStegStatus sluttStatusForAndreÅpneSteg) {
@@ -736,7 +757,6 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         var statusEtter = behandling.getStatus();
         var tilTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand());
         fireEventBehandlingStegOvergang(kontekst, behandling, fraTilstand, tilTilstand);
-        fireEventBehandlingStegTilstandEndring(kontekst, fraTilstand, tilTilstand);
         eventPubliserer.fireEvent(kontekst, statusFør, statusEtter);
     }
 

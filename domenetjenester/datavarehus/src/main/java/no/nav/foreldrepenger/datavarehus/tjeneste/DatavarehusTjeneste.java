@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 public interface DatavarehusTjeneste {
 
@@ -18,8 +17,6 @@ public interface DatavarehusTjeneste {
     void lagreNedFagsak(Long fagsakId);
 
     void lagreNedAksjonspunkter(Collection<Aksjonspunkt> aksjonspunkter, Long behandlingId, BehandlingStegType behandlingStegType);
-
-    void lagreNedBehandlingStegTilstand(Long behandlingId, BehandlingStegTilstandSnapshot tilTilstand);
 
     void lagreNedBehandling(Long behandlingId);
 
