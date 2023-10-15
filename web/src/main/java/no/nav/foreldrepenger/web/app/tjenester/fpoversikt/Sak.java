@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -24,6 +24,8 @@ public interface Sak {
             AVVENT_DOKUMTANSJON,
             AVVENT_FØDSEL,
             AVVENT_RESPONS_REVURDERING,
+            BRUKERTILBAKEMELDING,
+            UTLAND_TRYGD,
             FOR_TIDLIG_SOKNAD,
             UTVIDET_FRIST,
             INNTEKT_RAPPORTERINGSFRIST,
