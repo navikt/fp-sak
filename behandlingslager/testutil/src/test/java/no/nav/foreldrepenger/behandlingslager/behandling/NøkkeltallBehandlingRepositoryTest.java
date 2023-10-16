@@ -56,11 +56,11 @@ class NøkkeltallBehandlingRepositoryTest {
     private static int antallTreff(List<NøkkeltallBehandlingVentestatus> nøkkeltallInitiell,
                                    NøkkeltallBehandlingVentestatus forventet) {
         return nøkkeltallInitiell.stream()
-            .filter(i -> Objects.equals(i.getBehandlendeEnhet(), forventet.getBehandlendeEnhet()))
-            .filter(i -> Objects.equals(i.getBehandlingType(), forventet.getBehandlingType()))
-            .filter(i -> Objects.equals(i.getFørsteUttakMåned(), forventet.getFørsteUttakMåned()))
-            .filter(i -> i.getBehandlingVenteStatus() == forventet.getBehandlingVenteStatus())
-            .mapToInt(NøkkeltallBehandlingVentestatus::getAntall)
+            .filter(i -> Objects.equals(i.behandlendeEnhet(), forventet.behandlendeEnhet()))
+            .filter(i -> Objects.equals(i.behandlingType(), forventet.behandlingType()))
+            .filter(i -> Objects.equals(i.førsteUttakMåned(), forventet.førsteUttakMåned()))
+            .filter(i -> i.behandlingVenteStatus() == forventet.behandlingVenteStatus())
+            .mapToInt(NøkkeltallBehandlingVentestatus::antall)
             .sum();
     }
 
