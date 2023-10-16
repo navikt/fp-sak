@@ -37,7 +37,6 @@ public class NøkkeltallBehandlingRepository {
                coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT') as på_vent,
                case when behandling.tidligste_fom < sysdate - 180 then trunc(sysdate - 180, 'MM')
                     when behandling.tidligste_fom > sysdate + 300 then trunc(sysdate + 300, 'MM')
-                    when behandling.tidligste_fom is null then trunc(sysdate + 28, 'MM')
                     else behandling.tidligste_fom end as dato,
                 count(1) as antall
             from
