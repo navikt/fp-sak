@@ -1,17 +1,23 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
+import java.lang.annotation.Annotation;
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.events.*;
+import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-
-import java.lang.annotation.Annotation;
-import java.util.Objects;
 
 /**
  * Håndterer fyring av events via CDI når det skjer en overgang i
@@ -83,9 +89,5 @@ public class BehandlingskontrollEventPubliserer {
             return;
         }
         beanManager.fireEvent(event, new Annotation[] {});
-    }
-
-    public void fireEvent(BehandlingStegTilstandEndringEvent event) {
-        doFireEvent(event);
     }
 }

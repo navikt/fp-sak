@@ -1,14 +1,26 @@
 package no.nav.foreldrepenger.datavarehus.observer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -20,22 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class DatavarehusEventObserverTest {
@@ -113,50 +109,6 @@ class DatavarehusEventObserverTest {
         datavarehusEventObserver.observerFagsakStatus(event);
 
         verify(datavarehusTjeneste).lagreNedFagsak(eq(fagsak.getId()));
-    }
-
-    @Test
-    void observerBehandlingStegTilstandEndringEvent() {
-        var behandling = byggBehandling();
-
-        var kontekst = byggKontekst(behandling);
-        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.BEREGN_YTELSE,
-                BehandlingStegStatus.UTFØRT);
-        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.FATTE_VEDTAK,
-                BehandlingStegStatus.INNGANG);
-        var event = new BehandlingStegTilstandEndringEvent(kontekst,
-                fraTilstand,
-                tilTilstand);
-        datavarehusEventObserver.observerBehandlingStegTilstandEndringEvent(event);
-
-        var captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
-
-        verify(datavarehusTjeneste, times(2)).lagreNedBehandlingStegTilstand(any(Long.class), captor.capture());
-        var tilstandListe = captor.getAllValues();
-        assertThat(tilstandListe.get(0)).isEqualTo(fraTilstand);
-        assertThat(tilstandListe.get(1)).isEqualTo(tilTilstand);
-    }
-
-    @Test
-    void observerBehandlingStegTilstandEndringEvent_regsøk_til_insøk() {
-        var behandling = byggBehandling();
-
-        var kontekst = byggKontekst(behandling);
-        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.REGISTRER_SØKNAD,
-                BehandlingStegStatus.UTFØRT);
-        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.INNHENT_SØKNADOPP,
-                BehandlingStegStatus.INNGANG);
-        var event = new BehandlingStegTilstandEndringEvent(kontekst,
-                fraTilstand,
-                tilTilstand);
-        datavarehusEventObserver.observerBehandlingStegTilstandEndringEvent(event);
-
-        var captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
-
-        verify(datavarehusTjeneste, times(2)).lagreNedBehandlingStegTilstand(any(Long.class), captor.capture());
-        var tilstandListe = captor.getAllValues();
-        assertThat(tilstandListe.get(0)).isEqualTo(fraTilstand);
-        assertThat(tilstandListe.get(1)).isEqualTo(tilTilstand);
     }
 
     @Test

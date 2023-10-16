@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.dbstoette.JpaExtension;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
 class DatavarehusRepositoryTest {
@@ -38,15 +40,6 @@ class DatavarehusRepositoryTest {
     }
 
     @Test
-    void skal_lagre_behandling_steg_dvh() {
-        var behandlingStegDvh = DatavarehusTestUtils.byggBehandlingStegDvh();
-
-        var id = datavarehusRepository.lagre(behandlingStegDvh);
-
-        assertThat(id).isGreaterThanOrEqualTo(1);
-    }
-
-    @Test
     void skal_lagre_behandling_vedtak_dvh() {
         var behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
 
@@ -60,16 +53,6 @@ class DatavarehusRepositoryTest {
         var aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
 
         var id = datavarehusRepository.lagre(aksjonspunktDvh);
-
-        assertThat(id).isGreaterThanOrEqualTo(1);
-    }
-
-
-    @Test
-    void skal_lagre_behandling_kontroll_dvh() {
-        var kontrollDvh = DatavarehusTestUtils.byggKontrollDvh();
-
-        var id = datavarehusRepository.lagre(kontrollDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }

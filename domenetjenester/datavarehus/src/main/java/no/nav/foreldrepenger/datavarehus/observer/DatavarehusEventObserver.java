@@ -3,20 +3,19 @@ package no.nav.foreldrepenger.datavarehus.observer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEvent;
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 @ApplicationScoped
 public class DatavarehusEventObserver {
@@ -48,23 +47,6 @@ public class DatavarehusEventObserver {
     public void observerFagsakStatus(@Observes FagsakStatusEvent event) {
         LOG.debug("Lagrer fagsak {} i DVH mellomalger", event.getFagsakId());
         tjeneste.lagreNedFagsak(event.getFagsakId());
-    }
-
-    public void observerBehandlingStegTilstandEndringEvent(@Observes BehandlingStegTilstandEndringEvent event) {
-        var fraTilstand = event.getFraTilstand();
-        if (fraTilstand.isPresent()) {
-            var tilstand = fraTilstand.get();
-            LOG.debug("Lagrer behandligsteg endring fra tilstand {} i DVH datavarehus for behandling {}; behandlingStegTilstandId {}",
-                tilstand.getSteg().getKode(), event.getBehandlingId(), tilstand.getId());
-            tjeneste.lagreNedBehandlingStegTilstand(event.getBehandlingId(), tilstand);
-        }
-        var tilTilstand = event.getTilTilstand();
-        if (tilTilstand.isPresent() && !Objects.equals(tilTilstand.orElse(null), fraTilstand.orElse(null))) {
-            var tilstand = tilTilstand.get();
-            LOG.debug("Lagrer behandligsteg endring til tilstand {} i DVH datavarehus for behandlingId {}; behandlingStegTilstandId {}",
-                tilstand.getSteg().getKode(), event.getBehandlingId(), tilstand.getId());
-            tjeneste.lagreNedBehandlingStegTilstand(event.getBehandlingId(), tilstand);
-        }
     }
 
     public void observerBehandlingEnhetEvent(@Observes BehandlingEnhetEvent event) {
