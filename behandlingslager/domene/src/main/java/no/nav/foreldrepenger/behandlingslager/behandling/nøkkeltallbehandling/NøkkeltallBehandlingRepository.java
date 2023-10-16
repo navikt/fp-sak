@@ -30,35 +30,42 @@ public class NøkkeltallBehandlingRepository {
     }
 
     private static final String QUERY_NØKKELTALL = """
-        select
-           behandling.enhet, behandling.behandling_type,
-           coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT') as på_vent
-           ,behandling.tidligste_fom, count(1)
-        from
-           (
-               select b.id, B.BEHANDLENDE_ENHET as enhet, b.behandling_type,
+        select enhet, btype, på_vent, dato, sum(antall) from
+        (
+            select
+               behandling.enhet as enhet, behandling.behandling_type as btype,
+               coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT') as på_vent,
+               case when behandling.tidligste_fom < sysdate - 180 then trunc(sysdate - 180, 'MM')
+                    when behandling.tidligste_fom > sysdate + 300 then trunc(sysdate + 300, 'MM')
+                    when behandling.tidligste_fom is null then trunc(sysdate + 28, 'MM')
+                    else behandling.tidligste_fom end as dato,
+                count(1) as antall
+            from
                (
-                   select trunc(min(yfp.fom), 'MM')
-                   from gr_ytelses_fordeling gyf
-                   join yf_fordeling_periode yfp on yfp.fordeling_id = gyf.so_fordeling_id
-                   where gyf.behandling_id = b.id
-                   and gyf.aktiv = 'J'
-                   group by gyf.so_fordeling_id
-               ) as tidligste_fom
-               from behandling b
-               join fagsak fs on fs.id = b.fagsak_id
-               where b.behandling_status != :avsluttetBehandlingStatus
-               and fs.YTELSE_TYPE = :fpYtelseType
-               and b.opprettet_tid > to_timestamp('31.05.2020 23:59:59','dd.mm.yyyy hh24:mi:ss')
-           ) behandling
-           left join (
-               select a.behandling_id, 'PÅ_VENT' as på_vent
-               from aksjonspunkt a
-               where a.aksjonspunkt_status = :åpenAksjonspunktStatus
-               and substr(a.aksjonspunkt_def, 1, 1) not in ('5', '6')
-           ) ventestatus on ventestatus.behandling_id = behandling.id
-        group by behandling.enhet, behandling.behandling_type, coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT'),
-           behandling.tidligste_fom
+                   select b.id, B.BEHANDLENDE_ENHET as enhet, b.behandling_type,
+                   (
+                       select trunc(min(yfp.fom), 'MM')
+                       from gr_ytelses_fordeling gyf
+                       join yf_fordeling_periode yfp on yfp.fordeling_id = gyf.so_fordeling_id
+                       where gyf.behandling_id = b.id
+                       and gyf.aktiv = 'J'
+                       group by gyf.so_fordeling_id
+                   ) as tidligste_fom
+                   from behandling b
+                   join fagsak fs on fs.id = b.fagsak_id
+                   where b.behandling_status != :avsluttetBehandlingStatus
+                   and fs.YTELSE_TYPE = :fpYtelseType
+                   and b.id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def = 7013 and aksjonspunkt_status = :åpenAksjonspunktStatus)
+               ) behandling
+               left join (
+                   select a.behandling_id, 'PÅ_VENT' as på_vent
+                   from aksjonspunkt a
+                   where a.aksjonspunkt_status = :åpenAksjonspunktStatus
+                   and substr(a.aksjonspunkt_def, 1, 1) not in ('5', '6')
+               ) ventestatus on ventestatus.behandling_id = behandling.id
+            group by behandling.enhet, behandling.behandling_type, coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT'), behandling.tidligste_fom
+        )
+        group by enhet, btype, på_vent, dato
         """;
 
     public List<NøkkeltallBehandlingVentestatus> hentNøkkeltallBehandlingVentestatus() {
