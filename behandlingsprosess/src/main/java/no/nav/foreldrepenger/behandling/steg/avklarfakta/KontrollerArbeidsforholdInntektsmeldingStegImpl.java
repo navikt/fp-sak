@@ -4,14 +4,26 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.*;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.AksjonspunktUtlederForArbeidsforholdInntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)
@@ -19,11 +31,13 @@ import java.util.List;
 @FagsakYtelseTypeRef
 @ApplicationScoped
 class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbeidsforholdInntektsmeldingSteg {
+    private static final Logger LOG = LoggerFactory.getLogger(KontrollerArbeidsforholdInntektsmeldingStegImpl.class);
 
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     KontrollerArbeidsforholdInntektsmeldingStegImpl() {
         // for CDI proxy
@@ -33,17 +47,37 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
     KontrollerArbeidsforholdInntektsmeldingStegImpl(BehandlingRepository behandlingRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                     AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder,
-                                                    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                                                    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.utleder = utleder;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+
+        try {
+            if (behandling.getOriginalBehandlingId().isPresent()) {
+                var nyeInntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
+                    .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+                    .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+                    .orElse(Collections.emptyList());
+                var gamleInntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getOriginalBehandlingId().get())
+                    .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+                    .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+                    .orElse(Collections.emptyList());
+                var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
+                var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
+                LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
+            }
+        } catch (Exception e) {
+            LOG.info("Feil i logging av refusjonsdiff: ", e);
+        }
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
