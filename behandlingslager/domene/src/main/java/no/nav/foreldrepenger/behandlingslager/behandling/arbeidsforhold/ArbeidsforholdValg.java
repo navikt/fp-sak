@@ -98,6 +98,12 @@ public class ArbeidsforholdValg extends BaseEntitet {
     }
 
     @Override
+    public String toString() {
+        return "ArbeidsforholdValg{" + "vurdering=" + vurdering + ", begrunnelse='" + begrunnelse + '\'' + ", arbeidsgiverIdent='" + getArbeidsgiver()
+            + '\'' + ", arbeidsforholdRef=" + arbeidsforholdRef + ", aktiv=" + aktiv + '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
