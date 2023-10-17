@@ -14,7 +14,7 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
         // Skjuler default konstruktør
     }
 
-    public static TilkjentYtelseDagytelseDto map(BeregningsresultatEntitet bgRes) {
+    public static TilkjentYtelseDagytelseDto mapDagytelse(BeregningsresultatEntitet bgRes) {
         var perioder = bgRes.getBeregningsresultatPerioder()
             .stream()
             .map(TilkjentYtelseFormidlingDtoTjeneste::mapPeriode)

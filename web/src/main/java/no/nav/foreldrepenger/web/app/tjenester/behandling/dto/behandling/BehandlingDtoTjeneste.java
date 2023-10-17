@@ -399,7 +399,6 @@ public class BehandlingDtoTjeneste {
                 .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
                 .anyMatch(p -> p.getDagsats() > 0);
             if (tilkjentYtelse) {
-                dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
                 dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
             }
 
@@ -459,9 +458,6 @@ public class BehandlingDtoTjeneste {
             } else {
                 var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(originalBehandling.getId());
                 if (uttak.isPresent()) {
-                    dto.leggTil(
-                        get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger-original-behandling",
-                            originalUuidDto));
                     dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse-original-behandling", originalUuidDto));
                 }
             }

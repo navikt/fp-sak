@@ -69,7 +69,7 @@ public class TilkjentYtelseFormidlingRestTjeneste {
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .flatMap(beh -> beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId()))
-            .map(TilkjentYtelseFormidlingDtoTjeneste::map);
+            .map(TilkjentYtelseFormidlingDtoTjeneste::mapDagytelse);
         if (dto.isEmpty()) {
             var responseBuilder = Response.ok();
             return responseBuilder.build();
