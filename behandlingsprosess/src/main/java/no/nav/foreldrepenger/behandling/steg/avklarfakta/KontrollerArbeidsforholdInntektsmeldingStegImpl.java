@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)
 @BehandlingTypeRef
@@ -73,7 +74,9 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
                     .orElse(Collections.emptyList());
                 var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
                 var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
-                LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
+                var alleEndringerIRefusjon = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
+                alleEndringerIRefusjon.forEach(endring -> LOG.info("Fant avvik i refusjon: {}", endring));
+
             }
         } catch (Exception e) {
             LOG.info("Feil i logging av refusjonsdiff: ", e);
