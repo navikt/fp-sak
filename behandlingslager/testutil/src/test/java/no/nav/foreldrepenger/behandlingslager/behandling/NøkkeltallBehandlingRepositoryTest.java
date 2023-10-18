@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -72,8 +73,9 @@ class NøkkeltallBehandlingRepositoryTest {
 
     private NøkkeltallBehandlingVentefristUtløper forventetFrist(ScenarioMorSøkerForeldrepenger søknad) {
         var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
+        // Skal legge til start of week (IW = mandag) + 4 dager = fredag
         var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst().map(Aksjonspunkt::getFristTid).orElseThrow()
-            .plusDays(1).toLocalDate();
+            .with(DayOfWeek.FRIDAY).toLocalDate();
         var forventetYtelseType = søknad.getFagsak().getYtelseType();
         return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist, 1L);
     }
