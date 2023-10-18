@@ -55,13 +55,17 @@ public class LoggRefusjonsavvikTjeneste {
             return BigDecimal.ZERO;
         }
         if (im.getEndringerRefusjon().isEmpty()) {
-            return im.getRefusjonBeløpPerMnd().getVerdi();
+            return refusjonFraStartEller0(im);
         }
         return im.getEndringerRefusjon().stream()
             .filter(endring -> !endring.getFom().isAfter(endringsdato))
             .max(Comparator.comparing(Refusjon::getFom))
             .map(endring -> endring.getRefusjonsbeløp().getVerdi())
-            .orElse(im.getRefusjonBeløpPerMnd().getVerdi());
+            .orElse(refusjonFraStartEller0(im));
+    }
+
+    private static BigDecimal refusjonFraStartEller0(Inntektsmelding im) {
+        return im.getRefusjonBeløpPerMnd() == null ? BigDecimal.ZERO : im.getRefusjonBeløpPerMnd().getVerdi();
     }
 
     private static Set<LocalDate> finnAlleEndringsdatoerForRefusjon(List<Inntektsmelding> inntektsmeldinger) {
