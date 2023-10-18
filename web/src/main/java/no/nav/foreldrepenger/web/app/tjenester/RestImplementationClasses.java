@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.*;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.fpoversikt.FpoversiktMigreringRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpOversiktRestTjeneste;
@@ -110,6 +111,7 @@ public class RestImplementationClasses {
         // Formidlingstjenester
         classes.add(FormidlingRestTjeneste.class);
         classes.add(BeregningsgrunnlagFormidlingRestTjeneste.class);
+        classes.add(TilkjentYtelseFormidlingRestTjeneste.class);
 
         classes.add(FpOversiktRestTjeneste.class);
         return Set.copyOf(classes);
