@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)
 @BehandlingTypeRef
@@ -63,12 +62,13 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         try {
-            if (behandling.getOriginalBehandlingId().isPresent()) {
+            var originalBehandlingId = behandling.getOriginalBehandlingId();
+            if (originalBehandlingId.isPresent()) {
                 var nyeInntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
                     .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
                     .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
                     .orElse(Collections.emptyList());
-                var gamleInntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getOriginalBehandlingId().get())
+                var gamleInntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(originalBehandlingId.get())
                     .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
                     .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
                     .orElse(Collections.emptyList());
