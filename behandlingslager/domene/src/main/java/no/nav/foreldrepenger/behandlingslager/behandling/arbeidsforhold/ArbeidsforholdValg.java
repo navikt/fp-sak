@@ -99,7 +99,7 @@ public class ArbeidsforholdValg extends BaseEntitet {
 
     @Override
     public String toString() {
-        return "ArbeidsforholdValg{" + "vurdering=" + vurdering + ", begrunnelse='" + begrunnelse + '\'' + ", arbeidsgiverIdent='" + getArbeidsgiver()
+        return "ArbeidsforholdValg{" + "vurdering=" + vurdering + ", arbeidsgiverIdent='" + getArbeidsgiver()
             + '\'' + ", arbeidsforholdRef=" + arbeidsforholdRef + ", aktiv=" + aktiv + '}';
     }
 
