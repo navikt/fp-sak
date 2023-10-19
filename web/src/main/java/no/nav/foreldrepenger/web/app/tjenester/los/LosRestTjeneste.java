@@ -113,7 +113,7 @@ public class LosRestTjeneste {
     @Operation(description = "Tilbyr data over når førstegangsbehandlinger går av vent", tags = "los-data")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
     public List<NøkkeltallBehandlingVentefristUtløper> nøkkeltallFristUtløper() {
-        return nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløperPrUke();
+        return nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløper();
     }
 
 }
