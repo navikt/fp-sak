@@ -1,20 +1,28 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingFørsteUttak;
 import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingVentestatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingVentefristUtløper;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -29,8 +37,6 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
-import java.util.List;
-
 @ApplicationScoped
 @Transactional
 @Path(LosRestTjeneste.BASE_PATH)
@@ -42,6 +48,7 @@ public class LosRestTjeneste {
     private static final String LOS_BEHANDLING_PATH = "/los-behandling";
     private static final String LOS_FAGSAK_EGENSKAP_PATH = "/los-egenskap";
     public static final String LOS_NØKKELTALL_PATH = "/los-nokkeltall";
+    public static final String LOS_FRISTUTLOP_PATH = "/los-fristutlop";
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -94,10 +101,19 @@ public class LosRestTjeneste {
     @Path(LOS_NØKKELTALL_PATH)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Tilbyr data over ikke-avsluttede behandlinger på vent vs ikke på vent", tags = "los-data")
+    @Operation(description = "Tilbyr første søkte uttaksdato for åpne foreldrepenge-behandlinger med info om venting", tags = "los-data")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
-    public List<NøkkeltallBehandlingVentestatus> innloggetBruker() {
-        return nøkkeltallBehandlingRepository.hentNøkkeltallBehandlingVentestatus();
+    public List<NøkkeltallBehandlingFørsteUttak> nøkkeltallFørsteUttakPrMåned() {
+        return nøkkeltallBehandlingRepository.hentNøkkeltallSøknadFørsteUttakPrMånedForeldrepenger();
+    }
+
+    @Path(LOS_FRISTUTLOP_PATH)
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Tilbyr data over når førstegangsbehandlinger går av vent", tags = "los-data")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
+    public List<NøkkeltallBehandlingVentefristUtløper> nøkkeltallFristUtløper() {
+        return nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløperPrUke();
     }
 
 }

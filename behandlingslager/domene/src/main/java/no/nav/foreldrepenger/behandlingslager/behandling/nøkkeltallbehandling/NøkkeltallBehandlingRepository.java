@@ -1,18 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
 public class NøkkeltallBehandlingRepository {
@@ -29,7 +30,7 @@ public class NøkkeltallBehandlingRepository {
         // for CDI proxy
     }
 
-    private static final String QUERY_NØKKELTALL = """
+    private static final String QUERY_FØRSTE_UTTAK_PR_MÅNED = """
         select enhet, btype, på_vent, dato, sum(antall) from
         (
             select
@@ -67,25 +68,60 @@ public class NøkkeltallBehandlingRepository {
         group by enhet, btype, på_vent, dato
         """;
 
-    public List<NøkkeltallBehandlingVentestatus> hentNøkkeltallBehandlingVentestatus() {
-        var query = entityManager.createNativeQuery(QUERY_NØKKELTALL)
+    public List<NøkkeltallBehandlingFørsteUttak> hentNøkkeltallSøknadFørsteUttakPrMånedForeldrepenger() {
+        var query = entityManager.createNativeQuery(QUERY_FØRSTE_UTTAK_PR_MÅNED)
             .setParameter("åpenAksjonspunktStatus", AksjonspunktStatus.OPPRETTET.getKode())
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());
         @SuppressWarnings("unchecked")
         var result = (List<Object[]>) query.getResultList();
-        return result.stream().map(NøkkeltallBehandlingRepository::map).toList();
+        return result.stream().map(NøkkeltallBehandlingRepository::mapFørsteUttak).toList();
     }
 
-    private static NøkkeltallBehandlingVentestatus map(Object record) {
+    private static NøkkeltallBehandlingFørsteUttak mapFørsteUttak(Object record) {
         var queryResultat = (Object[]) record;
         var behandlendeEnhet = (String) queryResultat[0];
         var behandlingType = BehandlingType.fraKode((String) queryResultat[1]);
         var status = BehandlingVenteStatus.valueOf((String) queryResultat[2]);
         var førsteUttaksMåned = localDate(queryResultat[3]);
         var antall = (BigDecimal) queryResultat[4];
-        return new NøkkeltallBehandlingVentestatus(behandlendeEnhet, behandlingType,
+        return new NøkkeltallBehandlingFørsteUttak(behandlendeEnhet, behandlingType,
             status, førsteUttaksMåned, antall.intValue());
+    }
+
+    private static final String QUERY_FRIST_UTLØPER_DAG = """
+        select enhet, yt, frist, count(1) as ant from (
+            select enhet, yt,
+                   case when fristi < sysdate then trunc(sysdate + 1, 'IW') + 4
+                        when fristi > sysdate + 185 then trunc(sysdate+185, 'IW') + 4
+                        else trunc(fristi, 'IW') + 4 end as frist
+            from (
+                select behandlende_enhet as enhet, ytelse_type as yt, nvl(ap.frist_tid, nvl(ap.endret_tid, ap.opprettet_tid) + 28) + 1  as fristi
+                from aksjonspunkt ap join behandling b on ap.behandling_id = b.id join fagsak f on b.fagsak_id = f.id
+                where aksjonspunkt_def > 7000 and aksjonspunkt_def not in (7011, 7013)
+                   and aksjonspunkt_status=:åpenAksjonspunktStatus and behandling_type = :førstegang
+            )
+        )
+        group by enhet, yt, frist
+        """;
+
+    public List<NøkkeltallBehandlingVentefristUtløper> hentNøkkeltallVentefristUtløperPrUke() {
+        var query = entityManager.createNativeQuery(QUERY_FRIST_UTLØPER_DAG)
+            .setParameter("åpenAksjonspunktStatus", AksjonspunktStatus.OPPRETTET.getKode())
+            .setParameter("førstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
+            ;
+        @SuppressWarnings("unchecked")
+        var result = (List<Object[]>) query.getResultList();
+        return result.stream().map(NøkkeltallBehandlingRepository::mapFrist).toList();
+    }
+
+    private static NøkkeltallBehandlingVentefristUtløper mapFrist(Object record) {
+        var queryResultat = (Object[]) record;
+        var behandlendeEnhet = (String) queryResultat[0];
+        var ytelseType = FagsakYtelseType.fraKode((String) queryResultat[1]);
+        var fristUtløper = localDate(queryResultat[2]);
+        var antall = (BigDecimal) queryResultat[3];
+        return new NøkkeltallBehandlingVentefristUtløper(behandlendeEnhet, ytelseType, fristUtløper, antall.longValue());
     }
 
     private static LocalDate localDate(Object sqlTimestamp) {
