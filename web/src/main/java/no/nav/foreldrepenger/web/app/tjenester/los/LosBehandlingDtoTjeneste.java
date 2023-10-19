@@ -194,8 +194,8 @@ public class LosBehandlingDtoTjeneste {
             } catch (Exception e) {
                 // Intentionally ignored
             }
-        } else if (BehandlingType.REVURDERING.equals(behandling.getType())) {
-            førsteUttaksdato = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
+        } else if (BehandlingType.REVURDERING.equals(behandling.getType()) && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            førsteUttaksdato = aggregat.map(YtelseFordelingAggregat::getOppgittFordeling)
                 .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
                 .map(OppgittPeriodeEntitet::getFom)
                 .min(Comparator.naturalOrder()).orElse(null);
