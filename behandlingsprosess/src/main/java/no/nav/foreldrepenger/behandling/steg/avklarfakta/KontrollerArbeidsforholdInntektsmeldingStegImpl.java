@@ -74,8 +74,10 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
                     .orElse(Collections.emptyList());
                 var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
                 var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
-                var alleEndringerIRefusjon = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
+                var alleEndringerIRefusjon = LoggRefusjonsavvikTjeneste.finnAvvik(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
+                var alleEndringerIopphørtRefusjon = LoggRefusjonsavvikTjeneste.finnEndringIOpphørsdato(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
                 alleEndringerIRefusjon.forEach(endring -> LOG.info("Fant avvik i refusjon: {}", endring));
+                alleEndringerIopphørtRefusjon.forEach( endringOpphør -> LOG.info("Fant endring i opphørsdato: {}", endringOpphør));
 
             }
         } catch (Exception e) {
