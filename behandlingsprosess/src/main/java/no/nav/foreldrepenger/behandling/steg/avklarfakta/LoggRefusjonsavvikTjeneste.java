@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,10 +20,10 @@ public class LoggRefusjonsavvikTjeneste {
     private static final BigDecimal PROSENT_AVVIK_REFUSJON_GRENSE = BigDecimal.valueOf(50);
 
 
-    public static List<RefusjonDiff> finnOgLoggAvvik(String saksnummer,
-                                                     LocalDate stp,
-                                                     List<Inntektsmelding> nyeInntektsmeldinger,
-                                                     List<Inntektsmelding> gamleInntektsmeldinger) {
+    public static List<RefusjonDiff> finnAvvik(String saksnummer,
+                                               LocalDate stp,
+                                               List<Inntektsmelding> nyeInntektsmeldinger,
+                                               List<Inntektsmelding> gamleInntektsmeldinger) {
         var nyttSett = finnAlleEndringsdatoerForRefusjon(nyeInntektsmeldinger);
         var gammeltSett = finnAlleEndringsdatoerForRefusjon(gamleInntektsmeldinger);
         var alleEndringsdatoer = Stream.concat(nyttSett.stream(), gammeltSett.stream()).collect(Collectors.toSet());
@@ -50,10 +51,6 @@ public class LoggRefusjonsavvikTjeneste {
     }
 
     private static BigDecimal finnRefusjonPåDatoForIM(LocalDate endringsdato, Inntektsmelding im) {
-        if (im.getRefusjonOpphører() != null &&
-            im.getRefusjonOpphører().isBefore(endringsdato)) {
-            return BigDecimal.ZERO;
-        }
         if (im.getEndringerRefusjon().isEmpty()) {
             return refusjonFraStartEller0(im);
         }
@@ -76,14 +73,46 @@ public class LoggRefusjonsavvikTjeneste {
     }
 
     private static Set<LocalDate> finnEndringsdatoerForRefusjon(Inntektsmelding im) {
-        var settMedEndringer = im.getEndringerRefusjon()
+        return  im.getEndringerRefusjon()
             .stream()
             .map(Refusjon::getFom)
             .collect(Collectors.toSet());
-        if (im.getRefusjonOpphører() != null && !im.getRefusjonOpphører().equals(Tid.TIDENES_ENDE)) {
-            settMedEndringer.add(im.getRefusjonOpphører().plusDays(1));
+    }
+
+    public static List<RefusjonOpphørDiff> finnEndringIOpphørsdato(String saksnummer, LocalDate stp, List<Inntektsmelding> nyeInntektsmeldinger, List<Inntektsmelding> gamleInntektsmeldinger) {
+        var gamleOpphørsdatoer = finnOpphørsdatoer(gamleInntektsmeldinger);
+        var nyeOpphørsdatoer = finnOpphørsdatoer(nyeInntektsmeldinger);
+        Set<LocalDate> endredeOpphørsdatoer = new HashSet<>(nyeOpphørsdatoer);
+        endredeOpphørsdatoer.removeAll(gamleOpphørsdatoer);
+
+        List<RefusjonOpphørDiff> alleEndringerOpphør = new ArrayList<>();
+        endredeOpphørsdatoer.forEach(opphørsdato -> {
+                var refusjonsbeløp = finnSumRefusjonsBeløp(opphørsdato, nyeInntektsmeldinger);
+                alleEndringerOpphør.add(new RefusjonOpphørDiff(saksnummer, stp, opphørsdato, refusjonsbeløp));
+            });
+        return alleEndringerOpphør;
+    }
+
+    private static BigDecimal finnSumRefusjonsBeløp(LocalDate opphørsdato, List<Inntektsmelding> inntektsmeldinger) {
+        return inntektsmeldinger.stream()
+            .filter(im -> im.getRefusjonOpphører() != null && opphørsdato.equals(im.getRefusjonOpphører()))
+            .map(im -> im.getRefusjonBeløpPerMnd().getVerdi())
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
+    }
+
+    private static Set<LocalDate> finnOpphørsdatoer(List<Inntektsmelding> inntektsmeldinger) {
+        return inntektsmeldinger.stream()
+            .filter(im -> im.getRefusjonOpphører() != null && !im.getRefusjonOpphører().equals(Tid.TIDENES_ENDE))
+            .map(Inntektsmelding::getRefusjonOpphører).collect(Collectors.toSet());
+    }
+
+    protected record RefusjonOpphørDiff(String saksnummer, LocalDate skjæringstidspunkt, LocalDate opphørsdato, BigDecimal refusjonsbeløp) {
+        @Override
+        public String toString() {
+            return "RefusjonOpphørDiff{" + "saksnummer='" + saksnummer + '\'' + ", skjæringstidspunkt=" + skjæringstidspunkt + ", opphørsdato="
+                + opphørsdato + ", refusjonsbeløp=" + refusjonsbeløp + '}';
         }
-        return settMedEndringer;
     }
 
     protected record RefusjonDiff(String saksnummer, LocalDate skjæringstidspunkt, LocalDate endringsdato, BigDecimal endringProsent, BigDecimal endringSum) {

@@ -33,7 +33,7 @@ class LoggRefusjonsavvikTjenesteTest {
         var gamleImer = Arrays.asList(lagIM(AG1, 12000, null, Collections.emptyList()));
 
         // Act
-        var alleEndringer = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
 
         // Assert
         assertThat(alleEndringer).isEmpty();
@@ -46,7 +46,7 @@ class LoggRefusjonsavvikTjenesteTest {
         var gamleImer = Arrays.asList(lagIM(AG1, 12000, null, Collections.emptyList()));
 
         // Act
-        var alleEndringer = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
 
         // Assert
         assertThat(alleEndringer).isEmpty();
@@ -59,7 +59,7 @@ class LoggRefusjonsavvikTjenesteTest {
         var gamleImer = Arrays.asList(lagIM(AG1, 12000, null, Collections.emptyList()));
 
         // Act
-        var alleEndringer = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
 
         // Assert
         assertThat(alleEndringer).isEmpty();
@@ -72,7 +72,7 @@ class LoggRefusjonsavvikTjenesteTest {
         var gamleImer = Arrays.asList(lagIM(AG1, 12000, null, Collections.emptyList()));
 
         // Act
-        var alleEndringer = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
 
         // Assert
         assertThat(alleEndringer).hasSize(1);
@@ -88,18 +88,42 @@ class LoggRefusjonsavvikTjenesteTest {
     void skal_finne_avvik_når_opphør_i_refusjon() {
         // Arrange
         var opphørsdato = STP.plusMonths(2);
-        var nyeImer = Arrays.asList(lagIM(AG1, 12000, opphørsdato, Collections.emptyList()));
-        var gamleImer = Arrays.asList(lagIM(AG1, 12000, null, Collections.emptyList()));
+        var opphørsdato2 = STP.plusMonths(3);
+        var nyeImer = Arrays.asList(lagIM(AG1, 12000, opphørsdato, Collections.emptyList()),
+            lagIM(AG2, 5000, opphørsdato2, Collections.emptyList()));
+        var gamleImer = Arrays.asList(lagIM(AG1, 12000, null, Collections.emptyList()),
+            lagIM(AG2, 5000, null, Collections.emptyList()));
 
         // Act
-        var alleEndringer = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnEndringIOpphørsdato(SAKSNUMMER, STP, nyeImer, gamleImer);
+
+        // Assert
+        assertThat(alleEndringer).hasSize(2);
+        var diff = alleEndringer.get(0);
+        assertThat(diff.refusjonsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(12000));
+        assertThat(diff.opphørsdato()).isEqualTo(opphørsdato);
+        assertThat(diff.saksnummer()).isEqualTo(SAKSNUMMER);
+        assertThat(diff.skjæringstidspunkt()).isEqualTo(STP);
+    }
+    @Test
+    void logg_kun_avvik_i_refusjon_når_endring() {
+        // Arrange
+        var opphørsdato = STP.plusMonths(2);
+        var opphørsdato2 = STP.plusMonths(3);
+
+        var gamleImer = Arrays.asList(lagIM(AG1, 12000, opphørsdato, Collections.emptyList()),
+            lagIM(AG2, 5000, null, Collections.emptyList()));
+        var nyeImer = Arrays.asList(lagIM(AG1, 12000, opphørsdato, Collections.emptyList()),
+            lagIM(AG2, 5000, opphørsdato2, Collections.emptyList()));
+
+        // Act
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnEndringIOpphørsdato(SAKSNUMMER, STP, nyeImer, gamleImer);
 
         // Assert
         assertThat(alleEndringer).hasSize(1);
         var diff = alleEndringer.get(0);
-        assertThat(diff.endringSum()).isEqualByComparingTo(BigDecimal.valueOf(12000));
-        assertThat(diff.endringProsent()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(diff.endringsdato()).isEqualTo(opphørsdato.plusDays(1));
+        assertThat(diff.refusjonsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(5000));
+        assertThat(diff.opphørsdato()).isEqualTo(opphørsdato2);
         assertThat(diff.saksnummer()).isEqualTo(SAKSNUMMER);
         assertThat(diff.skjæringstidspunkt()).isEqualTo(STP);
     }
@@ -114,7 +138,7 @@ class LoggRefusjonsavvikTjenesteTest {
         var gamleImer = Arrays.asList(lagIM(AG1, 12000, opphørsdato, Collections.emptyList()));
 
         // Act
-        var alleEndringer = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
 
         // Assert
         assertThat(alleEndringer).hasSize(1);
@@ -129,23 +153,24 @@ class LoggRefusjonsavvikTjenesteTest {
     @Test
     void skal_finne_avvik_når_flere_im() {
         // Arrange
-        var opphørsdato1 = STP.plusMonths(2);
-        var opphørsdato2 = STP.plusMonths(3);
+        var endringsdato1 = STP.plusMonths(2);
+        var endringsdato2 = STP.plusMonths(3);
+        var endring = new Refusjon(BigDecimal.valueOf(3000), endringsdato1);
+        var endring2 = new Refusjon(BigDecimal.valueOf(1000), endringsdato2);
 
-        var nyeImer = Arrays.asList(lagIM(AG1, 12000, opphørsdato1, Collections.emptyList()),
-            lagIM(AG2, 5000, opphørsdato2, Collections.emptyList()));
-        var gamleImer = Arrays.asList(lagIM(AG1, 12000, opphørsdato1, Collections.emptyList()),
+        var nyeImer = Arrays.asList(lagIM(AG1, 12000, null, List.of(endring)),
+            lagIM(AG2, 5000, null, List.of(endring2)));
+        var gamleImer = Arrays.asList(lagIM(AG1, 12000, null, List.of(endring) ),
             lagIM(AG2, 5000, null, Collections.emptyList()));
-
         // Act
-        var alleEndringer = LoggRefusjonsavvikTjeneste.finnOgLoggAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
+        var alleEndringer = LoggRefusjonsavvikTjeneste.finnAvvik(SAKSNUMMER, STP, nyeImer, gamleImer);
 
         // Assert
         assertThat(alleEndringer).hasSize(1);
         var diff = alleEndringer.get(0);
-        assertThat(diff.endringSum()).isEqualByComparingTo(BigDecimal.valueOf(5000));
-        assertThat(diff.endringProsent()).isEqualByComparingTo(BigDecimal.valueOf(100));
-        assertThat(diff.endringsdato()).isEqualTo(opphørsdato2.plusDays(1));
+        assertThat(diff.endringSum()).isEqualByComparingTo(BigDecimal.valueOf(4000));
+        assertThat(diff.endringProsent()).isEqualByComparingTo(BigDecimal.valueOf(50));
+        assertThat(diff.endringsdato()).isEqualTo(endringsdato2);
         assertThat(diff.saksnummer()).isEqualTo(SAKSNUMMER);
         assertThat(diff.skjæringstidspunkt()).isEqualTo(STP);
     }
