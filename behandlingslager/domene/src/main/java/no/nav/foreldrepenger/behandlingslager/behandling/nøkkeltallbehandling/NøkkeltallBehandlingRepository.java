@@ -13,7 +13,10 @@ import jakarta.persistence.EntityManager;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 @ApplicationScoped
@@ -52,19 +55,20 @@ public class NøkkeltallBehandlingRepository {
                        where gyf.behandling_id = b.id
                        and gyf.aktiv = 'J'
                        and (b.behandling_type = :forstegang or ba.behandling_arsak_type = :endringsoknad)
+                       and yfp.kl_aarsak_type not in (:utsettelseOpphold)
                        group by gyf.so_fordeling_id
                    ) as tidligste_fom
                    from behandling b
                    join fagsak fs on fs.id = b.fagsak_id
                    where b.behandling_status != :avsluttetBehandlingStatus
                    and fs.YTELSE_TYPE = :fpYtelseType
-                   and b.id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def = 7013 and aksjonspunkt_status = :åpenAksjonspunktStatus)
+                   and b.id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def = :ventSoknad and aksjonspunkt_status = :åpenAksjonspunktStatus)
                ) behandling
                left join (
                    select a.behandling_id, 'PÅ_VENT' as på_vent
                    from aksjonspunkt a
                    where a.aksjonspunkt_status = :åpenAksjonspunktStatus
-                   and substr(a.aksjonspunkt_def, 1, 1) not in ('5', '6')
+                   and a.aksjonspunkt_def >= :lavesteVentKode
                ) ventestatus on ventestatus.behandling_id = behandling.id
             group by behandling.enhet, behandling.behandling_type, coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT'), behandling.tidligste_fom
         )
@@ -77,6 +81,9 @@ public class NøkkeltallBehandlingRepository {
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("forstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
             .setParameter("endringsoknad", BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER.getKode())
+            .setParameter("utsettelseOpphold", List.of(OppholdÅrsak.KODEVERK, UtsettelseÅrsak.KODEVERK))
+            .setParameter("ventSoknad", AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode())
+            .setParameter("lavesteVentKode", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKode())
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());
         @SuppressWarnings("unchecked")
         var result = (List<Object[]>) query.getResultList();
@@ -104,7 +111,7 @@ public class NøkkeltallBehandlingRepository {
                 select b.behandlende_enhet as enhet, f.ytelse_type as yt, trunc(nvl(ap.frist_tid, nvl(ap.endret_tid, ap.opprettet_tid) + 28))  as fristi
                 from aksjonspunkt ap join behandling b on ap.behandling_id = b.id join fagsak f on b.fagsak_id = f.id
                 where b.behandling_status != :avsluttetBehandlingStatus and ap.aksjonspunkt_status=:åpenAksjonspunktStatus
-                    and b.behandling_type = :førstegang and ap.aksjonspunkt_def > 7000 and ap.aksjonspunkt_def not in (7011, 7013)
+                    and b.behandling_type = :førstegang and ap.aksjonspunkt_def >= :lavesteVentKode and ap.aksjonspunkt_def not in (:ventIgnorer)
             )
         )
         group by enhet, yt, frist
@@ -116,6 +123,8 @@ public class NøkkeltallBehandlingRepository {
             .setParameter("åpenAksjonspunktStatus", AksjonspunktStatus.OPPRETTET.getKode())
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("førstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
+            .setParameter("lavesteVentKode", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKode())
+            .setParameter("ventIgnorer", List.of(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode(), AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.getKode()))
             ;
         @SuppressWarnings("unchecked")
         var result = (List<Object[]>) query.getResultList();
