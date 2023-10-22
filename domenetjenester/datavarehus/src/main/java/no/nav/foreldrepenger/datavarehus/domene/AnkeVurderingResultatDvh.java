@@ -78,6 +78,9 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
     @Column(name = "tr_kjennelse_dato")
     private LocalDate trygderettKjennelseDato;
 
+    @Column(name = "tr_oversendt_dato")
+    private LocalDate trygderettOversendtDato;
+
     AnkeVurderingResultatDvh() {
         // hibernate
     }
@@ -148,6 +151,10 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
 
     public LocalDate getTrygderettKjennelseDato() {
         return trygderettKjennelseDato;
+    }
+
+    public LocalDate getTrygderettOversendtDato() {
+        return trygderettOversendtDato;
     }
 
     public LocalDateTime getOpprettetTidspunkt() {
@@ -261,6 +268,11 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
 
         public Builder medTrygderettVurderingOmgjør(String ankeVurderingOmgjør) {
             ankeVurderingResultatDvh.trygderettVurderingOmgjør = ankeVurderingOmgjør;
+            return this;
+        }
+
+        public Builder medTrygderettOversendtDato(LocalDate oversendtDato) {
+            ankeVurderingResultatDvh.trygderettOversendtDato = oversendtDato;
             return this;
         }
 
