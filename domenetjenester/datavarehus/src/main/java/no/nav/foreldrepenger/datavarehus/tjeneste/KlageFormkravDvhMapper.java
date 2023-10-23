@@ -16,6 +16,7 @@ class KlageFormkravDvhMapper {
             .medErSignert(klageFormkrav.erSignert())
             .medGjelderVedtak(klageFormkrav.hentGjelderVedtak())
             .medKlageBehandlingId(klageFormkrav.hentKlageResultat().getKlageBehandlingId())
+            .medPåklagdTilbakekrevingUuid(klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid().orElse(null))
             .medKlageVurdertAv(klageFormkrav.getKlageVurdertAv().getKode())
             .medOpprettetTidspunkt(klageFormkrav.getOpprettetTidspunkt())
             .build();

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.datavarehus.domene;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -48,6 +49,9 @@ public class KlageFormkravDvh extends DvhBaseEntitet {
     @Column(name = "er_signert", nullable = false)
     private boolean erSignert;
 
+    @Column(name = "paaklagd_tilbakekreving_uuid")
+    private UUID påklagdTilbakekrevingUuid;
+
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt;
 
@@ -85,6 +89,10 @@ public class KlageFormkravDvh extends DvhBaseEntitet {
 
     public boolean erSignert() {
         return erSignert;
+    }
+
+    public UUID getPåklagdTilbakekrevingUuid() {
+        return påklagdTilbakekrevingUuid;
     }
 
     public LocalDateTime getOpprettetTidspunkt() {
@@ -156,6 +164,11 @@ public class KlageFormkravDvh extends DvhBaseEntitet {
 
         public Builder medOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
             klageFormkravDvh.opprettetTidspunkt = opprettetTidspunkt;
+            return this;
+        }
+
+        public Builder medPåklagdTilbakekrevingUuid(UUID tilbakekrevingUuid) {
+            klageFormkravDvh.påklagdTilbakekrevingUuid = tilbakekrevingUuid;
             return this;
         }
 
