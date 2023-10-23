@@ -9,5 +9,5 @@ import no.nav.vedtak.util.InputValideringRegex;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public record KlageTilbakekrevingDto(@NotNull UUID tilbakekrevingUuid, LocalDate tilbakekrevingVedtakDato, @Size(min = 2, max = 2) @Pattern(regexp = InputValideringRegex.KODEVERK) String tilbakekrevingBehandlingType) {
+public record KlageTilbakekrevingDto(@NotNull UUID tilbakekrevingUuid, LocalDate tilbakekrevingVedtakDato, @Size(max = 6) @Pattern(regexp = InputValideringRegex.KODEVERK) String tilbakekrevingBehandlingType) {
 }
