@@ -1,20 +1,22 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.web.app.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.web.app.util.StringUtils;
 
 @ApplicationScoped
 public class PersonopplysningDtoPersonIdentTjeneste {
@@ -30,9 +32,9 @@ public class PersonopplysningDtoPersonIdentTjeneste {
     }
 
 
-    public void oppdaterMedPersonIdent(PersonIdentDto dto) {
+    public void oppdaterMedPersonIdent(FagsakYtelseType ytelseType, PersonIdentDto dto) {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
-        Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder = memoize(aktørId -> personinfoAdapter.hentPersoninfoForVisning(aktørId));
+        Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder = memoize(aktørId -> personinfoAdapter.hentPersoninfoForVisning(ytelseType, aktørId));
 
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
@@ -44,7 +46,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         }
     }
 
-    public void oppdaterMedPersonIdent(PersonoversiktDto dto) {
+    public void oppdaterMedPersonIdent(FagsakYtelseType ytelseType, PersonoversiktDto dto) {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
@@ -52,7 +54,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         var alle = new ArrayList<>(List.of(dto.getBruker()));
         Optional.ofNullable(dto.getAnnenPart()).ifPresent(alle::add);
         alle.addAll(dto.getBarn());
-        alle.forEach(this::oppdaterMedPersonIdent);
+        alle.forEach(p -> oppdaterMedPersonIdent(ytelseType, p));
     }
 
     private Diskresjonskode findKode(AktørId aktørId, Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder) {

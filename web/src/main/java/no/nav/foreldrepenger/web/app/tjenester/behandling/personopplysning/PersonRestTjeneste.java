@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,12 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
@@ -28,12 +35,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 @Path(PersonRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -129,7 +130,7 @@ public class PersonRestTjeneste {
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var brukDato = Optional.ofNullable(behandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
         var personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
-        personoversiktDto.ifPresent(personopplysningFnrFinder::oppdaterMedPersonIdent);
+        personoversiktDto.ifPresent(p -> personopplysningFnrFinder.oppdaterMedPersonIdent(behandling.getFagsakYtelseType(), p));
 
         return personoversiktDto.orElse(null);
     }
@@ -143,11 +144,12 @@ public class PersonRestTjeneste {
     public MedlemV2Dto hentMedlemskap(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var medlemDto = medlemDtoTjeneste.lagMedlemV2Dto(behandlingId);
         medlemDto.map(MedlemV2Dto::getPerioder).orElse(Set.of())
             .forEach(p -> {
-                if (p.getPersonopplysningBruker() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(p.getPersonopplysningBruker());
-                if (p.getPersonopplysningAnnenPart() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(p.getPersonopplysningAnnenPart());
+                if (p.getPersonopplysningBruker() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(behandling.getFagsakYtelseType(), p.getPersonopplysningBruker());
+                if (p.getPersonopplysningAnnenPart() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(behandling.getFagsakYtelseType(), p.getPersonopplysningAnnenPart());
             });
         return medlemDto.orElse(null);
     }

@@ -56,7 +56,7 @@ public class RegistrerFagsakEgenskaper {
         }
 
         // Har registrert en tilknytning og ikke utflyttet
-        if (personinfo.hentGeografiskTilknytning(behandling.getAktørId()) != null) {
+        if (personinfo.hentGeografiskTilknytning(behandling.getFagsakYtelseType(), behandling.getAktørId()) != null) {
             return gjeldendeMarkering.orElse(FagsakMarkering.NASJONAL);
         }
         fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);

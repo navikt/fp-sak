@@ -1,21 +1,36 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.pdl.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.pdl.DoedfoedtBarn;
+import no.nav.pdl.DoedfoedtBarnResponseProjection;
+import no.nav.pdl.Doedsfall;
+import no.nav.pdl.DoedsfallResponseProjection;
+import no.nav.pdl.Foedsel;
+import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.Folkeregisterpersonstatus;
+import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjon;
+import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjonRolle;
+import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.PersonResponseProjection;
 
 @ApplicationScoped
 public class FødselTjeneste {
@@ -33,14 +48,14 @@ public class FødselTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public List<FødtBarnInfo> hentFødteBarnInfoFor(AktørId bruker, List<LocalDateInterval> intervaller) {
+    public List<FødtBarnInfo> hentFødteBarnInfoFor(FagsakYtelseType ytelseType, AktørId bruker, List<LocalDateInterval> intervaller) {
         var request = new HentPersonQueryRequest();
         request.setIdent(bruker.getId());
         var projection = new PersonResponseProjection()
                 .doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
                 .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
-        var person = pdlKlient.hentPerson(request, projection);
+        var person = pdlKlient.hentPerson(ytelseType, request, projection);
 
         List<FødtBarnInfo> alleBarn = new ArrayList<>();
         person.getDoedfoedtBarn().stream()
@@ -53,7 +68,7 @@ public class FødselTjeneste {
             .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
             .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
             .filter(Objects::nonNull)
-            .map(this::fraIdent)
+            .map(i -> fraIdent(ytelseType, i))
             .filter(Objects::nonNull)
             .forEach(alleBarn::add);
 
@@ -62,13 +77,13 @@ public class FødselTjeneste {
                 .toList();
     }
 
-    public List<PersonIdent> hentForeldreTil(PersonIdent barn) {
+    public List<PersonIdent> hentForeldreTil(FagsakYtelseType ytelseType, PersonIdent barn) {
         var request = new HentPersonQueryRequest();
         request.setIdent(barn.getIdent());
         var projection = new PersonResponseProjection()
                 .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
-        var person = pdlKlient.hentPerson(request, projection);
+        var person = pdlKlient.hentPerson(ytelseType, request, projection);
 
         return person.getForelderBarnRelasjon().stream()
                 .filter(f -> !ForelderBarnRelasjonRolle.BARN.equals(f.getRelatertPersonsRolle()))
@@ -86,14 +101,14 @@ public class FødselTjeneste {
                 .build();
     }
 
-    private FødtBarnInfo fraIdent(String barnIdent) {
+    private FødtBarnInfo fraIdent(FagsakYtelseType ytelseType, String barnIdent) {
         var request = new HentPersonQueryRequest();
         request.setIdent(barnIdent);
         var projection = new PersonResponseProjection()
                 .foedsel(new FoedselResponseProjection().foedselsdato())
                 .doedsfall(new DoedsfallResponseProjection().doedsdato())
                 .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status());
-        var barn = pdlKlient.hentPerson(request, projection);
+        var barn = pdlKlient.hentPerson(ytelseType, request, projection);
 
         var fødselsdato = barn.getFoedsel().stream()
                 .map(Foedsel::getFoedselsdato)

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import static java.util.Objects.nonNull;
 
 import java.math.BigDecimal;
@@ -15,7 +13,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,11 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -36,17 +39,32 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.Innsendingsvalg;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -55,7 +73,11 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilans;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilansoppdrag;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittUtenlandskVirksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -69,8 +91,24 @@ import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.*;
-import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.*;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Bruker;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Medlemskap;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Omsorgsovertakelse;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.OppholdUtlandet;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Periode;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Termin;
+import no.nav.vedtak.felles.xml.soeknad.felles.v3.Vedlegg;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.AnnenOpptjening;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.EgenNaering;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Frilans;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.NorskOrganisasjon;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Opptjening;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskArbeidsforhold;
+import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskOrganisasjon;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Innsendingstype;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.MorsAktivitetsTyper;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Omsorgsovertakelseaarsaker;
@@ -80,7 +118,13 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Frilanser;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæringsdrivende;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
-import no.nav.vedtak.felles.xml.soeknad.uttak.v3.*;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Overfoeringsperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Person;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet;
 
 
 @NamespaceRef(SøknadConstants.NAMESPACE)
@@ -238,7 +282,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
         familieHendelseRepository.lagre(behandling.getId(), hendelseBuilder);
         søknadBuilder.medErEndringssøknad(false);
-        var relasjonsRolleType = utledRolle(wrapper.getBruker(), behandlingId, aktørId);
+        var relasjonsRolleType = utledRolle(behandling.getFagsakYtelseType(), wrapper.getBruker(), behandlingId, aktørId);
         var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         fagsakRepository.oppdaterRelasjonsRolle(behandling.getFagsakId(), søknad.getRelasjonsRolleType());
@@ -284,8 +328,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     }
 
-    private RelasjonsRolleType utledRolle(Bruker bruker, Long behandlingId, AktørId aktørId) {
-        var kjønn = personinfoAdapter.hentBrukerKjønnForAktør(aktørId)
+    private RelasjonsRolleType utledRolle(FagsakYtelseType ytelseType, Bruker bruker, Long behandlingId, AktørId aktørId) {
+        var kjønn = personinfoAdapter.hentBrukerKjønnForAktør(ytelseType, aktørId)
             .map(PersoninfoKjønn::getKjønn)
             .orElseThrow(() -> {
                 var msg = String.format("Søknad på behandling %s mangler RelasjonsRolleType", behandlingId);

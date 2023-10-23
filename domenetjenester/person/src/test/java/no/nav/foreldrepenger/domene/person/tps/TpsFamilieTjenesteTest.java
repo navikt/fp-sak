@@ -1,22 +1,8 @@
 package no.nav.foreldrepenger.domene.person.tps;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
-import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -25,9 +11,25 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
+import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ExtendWith(MockitoExtension.class)
 class TpsFamilieTjenesteTest {
@@ -51,9 +53,9 @@ class TpsFamilieTjenesteTest {
         var antallBarn = 1;
 
         var personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
-        when(fødselTjeneste.hentFødteBarnInfoFor(any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
+        when(fødselTjeneste.hentFødteBarnInfoFor(any(), any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
 
-        var fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(AKTØR, List.of(intervall));
+        var fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(FagsakYtelseType.FORELDREPENGER, AKTØR, List.of(intervall));
 
         assertThat(fødslerRelatertTilBehandling).hasSize(antallBarn);
     }

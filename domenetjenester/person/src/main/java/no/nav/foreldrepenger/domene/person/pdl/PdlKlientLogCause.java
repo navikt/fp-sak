@@ -1,19 +1,27 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.ProcessingException;
-import no.nav.pdl.*;
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.felles.integrasjon.person.PdlException;
-import no.nav.vedtak.felles.integrasjon.person.Persondata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.net.SocketTimeoutException;
 
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.pdl.GeografiskTilknytning;
+import no.nav.pdl.GeografiskTilknytningResponseProjection;
+import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
+import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.Person;
+import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.felles.integrasjon.person.PdlException;
+import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
 @ApplicationScoped
 public class PdlKlientLogCause {
@@ -33,9 +41,10 @@ public class PdlKlientLogCause {
         this.pdlKlient = pdlKlient;
     }
 
-    public GeografiskTilknytning hentGT(HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
+    public GeografiskTilknytning hentGT(FagsakYtelseType ytelseType, HentGeografiskTilknytningQueryRequest q, GeografiskTilknytningResponseProjection p) {
         try {
-            return pdlKlient.hentGT(q, p);
+            var ytelse = utledYtelse(ytelseType);
+            return pdlKlient.hentGT(ytelse, q, p);
         } catch (PdlException e) {
             if (e.getStatus() == HTTP_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentGT person ikke funnet");
@@ -48,9 +57,10 @@ public class PdlKlientLogCause {
         }
     }
 
-    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p) {
+    public Person hentPerson(FagsakYtelseType ytelseType, HentPersonQueryRequest q, PersonResponseProjection p) {
         try {
-            return pdlKlient.hentPerson(q, p);
+            var ytelse = utledYtelse(ytelseType);
+            return pdlKlient.hentPerson(ytelse, q, p);
         } catch (PdlException e) {
             if (e.getStatus() == HTTP_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentPerson ikke funnet");
@@ -63,9 +73,10 @@ public class PdlKlientLogCause {
         }
     }
 
-    public Person hentPerson(HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
+    public Person hentPerson(FagsakYtelseType ytelseType, HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
         try {
-            return pdlKlient.hentPerson(q, p, ignoreNotFound);
+            var ytelse = utledYtelse(ytelseType);
+            return pdlKlient.hentPerson(ytelse, q, p, ignoreNotFound);
         } catch (PdlException e) {
             if (e.getStatus() == HTTP_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentPerson ikke funnet");
@@ -75,6 +86,16 @@ public class PdlKlientLogCause {
             throw e;
         } catch (ProcessingException e) {
             throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException(PDL_TIMEOUT_KODE, PDL_TIMEOUT_MSG) : e;
+        }
+    }
+
+    private static Persondata.Ytelse utledYtelse(FagsakYtelseType ytelseType) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
+            return Persondata.Ytelse.ENGANGSSTØNAD;
+        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
+            return Persondata.Ytelse.SVANGERSKAPSPENGER;
+        } else {
+            return Persondata.Ytelse.FORELDREPENGER;
         }
     }
 }

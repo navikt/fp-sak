@@ -1,29 +1,101 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.aktør.*;
-import no.nav.foreldrepenger.behandlingslager.aktør.historikk.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.OppholdstillatelsePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.pdl.Bostedsadresse;
+import no.nav.pdl.BostedsadresseResponseProjection;
+import no.nav.pdl.Doedsfall;
+import no.nav.pdl.DoedsfallResponseProjection;
+import no.nav.pdl.Foedsel;
+import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.FolkeregistermetadataResponseProjection;
+import no.nav.pdl.Folkeregisterpersonstatus;
+import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjon;
+import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjonRolle;
+import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.Kjoenn;
+import no.nav.pdl.KjoennResponseProjection;
+import no.nav.pdl.KjoennType;
+import no.nav.pdl.Kontaktadresse;
+import no.nav.pdl.KontaktadresseResponseProjection;
+import no.nav.pdl.Matrikkeladresse;
+import no.nav.pdl.MatrikkeladresseResponseProjection;
+import no.nav.pdl.Metadata;
+import no.nav.pdl.Navn;
+import no.nav.pdl.NavnResponseProjection;
+import no.nav.pdl.Opphold;
+import no.nav.pdl.OppholdResponseProjection;
+import no.nav.pdl.Oppholdsadresse;
+import no.nav.pdl.OppholdsadresseResponseProjection;
+import no.nav.pdl.Oppholdstillatelse;
 import no.nav.pdl.Person;
+import no.nav.pdl.PersonBostedsadresseParametrizedInput;
+import no.nav.pdl.PersonFolkeregisterpersonstatusParametrizedInput;
+import no.nav.pdl.PersonKontaktadresseParametrizedInput;
+import no.nav.pdl.PersonOppholdParametrizedInput;
+import no.nav.pdl.PersonOppholdsadresseParametrizedInput;
+import no.nav.pdl.PersonResponseProjection;
+import no.nav.pdl.PersonStatsborgerskapParametrizedInput;
+import no.nav.pdl.PostadresseIFrittFormat;
+import no.nav.pdl.PostadresseIFrittFormatResponseProjection;
+import no.nav.pdl.Postboksadresse;
+import no.nav.pdl.PostboksadresseResponseProjection;
+import no.nav.pdl.Sivilstand;
+import no.nav.pdl.SivilstandResponseProjection;
+import no.nav.pdl.Sivilstandstype;
 import no.nav.pdl.Statsborgerskap;
-import no.nav.pdl.*;
+import no.nav.pdl.StatsborgerskapResponseProjection;
+import no.nav.pdl.UkjentBosted;
+import no.nav.pdl.UkjentBostedResponseProjection;
+import no.nav.pdl.UtenlandskAdresse;
+import no.nav.pdl.UtenlandskAdresseIFrittFormat;
+import no.nav.pdl.UtenlandskAdresseIFrittFormatResponseProjection;
+import no.nav.pdl.UtenlandskAdresseResponseProjection;
+import no.nav.pdl.Vegadresse;
+import no.nav.pdl.VegadresseResponseProjection;
 import no.nav.vedtak.konfig.Tid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class PersoninfoTjeneste {
@@ -77,7 +149,7 @@ public class PersoninfoTjeneste {
         this.poststedKodeverkRepository = repository;
     }
 
-    public boolean brukerManglerAdresse(PersonIdent personIdent) {
+    public boolean brukerManglerAdresse(FagsakYtelseType ytelseType, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(personIdent.getIdent());
 
@@ -103,14 +175,14 @@ public class PersoninfoTjeneste {
                 .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2()
                     .adresselinje3().byEllerStedsnavn().postkode().landkode()));
 
-        var person = pdlKlient.hentPerson(query, projection);
+        var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), true);
 
         return adresser.stream().map(Adresseinfo::getGjeldendePostadresseType).allMatch(AdresseType.UKJENT_ADRESSE::equals);
     }
 
-    public Personinfo hentPersoninfo(AktørId aktørId, PersonIdent personIdent) {
+    public Personinfo hentPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
 
         var query = new HentPersonQueryRequest();
         query.setIdent(personIdent.getIdent());
@@ -145,7 +217,7 @@ public class PersoninfoTjeneste {
                         .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2()
                                 .adresselinje3().byEllerStedsnavn().postkode().landkode()));
 
-        var person = pdlKlient.hentPerson(query, projection);
+        var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         var fødselsdato = person.getFoedsel().stream()
                 .map(Foedsel::getFoedselsdato)
@@ -184,7 +256,7 @@ public class PersoninfoTjeneste {
                 .build();
     }
 
-    public Personhistorikkinfo hentPersoninfoHistorikk(AktørId aktørId, LocalDate fom, LocalDate tom) {
+    public Personhistorikkinfo hentPersoninfoHistorikk(FagsakYtelseType ytelseType, AktørId aktørId, LocalDate fom, LocalDate tom) {
 
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
@@ -223,7 +295,7 @@ public class PersoninfoTjeneste {
                                 .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2()
                                         .adresselinje3().byEllerStedsnavn().postkode().landkode()));
 
-        var person = pdlKlient.hentPerson(query, projection);
+        var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         var builder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
         var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
@@ -264,7 +336,7 @@ public class PersoninfoTjeneste {
                     LOG.info("UKJENT ADRESSE kommune: {}", kommune);
             }
         } catch (Exception e) {
-
+            // Intentional
         }
         adressePerioderPeriodisert.stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
