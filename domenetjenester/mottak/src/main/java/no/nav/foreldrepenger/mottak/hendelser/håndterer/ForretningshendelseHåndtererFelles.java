@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.mottak.hendelser.håndterer;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -18,11 +24,6 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Dependent
 public class ForretningshendelseHåndtererFelles {
@@ -85,7 +86,7 @@ public class ForretningshendelseHåndtererFelles {
             return false;
         }
         var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(åpenEllerForrige));
-        var fødslerFraRegister = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(åpenEllerForrige.getAktørId(), intervaller);
+        var fødslerFraRegister = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(åpenEllerForrige.getFagsakYtelseType(), åpenEllerForrige.getAktørId(), intervaller);
         var fødslerFraGrunnlag = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(List.of());
         var grunnlagSammenlign = fødslerFraGrunnlag.stream().map(SammenlignBarn::new).toList();
         return fødslerFraRegister.size() == fødslerFraGrunnlag.size() &&

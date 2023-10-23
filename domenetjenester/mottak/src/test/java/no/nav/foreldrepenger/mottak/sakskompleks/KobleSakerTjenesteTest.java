@@ -1,5 +1,19 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -8,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -17,19 +32,6 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class KobleSakerTjenesteTest extends EntityManagerAwareTest {
@@ -426,9 +428,9 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
     private void settOppTpsSurrogatiStrukturer() {
         BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
-        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
-        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
-        lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
+        lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(FagsakYtelseType.FORELDREPENGER, BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
     }
 
     private void settOppTpsStrukturer(boolean medKunMor) {
@@ -437,15 +439,15 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
     private void settOppTpsStrukturer(boolean medKunMor, boolean nyfødtbarnEriTPS) {
         BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
-        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of());
-        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(MOR_AKTØR_ID), any())).thenReturn(List.of());
+        lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
         if(nyfødtbarnEriTPS) {
             if (medKunMor) {
-                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
+                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(FagsakYtelseType.FORELDREPENGER, BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
             } else {
-                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID, FAR_AKTØR_ID));
+                lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(FagsakYtelseType.FORELDREPENGER, BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID, FAR_AKTØR_ID));
             }
-            lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
+            lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         }
 
     }

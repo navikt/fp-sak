@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -93,7 +94,7 @@ public class FagsakTjeneste {
 
         try {
             var sak = hentFagsakForSaksnummer(new Saksnummer(søkestreng));
-            var person = sak.map(Fagsak::getAktørId).flatMap(personinfoAdapter::hentBrukerBasisForAktør).orElse(null);
+            var person = sak.flatMap(s -> personinfoAdapter.hentBrukerBasisForAktør(s.getYtelseType(), s.getAktørId())).orElse(null);
             return sak.map(f -> mapFraFagsakTilFagsakSøkDto(f, person)).stream().toList();
         } catch (Exception e) { // Ugyldig saksnummer
             return List.of();
@@ -105,7 +106,7 @@ public class FagsakTjeneste {
     }
 
     private List<FagsakSøkDto> hentFagsakSøkDtoForAktørId(AktørId aktørId) {
-        var brukerinfo = personinfoAdapter.hentBrukerBasisForAktør(aktørId).orElse(null);
+        var brukerinfo = personinfoAdapter.hentBrukerBasisForAktør(FagsakYtelseType.FORELDREPENGER, aktørId).orElse(null);
         return fagsakRepository.hentForBruker(aktørId).stream().map(f -> mapFraFagsakTilFagsakSøkDto(f, brukerinfo)).toList();
     }
 
@@ -114,7 +115,7 @@ public class FagsakTjeneste {
     }
 
     public Optional<AktoerInfoDto> lagAktoerInfoDto(AktørId aktørId) {
-        var personinfo = personinfoAdapter.hentBrukerBasisForAktør(aktørId).orElse(null);
+        var personinfo = personinfoAdapter.hentBrukerBasisForAktør(FagsakYtelseType.FORELDREPENGER, aktørId).orElse(null);
         if (personinfo == null) {
             return Optional.empty();
         }

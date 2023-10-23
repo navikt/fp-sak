@@ -1,13 +1,23 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Temagrupper;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -16,13 +26,6 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPers
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -118,25 +121,25 @@ public class EnhetsTjeneste {
         return ALLEBEHANDLENDEENHETER.stream().filter(e -> !IKKE_MENY.contains(e)).toList();
     }
 
-    OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, BehandlingTema behandlingTema) {
-        if (harNoenDiskresjonskode6(Set.of(aktørId))) {
+    OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, FagsakYtelseType ytelseType) {
+        if (harNoenDiskresjonskode6(ytelseType, Set.of(aktørId))) {
             return KODE6_ENHET;
         } else if (erNoenSkjermetPerson(Set.of(aktørId))) {
             return SKJERMET_ENHET;
         } else {
-            return personinfoAdapter.hentGeografiskTilknytning(aktørId) == null ? UTLAND_ENHET : NASJONAL_ENHET;
+            return personinfoAdapter.hentGeografiskTilknytning(ytelseType, aktørId) == null ? UTLAND_ENHET : NASJONAL_ENHET;
             // Beholde ut 2023
             // var enheter = hentEnheterFor(geografiskTilknytning, behandlingTema);
             // return enheter.isEmpty() ? NASJONAL_ENHET : velgEnhet(enheter.get(0), null);
         }
     }
 
-    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, BehandlingTema behandlingTema, AktørId hovedAktør,
+    Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, FagsakYtelseType ytelseType, AktørId hovedAktør,
                                                                     Set<AktørId> alleAktører, FagsakMarkering saksmarkering) {
         if (SPESIALENHETER.contains(enhetId)) {
             return Optional.empty();
         }
-        if (harNoenDiskresjonskode6(alleAktører)) {
+        if (harNoenDiskresjonskode6(ytelseType, alleAktører)) {
             return Optional.of(KODE6_ENHET);
         }
         if (erNoenSkjermetPerson(alleAktører)) {
@@ -150,14 +153,14 @@ public class EnhetsTjeneste {
             return !UTLAND_ENHET.enhetId().equals(enhetId) ? Optional.of(UTLAND_ENHET) : Optional.empty();
         }
         if (FLYTTE_MAP.get(enhetId) == null) {
-            return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, behandlingTema));
+            return Optional.of(hentEnhetSjekkKunAktør(hovedAktør, ytelseType));
         }
         return Optional.of(FLYTTE_MAP.get(enhetId)).filter(ny -> !ny.enhetId().equals(enhetId));
     }
 
-    private boolean harNoenDiskresjonskode6(Set<AktørId> aktører) {
+    private boolean harNoenDiskresjonskode6(FagsakYtelseType ytelseType, Set<AktørId> aktører) {
         return aktører.stream()
-            .map(personinfoAdapter::hentDiskresjonskode)
+            .map(a -> personinfoAdapter.hentDiskresjonskode(ytelseType, a))
             .anyMatch(Diskresjonskode.KODE6::equals);
     }
 
@@ -189,8 +192,9 @@ public class EnhetsTjeneste {
     }
 
     // Behold ut 2023
-    private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, BehandlingTema behandlingTema) {
-        var brukBTema = BehandlingTema.UDEFINERT.equals(behandlingTema) ? BehandlingTema.FORELDREPENGER : behandlingTema;
+    private List<OrganisasjonsEnhet> hentEnheterFor(String geografi, FagsakYtelseType ytelseType) {
+        var brukBTema = ytelseType == null || FagsakYtelseType.UDEFINERT.equals(ytelseType) ?
+            BehandlingTema.FORELDREPENGER : BehandlingTema.fraFagsak(ytelseType, null);
         List<ArbeidsfordelingResponse> restenhet;
         var request = ArbeidsfordelingRequest.ny()
             .medTemagruppe(TEMAGRUPPE)

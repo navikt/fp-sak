@@ -13,7 +13,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -90,7 +89,7 @@ public class BehandlendeEnhetTjeneste {
 
     public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, String sisteBrukt) {
         return Optional.ofNullable(sisteBrukt).map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsak.getId())))
-            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null)));
+            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), fagsak.getYtelseType()));
     }
 
     private OrganisasjonsEnhet finnEnhetFor(Fagsak fagsak) {
@@ -98,7 +97,7 @@ public class BehandlendeEnhetTjeneste {
         var enhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .map(Behandling::getBehandlendeOrganisasjonsEnhet)
             .map(e -> EnhetsTjeneste.velgEnhet(e.enhetId(), merking))
-            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null)));
+            .orElseGet(() -> enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), fagsak.getYtelseType()));
         return EnhetsTjeneste.velgEnhet(enhet, merking);
     }
 
@@ -140,7 +139,7 @@ public class BehandlendeEnhetTjeneste {
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
         return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(),
-            BehandlingTema.fraFagsak(fagsak, null), hovedPerson, allePersoner, finnSaksmerking(fagsak));
+            fagsak.getYtelseType(), hovedPerson, allePersoner, finnSaksmerking(fagsak));
     }
 
 

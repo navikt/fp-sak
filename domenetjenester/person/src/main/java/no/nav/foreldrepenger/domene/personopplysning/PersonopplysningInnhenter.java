@@ -1,14 +1,29 @@
 package no.nav.foreldrepenger.domene.personopplysning;
 
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.aktør.*;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
+import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.OppholdstillatelsePeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -18,10 +33,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
-
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class PersonopplysningInnhenter {
@@ -39,33 +50,33 @@ public class PersonopplysningInnhenter {
         this.personinfoAdapter = personinfoAdapter;
     }
 
-    public List<FødtBarnInfo> innhentAlleFødteForIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
-        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(aktørId, intervaller);
+    public List<FødtBarnInfo> innhentAlleFødteForIntervaller(FagsakYtelseType ytelseType, AktørId aktørId, List<LocalDateInterval> intervaller) {
+        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(ytelseType, aktørId, intervaller);
     }
 
     public Optional<PersonIdent> hentPersonIdentForAktør(AktørId aktørId) {
         return personinfoAdapter.hentFnr(aktørId);
     }
 
-    public void innhentPersonopplysninger(PersonInformasjonBuilder informasjonBuilder, AktørId søker, Optional<AktørId> annenPart,
+    public void innhentPersonopplysninger(FagsakYtelseType ytelseType, PersonInformasjonBuilder informasjonBuilder, AktørId søker, Optional<AktørId> annenPart,
                                           SimpleLocalDateInterval opplysningsperiode, List<FødtBarnInfo> filtrertFødselFREG) {
 
         // Fase 1 - Innhent persongalleri - søker, annenpart, relevante barn og ektefelle
         Map<PersonIdent, Personinfo> innhentet = new LinkedHashMap<>();
-        var søkerPersonInfo = innhentAktørId(søker, innhentet)
+        var søkerPersonInfo = innhentAktørId(ytelseType, søker, innhentet)
             .orElseThrow(() -> new IllegalArgumentException("Finner ikke personinformasjon for aktør " + søker.getId()));
 
-        var annenPartInfo = annenPart.flatMap(ap -> innhentAktørId(ap, innhentet));
+        var annenPartInfo = annenPart.flatMap(ap -> innhentAktørId(ytelseType, ap, innhentet));
         var annenPartsBarn = annenPartInfo.map(this::getAnnenPartsBarn).orElse(Set.of());
 
         var barnSomSkalInnhentes = finnBarnRelatertTil(filtrertFødselFREG);
         var ektefelleSomSkalInnhentes = finnEktefelle(søkerPersonInfo);
 
-        barnSomSkalInnhentes.forEach(barn -> innhentPersonIdent(barn, innhentet));
-        ektefelleSomSkalInnhentes.forEach(ekte -> innhentPersonIdent(ekte, innhentet));
+        barnSomSkalInnhentes.forEach(barn -> innhentPersonIdent(ytelseType, barn, innhentet));
+        ektefelleSomSkalInnhentes.forEach(ekte -> innhentPersonIdent(ytelseType, ekte, innhentet));
 
         // Historikk for søker
-        var personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(søkerPersonInfo.getAktørId(), opplysningsperiode);
+        var personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(ytelseType, søkerPersonInfo.getAktørId(), opplysningsperiode);
         if (personhistorikkinfo != null) {
             mapAdresser(personhistorikkinfo.getAdressehistorikk(), informasjonBuilder, søkerPersonInfo);
             mapStatsborgerskap(personhistorikkinfo.getStatsborgerskaphistorikk(), informasjonBuilder, søkerPersonInfo);
@@ -255,16 +266,16 @@ public class PersonopplysningInnhenter {
             .collect(Collectors.toSet());
     }
 
-    private Optional<Personinfo> innhentAktørId(AktørId aktørId, Map<PersonIdent, Personinfo> innhentet) {
-        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(aktørId);
+    private Optional<Personinfo> innhentAktørId(FagsakYtelseType ytelseType, AktørId aktørId, Map<PersonIdent, Personinfo> innhentet) {
+        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, aktørId);
         personinfo.ifPresent(pi -> innhentet.put(pi.getPersonIdent(), pi));
         return personinfo;
     }
 
-    private Optional<Personinfo> innhentPersonIdent(PersonIdent ident, Map<PersonIdent, Personinfo> innhentet) {
+    private Optional<Personinfo> innhentPersonIdent(FagsakYtelseType ytelseType, PersonIdent ident, Map<PersonIdent, Personinfo> innhentet) {
         if (innhentet.get(ident) != null)
             return Optional.of(innhentet.get(ident));
-        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ident);
+        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, ident);
         personinfo.ifPresent(pi -> innhentet.put(pi.getPersonIdent(), pi));
         return personinfo;
     }

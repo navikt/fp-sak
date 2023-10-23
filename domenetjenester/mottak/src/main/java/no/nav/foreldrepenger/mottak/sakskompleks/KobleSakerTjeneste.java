@@ -1,7 +1,17 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -18,18 +28,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class KobleSakerTjeneste {
@@ -90,7 +93,7 @@ public class KobleSakerTjeneste {
         var annenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
             .map(OppgittAnnenPartEntitet::getAktørId).orElse(null);
         var fødselsIntervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-        var andreForeldreForBarn = finnAndreRegistrerteForeldreForBarnekull(fagsak.getAktørId(), fødselsIntervaller);
+        var andreForeldreForBarn = finnAndreRegistrerteForeldreForBarnekull(fagsak.getYtelseType(), fagsak.getAktørId(), fødselsIntervaller);
         var aktuelleFagsaker = finnMuligeFagsakerForKobling(behandling, grunnlag, annenPart, andreForeldreForBarn);
 
         // Håndter utfall
@@ -127,11 +130,11 @@ public class KobleSakerTjeneste {
         potensiellFagsak.ifPresent(fagsak -> fagsakRelasjonTjeneste.kobleFagsaker(fagsak, behandling.getFagsak(), behandling));
     }
 
-    private Set<AktørId> finnAndreRegistrerteForeldreForBarnekull(AktørId aktørId, List<LocalDateInterval> intervaller) {
+    private Set<AktørId> finnAndreRegistrerteForeldreForBarnekull(FagsakYtelseType ytelseType, AktørId aktørId, List<LocalDateInterval> intervaller) {
         // Hent fødsler i intervall og deretter kjerneinfo m/familierelasjoner for disse
-        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(aktørId, intervaller).stream()
+        return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(ytelseType, aktørId, intervaller).stream()
             .filter(b -> b.ident() != null) // Dødfødsel
-            .flatMap(b -> personinfoAdapter.finnAktørIdForForeldreTil(b.ident()).stream())
+            .flatMap(b -> personinfoAdapter.finnAktørIdForForeldreTil(ytelseType, b.ident()).stream())
             .filter(a -> !aktørId.equals(a))
             .collect(Collectors.toSet());
     }

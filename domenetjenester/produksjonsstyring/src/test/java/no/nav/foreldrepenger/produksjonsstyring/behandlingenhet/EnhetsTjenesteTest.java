@@ -1,8 +1,26 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -12,22 +30,6 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom.SkjermetPers
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.ArbeidsfordelingResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EnhetsTjenesteTest {
@@ -64,7 +66,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet).isEqualTo(enhetNormal);
@@ -75,7 +77,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, false, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet).isEqualTo(enhetKode6);
@@ -86,7 +88,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppSkjermetStrukturer(true, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet).isEqualTo(enhetSkjermet);
@@ -97,9 +99,9 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, true, false);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -110,9 +112,9 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -123,7 +125,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
             MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
@@ -135,9 +137,9 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
         when(skjermetPersonKlient.erNoenSkjermet(List.of(MOR_PID.getIdent()))).thenReturn(false);
-        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD);
         var enhet1 = enhetsTjeneste
-            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
+            .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), FagsakYtelseType.ENGANGSTØNAD, MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet).isEqualTo(enhetNormal);
@@ -160,7 +162,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
 
         assertThat(enhet).isNotPresent();
@@ -171,7 +173,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, true, false);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
@@ -183,7 +185,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
                 MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
@@ -195,7 +197,7 @@ class EnhetsTjenesteTest {
         // Oppsett
         settOppSkjermetStrukturer(false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), FagsakYtelseType.ENGANGSTØNAD,
             MOR_AKTØR_ID, FAMILIE, FagsakMarkering.NASJONAL);
 
         assertThat(enhet).isPresent();
@@ -204,11 +206,11 @@ class EnhetsTjenesteTest {
 
     private void settOppTpsStrukturer(boolean morKode6, boolean barnKode6, boolean annenPartKode6) {
 
-        lenient().when(personinfoAdapter.hentGeografiskTilknytning(any())).thenReturn("0219");
+        lenient().when(personinfoAdapter.hentGeografiskTilknytning(any(), any())).thenReturn("0219");
 
-        lenient().when(personinfoAdapter.hentDiskresjonskode(MOR_AKTØR_ID)).thenReturn(morKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
-        lenient().when(personinfoAdapter.hentDiskresjonskode(FAR_AKTØR_ID)).thenReturn(annenPartKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
-        lenient().when(personinfoAdapter.hentDiskresjonskode(BARN_AKTØR_ID)).thenReturn(barnKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
+        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), eq(MOR_AKTØR_ID))).thenReturn(morKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
+        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), eq(FAR_AKTØR_ID))).thenReturn(annenPartKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
+        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), eq(BARN_AKTØR_ID))).thenReturn(barnKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
 
         lenient().when(personinfoAdapter.hentFnr(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PID));
         lenient().when(personinfoAdapter.hentFnr(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PID));
@@ -223,9 +225,9 @@ class EnhetsTjenesteTest {
 
     private void settOppSkjermetStrukturer(boolean morSkjermet, boolean annenPartSkjermet) {
 
-        lenient().when(personinfoAdapter.hentGeografiskTilknytning(any())).thenReturn("0219");
+        lenient().when(personinfoAdapter.hentGeografiskTilknytning(any(), any())).thenReturn("0219");
 
-        lenient().when(personinfoAdapter.hentDiskresjonskode(any())).thenReturn(Diskresjonskode.UDEFINERT);
+        lenient().when(personinfoAdapter.hentDiskresjonskode(any(), any())).thenReturn(Diskresjonskode.UDEFINERT);
 
         lenient().when(personinfoAdapter.hentFnr(MOR_AKTØR_ID)).thenReturn(Optional.of(MOR_PID));
         lenient().when(personinfoAdapter.hentFnr(FAR_AKTØR_ID)).thenReturn(Optional.of(FAR_PID));

@@ -1,14 +1,25 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.pdl.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.pdl.Adressebeskyttelse;
+import no.nav.pdl.AdressebeskyttelseGradering;
+import no.nav.pdl.AdressebeskyttelseResponseProjection;
+import no.nav.pdl.Folkeregisterpersonstatus;
+import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
+import no.nav.pdl.GeografiskTilknytningResponseProjection;
+import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
+import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.PersonResponseProjection;
 
 @ApplicationScoped
 public class TilknytningTjeneste {
@@ -28,14 +39,14 @@ public class TilknytningTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public String hentGeografiskTilknytning(AktørId aktørId) {
+    public String hentGeografiskTilknytning(FagsakYtelseType ytelseType, AktørId aktørId) {
 
         var queryGT = new HentGeografiskTilknytningQueryRequest();
         queryGT.setIdent(aktørId.getId());
         var projectionGT = new GeografiskTilknytningResponseProjection()
                 .gtType().gtBydel().gtKommune().gtLand();
 
-        var geografiskTilknytning = pdlKlient.hentGT(queryGT, projectionGT);
+        var geografiskTilknytning = pdlKlient.hentGT(ytelseType, queryGT, projectionGT);
 
         if (geografiskTilknytning == null || geografiskTilknytning.getGtType() == null)
             return null;
@@ -47,13 +58,13 @@ public class TilknytningTjeneste {
         };
     }
 
-    public boolean erIkkeBosattFreg(AktørId aktørId) {
+    public boolean erIkkeBosattFreg(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
             .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus());
 
-        var person = pdlKlient.hentPerson(query, projection);
+        var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         var statusIkkeBosatt = person.getFolkeregisterpersonstatus().stream()
             .map(Folkeregisterpersonstatus::getForenkletStatus)
@@ -61,13 +72,13 @@ public class TilknytningTjeneste {
         return statusIkkeBosatt;
     }
 
-    public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {
+    public Diskresjonskode hentDiskresjonskode(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
-        var person = pdlKlient.hentPerson(query, projection);
+        var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         var kode = person.getAdressebeskyttelse().stream()
             .map(Adressebeskyttelse::getGradering)
