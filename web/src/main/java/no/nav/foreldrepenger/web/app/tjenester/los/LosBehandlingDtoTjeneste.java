@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -57,6 +63,7 @@ public class LosBehandlingDtoTjeneste {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
 
     @Inject
@@ -64,12 +71,14 @@ public class LosBehandlingDtoTjeneste {
                                     RisikovurderingTjeneste risikovurderingTjeneste,
                                     InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                    SvangerskapspengerRepository svangerskapspengerRepository,
                                     FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.svangerskapspengerRepository = svangerskapspengerRepository;
     }
 
     LosBehandlingDtoTjeneste() {
@@ -178,29 +187,52 @@ public class LosBehandlingDtoTjeneste {
     }
 
     private LosBehandlingDto.LosForeldrepengerDto mapForeldrepengerUttak(Behandling behandling) {
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) && ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()).isEmpty()) {
-            return null;
-        }
         var aggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId());
         var vurderSykdom = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
             .stream().anyMatch(LosBehandlingDtoTjeneste::periodeGjelderSykdom);
         var gradering = aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling).map(OppgittFordelingEntitet::getPerioder).orElse(List.of())
             .stream().anyMatch(OppgittPeriodeEntitet::isGradert);
-        LocalDate førsteUttaksdato = null;
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            try {
-                førsteUttaksdato = Optional.ofNullable(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()))
-                    .flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet).orElse(null);
-            } catch (Exception e) {
-                // Intentionally ignored
-            }
-        } else if (BehandlingType.REVURDERING.equals(behandling.getType()) && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
-            førsteUttaksdato = aggregat.map(YtelseFordelingAggregat::getOppgittFordeling)
-                .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
-                .map(OppgittPeriodeEntitet::getFom)
-                .min(Comparator.naturalOrder()).orElse(null);
+        if (FagsakYtelseType.UDEFINERT.equals(behandling.getFagsakYtelseType()) || !behandling.erYtelseBehandling()) {
+            return null;
         }
-        return new LosBehandlingDto.LosForeldrepengerDto(førsteUttaksdato, vurderSykdom, gradering);
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) || BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+            var uttakEllerSkjæringstidspunkt = finnUttakEllerUtledetSkjæringstidspunkt(behandling);
+            return new LosBehandlingDto.LosForeldrepengerDto(uttakEllerSkjæringstidspunkt, vurderSykdom, gradering);
+        }
+        if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            return new LosBehandlingDto.LosForeldrepengerDto(null, vurderSykdom, gradering);
+        }
+        var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
+            finnEndringsdatoForeldrepenger(aggregat.orElse(null)) : finnEndringsdatoSvangerskapspenger(behandling);
+        return new LosBehandlingDto.LosForeldrepengerDto(endretUttakFom, vurderSykdom, gradering);
+    }
+
+    private LocalDate finnUttakEllerUtledetSkjæringstidspunkt(Behandling behandling) {
+        try {
+            var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+            return Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getFørsteUttaksdatoSøknad)
+                .or(() -> Optional.ofNullable(skjæringstidspunkt).flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet))
+                .orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private LocalDate finnEndringsdatoForeldrepenger(YtelseFordelingAggregat aggregat) {
+        return Optional.ofNullable(aggregat).map(YtelseFordelingAggregat::getGjeldendeFordeling)
+            .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder()).orElse(null);
+    }
+
+    private LocalDate finnEndringsdatoSvangerskapspenger(Behandling behandling) {
+        return svangerskapspengerRepository.hentGrunnlag(behandling.getId()).map(SvpGrunnlagEntitet::getGjeldendeVersjon)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+            .filter(te -> !te.getKopiertFraTidligereBehandling() && te.getSkalBrukes())
+            .map(SvpTilretteleggingEntitet::getTilretteleggingFOMListe)
+            .flatMap(Collection::stream)
+            .map(TilretteleggingFOM::getFomDato)
+            .min(Comparator.naturalOrder()).orElse(null);
     }
 
     private static boolean periodeGjelderSykdom(OppgittPeriodeEntitet periode) {
