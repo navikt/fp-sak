@@ -1,19 +1,47 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandling.revurdering.felles.*;
+import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsresultatTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.LagEnAndelTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerMotsattRekkefølgeTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
@@ -41,24 +69,8 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @CdiDbAwareTest
 class RevurderingBehandlingsresultatutlederTest {
@@ -103,8 +115,7 @@ class RevurderingBehandlingsresultatutlederTest {
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
     private LocalDate endringsdato = LocalDate.now().minusMonths(3);
-    private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(
-            EndringsdatoRevurderingUtlederImpl.class);
+
     @Mock
     private OpphørUttakTjeneste opphørUttakTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
@@ -174,7 +185,6 @@ class RevurderingBehandlingsresultatutlederTest {
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
@@ -221,7 +231,6 @@ class RevurderingBehandlingsresultatutlederTest {
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
@@ -246,7 +255,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_3_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Endring i uttakperiode (ulik lengde)
@@ -297,7 +305,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_4_med_endring_i_uttak_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak() {
         // Arrange
         var endringsdato = LocalDate.of(2018, 1, 1);
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
         lagreEndringsdato(endringsdato);
@@ -348,7 +355,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_5_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_Endring_i_beregning() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -402,7 +408,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_6_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_endring_i_beregning_og_uttak() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -458,7 +463,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_7_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_uttak() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -513,7 +517,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_8_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_fordeling_av_ytelsen() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -568,7 +571,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_9_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -623,7 +625,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void tilfelle_9_ulik_rekkefølge_av_andeler_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -671,7 +672,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void skal_gi_ingen_vedtaksbrev_når_ingen_endring_og_varsel_om_revurdering_ikke_er_sendt() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -718,7 +718,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void skal_gi_ingen_endring_når_original_revurdering_også_hadde_avslått_siste_uttaksperiode() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -764,7 +763,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void skal_gi_opphør_når_det_er_flere_perioder_som_avslås() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Uttaksperiode som brukes for begge behandlinger
@@ -811,7 +809,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void skal_gi_endring_når_original_revurdering_ikke_har_samme_skalHindreTilbakketrekk() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -861,7 +858,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void skal_gi_endring_når_original_revurdering_mangler_skalHindreTilbakketrekk() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
@@ -911,7 +907,6 @@ class RevurderingBehandlingsresultatutlederTest {
     void skal_gi_ingen_endring_når_original_revurdering_har_samme_skalHindreTilbakketrekk() {
         // Arrange
         var endringsdato = LocalDate.now();
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
