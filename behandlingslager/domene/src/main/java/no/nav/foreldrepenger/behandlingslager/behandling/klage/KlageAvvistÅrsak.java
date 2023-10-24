@@ -22,7 +22,7 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     IKKE_KONKRET("IKKE_KONKRET", "Klagen er ikke konkret",
             "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"32\", \"34\"]}}}"),
     IKKE_SIGNERT("IKKE_SIGNERT", "Klagen er ikke signert",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"31\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
+            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
     UDEFINERT("-", "Ikke definert", null),
     ;
 
