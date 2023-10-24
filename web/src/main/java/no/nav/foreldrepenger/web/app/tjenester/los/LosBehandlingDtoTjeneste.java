@@ -202,7 +202,8 @@ public class LosBehandlingDtoTjeneste {
         }
         var endretUttakFom = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ?
             finnEndringsdatoForeldrepenger(behandling, aggregat) : finnEndringsdatoSvangerskapspenger(behandling);
-        return new LosBehandlingDto.LosForeldrepengerDto(endretUttakFom, vurderSykdom, gradering);
+        var endringEllerFørsteUttak = endretUttakFom.orElseGet(() -> finnUttakEllerUtledetSkjæringstidspunkt(behandling));
+        return new LosBehandlingDto.LosForeldrepengerDto(endringEllerFørsteUttak, vurderSykdom, gradering);
     }
 
     private LocalDate finnUttakEllerUtledetSkjæringstidspunkt(Behandling behandling) {
@@ -216,23 +217,19 @@ public class LosBehandlingDtoTjeneste {
         }
     }
 
-    private LocalDate finnEndringsdatoForeldrepenger(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat) {
+    private Optional<LocalDate> finnEndringsdatoForeldrepenger(Behandling behandling, Optional<YtelseFordelingAggregat> aggregat) {
         var endringsdato = aggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
         // Andre revurderinger enn endringssøknad har kopiert fordeling fra forrige behandling - kan ikke se på dem.
-        if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
-            return endringsdato.orElse(null);
-        }
-        return endringsdato
+        return !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)? endringsdato : endringsdato
             .or(() -> aggregat.map(YtelseFordelingAggregat::getGjeldendeFordeling)
                 .map(OppgittFordelingEntitet::getPerioder).orElse(List.of()).stream()
                 .map(OppgittPeriodeEntitet::getFom)
-                .min(Comparator.naturalOrder()))
-            .orElse(null);
+                .min(Comparator.naturalOrder()));
     }
 
-    private LocalDate finnEndringsdatoSvangerskapspenger(Behandling behandling) {
+    private Optional<LocalDate> finnEndringsdatoSvangerskapspenger(Behandling behandling) {
         if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
-            return null;
+            return Optional.empty();
         }
         return svangerskapspengerRepository.hentGrunnlag(behandling.getId()).map(SvpGrunnlagEntitet::getGjeldendeVersjon)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
@@ -240,7 +237,7 @@ public class LosBehandlingDtoTjeneste {
             .map(SvpTilretteleggingEntitet::getTilretteleggingFOMListe)
             .flatMap(Collection::stream)
             .map(TilretteleggingFOM::getFomDato)
-            .min(Comparator.naturalOrder()).orElse(null);
+            .min(Comparator.naturalOrder());
     }
 
     private static boolean periodeGjelderSykdom(OppgittPeriodeEntitet periode) {
