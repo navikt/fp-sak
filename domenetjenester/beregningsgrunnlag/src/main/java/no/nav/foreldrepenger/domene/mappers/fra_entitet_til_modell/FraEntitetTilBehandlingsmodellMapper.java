@@ -130,6 +130,7 @@ public class FraEntitetTilBehandlingsmodellMapper {
             .medAvkortetPrÅr(beregningsgrunnlagPeriodeDto.getAvkortetPrÅr())
             .medBruttoPrÅr(beregningsgrunnlagPeriodeDto.getBruttoPrÅr())
             .medRedusertPrÅr(beregningsgrunnlagPeriodeDto.getRedusertPrÅr());
+        beregningsgrunnlagPeriodeDto.getPeriodeÅrsaker().forEach(periodeBuilder::leggTilPeriodeÅrsak);
         mapAndeler(beregningsgrunnlagPeriodeDto.getBeregningsgrunnlagPrStatusOgAndelList()).forEach(
             periodeBuilder::leggTilBeregningsgrunnlagPrStatusOgAndel);
         return periodeBuilder.build();
