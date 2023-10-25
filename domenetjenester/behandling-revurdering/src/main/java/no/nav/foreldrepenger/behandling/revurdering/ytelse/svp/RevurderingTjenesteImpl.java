@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -38,7 +37,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
     private RevurderingEndring revurderingEndring;
@@ -62,7 +60,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.ytelsesFordelingRepository = grunnlagRepositoryProvider.getYtelsesFordelingRepository();
         this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
         this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
