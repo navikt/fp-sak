@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -8,10 +9,18 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseEngangsstønadDto;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 public final class TilkjentYtelseFormidlingDtoTjeneste {
 
     private TilkjentYtelseFormidlingDtoTjeneste() {
         // Skjuler default konstruktør
+    }
+
+    public static TilkjentYtelseEngangsstønadDto mapEngangsstønad(LegacyESBeregning legacyESBeregning) {
+        return new TilkjentYtelseEngangsstønadDto(legacyESBeregning.getBeregnetTilkjentYtelse());
     }
 
     public static TilkjentYtelseDagytelseDto mapDagytelse(BeregningsresultatEntitet bgRes) {
@@ -23,17 +32,28 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
     }
 
     private static TilkjentYtelseDagytelseDto.TilkjentYtelsePeriodeDto mapPeriode(BeregningsresultatPeriode resultatPeriode) {
-        var andeler = resultatPeriode.getBeregningsresultatAndelList()
+        var andelMap = resultatPeriode.getBeregningsresultatAndelList()
             .stream()
-            .map(TilkjentYtelseFormidlingDtoTjeneste::mapAndel)
-            .toList();
+            .collect(Collectors.groupingBy(TilkjentYtelseFormidlingDtoTjeneste::genererAndelKey));
+
+        var andeler = andelMap.values().stream().map(TilkjentYtelseFormidlingDtoTjeneste::mapAndeler).toList();
+
         return new TilkjentYtelseDagytelseDto.TilkjentYtelsePeriodeDto(resultatPeriode.getBeregningsresultatPeriodeFom(),
             resultatPeriode.getBeregningsresultatPeriodeTom(), resultatPeriode.getDagsats(), andeler);
     }
 
-    private static TilkjentYtelseDagytelseDto.TilkjentYtelseAndelDto mapAndel(BeregningsresultatAndel andel) {
-        Integer refusjon = andel.erBrukerMottaker() ? null : andel.getDagsats();
-        Integer tilSøker = andel.erBrukerMottaker() ? andel.getDagsats() : null;
+    private static TilkjentYtelseDagytelseDto.TilkjentYtelseAndelDto mapAndeler(List<BeregningsresultatAndel> andeler) {
+        if (andeler.isEmpty()) {
+            throw new IllegalArgumentException("Forventet minst en andel å sende til formidling, men fikk ingen");
+        }
+        // Summerer opp refusjon og direkteutbetaling og legge alt på en andel for enklere representasjon til formidling
+        var sumSøker = andeler.stream().filter(BeregningsresultatAndel::erBrukerMottaker).mapToInt(BeregningsresultatAndel::getDagsats).sum();
+        var sumRefusjon = andeler.stream().filter(andel -> !andel.erBrukerMottaker()).mapToInt(BeregningsresultatAndel::getDagsats).sum();
+        var andel = andeler.get(0);
+        return mapAndel(andel, sumSøker, sumRefusjon);
+    }
+
+    private static TilkjentYtelseDagytelseDto.TilkjentYtelseAndelDto mapAndel(BeregningsresultatAndel andel, int tilSøker, int refusjon) {
         var arbeidsgiverIdent = andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null);
         var referanse = andel.getArbeidsforholdRef().getReferanse();
         return new TilkjentYtelseDagytelseDto.TilkjentYtelseAndelDto(arbeidsgiverIdent, refusjon, tilSøker,
@@ -58,7 +78,17 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
         };
     }
 
-    public static TilkjentYtelseEngangsstønadDto mapEngangsstønad(LegacyESBeregning legacyESBeregning) {
-        return new TilkjentYtelseEngangsstønadDto(legacyESBeregning.getBeregnetTilkjentYtelse());
+    private record AktivitetStatusMedIdentifikator(AktivitetStatus aktivitetStatus, Optional<String> idenfifikator) {}
+
+    private static AktivitetStatusMedIdentifikator genererAndelKey(BeregningsresultatAndel andel) {
+        return new AktivitetStatusMedIdentifikator(andel.getAktivitetStatus(), finnSekundærIdentifikator(andel));
     }
+
+    private static Optional<String> finnSekundærIdentifikator(BeregningsresultatAndel andel) {
+        if (andel.getArbeidsforholdRef().getReferanse() != null) {
+            return Optional.of(andel.getArbeidsforholdRef().getReferanse());
+        }
+        return andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator);
+    }
+
 }

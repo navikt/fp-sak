@@ -59,7 +59,7 @@ class TilkjentYtelseFormidlingDtoTjenesteTest {
         var mappetAndel = mappetPeriode.andeler().get(0);
         assertThat(mappetAndel.aktivitetstatus()).isEqualTo(TilkjentYtelseDagytelseDto.Aktivitetstatus.ARBEIDSTAKER);
         assertThat(mappetAndel.tilSoker()).isEqualTo(andel.getDagsats());
-        assertThat(mappetAndel.refusjon()).isNull();
+        assertThat(mappetAndel.refusjon()).isZero();
         assertThat(mappetAndel.stillingsprosent()).isEqualByComparingTo(andel.getStillingsprosent());
         assertThat(mappetAndel.arbeidsgiverReferanse()).isEqualTo(andel.getArbeidsgiver().get().getIdentifikator());
         assertThat(mappetAndel.arbeidsforholdId()).isEqualTo(andel.getArbeidsforholdRef().getReferanse());
