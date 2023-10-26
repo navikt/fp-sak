@@ -29,7 +29,7 @@ public class UttakResultatPeriodeDto {
     private UttakUtsettelseType utsettelseType;
     private OppholdÅrsak oppholdÅrsak;
     private LocalDate mottattDato;
-    private LocalDate tidligstMottattDato;
+    private LocalDate tidligstMottattDato; // brukes bare i formidling, ikke i front end
 
     private UttakResultatPeriodeDto() {
 
