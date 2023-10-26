@@ -22,7 +22,9 @@ class ForeldrepengerUttakTjenesteTest {
         var tom = LocalDate.now().plusMonths(6);
         var mottattDato = LocalDate.now().minusWeeks(2);
         var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER).medMottattDato(mottattDato)
+            .medUttakPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medMottattDato(mottattDato)
+            .medTidligstMottattDato(mottattDato.minusDays(1))
             .build();
         var periodeResultatType = PeriodeResultatType.INNVILGET;
         var innvilgetÅrsak = PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER;
@@ -51,6 +53,7 @@ class ForeldrepengerUttakTjenesteTest {
         var aktiviteter = periode.getAktiviteter();
         assertThat(aktiviteter).hasSize(1);
         assertThat(periode.getMottattDato()).isEqualTo(mottattDato);
+        assertThat(periode.getTidligstMottatttDato()).isEqualTo(mottattDato.minusDays(1));
         assertThat(periode.getResultatType()).isEqualTo(periodeResultatType);
         assertThat(periode.getResultatÅrsak()).isEqualTo(innvilgetÅrsak);
         assertThat(aktiviteter.get(0).getUttakArbeidType()).isEqualTo(uttakArbeidType);

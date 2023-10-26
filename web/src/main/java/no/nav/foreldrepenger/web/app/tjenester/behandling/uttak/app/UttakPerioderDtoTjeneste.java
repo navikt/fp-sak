@@ -133,6 +133,7 @@ public class UttakPerioderDtoTjeneste {
             .medOppholdÅrsak(periode.getOppholdÅrsak())
             .medPeriodeType(periode.getSøktKonto())
             .medMottattDato(periode.getMottattDato())
+            .medTidligstMottattDato(periode.getTidligstMottatttDato())
             .build();
 
         for (var aktivitet : periode.getAktiviteter()) {

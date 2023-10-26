@@ -34,6 +34,7 @@ public class ForeldrepengerUttakPeriode {
     private String begrunnelse;
     private boolean manueltBehandlet;
     private LocalDate mottattDato;
+    private LocalDate tidligstMottatttDato;
     private MorsAktivitet morsAktivitet;
     private boolean erFraSøknad = true;
     private DokumentasjonVurdering dokumentasjonVurdering;
@@ -187,6 +188,10 @@ public class ForeldrepengerUttakPeriode {
         return mottattDato;
     }
 
+    public LocalDate getTidligstMottatttDato() {
+        return tidligstMottatttDato;
+    }
+
     public boolean isOverføringAvslått() {
         return !isInnvilget() && isSøktOverføring();
     }
@@ -235,6 +240,7 @@ public class ForeldrepengerUttakPeriode {
             ", opprinneligSendtTilManuellBehandling=" + opprinneligSendtTilManuellBehandling +
             ", manueltBehandlet=" + manueltBehandlet +
             ", mottattDato=" + mottattDato +
+            ", tidligstMottatttDato=" + tidligstMottatttDato +
             ", morsAktivitet=" + morsAktivitet +
             ", erFraSøknad=" + erFraSøknad +
             ", dokumentasjonVurdering=" + dokumentasjonVurdering +
@@ -340,6 +346,11 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
+            return this;
+        }
+
+        public Builder medTidligstMottattDato(LocalDate tidligstMottatttDato) {
+            kladd.tidligstMottatttDato = tidligstMottatttDato;
             return this;
         }
 
