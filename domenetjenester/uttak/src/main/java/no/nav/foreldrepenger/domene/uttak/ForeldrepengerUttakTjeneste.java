@@ -1,12 +1,17 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.*;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-import java.util.Optional;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 public class ForeldrepengerUttakTjeneste {
@@ -54,6 +59,8 @@ public class ForeldrepengerUttakTjeneste {
             .map(ForeldrepengerUttakTjeneste::map)
             .toList();
         var mottattDato = entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null);
+        var tidligsMottatt = entitet.getPeriodeSøknad().flatMap(UttakResultatPeriodeSøknadEntitet::getTidligstMottattDato).orElse(null);
+
         var periodeBuilder = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(entitet.getFom(), entitet.getTom()))
             .medAktiviteter(aktiviteter)
@@ -71,6 +78,7 @@ public class ForeldrepengerUttakTjeneste {
             .medManuellBehandlingÅrsak(ignoreDok ? null : entitet.getManuellBehandlingÅrsak())
             .medSøktKonto(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getUttakPeriodeType).orElse(null))
             .medMottattDato(mottattDato)
+            .medTidligstMottattDato(tidligsMottatt)
             .medMorsAktivitet(entitet.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMorsAktivitet).orElse(MorsAktivitet.UDEFINERT))
             .medOpprinneligSendtTilManuellBehandling(!ignoreDok && entitet.opprinneligSendtTilManuellBehandling())
             .medErFraSøknad(entitet.getPeriodeSøknad().isPresent())
