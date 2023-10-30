@@ -1,10 +1,15 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity(name = "BehandlingVedtakDvh")
 @Table(name = "BEHANDLING_VEDTAK_DVH")
@@ -27,6 +32,9 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
     @Column(name = "VEDTAK_DATO", nullable = false)
     private LocalDate vedtakDato;
 
+    @Column(name = "VEDTAK_TID")
+    private LocalDateTime vedtakTid;
+
     @Column(name = "IVERKSETTING_STATUS", nullable = false)
     private String iverksettingStatus;
 
@@ -41,6 +49,9 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
 
     @Column(name = "VEDTAK_RESULTAT_TYPE_KODE")
     public String vedtakResultatTypeKode;
+
+    @Column(name = "UTBETALT_TID")
+    private LocalDate utbetaltTid;
 
     BehandlingVedtakDvh() {
         // Hibernate
@@ -66,6 +77,10 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         return vedtakDato;
     }
 
+    public LocalDateTime getVedtakTid() {
+        return vedtakTid;
+    }
+
     public String getIverksettingStatus() {
         return iverksettingStatus;
     }
@@ -86,6 +101,10 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         return vedtakResultatTypeKode;
     }
 
+    public LocalDate getUtbetaltTid() {
+        return utbetaltTid;
+    }
+
     @Override
     public boolean equals(final Object other) {
         if (this == other) {
@@ -104,13 +123,15 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
                 && Objects.equals(iverksettingStatus, castOther.iverksettingStatus)
                 && Objects.equals(godkjennendeEnhet, castOther.godkjennendeEnhet)
                 && Objects.equals(ansvarligSaksbehandler, castOther.ansvarligSaksbehandler)
-                && Objects.equals(ansvarligBeslutter, castOther.ansvarligBeslutter);
+                && Objects.equals(ansvarligBeslutter, castOther.ansvarligBeslutter)
+            && Objects.equals(vedtakTid, castOther.vedtakTid)
+            && Objects.equals(utbetaltTid, castOther.utbetaltTid);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), vedtakId, behandlingId, opprettetDato, vedtakDato, iverksettingStatus, godkjennendeEnhet,
-                ansvarligSaksbehandler, ansvarligBeslutter);
+                ansvarligSaksbehandler, ansvarligBeslutter, vedtakTid, utbetaltTid);
     }
 
     public static Builder builder() {
@@ -122,6 +143,7 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         private Long behandlingId;
         private LocalDate opprettetDato;
         private LocalDate vedtakDato;
+        private LocalDateTime vedtakTid;
         private String iverksettingStatus;
         private String godkjennendeEnhet;
         private String ansvarligSaksbehandler;
@@ -129,6 +151,7 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         private LocalDateTime funksjonellTid;
         private String endretAv;
         private String vedtakResultatTypeKode;
+        private LocalDate utbetaltTid;
 
         public Builder vedtakId(Long vedtakId) {
             this.vedtakId = vedtakId;
@@ -147,6 +170,11 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
 
         public Builder vedtakDato(LocalDate vedtakDato) {
             this.vedtakDato = vedtakDato;
+            return this;
+        }
+
+        public Builder vedtakTid(LocalDateTime vedtakTid) {
+            this.vedtakTid = vedtakTid;
             return this;
         }
 
@@ -185,6 +213,11 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
             return this;
         }
 
+        public Builder utbetaltTid(LocalDate utbetaltTid) {
+            this.utbetaltTid = utbetaltTid;
+            return this;
+        }
+
         public BehandlingVedtakDvh build() {
             var vedtak = new BehandlingVedtakDvh();
             vedtak.ansvarligBeslutter = ansvarligBeslutter;
@@ -196,6 +229,8 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
             vedtak.vedtakId = vedtakId;
             vedtak.vedtakDato = vedtakDato;
             vedtak.vedtakResultatTypeKode = vedtakResultatTypeKode;
+            vedtak.vedtakTid = vedtakTid;
+            vedtak.utbetaltTid = utbetaltTid;
             vedtak.setFunksjonellTid(funksjonellTid);
             vedtak.setEndretAv(endretAv);
             return vedtak;

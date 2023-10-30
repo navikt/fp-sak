@@ -1,9 +1,35 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import static java.time.Month.JANUARY;
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.persistence.EntityManager;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VenteGruppe;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -13,34 +39,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.*;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
-
-import static java.time.Month.JANUARY;
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
 
 @ExtendWith(JpaExtension.class)
 class BehandlingDvhMapperTest {
@@ -60,7 +67,7 @@ class BehandlingDvhMapperTest {
 
     @Test
     void skal_mappe_familiehendelse_til_behandling_dvh_ikke_vedtatt() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.OPPHØR, false);
         var fødselsdato = LocalDate.of(2017, JANUARY, 1);
@@ -69,16 +76,17 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.of(grunnlag), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.of(grunnlag), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(),
+            LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isVedtatt()).isFalse();
         assertThat(dvh.getSoeknadFamilieHendelse()).isEqualTo("FODSL");
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
     void skal_mappe_til_behandling_dvh_uten_vedtak() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.IKKE_FASTSATT, false);
 
@@ -86,7 +94,7 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.getAnsvarligBeslutter()).isEqualTo(ANSVARLIG_BESLUTTER);
         assertThat(dvh.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
@@ -102,7 +110,7 @@ class BehandlingDvhMapperTest {
         assertThat(dvh.getOpprettetDato()).isEqualTo(OPPRETTET_TID.toLocalDate());
         assertThat(dvh.getUtlandstilsnitt()).isEqualTo("NASJONAL");
         assertThat(dvh.getVedtakId()).isNull();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
         assertThat(dvh.getFoersteStoenadsdag()).isNull();
     }
 
@@ -118,34 +126,29 @@ class BehandlingDvhMapperTest {
         var behandling = scenario.lagre(repositoryProvider);
         entityManager.persist(behandling.getBehandlingsresultat());
 
-        var mottattTidspunkt = LocalDateTime.now();
-        var fpUttakRepository = new FpUttakRepository(entityManager);
-        var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        var opprinnelig = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET,
-            LocalDate.now(), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinnelig);
-        var hentetUttakResultatOpt = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
+        var stp = LocalDate.now();
+
+        var mottattDokument = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository()
             .hent(behandling.getId());
-        var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), hentetUttakResultatOpt, Optional.empty(), FagsakMarkering.NASJONAL);
-        assertThat(dvh.getFoersteStoenadsdag()).isEqualTo(LocalDate.now());
+        var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattDokument, Optional.empty(),
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(stp), FagsakMarkering.NASJONAL,
+            Optional.empty(), LocalDateTime.now());
+        assertThat(dvh.getFoersteStoenadsdag()).isEqualTo(stp);
 
-        var uttakResultat = opprettUttakResultatPeriode(PeriodeResultatType.AVSLÅTT,
-            LocalDate.now().plusDays(1), LocalDate.now().plusMonths(3), StønadskontoType.FORELDREPENGER);
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat);
-        hentetUttakResultatOpt = uttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
         var behandlingsresultat2 = repositoryProvider.getBehandlingsresultatRepository()
             .hent(behandling.getId());
-        var dvh2 = BehandlingDvhMapper.map(behandling, behandlingsresultat2, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), hentetUttakResultatOpt, Optional.empty(), FagsakMarkering.NASJONAL);
-        assertThat(dvh2.getFoersteStoenadsdag()).isEqualTo(LocalDate.now().plusDays(1));
+        var dvh2 = BehandlingDvhMapper.map(behandling, behandlingsresultat2, mottattDokument, Optional.empty(),
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(stp.plusDays(1)), FagsakMarkering.NASJONAL,
+            Optional.of(stp), LocalDateTime.now());
+        assertThat(dvh2.getFoersteStoenadsdag()).isEqualTo(stp.plusDays(1));
+        assertThat(dvh2.getForventetOppstartTid()).isEqualTo(stp);
 
     }
 
     @Test
     void skal_mappe_til_behandling_dvh_ikke_vedtatt() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.OPPHØR, false);
 
@@ -153,15 +156,33 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isVedtatt()).isFalse();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
+    void skal_mappe_ventestatus() {
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
+        var scenario = opprettFørstegangssøknadScenario();
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
+        var behandling = byggBehandling(scenario, BehandlingResultatType.OPPHØR, false);
+
+        var behandlingsresultat = scenario.mockBehandlingRepositoryProvider()
+            .getBehandlingsresultatRepository()
+            .hent(behandling.getId());
+        var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
+        assertThat(dvh).isNotNull();
+        assertThat(dvh.getBehandlingStatus()).isEqualTo(VenteGruppe.VenteKategori.VENT_TIDLIG.name());
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
+    }
+
+
+    @Test
     void skal_mappe_til_behandling_dvh_vedtatt() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);;
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, true);
 
@@ -169,15 +190,15 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isVedtatt()).isTrue();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
     void skal_mappe_til_behandling_dvh_ferdig() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, true);
 
@@ -185,15 +206,15 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isFerdig()).isTrue();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
     void skal_mappe_til_behandling_dvh_ikke_ferdig() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, false);
 
@@ -201,15 +222,15 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isFerdig()).isFalse();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
     void skal_mappe_til_behandling_dvh_abrutt() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET, true);
 
@@ -217,15 +238,15 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isAvbrutt()).isTrue();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
     void skal_mappe_til_behandling_dvh_ikke_abrutt() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.IKKE_FASTSATT, false);
 
@@ -233,15 +254,15 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(behandling.getId());
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty(), LocalDateTime.now());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isAvbrutt()).isFalse();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
     void mapping_klage_med_påklagd_behandling() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattDokument = lagMottattDokument(DokumentTypeId.KLAGE_DOKUMENT);
         var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenarioMorSøkerEngangsstønad, BehandlingResultatType.AVSLÅTT, true);
 
@@ -256,18 +277,19 @@ class BehandlingDvhMapperTest {
         var behandlingsresultat = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider()
             .getBehandlingsresultatRepository()
             .hent(klageBehandling.getId());
-        var dvh = BehandlingDvhMapper.map(klageBehandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+        var dvh = BehandlingDvhMapper.map(klageBehandling, behandlingsresultat, mottattDokument, Optional.empty(),
+            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL,
+            Optional.empty(), LocalDateTime.now());
 
         assertThat(dvh.getRelatertBehandling()).as(
             "Forventer at relatert behandling på klagen er satt itl orginalbehandlingen vi klager på")
             .isEqualTo(behandling.getId());
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattDokument.get(0).getMottattTidspunkt());
     }
 
     @Test
     void mapping_klage_uten_påklagd_behandling() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.KLAGE_DOKUMENT);
         var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
 
         var scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad,
@@ -281,16 +303,17 @@ class BehandlingDvhMapperTest {
             .getBehandlingsresultatRepository()
             .hent(klageBehandling.getId());
         var dvh = BehandlingDvhMapper.map(klageBehandling, behandlingsresultat, mottattTidspunkt, Optional.empty(),
-            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.empty(), klageVurderingResultat, Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL,
+            Optional.empty(), LocalDateTime.now());
 
         assertThat(dvh.getRelatertBehandling()).as(
             "Forventer at relatert behandling på klagen ikke blir satt når det ikke er påklagd ett vedtak.").isNull();
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     @Test
     void skal_mappe_vedtak_id() {
-        var mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.INNVILGET, true);
         var behandlingsresultat = scenario.mockBehandlingRepositoryProvider()
@@ -305,10 +328,11 @@ class BehandlingDvhMapperTest {
         behandlingVedtak.setId(VEDTAK_ID);
 
         var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt,
-            Optional.of(behandlingVedtak), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL);
+            Optional.of(behandlingVedtak), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL,
+            Optional.empty(), LocalDateTime.now());
 
         assertThat(dvh.getVedtakId()).isEqualTo(VEDTAK_ID);
-        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt);
+        assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }
 
     private ScenarioKlageEngangsstønad opprettKlageScenario(AbstractTestScenario<?> abstractTestScenario,
@@ -365,60 +389,12 @@ class BehandlingDvhMapperTest {
             .build();
     }
 
-    private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
-                                                                     LocalDate fom,
-                                                                     LocalDate tom,
-                                                                     StønadskontoType stønadskontoType) {
-        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, new BigDecimal("100.00"));
-    }
-
-    private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
-                                                                     LocalDate fom,
-                                                                     LocalDate tom,
-                                                                     StønadskontoType stønadskontoType,
-                                                                     BigDecimal graderingArbeidsprosent) {
-        return opprettUttakResultatPeriode(resultat, fom, tom, stønadskontoType, graderingArbeidsprosent,
-            new Utbetalingsgrad(100));
-    }
-
-    private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
-                                                                     LocalDate fom,
-                                                                     LocalDate tom,
-                                                                     StønadskontoType stønadskontoType,
-                                                                     BigDecimal graderingArbeidsprosent,
-                                                                     Utbetalingsgrad utbetalingsgrad) {
-
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(arbeidsgiver,
-            InternArbeidsforholdRef.nyRef()).medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).build();
-        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(
-            UttakPeriodeType.FELLESPERIODE)
-            .medGraderingArbeidsprosent(graderingArbeidsprosent)
-            .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
-            .build();
-        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
-            .medRegelInput(" ")
-            .medRegelEvaluering(" ")
-            .build();
-        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom,
-            tom).medDokRegel(dokRegel)
-            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
-            .medPeriodeSoknad(periodeSøknad)
-            .build();
-
-        var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(
-            uttakResultatPeriode, uttakAktivitet)
-            .medTrekkonto(stønadskontoType)
-            .medTrekkdager(new Trekkdager(BigDecimal.TEN))
-            .medArbeidsprosent(graderingArbeidsprosent)
-            .medUtbetalingsgrad(utbetalingsgrad)
-            .build();
-
-        uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
-
-        var perioder = new UttakResultatPerioderEntitet();
-        perioder.leggTilPeriode(uttakResultatPeriode);
-
-        return perioder;
+    private List<MottattDokument> lagMottattDokument(DokumentTypeId dokumentTypeId) {
+        var mottattDokument = Mockito.mock(MottattDokument.class);
+        when(mottattDokument.getDokumentType()).thenReturn(dokumentTypeId);
+        when(mottattDokument.getMottattTidspunkt()).thenReturn(LocalDateTime.now().minusDays(3));
+        when(mottattDokument.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now());
+        when(mottattDokument.getJournalpostId()).thenReturn(new JournalpostId("123"));
+        return List.of(mottattDokument);
     }
 }

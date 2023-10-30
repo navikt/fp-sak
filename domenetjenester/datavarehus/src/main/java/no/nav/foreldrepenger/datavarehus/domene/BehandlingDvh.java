@@ -1,17 +1,28 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import jakarta.persistence.*;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-import org.hibernate.annotations.NaturalId;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import org.hibernate.annotations.NaturalId;
+
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+
 @Entity(name = "BehandlingDvh")
 @Table(name = "BEHANDLING_DVH")
 public class BehandlingDvh extends DvhBaseEntitet {
+
+    private static final String PAPIR_SØKNAD = "1";
+    private static final String DIGITAL_SØKNAD = "0";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING_DVH")
@@ -88,6 +99,30 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @NaturalId
     @Column(name = "uuid")
     private UUID uuid;
+
+    @Column(name = "PAPIR_SOKNAD")
+    private String papirSøknad;
+
+    @Column(name = "BEHANDLING_METODE")
+    private String behandlingMetode;
+
+    @Column(name = "REVURDERING_AARSAK")
+    private String revurderingÅrsak;
+
+    @Column(name = "MOTTATT_TID")
+    private LocalDateTime mottattTid;
+
+    @Column(name = "REGISTRERT_TID")
+    private LocalDateTime registrertTid;
+
+    @Column(name = "KAN_BEHANDLES_TID")
+    private LocalDateTime kanBehandlesTid;
+
+    @Column(name = "FERDIG_BEHANDLET_TID")
+    private LocalDateTime ferdigBehandletTid;
+
+    @Column(name = "FORVENTET_OPPSTART_TID")
+    private LocalDate forventetOppstartTid;
 
     BehandlingDvh() {
         // Hibernate
@@ -183,6 +218,42 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return foersteStoenadsdag;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public Boolean getPapirSøknad() {
+        return papirSøknad != null ? PAPIR_SØKNAD.equals(papirSøknad) : null;
+    }
+
+    public String getBehandlingMetode() {
+        return behandlingMetode;
+    }
+
+    public String getRevurderingÅrsak() {
+        return revurderingÅrsak;
+    }
+
+    public LocalDateTime getMottattTid() {
+        return mottattTid;
+    }
+
+    public LocalDateTime getRegistrertTid() {
+        return registrertTid;
+    }
+
+    public LocalDateTime getKanBehandlesTid() {
+        return kanBehandlesTid;
+    }
+
+    public LocalDateTime getFerdigBehandletTid() {
+        return ferdigBehandletTid;
+    }
+
+    public LocalDate getForventetOppstartTid() {
+        return forventetOppstartTid;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -214,13 +285,23 @@ public class BehandlingDvh extends DvhBaseEntitet {
                 && Objects.equals(overstyrtFamilieHendelse, other.overstyrtFamilieHendelse)
                 && Objects.equals(mottattTidspunkt, other.mottattTidspunkt)
                 && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag)
-                && Objects.equals(uuid, other.uuid);
+                && Objects.equals(uuid, other.uuid)
+                && Objects.equals(papirSøknad, other.papirSøknad)
+                && Objects.equals(behandlingMetode, other.behandlingMetode)
+                && Objects.equals(revurderingÅrsak, other.revurderingÅrsak)
+                && Objects.equals(mottattTid, other.mottattTid)
+                && Objects.equals(registrertTid, other.registrertTid)
+                && Objects.equals(kanBehandlesTid, other.kanBehandlesTid)
+                && Objects.equals(ferdigBehandletTid, other.ferdigBehandletTid)
+                && Objects.equals(forventetOppstartTid, other.forventetOppstartTid);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), behandlingId, fagsakId, vedtakId, opprettetDato, behandlingResultatType, behandlingType,
-                behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter, soeknadFamilieHendelse, bekreftetFamilieHendelse, overstyrtFamilieHendelse, mottattTidspunkt,foersteStoenadsdag);
+            behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter, soeknadFamilieHendelse,
+            bekreftetFamilieHendelse, overstyrtFamilieHendelse, mottattTidspunkt,foersteStoenadsdag,papirSøknad,behandlingMetode,
+            revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid);
     }
 
     public static Builder builder() {
@@ -252,6 +333,14 @@ public class BehandlingDvh extends DvhBaseEntitet {
         private LocalDateTime mottattTidspunkt;
         private LocalDate foersteStoenadsdag;
         private UUID uuid;
+        private String papirSøknad;
+        private String behandlingMetode;
+        private String revurderingÅrsak;
+        private LocalDateTime mottattTid;
+        private LocalDateTime registrertTid;
+        private LocalDateTime kanBehandlesTid;
+        private LocalDateTime ferdigBehandletTid;
+        private LocalDate forventetOppstartTid;
 
         public Builder behandlingId(Long behandlingId) {
             this.behandlingId = behandlingId;
@@ -374,6 +463,46 @@ public class BehandlingDvh extends DvhBaseEntitet {
             return this;
         }
 
+        public Builder medPapirSøknad(Boolean papirSøknad) {
+            this.papirSøknad = papirSøknad != null ? (papirSøknad ? PAPIR_SØKNAD : DIGITAL_SØKNAD) : null;
+            return this;
+        }
+
+        public Builder medBehandlingMetode(BehandlingMetode behandlingMetode) {
+            this.behandlingMetode = behandlingMetode != null ? behandlingMetode.name() : null;
+            return this;
+        }
+
+        public Builder medRevurderingÅrsak(RevurderingÅrsak revurderingÅrsak) {
+            this.revurderingÅrsak = revurderingÅrsak != null ? revurderingÅrsak.name() : null;
+            return this;
+        }
+
+        public Builder medMottattTid(LocalDateTime mottattTid) {
+            this.mottattTid = mottattTid;
+            return this;
+        }
+
+        public Builder medRegistrertTid(LocalDateTime registrertTid) {
+            this.registrertTid = registrertTid;
+            return this;
+        }
+
+        public Builder medKanBehandlesTid(LocalDateTime kanBehandlesTid) {
+            this.kanBehandlesTid = kanBehandlesTid;
+            return this;
+        }
+
+        public Builder medFerdigBehandletTid(LocalDateTime ferdigBehandletTid) {
+            this.ferdigBehandletTid = ferdigBehandletTid;
+            return this;
+        }
+
+        public Builder medForventetOppstartTid(LocalDate forventetOppstartTid) {
+            this.forventetOppstartTid = forventetOppstartTid;
+            return this;
+        }
+
         public BehandlingDvh build() {
             var behandlingDvh = new BehandlingDvh();
             behandlingDvh.behandlingId = behandlingId;
@@ -400,6 +529,14 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.mottattTidspunkt = mottattTidspunkt;
             behandlingDvh.foersteStoenadsdag = foersteStoenadsdag;
             behandlingDvh.uuid = uuid;
+            behandlingDvh.papirSøknad = papirSøknad;
+            behandlingDvh.behandlingMetode = behandlingMetode;
+            behandlingDvh.revurderingÅrsak = revurderingÅrsak;
+            behandlingDvh.mottattTid = mottattTid;
+            behandlingDvh.registrertTid = registrertTid;
+            behandlingDvh.kanBehandlesTid = kanBehandlesTid;
+            behandlingDvh.ferdigBehandletTid = ferdigBehandletTid;
+            behandlingDvh.forventetOppstartTid = forventetOppstartTid;
             return behandlingDvh;
         }
     }

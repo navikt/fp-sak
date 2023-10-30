@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
+import java.util.Set;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-
-import java.util.Objects;
-import java.util.Set;
 
 public class UtledVedtakResultatType {
 
@@ -38,12 +37,4 @@ public class UtledVedtakResultatType {
         return VedtakResultatType.AVSLAG;
     }
 
-    public static VedtakResultatType utledES(BehandlingType behandlingType, BehandlingResultatType behandlingResultatType) {
-        Objects.requireNonNull(behandlingResultatType);
-
-        if (BehandlingResultatType.INNVILGET.equals(behandlingResultatType)) {
-            return VedtakResultatType.INNVILGET;
-        }
-        return VedtakResultatType.AVSLAG;
-    }
 }

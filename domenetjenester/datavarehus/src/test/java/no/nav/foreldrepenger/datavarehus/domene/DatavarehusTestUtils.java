@@ -30,10 +30,12 @@ public class DatavarehusTestUtils {
     protected static final LocalDateTime FUNKSJONELL_TID = LocalDateTime.now();
     protected static final String GODKJENNENDE_ENHET = "godkjennendeEnhet";
     protected static final String IVERKSETTING_STATUS = "iverksettingStatus";
+    protected static final LocalDateTime MOTTATT_TID = LocalDateTime.now().minusDays(1);
     protected static final LocalDate OPPRETTET_DATE = LocalDate.now();
     protected static final long SAKSNUMMER = 442L;
     protected static final String UTLANDSTILSNITT = "utlandstilsnitt";
     protected static final LocalDate VEDTAK_DATO = LocalDate.now();
+    protected static final LocalDateTime VEDTAK_TID = LocalDateTime.now();
     protected static final long VEDTAK_ID = 700L;
     protected static final String VEDTAK_RESULTAT_TYPE = "INNVILGET";
     protected static final String SOEKNAD_FAMILIE_HENDELSE = "SOEKNAD_FAMILIE_HENDELSE";
@@ -83,6 +85,17 @@ public class DatavarehusTestUtils {
                 .soeknadFamilieHendelse(SOEKNAD_FAMILIE_HENDELSE)
                 .bekreftetFamilieHendelse(BEKREFTET_FAMILIE_HENDELSE)
                 .overstyrtFamilieHendelse(OVERSTYRT_FAMILIE_HENDELSE)
+                .relatertBehandling(BEHANDLING_ID)
+                .medPapirSøknad(false)
+                .medBehandlingMetode(BehandlingMetode.AUTOMATISK)
+                .medRevurderingÅrsak(RevurderingÅrsak.SØKNAD)
+                .medMottattTidspunkt(MOTTATT_TID)
+                .medMottattTid(MOTTATT_TID)
+                .medRegistrertTid(FUNKSJONELL_TID)
+                .medKanBehandlesTid(FUNKSJONELL_TID.plusSeconds(1))
+                .medFerdigBehandletTid(FUNKSJONELL_TID.plusMinutes(1))
+                .medFoersteStoenadsdag(OPPRETTET_DATE.plusDays(1))
+                .medForventetOppstartTid(OPPRETTET_DATE.plusDays(2))
                 .build();
     }
 
@@ -99,6 +112,8 @@ public class DatavarehusTestUtils {
                 .vedtakDato(VEDTAK_DATO)
                 .vedtakId(VEDTAK_ID)
                 .vedtakResultatTypeKode(VEDTAK_RESULTAT_TYPE)
+                .vedtakTid(VEDTAK_TID)
+                .utbetaltTid(VEDTAK_DATO.plusWeeks(1))
                 .build();
     }
 

@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 class BehandlingDvhEntityTest {
 
@@ -28,5 +28,16 @@ class BehandlingDvhEntityTest {
         assertThat(behandlingDvh.getSoeknadFamilieHendelse()).isEqualTo(DatavarehusTestUtils.SOEKNAD_FAMILIE_HENDELSE);
         assertThat(behandlingDvh.getBekreftetFamilieHendelse()).isEqualTo(DatavarehusTestUtils.BEKREFTET_FAMILIE_HENDELSE);
         assertThat(behandlingDvh.getOverstyrtFamilieHendelse()).isEqualTo(DatavarehusTestUtils.OVERSTYRT_FAMILIE_HENDELSE);
+        assertThat(behandlingDvh.getRelatertBehandling()).isEqualTo(DatavarehusTestUtils.BEHANDLING_ID);
+        assertThat(behandlingDvh.getPapirSøknad()).isFalse();
+        assertThat(behandlingDvh.getBehandlingMetode()).isEqualTo(BehandlingMetode.AUTOMATISK.name());
+        assertThat(behandlingDvh.getRevurderingÅrsak()).isEqualTo(RevurderingÅrsak.SØKNAD.name());
+        assertThat(behandlingDvh.getMottattTidspunkt()).isEqualTo(DatavarehusTestUtils.MOTTATT_TID);
+        assertThat(behandlingDvh.getMottattTid()).isEqualTo(DatavarehusTestUtils.MOTTATT_TID);
+        assertThat(behandlingDvh.getRegistrertTid()).isEqualTo(DatavarehusTestUtils.FUNKSJONELL_TID);
+        assertThat(behandlingDvh.getKanBehandlesTid()).isEqualTo(DatavarehusTestUtils.FUNKSJONELL_TID.plusSeconds(1));
+        assertThat(behandlingDvh.getFerdigBehandletTid()).isEqualTo(DatavarehusTestUtils.FUNKSJONELL_TID.plusMinutes(1));
+        assertThat(behandlingDvh.getFoersteStoenadsdag()).isEqualTo(DatavarehusTestUtils.OPPRETTET_DATE.plusDays(1));
+        assertThat(behandlingDvh.getForventetOppstartTid()).isEqualTo(DatavarehusTestUtils.OPPRETTET_DATE.plusDays(2));
     }
 }
