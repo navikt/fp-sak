@@ -203,7 +203,6 @@ public class BehandlingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Henlegger behandling", tags = "behandlinger")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-
     public void henleggBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
         var behandling = getBehandling(dto);
