@@ -51,7 +51,7 @@ class VurderInnsynOppdatererTest {
     @Inject
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Inject
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste = Mockito.mock(BehandlingskontrollTjeneste.class);
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     private HistorikkRepository historikkRepository = Mockito.mock(HistorikkRepository.class);
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
