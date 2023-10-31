@@ -1,14 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum BehandlingÅrsakType implements Kodeverdi {
 
@@ -175,6 +177,10 @@ public enum BehandlingÅrsakType implements Kodeverdi {
 
     public static Set<BehandlingÅrsakType> årsakerRelatertTilDød() {
         return Set.of(RE_OPPLYSNINGER_OM_DØD, RE_HENDELSE_DØD_BARN, RE_HENDELSE_DØD_FORELDER, RE_HENDELSE_DØDFØDSEL);
+    }
+
+    public static Set<BehandlingÅrsakType> årsakerRelatertTilPdl() {
+        return Set.of(RE_HENDELSE_FØDSEL, RE_HENDELSE_DØD_BARN, RE_HENDELSE_DØD_FORELDER, RE_HENDELSE_DØDFØDSEL, RE_HENDELSE_UTFLYTTING);
     }
 
     public static Set<BehandlingÅrsakType> årsakerForRelatertVedtak() {

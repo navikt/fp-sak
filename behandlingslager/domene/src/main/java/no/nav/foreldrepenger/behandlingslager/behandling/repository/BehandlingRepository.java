@@ -1,22 +1,36 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import org.hibernate.jpa.HibernateHints;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
+import org.hibernate.jpa.HibernateHints;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class BehandlingRepository {
@@ -548,6 +562,17 @@ public class BehandlingRepository {
 
         query.setParameter("behandling", behandling);
         query.setHint(HibernateHints.HINT_READ_ONLY, "true");
+        return query.getResultList();
+    }
+
+    public List<Behandling> hentÅpneBehandlingerOpprettetIntervall(LocalDateTime fom, LocalDateTime tom) {
+        var query = entityManager.createQuery(
+            "SELECT beh from Behandling AS beh WHERE beh.status != :avslu and beh.opprettetTidspunkt >= :fom and beh.opprettetTidspunkt < :tom",
+            Behandling.class)
+            .setParameter("avslu", BehandlingStatus.AVSLUTTET)
+            .setParameter("fom", fom)
+            .setParameter("tom", tom)
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 

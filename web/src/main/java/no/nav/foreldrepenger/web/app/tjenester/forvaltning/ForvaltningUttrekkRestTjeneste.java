@@ -1,44 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
-import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
-import no.nav.vedtak.felles.prosesstask.api.*;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
-import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import org.hibernate.query.NativeQuery;
-
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -46,6 +7,60 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import org.hibernate.query.NativeQuery;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjenesteImpl;
+import no.nav.foreldrepenger.datavarehus.tjeneste.DvhEtterpopulerPeriodeTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
+import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
+import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @Path("/forvaltningUttrekk")
 @ApplicationScoped
@@ -57,6 +72,8 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
+    private BehandlingVedtakRepository vedtakRepository;
+    private DatavarehusTjenesteImpl datavarehusTjeneste;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -66,13 +83,17 @@ public class ForvaltningUttrekkRestTjeneste {
     public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
                                           FagsakRepository fagsakRepository,
                                           BehandlingRepository behandlingRepository,
+                                          BehandlingVedtakRepository vedtakRepository,
                                           ProsessTaskTjeneste taskTjeneste,
-                                          OverlappVedtakRepository overlappRepository) {
+                                          OverlappVedtakRepository overlappRepository,
+                                          DatavarehusTjenesteImpl datavarehusTjeneste) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
+        this.vedtakRepository = vedtakRepository;
+        this.datavarehusTjeneste = datavarehusTjeneste;
     }
 
     @POST
@@ -268,6 +289,65 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
+    @POST
+    @Path("/populerInnsynVedtak")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagrer task for å populere dvh / innsyn", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
+    public Response populerInnsynVedtak() {
+        finnAlleInnsynIverksattIkkeIDVH().stream()
+            .map(bid -> behandlingRepository.hentBehandling(bid))
+            .forEach(b -> {
+                var vedtak = vedtakRepository.hentForBehandlingHvisEksisterer(b.getId()).orElseThrow();
+                datavarehusTjeneste.lagreNedVedtakInnsyn(vedtak, b);
+            });
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/oppdaterBehandlingDvh")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagrer tasks for å repopulere dvh", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
+    public Response oppdaterBehandlingDvh() {
+        var fom0 = LocalDate.of(2018,10,20);
+        var tom0 = LocalDate.of(2022,12,31);
+        var fom = LocalDate.of(2023,1,1);
+        var tom = LocalDate.now();
+        var baseline = LocalDateTime.now();
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        var callId = MDCOperations.getCallId();
+        long suffix = 0;
+        var gruppe = new ProsessTaskGruppe();
+        List<ProsessTaskData> tasks = new ArrayList<>();
+        var prosessTaskData0 = ProsessTaskDataBuilder.forProsessTask(DvhEtterpopulerPeriodeTask.class)
+            .medProperty(VedtakAvstemPeriodeTask.LOG_FOM_KEY, fom0.toString())
+            .medProperty(VedtakAvstemPeriodeTask.LOG_TOM_KEY, tom0.toString())
+            .medNesteKjøringEtter(baseline)
+            .medCallId(callId + "_" + suffix)
+            .medPrioritet(100)
+            .build();
+        tasks.add(prosessTaskData0);
+        suffix++;
+        for (var betweendays = fom; !betweendays.isAfter(tom); betweendays = betweendays.plusDays(1)) {
+            var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(DvhEtterpopulerPeriodeTask.class)
+                .medProperty(VedtakAvstemPeriodeTask.LOG_FOM_KEY, betweendays.toString())
+                .medProperty(VedtakAvstemPeriodeTask.LOG_TOM_KEY, betweendays.toString())
+                .medNesteKjøringEtter(baseline.plusSeconds(suffix * 3))
+                .medCallId(callId + "_" + suffix)
+                .medPrioritet(100)
+                .build();
+            tasks.add(prosessTaskData);
+            suffix++;
+        }
+        gruppe.addNesteParallell(tasks);
+        taskTjeneste.lagre(gruppe);
+
+        return Response.ok().build();
+    }
+
     private List<ProsessTaskData> finnAlleAvstemming() {
 
         // native sql for å håndtere join og subselect,
@@ -287,6 +367,52 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
         return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).toList();
+    }
+
+    private List<Long> finnAlleInnsynIverksattIkkeIDVH() {
+
+        List<Long> liste = new ArrayList<>();
+        liste.add(1124503L);
+        liste.add(1471204L);
+        liste.add(1456668L);
+        liste.add(1144441L);
+        liste.add(1456662L);
+        liste.add(1441065L);
+        liste.add(1179332L);
+        liste.add(1197584L);
+        liste.add(1229540L);
+        liste.add(1262081L);
+        liste.add(1266132L);
+        liste.add(1265306L);
+        liste.add(1527975L);
+        liste.add(1293063L);
+        liste.add(1305729L);
+        liste.add(1356144L);
+        liste.add(1356060L);
+        liste.add(1615154L);
+        liste.add(1625822L);
+        liste.add(1651718L);
+        liste.add(1643362L);
+        liste.add(1820613L);
+        liste.add(1741710L);
+        liste.add(1825551L);
+        liste.add(1773426L);
+        liste.add(1888763L);
+        liste.add(2019405L);
+        liste.add(2025871L);
+        liste.add(2177001L);
+        liste.add(2199981L);
+        liste.add(2118764L);
+        liste.add(2291385L);
+        liste.add(2297943L);
+        liste.add(2288302L);
+        liste.add(2342741L);
+        liste.add(2377629L);
+        liste.add(2399476L);
+        liste.add(2344158L);
+        liste.add(2409098L);
+
+        return liste;
     }
 
 }

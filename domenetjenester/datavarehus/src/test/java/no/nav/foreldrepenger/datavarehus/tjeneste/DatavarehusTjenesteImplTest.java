@@ -56,6 +56,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -73,7 +74,7 @@ import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -94,8 +95,6 @@ class DatavarehusTjenesteImplTest {
     private KlageRepository klageRepository;
     @Mock
     private MottatteDokumentRepository mottatteDokumentRepository;
-    @Mock
-    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     @Mock
     private MottattDokument mottattDokument;
 
@@ -130,7 +129,7 @@ class DatavarehusTjenesteImplTest {
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {
         return new DatavarehusTjenesteImpl(repositoryProvider, datavarehusRepository, repositoryProvider.getBehandlingsresultatRepository(),
             totrinnRepository, mock(FagsakEgenskapRepository.class), ankeRepository, klageRepository, mottatteDokumentRepository,
-            dvhVedtakTjenesteEngangsstønad, foreldrepengerUttakTjeneste, skjæringstidspunktTjeneste);
+            dvhVedtakTjenesteEngangsstønad, skjæringstidspunktTjeneste, mock(SvangerskapspengerRepository.class));
     }
 
     @Test
@@ -195,6 +194,8 @@ class DatavarehusTjenesteImplTest {
         // Simuler mottatt dokument
         when(mottattDokument.getDokumentType()).thenReturn(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         when(mottattDokument.getMottattTidspunkt()).thenReturn(LocalDateTime.now().minusDays(3));
+        when(mottattDokument.getOpprettetTidspunkt()).thenReturn(LocalDateTime.now());
+        when(mottattDokument.getJournalpostId()).thenReturn(new JournalpostId("123"));
         List<MottattDokument> mottatteDokumenter = new ArrayList<>();
         mottatteDokumenter.add(mottattDokument);
         when(mottatteDokumentRepository.hentMottatteDokument(behandling.getId())).thenReturn(mottatteDokumenter);
@@ -206,6 +207,7 @@ class DatavarehusTjenesteImplTest {
         verify(datavarehusRepository).lagre(captor.capture());
 
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(captor.getValue().getMottattTid()).isEqualTo(mottattDokument.getMottattTidspunkt());
         assertThat(captor.getValue().getMottattTidspunkt()).isEqualTo(mottattDokument.getMottattTidspunkt());
     }
 

@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 class BehandlingVedtakDvhEntityTest {
 
@@ -21,6 +21,8 @@ class BehandlingVedtakDvhEntityTest {
         assertThat(behandlingVedtakDvh.getVedtakDato()).isEqualTo(DatavarehusTestUtils.VEDTAK_DATO);
         assertThat(behandlingVedtakDvh.getVedtakId()).isEqualTo(DatavarehusTestUtils.VEDTAK_ID);
         assertThat(behandlingVedtakDvh.getVedtakResultatTypeKode()).isEqualTo(DatavarehusTestUtils.VEDTAK_RESULTAT_TYPE);
+        assertThat(behandlingVedtakDvh.getVedtakTid()).isEqualTo(DatavarehusTestUtils.VEDTAK_TID);
+        assertThat(behandlingVedtakDvh.getUtbetaltTid()).isEqualTo(DatavarehusTestUtils.VEDTAK_DATO.plusWeeks(1));
 
     }
 }
