@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
@@ -41,10 +46,23 @@ import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.*;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingskontrollRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBeregningRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSvangerskapspengerRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTilkjentYtelseRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.fpoversikt.FpoversiktMigreringRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpOversiktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.infotrygd.InfotrygdOppslagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.los.LosRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.register.RedirectToRegisterRestTjeneste;
@@ -54,11 +72,6 @@ import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.VedtakJsonFee
 import no.nav.foreldrepenger.web.server.abac.PipRestTjeneste;
 import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class RestImplementationClasses {
 
@@ -107,6 +120,9 @@ public class RestImplementationClasses {
         classes.add(BrevRestTjeneste.class);
         classes.add(LosRestTjeneste.class);
         classes.add(RedirectToRegisterRestTjeneste.class);
+
+        // Søk infotrygd
+        classes.add(InfotrygdOppslagRestTjeneste.class);
 
         // Formidlingstjenester
         classes.add(FormidlingRestTjeneste.class);
