@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingMetode;
 import no.nav.foreldrepenger.datavarehus.domene.RevurderingÅrsak;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 public class BehandlingDvhMapper {
 
@@ -40,12 +41,11 @@ public class BehandlingDvhMapper {
                                     Optional<AnkeResultatEntitet> ankeResultat,
                                     Optional<LocalDate> skjæringstidspunkt,
                                     FagsakMarkering fagsakMarkering,
-                                    Optional<LocalDate> forventetOppstartDato,
-                                    LocalDateTime funksjonellTid) {
+                                    Optional<LocalDate> forventetOppstartDato) {
 
         return BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
-            .ansvarligSaksbehandler(behandling.getAnsvarligSaksbehandler())
+            .ansvarligSaksbehandler(utledAnsvarligSaksbehandler(behandling))
             .behandlendeEnhet(behandling.getBehandlendeEnhet())
             .behandlingId(behandling.getId())
             .behandlingUuid(behandling.getUuid())
@@ -54,7 +54,7 @@ public class BehandlingDvhMapper {
             .behandlingType(behandling.getType().getKode())
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandling))
             .fagsakId(behandling.getFagsakId())
-            .funksjonellTid(funksjonellTid)
+            .funksjonellTid(LocalDateTime.now())
             .opprettetDato(behandling.getOpprettetDato().toLocalDate())
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
             .toTrinnsBehandling(behandling.isToTrinnsBehandling())
@@ -190,11 +190,7 @@ public class BehandlingDvhMapper {
 
     private static boolean harSaksbehandlerVurdertAksjonspunkt(Aksjonspunkt aksjonspunkt) {
         return aksjonspunkt.erUtført() || aksjonspunkt.getBegrunnelse() != null ||
-            !erSystem(aksjonspunkt.getEndretAv()) || !erSystem(aksjonspunkt.getOpprettetAv());
-    }
-
-    private static boolean erSystem(String opprettetEndretAv) {
-        return opprettetEndretAv == null || opprettetEndretAv.startsWith("srv") || "VL".equals(opprettetEndretAv);
+            CommonDvhMapper.erSaksbehandler(aksjonspunkt.getEndretAv()) || CommonDvhMapper.erSaksbehandler(aksjonspunkt.getOpprettetAv());
     }
 
     private static RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling) {
@@ -238,6 +234,20 @@ public class BehandlingDvhMapper {
             return RevurderingÅrsak.REGULERING;
         }
         return RevurderingÅrsak.MANUELL;
+    }
+
+    // Pga konvensjon med å sette ansvarlig til null når behandling settes på vent.
+    private static String utledAnsvarligSaksbehandler(Behandling behandling) {
+        if (behandling.getAnsvarligSaksbehandler() != null || !behandling.isBehandlingPåVent()) {
+            return behandling.getAnsvarligSaksbehandler();
+        }
+        if (!KontekstHolder.getKontekst().getIdentType().erSystem()) {
+            return KontekstHolder.getKontekst().getUid();
+        }
+        return behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
+            .max(Comparator.comparing(ap -> Optional.ofNullable(ap.getEndretTidspunkt()).orElseGet(ap::getOpprettetTidspunkt)))
+            .map(CommonDvhMapper::finnEndretAvEllerOpprettetAv)
+            .filter(CommonDvhMapper::erSaksbehandler).orElse(null);
     }
 
 }

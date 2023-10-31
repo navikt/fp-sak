@@ -160,17 +160,12 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         lagreNedBehandling(behandlingRepository.hentBehandling(behandlingId));
     }
 
-    public void lagreNedBehandlingHistorisk(Behandling behandling, LocalDateTime funksjonellTid) {
-        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
-        lagreNedBehandling(behandling, vedtak, funksjonellTid);
-    }
-
     private void lagreNedBehandling(Behandling behandling) {
         var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
-        lagreNedBehandling(behandling, vedtak, LocalDateTime.now());
+        lagreNedBehandling(behandling, vedtak);
     }
 
-    private void lagreNedBehandling(Behandling behandling, Optional<BehandlingVedtak> vedtak, LocalDateTime funksjonellTid) {
+    private void lagreNedBehandling(Behandling behandling, Optional<BehandlingVedtak> vedtak) {
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
         var gjeldendeKlagevurderingresultat = klageRepository.hentKlageResultatHvisEksisterer(behandling.getId());
         var gjeldendeAnkevurderingresultat = ankeRepository.hentAnkeResultat(behandling.getId());
@@ -183,7 +178,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var forventetOppstart = forventetOppstartDato(behandling, skjæringstidspunkt.orElse(null));
         var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null),
             mottatteDokumenter, vedtak, familieHendelseGrunnlag, gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat,
-            skjæringstidspunkt.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet), utlandMarkering, forventetOppstart, funksjonellTid);
+            skjæringstidspunkt.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet), utlandMarkering, forventetOppstart);
         datavarehusRepository.lagre(behandlingDvh);
     }
 
@@ -262,7 +257,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var behandlingVedtakDvh = BehandlingVedtakDvhMapper.map(vedtak, behandling, ytelseMedUtbetalingFra);
         datavarehusRepository.lagre(behandlingVedtakDvh);
 
-        lagreNedBehandling(behandling, Optional.of(vedtak), LocalDateTime.now());
+        lagreNedBehandling(behandling, Optional.of(vedtak));
     }
 
     private LocalDate finnUtbetaltDato(Behandling behandling, BehandlingVedtak vedtak) {
@@ -280,11 +275,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
                 .min(Comparator.naturalOrder())
                 .orElse(null);
         }
-    }
-
-    public void lagreNedVedtakInnsyn(BehandlingVedtak vedtak, Behandling behandling) {
-        var behandlingVedtakDvh = BehandlingVedtakDvhMapper.mapInnsynRepop(vedtak, behandling);
-        datavarehusRepository.lagre(behandlingVedtakDvh);
     }
 
     @Override

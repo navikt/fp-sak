@@ -30,22 +30,4 @@ class BehandlingVedtakDvhMapper {
                 .utbetaltTid(utbetaltTid)
                 .build();
     }
-
-    static BehandlingVedtakDvh mapInnsynRepop(BehandlingVedtak behandlingVedtak, Behandling behandling) {
-        return BehandlingVedtakDvh.builder()
-            .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
-            .ansvarligSaksbehandler(behandlingVedtak.getAnsvarligSaksbehandler())
-            .behandlingId(behandling.getId())
-            .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandlingVedtak))
-            .funksjonellTid(behandlingVedtak.getVedtakstidspunkt())
-            .godkjennendeEnhet(behandling.getBehandlendeEnhet())
-            .iverksettingStatus(behandlingVedtak.getIverksettingStatus().getKode())
-            .opprettetDato(
-                behandlingVedtak.getOpprettetTidspunkt() == null ? null : behandlingVedtak.getOpprettetTidspunkt().toLocalDate())
-            .vedtakDato(behandlingVedtak.getVedtaksdato())
-            .vedtakTid(behandlingVedtak.getVedtakstidspunkt())
-            .vedtakId(behandlingVedtak.getId())
-            .vedtakResultatTypeKode(behandlingVedtak.getVedtakResultatType().getKode())
-            .build();
-    }
 }
