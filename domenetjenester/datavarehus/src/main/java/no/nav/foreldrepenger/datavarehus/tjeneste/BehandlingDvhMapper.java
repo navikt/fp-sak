@@ -241,7 +241,7 @@ public class BehandlingDvhMapper {
         if (behandling.getAnsvarligSaksbehandler() != null || !behandling.isBehandlingPåVent()) {
             return behandling.getAnsvarligSaksbehandler();
         }
-        if (!KontekstHolder.getKontekst().getIdentType().erSystem()) {
+        if (KontekstHolder.harKontekst() && !KontekstHolder.getKontekst().getIdentType().erSystem()) {
             return KontekstHolder.getKontekst().getUid();
         }
         return behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
