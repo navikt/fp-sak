@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -297,12 +299,21 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT)
     public Response populerInnsynVedtak() {
         finnAlleInnsynIverksattIkkeIDVH().stream()
-            .map(bid -> behandlingRepository.hentBehandling(bid))
+            .map(bid -> hentBeh(bid))
+            .filter(Objects::nonNull)
             .forEach(b -> {
                 var vedtak = vedtakRepository.hentForBehandlingHvisEksisterer(b.getId()).orElseThrow();
                 datavarehusTjeneste.lagreNedVedtakInnsyn(vedtak, b);
             });
         return Response.ok().build();
+    }
+
+    private Behandling hentBeh(Long behandlingId) {
+        try {
+            return behandlingRepository.hentBehandling(behandlingId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @POST
@@ -373,44 +384,63 @@ public class ForvaltningUttrekkRestTjeneste {
 
         List<Long> liste = new ArrayList<>();
         liste.add(1124503L);
-        liste.add(1471204L);
-        liste.add(1456668L);
         liste.add(1144441L);
-        liste.add(1456662L);
-        liste.add(1441065L);
         liste.add(1179332L);
         liste.add(1197584L);
         liste.add(1229540L);
         liste.add(1262081L);
-        liste.add(1266132L);
         liste.add(1265306L);
-        liste.add(1527975L);
+        liste.add(1266132L);
         liste.add(1293063L);
         liste.add(1305729L);
-        liste.add(1356144L);
         liste.add(1356060L);
+        liste.add(1356144L);
+        liste.add(1441065L);
+        liste.add(1456662L);
+        liste.add(1456668L);
+        liste.add(1471204L);
+        liste.add(1527975L);
         liste.add(1615154L);
         liste.add(1625822L);
-        liste.add(1651718L);
         liste.add(1643362L);
-        liste.add(1820613L);
-        liste.add(1741710L);
-        liste.add(1825551L);
-        liste.add(1773426L);
-        liste.add(1888763L);
-        liste.add(2019405L);
-        liste.add(2025871L);
-        liste.add(2177001L);
-        liste.add(2199981L);
-        liste.add(2118764L);
-        liste.add(2291385L);
-        liste.add(2297943L);
-        liste.add(2288302L);
-        liste.add(2342741L);
-        liste.add(2377629L);
-        liste.add(2399476L);
-        liste.add(2344158L);
-        liste.add(2409098L);
+        liste.add(1651718L);
+        liste.add(1683251L);
+        liste.add(1684252L);
+        liste.add(1685256L);
+        liste.add(1685405L);
+        liste.add(1685854L);
+        liste.add(1686401L);
+        liste.add(1686451L);
+        liste.add(1686502L);
+        liste.add(1686651L);
+        liste.add(1686752L);
+        liste.add(1686805L);
+        liste.add(1686807L);
+        liste.add(1686812L);
+        liste.add(1686855L);
+        liste.add(1686858L);
+        liste.add(1687001L);
+        liste.add(1687406L);
+        liste.add(1687451L);
+        liste.add(1687602L);
+        liste.add(1687604L);
+        liste.add(1687702L);
+        liste.add(1689151L);
+        liste.add(1689155L);
+        liste.add(1689158L);
+        liste.add(1689302L);
+        liste.add(1689303L);
+        liste.add(1689304L);
+        liste.add(1690054L);
+        liste.add(1690702L);
+        liste.add(1690852L);
+        liste.add(1692154L);
+        liste.add(1694653L);
+        liste.add(1694703L);
+        liste.add(1698353L);
+        liste.add(1698354L);
+        liste.add(1699103L);
+        liste.add(1730275L);
 
         return liste;
     }
