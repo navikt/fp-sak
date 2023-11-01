@@ -66,7 +66,8 @@ public class SvpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
     private LocalDate leggPåSøknadsfrist(LocalDate sisteUttaksdato) {
-        return sisteUttaksdato.plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var padding = System.nanoTime() % 13;
+        return sisteUttaksdato.plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(padding);
     }
 }
 

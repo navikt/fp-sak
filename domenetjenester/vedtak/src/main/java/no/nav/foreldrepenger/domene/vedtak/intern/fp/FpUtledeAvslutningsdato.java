@@ -140,7 +140,8 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
     private LocalDate leggPåSøknadsfristMåneder(LocalDate fraDato) {
-        return fraDato.plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var padding = System.nanoTime() % 13;
+        return fraDato.plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(padding);
     }
 
     private static LocalDate leggPåMaksSøknadsfrist(LocalDate fraDato) {
