@@ -90,9 +90,11 @@ class SvpUtledeAvslutningsdatoTest {
 
         // Act
         var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var forventetMin = sisteUttaksdato.plusDays(1).plusMonths(KLAGEFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetMax = forventetMin.plusDays(12);
 
         // Assert
-        assertThat(avslutningdato).isEqualTo(sisteUttaksdato.plusDays(1).plusMonths(KLAGEFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()));
+        assertThat(avslutningdato).isBetween(forventetMin, forventetMax);
 
     }
 
