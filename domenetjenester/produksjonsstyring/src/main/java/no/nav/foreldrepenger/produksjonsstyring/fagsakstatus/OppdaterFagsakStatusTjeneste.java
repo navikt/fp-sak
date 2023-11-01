@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.fagsakstatus;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -142,6 +144,9 @@ public class OppdaterFagsakStatusTjeneste {
 
     private void oppdaterFagsakStatus(Fagsak fagsak, Long behandlingId, FagsakStatus nyStatus) {
         var gammelStatus = fagsak.getStatus();
+        if (Objects.equals(gammelStatus, nyStatus)) {
+            return;
+        }
         var fagsakId = fagsak.getId();
         fagsakRepository.oppdaterFagsakStatus(fagsakId, nyStatus);
 

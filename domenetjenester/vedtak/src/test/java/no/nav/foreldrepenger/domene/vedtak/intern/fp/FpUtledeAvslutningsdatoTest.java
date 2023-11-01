@@ -39,6 +39,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.foreldrepenger.domene.vedtak.intern.fp.FpUtledeAvslutningsdato.PADDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -51,7 +52,7 @@ class FpUtledeAvslutningsdatoTest {
     private FpUtledeAvslutningsdato fpUtledeAvslutningsdato;
     private static final int SØKNADSFRIST_I_MÅNEDER = 3;
 
-    @Inject
+    @Mock
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Mock
@@ -85,7 +86,6 @@ class FpUtledeAvslutningsdatoTest {
         var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
             stønadskontoSaldoTjeneste);
 
-        repositoryProvider = mock(BehandlingRepositoryProvider.class);
         var fagsakLåsRepository = mock(FagsakLåsRepository.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
@@ -142,12 +142,13 @@ class FpUtledeAvslutningsdatoTest {
         when(uttakInputTjeneste.lagInput(any(Behandling.class))).thenReturn(
             new UttakInput(BehandlingReferanse.fra(behandling, stp.build()), null, ytelsespesifiktGrunnlag));
 
-        var forventetAvslutningsdato = dødsdato.plusDays(1)
+        var forventetAvslutningsdatoMin = dødsdato.plusDays(1)
             .plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now()))
             .plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
 
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -205,9 +206,10 @@ class FpUtledeAvslutningsdatoTest {
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
-        var forventetAvslutningsdato = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -238,9 +240,10 @@ class FpUtledeAvslutningsdatoTest {
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
-        var forventetAvslutningsdato = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -269,9 +272,10 @@ class FpUtledeAvslutningsdatoTest {
         when(saldoUtregning.saldo(any(Stønadskontotype.class))).thenReturn(0);
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
-        var forventetAvslutningsdato = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
         // Act and assert
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
 
     @Test
@@ -346,10 +350,10 @@ class FpUtledeAvslutningsdatoTest {
         var trekkdager = new Trekkdager(0);
         when(saldoUtregning.restSaldoEtterNesteStønadsperiode()).thenReturn(trekkdager);
 
-        var forventetAvslutningsdato = fødselsdatoNyttBarn.plusMonths(3).with(TemporalAdjusters.lastDayOfMonth());
-
-        // Assert and act
-        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isEqualTo(forventetAvslutningsdato);
+        var forventetAvslutningsdatoMin = fødselsdatoNyttBarn.plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
+        // Act and assert
+        assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
 
     @Test

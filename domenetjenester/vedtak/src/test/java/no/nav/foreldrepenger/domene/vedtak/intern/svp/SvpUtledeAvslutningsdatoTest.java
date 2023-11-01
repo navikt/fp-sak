@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
+import static no.nav.foreldrepenger.domene.vedtak.intern.svp.SvpUtledeAvslutningsdato.PADDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -90,9 +91,11 @@ class SvpUtledeAvslutningsdatoTest {
 
         // Act
         var avslutningdato = utledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var forventetMin = sisteUttaksdato.plusDays(1).plusMonths(KLAGEFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
+        var forventetMax = forventetMin.plusDays(PADDING-1);
 
         // Assert
-        assertThat(avslutningdato).isEqualTo(sisteUttaksdato.plusDays(1).plusMonths(KLAGEFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()));
+        assertThat(avslutningdato).isBetween(forventetMin, forventetMax);
 
     }
 
