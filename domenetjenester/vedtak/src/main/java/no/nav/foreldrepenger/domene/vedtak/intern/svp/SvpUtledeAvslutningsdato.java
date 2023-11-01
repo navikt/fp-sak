@@ -24,6 +24,8 @@ public class SvpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     private BehandlingRepository behandlingRepository;
     private static final int SØKNADSFRIST_I_MÅNEDER = 3;
 
+    static final int PADDING = 13;
+
     private UttakInputTjeneste uttakInputTjeneste;
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
 
@@ -66,7 +68,8 @@ public class SvpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
     private LocalDate leggPåSøknadsfrist(LocalDate sisteUttaksdato) {
-        var padding = System.nanoTime() % 13;
+        // Lastbalansering
+        var padding = System.nanoTime() % PADDING;
         return sisteUttaksdato.plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(padding);
     }
 }

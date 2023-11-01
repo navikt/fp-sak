@@ -39,6 +39,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.foreldrepenger.domene.vedtak.intern.fp.FpUtledeAvslutningsdato.PADDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -51,7 +52,7 @@ class FpUtledeAvslutningsdatoTest {
     private FpUtledeAvslutningsdato fpUtledeAvslutningsdato;
     private static final int SØKNADSFRIST_I_MÅNEDER = 3;
 
-    @Inject
+    @Mock
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Mock
@@ -85,7 +86,6 @@ class FpUtledeAvslutningsdatoTest {
         var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
             stønadskontoSaldoTjeneste);
 
-        repositoryProvider = mock(BehandlingRepositoryProvider.class);
         var fagsakLåsRepository = mock(FagsakLåsRepository.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
@@ -145,9 +145,7 @@ class FpUtledeAvslutningsdatoTest {
         var forventetAvslutningsdatoMin = dødsdato.plusDays(1)
             .plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now()))
             .plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = dødsdato.plusDays(1)
-            .plusWeeks(UttakParametre.ukerTilgjengeligEtterDødsfall(LocalDate.now()))
-            .plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(12);
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
 
         // Act and assert
         assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
@@ -209,7 +207,7 @@ class FpUtledeAvslutningsdatoTest {
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
         var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(12);
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
         // Act and assert
         assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
@@ -243,7 +241,7 @@ class FpUtledeAvslutningsdatoTest {
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
         var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(12);
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
         // Act and assert
         assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
@@ -275,7 +273,7 @@ class FpUtledeAvslutningsdatoTest {
         when(stønadskontoSaldoTjeneste.finnStønadRest(saldoUtregning)).thenReturn(0);
 
         var forventetAvslutningsdatoMin = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = VirkedagUtil.tomVirkedag(periodeAvsluttetDato).plusDays(1).plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(12);
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
         // Act and assert
         assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }
@@ -353,7 +351,7 @@ class FpUtledeAvslutningsdatoTest {
         when(saldoUtregning.restSaldoEtterNesteStønadsperiode()).thenReturn(trekkdager);
 
         var forventetAvslutningsdatoMin = fødselsdatoNyttBarn.plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()).with(TemporalAdjusters.lastDayOfMonth());
-        var forventetAvslutningsdatoMax = fødselsdatoNyttBarn.plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()).plusDays(12);
+        var forventetAvslutningsdatoMax = forventetAvslutningsdatoMin.plusDays(PADDING-1);
         // Act and assert
         assertThat(fpUtledeAvslutningsdato.utledAvslutningsdato(fagsak.getId(), fagsakRelasjon)).isBetween(forventetAvslutningsdatoMin, forventetAvslutningsdatoMax);
     }

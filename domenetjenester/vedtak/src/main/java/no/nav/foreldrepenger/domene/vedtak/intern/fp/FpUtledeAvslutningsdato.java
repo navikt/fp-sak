@@ -32,6 +32,7 @@ import java.util.Optional;
 public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
 
     private static final int SØKNADSFRIST_I_MÅNEDER = 3;
+    static final int PADDING = 13;
 
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private final BehandlingRepository behandlingRepository;
@@ -140,7 +141,8 @@ public class FpUtledeAvslutningsdato implements UtledeAvslutningsdatoFagsak {
     }
 
     private LocalDate leggPåSøknadsfristMåneder(LocalDate fraDato) {
-        var padding = System.nanoTime() % 13;
+        // Lastbalansering
+        var padding = System.nanoTime() % PADDING;
         return fraDato.plusMonths(SØKNADSFRIST_I_MÅNEDER).with(TemporalAdjusters.lastDayOfMonth()).plusDays(padding);
     }
 
