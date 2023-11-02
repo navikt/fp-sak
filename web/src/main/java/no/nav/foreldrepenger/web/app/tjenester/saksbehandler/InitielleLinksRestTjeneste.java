@@ -1,6 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
 
-import io.swagger.v3.oas.annotations.Operation;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
+import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -9,23 +14,20 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+
+import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.infotrygd.InfotrygdOppslagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.register.RedirectToRegisterRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.InitLinksDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
-import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
 @Path("/init-fetch")
 @ApplicationScoped
@@ -60,6 +62,7 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(post(FagsakRestTjeneste.NOTAT_PATH, "lagre-notat"));
         saklenker.add(get(RedirectToRegisterRestTjeneste.AAREG_REG_PATH, "arbeidstaker-redirect"));
         saklenker.add(get(RedirectToRegisterRestTjeneste.AINNTEKT_REG_PATH, "ainntekt-redirect"));
+        saklenker.add(get(InfotrygdOppslagRestTjeneste.INFOTRYGD_SOK_PATH, "infotrygd-søk"));
         return new InitLinksDto(tilgangerTjeneste.innloggetBruker(), BehandlendeEnhetTjeneste.hentEnhetListe(), lenkene, saklenker);
     }
 

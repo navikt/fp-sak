@@ -42,6 +42,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -182,9 +184,12 @@ public class FagsakRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
             var attributter = AbacDataAttributter.opprett();
-            if (req.getSearchString().length() == 13 /* guess - aktørId */) {
-                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, req.getSearchString())
-                    .leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, req.getSearchString());
+            var søkestring = req.getSearchString() != null ? req.getSearchString().trim() : "";
+            if (AktørId.erGyldigAktørId(søkestring)) {
+                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring)
+                    .leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, søkestring);
+            } else if (PersonIdent.erGyldigFnr(søkestring)) {
+                attributter.leggTil(AppAbacAttributtType.FNR, søkestring);
             } else {
                 attributter.leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSearchString());
             }
