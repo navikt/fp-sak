@@ -4,7 +4,9 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -89,7 +91,11 @@ public class InfotrygdOppslagRestTjeneste {
         if (ident == null) {
             return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
         }
-        var identer = finnAlleHistoriskeFødselsnummer(ident);
+        Set<String> identer = new LinkedHashSet<>();
+        if (PersonIdent.erGyldigFnr(ident)) {
+            identer.add(ident);
+        }
+        identer.addAll(finnAlleHistoriskeFødselsnummer(ident));
         if (identer.isEmpty()) {
             return Response.status(HttpURLConnection.HTTP_NOT_FOUND).build();
         }
