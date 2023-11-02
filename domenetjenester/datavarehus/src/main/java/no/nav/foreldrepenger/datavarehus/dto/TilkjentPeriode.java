@@ -20,7 +20,7 @@ public class TilkjentPeriode {
 
     // private List<TilkjentAndel> utbetalingsgrader // mottakere??
 
-    private List<PeriodeResultatÅrsak>
+    private RettighetType rettighetType = RettighetUtleder.utledRettighet();
 
     private Stønadskonto stønadskonto;
 
