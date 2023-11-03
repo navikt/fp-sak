@@ -4,6 +4,8 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -163,12 +165,21 @@ public class InfotrygdOppslagRestTjeneste {
         }
         var mapped = grunnlagene.stream().map(InfotrygdOppslagRestTjeneste::mapTilGrunnlagDtoGrunnlag)
             .collect(Collectors.groupingBy(InfotrygdOppslagRestTjeneste::grunnlagKey));
-        return new GrunnlagDto(mapped);
+        Map<LocalDate, List<GrunnlagDto.Grunnlag>> sortertMap = new LinkedHashMap<>();
+        mapped.keySet().stream().sorted(Comparator.naturalOrder())
+            .forEach(id -> sortertMap.put(id, mapped.get(id).stream().sorted(Comparator.comparing(InfotrygdOppslagRestTjeneste::sortGrunnlagBy)).toList()));
+        return new GrunnlagDto(sortertMap);
     }
 
     private static LocalDate grunnlagKey(GrunnlagDto.Grunnlag grunnlag) {
         return Optional.ofNullable(grunnlag.opprinneligIdentdato())
             .or(() -> Optional.ofNullable(grunnlag.identdato()))
+            .or(() -> Optional.ofNullable(grunnlag.registrert()))
+            .orElse(FOM);
+    }
+
+    private static LocalDate sortGrunnlagBy(GrunnlagDto.Grunnlag grunnlag) {
+        return Optional.ofNullable(grunnlag.identdato())
             .or(() -> Optional.ofNullable(grunnlag.registrert()))
             .orElse(FOM);
     }
