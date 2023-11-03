@@ -291,6 +291,24 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(klageResultatVurdering.map(KlageVurderingResultat::getFritekstTilBrev)).containsSame(fritekstTilBrev);
     }
 
+    @Test
+    void skal_fjerne_fritekstTilBrev_hvis_klage_ikke_avist_og_tekst_finnes() {
+        initKlage();
+        final String fritekstTilBrev = "Tester at fritekst lagres på vurderingsresulatet";
+        var vurderingResBuilder = KlageVurderingResultat.builder().medFritekstTilBrev(fritekstTilBrev).medKlageVurdertAv(KlageVurdertAv.NFP);
+        klageRepository.lagreVurderingsResultat(behandling, vurderingResBuilder);
+
+        var klageAvvistUtenFritekst = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null);
+        var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), klageAvvistUtenFritekst,
+            behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
+
+        klageFormkravOppdaterer.oppdater(klageAvvistUtenFritekst, aksjonspunktOppdaterParameter);
+
+        var klageResultatVurdering = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
+        assertThat(klageResultatVurdering).isPresent();
+        assertThat(klageResultatVurdering.map(KlageVurderingResultat::getFritekstTilBrev)).isEmpty();
+    }
+
     private void fellesKlageAssert() {
         var klageFormkravEntitet = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NFP);
         assertThat(klageFormkravEntitet).isPresent();
