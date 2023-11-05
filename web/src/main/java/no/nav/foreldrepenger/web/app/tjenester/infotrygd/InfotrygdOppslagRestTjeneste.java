@@ -5,8 +5,8 @@ import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,10 +47,9 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Arbeidsforhold;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.ArbeidskategoriKode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
-import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -95,7 +94,7 @@ public class InfotrygdOppslagRestTjeneste {
     @Operation(description = "Søk etter utbetalinger i Infotrygd for fødselsnummer", tags = "infotrygd",
         summary = "Oversikt over utbetalinger knyttet til en bruker kan søkes via fødselsnummer eller d-nummer.",
         responses = {@ApiResponse(responseCode = "200", description = "Returnerer grunnlag",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = GrunnlagDto.class))}),})
+            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = InfotrygdVedtakDto.class))}),})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public Response sokInfotrygd(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
@@ -104,7 +103,7 @@ public class InfotrygdOppslagRestTjeneste {
         if (ident == null) {
             return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
         }
-        Set<String> identer = new LinkedHashSet<>();
+        Set<String> identer = new HashSet<>();
         if (PersonIdent.erGyldigFnr(ident)) {
             identer.add(ident);
         }
@@ -118,7 +117,8 @@ public class InfotrygdOppslagRestTjeneste {
             grunnlagene.addAll(foreldrepenger.hentGrunnlagFailSoft(i, FOM, LocalDate.now()));
             grunnlagene.addAll(svangerskapspenger.hentGrunnlagFailSoft(i, FOM, LocalDate.now()));
         });
-        return Response.ok(mapTilGrunnlagDto(grunnlagene)).build();
+        var unikeGrunnlag = grunnlagene.stream().distinct().toList();
+        return Response.ok(mapTilVedtakDto(unikeGrunnlag, grunnlagene)).build();
     }
 
     private List<String> finnAlleHistoriskeFødselsnummer(String inputIdent) {
@@ -159,66 +159,75 @@ public class InfotrygdOppslagRestTjeneste {
         }
     }
 
-    static GrunnlagDto mapTilGrunnlagDto(List<Grunnlag> grunnlagene) {
+    static InfotrygdVedtakDto mapTilVedtakDto(List<Grunnlag> grunnlagene, List<Grunnlag> kildegrunnlagene) {
         if (grunnlagene.isEmpty()) {
-            return new GrunnlagDto(Map.of());
+            return new InfotrygdVedtakDto(Map.of(), List.of());
         }
-        var mapped = grunnlagene.stream().map(InfotrygdOppslagRestTjeneste::mapTilGrunnlagDtoGrunnlag)
+        var mapped = grunnlagene.stream().map(InfotrygdOppslagRestTjeneste::mapTilVedtakDtoGrunnlag)
             .collect(Collectors.groupingBy(InfotrygdOppslagRestTjeneste::grunnlagKey));
-        Map<LocalDate, List<GrunnlagDto.Grunnlag>> sortertMap = new LinkedHashMap<>();
+        Map<LocalDate, InfotrygdVedtakDto.VedtakKjede> sortertMap = new LinkedHashMap<>();
         mapped.keySet().stream().sorted(Comparator.naturalOrder())
-            .forEach(id -> sortertMap.put(id, mapped.get(id).stream().sorted(Comparator.comparing(InfotrygdOppslagRestTjeneste::sortGrunnlagBy)).toList()));
-        return new GrunnlagDto(sortertMap);
+            .map(key -> new InfotrygdVedtakDto.VedtakKjede(key, sorterVedtak(mapped.get(key))))
+            .forEach(kjede -> sortertMap.put(kjede.opprinneligIdentdato(), kjede));
+        return new InfotrygdVedtakDto(sortertMap, kildegrunnlagene);
     }
 
-    private static LocalDate grunnlagKey(GrunnlagDto.Grunnlag grunnlag) {
+    private static List<InfotrygdVedtakDto.Vedtak> sorterVedtak(List<InfotrygdVedtakDto.Vedtak> vedtak) {
+        return Optional.ofNullable(vedtak).orElseGet(List::of).stream()
+            .sorted(Comparator.comparing(InfotrygdOppslagRestTjeneste::sortGrunnlagBy))
+            .toList();
+    }
+
+    private static LocalDate grunnlagKey(InfotrygdVedtakDto.Vedtak grunnlag) {
         return Optional.ofNullable(grunnlag.opprinneligIdentdato())
             .or(() -> Optional.ofNullable(grunnlag.identdato()))
             .or(() -> Optional.ofNullable(grunnlag.registrert()))
             .orElse(FOM);
     }
 
-    private static LocalDate sortGrunnlagBy(GrunnlagDto.Grunnlag grunnlag) {
+    private static LocalDate sortGrunnlagBy(InfotrygdVedtakDto.Vedtak grunnlag) {
         return Optional.ofNullable(grunnlag.identdato())
             .or(() -> Optional.ofNullable(grunnlag.registrert()))
             .orElse(FOM);
     }
 
-
-    private static GrunnlagDto.Grunnlag mapTilGrunnlagDtoGrunnlag(Grunnlag grunnlag) {
-        List<GrunnlagDto.Vedtak> vedtak = grunnlag.vedtak() != null ? mapTilVedtak(grunnlag.vedtak()) : List.of();
-        List<GrunnlagDto.Arbeidsforhold> arbeidsforhold = grunnlag.arbeidsforhold() != null ? mapTilArbeidsforhold(grunnlag.arbeidsforhold()) : List.of();
-        var status = grunnlag.status() != null ? mapKode(grunnlag.status().kode(), grunnlag.status().termnavn()) : null;
-        var tema = grunnlag.tema() != null ? mapKode(grunnlag.tema().kode(), grunnlag.tema().termnavn()) : null;
+    private static InfotrygdVedtakDto.Vedtak mapTilVedtakDtoGrunnlag(Grunnlag grunnlag) {
+        var utbetaling = mapTilUtbetaling(grunnlag).stream().sorted(Comparator.comparing(p -> p.periode().fom())).toList();
+        var arbeidsforhold = mapTilArbeidsforhold(grunnlag);
         var btema = grunnlag.behandlingstema() != null ? mapKode(grunnlag.behandlingstema().kode(), grunnlag.behandlingstema().termnavn()) : null;
-        var arbKat = grunnlag.kategori() != null ? mapKode(grunnlag.kategori().kode(), grunnlag.kategori().termnavn()) : null;
+        var arbKat = grunnlag.kategori() != null ? mapArbKat(grunnlag.kategori().kode(), grunnlag.kategori().termnavn()) : null;
         var dekning = grunnlag.dekningsgrad() != null ? grunnlag.dekningsgrad().prosent() : null;
         var periode = grunnlag.periode() != null ? mapPeriode(grunnlag.periode()) : null;
-        return new GrunnlagDto.Grunnlag(status, tema, dekning, grunnlag.fødselsdatoBarn(), arbKat, arbeidsforhold, periode,
-            btema, grunnlag.identdato(), grunnlag.iverksatt(), grunnlag.opphørFom(), grunnlag.gradering(), grunnlag.opprinneligIdentdato(),
-            grunnlag.registrert(), grunnlag.saksbehandlerId(), vedtak);
+        return new InfotrygdVedtakDto.Vedtak(btema, grunnlag.identdato(), grunnlag.opphørFom(), grunnlag.opprinneligIdentdato(), periode,
+            grunnlag.registrert(), grunnlag.saksbehandlerId(), arbKat, arbeidsforhold, dekning, grunnlag.fødselsdatoBarn(),
+            grunnlag.gradering(), utbetaling);
     }
 
-    private static List<GrunnlagDto.Arbeidsforhold> mapTilArbeidsforhold(List<Arbeidsforhold> arbeidsforholdene) {
-        return arbeidsforholdene.stream()
-            .map(a -> new GrunnlagDto.Arbeidsforhold(a.orgnr() != null ? a.orgnr().orgnr() : null, a.inntekt(),
+    private static List<InfotrygdVedtakDto.Arbeidsforhold> mapTilArbeidsforhold(Grunnlag grunnlag) {
+        return grunnlag.arbeidsforhold() == null ? List.of() : grunnlag.arbeidsforhold().stream()
+            .map(a -> new InfotrygdVedtakDto.Arbeidsforhold(a.orgnr() != null ? a.orgnr().orgnr() : null, a.inntekt(),
                 a.inntektsperiode() != null ? mapKode(a.inntektsperiode().kode(), a.inntektsperiode().termnavn()) : null,
-                a.refusjon(), a.refusjonTom()))
+                a.refusjon(), a.refusjonTom(), grunnlag.identdato(), grunnlag.opprinneligIdentdato()))
             .toList();
     }
 
-    private static List<GrunnlagDto.Vedtak> mapTilVedtak(List<Vedtak> vedtakene) {
-        return vedtakene.stream()
-            .map(v -> new GrunnlagDto.Vedtak(mapPeriode(v.periode()), v.utbetalingsgrad(), v.arbeidsgiverOrgnr(), v.erRefusjon(), v.dagsats()))
+    private static List<InfotrygdVedtakDto.Utbetaling> mapTilUtbetaling(Grunnlag grunnlag) {
+        return grunnlag.vedtak() == null ? List.of() : grunnlag.vedtak().stream()
+            .map(v -> new InfotrygdVedtakDto.Utbetaling(mapPeriode(v.periode()), v.utbetalingsgrad(), v.arbeidsgiverOrgnr(), v.erRefusjon(),
+                v.dagsats(), grunnlag.identdato(), grunnlag.opprinneligIdentdato()))
             .toList();
     }
 
-    private static GrunnlagDto.Periode mapPeriode(Periode periode) {
-        return periode != null ? new GrunnlagDto.Periode(periode.fom(), periode.tom()) : null;
+    private static InfotrygdVedtakDto.Periode mapPeriode(Periode periode) {
+        return periode != null ? new InfotrygdVedtakDto.Periode(periode.fom(), periode.tom()) : null;
     }
 
-    private static GrunnlagDto.InfotrygdKode mapKode(Enum<?> enumCls, String termnavn) {
-        return new GrunnlagDto.InfotrygdKode(enumCls != null ? enumCls.name() : null, termnavn);
+    private static InfotrygdVedtakDto.InfotrygdKode mapKode(Enum<?> enumCls, String termnavn) {
+        return new InfotrygdVedtakDto.InfotrygdKode(enumCls != null ? enumCls.name() : null, termnavn);
+    }
+
+    private static InfotrygdVedtakDto.InfotrygdKode mapArbKat(ArbeidskategoriKode kode, String termnavn) {
+        return new InfotrygdVedtakDto.InfotrygdKode(kode != null ? kode.getKode() : null, termnavn);
     }
 
 
