@@ -92,6 +92,13 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv, dto.fritekstTilBrev());
             return OppdateringResultat.medFremoverHoppTotrinn(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK);
         }
+        //Må fjerne fritekst om det ble lagret i formkrav-vurderingen
+        klageVurderingTjeneste.hentKlageVurderingResultat(klageBehandling, klageVurdertAv).ifPresent(klageVurderingResultat -> {
+            if (!klageVurderingResultat.getFritekstTilBrev().isEmpty()) {
+                var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, klageVurdertAv).medFritekstTilBrev(null);
+                klageVurderingTjeneste.lagreKlageVurderingResultat(klageBehandling, vurderingResultatBuilder, klageVurdertAv);
+            }
+        });
         klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(apDefFormkrav)
             .filter(Aksjonspunkt::isToTrinnsBehandling)
             .ifPresent(ap -> fjernToTrinnsbehandling(klageBehandling, ap));
