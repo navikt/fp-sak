@@ -32,7 +32,7 @@ public class KlageFormKravAksjonspunktMellomlagringDto {
     private boolean erTilbakekreving;
     @Valid
     private KlageTilbakekrevingDto klageTilbakekreving;
-    @JsonProperty("paklagdBehandlingUuid")
+    @JsonProperty("paKlagdBehandlingUuid")
     private UUID paKlagdBehandlingUuid;
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
