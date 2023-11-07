@@ -55,6 +55,7 @@ public class InitielleLinksRestTjeneste {
         List<ResourceLink> lenkene = new ArrayList<>();
         lenkene.add(get(KodeverkRestTjeneste.KODERVERK_PATH, "kodeverk"));
         lenkene.add(post(FagsakRestTjeneste.SOK_PATH, "søk-fagsak"));
+        lenkene.add(post(InfotrygdOppslagRestTjeneste.INFOTRYGD_SOK_PATH, "infotrygd-søk"));
         List<ResourceLink> saklenker = new ArrayList<>();
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_FULL_PATH, "fagsak-full"));
         saklenker.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste"));
@@ -62,7 +63,6 @@ public class InitielleLinksRestTjeneste {
         saklenker.add(post(FagsakRestTjeneste.NOTAT_PATH, "lagre-notat"));
         saklenker.add(get(RedirectToRegisterRestTjeneste.AAREG_REG_PATH, "arbeidstaker-redirect"));
         saklenker.add(get(RedirectToRegisterRestTjeneste.AINNTEKT_REG_PATH, "ainntekt-redirect"));
-        saklenker.add(get(InfotrygdOppslagRestTjeneste.INFOTRYGD_SOK_PATH, "infotrygd-søk"));
         return new InitLinksDto(tilgangerTjeneste.innloggetBruker(), BehandlendeEnhetTjeneste.hentEnhetListe(), lenkene, saklenker);
     }
 
