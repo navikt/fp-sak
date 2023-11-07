@@ -1,13 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum StønadskontoType implements Kodeverdi {
 
@@ -59,6 +62,10 @@ public enum StønadskontoType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
+    }
+
+    public boolean tilhørerTredeling() {
+        return Set.of(MØDREKVOTE, FEDREKVOTE, FELLESPERIODE).contains(this);
     }
 
     @Converter(autoApply = true)
