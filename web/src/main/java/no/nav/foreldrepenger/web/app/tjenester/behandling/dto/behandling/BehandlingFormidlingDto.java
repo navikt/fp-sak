@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.web.app.rest.ResourceLink;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
 /**
  * Dataobjekt som skal brukes som respons ut mot fp-formidling.

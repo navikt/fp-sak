@@ -1,17 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
 
 @ApplicationScoped
 public class SøknadRepository {

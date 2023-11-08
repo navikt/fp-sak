@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
 public class BehandlingDokumentRepository {

@@ -1,9 +1,14 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
@@ -14,10 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Dependent
 public class InnhentDokumentTjeneste {

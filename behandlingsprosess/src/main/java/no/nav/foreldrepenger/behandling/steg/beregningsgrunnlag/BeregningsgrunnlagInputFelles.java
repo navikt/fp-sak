@@ -1,6 +1,10 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.inject.Inject;
+
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.iay.KravperioderPrArbeidsforholdDto;
@@ -17,9 +21,6 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalk
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-
-import java.util.List;
-import java.util.Objects;
 
 public abstract class BeregningsgrunnlagInputFelles {
 

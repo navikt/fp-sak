@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
 import no.nav.foreldrepenger.behandlingslager.diff.Node;
 import no.nav.foreldrepenger.behandlingslager.diff.Pair;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public class RegisterdataDiffsjekker {
     private DiffEntity diffEntity;

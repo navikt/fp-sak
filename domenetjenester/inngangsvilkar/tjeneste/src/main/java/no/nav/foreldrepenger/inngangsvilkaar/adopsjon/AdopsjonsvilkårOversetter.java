@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.inngangsvilkaar.adopsjon;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -15,10 +20,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.Adopsjonsvilk�
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.BekreftetAdopsjon;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.BekreftetAdopsjonBarn;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @ApplicationScoped
 public class AdopsjonsvilkårOversetter {

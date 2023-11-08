@@ -1,24 +1,12 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
-import jakarta.xml.bind.JAXBElement;
-import jakarta.xml.bind.JAXBException;
-import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
-import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
-import no.nav.foreldrepenger.xmlutils.JaxbHelper;
-import no.nav.foreldrepenger.xmlutils.XmlUtils;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.PersonopplysningerEngangsstoenad;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.PersonopplysningerForeldrepenger;
-import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
-import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
-import org.xml.sax.SAXException;
+import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.feilVedTransformeringAvVedtakXml;
+import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.ioFeilVedTransformeringAvVedtakXml;
+import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.ukjentNamespace;
+import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.uventetFeilVedParsingAvVedtaksXml;
+import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.vedtakXmlValiderteIkke;
+import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -29,8 +17,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.*;
-import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+
+import org.xml.sax.SAXException;
+
+import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
+import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
+import no.nav.foreldrepenger.xmlutils.XmlUtils;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.PersonopplysningerEngangsstoenad;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.PersonopplysningerForeldrepenger;
+import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
+import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
 
 public class VedtakXMLTilHTMLTransformator {
 

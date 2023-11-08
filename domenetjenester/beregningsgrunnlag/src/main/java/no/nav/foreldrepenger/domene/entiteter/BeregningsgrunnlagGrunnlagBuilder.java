@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
-
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 
 public class BeregningsgrunnlagGrunnlagBuilder {

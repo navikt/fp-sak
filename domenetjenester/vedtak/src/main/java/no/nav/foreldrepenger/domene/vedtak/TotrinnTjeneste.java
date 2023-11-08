@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.domene.vedtak;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnresultatgrunnlag;
-import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnresultatgrunnlag;
+import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
 
 /** Totrinn tjeneste som eksponeres ut av modulen.*/
 @ApplicationScoped

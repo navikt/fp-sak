@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.fagsak;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-
-import java.time.LocalDate;
 
 public class FagsakRelasjonBuilder {
 

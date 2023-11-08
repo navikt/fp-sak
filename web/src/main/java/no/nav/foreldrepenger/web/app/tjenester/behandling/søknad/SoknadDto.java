@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
-
 import java.time.LocalDate;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({

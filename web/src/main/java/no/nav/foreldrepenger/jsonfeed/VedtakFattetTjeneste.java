@@ -1,8 +1,19 @@
 package no.nav.foreldrepenger.jsonfeed;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.domene.feed.*;
+
+import no.nav.foreldrepenger.domene.feed.FeedRepository;
+import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
+import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.feed.UtgåendeHendelse;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -11,12 +22,6 @@ import no.nav.foreldrepenger.jsonfeed.dto.VedtakDto;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedElement;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.VedtakMetadata;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class VedtakFattetTjeneste {

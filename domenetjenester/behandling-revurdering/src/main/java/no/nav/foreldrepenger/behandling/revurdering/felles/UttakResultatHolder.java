@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Predicate;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 
 public interface UttakResultatHolder {
 

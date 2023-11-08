@@ -1,9 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 
 @Entity(name = "MottattVedtak")
 @Table(name = "MOTTATT_VEDTAK")

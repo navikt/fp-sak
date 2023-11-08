@@ -1,15 +1,16 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 @ApplicationScoped
 @GrunnlagRef(GrunnlagRef.IAY_GRUNNLAG)

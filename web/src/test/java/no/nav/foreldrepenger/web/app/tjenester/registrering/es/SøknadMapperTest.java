@@ -1,23 +1,24 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.es;
 
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-
 import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
+
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 
 @ExtendWith(MockitoExtension.class)
 class SøknadMapperTest {

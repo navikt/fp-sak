@@ -1,11 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
-
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class MapRegionLandkoder {
 

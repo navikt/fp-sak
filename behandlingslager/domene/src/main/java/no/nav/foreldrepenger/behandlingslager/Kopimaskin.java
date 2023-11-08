@@ -1,12 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 
 public class Kopimaskin {
     private static final Set<String> COMMON_FIELD_NAMES = Set.of("id", "versjon", "opprettetAv", "opprettetTidspunkt", "endretAv", "endretTidspunkt");

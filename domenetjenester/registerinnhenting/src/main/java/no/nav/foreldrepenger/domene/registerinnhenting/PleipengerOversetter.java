@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.util.List;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PleipengerOversetter {
 

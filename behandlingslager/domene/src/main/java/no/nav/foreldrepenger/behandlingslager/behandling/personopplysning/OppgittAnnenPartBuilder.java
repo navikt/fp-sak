@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
+import java.io.Serializable;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.io.Serializable;
 
 public class OppgittAnnenPartBuilder implements Serializable {
     private final OppgittAnnenPartEntitet søknadAnnenPartMal;

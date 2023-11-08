@@ -2,6 +2,10 @@ package no.nav.foreldrepenger.behandling.steg.foreslåresultat;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -9,8 +13,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåBehandlingsresultatSteg {
 

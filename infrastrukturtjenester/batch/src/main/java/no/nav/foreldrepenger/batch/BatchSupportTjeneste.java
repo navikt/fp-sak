@@ -1,14 +1,19 @@
 package no.nav.foreldrepenger.batch;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.batch.task.BatchSchedulerTask;
-import no.nav.vedtak.felles.prosesstask.api.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import no.nav.foreldrepenger.batch.task.BatchSchedulerTask;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class BatchSupportTjeneste {

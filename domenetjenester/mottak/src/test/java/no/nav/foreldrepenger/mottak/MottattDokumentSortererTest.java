@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.mottak;
 
 
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.util.List;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 
 class MottattDokumentSortererTest {
 

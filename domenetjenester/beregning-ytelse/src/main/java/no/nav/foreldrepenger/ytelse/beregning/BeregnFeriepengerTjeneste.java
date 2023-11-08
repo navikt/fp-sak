@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
+import static no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraVLTilRegel.mapFra;
+
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -12,10 +16,6 @@ import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFerie
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.SammenlignBeregningsresultatFeriepengerMedRegelResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegler;
-
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraVLTilRegel.mapFra;
 
 public abstract class BeregnFeriepengerTjeneste {
 

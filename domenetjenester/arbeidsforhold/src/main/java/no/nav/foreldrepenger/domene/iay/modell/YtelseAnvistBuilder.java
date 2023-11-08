@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.math.BigDecimal;
+
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-
-import java.math.BigDecimal;
 
 public class YtelseAnvistBuilder {
     private final YtelseAnvist ytelseAnvist;

@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-
 import java.util.List;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 
 public class OppdragDto extends SporingDto {
 

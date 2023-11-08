@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.datavarehus.domene.FagsakDvh;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 class FagsakDvhMapper {
 

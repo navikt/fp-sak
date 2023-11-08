@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger;
 
-import no.nav.fpsak.nare.evaluation.Evaluation;
-import no.nav.fpsak.nare.specification.LeafSpecification;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import no.nav.fpsak.nare.evaluation.Evaluation;
+import no.nav.fpsak.nare.specification.LeafSpecification;
 
 class BeregnFeriepengerEttÅr extends LeafSpecification<BeregningsresultatFeriepengerRegelModell> {
     public static final String ID = "FP_BR 8.7";

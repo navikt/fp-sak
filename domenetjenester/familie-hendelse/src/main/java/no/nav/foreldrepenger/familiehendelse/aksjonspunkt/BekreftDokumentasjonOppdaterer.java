@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
+
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -16,14 +25,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftDokumentertDatoAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
-
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toMap;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftDokumentertDatoAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)

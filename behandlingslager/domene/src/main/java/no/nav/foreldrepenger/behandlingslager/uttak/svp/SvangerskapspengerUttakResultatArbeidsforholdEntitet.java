@@ -1,14 +1,25 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
-import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 @Entity
 @Table(name = "SVP_UTTAK_ARBEIDSFORHOLD")

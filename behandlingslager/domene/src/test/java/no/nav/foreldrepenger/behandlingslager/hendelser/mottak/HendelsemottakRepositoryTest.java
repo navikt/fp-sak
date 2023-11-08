@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser.mottak;
 
-import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 class HendelsemottakRepositoryTest extends EntityManagerAwareTest {
 

@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.aksjonspunkt;
 
+import jakarta.validation.constraints.Digits;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Digits;
+
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)

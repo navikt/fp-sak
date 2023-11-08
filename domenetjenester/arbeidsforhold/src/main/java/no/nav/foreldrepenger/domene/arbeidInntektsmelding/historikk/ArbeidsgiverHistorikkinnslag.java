@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
-
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
+import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 
 class ArbeidsgiverHistorikkinnslag {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");

@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.svp;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 /**
  * a == helTilrettelegging

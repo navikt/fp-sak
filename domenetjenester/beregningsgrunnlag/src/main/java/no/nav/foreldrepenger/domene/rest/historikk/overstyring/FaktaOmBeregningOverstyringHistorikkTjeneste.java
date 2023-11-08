@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.domene.rest.historikk.overstyring;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -11,8 +14,6 @@ import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.historikk.InntektHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.MapTilLønnsendring;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class FaktaOmBeregningOverstyringHistorikkTjeneste {

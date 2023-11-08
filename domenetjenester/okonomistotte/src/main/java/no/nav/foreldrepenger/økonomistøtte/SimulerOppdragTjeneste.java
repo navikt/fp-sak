@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 
 @ApplicationScoped
 @ActivateRequestContext

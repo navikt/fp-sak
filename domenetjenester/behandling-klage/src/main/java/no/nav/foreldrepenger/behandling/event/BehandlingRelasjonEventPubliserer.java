@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.behandling.event;
 
+import java.lang.annotation.Annotation;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
-
-import java.lang.annotation.Annotation;
 
 
 @ApplicationScoped

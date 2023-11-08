@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.util.Objects;
-import java.util.Optional;
 
 /** Input data til AksjonspunktOppdaterere. */
 public final class AksjonspunktOppdaterParameter {

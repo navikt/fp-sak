@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import no.nav.vedtak.util.InputValideringRegex;
 
-import java.time.LocalDate;
+import no.nav.vedtak.util.InputValideringRegex;
 
 public class ArbeidsforholdDto {
 

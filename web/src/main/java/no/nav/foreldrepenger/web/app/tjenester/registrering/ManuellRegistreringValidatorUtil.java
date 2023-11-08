@@ -1,10 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.LIK_ELLER_ETTER_MOTTATT_DATO;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.TIDLIGERE_DATO;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.*;
 
 public class ManuellRegistreringValidatorUtil {
 

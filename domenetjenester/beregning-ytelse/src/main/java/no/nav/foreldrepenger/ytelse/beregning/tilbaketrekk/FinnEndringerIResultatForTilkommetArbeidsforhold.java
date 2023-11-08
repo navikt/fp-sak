@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import static no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.TilbaketrekkVedTilkommetArbeidsforholdTjeneste.finnStørsteTilbaketrekkForTilkomneArbeidsforhold;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,7 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.TilbaketrekkVedTilkommetArbeidsforholdTjeneste.finnStørsteTilbaketrekkForTilkomneArbeidsforhold;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 
 class FinnEndringerIResultatForTilkommetArbeidsforhold {
 

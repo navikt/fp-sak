@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.web.server.jetty;
 
+import java.util.Properties;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import io.micrometer.core.instrument.Metrics;
 import no.nav.foreldrepenger.konfig.Environment;
-
-import java.util.Properties;
 
 class DatasourceUtil {
     private static final Environment ENV = Environment.current();

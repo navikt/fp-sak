@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningBasisDto extends PersonIdentDto {
 

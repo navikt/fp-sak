@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
+import java.util.Objects;
+
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotNull;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-import java.util.Objects;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
 public class SaksnummerDto {

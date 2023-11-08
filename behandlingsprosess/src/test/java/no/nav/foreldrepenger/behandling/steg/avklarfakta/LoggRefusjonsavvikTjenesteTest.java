@@ -1,16 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
-
-import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
-
-import no.nav.vedtak.konfig.Tid;
-
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,7 +8,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
+import no.nav.vedtak.konfig.Tid;
 
 class LoggRefusjonsavvikTjenesteTest {
     private static final Arbeidsgiver AG1 = Arbeidsgiver.virksomhet("999999999");

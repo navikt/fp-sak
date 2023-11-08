@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
-import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
-
 import java.time.LocalDate;
+
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 
 public interface SkjæringstidspunktRegisterinnhentingTjeneste {
 

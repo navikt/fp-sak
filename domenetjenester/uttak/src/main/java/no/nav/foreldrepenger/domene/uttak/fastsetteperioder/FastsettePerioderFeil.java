@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.List;
 
 final class FastsettePerioderFeil {
 

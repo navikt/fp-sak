@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.domene.tid;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import no.nav.vedtak.konfig.Tid;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
+import no.nav.vedtak.konfig.Tid;
 
 /**
  * Hibernate entitet som modellerer et dato intervall.

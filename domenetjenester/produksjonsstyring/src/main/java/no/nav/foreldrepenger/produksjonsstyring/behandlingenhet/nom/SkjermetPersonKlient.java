@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.nom;
 
 import jakarta.enterprise.context.Dependent;
+
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.felles.integrasjon.skjerming.AbstractSkjermetPersonGCPKlient;
-import no.nav.vedtak.felles.integrasjon.skjerming.AbstractSkjermetPersonOnPremKlient;
 
 /*
  * Klient for å sjekke om person er skjermet. Grensesnitt se #skjermingsløsningen

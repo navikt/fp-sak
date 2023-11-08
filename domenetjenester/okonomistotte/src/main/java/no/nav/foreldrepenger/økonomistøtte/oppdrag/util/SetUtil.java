@@ -1,6 +1,11 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.util;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class SetUtil {
 

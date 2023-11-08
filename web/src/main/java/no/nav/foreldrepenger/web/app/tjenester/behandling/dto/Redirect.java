@@ -1,18 +1,20 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriBuilder;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 
 public final class Redirect {
     private static final Logger LOG = LoggerFactory.getLogger(Redirect.class);

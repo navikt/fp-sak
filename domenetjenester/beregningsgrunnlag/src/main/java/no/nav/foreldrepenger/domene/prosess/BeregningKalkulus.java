@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
 @ApplicationScoped
 public class BeregningKalkulus implements BeregningAPI {

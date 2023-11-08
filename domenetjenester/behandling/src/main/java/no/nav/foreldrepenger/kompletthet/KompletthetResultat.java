@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.kompletthet;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-
 import java.time.LocalDateTime;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
 public record KompletthetResultat(boolean erOppfylt, LocalDateTime ventefrist, Venteårsak venteårsak) {
 

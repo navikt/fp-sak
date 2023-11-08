@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.UUID;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
-
-import java.util.UUID;
 
 public class ManglendeOpplysningerVurderingDto {
     @JsonProperty("behandlingUuid")

@@ -1,19 +1,21 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.IVERKSETTER_VEDTAK;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.UTREDES;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.IVERKSETTER_VEDTAK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.UTREDES;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum BehandlingStegType implements Kodeverdi {
 

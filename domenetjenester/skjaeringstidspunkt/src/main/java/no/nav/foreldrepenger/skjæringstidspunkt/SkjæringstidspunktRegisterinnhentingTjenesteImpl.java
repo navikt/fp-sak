@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
+import java.time.LocalDate;
+
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
-
-import java.time.LocalDate;
 
 /** Brukes som factory for å gi spesifikk tjeneste avh. av ytelse. */
 public class SkjæringstidspunktRegisterinnhentingTjenesteImpl implements SkjæringstidspunktRegisterinnhentingTjeneste {

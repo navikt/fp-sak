@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import java.util.Objects;
 
 public class AktivitetOgArbeidsforholdNøkkel {
     private final Arbeidsgiver arbeidsgiver;

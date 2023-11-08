@@ -1,15 +1,23 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
-import java.util.*;
-
-import static java.util.stream.Collectors.toSet;
 
 public enum StartpunktType implements Kodeverdi {
 

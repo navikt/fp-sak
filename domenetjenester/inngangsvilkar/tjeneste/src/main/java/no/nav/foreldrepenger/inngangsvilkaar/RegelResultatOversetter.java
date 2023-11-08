@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.inngangsvilkaar;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelEvalueringResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class RegelResultatOversetter {
 

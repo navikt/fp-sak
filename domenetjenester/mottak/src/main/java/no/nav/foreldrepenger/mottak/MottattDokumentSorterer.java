@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.mottak;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-
 import java.util.Comparator;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 
 class MottattDokumentSorterer {
     private static Comparator<String> nullSafeStringComparator = Comparator.nullsFirst(String::compareToIgnoreCase);

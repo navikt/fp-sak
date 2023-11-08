@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 
 class HistorikkFraBrevKvitteringMapperTest {
 

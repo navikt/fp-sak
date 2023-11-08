@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
-
-import java.time.LocalDate;
-import java.util.Objects;
 
 public class OppdragInput {
     private GruppertYtelse tilkjentYtelse;

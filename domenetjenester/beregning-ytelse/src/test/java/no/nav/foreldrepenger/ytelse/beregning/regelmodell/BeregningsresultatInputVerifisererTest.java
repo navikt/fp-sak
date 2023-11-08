@@ -1,12 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
-import no.nav.foreldrepenger.ytelse.beregning.BeregningsresultatInputVerifiserer;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.*;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAktivitet;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,7 +8,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.ytelse.beregning.BeregningsresultatInputVerifiserer;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrArbeidsforhold;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAktivitet;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class BeregningsresultatInputVerifisererTest {
     private List<BeregningsgrunnlagPeriode> bgPerioder = new ArrayList<>();

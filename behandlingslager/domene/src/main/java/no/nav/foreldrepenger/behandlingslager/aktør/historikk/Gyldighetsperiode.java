@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.aktør.historikk;
 
-import no.nav.vedtak.konfig.Tid;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import no.nav.vedtak.konfig.Tid;
 
 public class Gyldighetsperiode {
 

@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet;
@@ -15,9 +19,6 @@ import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.MottarYtelseDto;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 @FaktaOmBeregningTilfelleRef(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE)

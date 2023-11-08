@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import java.time.LocalDate;
+import java.util.Collection;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-
-import java.time.LocalDate;
-import java.util.Collection;
 
 public class HindreTilbaketrekkNårAlleredeUtbetalt {
 

@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp;
 
+import java.time.Period;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NavigableSet;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårMellomregning;
@@ -10,12 +16,6 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-
-import java.time.Period;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableSet;
 
 /**
  * Regel som sjekker om mellomliggende perioder i en aktivitet av type Arbeid for samme arbeidsgiver kan aksepteres som

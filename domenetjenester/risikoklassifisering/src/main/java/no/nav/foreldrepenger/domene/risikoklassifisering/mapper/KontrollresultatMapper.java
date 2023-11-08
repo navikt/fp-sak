@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.mapper;
 
+import java.util.List;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
-
-import java.util.List;
-import java.util.Optional;
 
 public class KontrollresultatMapper {
 

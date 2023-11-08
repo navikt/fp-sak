@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.domene.feed;
 
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 //Trengs en omskriving hvis testene skal kunne kjøres i parallell
 class FeedRepositoryTest extends EntityManagerAwareTest {

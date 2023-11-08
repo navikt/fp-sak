@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -19,10 +24,6 @@ import no.nav.vedtak.felles.xml.vedtak.v2.TilkjentYtelse;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
