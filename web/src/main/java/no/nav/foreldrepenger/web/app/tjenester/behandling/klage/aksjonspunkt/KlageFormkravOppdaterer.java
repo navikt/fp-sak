@@ -89,12 +89,12 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         opprettHistorikkinnslag(klageBehandling, apDefFormkrav, dto, klageFormkrav, klageResultat);
         var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
         if (optionalAvvistÅrsak.isPresent()) {
-            lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv, dto.fritekstTilBrev());
+            lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv, dto.fritekstTilBrev() != null ? dto.fritekstTilBrev() : null);
             return OppdateringResultat.medFremoverHoppTotrinn(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK);
         }
         //Må fjerne fritekst om det ble lagret i formkrav-vurderingen
         klageVurderingTjeneste.hentKlageVurderingResultat(klageBehandling, klageVurdertAv).ifPresent(klageVurderingResultat -> {
-            if (!klageVurderingResultat.getFritekstTilBrev().isEmpty()) {
+            if (klageVurderingResultat.getFritekstTilBrev() != null) {
                 var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(klageBehandling, klageVurdertAv).medFritekstTilBrev(null);
                 klageVurderingTjeneste.lagreKlageVurderingResultat(klageBehandling, vurderingResultatBuilder, klageVurdertAv);
             }
