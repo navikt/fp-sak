@@ -428,15 +428,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                         ingenTilrettelegging.getSlutteArbeidFom(), brukMottattTidspunkt.toLocalDate(), SvpTilretteleggingFomKilde.SØKNAD));
             }
 
-            for (var element : tilrettelegging.getVedlegg()) {
-                var vedlegg = (Vedlegg) element.getValue();
-                var vedleggBuilder = new SøknadVedleggEntitet.Builder().medErPåkrevdISøknadsdialog(true)
-                    .medInnsendingsvalg(tolkInnsendingsvalg(vedlegg.getInnsendingstype()))
-                    .medSkjemanummer(vedlegg.getSkjemanummer())
-                    .medTilleggsinfo(vedlegg.getTilleggsinformasjon());
-                søknadBuilder.leggTilVedlegg(vedleggBuilder.build());
-            }
-
             oversettArbeidsforhold(builder, tilrettelegging.getArbeidsforhold());
             nyeTilrettelegginger.add(builder.build());
         }
@@ -1004,7 +995,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private void byggSøknadVedlegg(SøknadEntitet.Builder søknadBuilder, Vedlegg vedlegg, boolean påkrevd) {
-        var vedleggBuilder = new SøknadVedleggEntitet.Builder().medErPåkrevdISøknadsdialog(påkrevd)
+        var vedleggBuilder = new SøknadVedleggEntitet.Builder()
+            .medErPåkrevdISøknadsdialog(påkrevd)
             .medInnsendingsvalg(tolkInnsendingsvalg(vedlegg.getInnsendingstype()))
             .medSkjemanummer(vedlegg.getSkjemanummer())
             .medTilleggsinfo(vedlegg.getTilleggsinformasjon());
