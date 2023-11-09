@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,10 +68,9 @@ class BeregningsresultatMedUttaksplanMapperTest {
         Behandlingsresultat.opprettFor(behandling);
         var beregningsresultat = lagBeregningsresultatAggregatFP(behandling); // Beregingsresultat uten perioder
 
-        var dto = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling,
+        var dto = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(BehandlingReferanse.fra(behandling),
                 beregningsresultat, Optional.empty());
 
-        assertThat(dto.getSokerErMor()).isTrue();
         assertThat(dto.getPerioder()).isEmpty();
     }
 
@@ -120,7 +121,7 @@ class BeregningsresultatMedUttaksplanMapperTest {
         var bgrPeriode = lagP1(beregningsresultat.getBgBeregningsresultatFP()); // Legg til en periode
         lagAndelTilSøker(bgrPeriode, 1000, arbeidsgiver("12345"));
         // Act
-        var uttaksplan = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling,
+        var uttaksplan = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(BehandlingReferanse.fra(behandling),
                 beregningsresultat, Optional.empty());
 
         // Assert
