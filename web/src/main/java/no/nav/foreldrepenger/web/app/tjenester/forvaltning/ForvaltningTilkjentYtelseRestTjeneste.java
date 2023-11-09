@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDate;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -12,17 +14,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.behandling.steg.beregnytelse.Etterbetalingtjeneste;
-
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.behandling.steg.beregnytelse.Etterbetalingtjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-
-import java.time.LocalDate;
 
 @Path("/forvaltningTilkjentYtelse")
 @ApplicationScoped

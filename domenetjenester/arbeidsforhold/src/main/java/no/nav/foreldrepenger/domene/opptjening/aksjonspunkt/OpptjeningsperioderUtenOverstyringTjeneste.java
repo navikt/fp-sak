@@ -1,25 +1,40 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType.NÆRING;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
+import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktivitetVurdering;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType.NÆRING;
 
 @Dependent
 public class OpptjeningsperioderUtenOverstyringTjeneste {

@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.nestesak;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
 public class NesteSakRepository {

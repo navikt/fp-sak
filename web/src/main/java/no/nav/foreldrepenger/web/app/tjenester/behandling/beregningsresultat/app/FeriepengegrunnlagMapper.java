@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app;
 
+import java.util.Collections;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagAndelDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagDto;
-
-import java.util.Collections;
-import java.util.Optional;
 
 public final class FeriepengegrunnlagMapper {
 

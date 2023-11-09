@@ -1,6 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
+import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
+
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -10,10 +15,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoRegelOrkestrering;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoResultat;
-
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
 
 @ApplicationScoped

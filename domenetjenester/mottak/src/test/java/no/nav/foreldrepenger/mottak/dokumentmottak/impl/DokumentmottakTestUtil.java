@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -22,9 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class DokumentmottakTestUtil {
 

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.modell;
 
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
-
 import java.util.Objects;
+
+import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 
 
 public class BeregningsgrunnlagPeriodeÅrsak {

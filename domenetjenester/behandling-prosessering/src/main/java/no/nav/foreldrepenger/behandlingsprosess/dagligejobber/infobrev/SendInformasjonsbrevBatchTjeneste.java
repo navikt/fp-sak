@@ -1,13 +1,6 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.batch.BatchTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +8,16 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.util.Properties;
 
-import static java.time.temporal.ChronoUnit.DAYS;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.batch.BatchTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {

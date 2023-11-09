@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
-
 import java.time.LocalDate;
 import java.util.Map;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 
 public class SoknadFodselDto extends SoknadDto {
     private LocalDate utstedtdato;

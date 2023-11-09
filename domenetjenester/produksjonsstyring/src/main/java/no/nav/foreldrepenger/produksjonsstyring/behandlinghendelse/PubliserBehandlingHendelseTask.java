@@ -1,7 +1,15 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse;
 
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -16,12 +24,6 @@ import no.nav.vedtak.hendelser.behandling.Kildesystem;
 import no.nav.vedtak.hendelser.behandling.Ytelse;
 import no.nav.vedtak.hendelser.behandling.v1.BehandlingHendelseV1;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
 
 @Dependent
 @ProsessTask("oppgavebehandling.behandlingshendelse")

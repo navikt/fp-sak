@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
-
-import java.time.LocalDate;
 
 @RuleDocumentationGrunnlag
 public record FødselsvilkårGrunnlag(@JsonProperty("soekersKjonn") RegelKjønn søkersKjønn,

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
-import no.nav.foreldrepenger.validering.FeltFeilDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil;
+import static java.util.Objects.isNull;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static java.util.Objects.isNull;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
+import no.nav.foreldrepenger.validering.FeltFeilDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil;
 
 public class ManuellRegistreringEndringssøknadValidator {
 

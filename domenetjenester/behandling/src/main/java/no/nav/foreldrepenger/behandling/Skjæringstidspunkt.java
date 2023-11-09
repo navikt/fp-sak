@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandling;
 
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 /**
  * Inneholder relevante tidspunkter for en behandling

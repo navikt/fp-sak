@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class BeregningsresultatPeriode {
     private final List<BeregningsresultatAndel> beregningsresultatAndelList = new ArrayList<>();

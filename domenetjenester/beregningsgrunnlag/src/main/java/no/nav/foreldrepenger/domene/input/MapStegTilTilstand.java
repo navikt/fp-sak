@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.input;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 public final class MapStegTilTilstand {
 

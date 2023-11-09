@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.vedtak.exception.TekniskException;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.vedtak.exception.TekniskException;
 
 public enum VilkårResultatType implements Kodeverdi {
      INNVILGET("INNVILGET", "Innvilget"),

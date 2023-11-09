@@ -1,17 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
-import jakarta.xml.bind.JAXBElement;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.xml.bind.JAXBElement;
+
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 
 class SøknadMapperTest {
 

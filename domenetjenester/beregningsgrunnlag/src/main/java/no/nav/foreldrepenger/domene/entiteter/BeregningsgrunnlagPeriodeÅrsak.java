@@ -1,12 +1,23 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
 
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
-
-import java.util.Objects;
 
 @Entity(name = "BeregningsgrunnlagPeriodeÅrsak")
 @Table(name = "BG_PERIODE_AARSAK")

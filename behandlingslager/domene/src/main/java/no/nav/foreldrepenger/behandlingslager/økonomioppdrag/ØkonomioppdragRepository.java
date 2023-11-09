@@ -1,17 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class ØkonomioppdragRepository {

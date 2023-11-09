@@ -1,21 +1,18 @@
 package no.nav.foreldrepenger.behandling.steg.beregnytelse;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-
-import no.nav.foreldrepenger.ytelse.beregning.Virkedager;
-
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.ytelse.beregning.Virkedager;
 
 class EtterbetalingtjenesteTest {
     private BeregningsresultatEntitet originaltResultat = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();

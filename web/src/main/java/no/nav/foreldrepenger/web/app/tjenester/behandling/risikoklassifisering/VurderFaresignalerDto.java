@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.risikoklassifisering;
 
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;

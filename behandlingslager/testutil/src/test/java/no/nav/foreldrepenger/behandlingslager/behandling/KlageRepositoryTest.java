@@ -1,14 +1,21 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class KlageRepositoryTest extends EntityManagerAwareTest {
 

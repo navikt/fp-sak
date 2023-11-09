@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.behandlingsprosess.hjelpemetoder;
 
+import java.util.Properties;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.gjenopptak.AutomatiskGjenopptagelseTjeneste;
-
-import java.util.Properties;
 
 /**
  * Batchservice som finner alle behandlinger som ikke er aktive og lager en

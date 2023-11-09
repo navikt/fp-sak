@@ -1,6 +1,10 @@
 package no.nav.foreldrepenger.domene.rest.historikk.tilfeller;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
@@ -12,9 +16,6 @@ import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderLønnsendringDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-
-import java.util.Objects;
-import java.util.Optional;
 
 @ApplicationScoped
 @FaktaOmBeregningTilfelleRef(FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING)

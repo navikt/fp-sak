@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl.transisjoner;
 
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-
-import java.util.Optional;
 
 /**
  * Spoler fremover fra steg A til steg B UTEN at stegene besøkes.

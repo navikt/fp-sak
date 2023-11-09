@@ -1,10 +1,5 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +7,11 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class OppgittOpptjeningBuilder {
 

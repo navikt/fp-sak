@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 @RuleDocumentationGrunnlag
 public record OpptjeningsperiodeGrunnlag(FagsakÅrsak fagsakÅrsak,

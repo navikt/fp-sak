@@ -1,20 +1,26 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.fastsett;
 
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.*;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAktivitet;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
-import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatGrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrArbeidsforhold;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakAktivitet;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultat;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.uttakresultat.UttakResultatPeriode;
+import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 
 class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioderTest {
 

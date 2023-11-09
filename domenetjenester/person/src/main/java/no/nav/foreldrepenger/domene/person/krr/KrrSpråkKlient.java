@@ -1,19 +1,27 @@
 package no.nav.foreldrepenger.domene.person.krr;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.net.URI;
+import java.time.Duration;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriBuilderException;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.felles.integrasjon.rest.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.time.Duration;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "krr.rs.uri", endpointDefault = "https://digdir-krr-proxy.intern.nav.no/rest/v1/person",

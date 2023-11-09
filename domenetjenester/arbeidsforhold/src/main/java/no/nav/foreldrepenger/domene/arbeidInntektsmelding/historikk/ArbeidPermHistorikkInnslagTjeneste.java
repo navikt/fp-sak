@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -13,9 +17,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
-
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class ArbeidPermHistorikkInnslagTjeneste {

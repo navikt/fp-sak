@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 class BeregningsresultatAndelTest {
 

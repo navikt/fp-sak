@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -19,9 +23,6 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagP
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @ApplicationScoped
 public class FordelBeregningsgrunnlagHistorikkTjeneste {

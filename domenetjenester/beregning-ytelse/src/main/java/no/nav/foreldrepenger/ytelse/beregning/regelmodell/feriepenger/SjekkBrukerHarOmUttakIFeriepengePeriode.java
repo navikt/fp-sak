@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
-
-import java.time.LocalDate;
-import java.util.List;
 
 class SjekkBrukerHarOmUttakIFeriepengePeriode extends LeafSpecification<BeregningsresultatFeriepengerRegelModell> {
     public static final String ID = "FP_BR 8.4";

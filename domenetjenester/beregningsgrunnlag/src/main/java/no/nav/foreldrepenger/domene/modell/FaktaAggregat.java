@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class FaktaAggregat {
 

@@ -1,17 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public class PermisjonPeriodeDto {
 

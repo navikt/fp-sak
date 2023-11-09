@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.dokumentbestiller.dto;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class BestillBrevDtoTest {
 

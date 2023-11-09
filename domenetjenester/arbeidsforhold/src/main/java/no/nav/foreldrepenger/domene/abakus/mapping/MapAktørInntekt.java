@@ -1,17 +1,30 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
-import no.nav.abakus.iaygrunnlag.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import no.nav.abakus.iaygrunnlag.Aktør;
+import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
+import no.nav.abakus.iaygrunnlag.Organisasjon;
+import no.nav.abakus.iaygrunnlag.Periode;
+import no.nav.abakus.iaygrunnlag.PersonIdent;
 import no.nav.abakus.iaygrunnlag.inntekt.v1.InntekterDto;
 import no.nav.abakus.iaygrunnlag.inntekt.v1.UtbetalingDto;
 import no.nav.abakus.iaygrunnlag.inntekt.v1.UtbetalingsPostDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
+import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 class MapAktørInntekt {
 

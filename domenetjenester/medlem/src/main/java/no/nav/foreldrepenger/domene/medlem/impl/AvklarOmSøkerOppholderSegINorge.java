@@ -1,5 +1,12 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
@@ -15,13 +22,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 
 public class AvklarOmSøkerOppholderSegINorge {
 

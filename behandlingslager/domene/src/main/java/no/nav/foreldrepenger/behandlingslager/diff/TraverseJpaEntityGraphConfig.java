@@ -1,9 +1,22 @@
 package no.nav.foreldrepenger.behandlingslager.diff;
 
-import jakarta.persistence.*;
-import javassist.Modifier;
-
 import java.lang.reflect.Field;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+
+import javassist.Modifier;
 
 /** Konfig for å scanne JPA klasser. */
 public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {

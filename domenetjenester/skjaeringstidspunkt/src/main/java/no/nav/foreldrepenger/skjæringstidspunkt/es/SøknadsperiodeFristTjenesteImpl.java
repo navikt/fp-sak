@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.es;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.EnumSet;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.Søknadsfristdatoer;
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -14,14 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SøknadsperiodeFristTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.EnumSet;
-import java.util.Optional;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped

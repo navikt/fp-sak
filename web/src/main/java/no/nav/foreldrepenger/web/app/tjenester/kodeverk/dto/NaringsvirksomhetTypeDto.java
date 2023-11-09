@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class NaringsvirksomhetTypeDto {

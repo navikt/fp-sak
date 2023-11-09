@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.hendelser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
 import org.hibernate.jpa.HibernateHints;
 
 @ApplicationScoped

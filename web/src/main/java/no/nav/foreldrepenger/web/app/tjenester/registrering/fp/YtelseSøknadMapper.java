@@ -1,7 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
+import static java.lang.Boolean.TRUE;
+import static java.util.Objects.isNull;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles.mapAnnenForelder;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles.mapRelasjonTilBarnet;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -21,19 +32,21 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Rettigheter;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Dekningsgrad;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.ObjectFactory;
-import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.*;
-import no.nav.vedtak.felles.xml.soeknad.uttak.v3.*;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Dekningsgrader;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.MorsAktivitetsTyper;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Oppholdsaarsaker;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Overfoeringsaarsaker;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Utsettelsesaarsaker;
+import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Uttaksperiodetyper;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Arbeidsgiver;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Fordeling;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Overfoeringsperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static java.lang.Boolean.TRUE;
-import static java.util.Objects.isNull;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles.mapAnnenForelder;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles.mapRelasjonTilBarnet;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @BehandlingTypeRef

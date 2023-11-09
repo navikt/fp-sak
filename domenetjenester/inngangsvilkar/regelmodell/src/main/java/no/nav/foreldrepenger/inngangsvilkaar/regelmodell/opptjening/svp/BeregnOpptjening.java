@@ -1,5 +1,12 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.svp;
 
+import static no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger.UTLAND;
+
+import java.time.Period;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårMellomregning;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjentTidslinje;
@@ -10,13 +17,6 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-
-import java.time.Period;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import static no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger.UTLAND;
 
 /**
  * Slår sammen alle gjenværende aktivitet tidslinjer og akseptert mellomliggende perioder til en samlet tidslinje for

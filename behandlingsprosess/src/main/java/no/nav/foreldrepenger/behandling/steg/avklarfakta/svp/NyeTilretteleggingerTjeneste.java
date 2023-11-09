@@ -1,16 +1,17 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 class NyeTilretteleggingerTjeneste {

@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.util.Objects;
+
 import jakarta.persistence.Convert;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
-import java.util.Objects;
 
 public class OppgittAnnenAktivitet extends BaseEntitet implements IndexKey {
 

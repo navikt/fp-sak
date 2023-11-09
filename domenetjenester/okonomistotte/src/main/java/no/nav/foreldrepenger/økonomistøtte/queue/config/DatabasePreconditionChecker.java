@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.config;
 
-import jakarta.annotation.Resource;
-import jakarta.enterprise.context.ApplicationScoped;
-import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
-import no.nav.foreldrepenger.felles.jms.precond.PreconditionCheckerResult;
+import java.sql.SQLException;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
+
+import jakarta.annotation.Resource;
+import jakarta.enterprise.context.ApplicationScoped;
+
+import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
+import no.nav.foreldrepenger.felles.jms.precond.PreconditionCheckerResult;
 
 @ApplicationScoped
 public class DatabasePreconditionChecker implements PreconditionChecker {

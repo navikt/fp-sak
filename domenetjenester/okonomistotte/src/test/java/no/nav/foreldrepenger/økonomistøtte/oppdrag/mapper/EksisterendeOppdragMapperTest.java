@@ -1,19 +1,35 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.*;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.*;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.FagsystemId;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
-import org.junit.jupiter.api.Test;
+import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FERIEPENGER_BRUKER;
+import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FPF_ARBEIDSTAKER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FERIEPENGER_BRUKER;
-import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FPF_ARBEIDSTAKER;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.DelytelseId;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.FagsystemId;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.SatsType;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 
 class EksisterendeOppdragMapperTest {
 

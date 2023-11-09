@@ -1,8 +1,18 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingskontroll.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -18,10 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 @BehandlingStegRef(BehandlingStegType.IVERKSETT_VEDTAK)
 @BehandlingTypeRef

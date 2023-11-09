@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -12,9 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef

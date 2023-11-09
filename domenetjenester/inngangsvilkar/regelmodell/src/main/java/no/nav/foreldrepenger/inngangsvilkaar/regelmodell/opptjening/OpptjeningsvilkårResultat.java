@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
-
 import java.time.Period;
 import java.util.Collections;
 import java.util.Map;
+
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 /** Output container benyttet i evaluering av Opptjeningsvilkår. */
 public class OpptjeningsvilkårResultat {

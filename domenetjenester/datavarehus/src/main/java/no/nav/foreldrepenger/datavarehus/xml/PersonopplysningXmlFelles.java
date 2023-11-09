@@ -1,12 +1,19 @@
 package no.nav.foreldrepenger.datavarehus.xml;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -15,8 +22,6 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.Medlemskapsperiode;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.PersonIdentifiserbar;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.PersonUidentifiserbar;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class PersonopplysningXmlFelles {

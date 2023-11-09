@@ -1,20 +1,21 @@
 package no.nav.foreldrepenger.domene.bruker;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
 class NavBrukerTjenesteTest {

@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @RuleDocumentation(FastsettSkjæringsdatoMorFødsel.ID)
 public class FastsettSkjæringsdatoMorFødsel extends LeafSpecification<OpptjeningsperiodeMellomregning> {

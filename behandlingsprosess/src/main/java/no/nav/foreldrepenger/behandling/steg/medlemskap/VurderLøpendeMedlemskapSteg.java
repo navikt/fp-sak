@@ -1,8 +1,17 @@
 package no.nav.foreldrepenger.behandling.steg.medlemskap;
 
+import java.util.Collections;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingskontroll.*;
+
+import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -16,9 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.VurderLøpendeMedlemskap;
-
-import java.util.Collections;
-import java.util.Optional;
 
 @BehandlingStegRef(BehandlingStegType.VULOMED)
 @BehandlingTypeRef(BehandlingType.REVURDERING)

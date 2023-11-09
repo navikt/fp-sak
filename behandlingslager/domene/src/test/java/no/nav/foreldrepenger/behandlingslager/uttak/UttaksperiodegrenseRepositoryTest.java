@@ -1,17 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
 

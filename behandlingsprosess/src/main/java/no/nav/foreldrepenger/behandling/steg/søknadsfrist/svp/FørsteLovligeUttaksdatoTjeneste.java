@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -11,9 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.svp.SøknadsperiodeFristTjenesteImpl;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 @ApplicationScoped
 public class FørsteLovligeUttaksdatoTjeneste {

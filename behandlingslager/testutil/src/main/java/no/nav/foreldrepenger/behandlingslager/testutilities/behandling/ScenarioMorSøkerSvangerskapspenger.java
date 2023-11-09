@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
+import java.time.LocalDate;
+import java.time.Month;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-
-import java.time.LocalDate;
-import java.time.Month;
 
 public class ScenarioMorSøkerSvangerskapspenger extends AbstractTestScenario<ScenarioMorSøkerSvangerskapspenger> {
 

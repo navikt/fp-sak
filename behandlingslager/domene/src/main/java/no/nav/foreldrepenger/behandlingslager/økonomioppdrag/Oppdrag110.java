@@ -1,18 +1,34 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.konfig.Environment;
-import org.hibernate.annotations.Immutable;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Immutable;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.konfig.Environment;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.

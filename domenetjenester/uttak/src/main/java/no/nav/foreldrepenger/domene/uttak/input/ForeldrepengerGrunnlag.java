@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.input;
 
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
-
-import java.util.Optional;
 
 public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 

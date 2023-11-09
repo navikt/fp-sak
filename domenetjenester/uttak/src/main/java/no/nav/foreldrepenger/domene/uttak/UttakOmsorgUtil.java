@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import static java.lang.Boolean.TRUE;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.lang.Boolean.TRUE;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 
 public final class UttakOmsorgUtil {
 

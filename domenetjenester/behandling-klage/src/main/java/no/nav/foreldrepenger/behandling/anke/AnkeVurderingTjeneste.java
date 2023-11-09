@@ -1,16 +1,22 @@
 package no.nav.foreldrepenger.behandling.anke;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.event.BehandlingRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehandlingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class AnkeVurderingTjeneste {

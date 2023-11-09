@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager;
 
+import java.util.function.Function;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
@@ -14,9 +16,14 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.*;
-
-import java.util.function.Function;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public final class TraverseEntityGraphFactory {
     private TraverseEntityGraphFactory() {

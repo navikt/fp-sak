@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
+import java.time.LocalDate;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-
-import java.time.LocalDate;
 
 public class VurderRefusjonAndelBeregningsgrunnlagDto {
 

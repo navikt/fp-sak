@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
 
+import java.util.Optional;
+
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
@@ -11,8 +13,6 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet;
-
-import java.util.Optional;
 
 public final class BesteberegningMapper {
 

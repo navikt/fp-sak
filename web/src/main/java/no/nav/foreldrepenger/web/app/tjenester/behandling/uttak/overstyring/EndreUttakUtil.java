@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
+import java.util.List;
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -7,9 +10,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.List;
-import java.util.Objects;
 
 public class EndreUttakUtil {
 

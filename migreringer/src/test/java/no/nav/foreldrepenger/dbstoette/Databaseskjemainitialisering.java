@@ -1,19 +1,22 @@
 package no.nav.foreldrepenger.dbstoette;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import no.nav.foreldrepenger.konfig.Environment;
-import org.eclipse.jetty.plus.jndi.EnvEntry;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
+import static java.lang.Runtime.getRuntime;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.lang.Runtime.getRuntime;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+import org.eclipse.jetty.plus.jndi.EnvEntry;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import no.nav.foreldrepenger.konfig.Environment;
 
 public final class Databaseskjemainitialisering {
 

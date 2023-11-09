@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
+import static no.nav.foreldrepenger.domene.typer.PersonIdent.erGyldigFnr;
+import static no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter.finnLandkode;
+
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -14,11 +20,6 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelderUtenNorskIdent;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.UkjentForelder;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Land;
-
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.domene.typer.PersonIdent.erGyldigFnr;
-import static no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter.finnLandkode;
 
 @ApplicationScoped
 public class AnnenPartOversetter {

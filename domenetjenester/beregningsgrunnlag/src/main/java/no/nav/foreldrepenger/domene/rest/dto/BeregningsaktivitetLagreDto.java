@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetNøkkel;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
-
-import java.time.LocalDate;
 
 public class BeregningsaktivitetLagreDto {
     @NotNull

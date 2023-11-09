@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.kompletthet;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-
 import java.util.Objects;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 
 public class ManglendeVedlegg {
 

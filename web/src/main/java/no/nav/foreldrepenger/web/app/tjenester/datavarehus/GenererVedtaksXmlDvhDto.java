@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.datavarehus;
 
+import java.time.LocalDateTime;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
-
-import java.time.LocalDateTime;
 
 public class GenererVedtaksXmlDvhDto implements AbacDto {
 

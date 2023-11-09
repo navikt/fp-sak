@@ -1,11 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-import java.util.*;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum RelasjonsRolleType implements Kodeverdi {
 

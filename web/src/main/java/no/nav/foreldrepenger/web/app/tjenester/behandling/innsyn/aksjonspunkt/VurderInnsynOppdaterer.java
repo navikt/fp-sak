@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.aksjonspunkt;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -17,10 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.domene.vedtak.innsyn.InnsynTjeneste;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurderInnsynDto.class, adapter = AksjonspunktOppdaterer.class)

@@ -1,6 +1,15 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import jakarta.persistence.NoResultException;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -10,14 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 public abstract class KompletthetssjekkerSøknadImpl implements KompletthetssjekkerSøknad {
 

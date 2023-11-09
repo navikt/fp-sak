@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.domene.fp;
 
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
@@ -7,10 +11,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
 
 class DagpengerGirBesteberegning {
     private static final List<Arbeidskategori> ARBEIDSKATEGORI_DAGPENGER = List.of(Arbeidskategori.DAGPENGER,

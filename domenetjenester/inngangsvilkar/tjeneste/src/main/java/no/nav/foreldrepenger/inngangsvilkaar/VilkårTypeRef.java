@@ -1,10 +1,16 @@
 package no.nav.foreldrepenger.inngangsvilkaar;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import jakarta.enterprise.util.AnnotationLiteral;
 import jakarta.inject.Qualifier;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
-import java.lang.annotation.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
 /**
  * Marker type som implementerer interface {@link Inngangsvilkår}.

@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.math.BigDecimal;
+
 import no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-
-import java.math.BigDecimal;
 
 public class YtelseAnvistAndelBuilder {
     private final YtelseAnvistAndel ytelseAnvistAndel;

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentGruppe implements Kodeverdi {

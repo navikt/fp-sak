@@ -1,16 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 @Embeddable
 public class SamtidigUttaksprosent implements Comparable<SamtidigUttaksprosent> {

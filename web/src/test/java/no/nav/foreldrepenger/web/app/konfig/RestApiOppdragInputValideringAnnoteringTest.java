@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
-import jakarta.validation.Valid;
-import jakarta.ws.rs.core.Context;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.core.Context;
+
+import org.junit.jupiter.api.Test;
 
 public class RestApiOppdragInputValideringAnnoteringTest extends RestApiTester {
 

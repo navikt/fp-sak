@@ -1,11 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-import java.util.*;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum AksjonspunktStatus implements Kodeverdi {
 

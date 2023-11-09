@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -8,9 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-
-import java.util.Objects;
-import java.util.Optional;
 
 
 public class YtelseAnvistAndel extends BaseEntitet implements IndexKey {

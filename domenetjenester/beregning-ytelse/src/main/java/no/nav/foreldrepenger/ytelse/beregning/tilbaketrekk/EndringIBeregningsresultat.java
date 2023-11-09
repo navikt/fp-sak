@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import java.util.Objects;
 
 class EndringIBeregningsresultat {
 

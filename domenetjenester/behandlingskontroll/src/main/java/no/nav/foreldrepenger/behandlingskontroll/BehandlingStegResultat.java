@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-
 import java.util.Map;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 
 /**
  * Signaliserer status på resultat av å kjøre et {@link BehandlingSteg}.

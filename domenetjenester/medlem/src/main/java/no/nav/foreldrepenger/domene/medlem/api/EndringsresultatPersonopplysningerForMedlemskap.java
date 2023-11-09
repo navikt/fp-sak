@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.domene.medlem.api;
 
 
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
  * Endringsresultat i personopplysninger for medlemskap

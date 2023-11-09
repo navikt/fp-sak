@@ -1,10 +1,19 @@
 package no.nav.foreldrepenger.web.server.jetty;
 
+import static org.eclipse.jetty.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import jakarta.security.auth.message.config.AuthConfigFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
+
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -13,7 +22,13 @@ import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.DefaultAuthConfigFactory;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.security.jaspi.provider.JaspiAuthConfigProvider;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ForwardedRequestCustomizer;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -25,14 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.eclipse.jetty.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.sikkerhet.jaspic.OidcAuthModule;
 
 public class JettyServer {
 

@@ -1,15 +1,25 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for mottatte dokument.

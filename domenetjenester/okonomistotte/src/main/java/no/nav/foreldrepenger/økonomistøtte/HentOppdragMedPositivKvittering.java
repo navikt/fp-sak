@@ -1,15 +1,16 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import java.util.Collections;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import java.util.Collections;
-import java.util.List;
 
 @ApplicationScoped
 public class HentOppdragMedPositivKvittering {

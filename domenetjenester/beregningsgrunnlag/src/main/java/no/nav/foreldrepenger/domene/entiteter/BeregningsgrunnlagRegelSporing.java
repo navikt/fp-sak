@@ -1,13 +1,25 @@
 package no.nav.foreldrepenger.domene.entiteter;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
+import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.PERIODISERING;
 
 import java.util.Objects;
 
-import static no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.PERIODISERING;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 
 @Entity(name = "BeregningsgrunnlagRegelSporing")
 @Table(name = "BG_REGEL_SPORING")

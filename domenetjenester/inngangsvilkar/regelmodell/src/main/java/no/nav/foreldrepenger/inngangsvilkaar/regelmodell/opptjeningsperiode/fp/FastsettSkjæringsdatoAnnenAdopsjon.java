@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RuleDocumentation(FastsettSkjæringsdatoAnnenAdopsjon.ID)
 public class FastsettSkjæringsdatoAnnenAdopsjon extends LeafSpecification<OpptjeningsperiodeMellomregning> {

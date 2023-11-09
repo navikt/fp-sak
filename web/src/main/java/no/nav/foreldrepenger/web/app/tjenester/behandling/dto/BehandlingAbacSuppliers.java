@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
+import java.util.function.Function;
+
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-
-import java.util.function.Function;
 
 public class BehandlingAbacSuppliers {
 

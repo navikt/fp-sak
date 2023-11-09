@@ -1,6 +1,35 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
-import no.nav.foreldrepenger.behandling.*;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.BERØRT_BEHANDLING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_FAR;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_MOR;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØDSELSDATO;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK;
+import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -17,7 +46,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.*;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
@@ -33,26 +68,19 @@ import no.nav.foreldrepenger.domene.uttak.RelevanteArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakBeregningsandelTjenesteTestUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil;
-import no.nav.foreldrepenger.domene.uttak.input.*;
+import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
+import no.nav.foreldrepenger.domene.uttak.input.Barn;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.OriginalBehandling;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.*;
-import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 class EndringsdatoRevurderingUtlederImplTest {
 

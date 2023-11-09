@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
+import java.time.ZoneId;
+import java.util.Optional;
+import java.util.UUID;
+
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-
-import java.time.ZoneId;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Merk denne mapper alltid hele aggregat tilbake til nye instanser av IAY

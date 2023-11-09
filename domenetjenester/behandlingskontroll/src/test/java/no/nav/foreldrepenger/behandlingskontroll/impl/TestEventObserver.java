@@ -1,19 +1,24 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
-import no.nav.foreldrepenger.behandlingskontroll.events.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
+import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
+import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 @ApplicationScoped
 public class TestEventObserver {

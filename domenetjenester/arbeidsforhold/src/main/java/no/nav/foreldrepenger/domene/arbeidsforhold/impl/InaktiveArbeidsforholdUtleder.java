@@ -1,18 +1,35 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
+import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
+import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndel;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import java.time.LocalDate;
-import java.util.*;
 
 /**
  * Tjeneste som skal utlede om en arbeidsgiver er inaktiv eller ikke,

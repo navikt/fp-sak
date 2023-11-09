@@ -4,11 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.jms.JMSException;
 import jakarta.jms.JMSRuntimeException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.felles.jms.QueueSelftest;
 import no.nav.foreldrepenger.økonomistøtte.queue.consumer.ØkonomiOppdragKvitteringAsyncJmsConsumer;
 import no.nav.vedtak.log.metrics.LiveAndReadinessAware;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class KvitteringQueueHealthCheck implements LiveAndReadinessAware {

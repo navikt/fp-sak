@@ -1,18 +1,25 @@
 package no.nav.foreldrepenger.inngangsvilkaar.utleder;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.ADOPSJON;
+import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.FØDSEL;
+import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.OMSORG;
+import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.TERMIN;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_MOR;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
+import static no.nav.foreldrepenger.inngangsvilkaar.utleder.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
+import static no.nav.foreldrepenger.inngangsvilkaar.utleder.VilkårUtlederFeil.kunneIkkeUtledeVilkårFor;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.*;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.*;
-import static no.nav.foreldrepenger.inngangsvilkaar.utleder.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
-import static no.nav.foreldrepenger.inngangsvilkaar.utleder.VilkårUtlederFeil.kunneIkkeUtledeVilkårFor;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 /*
  * Denne klassen for å utlede vilkår følger funksjonell flyt som vist i

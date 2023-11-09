@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.mottak.registrerer;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-
 import java.time.LocalDate;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 
 public class ManuellRegistreringAksjonspunktDto {
 
