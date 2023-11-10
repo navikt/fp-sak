@@ -71,7 +71,7 @@ class BeregningsresultatMedUttaksplanMapperTest {
         var dto = beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(BehandlingReferanse.fra(behandling),
                 beregningsresultat, Optional.empty());
 
-        assertThat(dto.getPerioder()).isEmpty();
+        assertThat(dto.perioder()).isEmpty();
     }
 
     @Test
@@ -125,8 +125,8 @@ class BeregningsresultatMedUttaksplanMapperTest {
                 beregningsresultat, Optional.empty());
 
         // Assert
-        var perioder = List.of(uttaksplan.getPerioder());
-        assertThat(uttaksplan.getOpphoersdato()).isNull();
+        var perioder = uttaksplan.perioder();
+        assertThat(uttaksplan.opphoersdato()).isNull();
 
         assertThat(perioder).hasSize(1);
 
