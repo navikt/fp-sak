@@ -1,8 +1,20 @@
 package no.nav.foreldrepenger.domene.vedtak.ekstern;
 
+import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.stream.XMLStreamException;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakRepository;
@@ -10,15 +22,6 @@ import no.nav.foreldrepenger.datavarehus.xml.FatteVedtakXmlTjeneste;
 import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import javax.xml.stream.XMLStreamException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 @ApplicationScoped
 public class RegenererVedtaksXmlTjeneste {

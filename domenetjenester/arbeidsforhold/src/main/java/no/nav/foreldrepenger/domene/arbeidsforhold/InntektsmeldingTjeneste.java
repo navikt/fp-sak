@@ -1,26 +1,43 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold;
 
+import static java.util.Collections.emptyList;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.Ambasade;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
 
 @ApplicationScoped
 public class InntektsmeldingTjeneste {

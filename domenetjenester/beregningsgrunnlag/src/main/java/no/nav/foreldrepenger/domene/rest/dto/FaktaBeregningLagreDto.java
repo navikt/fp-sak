@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
-
-import java.util.List;
 
 public class FaktaBeregningLagreDto {
 

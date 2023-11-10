@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.vedtak;
 
+import static java.lang.Boolean.TRUE;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -16,12 +23,6 @@ import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
-import static java.lang.Boolean.TRUE;
 
 @ApplicationScoped
 public class FatteVedtakTjeneste {

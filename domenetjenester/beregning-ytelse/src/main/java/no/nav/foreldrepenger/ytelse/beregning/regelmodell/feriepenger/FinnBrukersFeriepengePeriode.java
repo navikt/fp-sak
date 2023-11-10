@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Dekningsgrad;
@@ -7,10 +15,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inn
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 import no.nav.vedtak.konfig.Tid;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.*;
 
 class FinnBrukersFeriepengePeriode extends LeafSpecification<BeregningsresultatFeriepengerRegelModell> {
     public static final String ID = "FP_BR 8.3";

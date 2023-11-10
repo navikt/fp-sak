@@ -1,19 +1,24 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 
 @ApplicationScoped
 public class BehandlingRevurderingRepository {

@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.Valid;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.DekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.MedInntektArbeidYtelseRegistrering;

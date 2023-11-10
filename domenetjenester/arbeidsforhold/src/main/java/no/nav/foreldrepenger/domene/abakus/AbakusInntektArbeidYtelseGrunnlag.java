@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.abakus;
 
-import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+
+import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 
 public class AbakusInntektArbeidYtelseGrunnlag extends InntektArbeidYtelseGrunnlag {
 

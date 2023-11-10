@@ -1,8 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak.fakta;
 
+import static java.util.stream.Collectors.toList;
+import static no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder.oppgittHarAnnenForeldreRett;
+
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -10,11 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-import static no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder.oppgittHarAnnenForeldreRett;
 
 @ApplicationScoped
 public class OmsorgRettUttakTjeneste {

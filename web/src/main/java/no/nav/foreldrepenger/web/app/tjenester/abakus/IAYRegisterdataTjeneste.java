@@ -1,7 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.abakus;
 
+import java.util.Objects;
+import java.util.Properties;
+import java.util.UUID;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
@@ -9,12 +17,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
-import java.util.Properties;
-import java.util.UUID;
 
 @SuppressWarnings("unused")
 @Dependent

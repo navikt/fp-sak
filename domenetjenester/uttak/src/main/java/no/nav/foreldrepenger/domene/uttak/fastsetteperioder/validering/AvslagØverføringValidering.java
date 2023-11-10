@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.mapTilYf;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.mapTilYf;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 class AvslagØverføringValidering implements OverstyrUttakPerioderValidering {
 

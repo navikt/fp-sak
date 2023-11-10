@@ -1,16 +1,17 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.exception.TekniskException;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.exception.TekniskException;
 
 class EndringerBareEtterEndringsdatoValideringTest {
 

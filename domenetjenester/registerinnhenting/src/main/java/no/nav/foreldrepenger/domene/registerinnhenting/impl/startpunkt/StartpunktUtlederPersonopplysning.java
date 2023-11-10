@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
@@ -12,10 +17,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDif
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 @ApplicationScoped
 @GrunnlagRef(PersonInformasjonEntitet.ENTITY_NAME)

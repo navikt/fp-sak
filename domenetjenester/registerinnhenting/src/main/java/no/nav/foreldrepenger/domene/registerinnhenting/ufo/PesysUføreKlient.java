@@ -1,13 +1,19 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.ufo;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
-import no.nav.vedtak.felles.integrasjon.rest.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.util.Optional;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 /*
  * Dokumentasjon Tjeneste for å hente informasjon om brukers uførehistorikk

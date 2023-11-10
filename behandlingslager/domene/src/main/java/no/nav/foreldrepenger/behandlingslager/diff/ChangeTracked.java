@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.diff;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * Markerer at et felt i en entitet skal sjekkes for endringer når registerdata blir hentet inn på nytt (PK-41326).

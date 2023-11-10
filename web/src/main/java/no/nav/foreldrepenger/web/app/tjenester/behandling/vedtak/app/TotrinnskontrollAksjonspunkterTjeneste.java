@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -10,8 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurderi
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollSkjermlenkeContextDto;
-
-import java.util.*;
 
 @ApplicationScoped
 public class TotrinnskontrollAksjonspunkterTjeneste {

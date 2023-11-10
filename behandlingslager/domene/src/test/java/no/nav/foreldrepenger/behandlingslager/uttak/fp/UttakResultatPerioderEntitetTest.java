@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 
 class UttakResultatPerioderEntitetTest {
 

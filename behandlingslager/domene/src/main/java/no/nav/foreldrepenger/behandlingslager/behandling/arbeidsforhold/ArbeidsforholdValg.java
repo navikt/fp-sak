@@ -1,14 +1,23 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold;
 
-import jakarta.persistence.*;
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-
-import java.util.Objects;
 
 @Entity(name = "ArbeidsforholdValg")
 @Table(name = "ARBEIDSFORHOLD_VALG")

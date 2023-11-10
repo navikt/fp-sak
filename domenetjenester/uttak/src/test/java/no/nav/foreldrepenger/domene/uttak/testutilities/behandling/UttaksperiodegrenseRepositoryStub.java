@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 
 class UttaksperiodegrenseRepositoryStub extends UttaksperiodegrenseRepository {
 

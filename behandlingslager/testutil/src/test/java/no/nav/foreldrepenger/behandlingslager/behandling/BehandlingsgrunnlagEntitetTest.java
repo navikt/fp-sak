@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -7,8 +17,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -19,15 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 

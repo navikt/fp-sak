@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
-import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningMedlemDto;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
+import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningMedlemDto;
 
 public class MedlemPeriodeDto {
 

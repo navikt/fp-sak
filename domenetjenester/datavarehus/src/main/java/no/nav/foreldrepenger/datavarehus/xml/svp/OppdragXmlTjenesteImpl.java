@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.xml.svp;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -12,8 +15,6 @@ import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.Oppdragslinje;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
-
-import java.util.Objects;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped

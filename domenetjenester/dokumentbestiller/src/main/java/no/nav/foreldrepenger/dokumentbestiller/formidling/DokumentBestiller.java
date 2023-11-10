@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -13,9 +17,6 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @ApplicationScoped
 public class DokumentBestiller {

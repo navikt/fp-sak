@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserFeriepengeår;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOpp150NårEndringGjelderEttFeriepengeår;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårDetErEndringForToFeriepengeår;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -14,9 +12,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 
 public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends NyOppdragskontrollTjenesteTestBase {
 

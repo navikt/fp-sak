@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.produc
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.felles.jms.JmsMessage;
 import no.nav.foreldrepenger.felles.jms.QueueProducer;
 

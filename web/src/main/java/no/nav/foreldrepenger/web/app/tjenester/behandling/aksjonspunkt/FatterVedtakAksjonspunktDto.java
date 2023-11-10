@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.Collection;
+
 import jakarta.validation.Valid;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AksjonspunktGodkjenningDto;
-
-import java.util.Collection;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.FATTER_VEDTAK_KODE)
 public class FatterVedtakAksjonspunktDto extends BekreftetAksjonspunktDto {

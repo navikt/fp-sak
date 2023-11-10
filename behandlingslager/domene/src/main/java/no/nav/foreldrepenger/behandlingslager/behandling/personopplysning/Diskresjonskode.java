@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
-
 import java.util.Objects;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 public enum Diskresjonskode implements Kodeverdi, MedOffisiellKode {
 

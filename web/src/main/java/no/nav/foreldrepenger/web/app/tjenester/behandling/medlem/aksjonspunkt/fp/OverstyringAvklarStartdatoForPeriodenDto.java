@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt.fp;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-
-import java.time.LocalDate;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO_KODE)

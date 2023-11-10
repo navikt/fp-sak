@@ -1,16 +1,20 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.fagsak.*;
-import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 

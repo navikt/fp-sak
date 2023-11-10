@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
-
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 
 final class AktivitetStatusMapper {
 

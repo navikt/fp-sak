@@ -1,13 +1,18 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold;
 
-import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
-import no.nav.foreldrepenger.domene.iay.modell.*;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public interface InntektArbeidYtelseTjeneste {
 

@@ -1,15 +1,7 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.*;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.konfig.Tid;
-import org.junit.jupiter.api.Test;
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,8 +10,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.konfig.Tid;
 
 class ErKunEndringIFordelingAvYtelsenTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT_BEREGNING = LocalDate.now();

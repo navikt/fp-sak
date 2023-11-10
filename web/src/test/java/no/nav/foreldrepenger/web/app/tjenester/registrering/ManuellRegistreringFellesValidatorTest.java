@@ -1,22 +1,23 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
+import static java.time.LocalDate.now;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OmsorgDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.es.ManuellRegistreringEngangsstonadDto;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.time.LocalDate.now;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ManuellRegistreringFellesValidatorTest {
 

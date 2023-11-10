@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.OppdragInput;
-
-import java.util.Optional;
 
 public interface OppdragskontrollTjeneste {
 

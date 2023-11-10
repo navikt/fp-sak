@@ -1,8 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
@@ -13,8 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-
-import java.util.Objects;
 
 /**
  * Provider for å enklere å kunne hente ut ulike behandlingsgrunnlagrepository uten for mange injection points.

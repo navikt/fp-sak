@@ -1,7 +1,20 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
+import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsgiver;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
@@ -16,12 +29,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
-
-import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsgiver;
 
 /**
  * Tjeneste som brukes av beregning for å populere beregningsgrunnlagInput med uttaksdata

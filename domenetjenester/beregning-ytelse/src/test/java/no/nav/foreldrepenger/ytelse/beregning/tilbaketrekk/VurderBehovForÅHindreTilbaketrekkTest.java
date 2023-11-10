@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.*;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import org.junit.jupiter.api.Test;
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,8 +9,15 @@ import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 class VurderBehovForÅHindreTilbaketrekkTest {
 

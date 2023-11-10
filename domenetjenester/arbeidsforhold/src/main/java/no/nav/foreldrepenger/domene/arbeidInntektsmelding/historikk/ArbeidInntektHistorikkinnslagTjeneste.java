@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk;
 
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -20,10 +25,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
 
 @ApplicationScoped
 public class ArbeidInntektHistorikkinnslagTjeneste {

@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.es;
 
+import static java.util.Collections.emptyList;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
+import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
+
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
@@ -12,14 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.YtelserSammeBarnTjeneste;
-
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Collections.emptyList;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
-import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 
 @ApplicationScoped
 class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtleder {

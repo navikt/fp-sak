@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.vedtak.konfig.Tid;
-
-import java.time.LocalDate;
 
 public class MedlemskapPerioderBuilder {
     private MedlemskapPerioderEntitet medlemskapPerioderMal;

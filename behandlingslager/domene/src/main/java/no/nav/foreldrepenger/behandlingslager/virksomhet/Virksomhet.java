@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.virksomhet;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
 
 public class Virksomhet {
 

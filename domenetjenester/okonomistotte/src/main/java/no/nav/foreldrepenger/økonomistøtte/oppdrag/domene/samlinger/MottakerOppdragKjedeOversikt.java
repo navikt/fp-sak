@@ -1,12 +1,17 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger;
 
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.SetUtil;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
+
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.DelytelseId;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Oppdrag;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.SetUtil;
 
 public class MottakerOppdragKjedeOversikt {
 

@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.svangerskapspenger.regler.fastsettperiode.grunnlag.Inngangsvilkår;
-
-import java.util.Objects;
 
 @ApplicationScoped
 public class InngangsvilkårSvpBygger {

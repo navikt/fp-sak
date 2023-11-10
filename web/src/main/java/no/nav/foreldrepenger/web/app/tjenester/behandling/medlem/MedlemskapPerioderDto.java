@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
-
-import java.time.LocalDate;
 
 public class MedlemskapPerioderDto {
     private LocalDate fom;

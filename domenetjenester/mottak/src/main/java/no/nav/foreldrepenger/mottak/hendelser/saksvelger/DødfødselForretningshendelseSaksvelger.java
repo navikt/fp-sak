@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -15,11 +21,6 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.freg.DødfødselForretningshendelse;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelseType.DØDFØDSEL)

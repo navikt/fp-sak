@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 
 class MapAndelerSortertPåNøkkel {
 

@@ -1,19 +1,29 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.FagområdeMapper;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.DelytelseId;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Utbetalingsgrad;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.FagområdeMapper;
 
 class OppdragFactoryTest {
 

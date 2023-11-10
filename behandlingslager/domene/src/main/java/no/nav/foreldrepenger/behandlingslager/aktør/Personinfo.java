@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,7 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 public class Personinfo {
 

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell;
 
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
+
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 
 public class BeregningsresultatFeriepengerPrÅr {
 

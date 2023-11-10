@@ -1,6 +1,13 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+
 import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.KontrollerFaktaBeregningSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -14,11 +21,6 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @CdiDbAwareTest
 class KontrollerFaktaBeregningStegTest {

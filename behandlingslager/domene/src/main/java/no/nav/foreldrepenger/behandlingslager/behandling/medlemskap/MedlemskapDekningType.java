@@ -1,17 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum MedlemskapDekningType implements Kodeverdi {
 

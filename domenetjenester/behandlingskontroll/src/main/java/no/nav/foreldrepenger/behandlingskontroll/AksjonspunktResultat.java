@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.OPPRETTET;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus.OPPRETTET;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
 /**
  * Knytter {@link AksjonspunktDefinisjon} med en callback for å modifisere

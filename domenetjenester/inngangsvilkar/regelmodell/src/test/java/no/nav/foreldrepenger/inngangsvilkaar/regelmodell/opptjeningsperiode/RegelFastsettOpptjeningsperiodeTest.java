@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 
 class RegelFastsettOpptjeningsperiodeTest {
 

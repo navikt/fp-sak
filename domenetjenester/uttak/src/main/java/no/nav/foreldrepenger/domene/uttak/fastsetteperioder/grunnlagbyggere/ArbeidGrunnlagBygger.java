@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -13,11 +19,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIde
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Arbeid;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.EndringAvStilling;
-
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @ApplicationScoped
 public class ArbeidGrunnlagBygger {

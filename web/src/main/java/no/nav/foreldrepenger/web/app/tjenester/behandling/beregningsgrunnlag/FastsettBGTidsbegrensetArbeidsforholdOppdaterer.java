@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -19,8 +22,6 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
-
-import java.util.Optional;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FastsettBGTidsbegrensetArbeidsforholdDto.class, adapter = AksjonspunktOppdaterer.class)

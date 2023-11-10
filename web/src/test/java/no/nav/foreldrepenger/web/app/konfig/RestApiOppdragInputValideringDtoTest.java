@@ -1,36 +1,63 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.QueryParam;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.validering.ValidKodeverk;
-import no.nav.foreldrepenger.web.app.IndexClasses;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.math.BigDecimal;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Stream;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.QueryParam;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.foreldrepenger.web.app.IndexClasses;
 
 class RestApiOppdragInputValideringDtoTest extends RestApiTester {
 

@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-
 import java.time.LocalDate;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 
 public class BekreftOpptjeningPeriodeDto {
     private OpptjeningAktivitetType aktivitetType;

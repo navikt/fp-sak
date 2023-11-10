@@ -1,17 +1,18 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 
 public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjenesteTestBase {
 

@@ -1,5 +1,16 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.OPPTJENING;
+import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UDEFINERT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
@@ -12,16 +23,6 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.OPPTJENING;
-import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UDEFINERT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class StartpunktTjenesteImplTest {
 

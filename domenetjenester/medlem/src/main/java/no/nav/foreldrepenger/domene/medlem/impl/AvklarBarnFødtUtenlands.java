@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
+
+import java.time.LocalDate;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -9,14 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOp
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-
-import java.time.LocalDate;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 
 
 public class AvklarBarnFødtUtenlands {

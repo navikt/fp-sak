@@ -1,14 +1,24 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-import org.hibernate.annotations.BatchSize;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import org.hibernate.annotations.BatchSize;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "SoeknadPerioder")
 @Table(name = "YF_FORDELING")

@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 public final class TidsperiodeFarRundtFødsel {
 

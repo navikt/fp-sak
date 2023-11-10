@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.mottak.dokumentpersisterer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.EndringUtsettelseUttak;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
@@ -10,11 +16,6 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class SøknadUtsettelseUttakDatoTest {
 

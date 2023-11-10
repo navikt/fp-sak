@@ -1,6 +1,17 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
+import static java.util.Collections.singletonList;
+import static no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat.AVKLAR_OM_ER_BOSATT;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.List;
+
 import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
@@ -21,15 +32,6 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static java.util.Collections.singletonList;
-import static no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat.AVKLAR_OM_ER_BOSATT;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @CdiDbAwareTest
 class AvklarOmErBosattTest {

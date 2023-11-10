@@ -1,9 +1,22 @@
 package no.nav.foreldrepenger.web.app.tjenester.kodeverk.app;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
@@ -13,9 +26,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
@@ -44,20 +65,22 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.*;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.*;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagAndeltype;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class HentKodeverkTjeneste {

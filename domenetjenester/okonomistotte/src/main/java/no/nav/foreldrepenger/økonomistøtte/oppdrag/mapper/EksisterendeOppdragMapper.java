@@ -1,5 +1,17 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper;
 
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -8,12 +20,13 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.util.*;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.DelytelseId;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragKjede;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.OppdragLinje;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Periode;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 
 
 public final class EksisterendeOppdragMapper {

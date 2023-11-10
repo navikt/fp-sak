@@ -1,20 +1,22 @@
 package no.nav.foreldrepenger.web.app.tjenester;
 
-import io.prometheus.client.hotspot.DefaultExports;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-import no.nav.vedtak.log.metrics.Controllable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.concurrent.CompletableFuture.runAsync;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static java.util.concurrent.CompletableFuture.runAsync;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.prometheus.client.hotspot.DefaultExports;
+import no.nav.vedtak.log.metrics.Controllable;
 
 @ApplicationScoped
 public class ApplicationServiceStarter {

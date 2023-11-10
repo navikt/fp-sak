@@ -1,5 +1,18 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.abakus.iaygrunnlag.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -9,7 +22,15 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndelBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
@@ -18,14 +39,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.konfig.Tid;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class InaktiveArbeidsforholdUtlederTest {
     private static final LocalDate STP = LocalDate.of(2021,10,1);

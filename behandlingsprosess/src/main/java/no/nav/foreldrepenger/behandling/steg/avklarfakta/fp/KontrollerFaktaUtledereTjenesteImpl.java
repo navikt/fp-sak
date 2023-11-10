@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederHolder;
@@ -15,8 +18,6 @@ import no.nav.foreldrepenger.domene.medlem.kontrollerfakta.AksjonspunktutlederFo
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon.AksjonspunktUtlederForForeldrepengerAdopsjon;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel.AksjonspunktUtlederForForeldrepengerFødsel;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorg.AksjonspunktUtlederForForeldreansvar;
-
-import java.util.List;
 
 @ApplicationScoped
 class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {

@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
@@ -9,10 +15,6 @@ import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.Informasj
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 @ApplicationScoped
 @ProsessTask(value = "vedtak.overlapp.avstem", maxFailedRuns = 1)

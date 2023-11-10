@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -14,10 +19,6 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.SoknadsfristAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.SøknadsfristOppdaterer;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class SøknadsfristVilkårOppdatererTest {
     private HistorikkInnslagTekstBuilder tekstBuilder;

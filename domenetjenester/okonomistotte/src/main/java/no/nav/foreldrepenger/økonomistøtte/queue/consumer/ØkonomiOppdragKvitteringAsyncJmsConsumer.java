@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.consumer;
 
+import javax.xml.stream.XMLStreamException;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.jms.JMSException;
@@ -7,6 +9,9 @@ import jakarta.jms.Message;
 import jakarta.jms.TextMessage;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.UnmarshalException;
+
+import org.xml.sax.SAXException;
+
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.felles.jms.QueueConsumer;
 import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
@@ -19,9 +24,6 @@ import no.nav.foreldrepenger.økonomistøtte.queue.config.DatabasePreconditionCh
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.metrics.Controllable;
-import org.xml.sax.SAXException;
-
-import javax.xml.stream.XMLStreamException;
 
 @ApplicationScoped
 public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer implements Controllable {

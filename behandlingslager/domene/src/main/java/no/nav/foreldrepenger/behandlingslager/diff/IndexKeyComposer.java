@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.diff;
 
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
  * Hjelpemetoder for å raskere sette sammen en IndexKey fra flere deler.

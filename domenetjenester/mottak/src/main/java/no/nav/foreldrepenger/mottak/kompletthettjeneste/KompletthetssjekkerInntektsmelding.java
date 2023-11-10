@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
-
-import java.util.List;
 
 @ApplicationScoped
 public class KompletthetssjekkerInntektsmelding {

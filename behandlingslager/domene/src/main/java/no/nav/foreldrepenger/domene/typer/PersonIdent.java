@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.domene.typer;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 
 /**
  * Denne mapper p.t Norsk person ident (fødselsnummer, inkl F-nr, D-nr eller FDAT)

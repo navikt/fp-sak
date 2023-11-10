@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import jakarta.persistence.Embeddable;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import jakarta.persistence.Embeddable;
+
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @Embeddable
 public class BekreftetPermisjon {

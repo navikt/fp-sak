@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -11,8 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class TilbakekrevingvalgHistorikkinnslagBygger {

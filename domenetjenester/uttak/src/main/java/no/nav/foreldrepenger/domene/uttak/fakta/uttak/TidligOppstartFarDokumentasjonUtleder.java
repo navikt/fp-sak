@@ -1,5 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak.fakta.uttak;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
+import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.UtsettelseDokumentasjonUtleder.søktPeriodeInnenforTidsperiodeForbeholdtMor;
+
+import java.util.Objects;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -8,13 +15,6 @@ import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-
-import java.util.Objects;
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
-import static no.nav.foreldrepenger.domene.uttak.fakta.uttak.UtsettelseDokumentasjonUtleder.søktPeriodeInnenforTidsperiodeForbeholdtMor;
 
 final class TidligOppstartFarDokumentasjonUtleder {
 

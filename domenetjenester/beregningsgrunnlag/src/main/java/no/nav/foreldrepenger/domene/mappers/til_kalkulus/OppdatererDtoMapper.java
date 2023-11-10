@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
+import java.util.Collections;
+import java.util.List;
+
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.ArbeidstakerandelUtenIMMottarYtelseDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.BesteberegningFødendeKvinneAndelDto;
 import no.nav.folketrygdloven.kalkulator.avklaringsbehov.dto.BesteberegningFødendeKvinneDto;
@@ -32,6 +35,7 @@ import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsm
 import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsmeldingDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.MottarYtelseDto;
+import no.nav.foreldrepenger.domene.rest.dto.RedigerbarAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderATogFLiSammeOrganisasjonAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderATogFLiSammeOrganisasjonDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderEtterlønnSluttpakkeDto;
@@ -41,11 +45,11 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonAndelBeregningsgrunnl
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderTidsbegrensetArbeidsforholdDto;
-import no.nav.foreldrepenger.domene.rest.dto.*;
-import no.nav.foreldrepenger.domene.rest.dto.fordeling.*;
-
-import java.util.Collections;
-import java.util.List;
+import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
+import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
+import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto;
+import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelRedigerbarAndelDto;
 
 public class OppdatererDtoMapper {
 

@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
-import no.nav.foreldrepenger.behandling.Søknadsfristdatoer;
-
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandling.Søknadsfristdatoer;
 
 public interface SøknadsperiodeFristTjeneste {
 

@@ -1,5 +1,16 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -7,21 +18,16 @@ import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.input.*;
+import no.nav.foreldrepenger.domene.uttak.input.Barn;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Datoer;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class DatoerGrunnlagByggerTest {
 

@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Month;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
@@ -12,13 +20,6 @@ import no.nav.svangerskapspenger.domene.felles.AktivitetType;
 import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperiode;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperioder;
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.Month;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class UttaksresultatMapperTest {
 

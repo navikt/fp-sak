@@ -1,7 +1,13 @@
 package no.nav.foreldrepenger.skjæringstidspunkt.svp;
 
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,11 +30,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
-
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped

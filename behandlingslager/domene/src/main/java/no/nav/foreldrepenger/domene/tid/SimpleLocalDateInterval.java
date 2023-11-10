@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.tid;
 
-import no.nav.vedtak.konfig.Tid;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import no.nav.vedtak.konfig.Tid;
 
 public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
 

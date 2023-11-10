@@ -1,10 +1,27 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-import java.util.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 @Entity(name = "Beregningsresultat")
 @Table(name = "BR_BEREGNINGSRESULTAT")

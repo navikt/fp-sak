@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 
 public class FinnKorresponderendeBeregningsresultatAndel {
     private FinnKorresponderendeBeregningsresultatAndel() {

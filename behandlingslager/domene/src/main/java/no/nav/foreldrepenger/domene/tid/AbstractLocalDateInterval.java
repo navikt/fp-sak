@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.domene.tid;
 
-import no.nav.vedtak.konfig.Tid;
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -10,9 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static java.time.DayOfWeek.SATURDAY;
-import static java.time.DayOfWeek.SUNDAY;
-import static java.time.temporal.ChronoUnit.DAYS;
+import no.nav.vedtak.konfig.Tid;
 
 /**
  * Basis klasse for modellere et dato interval.

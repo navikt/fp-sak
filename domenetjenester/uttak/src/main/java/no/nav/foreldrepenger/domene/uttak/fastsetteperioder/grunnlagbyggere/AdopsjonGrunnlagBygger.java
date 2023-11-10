@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Adopsjon;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class AdopsjonGrunnlagBygger {

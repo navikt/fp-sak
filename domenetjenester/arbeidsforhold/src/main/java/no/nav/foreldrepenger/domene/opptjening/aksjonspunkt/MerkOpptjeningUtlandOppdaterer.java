@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -11,8 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
 import no.nav.foreldrepenger.domene.opptjening.dto.MerkOpptjeningUtlandDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-
-import java.util.Objects;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = MerkOpptjeningUtlandDto.class, adapter = AksjonspunktOppdaterer.class)

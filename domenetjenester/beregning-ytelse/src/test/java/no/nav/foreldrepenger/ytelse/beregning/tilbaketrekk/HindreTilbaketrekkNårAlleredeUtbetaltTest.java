@@ -1,14 +1,6 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.*;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,7 +8,20 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 

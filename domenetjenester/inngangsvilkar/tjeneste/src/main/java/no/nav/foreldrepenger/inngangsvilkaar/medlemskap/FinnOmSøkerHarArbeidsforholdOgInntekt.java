@@ -1,14 +1,18 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.*;
-import no.nav.foreldrepenger.domene.typer.AktørId;
+import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 class FinnOmSøkerHarArbeidsforholdOgInntekt {
 

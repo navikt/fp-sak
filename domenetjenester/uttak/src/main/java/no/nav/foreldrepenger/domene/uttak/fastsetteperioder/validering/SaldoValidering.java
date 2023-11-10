@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
+import java.math.RoundingMode;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.RoundingMode;
-import java.util.List;
 
 public class SaldoValidering implements OverstyrUttakPerioderValidering {
 

@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
@@ -10,10 +15,6 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
 import no.nav.svangerskapspenger.domene.søknad.Opphold;
 import no.nav.svangerskapspenger.tjeneste.fastsettuttak.FastsettPerioderTjeneste;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class FastsettUttaksresultatTjeneste {

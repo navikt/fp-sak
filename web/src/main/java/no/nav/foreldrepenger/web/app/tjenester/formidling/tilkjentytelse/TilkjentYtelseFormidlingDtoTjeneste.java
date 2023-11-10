@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -8,10 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseEngangsstønadDto;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class TilkjentYtelseFormidlingDtoTjeneste {
 

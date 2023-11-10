@@ -1,15 +1,16 @@
 package no.nav.foreldrepenger.web.app.rest;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
+
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.constraints.NotNull;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Objects;
 
 /**
  * Representerer en link til en resource/action i en HATEOAS response.

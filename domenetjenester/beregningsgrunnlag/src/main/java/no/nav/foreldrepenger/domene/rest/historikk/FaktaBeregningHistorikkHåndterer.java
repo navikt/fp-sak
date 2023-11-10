@@ -1,9 +1,13 @@
 package no.nav.foreldrepenger.domene.rest.historikk;
 
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -23,9 +27,6 @@ import no.nav.foreldrepenger.domene.rest.historikk.overstyring.FaktaOmBeregningO
 import no.nav.foreldrepenger.domene.rest.historikk.tilfeller.FaktaOmBeregningHistorikkTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class FaktaBeregningHistorikkHåndterer {

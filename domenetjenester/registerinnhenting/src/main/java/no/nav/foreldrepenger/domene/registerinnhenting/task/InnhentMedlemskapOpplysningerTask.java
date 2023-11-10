@@ -2,6 +2,10 @@ package no.nav.foreldrepenger.domene.registerinnhenting.task;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -11,8 +15,6 @@ import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter
 import no.nav.foreldrepenger.domene.registerinnhenting.ufo.UføreInnhenter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 @ProsessTask("innhentsaksopplysninger.medlemskap")

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import static java.time.temporal.TemporalAdjusters.next;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
-
-import static java.time.temporal.TemporalAdjusters.next;
 
 public final class PerioderUtenHelgUtil {
 

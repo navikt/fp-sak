@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.domene.prosess;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
-import java.util.Optional;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 
 @ApplicationScoped
 public class BeregningTjeneste {

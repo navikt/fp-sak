@@ -1,18 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.QueryParam;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
+import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato.DATO_PATTERN;
-import static no.nav.vedtak.util.InputValideringRegex.FRITEKST;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.QueryParam;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 public class AvstemmingPeriodeDto implements AbacDto {
 

@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.rest;
 
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelserDto;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelserDto;
 
 class TilgrensendeYtelserDtoTest {
     private static final LocalDate I_DAG = LocalDate.now();

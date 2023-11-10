@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.vedtak.util.InputValideringRegex;
 

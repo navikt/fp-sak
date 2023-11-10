@@ -1,6 +1,12 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
@@ -12,12 +18,11 @@ import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.svangerskapspenger.domene.felles.AktivitetType;
 import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
-import no.nav.svangerskapspenger.domene.søknad.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import no.nav.svangerskapspenger.domene.søknad.DelvisTilrettelegging;
+import no.nav.svangerskapspenger.domene.søknad.FullTilrettelegging;
+import no.nav.svangerskapspenger.domene.søknad.IngenTilrettelegging;
+import no.nav.svangerskapspenger.domene.søknad.Søknad;
+import no.nav.svangerskapspenger.domene.søknad.Tilrettelegging;
 
 @ApplicationScoped
 public class RegelmodellSøknaderMapper {

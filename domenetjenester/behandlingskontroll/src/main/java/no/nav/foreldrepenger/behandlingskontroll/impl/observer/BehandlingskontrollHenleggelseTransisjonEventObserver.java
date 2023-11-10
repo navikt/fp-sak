@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingskontroll.impl.observer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;

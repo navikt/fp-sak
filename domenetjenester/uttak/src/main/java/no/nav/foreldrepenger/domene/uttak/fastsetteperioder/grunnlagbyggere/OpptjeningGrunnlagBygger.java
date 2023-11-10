@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import jakarta.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Opptjening;
 

@@ -1,5 +1,17 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -8,17 +20,6 @@ import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikogruppeDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class RisikovurderingTjenesteTest {
 

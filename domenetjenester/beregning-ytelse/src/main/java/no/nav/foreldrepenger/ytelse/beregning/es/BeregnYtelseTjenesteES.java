@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning.es;
 
+import java.time.LocalDateTime;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
-
-import java.time.LocalDateTime;
 
 @ApplicationScoped
 public class BeregnYtelseTjenesteES {

@@ -1,14 +1,25 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Representerer et grunnlag av medlemskap opplysninger brukt i en Behandling. De ulike aggregatene (fra register, fra

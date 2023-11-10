@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.felles;
 
+import java.util.List;
+
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -13,8 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
-
-import java.util.List;
 
 public abstract class FastsettOpptjeningsperiodeStegFelles extends InngangsvilkårStegImpl {
 

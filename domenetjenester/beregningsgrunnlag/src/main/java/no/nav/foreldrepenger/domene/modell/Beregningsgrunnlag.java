@@ -1,12 +1,17 @@
 package no.nav.foreldrepenger.domene.modell;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
 
 public class Beregningsgrunnlag {
 

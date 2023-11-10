@@ -1,10 +1,15 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 public class SakInntektsmeldinger {
 

@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.behandling.steg.beregnytelse;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.ytelse.beregning.Virkedager;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.konfig.Tid;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
 
 public class Etterbetalingtjeneste {
     private static final int UTBETALINGS_DATO = 18;

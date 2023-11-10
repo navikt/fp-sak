@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.tid;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-
-import java.time.LocalDate;
 
 /**
  * Hibernate entitet som modellerer et dato intervall med nullable til og med dato.

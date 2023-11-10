@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 
 public class PersonopplysningMedlemDto extends PersonIdentDto {
 

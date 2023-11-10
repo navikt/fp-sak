@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.modell;
 
+import java.math.BigDecimal;
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import java.math.BigDecimal;
-import java.util.Objects;
 
 public class BesteberegningInntekt {
 

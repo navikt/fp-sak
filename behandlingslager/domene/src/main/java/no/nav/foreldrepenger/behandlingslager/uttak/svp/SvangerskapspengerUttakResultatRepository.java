@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 
 @ApplicationScoped
 public class SvangerskapspengerUttakResultatRepository {

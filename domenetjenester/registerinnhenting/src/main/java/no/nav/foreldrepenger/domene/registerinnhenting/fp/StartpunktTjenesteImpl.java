@@ -1,9 +1,17 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.fp;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
@@ -15,12 +23,6 @@ import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)

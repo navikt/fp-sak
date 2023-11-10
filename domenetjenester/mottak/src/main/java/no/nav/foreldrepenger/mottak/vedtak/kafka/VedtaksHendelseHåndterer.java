@@ -1,9 +1,23 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
+import static java.util.stream.Collectors.toList;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
@@ -31,18 +45,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import static java.util.stream.Collectors.toList;
 
 @ApplicationScoped
 @ActivateRequestContext

@@ -1,23 +1,35 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.felles.prosesstask.api.*;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
+
 import org.hibernate.jpa.HibernateHints;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskEvent;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 
 /** Repository for å håndtere kobling mellom Fagsak (og Behandling) mot Prosess Tasks. */
 @ApplicationScoped

@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.task;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Brukes når det skal opprettes nye behandlinger eller fagsaken skal endres

@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
-
 import java.util.Optional;
+
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class VergeAggregat {
 

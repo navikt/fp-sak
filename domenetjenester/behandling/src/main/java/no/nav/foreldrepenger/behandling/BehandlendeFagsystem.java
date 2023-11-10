@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.behandling;
 
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
 import java.util.Optional;
+
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public record BehandlendeFagsystem(BehandlendeSystem behandlendeSystem, Saksnummer saksnummer) {
 

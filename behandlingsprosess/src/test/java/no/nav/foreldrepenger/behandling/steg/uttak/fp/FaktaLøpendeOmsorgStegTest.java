@@ -1,6 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.Collections;
+
 import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -17,12 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @CdiDbAwareTest
 class FaktaLøpendeOmsorgStegTest {

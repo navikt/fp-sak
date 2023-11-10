@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
-import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
+import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
 public record AdopsjonsvilkårGrunnlag (List<BekreftetAdopsjonBarn> bekreftetAdopsjonBarn,

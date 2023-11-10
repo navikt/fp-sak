@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 
-import java.math.BigDecimal;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
 
 
 public class FastsatteVerdierDto {

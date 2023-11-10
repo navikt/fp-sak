@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 
 public class BesteberegningFødendeKvinneAndelDto {

@@ -1,9 +1,18 @@
 package no.nav.foreldrepenger.behandling.steg.beregnytelse.es;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseSteg;
-import no.nav.foreldrepenger.behandlingskontroll.*;
+import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -16,9 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /** Steg for å beregne tilkjent ytelse (for Engangsstønad). */
 @BehandlingStegRef(BehandlingStegType.BEREGN_YTELSE)

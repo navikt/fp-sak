@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import jakarta.enterprise.context.ApplicationScoped;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
 /**
  * Demonstrerer lookup med repeatble annotations.
