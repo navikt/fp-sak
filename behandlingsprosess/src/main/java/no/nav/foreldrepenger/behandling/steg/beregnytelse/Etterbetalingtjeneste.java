@@ -14,7 +14,7 @@ import no.nav.vedtak.konfig.Tid;
 
 public class Etterbetalingtjeneste {
     private static final int UTBETALINGS_DATO = 18;
-    private static final int MAX_TILLATT_ETTERBETALING = 177930;
+    private static final int MAX_TILLATT_ETTERBETALING = 60_000;
 
     private Etterbetalingtjeneste() {
         // Skjuler default konstruktør
@@ -32,11 +32,14 @@ public class Etterbetalingtjeneste {
      */
     public static EtterbetalingskontrollResultat finnSumSomVilBliEtterbetalt(LocalDate dagensDato, BeregningsresultatEntitet forrigeRes, BeregningsresultatEntitet nyttBeregningsresultat) {
         var sisteDagSomErUtbetalt = finnSisteUtbetalteDato(dagensDato);
+
         var originalUtbetaltTidslinje = lagUtbetaltTidslinje(sisteDagSomErUtbetalt, forrigeRes);
         var nyUtbetaltTidslinje = lagUtbetaltTidslinje(sisteDagSomErUtbetalt, nyttBeregningsresultat);
 
+        var overlappendeNyTidslinje = nyUtbetaltTidslinje.intersection(originalUtbetaltTidslinje);
+
         var originalUtbetaling = BigDecimal.valueOf(summerDagsats(originalUtbetaltTidslinje));
-        var nyUtbetaling = BigDecimal.valueOf(summerDagsats(nyUtbetaltTidslinje));
+        var nyUtbetaling = BigDecimal.valueOf(summerDagsats(overlappendeNyTidslinje));
         var etterbetalingssum = nyUtbetaling.subtract(originalUtbetaling).max(BigDecimal.ZERO);
         return new EtterbetalingskontrollResultat(etterbetalingssum, etterbetalingssum.compareTo(BigDecimal.valueOf(MAX_TILLATT_ETTERBETALING)) > 0);
     }

@@ -1,13 +1,18 @@
 package no.nav.foreldrepenger.behandling.steg.simulering;
 
-import static java.util.Collections.singletonList;
-
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandling.steg.beregnytelse.EtterbetalingskontrollResultat;
+import no.nav.foreldrepenger.behandling.steg.beregnytelse.Etterbetalingtjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +57,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private TilbakekrevingRepository tilbakekrevingRepository;
     private FpOppdragRestKlient fpOppdragRestKlient;
     private FptilbakeRestKlient fptilbakeRestKlient;
+    private BeregningsresultatRepository beregningsresultatRepository;
 
     SimulerOppdragSteg() {
         // for CDI proxy
@@ -64,7 +70,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
                               SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
                               TilbakekrevingRepository tilbakekrevingRepository,
                               FpOppdragRestKlient fpOppdragRestKlient,
-                              FptilbakeRestKlient fptilbakeRestKlient) {
+                              FptilbakeRestKlient fptilbakeRestKlient,
+                              BeregningsresultatRepository beregningsresultatRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.simulerOppdragTjeneste = simulerOppdragTjeneste;
@@ -72,6 +79,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.fpOppdragRestKlient = fpOppdragRestKlient;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
+        this.beregningsresultatRepository = beregningsresultatRepository;
     }
 
     @Override
@@ -95,7 +103,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+                                   BehandlingStegType fraSteg) {
         if (!BehandlingStegType.SIMULER_OPPDRAG.equals(tilSteg)) {
             var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
             fpOppdragRestKlient.kansellerSimulering(kontekst.getBehandlingId());
@@ -112,31 +120,44 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private void opprettFortsettBehandlingTask(Behandling behandling) {
         var nesteKjøringEtter = utledNesteKjøring();
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingResumeStegNesteKjøring(behandling,
-                BehandlingStegType.SIMULER_OPPDRAG, nesteKjøringEtter);
+            BehandlingStegType.SIMULER_OPPDRAG, nesteKjøringEtter);
     }
 
     private BehandleStegResultat utledAksjonspunkt(Behandling behandling) {
+        var aksjonspunkter = new ArrayList<AksjonspunktDefinisjon>();
+
+        var etterbetalingskontrollResultat = harStorEtterbetalingTilSøker(behandling);
+        if (etterbetalingskontrollResultat.map(EtterbetalingskontrollResultat::overstigerGrense).orElse(false)) {
+            // TODO legg inn denne etter at frontend er klar
+            // TODO Sjekk om det er mulig å både få VURDER_FEILUTBETALING og KONTROLLER_STOR_ETTERBETALING_SØKER samtidig
+            // aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER);
+            LOG.info("Høy etterbetaling på kr {} til bruker på sak {}", etterbetalingskontrollResultat.get().etterbetalingssum(),
+                behandling.getFagsak().getSaksnummer());
+        }
+
         var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
         if (simuleringResultatDto.isPresent()) {
             var resultatDto = simuleringResultatDto.get();
-
             lagreBrukInntrekk(behandling, resultatDto);
-
             // vi sender TILBAKEKREVING_OPPDATER når det finnes et simulering resultat
             if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) {
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medOppdaterTilbakekrevingsbehandling());
-                return BehandleStegResultat.utførtUtenAksjonspunkter();
-            }
-
-            if (SimuleringIntegrasjonTjeneste.harFeilutbetaling(resultatDto)) {
-                return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(AksjonspunktDefinisjon.VURDER_FEILUTBETALING));
-            }
-            if (resultatDto.sumInntrekk() != null && resultatDto.sumInntrekk() != 0) {
+            } else if (SimuleringIntegrasjonTjeneste.harFeilutbetaling(resultatDto)) {
+                aksjonspunkter.add(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
+            } else if (resultatDto.sumInntrekk() != null && resultatDto.sumInntrekk() != 0) {
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medAutomatiskInntrekk());
-                return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
         }
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
+        return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunkter);
+    }
+
+    private Optional<EtterbetalingskontrollResultat> harStorEtterbetalingTilSøker(Behandling behandling) {
+        var utbetResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
+        // Ingen utbetaling i denne behandlingen, vil ikke bli etterbetaling
+        return utbetResultat.flatMap(beregningsresultatEntitet -> behandling.getOriginalBehandlingId()
+            .flatMap(orgId -> beregningsresultatRepository.hentUtbetBeregningsresultat(orgId)
+                .map(forrigeRes -> Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet))));
+
     }
 
     private void lagreBrukInntrekk(Behandling behandling, SimuleringResultatDto resultatDto) {

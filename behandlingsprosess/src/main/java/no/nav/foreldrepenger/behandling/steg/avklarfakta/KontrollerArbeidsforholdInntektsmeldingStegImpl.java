@@ -32,13 +32,11 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef
 @ApplicationScoped
 class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbeidsforholdInntektsmeldingSteg {
-    private static final Logger LOG = LoggerFactory.getLogger(KontrollerArbeidsforholdInntektsmeldingStegImpl.class);
 
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     KontrollerArbeidsforholdInntektsmeldingStegImpl() {
         // for CDI proxy
@@ -48,42 +46,17 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
     KontrollerArbeidsforholdInntektsmeldingStegImpl(BehandlingRepository behandlingRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                     AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder,
-                                                    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
-                                                    InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                                    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.utleder = utleder;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
-        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-
-        try {
-            var originalBehandlingId = behandling.getOriginalBehandlingId();
-            if (originalBehandlingId.isPresent()) {
-                var nyeInntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
-                    .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-                    .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-                    .orElse(Collections.emptyList());
-                var gamleInntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(originalBehandlingId.get())
-                    .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-                    .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-                    .orElse(Collections.emptyList());
-                var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
-                var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
-                var alleEndringerIRefusjon = LoggRefusjonsavvikTjeneste.finnAvvik(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
-                var alleEndringerIopphørtRefusjon = LoggRefusjonsavvikTjeneste.finnEndringIOpphørsdato(saksnummer, stp, nyeInntektsmeldinger, gamleInntektsmeldinger);
-                alleEndringerIRefusjon.forEach(endring -> LOG.info("Fant avvik i refusjon: {}", endring));
-                alleEndringerIopphørtRefusjon.forEach( endringOpphør -> LOG.info("Fant endring i opphørsdato: {}", endringOpphør));
-
-            }
-        } catch (Exception e) {
-            LOG.info("Feil i logging av refusjonsdiff: ", e);
-        }
 
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);

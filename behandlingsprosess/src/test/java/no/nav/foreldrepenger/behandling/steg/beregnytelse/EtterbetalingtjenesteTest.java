@@ -32,6 +32,41 @@ class EtterbetalingtjenesteTest {
     }
 
     @Test
+    void skal_kun_sjekke_etterbetaling_i_overlappende_perioder_finnes_ikke_etterbetaling() {
+        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,31), 500, true);
+
+        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,5,31), 500, true);
+
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
+        assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
+        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    void skal_kun_sjekke_etterbetaling_i_overlappende_perioder_finnes_etterbetaling() {
+        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,31), 500, true);
+
+        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,5,31), 1500, true);
+
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
+        assertThat(etterbetalingsKontroll.overstigerGrense()).isTrue();
+        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(65000));
+    }
+
+    @Test
+    void skal_kun_sjekke_etterbetaling_i_overlappende_perioder_finnes_etterbetaling_hull_i_original() {
+        lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,31), 500, true);
+        lagOriginalPeriode(LocalDate.of(2023,8,1), LocalDate.of(2023,9,30), 500, true);
+
+        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,9,30), 1050, true);
+
+        // 109 virkedager * 550 økt dagsats
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat);
+        assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
+        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(59950));
+    }
+
+    @Test
     void skal_kun_telle_direkteutbetaling() {
         lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
         lagOriginalPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 200, false);
