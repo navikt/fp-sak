@@ -2,13 +2,10 @@ package no.nav.foreldrepenger.web.app.tjenester.infotrygd;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
-public record InfotrygdVedtakDto(Map<LocalDate, VedtakKjede> vedtakKjedeForIdentdato, List<VedtakKjedeV2> vedtakKjeder) {
+public record InfotrygdVedtakDto(List<VedtakKjede> vedtakKjeder) {
 
-    public record VedtakKjede(LocalDate opprinneligIdentdato, List<Vedtak> vedtak) {}
-
-    public record VedtakKjedeV2(LocalDate opprinneligIdentdato, InfotrygdKode behandlingstema, List<Vedtak> vedtak) {}
+    public record VedtakKjede(LocalDate opprinneligIdentdato, InfotrygdKode behandlingstema, List<Vedtak> vedtak) {}
 
     public record Vedtak(InfotrygdKode behandlingstema,
                          LocalDate identdato, // IS10: ArbUfør
