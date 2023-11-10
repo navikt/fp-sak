@@ -57,7 +57,7 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
         var arbeidsgiverIdent = andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null);
         var referanse = andel.getArbeidsforholdRef().getReferanse();
         return new TilkjentYtelseDagytelseDto.TilkjentYtelseAndelDto(arbeidsgiverIdent, refusjon, tilSøker,
-            mapAktivitetstatus(andel.getAktivitetStatus()), referanse, andel.getStillingsprosent());
+            mapAktivitetstatus(andel.getAktivitetStatus()), referanse, andel.getStillingsprosent(), andel.getUtbetalingsgrad());
     }
 
     private static TilkjentYtelseDagytelseDto.Aktivitetstatus mapAktivitetstatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus aktivitetStatus) {

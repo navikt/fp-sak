@@ -34,7 +34,7 @@ public class OppdragsKontrollDtoMapper {
     }
 
     public static OppdragskontrollDto tilDto(@NotNull Oppdragskontroll oppdragskontroll) {
-        return new OppdragskontrollDto(oppdragskontroll.getBehandlingId(), tilOppdragListe(oppdragskontroll.getOppdrag110Liste()));
+        return new OppdragskontrollDto(oppdragskontroll.getBehandlingId().toString(), tilOppdragListe(oppdragskontroll.getOppdrag110Liste()));
     }
 
     private static List<Oppdrag110Dto> tilOppdragListe(List<Oppdrag110> oppdrag110Liste) {
@@ -47,7 +47,7 @@ public class OppdragsKontrollDtoMapper {
         return new Oppdrag110Dto(
             KodeEndring.valueOf(oppdrag110s.getKodeEndring().name()),
             KodeFagområde.valueOf(oppdrag110s.getKodeFagomrade().name()),
-            oppdrag110s.getFagsystemId(),
+            String.valueOf(oppdrag110s.getFagsystemId()),
             oppdrag110s.getOppdragGjelderId(),
             oppdrag110s.getSaksbehId(),
             tilOmpostering116Dto(oppdrag110s.getOmpostering116()),
@@ -65,7 +65,7 @@ public class OppdragsKontrollDtoMapper {
         return new Oppdragslinje150Dto(
             KodeEndringLinje.valueOf(oppdragslinje150.getKodeEndringLinje().name()),
             oppdragslinje150.getVedtakId(),
-            oppdragslinje150.getDelytelseId(),
+            oppdragslinje150.getDelytelseId().toString(),
             KodeKlassifik.valueOf(oppdragslinje150.getKodeKlassifik().name()),
             new LukketPeriode(oppdragslinje150.getDatoVedtakFom(), oppdragslinje150.getDatoVedtakTom()),
             tilSatsDto(oppdragslinje150.getSats()),
@@ -74,8 +74,8 @@ public class OppdragsKontrollDtoMapper {
             oppdragslinje150.getKodeStatusLinje() != null ? KodeStatusLinje.valueOf(oppdragslinje150.getKodeStatusLinje().name()) : null,
             oppdragslinje150.getDatoStatusFom(),
             oppdragslinje150.getUtbetalesTilId(),
-            oppdragslinje150.getRefDelytelseId(),
-            oppdragslinje150.getRefFagsystemId(),
+            oppdragslinje150.getRefDelytelseId() != null ? oppdragslinje150.getRefDelytelseId().toString() : null,
+            oppdragslinje150.getRefFagsystemId() != null ? oppdragslinje150.getRefFagsystemId().toString() : null,
             tilRefusjonsinfo156Dto(oppdragslinje150.getRefusjonsinfo156())
         );
     }
