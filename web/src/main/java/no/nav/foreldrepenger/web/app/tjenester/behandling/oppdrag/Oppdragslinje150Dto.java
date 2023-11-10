@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-
-import java.time.LocalDate;
 
 public class Oppdragslinje150Dto extends SporingDto {
 

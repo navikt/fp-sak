@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /**
  * Midlertidig konfiginjecter for kalkulus

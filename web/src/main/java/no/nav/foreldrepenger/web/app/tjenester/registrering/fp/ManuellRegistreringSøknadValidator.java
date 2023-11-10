@@ -1,18 +1,27 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 
+import static java.util.Objects.isNull;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.MANGLER_MORS_AKTIVITET;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.*;
-
-import java.util.*;
-import java.util.stream.Stream;
-
-import static java.util.Objects.isNull;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.MANGLER_MORS_AKTIVITET;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.DekningsgradDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
 
 public class ManuellRegistreringSøknadValidator {
 

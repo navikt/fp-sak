@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-
-import java.util.List;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_PERIODER_MED_OPPTJENING_KODE)
 public class AvklarAktivitetsPerioderDto extends BekreftetAksjonspunktDto {

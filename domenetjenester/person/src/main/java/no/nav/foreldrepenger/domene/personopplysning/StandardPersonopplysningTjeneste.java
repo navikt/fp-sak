@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.personopplysning;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 public interface StandardPersonopplysningTjeneste {
 

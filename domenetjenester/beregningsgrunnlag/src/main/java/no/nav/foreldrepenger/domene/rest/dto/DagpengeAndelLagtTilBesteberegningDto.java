@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.rest.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 
 public class DagpengeAndelLagtTilBesteberegningDto {

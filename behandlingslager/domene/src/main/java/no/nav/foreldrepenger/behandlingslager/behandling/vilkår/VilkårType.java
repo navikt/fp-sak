@@ -1,12 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
-import java.util.*;
 
 public enum VilkårType implements Kodeverdi {
 

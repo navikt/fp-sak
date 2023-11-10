@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt;
 
-import jakarta.validation.constraints.NotNull;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
-import no.nav.foreldrepenger.validering.ValidKodeverk;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.validation.constraints.NotNull;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class BekreftedePerioderDto {
 

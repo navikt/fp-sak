@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-
-import java.util.List;
 
 /**
  * Modell for testing som lar oss endre på referansedata uten å eksponere vanlig

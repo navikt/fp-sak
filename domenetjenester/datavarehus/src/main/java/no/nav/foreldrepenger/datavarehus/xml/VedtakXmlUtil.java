@@ -1,16 +1,26 @@
 package no.nav.foreldrepenger.datavarehus.xml;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.xmlutils.DateUtil;
-import no.nav.vedtak.felles.xml.felles.v2.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.xmlutils.DateUtil;
+import no.nav.vedtak.felles.xml.felles.v2.BooleanOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.DateOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.DecimalOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.DoubleOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.FloatOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.IntOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.LongOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.ObjectFactory;
+import no.nav.vedtak.felles.xml.felles.v2.PeriodeOpplysning;
+import no.nav.vedtak.felles.xml.felles.v2.StringOpplysning;
 
 public class VedtakXmlUtil {
     private static ObjectFactory fellesObjectFactory = new ObjectFactory();

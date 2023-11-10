@@ -1,11 +1,6 @@
 package no.nav.foreldrepenger.batch.task;
 
-import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
-import no.nav.foreldrepenger.batch.BatchTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -14,7 +9,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
+import no.nav.foreldrepenger.batch.BatchTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 
 class BatchSchedulerTaskTest {
 

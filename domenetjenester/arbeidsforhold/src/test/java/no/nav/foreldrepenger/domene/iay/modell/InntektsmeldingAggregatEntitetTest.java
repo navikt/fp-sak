@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 class InntektsmeldingAggregatEntitetTest {
 

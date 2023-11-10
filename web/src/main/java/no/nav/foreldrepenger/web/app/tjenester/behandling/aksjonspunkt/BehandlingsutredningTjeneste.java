@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -16,12 +23,6 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class BehandlingsutredningTjeneste {

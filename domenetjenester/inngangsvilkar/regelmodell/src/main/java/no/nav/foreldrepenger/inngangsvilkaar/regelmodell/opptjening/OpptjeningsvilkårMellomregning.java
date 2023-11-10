@@ -1,14 +1,24 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import no.nav.fpsak.tidsserie.*;
-
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateSegmentCombinator;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 /**
  * Data underlag inkludert mellomregning og mellomresultater brukt i vilkårsvurderingen.

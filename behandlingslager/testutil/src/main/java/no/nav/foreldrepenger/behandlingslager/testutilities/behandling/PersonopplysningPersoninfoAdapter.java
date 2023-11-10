@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
@@ -7,8 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personstatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Statsborgerskap;
 import no.nav.vedtak.konfig.Tid;
-
-import java.util.Objects;
 
 /**
  * Intern adapter for å bygge Personopplysning ut av Personinfo og evt. innhenting via providere.

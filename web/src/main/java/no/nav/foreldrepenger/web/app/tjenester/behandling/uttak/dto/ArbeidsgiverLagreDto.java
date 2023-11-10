@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
+import java.util.Objects;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
-import java.util.Objects;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class ArbeidsgiverLagreDto {
 

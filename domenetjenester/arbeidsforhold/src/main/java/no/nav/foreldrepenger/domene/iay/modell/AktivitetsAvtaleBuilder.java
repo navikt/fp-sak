@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public class AktivitetsAvtaleBuilder {
     private final AktivitetsAvtale aktivitetsAvtale;

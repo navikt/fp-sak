@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
-import no.nav.foreldrepenger.domene.iay.modell.Gradering;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
+import no.nav.foreldrepenger.domene.iay.modell.Gradering;
 
 public class GraderingPeriodeDto {
     private LocalDate fom;

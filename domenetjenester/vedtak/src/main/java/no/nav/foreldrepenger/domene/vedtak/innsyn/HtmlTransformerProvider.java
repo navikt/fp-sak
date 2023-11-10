@@ -1,13 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
-import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
-import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
-
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -15,6 +7,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
+
+import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
+import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
 
 public class HtmlTransformerProvider {
 

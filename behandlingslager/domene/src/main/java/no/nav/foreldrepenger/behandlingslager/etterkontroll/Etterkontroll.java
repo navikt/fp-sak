@@ -1,12 +1,20 @@
 package no.nav.foreldrepenger.behandlingslager.etterkontroll;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity(name = "Etterkontroll")
 @Table(name = "ETTERKONTROLL")

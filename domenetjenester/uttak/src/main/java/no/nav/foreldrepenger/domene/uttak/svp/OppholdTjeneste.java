@@ -1,7 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
@@ -13,8 +20,6 @@ import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
 import no.nav.svangerskapspenger.domene.søknad.Opphold;
 import no.nav.svangerskapspenger.tjeneste.fastsettuttak.SvpOppholdÅrsak;
-
-import java.util.*;
 
 @ApplicationScoped
 public class OppholdTjeneste {

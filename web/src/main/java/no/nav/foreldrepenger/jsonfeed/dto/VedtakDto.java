@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.jsonfeed.dto;
 
-import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedElement;
-
 import java.util.List;
+
+import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedElement;
 
 public class VedtakDto {
     private boolean harFlereElementer;

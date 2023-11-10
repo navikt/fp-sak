@@ -1,10 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.validering.FeltFeilDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil.Periode;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
+import static java.lang.Boolean.TRUE;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.FØR_ELLER_LIK_DAGENS_DATO;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.LIKT_ANTALL_BARN_OG_FØDSELSDATOER;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.TERMINBEKREFTELSESDATO_FØR_TERMINDATO;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.TERMINDATO_ELLER_FØDSELSDATO;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.TERMINDATO_OG_FØDSELSDATO;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.UGYLDIG_FØDSELSNUMMER;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,10 +21,11 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static java.lang.Boolean.TRUE;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.*;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.validering.FeltFeilDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil.Periode;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 
 public class ManuellRegistreringFellesValidator {
 

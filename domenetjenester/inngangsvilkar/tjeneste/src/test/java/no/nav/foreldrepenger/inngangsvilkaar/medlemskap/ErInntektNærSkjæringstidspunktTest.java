@@ -1,12 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.medlemskap;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
-import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,7 +8,14 @@ import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
+import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 
 class ErInntektNærSkjæringstidspunktTest {
 

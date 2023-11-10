@@ -1,11 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving;
 
-import jakarta.persistence.*;
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-
-import java.util.Objects;
 
 @Table(name = "TILBAKEKREVING_VALG")
 @Entity(name = "TilbakekrevingValgEntitet")

@@ -1,7 +1,17 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
+import static java.util.List.of;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.Properties;
+
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -24,14 +34,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.Properties;
-
-import static java.util.List.of;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @CdiDbAwareTest
 class SendInformasjonsbrevPåminnelseBatchTjenesteTest {

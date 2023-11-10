@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag;
 
-import no.nav.fpsak.tidsserie.LocalDateInterval;
-
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public record BeregningsgrunnlagPeriode(LocalDateInterval periode, List<BeregningsgrunnlagPrStatus> beregningsgrunnlagPrStatus) {
 

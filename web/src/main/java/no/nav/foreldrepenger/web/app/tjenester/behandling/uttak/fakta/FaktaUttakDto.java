@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-
-import java.util.List;
 
 public abstract class FaktaUttakDto extends BekreftetAksjonspunktDto {
 

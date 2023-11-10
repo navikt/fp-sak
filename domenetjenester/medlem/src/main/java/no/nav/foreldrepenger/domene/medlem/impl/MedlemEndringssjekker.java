@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
+import java.util.List;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
-
-import java.util.List;
-import java.util.Optional;
 
 public abstract class MedlemEndringssjekker {
 

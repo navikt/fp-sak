@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-
-import java.util.Objects;
-import java.util.Optional;
 
 public final class TilretteleggingArbeidsforhold {
 

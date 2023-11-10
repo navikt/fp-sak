@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.opptjening;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public class OpptjeningInntektPeriode {
 

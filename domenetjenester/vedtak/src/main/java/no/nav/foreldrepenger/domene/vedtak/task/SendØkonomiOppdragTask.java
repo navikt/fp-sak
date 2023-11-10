@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak.task;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiOppdragKøTjeneste;

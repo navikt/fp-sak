@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
-import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-
 import java.time.LocalDateTime;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 
 public class SporingDto {
 

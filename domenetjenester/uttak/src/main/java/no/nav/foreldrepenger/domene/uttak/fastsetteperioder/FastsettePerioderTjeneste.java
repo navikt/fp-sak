@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -12,9 +16,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.OverstyrUttakResultatValidator;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-
-import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class FastsettePerioderTjeneste {

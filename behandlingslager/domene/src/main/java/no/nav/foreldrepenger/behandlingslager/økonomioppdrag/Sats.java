@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Objects;
 
 /**
  * Sats representert i hele kroner.

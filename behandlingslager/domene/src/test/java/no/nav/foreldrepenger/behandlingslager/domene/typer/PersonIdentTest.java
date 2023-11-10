@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.domene.typer;
 
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 class PersonIdentTest {
 

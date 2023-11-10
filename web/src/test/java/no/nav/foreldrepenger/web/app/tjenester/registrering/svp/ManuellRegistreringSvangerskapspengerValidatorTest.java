@@ -1,15 +1,16 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
-import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
 
 class ManuellRegistreringSvangerskapspengerValidatorTest {
 

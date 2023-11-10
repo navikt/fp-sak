@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.enterprise.inject.spi.CDI;
-import no.nav.vedtak.exception.TekniskException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.spi.CDI;
+
+import no.nav.vedtak.exception.TekniskException;
 
 public class AksjonspunktUtlederHolder {
 

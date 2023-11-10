@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 
 public class BeregningAktivitetNøkkel {
     private OpptjeningAktivitetType opptjeningAktivitetType;

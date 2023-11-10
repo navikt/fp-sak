@@ -1,24 +1,27 @@
 package no.nav.foreldrepenger.økonomistøtte.queue.producer;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
-import no.nav.foreldrepenger.økonomistøtte.queue.TestOnlyMqDisabled;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
+import no.nav.foreldrepenger.økonomistøtte.queue.TestOnlyMqDisabled;
+import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 
 @ApplicationScoped
 @TestOnlyMqDisabled

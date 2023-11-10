@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.domene.vedtak.batch;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.batch.BatchTjeneste;
-
 import java.time.LocalDate;
 import java.util.Properties;
 import java.util.UUID;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.batch.BatchTjeneste;
 
 /**
  * Henter ut løpende Fagsaker og avslutter dem hvis det ikke er noen åpne behandlinger

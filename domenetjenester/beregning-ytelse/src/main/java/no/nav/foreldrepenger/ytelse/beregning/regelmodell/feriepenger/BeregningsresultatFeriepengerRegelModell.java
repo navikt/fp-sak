@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerGrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 
 @RuleDocumentationGrunnlag
 public class BeregningsresultatFeriepengerRegelModell {

@@ -1,7 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
@@ -13,9 +21,6 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OmsorgDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.RettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 import no.nav.vedtak.util.InputValideringRegex;
-
-import java.time.LocalDate;
-import java.util.List;
 
 public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
 

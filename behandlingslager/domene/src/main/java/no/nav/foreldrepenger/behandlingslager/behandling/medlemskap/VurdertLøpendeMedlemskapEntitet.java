@@ -1,13 +1,22 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-
-import java.time.LocalDate;
-import java.util.Objects;
 
 /**
  * Entitetsklasse for løpende medlemskap.

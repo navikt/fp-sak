@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
+
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 
 public class Sammenligningsgrunnlag {

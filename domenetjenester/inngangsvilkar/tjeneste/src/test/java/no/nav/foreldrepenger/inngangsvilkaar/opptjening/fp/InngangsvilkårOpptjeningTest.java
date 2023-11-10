@@ -1,5 +1,12 @@
 package no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.Period;
+
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
@@ -10,12 +17,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsg
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.time.Period;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class InngangsvilkårOpptjeningTest {
 

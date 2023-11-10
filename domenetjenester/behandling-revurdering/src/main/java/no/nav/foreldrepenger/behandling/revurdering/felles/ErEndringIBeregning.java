@@ -1,10 +1,15 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-
-import java.time.LocalDate;
-import java.util.*;
 
 public class ErEndringIBeregning {
     private ErEndringIBeregning() {

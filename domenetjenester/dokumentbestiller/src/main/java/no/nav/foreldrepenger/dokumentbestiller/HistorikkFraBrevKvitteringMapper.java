@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
+import java.util.List;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
@@ -8,8 +10,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.List;
 
 class HistorikkFraBrevKvitteringMapper {
 

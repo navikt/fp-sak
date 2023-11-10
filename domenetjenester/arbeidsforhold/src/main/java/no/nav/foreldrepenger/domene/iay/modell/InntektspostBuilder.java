@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public class InntektspostBuilder {
     private Inntektspost inntektspost;

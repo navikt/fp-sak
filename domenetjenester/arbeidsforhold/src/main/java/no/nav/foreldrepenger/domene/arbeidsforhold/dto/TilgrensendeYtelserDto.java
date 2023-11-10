@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Objects;
+
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class TilgrensendeYtelserDto implements Comparable<TilgrensendeYtelserDto> {
     private String relatertYtelseType;

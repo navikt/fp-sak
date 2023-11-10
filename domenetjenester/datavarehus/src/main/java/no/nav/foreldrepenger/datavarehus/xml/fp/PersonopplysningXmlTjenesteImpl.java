@@ -1,7 +1,19 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
+import static no.nav.foreldrepenger.datavarehus.xml.fp.DvhPersonopplysningXmlTjenesteImpl.mapTilDokType;
+import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -22,23 +34,28 @@ import no.nav.foreldrepenger.datavarehus.xml.PersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
+import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.*;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Addresse;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Adopsjon;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.DokumentasjonPeriode;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.FamilieHendelse;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Familierelasjon;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Inntekt;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.*;
-
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static no.nav.foreldrepenger.datavarehus.xml.fp.DvhPersonopplysningXmlTjenesteImpl.mapTilDokType;
-import static no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil.harAleneomsorg;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.ObjectFactory;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.PersonopplysningerForeldrepenger;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.RelatertYtelse;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Virksomhet;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseStorrelse;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped

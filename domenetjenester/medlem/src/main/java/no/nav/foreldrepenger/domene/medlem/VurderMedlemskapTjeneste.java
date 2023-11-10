@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.domene.medlem;
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -9,12 +14,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.impl.*;
+import no.nav.foreldrepenger.domene.medlem.impl.AvklarBarnFødtUtenlands;
+import no.nav.foreldrepenger.domene.medlem.impl.AvklarGyldigPeriode;
+import no.nav.foreldrepenger.domene.medlem.impl.AvklarOmErBosatt;
+import no.nav.foreldrepenger.domene.medlem.impl.AvklarOmSøkerOppholderSegINorge;
+import no.nav.foreldrepenger.domene.medlem.impl.AvklaringFaktaMedlemskap;
+import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @ApplicationScoped
 public class VurderMedlemskapTjeneste {

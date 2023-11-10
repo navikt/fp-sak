@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
+import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -14,14 +22,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 
 public class AvklaringFaktaMedlemskap {
 

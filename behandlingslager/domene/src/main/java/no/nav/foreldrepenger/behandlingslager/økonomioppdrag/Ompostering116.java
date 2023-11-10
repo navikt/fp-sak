@@ -1,12 +1,22 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
-import org.hibernate.annotations.Immutable;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+import org.hibernate.annotations.Immutable;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Immutable
 @Table(name = "OKO_OMPOSTERING_116")

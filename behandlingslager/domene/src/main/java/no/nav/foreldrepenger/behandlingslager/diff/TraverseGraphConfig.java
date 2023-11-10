@@ -1,13 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.diff;
 
-import javassist.Modifier;
+import static java.util.Arrays.asList;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalField;
@@ -17,7 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static java.util.Arrays.asList;
+import javassist.Modifier;
 
 public class TraverseGraphConfig {
 

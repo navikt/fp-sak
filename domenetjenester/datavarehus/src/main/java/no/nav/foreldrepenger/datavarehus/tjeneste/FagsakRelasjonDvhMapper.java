@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDateTime;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.datavarehus.domene.FagsakRelasjonDvh;
-
-import java.time.LocalDateTime;
 
 public class FagsakRelasjonDvhMapper {
 

@@ -1,21 +1,38 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming;
 
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+
 import jakarta.xml.bind.JAXBException;
+
+import org.xml.sax.SAXException;
+
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.*;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AksjonType;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Aksjonsdata;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AvstemmingType;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Avstemmingsdata;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.DetaljType;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Fortegn;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.GrensesnittavstemmingSkjemaConstants;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Grunnlagsdata;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.KildeType;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.ObjectFactory;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Periodedata;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Totaldata;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
-import org.xml.sax.SAXException;
-
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 public class GrensesnittavstemmingMapper {
     private ObjectFactory objectFactory;

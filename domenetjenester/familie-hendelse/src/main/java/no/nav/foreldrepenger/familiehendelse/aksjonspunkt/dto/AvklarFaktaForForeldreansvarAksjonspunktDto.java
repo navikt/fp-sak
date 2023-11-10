@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-
-import java.time.LocalDate;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE)
 public class AvklarFaktaForForeldreansvarAksjonspunktDto extends BekreftetAksjonspunktDto implements OmsorgsOvertakelse {

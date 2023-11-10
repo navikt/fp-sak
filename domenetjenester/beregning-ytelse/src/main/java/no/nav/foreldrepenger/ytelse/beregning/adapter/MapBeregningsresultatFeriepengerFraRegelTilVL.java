@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
+import java.math.RoundingMode;
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
@@ -7,9 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.FastsattFeriepengeresultat;
-
-import java.math.RoundingMode;
-import java.util.Objects;
 
 public class MapBeregningsresultatFeriepengerFraRegelTilVL {
     private MapBeregningsresultatFeriepengerFraRegelTilVL() {

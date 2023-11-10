@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 class UtbetalingsgradTest {
 

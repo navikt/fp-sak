@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.ØkonomiKodeKlassifikSortering;
-
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.Objects;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.ØkonomiKodeKlassifikSortering;
 
 public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 

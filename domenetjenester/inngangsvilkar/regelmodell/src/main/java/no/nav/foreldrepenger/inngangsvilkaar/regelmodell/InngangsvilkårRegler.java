@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell;
 
+import java.util.Set;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårEngangsstønad;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårForeldrepenger;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
@@ -16,8 +18,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.Oppt
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.svp.RegelFastsettOpptjeningsperiodeSVP;
-
-import java.util.Set;
 
 public class InngangsvilkårRegler {
 

@@ -1,15 +1,19 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadUtsettelseUttakDato;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
-import no.nav.vedtak.felles.xml.soeknad.uttak.v3.*;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Overfoeringsperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 
 @NamespaceRef(SøknadConstants.NAMESPACE)
 public class EndringUtsettelseUttak {

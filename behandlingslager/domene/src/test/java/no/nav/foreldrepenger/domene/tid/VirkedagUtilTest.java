@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.tid;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 class VirkedagUtilTest {
 

@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
-import no.nav.foreldrepenger.validering.ValidKodeverk;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class VelferdspermisjonDto {
 

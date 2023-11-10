@@ -1,9 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsgiverNøkkel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-
-import java.util.*;
 
 class FinnEndringerIUtbetaltYtelse {
     private FinnEndringerIUtbetaltYtelse() {

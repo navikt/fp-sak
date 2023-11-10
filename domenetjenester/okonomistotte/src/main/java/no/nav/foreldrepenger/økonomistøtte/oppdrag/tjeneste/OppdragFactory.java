@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.tjeneste;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -9,11 +14,6 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Oppdrag;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.util.SetUtil;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
 
 public class OppdragFactory {
 

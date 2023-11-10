@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-
-import java.time.LocalDate;
 
 /**
  * Default test scenario builder for Mor søker Engangsstønad. Kan opprettes for

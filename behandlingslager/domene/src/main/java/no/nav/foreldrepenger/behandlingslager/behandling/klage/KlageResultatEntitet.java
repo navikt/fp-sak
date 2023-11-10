@@ -1,11 +1,17 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 
-import jakarta.persistence.*;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 
 @Entity(name = "KlageResultat")

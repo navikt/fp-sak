@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 
+import java.util.UUID;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.LockModeType;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.UUID;
 
 /**
  * @see BehandlingLås

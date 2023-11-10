@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 class EndringerBareEtterEndringsdatoValidering implements OverstyrUttakPerioderValidering {
 

@@ -1,9 +1,14 @@
 package no.nav.foreldrepenger.domene.abakus;
 
-import jakarta.enterprise.context.RequestScoped;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
-import java.util.*;
+import jakarta.enterprise.context.RequestScoped;
+
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 
 @RequestScoped
 class IAYRequestCache {

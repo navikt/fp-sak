@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.behandlingsprosess.prosessering;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Grensesnitt for å kjøre behandlingsprosess, herunder gjenopptak,

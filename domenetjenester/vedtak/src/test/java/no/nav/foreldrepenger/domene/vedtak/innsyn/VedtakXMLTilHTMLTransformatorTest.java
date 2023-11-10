@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
-import no.nav.vedtak.exception.TekniskException;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.Scanner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+
+import no.nav.vedtak.exception.TekniskException;
 
 class VedtakXMLTilHTMLTransformatorTest {
 

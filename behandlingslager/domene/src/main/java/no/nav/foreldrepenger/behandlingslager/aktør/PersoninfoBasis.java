@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
 
-import static java.util.Objects.requireNonNull;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 public record PersoninfoBasis(AktørId aktørId,
                               PersonIdent personIdent,

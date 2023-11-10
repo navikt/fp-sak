@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto;
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
-
 import java.util.List;
+
+import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 
 
 public class TotrinnsBeregningDto {

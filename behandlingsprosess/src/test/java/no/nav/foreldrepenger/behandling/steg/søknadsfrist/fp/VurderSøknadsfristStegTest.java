@@ -1,5 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp;
 
+import static java.time.temporal.ChronoField.DAY_OF_MONTH;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,14 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
-import static org.assertj.core.api.Assertions.assertThat;
 
 class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
 

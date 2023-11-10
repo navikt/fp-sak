@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum Region implements Kodeverdi {
 

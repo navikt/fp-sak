@@ -1,16 +1,17 @@
 package no.nav.foreldrepenger.domene.feed;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.EntityManager;
-import org.hibernate.jpa.HibernateHints;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.EntityManager;
+
+import org.hibernate.jpa.HibernateHints;
 
 @ApplicationScoped
 public class FeedRepository {

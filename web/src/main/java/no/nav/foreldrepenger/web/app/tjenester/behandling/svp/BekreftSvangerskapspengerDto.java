@@ -1,14 +1,16 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_SVP_TILRETTELEGGING_KODE)
 public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {

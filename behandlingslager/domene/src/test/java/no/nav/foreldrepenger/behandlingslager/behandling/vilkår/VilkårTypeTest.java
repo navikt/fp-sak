@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 class VilkårTypeTest {
 

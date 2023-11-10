@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
@@ -10,8 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
-
-import java.time.LocalDate;
 
 public class Personas {
     private Builder builder;

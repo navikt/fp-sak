@@ -1,17 +1,19 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.behandlingårsak;
 
+import java.util.Collections;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.Set;
 
 @ApplicationScoped
 @GrunnlagRef(PersonInformasjonEntitet.ENTITY_NAME)

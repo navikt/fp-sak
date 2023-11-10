@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetKlassifisering;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.ReferanseType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class MapTilOpptjeningAktiviteter {
 

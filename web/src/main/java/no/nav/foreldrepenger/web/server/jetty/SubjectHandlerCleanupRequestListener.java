@@ -3,9 +3,11 @@ package no.nav.foreldrepenger.web.server.jetty;
 import jakarta.servlet.ServletRequestEvent;
 import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.annotation.WebListener;
-import no.nav.vedtak.sikkerhet.context.ContextCleaner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.vedtak.sikkerhet.context.ContextCleaner;
 
 @WebListener
 public class SubjectHandlerCleanupRequestListener implements ServletRequestListener {

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.vedtak.exception.TekniskException;
-
 import java.time.LocalDate;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.vedtak.exception.TekniskException;
 
 public class YtelseFordelingAggregat {
 

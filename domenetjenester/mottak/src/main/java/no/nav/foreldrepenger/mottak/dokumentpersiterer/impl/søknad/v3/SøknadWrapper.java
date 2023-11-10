@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
+import java.util.List;
+
 import jakarta.xml.bind.JAXBElement;
+
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.vedtak.exception.TekniskException;
@@ -9,8 +12,6 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.Vedlegg;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Ytelse;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Spraakkode;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
-
-import java.util.List;
 
 public class SøknadWrapper extends MottattDokumentWrapper<Soeknad> {
 

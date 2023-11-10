@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
-import org.junit.jupiter.api.Test;
-
-import java.util.Properties;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+
+import java.util.Properties;
+
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
+import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 
 class GrensesnittavstemmingBatchArgumentsTest {
 

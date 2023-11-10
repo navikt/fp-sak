@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
@@ -8,9 +11,6 @@ import no.nav.fpsak.nare.doc.RuleOutcomeDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.specification.LeafSpecification;
-
-import java.time.LocalDate;
-import java.time.Period;
 
 /**
  * Sjekk om bruker har tilstrekkelig opptjening inklusiv antatt godkjente perioder for arbeidsforhold uten innrapportert

@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
+import java.time.LocalDate;
+
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.time.LocalDate;
 
 final class OverstyrUttakValideringFeil {
 

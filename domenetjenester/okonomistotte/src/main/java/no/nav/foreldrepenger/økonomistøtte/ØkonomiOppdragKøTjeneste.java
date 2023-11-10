@@ -2,10 +2,12 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomioppdragRepository;
+import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 @ApplicationScoped
 public class ØkonomiOppdragKøTjeneste {

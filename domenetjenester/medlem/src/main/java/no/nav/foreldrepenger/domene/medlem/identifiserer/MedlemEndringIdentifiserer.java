@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.medlem.identifiserer;
 
+import java.util.stream.Collectors;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-
-import java.util.stream.Collectors;
 
 public class MedlemEndringIdentifiserer {
 

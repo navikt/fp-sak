@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
-import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
-
 import java.time.LocalDate;
+
+import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 
 public class SoknadBackendDto {
 

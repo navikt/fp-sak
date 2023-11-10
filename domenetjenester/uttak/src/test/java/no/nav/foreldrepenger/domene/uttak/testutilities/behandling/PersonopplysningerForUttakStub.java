@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
-
 import java.time.LocalDate;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 
 public class PersonopplysningerForUttakStub implements PersonopplysningerForUttak {
 

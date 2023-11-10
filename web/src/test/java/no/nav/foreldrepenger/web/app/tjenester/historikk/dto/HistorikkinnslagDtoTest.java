@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.historikk.dto;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 
 class HistorikkinnslagDtoTest {
     private static final LocalDateTime NOW = LocalDateTime.now();

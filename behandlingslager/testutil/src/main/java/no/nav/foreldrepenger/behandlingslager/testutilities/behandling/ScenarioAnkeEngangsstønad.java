@@ -1,16 +1,20 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.*;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.ANKE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_AVVIS;
+import static org.mockito.Mockito.when;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingBehandlingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType.ANKE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering.ANKE_AVVIS;
-import static org.mockito.Mockito.when;
 
 /**
  * Default test scenario builder for Anke Engangssøknad. Kan opprettes for gitt

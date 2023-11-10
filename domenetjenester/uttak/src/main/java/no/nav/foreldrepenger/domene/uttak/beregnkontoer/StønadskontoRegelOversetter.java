@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
+import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
+
+import java.util.Optional;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -9,10 +13,6 @@ import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
-
-import java.util.Optional;
-
-import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
 public class StønadskontoRegelOversetter {
 

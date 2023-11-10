@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.behandling;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class DekningsgradTjeneste {

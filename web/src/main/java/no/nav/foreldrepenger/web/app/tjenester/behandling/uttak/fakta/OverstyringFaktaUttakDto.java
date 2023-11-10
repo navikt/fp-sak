@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-
-import java.util.List;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_FAKTA_UTTAK_KODE)
 public class OverstyringFaktaUttakDto extends OverstyringAksjonspunktDto {

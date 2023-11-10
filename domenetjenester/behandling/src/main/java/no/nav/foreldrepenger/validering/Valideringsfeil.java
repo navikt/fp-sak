@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.validering;
 
-import no.nav.vedtak.exception.TekniskException;
-
 import java.util.Collection;
+
+import no.nav.vedtak.exception.TekniskException;
 
 public class Valideringsfeil extends TekniskException {
     private final Collection<FeltFeilDto> feltFeil;

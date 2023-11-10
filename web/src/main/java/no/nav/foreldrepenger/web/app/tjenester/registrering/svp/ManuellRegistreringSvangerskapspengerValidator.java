@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 
-import no.nav.foreldrepenger.validering.FeltFeilDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil.Periode;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.FØR_ELLER_LIK_DAGENS_DATO;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PAAKREVD_FELT;
+import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.PERIODER_MANGLER;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,9 +14,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorTekster.*;
+import no.nav.foreldrepenger.validering.FeltFeilDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil.Periode;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
 
 public class ManuellRegistreringSvangerskapspengerValidator {
 

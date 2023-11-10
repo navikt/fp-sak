@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
+import java.util.List;
+import java.util.Objects;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.List;
-import java.util.Objects;
 
 final class BeregningsresultatOutputVerifiserer {
 

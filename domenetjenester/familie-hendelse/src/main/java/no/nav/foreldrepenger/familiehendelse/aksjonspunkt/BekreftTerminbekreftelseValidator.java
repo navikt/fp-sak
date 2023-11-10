@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
-
 import java.time.Period;
 import java.util.Objects;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @Dependent
 public class BekreftTerminbekreftelseValidator {

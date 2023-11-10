@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -19,13 +28,6 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse;
 import no.nav.vedtak.konfig.Tid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelseType.UTFLYTTING)
