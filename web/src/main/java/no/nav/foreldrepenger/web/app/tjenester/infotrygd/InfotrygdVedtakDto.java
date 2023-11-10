@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
-
-public record InfotrygdVedtakDto(Map<LocalDate, VedtakKjede> vedtakKjedeForIdentdato, List<Grunnlag> kilde) {
+public record InfotrygdVedtakDto(Map<LocalDate, VedtakKjede> vedtakKjedeForIdentdato, List<VedtakKjedeV2> vedtakKjeder) {
 
     public record VedtakKjede(LocalDate opprinneligIdentdato, List<Vedtak> vedtak) {}
+
+    public record VedtakKjedeV2(LocalDate opprinneligIdentdato, InfotrygdKode behandlingstema, List<Vedtak> vedtak) {}
 
     public record Vedtak(InfotrygdKode behandlingstema,
                          LocalDate identdato, // IS10: ArbUfør

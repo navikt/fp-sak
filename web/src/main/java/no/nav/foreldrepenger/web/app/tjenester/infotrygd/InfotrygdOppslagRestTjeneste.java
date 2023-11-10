@@ -169,7 +169,14 @@ public class InfotrygdOppslagRestTjeneste {
         mapped.keySet().stream().sorted(Comparator.naturalOrder())
             .map(key -> new InfotrygdVedtakDto.VedtakKjede(key, sorterVedtak(mapped.get(key))))
             .forEach(kjede -> sortertMap.put(kjede.opprinneligIdentdato(), kjede));
-        return new InfotrygdVedtakDto(sortertMap, kildegrunnlagene);
+        List<InfotrygdVedtakDto.VedtakKjedeV2> sortertListe = new ArrayList<>();
+        mapped.keySet().stream().sorted(Comparator.naturalOrder())
+            .map(mapped::get)
+            .map(InfotrygdOppslagRestTjeneste::sorterVedtak)
+            .filter(l -> !l.isEmpty())
+            .map(liste -> new InfotrygdVedtakDto.VedtakKjedeV2(liste.get(0).identdato(), liste.get(0).behandlingstema(), liste))
+            .forEach(sortertListe::add);
+        return new InfotrygdVedtakDto(sortertMap, sortertListe);
     }
 
     private static List<InfotrygdVedtakDto.Vedtak> sorterVedtak(List<InfotrygdVedtakDto.Vedtak> vedtak) {
