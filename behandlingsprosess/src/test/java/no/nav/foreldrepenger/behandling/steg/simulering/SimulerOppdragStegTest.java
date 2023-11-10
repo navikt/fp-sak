@@ -80,14 +80,14 @@ class SimulerOppdragStegTest {
             Optional.of(oppdragskontroll));
 
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
+                Optional.of(new SimuleringResultatDto(-2354L, 0L, 0L,true)));
         steg = opprettSteg();
 
         // Act
         var resultat = steg.utførSteg(kontekst);
 
         // Assert
-        assertThat(resultat.getAksjonspunktListe()).containsOnly(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
+        assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         verify(simulerOppdragTjenesteMock).hentOppdragskontrollForBehandling(anyLong());
         verify(fpOppdragRestKlientMock).startSimulering(any(OppdragskontrollDto.class));
@@ -97,6 +97,50 @@ class SimulerOppdragStegTest {
         assertThat(tilbakekrevingInntrekk).isPresent();
         assertThat(tilbakekrevingInntrekk.get().isAvslåttInntrekk()).isTrue();
     }
+
+
+    @Test
+    void stor_etterbetaling_til_søker_og_feilutbetaling_skal_føre_til_to_aksjonspunkter() {
+        // Arrange
+        var oppdragskontroll = lagOppdragKontrollMedPåkrevdeFelter(123L);
+        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
+            Optional.of(oppdragskontroll));
+
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+            Optional.of(new SimuleringResultatDto(-2354L, 0L, 70_000L,true)));
+        steg = opprettSteg();
+
+        // Act
+        var resultat = steg.utførSteg(kontekst);
+
+        // Assert
+        assertThat(resultat.getAksjonspunktListe()).containsExactlyInAnyOrder(
+            AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER,
+            AksjonspunktDefinisjon.VURDER_FEILUTBETALING
+        );
+        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+    }
+
+
+    @Test
+    void skal_ikke_opprette_stor_etterbetaling_aksjonspunkt_hvor_etterbetaling_til_søker_er_under_grenseverdi() {
+        // Arrange
+        var oppdragskontroll = lagOppdragKontrollMedPåkrevdeFelter(123L);
+        when(simulerOppdragTjenesteMock.hentOppdragskontrollForBehandling(anyLong())).thenReturn(
+            Optional.of(oppdragskontroll));
+
+        when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
+            Optional.of(new SimuleringResultatDto(0L, -2354L, 45_000L,true)));
+        steg = opprettSteg();
+
+        // Act
+        var resultat = steg.utførSteg(kontekst);
+
+        // Assert
+        assertThat(resultat.getAksjonspunktListe()).isEmpty();
+        assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+    }
+
 
     @Test
     void deaktiverer_eksisterende_tilbakekrevingValg_ved_hopp_over_bakover() {
@@ -124,7 +168,7 @@ class SimulerOppdragStegTest {
     void lagrer_automatisk_inntrekk_og_returnerer_ingen_aksjonspunkter_dersom_aksjonspunkt_for_inntrekk() {
         // Arrange
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(0L, -2354L, false)));
+                Optional.of(new SimuleringResultatDto(0L, -2354L, 0L,false)));
 
         steg = opprettSteg();
 
@@ -183,7 +227,7 @@ class SimulerOppdragStegTest {
     void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(-2354L, 0L, true)));
+                Optional.of(new SimuleringResultatDto(-2354L, 0L, 0L,true)));
 
         steg = opprettSteg();
 
@@ -206,7 +250,7 @@ class SimulerOppdragStegTest {
     void utførSteg_lagrer_tilbakekrevingoppdater_hvis_det_er_en_åpen_tilbakekreving_men_simuleringresultat_ikke_påvirke_grunnlag() {
         when(fptilbakeRestKlientMock.harÅpenTilbakekrevingsbehandling(any(Saksnummer.class))).thenReturn(true);
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
-                Optional.of(new SimuleringResultatDto(0L, 0L, true)));
+                Optional.of(new SimuleringResultatDto(0L, 0L, 0L,true)));
 
         steg = opprettSteg();
 

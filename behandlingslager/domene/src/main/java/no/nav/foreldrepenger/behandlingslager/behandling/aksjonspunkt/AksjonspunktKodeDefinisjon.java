@@ -131,6 +131,8 @@ public class AksjonspunktKodeDefinisjon {
     public static final String VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING_KODE = "5085";
     public static final String VURDER_OPPTJENINGSVILKÅRET_KODE = "5089";
 
+    public static final String KONTROLLER_STOR_ETTERBETALING_SØKER_KODE = "5029";
+
     public static final String AUTOMATISK_MARKERING_AV_UTENLANDSSAK_KODE = "5068";
 
     public static final String VURDER_SVP_TILRETTELEGGING_KODE = "5091";

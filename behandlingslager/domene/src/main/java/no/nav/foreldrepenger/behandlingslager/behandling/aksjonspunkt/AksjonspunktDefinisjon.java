@@ -248,8 +248,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VURDERING_AV_FORMKRAV_KLAGE_NFP(
             AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE, AksjonspunktType.MANUELL, "Vurder formkrav (NFP).",
             BehandlingStegType.KLAGE_VURDER_FORMKRAV_NFP, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FORMKRAV_KLAGE_NFP, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    VURDER_FEILUTBETALING(AksjonspunktKodeDefinisjon.VURDER_FEILUTBETALING_KODE,
-            AksjonspunktType.MANUELL, "Vurder feilutbetaling", BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    VURDER_FEILUTBETALING(AksjonspunktKodeDefinisjon.VURDER_FEILUTBETALING_KODE, AksjonspunktType.MANUELL, "Vurder feilutbetaling",
+        BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
+    KONTROLLER_STOR_ETTERBETALING_SØKER(AksjonspunktKodeDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER_KODE,  AksjonspunktType.MANUELL, "Kontroller stor etterbetaling til søker",
+        BehandlingStegType.SIMULER_OPPDRAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(FP, SVP)),
     AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT(
             AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE, AksjonspunktType.MANUELL, "Avklar annen forelder har rett",
             BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT, ENTRINN, EnumSet.of(FP, SVP)),
