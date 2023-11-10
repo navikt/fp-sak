@@ -2,9 +2,11 @@ package no.nav.foreldrepenger.behandling.steg.simulering;
 
 import static java.util.Collections.singletonList;
 
+import java.sql.Array;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -44,6 +46,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private static final int ÅPNINGSTID = 7;
     private static final int STENGETID = 19;
+    private static final int STOR_ETTERBETALING_GRENSE = 60_000;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -122,21 +125,32 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
             lagreBrukInntrekk(behandling, resultatDto);
 
+            var aksjonspunkter = new ArrayList<AksjonspunktDefinisjon>();
+
+            if (erStorEtterbetalingTilSøker(resultatDto.etterbetalingTilSøker())) {
+                aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER);
+            }
+
             // vi sender TILBAKEKREVING_OPPDATER når det finnes et simulering resultat
             if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) {
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medOppdaterTilbakekrevingsbehandling());
-                return BehandleStegResultat.utførtUtenAksjonspunkter();
+            } else if (SimuleringIntegrasjonTjeneste.harFeilutbetaling(resultatDto)) {
+                aksjonspunkter.add(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
+            } else if (resultatDto.sumInntrekk() != null && resultatDto.sumInntrekk() != 0) {
+                lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medAutomatiskInntrekk());
             }
 
-            if (SimuleringIntegrasjonTjeneste.harFeilutbetaling(resultatDto)) {
-                return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(AksjonspunktDefinisjon.VURDER_FEILUTBETALING));
-            }
-            if (resultatDto.sumInntrekk() != null && resultatDto.sumInntrekk() != 0) {
-                lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medAutomatiskInntrekk());
-                return BehandleStegResultat.utførtUtenAksjonspunkter();
-            }
+            return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunkter);
+
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
+    }
+
+    private static boolean erStorEtterbetalingTilSøker(Long etterbetalingTilSøker) {
+        if (etterbetalingTilSøker != null && etterbetalingTilSøker >= STOR_ETTERBETALING_GRENSE) {
+            return true;
+        }
+        return false;
     }
 
     private void lagreBrukInntrekk(Behandling behandling, SimuleringResultatDto resultatDto) {
