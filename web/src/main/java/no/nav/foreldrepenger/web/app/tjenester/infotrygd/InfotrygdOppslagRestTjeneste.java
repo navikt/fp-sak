@@ -6,9 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -118,7 +116,7 @@ public class InfotrygdOppslagRestTjeneste {
             grunnlagene.addAll(svangerskapspenger.hentGrunnlagFailSoft(i, FOM, LocalDate.now()));
         });
         var unikeGrunnlag = grunnlagene.stream().distinct().toList();
-        return Response.ok(mapTilVedtakDto(unikeGrunnlag, grunnlagene)).build();
+        return Response.ok(mapTilVedtakDto(unikeGrunnlag)).build();
     }
 
     private List<String> finnAlleHistoriskeFødselsnummer(String inputIdent) {
@@ -159,24 +157,20 @@ public class InfotrygdOppslagRestTjeneste {
         }
     }
 
-    static InfotrygdVedtakDto mapTilVedtakDto(List<Grunnlag> grunnlagene, List<Grunnlag> kildegrunnlagene) {
+    static InfotrygdVedtakDto mapTilVedtakDto(List<Grunnlag> grunnlagene) {
         if (grunnlagene.isEmpty()) {
-            return new InfotrygdVedtakDto(Map.of(), List.of());
+            return new InfotrygdVedtakDto(List.of());
         }
         var mapped = grunnlagene.stream().map(InfotrygdOppslagRestTjeneste::mapTilVedtakDtoGrunnlag)
             .collect(Collectors.groupingBy(InfotrygdOppslagRestTjeneste::grunnlagKey));
-        Map<LocalDate, InfotrygdVedtakDto.VedtakKjede> sortertMap = new LinkedHashMap<>();
-        mapped.keySet().stream().sorted(Comparator.naturalOrder())
-            .map(key -> new InfotrygdVedtakDto.VedtakKjede(key, sorterVedtak(mapped.get(key))))
-            .forEach(kjede -> sortertMap.put(kjede.opprinneligIdentdato(), kjede));
-        List<InfotrygdVedtakDto.VedtakKjedeV2> sortertListe = new ArrayList<>();
+        List<InfotrygdVedtakDto.VedtakKjede> sortertListe = new ArrayList<>();
         mapped.keySet().stream().sorted(Comparator.naturalOrder())
             .map(mapped::get)
             .map(InfotrygdOppslagRestTjeneste::sorterVedtak)
             .filter(l -> !l.isEmpty())
-            .map(liste -> new InfotrygdVedtakDto.VedtakKjedeV2(liste.get(0).identdato(), liste.get(0).behandlingstema(), liste))
+            .map(liste -> new InfotrygdVedtakDto.VedtakKjede(liste.get(0).identdato(), liste.get(0).behandlingstema(), liste))
             .forEach(sortertListe::add);
-        return new InfotrygdVedtakDto(sortertMap, sortertListe);
+        return new InfotrygdVedtakDto(sortertListe);
     }
 
     private static List<InfotrygdVedtakDto.Vedtak> sorterVedtak(List<InfotrygdVedtakDto.Vedtak> vedtak) {
