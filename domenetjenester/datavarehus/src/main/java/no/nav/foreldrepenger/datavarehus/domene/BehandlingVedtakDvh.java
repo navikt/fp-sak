@@ -53,6 +53,9 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
     @Column(name = "UTBETALT_TID")
     private LocalDate utbetaltTid;
 
+    @Column(name = "VILKAR_IKKE_OPPFYLT")
+    private String vilkårIkkeOppfylt;
+
     BehandlingVedtakDvh() {
         // Hibernate
     }
@@ -105,6 +108,10 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         return utbetaltTid;
     }
 
+    public String getVilkårIkkeOppfylt() {
+        return vilkårIkkeOppfylt;
+    }
+
     @Override
     public boolean equals(final Object other) {
         if (this == other) {
@@ -152,6 +159,7 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         private String endretAv;
         private String vedtakResultatTypeKode;
         private LocalDate utbetaltTid;
+        private String vilkårIkkeOppfylt;
 
         public Builder vedtakId(Long vedtakId) {
             this.vedtakId = vedtakId;
@@ -218,6 +226,11 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
             return this;
         }
 
+        public Builder vilkårIkkeOppfylt(VilkårVerdiDvh vilkårVerdierDvh) {
+            this.vilkårIkkeOppfylt = vilkårVerdierDvh != null ? vilkårVerdierDvh.name() : null;
+            return this;
+        }
+
         public BehandlingVedtakDvh build() {
             var vedtak = new BehandlingVedtakDvh();
             vedtak.ansvarligBeslutter = ansvarligBeslutter;
@@ -231,6 +244,7 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
             vedtak.vedtakResultatTypeKode = vedtakResultatTypeKode;
             vedtak.vedtakTid = vedtakTid;
             vedtak.utbetaltTid = utbetaltTid;
+            vedtak.vilkårIkkeOppfylt = vilkårIkkeOppfylt;
             vedtak.setFunksjonellTid(funksjonellTid);
             vedtak.setEndretAv(endretAv);
             return vedtak;
