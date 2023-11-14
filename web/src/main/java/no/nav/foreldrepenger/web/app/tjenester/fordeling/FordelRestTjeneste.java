@@ -209,8 +209,13 @@ public class FordelRestTjeneste {
     public Response knyttSakOgJournalpost(@Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
         var saksnummer = new Saksnummer(journalpostKnytningDto.getSaksnummer());
-        opprettSakTjeneste.finnSak(saksnummer).orElseThrow(() -> new TekniskException("FP-840572", "Finner ikke fagsak med angitt saksnummer " + saksnummer));
-        opprettSakTjeneste.knyttSakOgJournalpost(saksnummer, new JournalpostId(journalpostKnytningDto.getJournalpostId()));
+        var fagsak = opprettSakTjeneste.finnSak(saksnummer);
+
+        if (fagsak.isPresent()) {
+            opprettSakTjeneste.knyttSakOgJournalpost(saksnummer, new JournalpostId(journalpostKnytningDto.getJournalpostId()));
+        } else {
+            throw new TekniskException("FP-840572", "Finner ikke fagsak med angitt saksnummer " + saksnummer);
+        }
         return Response.ok().build();
     }
 
