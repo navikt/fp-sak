@@ -5,7 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -35,12 +35,12 @@ public class BeregningsresultatTjeneste {
         this.beregningsresultatMedUttaksplanMapper = beregningsresultatMedUttaksplanMapper;
     }
 
-    public Optional<BeregningsresultatMedUttaksplanDto> lagBeregningsresultatMedUttaksplan(Behandling behandling) {
-        var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
+    public Optional<BeregningsresultatMedUttaksplanDto> lagBeregningsresultatMedUttaksplan(BehandlingReferanse behandlingReferanse) {
+        var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingReferanse.behandlingId());
         var beregningsresultatFPAggregatEntitet = beregningsresultatRepository
-            .hentBeregningsresultatAggregat(behandling.getId());
+            .hentBeregningsresultatAggregat(behandlingReferanse.behandlingId());
         return beregningsresultatFPAggregatEntitet
-            .map(bresAggregat -> beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling, bresAggregat, uttakResultat));
+            .map(bresAggregat -> beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandlingReferanse, bresAggregat, uttakResultat));
     }
 
     public Optional<BeregningsresultatEngangsstønadDto> lagBeregningsresultatEnkel(Long behandlingId) {

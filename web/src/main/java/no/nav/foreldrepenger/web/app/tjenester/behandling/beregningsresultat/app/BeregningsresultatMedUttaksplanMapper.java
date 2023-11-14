@@ -13,14 +13,13 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -49,17 +48,11 @@ public class BeregningsresultatMedUttaksplanMapper {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
-    BeregningsresultatMedUttaksplanDto lagBeregningsresultatMedUttaksplan(Behandling behandling,
+    BeregningsresultatMedUttaksplanDto lagBeregningsresultatMedUttaksplan(BehandlingReferanse behandlingReferanse,
                                                                           BehandlingBeregningsresultatEntitet beregningsresultatAggregat,
                                                                           Optional<ForeldrepengerUttak> uttak) {
-        return BeregningsresultatMedUttaksplanDto.build()
-            .medSokerErMor(getSøkerErMor(behandling))
-            .medOpphoersdato(getOpphørsdato(uttak).orElse(null))
-            .medPerioder(lagPerioder(behandling.getId(), beregningsresultatAggregat.getBgBeregningsresultatFP(), uttak))
-            .medUtbetPerioder(beregningsresultatAggregat.getUtbetBeregningsresultatFP() == null ? null : lagPerioder(behandling.getId(),
-                beregningsresultatAggregat.getUtbetBeregningsresultatFP(), uttak))
-            .medSkalHindreTilbaketrekk(beregningsresultatAggregat.skalHindreTilbaketrekk().orElse(null))
-            .create();
+        return new BeregningsresultatMedUttaksplanDto(getOpphørsdato(uttak).orElse(null),
+            lagPerioder(behandlingReferanse.behandlingId(), beregningsresultatAggregat.getBgBeregningsresultatFP(), uttak));
     }
 
     private Optional<LocalDate> getOpphørsdato(Optional<ForeldrepengerUttak> uttak) {
@@ -85,10 +78,6 @@ public class BeregningsresultatMedUttaksplanMapper {
             }
         }
         return Optional.of(opphørsdato);
-    }
-
-    private boolean getSøkerErMor(Behandling behandling) {
-        return RelasjonsRolleType.MORA.equals(behandling.getFagsak().getRelasjonsRolleType());
     }
 
     List<BeregningsresultatPeriodeDto> lagPerioder(long behandlingId, BeregningsresultatEntitet beregningsresultat, Optional<ForeldrepengerUttak> uttak) {
@@ -207,15 +196,11 @@ public class BeregningsresultatMedUttaksplanMapper {
         }
 
         var perioder = uttak.get().getGjeldendePerioder();
-
         var uttakDto = perioder.stream()
             .findAny()
             .map(uttakPerArbeidsforhold -> finnTilhørendeUttakPeriodeAktivitet(perioder, beregningsresultatPeriode))
             .flatMap(uttakPeriode -> lagUttakDto(uttakPeriode, brukersAndel));
-        if (uttakDto.isEmpty()) {
-            return UttakDto.build().create();
-        }
-        return uttakDto.get();
+        return uttakDto.orElseGet(() -> UttakDto.build().create());
     }
 
     private Optional<UttakDto> lagUttakDto(ForeldrepengerUttakPeriode uttakPeriode, BeregningsresultatAndel brukersAndel) {

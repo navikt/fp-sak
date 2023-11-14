@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -29,9 +31,8 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
 
     @Override
     public OppdateringResultat oppdater(AvklarAleneomsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
-
-        if (!dto.getAleneomsorg() && (dto.getAnnenforelderHarRett() == null
-            || !dto.getAnnenforelderHarRett() && dto.getAnnenforelderMottarUføretrygd() == null)) {
+        // Må ha valgt aleneomsorg = true, annenForelderRett = true, eller annenForelderRettEØS = true, eller valgt uføretrygd true/false
+        if (måVelgeUføre(dto) && dto.getAnnenforelderMottarUføretrygd() == null) {
             throw new FunksjonellException("FP-093924", "Avkreftet aleneomsorg mangler verdi for annen forelder rett eller uføretrygd.",
                 "Angi om annen forelder har rett eller om annen forelder mottar uføretrygd.");
         }
@@ -49,6 +50,12 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         }
         faktaOmsorgRettTjeneste.omsorgRettHistorikkInnslag(param, dto.getBegrunnelse());
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
+    }
+
+    private static boolean måVelgeUføre(AvklarAleneomsorgVurderingDto dto) {
+        return !(Objects.equals(dto.getAleneomsorg(), Boolean.TRUE)
+            || Objects.equals(dto.getAnnenforelderHarRett(), Boolean.TRUE)
+            || Objects.equals(dto.getAnnenForelderHarRettEØS(), Boolean.TRUE));
     }
 
 }
