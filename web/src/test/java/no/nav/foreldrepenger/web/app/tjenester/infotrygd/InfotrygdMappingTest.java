@@ -19,10 +19,10 @@ class InfotrygdMappingTest {
     @Test
     void test_mapForeldrepenger() throws IOException {
         var respons = Optional.ofNullable(getResponse()).orElseThrow();
-        var dto = InfotrygdOppslagRestTjeneste.mapTilVedtakDto(respons.stream().distinct().toList(), respons);
-        assertThat(dto.vedtakKjedeForIdentdato()).hasSize(2);
-        assertThat(dto.vedtakKjedeForIdentdato().get(LocalDate.of(2015, 6, 1)).vedtak()).hasSize(1);
-        assertThat(dto.vedtakKjedeForIdentdato().get(LocalDate.of(2015, 8, 20)).vedtak()).hasSize(3);
+        var dto = InfotrygdOppslagRestTjeneste.mapTilVedtakDto(respons.stream().distinct().toList());
+        assertThat(dto.vedtakKjeder()).hasSize(2);
+        assertThat(dto.vedtakKjeder().get(0).vedtak()).hasSize(1);
+        assertThat(dto.vedtakKjeder().get(1).vedtak()).hasSize(3);
         System.out.println(DefaultJsonMapper.toPrettyJson(dto));
     }
 
