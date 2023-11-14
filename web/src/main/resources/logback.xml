@@ -53,7 +53,6 @@
     <logger name="ch.qos.logback" level="${log.level.ch.qos.logback:-WARN}" />
     <logger name="org.flywaydb" level="${log.level.org.flywaydb:-INFO}" />
     <logger name="org.apache" level="${log.level.org.apache:-ERROR}" />
-        <!-- ESSV: genererer en del støy for webservice -->
     <logger name="org.jboss.weld" level="${log.level.org.jboss.weld:-WARN}" />
     <logger name="org.glassfish.jersey" level="${log.level.org.glassfish.jersey:-WARN}" />
 
