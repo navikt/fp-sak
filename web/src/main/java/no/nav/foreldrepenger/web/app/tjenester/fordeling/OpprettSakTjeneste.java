@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
@@ -52,6 +53,14 @@ public class OpprettSakTjeneste {
         var fagsak = opprettSakVL(bruker, ytelseType);
         knyttSakOgJournalpost(fagsak.getSaksnummer(), journalpostId);
         return fagsak;
+    }
+
+    FagsakYtelseType utledYtelseType(BehandlingTema behandlingTema) {
+        var fagsakYtelseType = behandlingTema.getFagsakYtelseType();
+        if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
+            throw new TekniskException("FP-106651", "Ukjent behandlingstemakode " + behandlingTema.getOffisiellKode());
+        }
+        return fagsakYtelseType;
     }
 
     Optional<Fagsak> finnSak(Saksnummer saksnummer) {

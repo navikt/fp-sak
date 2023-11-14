@@ -153,6 +153,25 @@ public class FordelRestTjeneste {
     }
 
     @POST
+    @Path("/fagsak/opprett")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
+    public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
+        ensureCallId();
+        var journalpostId = opprettSakDto.getJournalpostId();
+        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
+
+        var aktørId = new AktørId(opprettSakDto.getAktørId());
+
+        var ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
+
+        var s = opprettSakTjeneste.opprettSak(ytelseType, aktørId, journalpostId.map(JournalpostId::new).orElse(null));
+        return new SaksnummerDto(s.getVerdi());
+    }
+
+    @POST
     @Path("/fagsak/opprett/v2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
