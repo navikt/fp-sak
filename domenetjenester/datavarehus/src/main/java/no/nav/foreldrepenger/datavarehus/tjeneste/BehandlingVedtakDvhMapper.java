@@ -43,14 +43,6 @@ class BehandlingVedtakDvhMapper {
         if (!VEDTAK_IKKE_OPPFYLT.contains(vedtakResultatType)) {
             return null;
         }
-        var relasjonTilBarn = vilkårIkkeOppfylt.stream().anyMatch(VilkårType::gjelderRelasjonTilBarn);
-        if (relasjonTilBarn) {
-            return switch (ytelseType) {
-                case ENGANGSTØNAD -> VilkårVerdiDvh.ENGANSSTØNAD;
-                case FORELDREPENGER -> VilkårVerdiDvh.FORELDREPENGER_GENERELL;
-                default -> throw new IllegalStateException("Svangerskapspenger skal ikke vurderes mhp relasjon til barn");
-            };
-        }
         if (vilkårIkkeOppfylt.contains(VilkårType.MEDLEMSKAPSVILKÅRET) || vilkårIkkeOppfylt.contains(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE)) {
             return VilkårVerdiDvh.MEDLEMSKAP;
         }
@@ -66,13 +58,20 @@ class BehandlingVedtakDvhMapper {
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return VilkårVerdiDvh.SVANGERSKAPSPENGER;
         }
+        var relasjonTilBarn = vilkårIkkeOppfylt.stream().anyMatch(VilkårType::gjelderRelasjonTilBarn);
+        if (relasjonTilBarn) {
+            return VilkårVerdiDvh.FORELDREPENGER_GENERELL;
+        }
         if (vilkårIkkeOppfylt.contains(VilkårType.OPPTJENINGSPERIODEVILKÅR) || vilkårIkkeOppfylt.contains(VilkårType.OPPTJENINGSVILKÅRET)) {
             return VilkårVerdiDvh.FORELDREPENGER_OPPTJENING;
         }
         if (vilkårIkkeOppfylt.contains(VilkårType.BEREGNINGSGRUNNLAGVILKÅR)) {
             return VilkårVerdiDvh.FORELDREPENGER_BEREGNING;
         }
-        return vilkårIkkeOppfylt.isEmpty() ? VilkårVerdiDvh.FORELDREPENGER_UTTAK : VilkårVerdiDvh.FORELDREPENGER_GENERELL;
+        if (!vilkårIkkeOppfylt.isEmpty()) {
+            throw new IllegalStateException("Hvilket tilfelle har vi oversett? " + vilkårIkkeOppfylt);
+        }
+        return VilkårVerdiDvh.FORELDREPENGER_UTTAK;
     }
 
 }
