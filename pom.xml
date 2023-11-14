@@ -17,8 +17,6 @@
 
     <modules>
         <module>migreringer</module>
-        <module>integrasjoner</module>
-
         <module>behandlingslager</module>
         <module>infrastrukturtjenester</module>
         <module>domenetjenester</module>
@@ -86,11 +84,6 @@
 
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-                <artifactId>felles-integrasjon-webservice</artifactId>
-                <version>${felles.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>person-klient</artifactId>
                 <version>${felles.version}</version>
             </dependency>
@@ -141,6 +134,7 @@
                 <version>${kalkulus.version}</version>
             </dependency>
 
+            <!-- MQ -->
             <dependency>
                 <groupId>jakarta.jms</groupId>
                 <artifactId>jakarta.jms-api</artifactId>
@@ -242,11 +236,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>behandle-dokumentforsendelse-tjeneste</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>behandlingsprosess-steg</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -278,12 +267,6 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>mottak</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>oppgavebehandling</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -431,20 +414,6 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>dokumentarkiv</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!-- 3dje parts NAV felleskomponenter -->
-            <!-- NB: Definer scope der det brukes, ikke her. -->
-
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>foreldrepengesak-v1</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.foreldrepenger</groupId>
-                <artifactId>behandleForeldrepengesak-v1</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

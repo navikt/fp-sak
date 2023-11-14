@@ -24,7 +24,6 @@ public class BatchRunnerTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(BatchRunnerTask.class);
 
     static final String BATCH_NAME = "batch.runner.name";
-    static final String BATCH_PARAMS = "batch.runner.params";
     static final String BATCH_RUN_DATE = "batch.runner.onlydate";
 
     private BatchSupportTjeneste batchSupportTjeneste;

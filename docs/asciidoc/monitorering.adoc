@@ -118,7 +118,7 @@ Sporingsloggen skal være beskyttet, da den inneholder fødselsnumre.
 === Kontekst informasjon for logging
 Applikasjonen setter MDC verdier for bruker-id og call-id ved inngangen til alle HTTP requests, samt kjøring av Tasks og mottak av meldinger.
 
-Disse verdiene skrives i alle log-innslag, og formidles videre i kall til SOAP-baserte web services.
+Disse verdiene skrives i alle log-innslag.
 
 === Teknisk
 Logging håndteres gjennom logback-rammeverket, som implementer slf4j sitt standard-api. Rammeverket konfigureres gjennom logback.xml som må ligge på classpath. For deployering mot Jboss er dette lagt inn i modul build-config. Loggingen kan overvåkes av sentral ELK-stakk som vist i ELK - miljøversikt

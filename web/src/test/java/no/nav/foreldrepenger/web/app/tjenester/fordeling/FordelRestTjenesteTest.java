@@ -40,8 +40,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
-import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
-import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacSaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste.AbacVurderFagsystemDto;
 
@@ -53,8 +51,6 @@ class FordelRestTjenesteTest {
 
     @Mock
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjenesteMock;
-    @Mock
-    private OpprettSakOrchestrator opprettSakOrchestratorMock;
     @Mock
     private OpprettSakTjeneste opprettSakTjenesteMock;
     @Mock
@@ -78,7 +74,7 @@ class FordelRestTjenesteTest {
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
-        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakOrchestratorMock, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
+        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
     }
 
     @Test
@@ -168,7 +164,7 @@ class FordelRestTjenesteTest {
         when(sakInfoDtoTjenesteMock.mapSakInfoDto(fagsak2)).thenReturn(sakDto2);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
 
         var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
 
@@ -178,7 +174,7 @@ class FordelRestTjenesteTest {
     @Test
     @DisplayName("Skal kaste exceptions om aktørId er ikke gyldig.")
     void exception_om_ikke_gyldig_aktørId() {
-        var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakOrchestratorMock, opprettSakTjenesteMock, mock(
+        var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakTjenesteMock, mock(
             BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
 
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");

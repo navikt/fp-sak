@@ -57,8 +57,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
-import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
-import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -79,7 +77,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class FordelRestTjeneste {
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste;
     private FagsakTjeneste fagsakTjeneste;
-    private OpprettSakOrchestrator opprettSakOrchestrator;
     private OpprettSakTjeneste opprettSakTjeneste;
     private VurderFagsystemFellesTjeneste vurderFagsystemTjeneste;
     private FamilieHendelseRepository familieGrunnlagRepository;
@@ -91,15 +88,12 @@ public class FordelRestTjeneste {
 
     @Inject
     public FordelRestTjeneste(SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste,
-                              FagsakTjeneste fagsakTjeneste,
-                              OpprettSakOrchestrator opprettSakOrchestrator,
-                              OpprettSakTjeneste opprettSakTjeneste,
+                              FagsakTjeneste fagsakTjeneste, OpprettSakTjeneste opprettSakTjeneste,
                               BehandlingRepositoryProvider repositoryProvider,
                               VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
                               SakInfoDtoTjeneste sakInfoDtoTjeneste  ) {
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
-        this.opprettSakOrchestrator = opprettSakOrchestrator;
         this.opprettSakTjeneste = opprettSakTjeneste;
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -159,28 +153,6 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path("/fagsak/opprett")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Ny journalpost skal behandles.", summary = "Varsel om en ny journalpost som skal behandles i systemet.", tags = "fordel")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
-        ensureCallId();
-        var journalpostId = opprettSakDto.getJournalpostId();
-        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
-
-        var aktørId = new AktørId(opprettSakDto.getAktørId());
-
-        Saksnummer s;
-        if (journalpostId.isPresent()) {
-            s = opprettSakOrchestrator.opprettSak(new JournalpostId(journalpostId.get()), behandlingTema, aktørId);
-        } else {
-            s = opprettSakOrchestrator.opprettSak(behandlingTema, aktørId);
-        }
-        return new SaksnummerDto(s.getVerdi());
-    }
-
-    @POST
     @Path("/fagsak/opprett/v2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -193,7 +165,7 @@ public class FordelRestTjeneste {
 
         var aktørId = new AktørId(opprettSakDto.aktørId());
 
-        var saksnummer = opprettSakOrchestrator.opprettSak(ytelseType, aktørId, journalpostId.map(JournalpostId::new).orElse(null));
+        var saksnummer = opprettSakTjeneste.opprettSak(ytelseType, aktørId, journalpostId.map(JournalpostId::new).orElse(null));
         return new SaksnummerDto(saksnummer.getVerdi());
     }
 
@@ -217,7 +189,9 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
     public Response knyttSakOgJournalpost(@Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
-        opprettSakTjeneste.knyttSakOgJournalpost(new Saksnummer(journalpostKnytningDto.getSaksnummer()), new JournalpostId(journalpostKnytningDto.getJournalpostId()));
+        var saksnummer = new Saksnummer(journalpostKnytningDto.getSaksnummer());
+        opprettSakTjeneste.finnSak(saksnummer).orElseThrow(() -> new TekniskException("FP-840572", "Finner ikke fagsak med angitt saksnummer " + saksnummer));
+        opprettSakTjeneste.knyttSakOgJournalpost(saksnummer, new JournalpostId(journalpostKnytningDto.getJournalpostId()));
         return Response.ok().build();
     }
 
