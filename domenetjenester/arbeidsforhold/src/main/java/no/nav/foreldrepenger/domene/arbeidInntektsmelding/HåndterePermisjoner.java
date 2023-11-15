@@ -63,12 +63,13 @@ public class HåndterePermisjoner {
             .anyMatch(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold());
     }
 
-    public static boolean harRelevantPermisjonSomOverlapperTilretteleggingFom(Yrkesaktivitet yrkesaktivitet, LocalDate tilretteleggingBehovFom) {
+    public static List<Permisjon> finnRelevantePermisjonSomOverlapperTilretteleggingFom(Yrkesaktivitet yrkesaktivitet, LocalDate tilretteleggingBehovFom) {
         return yrkesaktivitet.getPermisjon()
             .stream()
             .filter(HåndterePermisjoner::harMerEnnNullProsentPermisjon)
             .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
-            .anyMatch(permisjon -> erPeriodenInnenfortilretteleggingFom(permisjon, tilretteleggingBehovFom));
+            .filter(permisjon -> erPeriodenInnenfortilretteleggingFom(permisjon, tilretteleggingBehovFom))
+            .toList();
     }
 
 
