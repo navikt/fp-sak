@@ -7,10 +7,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -22,13 +20,11 @@ public class TapteDagerFpffTjeneste {
 
     private FpUttakRepository fpUttakRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @Inject
     public TapteDagerFpffTjeneste(UttakRepositoryProvider repositoryProvider, YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
     }
 
     TapteDagerFpffTjeneste() {
@@ -36,7 +32,7 @@ public class TapteDagerFpffTjeneste {
     }
 
 
-    public int antallTapteDagerFpff(UttakInput input) {
+    public int antallTapteDagerFpff(UttakInput input, int gjenværendeFpff) {
         if (!harSøktFpff(input)) {
             return 0;
         }
@@ -46,25 +42,7 @@ public class TapteDagerFpffTjeneste {
         if (harSøktPåTermin(familieHendelser) && skjeddFødselFørTermin(fpGrunnlag)) {
             var virkedager = Virkedager.beregnAntallVirkedager(familieHendelser.getGjeldendeFamilieHendelse().getFødselsdato().orElseThrow(),
                 familieHendelser.getGjeldendeFamilieHendelse().getTermindato().orElseThrow().minusDays(1));
-            var maxdagerFpff = finnMaksdagerFpff(input.getBehandlingReferanse().saksnummer());
-            return Math.min(virkedager, maxdagerFpff);
-        }
-        return 0;
-    }
-
-    private int finnMaksdagerFpff(Saksnummer saksnummer) {
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
-        if (fagsakRelasjon.isPresent()) {
-            var stønadskontoberegning = fagsakRelasjon.get().getGjeldendeStønadskontoberegning();
-            if (stønadskontoberegning.isPresent()) {
-                var fpffKonto = stønadskontoberegning.get().getStønadskontoer()
-                    .stream()
-                    .filter(stønadskonto -> stønadskonto.getStønadskontoType().equals(StønadskontoType.FORELDREPENGER_FØR_FØDSEL))
-                    .findFirst();
-                if (fpffKonto.isPresent()) {
-                    return fpffKonto.get().getMaxDager();
-                }
-            }
+            return Math.min(virkedager, gjenværendeFpff);
         }
         return 0;
     }

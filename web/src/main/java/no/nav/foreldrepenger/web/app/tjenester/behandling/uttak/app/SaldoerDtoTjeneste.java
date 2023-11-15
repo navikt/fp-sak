@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoValidering.round;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetIde
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetSaldoDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontoUtvidelser;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
@@ -86,7 +88,7 @@ public class SaldoerDtoTjeneste {
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         var ref = input.getBehandlingReferanse();
         var annenpart = annenPartUttak(fpGrunnlag);
-        Map<SaldoerDto.SaldoVisningStønadskontoType, StønadskontoDto> stønadskontoMap = new HashMap<>();
+        Map<SaldoVisningStønadskontoType, StønadskontoDto> stønadskontoMap = new EnumMap<>(SaldoVisningStønadskontoType.class);
         var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(), fpGrunnlag.isBerørtBehandling());
         for (var stønadskontotype : saldoUtregning.stønadskontoer()) {
             List<AktivitetSaldoDto> aktivitetSaldoListe = new ArrayList<>();
@@ -97,7 +99,7 @@ public class SaldoerDtoTjeneste {
             }
             var kontoUtvidelser = finnKontoUtvidelser(ref, stønadskontotype, annenpart, fpGrunnlag);
             var saldoValideringResultat = saldoValidering.valider(stønadskontotype);
-            var visningStønadskontoType = SaldoerDto.SaldoVisningStønadskontoType.fra(stønadskontotype);
+            var visningStønadskontoType = fra(stønadskontotype);
             stønadskontoMap.put(visningStønadskontoType,
                 new StønadskontoDto(visningStønadskontoType, saldoUtregning.getMaxDager(stønadskontotype), saldoUtregning.saldo(stønadskontotype),
                     aktivitetSaldoListe, saldoValideringResultat.isGyldig(), kontoUtvidelser.orElse(null)));
@@ -119,7 +121,7 @@ public class SaldoerDtoTjeneste {
             stønadskontoMap.put(stønadskontoDto.stonadskontotype(), stønadskontoDto);
         }
 
-        var tapteDagerFpff = finnTapteDagerFpff(input);
+        var tapteDagerFpff = finnTapteDagerFpff(input, stønadskontoMap);
         return new SaldoerDto(stønadskontoMap, tapteDagerFpff);
     }
 
@@ -146,7 +148,7 @@ public class SaldoerDtoTjeneste {
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoFlerbarnsdager >= 0;
-        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER,
+        return new StønadskontoDto(FLERBARNSDAGER,
             saldoUtregning.getMaxDagerFlerbarnsdager().rundOpp(), restSaldoFlerbarnsdager, aktivitetSaldoList, gyldigForbruk,
             null);
     }
@@ -162,7 +164,7 @@ public class SaldoerDtoTjeneste {
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoDagerUtenAktivitetskrav >= 0;
-        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV,
+        return new StønadskontoDto(UTEN_AKTIVITETSKRAV,
             saldoUtregning.getMaxDagerUtenAktivitetskrav().rundOpp(), restSaldoDagerUtenAktivitetskrav, aktivitetSaldoList, gyldigForbruk,
             null);
     }
@@ -178,7 +180,7 @@ public class SaldoerDtoTjeneste {
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldoMinsterett >= 0;
-        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT,
+        return new StønadskontoDto(MINSTERETT,
             saldoUtregning.getMaxDagerMinsterett().rundOpp(), restSaldoMinsterett, aktivitetSaldoList, gyldigForbruk,
             null);
     }
@@ -193,12 +195,15 @@ public class SaldoerDtoTjeneste {
             .max(Comparator.comparing(integer -> integer))
             .orElse(0);
         var gyldigForbruk = restSaldo >= 0;
-        return new StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT_NESTE_STØNADSPERIODE,
+        return new StønadskontoDto(MINSTERETT_NESTE_STØNADSPERIODE,
             saldoUtregning.getMaxDagerEtterNesteStønadsperiode().rundOpp(), restSaldo, aktivitetSaldoList, gyldigForbruk, null);
     }
 
-    private int finnTapteDagerFpff(UttakInput input) {
-        return tapteDagerFpffTjeneste.antallTapteDagerFpff(input);
+    private int finnTapteDagerFpff(UttakInput input, Map<SaldoVisningStønadskontoType, StønadskontoDto> saldo) {
+        if (!saldo.containsKey(FORELDREPENGER_FØR_FØDSEL)) {
+            return 0;
+        }
+        return tapteDagerFpffTjeneste.antallTapteDagerFpff(input, saldo.get(FORELDREPENGER_FØR_FØDSEL).saldo());
     }
 
     private Optional<ForeldrepengerUttak> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
