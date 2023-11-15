@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
-import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner.harRelevantPermisjonSomOverlapperTilretteleggingFom;
+import static no.nav.foreldrepenger.domene.arbeidInntektsmelding.HåndterePermisjoner.finnRelevantePermisjonSomOverlapperTilretteleggingFom;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -194,8 +194,7 @@ public class SvangerskapspengerTjeneste {
     private List<VelferdspermisjonDto> mapVelferdspermisjoner(SvpTilretteleggingEntitet svpTilrettelegging, YrkesaktivitetFilter registerFilter, Arbeidsgiver arbeidsgiver, YrkesaktivitetFilter saksbehandletFilter) {
         return registerFilter.getYrkesaktiviteter().stream()
             .filter(ya -> erSammeArbeidsgiver(ya, arbeidsgiver, svpTilrettelegging))
-            .filter( ya -> harRelevantPermisjonSomOverlapperTilretteleggingFom(ya, svpTilrettelegging.getBehovForTilretteleggingFom() ))
-            .flatMap(ya -> ya.getPermisjon().stream())
+            .flatMap( ya -> finnRelevantePermisjonSomOverlapperTilretteleggingFom(ya, svpTilrettelegging.getBehovForTilretteleggingFom()).stream())
             .map(p -> mapPermisjon(p, registerFilter, saksbehandletFilter))
             .toList();
     }
