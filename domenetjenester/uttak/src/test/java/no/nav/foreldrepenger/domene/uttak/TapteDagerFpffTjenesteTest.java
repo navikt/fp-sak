@@ -461,6 +461,35 @@ class TapteDagerFpffTjenesteTest {
         assertThat(resultat).isEqualTo(2);
     }
 
+    @Test
+    void søknad_på_termindato_med_fødselshendelse_ikke_søkt_3_uker_føder_før_første_søkte_dag() {
+        var søktFpff = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
+            //2 virkedager
+            .medPeriode(LocalDate.of(2023, 11, 13), LocalDate.of(2023, 11, 14))
+            .build();
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2023, 11, 15), LocalDate.of(2024, 2, 1))
+            .build();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(søktFpff, mødrekvote), true))
+            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
+        var behandling = scenario.lagre(repositoryProvider);
+        opprettFagsakRelasjon(behandling, 15);
+
+        var termindato = mødrekvote.getFom();
+        var fødselsdato = LocalDate.of(2023, 11, 9);
+        var familieHendelser = new FamilieHendelser()
+            .medSøknadHendelse(familieHendelse(termindato, null))
+            .medBekreftetHendelse(familieHendelse(termindato, fødselsdato));
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
+        var resultat = tjeneste().antallTapteDagerFpff(input, 15);
+
+        //Taper kun 2 dager siden det er dette som er søkt om
+        assertThat(resultat).isEqualTo(2);
+    }
+
     private static UttakAktivitetEntitet frilans() {
         return new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build();
     }
