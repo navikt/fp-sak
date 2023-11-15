@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.datavarehus.tjeneste;
 
 import java.time.LocalDateTime;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
@@ -14,8 +13,7 @@ class DvhTestDataUtil {
 
     static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET;
     static final BehandlingStegType BEHANDLING_STEG_TYPE = BehandlingStegType.FATTE_VEDTAK;
-    static final IverksettingStatus IVERKSETTING_STATUS = IverksettingStatus.IKKE_IVERKSATT;
-    static final BehandlingStegStatus BEHANDLING_STEG_STATUS = BehandlingStegStatus.STARTET;
+    static final IverksettingStatus IVERKSETTING_STATUS = IverksettingStatus.IVERKSATT;
     static final String ANSVARLIG_BESLUTTER = "ansvarligBeslutter";
     static final String ANSVARLIG_SAKSBEHANDLER = "ansvarligSaksbehandler";
     static final String BEHANDLENDE_ENHET = "BE";

@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,6 +51,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.TotrinnReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -254,7 +260,13 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
         var ytelseMedUtbetalingFra = finnUtbetaltDato(behandling, vedtak);
 
-        var behandlingVedtakDvh = BehandlingVedtakDvhMapper.map(vedtak, behandling, ytelseMedUtbetalingFra);
+        var vilkårIkkeOppfylt = Optional.ofNullable(vedtak.getBehandlingsresultat().getVilkårResultat())
+            .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
+            .filter(v -> VilkårUtfallType.IKKE_OPPFYLT.equals(v.getGjeldendeVilkårUtfall()))
+            .map(Vilkår::getVilkårType)
+            .collect(Collectors.toSet());
+
+        var behandlingVedtakDvh = BehandlingVedtakDvhMapper.map(vedtak, behandling, ytelseMedUtbetalingFra, vilkårIkkeOppfylt);
         datavarehusRepository.lagre(behandlingVedtakDvh);
 
         lagreNedBehandling(behandling, Optional.of(vedtak));
