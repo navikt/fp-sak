@@ -24,7 +24,7 @@ class SjekkDtoStrukturTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void skal_ha_riktig_navn_på_properties_i_dto_eller_konfiguret_med_annotations(Class<?> cls) throws Exception {
+    void skal_ha_riktig_navn_på_properties_i_dto_eller_konfiguret_med_annotations(Class<?> cls) throws Exception {
         sjekkJsonProperties(cls);
     }
 

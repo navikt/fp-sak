@@ -160,9 +160,6 @@ image::https://confluence.adeo.no/rest/gliffy/1.0/embeddedDiagrams/edc1c590-b2ac
 - Sender 401
 1. Kall til andre REST-tjenester
 - OIDC sendes med i auth-header, evt etter OBO, slik at neste tjeneste kan gjøre sikkerhetssjekker
-1. Kall til 3.generasjons webtjenester
-- OIDC sendes til Secure Token Service (STS) for å byttes til et SAML-token
-- SAML dyttes inn SOAP-meldingen som så sendes til web-service.
 1. Håndtering av utløpt eller ikke-validerende OIDC-token
 - Sender 401
 

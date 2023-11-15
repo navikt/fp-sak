@@ -72,20 +72,7 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-abac-kontekst</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-xmlutils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml.stream</groupId>
-                    <artifactId>stax-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
             <artifactId>felles-sikkerhet</artifactId>
@@ -112,14 +99,6 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingsprosess-steg</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>foreldrepengesak-v1</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>behandleForeldrepengesak-v1</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
@@ -136,7 +115,7 @@
             <artifactId>vedtak</artifactId>
         </dependency>
 
-        <!-- REST + WebService -->
+        <!-- REST -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
@@ -248,11 +227,6 @@
             <artifactId>jakarta.activation-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
-        </dependency>
-
         <!-- bean validation -->
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -279,15 +253,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
@@ -298,16 +263,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.codehaus.woodstox</groupId>
-                <artifactId>stax2-api</artifactId>
-                <version>4.2.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <!-- setter til app da det er default for jar som kjøres i nais baseimages -->
