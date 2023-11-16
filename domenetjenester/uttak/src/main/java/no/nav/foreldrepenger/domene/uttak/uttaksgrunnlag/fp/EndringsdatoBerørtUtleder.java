@@ -59,7 +59,7 @@ public final class EndringsdatoBerørtUtleder {
         Set<LocalDate> berørtBehovDatoer = new HashSet<>();
         if (utløsendeBehandlingsresultat.isEndretStønadskonto()) {
             LOG.info("{}: EndretKonto endringsdato {}", loggPrefix, endringsdato);
-            berørtBehovDatoer.add(berørtUttak.finnFørsteUttaksdato().orElseThrow());
+            berørtBehovDatoer.add(berørtUttak.finnFørsteUttaksdato());
         }
 
         if (negativSaldoNoenKonto) {

@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -96,5 +98,9 @@ public class OppgittFordelingEntitet extends BaseEntitet {
     @Override
     public int hashCode() {
         return Objects.hash(søknadsPerioder, erAnnenForelderInformert, ønskerJustertVedFødsel);
+    }
+
+    public Optional<LocalDate> finnFørsteUttaksdato() {
+        return getPerioder().stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo);
     }
 }
