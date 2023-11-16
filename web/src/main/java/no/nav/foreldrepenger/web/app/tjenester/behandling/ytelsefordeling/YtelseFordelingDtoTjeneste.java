@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnl
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
@@ -47,8 +46,7 @@ public class YtelseFordelingDtoTjeneste {
             dtoBuilder.medBekreftetAleneomsorg(yfa.getAleneomsorgAvklaring());
             dtoBuilder.medOverstyrtOmsorg(yfa.getOverstyrtOmsorg());
             yfa.getAvklarteDatoer().ifPresent(avklarteUttakDatoer -> dtoBuilder.medEndringsdato(avklarteUttakDatoer.getGjeldendeEndringsdato()));
-            var førsteUttaksdato = finnFørsteUttaksdato(behandling);
-            førsteUttaksdato.ifPresent(dtoBuilder::medFørsteUttaksdato);
+            dtoBuilder.medFørsteUttaksdato(finnFørsteUttaksdato(behandling));
             dtoBuilder.medØnskerJustertVedFødsel(yfa.getGjeldendeFordeling().ønskerJustertVedFødsel());
             dtoBuilder.medRettigheterAnnenforelder(lagAnnenforelderRettDto(behandling, yfa));
         });
@@ -66,32 +64,32 @@ public class YtelseFordelingDtoTjeneste {
             yfa.getMorUføretrygdAvklaring(), avklareUføretrygd);
     }
 
-    public Optional<LocalDate> finnFørsteUttaksdato(Behandling behandling) {
+    public LocalDate finnFørsteUttaksdato(Behandling behandling) {
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
         var førsteUttaksdato = ytelseFordelingAggregat.getAvklarteDatoer()
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
-        if (førsteUttaksdato.isPresent()) {
-            return førsteUttaksdato;
-        }
-        return behandling.erRevurdering() ? finnFørsteUttaksdatoRevurdering(
-            behandling) : finnFørsteUttaksdatoFørstegangsbehandling(behandling);
+        return førsteUttaksdato.orElseGet(() -> behandling.erRevurdering() ? finnFørsteUttaksdatoRevurdering(
+                behandling) : finnFørsteUttaksdatoFørstegangsbehandling(behandling));
     }
 
-    private Optional<LocalDate> finnFørsteUttaksdatoFørstegangsbehandling(Behandling behandling) {
-        var oppgittePerioder = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
+    private LocalDate finnFørsteUttaksdatoFørstegangsbehandling(Behandling behandling) {
+        return ytelseFordelingTjeneste.hentAggregat(behandling.getId())
             .getGjeldendeFordeling()
-            .getPerioder();
-        return oppgittePerioder.stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo);
+            .finnFørsteUttaksdato().orElseThrow();
     }
 
-    private Optional<LocalDate> finnFørsteUttaksdatoRevurdering(Behandling behandling) {
+    private LocalDate finnFørsteUttaksdatoRevurdering(Behandling behandling) {
         var revurderingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
         var uttak = uttakTjeneste.hentUttakHvisEksisterer(revurderingId);
-        if (uttak.isEmpty() || uttak.get().getGjeldendePerioder().isEmpty()) {
-            return finnFørsteUttaksdatoFørstegangsbehandling(behandling);
-        }
-        return uttak.get().finnFørsteUttaksdato();
+        var førsteUttaksdatoOriginalBehandling = uttak.isEmpty() ? finnFørsteUttaksdatoFørstegangsbehandling(behandling) : uttak.get()
+                .finnFørsteUttaksdato();
+
+        var førsteUttaksdatoSøkt = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
+            .getOppgittFordeling()
+            .finnFørsteUttaksdato();
+
+        return førsteUttaksdatoSøkt.filter(søktFom -> søktFom.isBefore(førsteUttaksdatoOriginalBehandling)).orElse(førsteUttaksdatoOriginalBehandling);
     }
 
 }

@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
+import static java.time.LocalDate.now;
+import static java.time.LocalDate.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
@@ -23,11 +25,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -70,7 +79,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling, null), dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(LocalDate.now().minusDays(20));
+        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(now().minusDays(20));
         assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
 
@@ -90,7 +99,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().bekreftetAnnenForelderRettEØS()).isNull();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenforelderUføretrygd()).isFalse();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder().skalAvklareAnnenForelderRettEØS()).isFalse();
-        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(LocalDate.now().minusDays(20));
+        assertThat(ytelseFordelingDtoOpt.get().getEndringsdato()).isEqualTo(now().minusDays(20));
         assertThat(ytelseFordelingDtoOpt.get().getGjeldendeDekningsgrad()).isEqualTo(100);
     }
 
@@ -103,7 +112,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
             BehandlingReferanse.fra(behandling, null), dto));
         when(uføretrygdRepository.hentGrunnlag(anyLong())).thenReturn(Optional.of(UføretrygdGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medBehandlingId(behandling.getId()).medAktørIdUføretrygdet(AktørId.dummy())
-            .medRegisterUføretrygd(true, LocalDate.now(), LocalDate.now()).build()));
+            .medRegisterUføretrygd(true, now(), now()).build()));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
         assertThat(ytelseFordelingDtoOpt.get().getRettigheterAnnenforelder()).isNotNull();
@@ -159,7 +168,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     void skal_hente_ønsker_justert_fordeling_fra_yf() {
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+            .medPeriode(now().minusDays(10), now())
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .build();
         var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true, true);
@@ -170,6 +179,31 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(dto.isØnskerJustertVedFødsel()).isTrue();
     }
 
+    @Test
+    void førsteUttaksdato_skal_være_lik_første_søkte_dag_i_endringssøknad_hvis_tidligere_enn_innvilget_vedtak() {
+        var førstegangsUttak = new UttakResultatPerioderEntitet()
+            .leggTilPeriode(new UttakResultatPeriodeEntitet.Builder(of(2023, 11, 16), of(2023, 12, 16))
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .build());
+        var førstegangsScenario = ScenarioFarSøkerEngangsstønad.forFødsel()
+            .medUttak(førstegangsUttak);
+        var førstegangsBehandling = førstegangsScenario.lagre(repositoryProvider);
+
+        var endringssøknadFom = of(2023, 10, 10);
+        var endringssøknadPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriode(endringssøknadFom, endringssøknadFom.plusMonths(2))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .build();
+        var revurdering = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(førstegangsBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medFordeling(new OppgittFordelingEntitet(List.of(endringssøknadPeriode), true))
+            .lagre(repositoryProvider);
+
+        var førsteUttaksdato = tjeneste().finnFørsteUttaksdato(revurdering);
+
+        assertThat(førsteUttaksdato).isEqualTo(endringssøknadFom);
+    }
+
     private YtelseFordelingDtoTjeneste tjeneste() {
         return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, repositoryProvider.getFagsakRelasjonRepository(),
             uføretrygdRepository, uttakTjeneste);
@@ -177,11 +211,11 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling opprettBehandling() {
         var periode_1 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+            .medPeriode(now().minusDays(10), now())
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
         var periode_2 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
+            .medPeriode(now().minusDays(20), now().minusDays(11))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode_1, periode_2), true);
@@ -190,10 +224,10 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling opprettBehandling(OppgittFordelingEntitet fordeling) {
         // Arrange
-        var termindato = LocalDate.now().plusWeeks(16);
+        var termindato = now().plusWeeks(16);
         var rettighet = OppgittRettighetEntitet.aleneomsorg();
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
-            LocalDate.now().minusDays(20)).medOpprinneligEndringsdato(LocalDate.now().minusDays(20)).build();
+            now().minusDays(20)).medOpprinneligEndringsdato(now().minusDays(20)).build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(rettighet)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)

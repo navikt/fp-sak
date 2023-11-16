@@ -144,7 +144,7 @@ class FaktaUttakFellesTjeneste {
         //Burde overstyre første uttaksdag i Fakta om saken
         var førsteOverstyrt = overstyrtePerioder.stream().filter(p -> !p.isUtsettelse()).map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());
         if (førsteOverstyrt.isPresent()) {
-            var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(behandling).orElseThrow();
+            var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(behandling);
             if (førsteOverstyrt.get().isBefore(førsteUttaksdato)) {
                 throw new IllegalArgumentException(
                     "første dag i overstyrte perioder kan ikke ligge før gyldig første uttaksdato " + førsteOverstyrt + " - " + førsteUttaksdato);

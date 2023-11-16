@@ -1214,9 +1214,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return (S) this;
     }
 
-    /** @deprecated Fjern uttak fra scenario. Bør bare håndteres i uttak modul. */
-    @SuppressWarnings("unchecked")
-    @Deprecated
     public S medUttak(UttakResultatPerioderEntitet uttak) {
         if (behandlingresultatBuilder == null) {
             medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
