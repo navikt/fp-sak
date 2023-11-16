@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +27,7 @@ class RisikovurderingTjenesteTest {
 
     private final FpriskTjeneste fpriskTjeneste = mock(FpriskTjeneste.class);
     private final ProsessTaskTjeneste prosessTaskTjeneste = mock(ProsessTaskTjeneste.class);
+    private final BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
 
     private RisikovurderingTjeneste risikovurderingTjeneste;
 
@@ -37,7 +40,7 @@ class RisikovurderingTjenesteTest {
     public void setup() {
         var scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioFørstegang.lagMocked();
-        risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste);
+        risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste, behandlingRepository);
         referanse = BehandlingReferanse.fra(behandling);
     }
 

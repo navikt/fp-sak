@@ -6,6 +6,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,15 +32,19 @@ public class RisikovurderingTjeneste {
 
     private FpriskTjeneste fpriskTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     public RisikovurderingTjeneste() {
         // CDI
     }
 
     @Inject
-    public RisikovurderingTjeneste(FpriskTjeneste fpriskTjeneste, ProsessTaskTjeneste prosessTaskTjeneste) {
+    public RisikovurderingTjeneste(FpriskTjeneste fpriskTjeneste,
+                                   ProsessTaskTjeneste prosessTaskTjeneste,
+                                   BehandlingRepository behandlingRepository) {
         this.fpriskTjeneste = fpriskTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     private boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
@@ -46,17 +53,26 @@ public class RisikovurderingTjeneste {
     }
 
     public Optional<FaresignalWrapper> hentRisikoklassifisering(BehandlingReferanse referanse) {
-        // Tidlig return for å spare oss unødige restkall, kun førstegangsbehandlinger blir klassifisert.
-        if (!referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
-            return Optional.empty();
+        if (referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            return hentFaresignalerFraFprisk(referanse);
+        } else {
+            return finnRisikovurderingForSenesteFørstegangsbehandling(referanse.fagsakId());
         }
-        return hentFaresignalerFraFprisk(referanse);
+    }
+
+    private Optional<FaresignalWrapper> finnRisikovurderingForSenesteFørstegangsbehandling(Long fagsakId) {
+        var behandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.FØRSTEGANGSSØKNAD);
+        return behandling.flatMap(beh -> hentFaresignalerFraFprisk(BehandlingReferanse.fra(beh)));
     }
 
     public boolean skalVurdereFaresignaler(BehandlingReferanse referanse) {
         Objects.requireNonNull(referanse, "referanse");
-        var wrapper = hentRisikoklassifisering(referanse);
-        return wrapper.map(this::erHøyRisiko).orElse(false);
+        // Skal kun løse aksjonspunkt for faresignaler i førstegangsbehandling
+        if (referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            var wrapper = hentRisikoklassifisering(referanse);
+            return wrapper.map(this::erHøyRisiko).orElse(false);
+        }
+        return false;
     }
 
     public void lagreVurderingAvFaresignalerForBehandling(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
