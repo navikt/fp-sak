@@ -13,19 +13,19 @@ import no.nav.foreldrepenger.mottak.sakskompleks.BerørtBehandlingKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @ApplicationScoped
-public class BerørtBehandlingForvaltningTjeneste {
+public class ForvaltningBerørtBehandlingTjeneste {
 
     private RevurderingTjeneste revurderingTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BerørtBehandlingKontroller berørtBehandlingTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
-    BerørtBehandlingForvaltningTjeneste() {
+    ForvaltningBerørtBehandlingTjeneste() {
         //cdi
     }
 
     @Inject
-    public BerørtBehandlingForvaltningTjeneste(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
+    public ForvaltningBerørtBehandlingTjeneste(@FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste,
                                                BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                                BerørtBehandlingKontroller berørtBehandlingTjeneste,
                                                BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {

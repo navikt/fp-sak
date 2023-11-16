@@ -61,18 +61,18 @@ public class ForvaltningBehandlingRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private ProsessTaskTjeneste taskTjeneste;
-    private BerørtBehandlingForvaltningTjeneste berørtBehandlingTjeneste;
+    private ForvaltningBerørtBehandlingTjeneste berørtBehandlingTjeneste;
 
     @Inject
-    public ForvaltningBehandlingRestTjeneste(BerørtBehandlingForvaltningTjeneste berørtBehandlingForvaltningTjeneste,
-            BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
-            ProsessTaskTjeneste taskTjeneste,
-            BehandlingRepositoryProvider repositoryProvider) {
+    public ForvaltningBehandlingRestTjeneste(ForvaltningBerørtBehandlingTjeneste forvaltningBerørtBehandlingTjeneste,
+                                             BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
+                                             ProsessTaskTjeneste taskTjeneste,
+                                             BehandlingRepositoryProvider repositoryProvider) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
         this.taskTjeneste = taskTjeneste;
-        this.berørtBehandlingTjeneste = berørtBehandlingForvaltningTjeneste;
+        this.berørtBehandlingTjeneste = forvaltningBerørtBehandlingTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
     }
 
