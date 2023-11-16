@@ -27,7 +27,7 @@
     <properties>
         <java.version>21</java.version>
 
-        <fp-uttak.version>14.3.17</fp-uttak.version>
+        <fp-uttak.version>15.0.0</fp-uttak.version>
         <fp-stonadskonto.version>1.0.1</fp-stonadskonto.version>
         <svp-uttak.version>2.3.13</svp-uttak.version>
 
