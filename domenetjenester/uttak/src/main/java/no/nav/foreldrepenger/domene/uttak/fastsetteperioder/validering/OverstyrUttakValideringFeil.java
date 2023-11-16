@@ -15,8 +15,8 @@ final class OverstyrUttakValideringFeil {
         return new TekniskException("FP-431111", "Uttaksperiode mangler begrunnelse");
     }
 
-    static TekniskException periodeManglerResultat() {
-        return new TekniskException("FP-717234", "Uttaksperiode mangler resultat");
+    static TekniskException periodeManglerResultat(LocalDateInterval periode) {
+        return new TekniskException("FP-717234", "Uttaksperiode mangler resultat " + periode);
     }
 
     static TekniskException manglerUtbetalingsgrad(LocalDateInterval periode) {
