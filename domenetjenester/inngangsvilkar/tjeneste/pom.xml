@@ -3,7 +3,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger</groupId>
         <artifactId>inngangsvilkar-pom</artifactId>
-        <version>${revision}</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>FPSAK :: Domenetjenester - Inngangsvilkår Regelmodell Tjeneste</name>
