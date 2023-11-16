@@ -9,16 +9,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.FaresignalVurdering;
 import no.nav.foreldrepenger.kontrakter.risk.kodeverk.RisikoklasseType;
+import no.nav.foreldrepenger.kontrakter.risk.v1.HentRisikovurderingDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikogruppeDto;
 import no.nav.foreldrepenger.kontrakter.risk.v1.RisikovurderingResultatDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -32,16 +34,20 @@ class RisikovurderingTjenesteTest {
     private RisikovurderingTjeneste risikovurderingTjeneste;
 
     private Behandling behandling;
+    private Behandling revurdering;
 
     private BehandlingReferanse referanse;
+    private BehandlingReferanse revurderingRef;
 
 
     @BeforeEach
     public void setup() {
         var scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioFørstegang.lagMocked();
+        revurdering = ScenarioMorSøkerForeldrepenger.forFødsel().medOriginalBehandling(behandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL).lagMocked();
         risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste, behandlingRepository);
         referanse = BehandlingReferanse.fra(behandling);
+        revurderingRef = BehandlingReferanse.fra(revurdering);
     }
 
     @Test
@@ -90,6 +96,23 @@ class RisikovurderingTjenesteTest {
 
         // Assert
         assertThat(skalOppretteAksjonspunkt).isFalse();
+    }
+
+    @Test
+    void skal_teste_at_resultat_for_originalbehandling_returneres_for_revurdering() {
+        // Arrange
+        var hentOriginal = new HentRisikovurderingDto(behandling.getUuid());
+        var hentRevurdering = new HentRisikovurderingDto(revurdering.getUuid());
+        var risikoresultatOriginal = lagRespons(RisikoklasseType.IKKE_HØY, null, null);
+        when(fpriskTjeneste.hentFaresignalerForBehandling(hentRevurdering)).thenReturn(Optional.empty());
+        when(fpriskTjeneste.hentFaresignalerForBehandling(hentOriginal)).thenReturn(Optional.of(risikoresultatOriginal));
+        when(behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(any(), any())).thenReturn(Optional.of(behandling));
+        // Act
+        var revurderingRisikoklassifisering = risikovurderingTjeneste.hentRisikoklassifisering(revurderingRef);
+
+        // Assert
+        assertThat(revurderingRisikoklassifisering).isPresent();
+        assertThat(revurderingRisikoklassifisering.get().kontrollresultat()).isEqualTo(Kontrollresultat.IKKE_HØY);
     }
 
     private RisikovurderingResultatDto lagRespons(RisikoklasseType risikoklasse, List<String> faresignaler, FaresignalVurdering faresignalVurdering) {
