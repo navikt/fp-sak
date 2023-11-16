@@ -34,21 +34,29 @@ jobs:
 
   fpsak-tester:
     name: Fpsak tester
+    permissions:
+      contents: read
+      id-token: write
     if: github.ref_name == 'master'
     needs: build-app
     uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
       build-version: ${{ needs.build-app.outputs.build-version }}
       test-suite: fpsak
+    secrets: inherit
 
   verdikjede-tester:
     name: Verdikjedetester
+    permissions:
+      contents: read
+      id-token: write
     if: github.ref_name == 'master'
     needs: build-app
     uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
       build-version: ${{ needs.build-app.outputs.build-version }}
       test-suite: verdikjede
+    secrets: inherit
 
   notify:
     name: Notify
