@@ -35,8 +35,8 @@
         <prosesstask.version>4.0.0</prosesstask.version>
 
         <fp-kontrakter.version>8.0.8</fp-kontrakter.version>
-        <fp-tidsserie.version>2.6.8</fp-tidsserie.version>
-        <fp-nare.version>2.5.4</fp-nare.version>
+        <fp-tidsserie.version>2.7.0</fp-tidsserie.version>
+        <fp-nare.version>2.6.0</fp-nare.version>
         <abakus-kontrakt.version>2.0.0</abakus-kontrakt.version>
         <kalkulus.version>2.6.3</kalkulus.version>
 
@@ -143,7 +143,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
             </dependency>
 
             <dependency>
