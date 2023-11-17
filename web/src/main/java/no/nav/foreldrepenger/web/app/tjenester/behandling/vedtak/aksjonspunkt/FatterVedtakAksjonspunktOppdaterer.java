@@ -50,7 +50,7 @@ public class FatterVedtakAksjonspunktOppdaterer implements AksjonspunktOppdatere
 
         fatterVedtakAksjonspunkt.oppdater(param.getRef(), aksjonspunkter);
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private Collection<String> fraDto(Collection<VurderÅrsak> arsaker) {

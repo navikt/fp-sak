@@ -44,7 +44,7 @@ public class VurderSøknadsfristOppdaterer implements AksjonspunktOppdaterer<Vur
         opprettHistorikkinnslag(dto, param, søknad);
         lagreResultat(behandlingId, dto, søknad);
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private void lagreResultat(Long behandlingId, VurderSøknadsfristDto dto, SøknadEntitet søknad) {

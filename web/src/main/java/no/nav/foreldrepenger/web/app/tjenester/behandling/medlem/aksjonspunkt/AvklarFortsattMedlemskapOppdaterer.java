@@ -33,7 +33,7 @@ public class AvklarFortsattMedlemskapOppdaterer implements AksjonspunktOppdatere
         var adapter = new AvklarFortsattMedlemskapAksjonspunktDto(mapTilAdapterFra(dto));
 
         medlemTjeneste.aksjonspunktAvklarFortsattMedlemskap(param.getBehandlingId(), adapter);
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private List<BekreftedePerioderAdapter> mapTilAdapterFra(AvklarFortsattMedlemskapDto dto) {

@@ -55,7 +55,7 @@ public class OppdateringResultat {
      * Klassisk resultat - uten spesiell håndtering annet enn å sette Aksjonspunkt
      * til UTFO
      */
-    public static OppdateringResultat utenOveropp() {
+    public static OppdateringResultat utenOverhopp() {
         return new OppdateringResultat(OverhoppKontroll.UTEN_OVERHOPP);
     }
 

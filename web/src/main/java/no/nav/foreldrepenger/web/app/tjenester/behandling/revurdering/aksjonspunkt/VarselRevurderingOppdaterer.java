@@ -47,7 +47,7 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
         } else if (!dto.isSendVarsel()) {
             opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(behandlingRef, dto, HistorikkAktør.SAKSBEHANDLER);
         }
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private void opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(BehandlingReferanse ref, VarselRevurderingDto varselRevurderingDto, HistorikkAktør historikkAktør) {

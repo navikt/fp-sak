@@ -40,7 +40,7 @@ public class FordelBeregningsgrunnlagOppdaterer implements AksjonspunktOppdatere
         var input = tjeneste.lagInput(param.getRef().behandlingId());
         beregningHåndterer.håndterFordelBeregningsgrunnlag(input, OppdatererDtoMapper.mapFordelBeregningsgrunnlagDto(dto));
         fordelBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param);
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
 }

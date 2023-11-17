@@ -73,7 +73,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
 
         byggHistorikkinnslag(dto, param);
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private NavBruker hentEllerOpprettBruker(AktørId aktoerId) {

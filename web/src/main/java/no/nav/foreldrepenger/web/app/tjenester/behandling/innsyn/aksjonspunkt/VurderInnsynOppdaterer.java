@@ -65,7 +65,7 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
                 BehandlingStegType.VURDER_INNSYN, frist(dto.getFristDato()), Venteårsak.SCANN);
         }
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private static LocalDateTime frist(LocalDate frist) {

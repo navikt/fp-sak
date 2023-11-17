@@ -55,7 +55,7 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
         risikovurderingTjeneste.lagreVurderingAvFaresignalerForBehandling(referanse, dto.getFaresignalVurdering());
         lagHistorikkInnslag(dto, dto.getFaresignalVurdering(), originalFaresignalVurdering, param);
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private void lagHistorikkInnslag(VurderFaresignalerDto dto, FaresignalVurdering vurdering, FaresignalVurdering orginalVurdering, AksjonspunktOppdaterParameter param) {

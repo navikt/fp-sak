@@ -41,7 +41,7 @@ public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndte
     public OppdateringResultat håndterOverstyring(OverstyringBeregningDto dto, Behandling behandling,
                                                   BehandlingskontrollKontekst kontekst) {
         beregnTjeneste.overstyrTilkjentYtelseForEngangsstønad(behandling, dto.getBeregnetTilkjentYtelse());
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     @Override

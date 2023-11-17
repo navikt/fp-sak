@@ -70,7 +70,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                     .build();
             }
         }
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
 
     }
 
