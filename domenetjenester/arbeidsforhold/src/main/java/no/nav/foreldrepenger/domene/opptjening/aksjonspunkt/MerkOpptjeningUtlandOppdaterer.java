@@ -42,7 +42,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
                 .medEndretFelt(HistorikkEndretFeltType.INNHENT_SED, fraUtlandDokStatus(eksisterende), fraUtlandDokStatus(dto.getDokStatus()))
                 .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret());
         }
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private String fraUtlandDokStatus(UtlandDokumentasjonStatus status) {

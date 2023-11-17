@@ -78,7 +78,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
 
         lagHistorikkInnslag(dto, param, tekstBuilder);
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private Optional<BigDecimal> finnForrigeDelvisRefusjon(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel,

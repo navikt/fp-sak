@@ -41,7 +41,7 @@ class KontrollerRevurderingsBehandlingOppdaterer implements AksjonspunktOppdater
         innslag.setBehandlingId(param.getBehandlingId());
         tekstBuilder.build(innslag);
         historikkAdapter.lagInnslag(innslag);
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
 }

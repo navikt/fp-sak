@@ -44,7 +44,7 @@ public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetOppdaterer impleme
         beregningHåndterer.håndterFastsettBruttoForSNNyIArbeidslivet(input, OppdatererDtoMapper.mapFastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(dto));
         fastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste.lagHistorikk(dto, param);
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
 
     }
 }

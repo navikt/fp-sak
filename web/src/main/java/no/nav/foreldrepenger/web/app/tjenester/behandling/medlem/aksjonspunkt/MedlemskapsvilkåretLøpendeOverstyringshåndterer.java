@@ -78,6 +78,6 @@ public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends Abstract
         grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
         behandlingRepository.lagre(vilkårResultatBuilder.buildFor(behandling), lås);
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 }

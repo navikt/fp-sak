@@ -52,7 +52,7 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
         var perioder = UttakPerioderMapper.map(dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         tjeneste.manueltFastsettePerioder(uttakInput, perioder);
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     @Override

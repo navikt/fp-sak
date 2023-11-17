@@ -47,7 +47,7 @@ public class BekreftBosattVurderingOppdaterer implements AksjonspunktOppdaterer<
 
         var bekreftedeDto = dto.getBekreftedePerioder().stream().findFirst();
         if (bekreftedeDto.isEmpty()) {
-            return OppdateringResultat.utenOveropp();
+            return OppdateringResultat.utenOverhopp();
         }
         var bekreftet = bekreftedeDto.get();
         var totrinn = håndterEndringHistorikk(bekreftet, behandlingId);

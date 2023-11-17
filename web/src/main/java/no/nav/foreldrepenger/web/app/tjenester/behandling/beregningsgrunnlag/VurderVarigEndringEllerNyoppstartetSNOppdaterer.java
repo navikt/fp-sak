@@ -44,6 +44,6 @@ public class VurderVarigEndringEllerNyoppstartetSNOppdaterer implements Aksjonsp
             beregningHåndterer.håndterVurderVarigEndretNyoppstartetSN(input, dto.getBruttoBeregningsgrunnlag());
         }
         vurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste.lagHistorikkInnslag(param, dto);
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 }

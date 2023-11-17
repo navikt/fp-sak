@@ -45,6 +45,6 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
             return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
         }
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 }

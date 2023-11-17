@@ -62,7 +62,7 @@ public class FordelBeregningsgrunnlagHistorikkTjeneste {
 
         lagHistorikkInnslag(dto, param, tekstBuilder);
 
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
     private void lagHistorikk(HistorikkInnslagTekstBuilder tekstBuilder,

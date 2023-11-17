@@ -43,7 +43,7 @@ public abstract class BekreftOppholdOppdaterer implements AksjonspunktOppdaterer
 
         var bekreftedeDto = dto.getBekreftedePerioder().stream().findFirst();
         if (bekreftedeDto.isEmpty()) {
-            return OppdateringResultat.utenOveropp();
+            return OppdateringResultat.utenOverhopp();
         }
         var bekreftet = bekreftedeDto.get();
         var medlemskap = medlemTjeneste.hentMedlemskap(behandlingId);

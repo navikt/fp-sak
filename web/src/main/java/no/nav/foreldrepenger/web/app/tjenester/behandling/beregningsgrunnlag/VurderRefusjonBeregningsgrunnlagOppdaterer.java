@@ -51,7 +51,7 @@ public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktO
                 BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT);
         beregningHåndterer.håndterVurderRefusjonBeregningsgrunnlag(input, OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(dto));
         vurderRefusjonBeregningsgrunnlagHistorikkTjeneste.lagHistorikk(dto, param, forrigeGrunnlag);
-        return OppdateringResultat.utenOveropp();
+        return OppdateringResultat.utenOverhopp();
     }
 
 }
