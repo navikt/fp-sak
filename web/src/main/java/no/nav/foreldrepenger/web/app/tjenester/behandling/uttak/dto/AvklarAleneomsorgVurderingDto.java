@@ -60,4 +60,10 @@ public class AvklarAleneomsorgVurderingDto extends BekreftetAksjonspunktDto {
     public void setAnnenForelderHarRettEØS(Boolean annenForelderHarRettEØS) {
         this.annenForelderHarRettEØS = annenForelderHarRettEØS;
     }
+
+    @Override
+    public String toString() {
+        return "AvklarAleneomsorgVurderingDto{" + "aleneomsorg=" + aleneomsorg + ", annenforelderHarRett=" + annenforelderHarRett
+            + ", annenForelderHarRettEØS=" + annenForelderHarRettEØS + ", annenforelderMottarUføretrygd=" + annenforelderMottarUføretrygd + '}';
+    }
 }
