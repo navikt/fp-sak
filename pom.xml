@@ -421,8 +421,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>konfig</artifactId>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-konfig</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.enterprise</groupId>
