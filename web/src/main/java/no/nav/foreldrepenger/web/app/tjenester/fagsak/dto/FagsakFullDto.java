@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -11,6 +13,7 @@ import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
 public record FagsakFullDto(String saksnummer,
                             FagsakYtelseType fagsakYtelseType,
@@ -29,7 +32,8 @@ public record FagsakFullDto(String saksnummer,
                             List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                             List<FagsakBehandlingDto> behandlinger,
                             List<HistorikkinnslagDto> historikkinnslag,
-                            List<FagsakNotatDto> notater) {
+                            List<FagsakNotatDto> notater,
+                            KontrollresultatDto kontrollResultat) {
 
     public FagsakFullDto(Fagsak fagsak, Integer dekningsgrad, PersonDto bruker,
                          boolean brukerManglerAdresse,
@@ -40,9 +44,9 @@ public record FagsakFullDto(String saksnummer,
                          List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
                          List<FagsakBehandlingDto> behandlinger,
                          List<HistorikkinnslagDto> historikkinnslag,
-                         List<FagsakNotatDto> notater) {
+                         List<FagsakNotatDto> notater, KontrollresultatDto kontrollResultat) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getRelasjonsRolleType(), fagsak.getStatus(),
             fagsak.getAktørId().getId(), fagsak.erStengt(), dekningsgrad, bruker, brukerManglerAdresse, annenPart, annenpartBehandling,
-            familiehendelse, fagsakMarkering, fagsakMarkering, behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater);
+            familiehendelse, fagsakMarkering, fagsakMarkering, behandlingTypeKanOpprettes, behandlinger, historikkinnslag, notater, kontrollResultat);
     }
 }

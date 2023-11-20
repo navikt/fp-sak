@@ -6,6 +6,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,22 +47,16 @@ public class RisikovurderingTjeneste {
         this.behandlingRepository = behandlingRepository;
     }
 
-    private boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
-        var resultat = hentFaresignalerFraFprisk(referanse);
-        return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
-    }
 
     public Optional<FaresignalWrapper> hentRisikoklassifisering(BehandlingReferanse referanse) {
         if (referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
             return hentFaresignalerFraFprisk(referanse);
-        } else {
-            return finnRisikovurderingForSenesteFørstegangsbehandling(referanse.fagsakId());
         }
+        return Optional.empty();
     }
 
-    private Optional<FaresignalWrapper> finnRisikovurderingForSenesteFørstegangsbehandling(Long fagsakId) {
-        var behandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.FØRSTEGANGSSØKNAD);
-        return behandling.flatMap(beh -> hentFaresignalerFraFprisk(BehandlingReferanse.fra(beh)));
+    public Optional<FaresignalWrapper> hentRisikoklassifiseringForFagsak(Fagsak fagsak) {
+        return finnRisikovurderingForSenesteFørstegangsbehandling(fagsak.getId());
     }
 
     public boolean skalVurdereFaresignaler(BehandlingReferanse referanse) {
@@ -100,6 +96,16 @@ public class RisikovurderingTjeneste {
             LOG.info("Iverksetter risikoklassifisering på behandling " + referanse.behandlingId());
             fpriskTjeneste.sendRisikoklassifiseringsoppdrag(request);
         }
+    }
+
+    private boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
+        var resultat = hentFaresignalerFraFprisk(referanse);
+        return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
+    }
+
+    private Optional<FaresignalWrapper> finnRisikovurderingForSenesteFørstegangsbehandling(Long fagsakId) {
+        var behandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.FØRSTEGANGSSØKNAD);
+        return behandling.flatMap(beh -> hentFaresignalerFraFprisk(BehandlingReferanse.fra(beh)));
     }
 
     private void sendVurderingTilFprisk(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
