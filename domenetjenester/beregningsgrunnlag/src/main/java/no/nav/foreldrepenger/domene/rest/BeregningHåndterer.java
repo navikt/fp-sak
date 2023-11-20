@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjenest
 public class BeregningHåndterer {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-    private BeregningFaktaOgOverstyringHåndterer beregningFaktaOgOverstyringHåndterer;
     private KalkulatorHåndteringInputTjeneste kalkulatorHåndteringInputTjeneste;
 
     public BeregningHåndterer() {
@@ -44,10 +43,8 @@ public class BeregningHåndterer {
 
     @Inject
     public BeregningHåndterer(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                              BeregningFaktaOgOverstyringHåndterer beregningFaktaOgOverstyringHåndterer,
                               KalkulatorHåndteringInputTjeneste kalkulatorHåndteringInputTjeneste) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
-        this.beregningFaktaOgOverstyringHåndterer = beregningFaktaOgOverstyringHåndterer;
         this.kalkulatorHåndteringInputTjeneste = kalkulatorHåndteringInputTjeneste;
     }
 
@@ -92,7 +89,7 @@ public class BeregningHåndterer {
         var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
             input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG);
-        var resultat = beregningFaktaOgOverstyringHåndterer.håndterMedOverstyring(håndterBeregningsgrunnlagInput,
+        var resultat = BeregningFaktaOgOverstyringHåndterer.håndterMedOverstyring(håndterBeregningsgrunnlagInput,
             overstyrBeregningsgrunnlagDto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
@@ -128,7 +125,7 @@ public class BeregningHåndterer {
         var håndterBeregningsgrunnlagInput = kalkulatorHåndteringInputTjeneste.lagInput(
             input.getKoblingReferanse().getKoblingId(), input,
             AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
-        var resultat = beregningFaktaOgOverstyringHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
+        var resultat = BeregningFaktaOgOverstyringHåndterer.håndter(håndterBeregningsgrunnlagInput, dto);
         beregningsgrunnlagTjeneste.lagre(getBehandlingId(input), resultat);
     }
 

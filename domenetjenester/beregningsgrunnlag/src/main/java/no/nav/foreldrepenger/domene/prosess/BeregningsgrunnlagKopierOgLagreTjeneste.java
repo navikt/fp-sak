@@ -68,7 +68,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         return t1.erFør(t2) ? -1 : 1;
     };
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
-    private BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
+    private final BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = new BeregningsgrunnlagTjeneste();
     private KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste;
 
     public BeregningsgrunnlagKopierOgLagreTjeneste() {
@@ -77,10 +77,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
     @Inject
     public BeregningsgrunnlagKopierOgLagreTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                                                   BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                                    KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
-        this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.kalkulatorStegProsesseringInputTjeneste = kalkulatorStegProsesseringInputTjeneste;
     }
 
