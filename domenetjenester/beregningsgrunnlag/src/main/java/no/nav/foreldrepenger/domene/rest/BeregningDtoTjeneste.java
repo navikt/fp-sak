@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalk
 @ApplicationScoped
 public class BeregningDtoTjeneste {
 
-    private BeregningsgrunnlagDtoTjeneste beregningsgrunnlagDtoTjeneste;
+    private final BeregningsgrunnlagDtoTjeneste beregningsgrunnlagDtoTjeneste = new BeregningsgrunnlagDtoTjeneste();
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     public BeregningDtoTjeneste() {
@@ -23,9 +23,7 @@ public class BeregningDtoTjeneste {
     }
 
     @Inject
-    public BeregningDtoTjeneste(BeregningsgrunnlagDtoTjeneste beregningsgrunnlagDtoTjeneste,
-                                BeregningsgrunnlagRepository beregningsgrunnlagRepository) {
-        this.beregningsgrunnlagDtoTjeneste = beregningsgrunnlagDtoTjeneste;
+    public BeregningDtoTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
