@@ -47,8 +47,8 @@ class OppholdTjenesteTest {
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
-    private final LocalDate BEHOV_FRA_DATO = LocalDate.now();
-    private final LocalDate BEHOV_FRA_DATO_2 = LocalDate.now().plusMonths(1);
+    private final LocalDate BEHOV_FRA_DATO = LocalDate.of(2023,10,1);
+    private final LocalDate BEHOV_FRA_DATO_2 = BEHOV_FRA_DATO.plusMonths(1);
     private final Arbeidsgiver ARBEIDSGIVER_1 =  Arbeidsgiver.virksomhet("123456789");
 
     @BeforeEach

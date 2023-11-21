@@ -52,8 +52,10 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
+import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -180,7 +182,7 @@ public class FordelRestTjeneste {
     public SaksnummerDto opprettSakv2(@TilpassetAbacAttributt(supplierClass = AktørIdDataSupplier.class) @Parameter(description = "Oppretter fagsak") @Valid OpprettSakV2Dto opprettSakDto) {
         ensureCallId();
         var journalpostId = Optional.ofNullable(opprettSakDto.journalpostId());
-        var ytelseType = opprettSakDto.ytelseType();
+        var ytelseType = mapYtelseType(opprettSakDto.ytelseType());
 
         var aktørId = new AktørId(opprettSakDto.aktørId());
 
@@ -188,9 +190,12 @@ public class FordelRestTjeneste {
         return new SaksnummerDto(saksnummer.getVerdi());
     }
 
-    record OpprettSakV2Dto(@Digits(integer = 18, fraction = 0) String journalpostId,
-                           @NotNull @Valid FagsakYtelseType ytelseType,
-                           @NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
+    private FagsakYtelseType mapYtelseType(YtelseTypeDto ytelseTypeDto) {
+        return switch (ytelseTypeDto) {
+            case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
+            case ENGANGSTØNAD -> FagsakYtelseType.ENGANGSTØNAD;
+            case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
+        };
     }
 
     public static class AktørIdDataSupplier implements Function<Object, AbacDataAttributter> {

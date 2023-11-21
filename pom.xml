@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>1.0.5</version>
+        <version>2.0.1</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -25,20 +25,19 @@
     </modules>
 
     <properties>
-        <java.version>21</java.version>
 
-        <fp-uttak.version>15.0.0</fp-uttak.version>
-        <fp-stonadskonto.version>1.1.0</fp-stonadskonto.version>
-        <svp-uttak.version>2.4.0</svp-uttak.version>
+        <fp-uttak.version>15.0.1</fp-uttak.version>
+        <fp-stonadskonto.version>1.1.1</fp-stonadskonto.version>
+        <svp-uttak.version>2.4.1</svp-uttak.version>
 
-        <felles.version>5.1.3</felles.version>
-        <prosesstask.version>4.0.0</prosesstask.version>
+        <felles.version>6.0.0</felles.version>
+        <prosesstask.version>4.1.0</prosesstask.version>
 
-        <fp-kontrakter.version>8.0.8</fp-kontrakter.version>
-        <fp-tidsserie.version>2.6.8</fp-tidsserie.version>
-        <fp-nare.version>2.5.4</fp-nare.version>
+        <fp-kontrakter.version>8.1.1</fp-kontrakter.version>
+        <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
+        <fp-nare.version>2.6.1</fp-nare.version>
         <abakus-kontrakt.version>2.0.0</abakus-kontrakt.version>
-        <kalkulus.version>2.6.3</kalkulus.version>
+        <kalkulus.version>2.6.4</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
@@ -53,7 +52,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>1.0.5</version>
+                <version>2.0.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -143,7 +142,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.1</version>
             </dependency>
 
             <dependency>
@@ -422,8 +421,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>konfig</artifactId>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-konfig</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.enterprise</groupId>
