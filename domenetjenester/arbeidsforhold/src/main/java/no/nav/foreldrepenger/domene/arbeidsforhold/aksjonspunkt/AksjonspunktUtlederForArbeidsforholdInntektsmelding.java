@@ -4,16 +4,9 @@ import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
-
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
