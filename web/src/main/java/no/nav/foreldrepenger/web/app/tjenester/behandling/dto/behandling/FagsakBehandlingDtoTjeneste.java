@@ -127,8 +127,8 @@ public class FagsakBehandlingDtoTjeneste {
             dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         }
 
-        kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).ifPresent(dto::setKontrollResultat);
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+            kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).ifPresent(dto::setKontrollResultat);
             AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
         }
 
