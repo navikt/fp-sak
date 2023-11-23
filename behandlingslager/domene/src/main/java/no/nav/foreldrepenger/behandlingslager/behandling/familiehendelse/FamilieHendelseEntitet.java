@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -184,7 +185,8 @@ public class FamilieHendelseEntitet extends BaseEntitet {
      */
     public Optional<LocalDate> getFødselsdato() {
         if (type.equals(FamilieHendelseType.FØDSEL)) {
-            return barna.stream().map(UidentifisertBarnEntitet::getFødselsdato).findFirst();
+            // Ved flerbarn - bruk tidligst fødte konsekvent
+            return barna.stream().map(UidentifisertBarnEntitet::getFødselsdato).min(Comparator.naturalOrder());
         }
         return Optional.empty();
     }

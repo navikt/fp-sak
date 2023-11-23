@@ -157,7 +157,7 @@ class DtoTjenesteFelles {
     }
 
     static Sak.FamilieHendelse tilDto(FamilieHendelseEntitet familieHendelse) {
-        var fødselsdato = familieHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElse(null);
+        var fødselsdato = familieHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder()).orElse(null);
         return new Sak.FamilieHendelse(fødselsdato,
             familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null),
             familieHendelse.getAntallBarn() == null ? 0 : familieHendelse.getAntallBarn(),
