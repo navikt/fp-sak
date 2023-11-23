@@ -12,12 +12,11 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -36,25 +35,28 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 // Tilbyr data til fp-formidling, formidlingsløsning ut mot søker.
 public class FormidlingRestTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FormidlingRestTjeneste.class);
-
     public static final String BASE_PATH = "/formidling";
     public static final String RESSURSER_PART_PATH = "/ressurser";
     public static final String RESSURSER_PATH = BASE_PATH + RESSURSER_PART_PATH;
     public static final String UTSATT_START_PART_PATH = "/utsattstart";
     public static final String UTSATT_START_PATH = BASE_PATH + UTSATT_START_PART_PATH;
+    public static final String MOTATT_DATO_SØKNADSFRIST_PART_PATH = "/motattDatoSøknad";
+    public static final String MOTATT_DATO_SØKNADSFRIST_PATH = BASE_PATH + MOTATT_DATO_SØKNADSFRIST_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste;
     private StartdatoUtsattDtoTjeneste startdatoUtsattDtoTjeneste;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     public FormidlingRestTjeneste(BehandlingRepository behandlingRepository,
                                   BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste,
-                                  StartdatoUtsattDtoTjeneste startdatoUtsattDtoTjeneste) {
+                                  StartdatoUtsattDtoTjeneste startdatoUtsattDtoTjeneste,
+                                  UttaksperiodegrenseRepository uttaksperiodegrenseRepository) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingFormidlingDtoTjeneste = behandlingFormidlingDtoTjeneste;
         this.startdatoUtsattDtoTjeneste = startdatoUtsattDtoTjeneste;
+        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
     }
 
     public FormidlingRestTjeneste() {
@@ -88,4 +90,19 @@ public class FormidlingRestTjeneste {
         return responseBuilder.build();
     }
 
+    @GET
+    @Path(MOTATT_DATO_SØKNADSFRIST_PART_PATH)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Hent gjeldende mottatt dato for søknad", tags = "formidling")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
+    public Response mottattDatoSøknad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+                                    @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var mottattDatoSøknad = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid())
+            .flatMap(beh -> uttaksperiodegrenseRepository.hentHvisEksisterer(beh.getId()))
+            .map(Uttaksperiodegrense::getMottattDato).orElse(null);
+        if (mottattDatoSøknad == null) {
+            return Response.ok().build();
+        }
+        return  Response.ok().entity(mottattDatoSøknad).build();
+    }
 }

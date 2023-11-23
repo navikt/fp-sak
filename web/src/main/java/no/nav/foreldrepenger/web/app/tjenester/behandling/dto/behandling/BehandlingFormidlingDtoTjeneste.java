@@ -230,6 +230,7 @@ public class BehandlingFormidlingDtoTjeneste {
 
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));
                 dto.leggTil(get(YtelsefordelingRestTjeneste.YTELSESFORDELING_PATH, "ytelsefordeling", uuidDto));
+                dto.leggTil(get(FormidlingRestTjeneste.MOTATT_DATO_SØKNADSFRIST_PATH, "motattdato-søknad", uuidDto));
             }
         }
 
