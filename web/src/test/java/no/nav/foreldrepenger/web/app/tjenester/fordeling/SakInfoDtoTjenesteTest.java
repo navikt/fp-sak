@@ -8,6 +8,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
+
+import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -118,6 +122,10 @@ class SakInfoDtoTjenesteTest {
         assertThat(sakInfoDto.førsteUttaksdato()).isEqualTo(førsteuttaksdato);
     }
 
+    /**
+     * @deprecated fjernes etter bytte til mapSakInfoV2Dto
+     */
+    @Deprecated(forRemoval = true)
     @Test
     void skalMappeSakInfoDtoMedNullVerdier() {
         var saknr = new Saksnummer("TEST4");
@@ -137,6 +145,27 @@ class SakInfoDtoTjenesteTest {
         assertThat(sakInfoDto.status()).isEqualTo(sakInfoDtoTjeneste.mapFagsakStatusDto(FagsakStatus.OPPRETTET));
         assertThat(sakInfoDto.opprettetDato()).isEqualTo(opprettetTid.toLocalDate());
         assertThat(sakInfoDto.ytelseType()).isEqualTo(sakInfoDtoTjeneste.mapFagsakYtelseTypeDto(ytelseType));
+        assertThat(sakInfoDto.familiehendelseInfoDto()).isNull();
+        assertThat(sakInfoDto.førsteUttaksdato()).isNull();
+    }
+
+    @Test
+    void skalMappeSakInfoV2DtoMedNullVerdier() {
+        var saknr = new Saksnummer("TEST4");
+        var ytelseType = FagsakYtelseType.FORELDREPENGER;
+        var opprettetTid = LocalDateTime.now().minusMonths(16);
+
+        var fagsak = Fagsak.opprettNy(ytelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
+        fagsak.setOpprettetTidspunkt(opprettetTid);
+
+        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.empty());
+
+        var sakInfoDto = sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak);
+
+        assertThat(sakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
+        assertThat(sakInfoDto.status()).isEqualTo(SakInfoV2Dto.FagsakStatusDto.UNDER_BEHANDLING);
+        assertThat(sakInfoDto.opprettetDato()).isEqualTo(opprettetTid.toLocalDate());
+        assertThat(sakInfoDto.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(sakInfoDto.familiehendelseInfoDto()).isNull();
         assertThat(sakInfoDto.førsteUttaksdato()).isNull();
     }
