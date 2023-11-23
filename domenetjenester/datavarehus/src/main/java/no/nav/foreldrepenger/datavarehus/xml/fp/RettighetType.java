@@ -1,5 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.xml.fp;
 
-enum RettighetType {
-    ALENEOMSORG, BEGGE_RETT, BARE_SØKER_RETT
+public enum RettighetType {
+    ALENEOMSORG, BARE_SØKER_RETT, BEGGE_RETT, BEGGE_RETT_EØS
 }
