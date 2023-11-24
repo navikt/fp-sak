@@ -8,9 +8,7 @@ import jakarta.validation.constraints.NotNull;
 record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
                                           @NotNull String klasseKode, // Koder som brukes mot OS
                                           String arbeidsgiver,  // Orgnummer eller aktørId
-                                          @NotNull Integer dagsats,
-                                          BigDecimal stillingsprosent,
-                                          @NotNull BigDecimal utbetalingsgrad) {
+                                          @NotNull Integer dagsats, @NotNull BigDecimal utbetalingsgrad) {
 
     //Feriepenger ikke interessant - sier konsumenten
 
@@ -18,6 +16,6 @@ record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom, @NotNull Loca
     @Override
     public String toString() {
         return "StønadsstatistikkUtbetalingPeriode{" + "fom=" + fom + ", tom=" + tom + ", klasseKode='" + klasseKode + '\'' + ", dagsats=" + dagsats
-            + ", stillingsprosent=" + stillingsprosent + ", utbetalingsgrad=" + utbetalingsgrad + '}';
+            + ", utbetalingsgrad=" + utbetalingsgrad + '}';
     }
 }

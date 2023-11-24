@@ -45,9 +45,7 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
         return new StønadsstatistikkUtbetalingPeriode(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom(),
             KlassekodeUtleder.utled(andel, familieYtelseType).getKode(),
             andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
-            andel.getDagsats(),
-            andel.getStillingsprosent(),
-            andel.getUtbetalingsgrad());
+            andel.getDagsats(), andel.getUtbetalingsgrad());
     }
 
 }

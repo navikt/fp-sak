@@ -8,7 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class Trekkdager {
+public class Trekkdager implements Comparable<Trekkdager> {
 
     public static final Trekkdager ZERO = new Trekkdager(BigDecimal.ZERO);
 
@@ -53,6 +53,7 @@ public class Trekkdager {
         return decimalValue().compareTo(BigDecimal.ZERO) > 0;
     }
 
+    @Override
     public int compareTo(Trekkdager trekkdager) {
         return decimalValue().compareTo(trekkdager.decimalValue());
     }
