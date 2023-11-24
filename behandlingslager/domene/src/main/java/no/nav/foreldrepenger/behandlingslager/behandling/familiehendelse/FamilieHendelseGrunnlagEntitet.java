@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -256,12 +257,12 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
 
         var bekreftetBarna = bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(List.of());
         if (!bekreftetBarna.isEmpty()) {
-            return bekreftetBarna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
+            return bekreftetBarna.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder()).orElseThrow();
         }
 
         var søknadBarna = søknadHendelse.getBarna();
         if (!søknadBarna.isEmpty()) {
-            return søknadBarna.stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElseThrow();
+            return søknadBarna.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder()).orElseThrow();
         }
         return getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato)
             .orElse(søknadHendelse.getTerminbekreftelse().orElseThrow().getTermindato());

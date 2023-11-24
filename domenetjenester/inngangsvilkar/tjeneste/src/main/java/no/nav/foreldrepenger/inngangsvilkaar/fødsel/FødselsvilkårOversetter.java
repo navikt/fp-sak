@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -132,7 +131,7 @@ public class FødselsvilkårOversetter {
             // Kan ikke finne relasjonsrolle dersom fødsel ikke er bekreftet.
             return null;
         }
-        var fødselsdato = familiehendelse.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst();
+        var fødselsdato = familiehendelse.get().getFødselsdato();
         if (fødselsdato.isEmpty()) {
             return null;
         }
