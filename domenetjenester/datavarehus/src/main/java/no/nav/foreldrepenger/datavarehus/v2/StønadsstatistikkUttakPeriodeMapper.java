@@ -42,7 +42,14 @@ class StønadsstatistikkUttakPeriodeMapper {
     static StønadsstatistikkUttakPeriode mapUttakPeriode(RelasjonsRolleType rolleType,
                                                                StønadsstatistikkVedtak.RettighetType rettighetType,
                                                                ForeldrepengerUttakPeriode periode) {
-        var harAktivitetMedTrekkdager = periode.harTrekkdager();
+        // Ser ikke på innvilget avslått men på kombinasjoner av harTrekkdager og erUtbetaling.
+        // Søknad og PeriodeResultatÅrsak er supplerende informasjon men ikke endelig avgjørende
+        // Ønsker ta med disse tilfellene:
+        // - normalt uttak - harTrekkdater og erUtbetaling
+        // - avslått uttak m/trekk -  harTrekkdager
+        // - innvilget utsettelse (første 6 uker, bare far rett, sammenhengende uttak
+
+        var harTrekkdager = periode.harTrekkdager();
         var erUtbetaling = periode.harUtbetaling();
         var foretrukketAktivitet = velgAktivitet(periode).orElseThrow();
 
@@ -57,7 +64,15 @@ class StønadsstatistikkUttakPeriodeMapper {
         var trekkdager = foretrukketAktivitet.getTrekkdager();
         var rettighet = utledRettighet(rolleType, rettighetType, foretrukketAktivitet.getTrekkonto(), periode);
 
-        // TODO: var forklaring = "En god forklaring";
+        /*
+         * TODO: Trenger forklaring
+         * - far/medmor tar ut fellesperiode eller foreldrepenger: aktivitetskrav, minsterett, flerbarnsdager, samtidig (<= 50%)
+         * - mor tar ut fedrekvote eller far/medmor tar ut mødrekvote
+         * - Utsettelse - mor ikke rett: Aktivitetskrav
+         * - Utsettelse - Fritt uttak: utsettelser første 6 uker etter fødsel
+         * - Utsettelse - Sammenhengende: alle utsettelser
+         */
+
 
         return new StønadsstatistikkUttakPeriode(periode.getFom(), periode.getTom(), mapStønadskonto(foretrukketAktivitet.getTrekkonto()),
             rettighet, null, erUtbetaling, virkedager, trekkdager.decimalValue(), gradering, periode.getSamtidigUttaksprosent().decimalValue());
