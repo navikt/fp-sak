@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.datavarehus.v2;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -86,7 +87,7 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
             this(utbetaling.klassekode(), utbetaling.arbeidsgiver(), dagsats, utbetaling.utbetalingsgrad());
         }
     }
-    
+
     // For å få til compress - må ha equals som gjøre BigDecimal.compareTo
     private static boolean likeNaboer(UtbetalingSammenlign u1, UtbetalingSammenlign u2) {
         return u1.klassekode().equals(u2.klassekode()) && Objects.equals(u1.arbeidsgiver(), u2.arbeidsgiver())
