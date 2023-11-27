@@ -40,8 +40,8 @@ public class FormidlingRestTjeneste {
     public static final String RESSURSER_PATH = BASE_PATH + RESSURSER_PART_PATH;
     public static final String UTSATT_START_PART_PATH = "/utsattstart";
     public static final String UTSATT_START_PATH = BASE_PATH + UTSATT_START_PART_PATH;
-    public static final String MOTATT_DATO_SØKNADSFRIST_PART_PATH = "/motattDatoSøknad";
-    public static final String MOTATT_DATO_SØKNADSFRIST_PATH = BASE_PATH + MOTATT_DATO_SØKNADSFRIST_PART_PATH;
+    public static final String MOTTATT_DATO_SØKNADSFRIST_PART_PATH = "/motattDatoSøknad";
+    public static final String MOTTATT_DATO_SØKNADSFRIST_PATH = BASE_PATH + MOTTATT_DATO_SØKNADSFRIST_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste;
@@ -91,7 +91,7 @@ public class FormidlingRestTjeneste {
     }
 
     @GET
-    @Path(MOTATT_DATO_SØKNADSFRIST_PART_PATH)
+    @Path(MOTTATT_DATO_SØKNADSFRIST_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent gjeldende mottatt dato for søknad", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
