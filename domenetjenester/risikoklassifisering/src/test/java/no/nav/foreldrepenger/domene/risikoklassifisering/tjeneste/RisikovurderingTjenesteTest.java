@@ -31,23 +31,19 @@ class RisikovurderingTjenesteTest {
 
     private final FpriskTjeneste fpriskTjeneste = mock(FpriskTjeneste.class);
     private final ProsessTaskTjeneste prosessTaskTjeneste = mock(ProsessTaskTjeneste.class);
-    private final BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
 
     private RisikovurderingTjeneste risikovurderingTjeneste;
 
     private Behandling behandling;
 
     private BehandlingReferanse referanse;
-    private Fagsak fagsak;
-
 
     @BeforeEach
     public void setup() {
         var scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioFørstegang.lagMocked();
-        risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste, behandlingRepository);
+        risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste);
         referanse = BehandlingReferanse.fra(behandling);
-        fagsak = behandling.getFagsak();
     }
 
     @Test
@@ -96,21 +92,6 @@ class RisikovurderingTjenesteTest {
 
         // Assert
         assertThat(skalOppretteAksjonspunkt).isFalse();
-    }
-
-    @Test
-    void skal_teste_at_resultat_for_originalbehandling_returneres_for_revurdering() {
-        // Arrange
-        var hentOriginal = new HentRisikovurderingDto(behandling.getUuid());
-        var risikoresultatOriginal = lagRespons(RisikoklasseType.IKKE_HØY, null, null);
-        when(fpriskTjeneste.hentFaresignalerForBehandling(hentOriginal)).thenReturn(Optional.of(risikoresultatOriginal));
-        when(behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(any(), any())).thenReturn(Optional.of(behandling));
-        // Act
-        var revurderingRisikoklassifisering = risikovurderingTjeneste.hentRisikoklassifiseringForFagsak(fagsak);
-
-        // Assert
-        assertThat(revurderingRisikoklassifisering).isPresent();
-        assertThat(revurderingRisikoklassifisering.get().kontrollresultat()).isEqualTo(Kontrollresultat.IKKE_HØY);
     }
 
     private RisikovurderingResultatDto lagRespons(RisikoklasseType risikoklasse, List<String> faresignaler, FaresignalVurdering faresignalVurdering) {

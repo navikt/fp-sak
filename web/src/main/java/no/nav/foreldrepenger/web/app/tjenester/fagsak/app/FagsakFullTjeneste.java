@@ -32,9 +32,9 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakBehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRequestPath;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.app.KontrollDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakNotatDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
@@ -59,8 +59,6 @@ public class FagsakFullTjeneste {
 
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
-    private KontrollDtoTjeneste kontrollDtoTjeneste;
-
     protected FagsakFullTjeneste() {
         // CDI runner
     }
@@ -75,8 +73,7 @@ public class FagsakFullTjeneste {
                               PersonopplysningTjeneste personopplysningTjeneste,
                               BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                               FagsakBehandlingDtoTjeneste behandlingDtoTjeneste,
-                              HistorikkTjenesteAdapter historikkTjenesteAdapter,
-                              KontrollDtoTjeneste kontrollDtoTjeneste) {
+                              HistorikkTjenesteAdapter historikkTjenesteAdapter) {
         this.fagsakRepository = fagsakRepository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
@@ -87,7 +84,6 @@ public class FagsakFullTjeneste {
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
-        this.kontrollDtoTjeneste = kontrollDtoTjeneste;
     }
 
     public Optional<FagsakFullDto> hentFullFagsakDtoForSaksnummer(HttpServletRequest request, Saksnummer saksnummer) {
@@ -109,9 +105,12 @@ public class FagsakFullTjeneste {
         var dokumentPath = HistorikkRequestPath.getRequestPath(request);
         var historikk = historikkTjenesteAdapter.hentAlleHistorikkInnslagForSak(saksnummer, dokumentPath);
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
-        var gjeldendeKontrollresultatBehandlingskjede = kontrollDtoTjeneste.lagKontrollresultatForFagsak(fagsak);
+        var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
+                BehandlingType.FØRSTEGANGSSØKNAD)
+            .flatMap(førsteBeh -> behandlinger.stream().filter(beh -> beh.getUuid().equals(førsteBeh.getUuid())).findFirst())
+            .map(FagsakBehandlingDto::getKontrollResultat);
         var dto = new FagsakFullDto(fagsak, dekningsgrad, bruker, manglerAdresse, annenpart, annenpartSak, familiehendelse, fagsakMarkering,
-            oppretting, behandlinger, historikk, notater, gjeldendeKontrollresultatBehandlingskjede.orElse(null));
+            oppretting, behandlinger, historikk, notater, ferskesteKontrollresultatBehandling.orElse(null));
         return Optional.of(dto);
     }
 

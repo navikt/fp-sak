@@ -6,8 +6,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,6 @@ public class RisikovurderingTjeneste {
 
     private FpriskTjeneste fpriskTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
-    private BehandlingRepository behandlingRepository;
 
     public RisikovurderingTjeneste() {
         // CDI
@@ -40,11 +37,9 @@ public class RisikovurderingTjeneste {
 
     @Inject
     public RisikovurderingTjeneste(FpriskTjeneste fpriskTjeneste,
-                                   ProsessTaskTjeneste prosessTaskTjeneste,
-                                   BehandlingRepository behandlingRepository) {
+                                   ProsessTaskTjeneste prosessTaskTjeneste) {
         this.fpriskTjeneste = fpriskTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
-        this.behandlingRepository = behandlingRepository;
     }
 
 
@@ -53,10 +48,6 @@ public class RisikovurderingTjeneste {
             return hentFaresignalerFraFprisk(referanse);
         }
         return Optional.empty();
-    }
-
-    public Optional<FaresignalWrapper> hentRisikoklassifiseringForFagsak(Fagsak fagsak) {
-        return finnRisikovurderingForSenesteFørstegangsbehandling(fagsak.getId());
     }
 
     public boolean skalVurdereFaresignaler(BehandlingReferanse referanse) {
@@ -101,11 +92,6 @@ public class RisikovurderingTjeneste {
     private boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
         var resultat = hentFaresignalerFraFprisk(referanse);
         return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
-    }
-
-    private Optional<FaresignalWrapper> finnRisikovurderingForSenesteFørstegangsbehandling(Long fagsakId) {
-        var behandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.FØRSTEGANGSSØKNAD);
-        return behandling.flatMap(beh -> hentFaresignalerFraFprisk(BehandlingReferanse.fra(beh)));
     }
 
     private void sendVurderingTilFprisk(BehandlingReferanse referanse, FaresignalVurdering vurdering) {

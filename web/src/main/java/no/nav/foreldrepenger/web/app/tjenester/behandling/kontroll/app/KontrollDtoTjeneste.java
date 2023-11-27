@@ -36,12 +36,6 @@ public class KontrollDtoTjeneste {
         return wrapperOpt.flatMap(this::lagDto);
     }
 
-    public Optional<KontrollresultatDto> lagKontrollresultatForFagsak(Fagsak fagsak) {
-        return risikovurderingTjeneste.hentRisikoklassifiseringForFagsak(fagsak)
-            .flatMap(this::lagDto);
-
-    }
-
     private Optional<KontrollresultatDto> lagDto(FaresignalWrapper wrapper) {
         if (Kontrollresultat.HØY.equals(wrapper.kontrollresultat())) {
             var iayFaresignaler = lagFaresignalGruppeDto(wrapper.iayFaresignaler());
