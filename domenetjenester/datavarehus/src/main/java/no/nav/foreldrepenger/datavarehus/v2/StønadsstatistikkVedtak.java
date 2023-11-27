@@ -12,9 +12,11 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import no.nav.foreldrepenger.datavarehus.domene.VilkårVerdiDvh;
 
 public class StønadsstatistikkVedtak {
@@ -28,7 +30,7 @@ public class StønadsstatistikkVedtak {
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
-    private LocalDateTime skjæringstidspunkt;
+    private LocalDate skjæringstidspunkt;
     @NotNull
     private LocalDateTime vedtakstidspunkt; // Funksjonelt tid
     @NotNull
@@ -47,40 +49,19 @@ public class StønadsstatistikkVedtak {
     private Beregning beregning;
     @NotNull
     private String utbetalingsreferanse; // en referanse mot oppdrag
-
-    // Blir ikke avkortet - brutto inntekt per år
-    private BigDecimal bruttoÅrsinntekt;
     //ES
-    private BigDecimal engangsstønadInnvilget;
-
-    //SVP på periode???
-    private LocalDate tilretteleggingsbehovFom;
+    private Long engangsstønadInnvilget;
 
     private List<StønadsstatistikkUttakPeriode> uttaksperioder;
     private List<StønadsstatistikkUtbetalingPeriode> utbetalingssperioder;
     private ForeldrepengerRettigheter foreldrepengerRettigheter; //konto saldo, utregnet ut i fra rettigheter, minsteretter
 
-    // Nei: Inntektsmeldingen er dette interesant? Se på personopplysninger-dvh-fp-v2.xsd - svar fra Hans - ikke interessant
-    // Nei: Verge, familiehendelse, inntektsmeldinger - trenges ikke
     // Etter møte: Dokumentasjonsperiode for aleneomsorg per uttaksperioder
     // Etter møte: annen forelder har engangsstønad
     // Etter møte: Mann tar foreldrepenger - MORS_AKTIVITET er null i ca 12%
     // Viktig å kunne agreggere trekkdager
 
     // Yrkeskoder ligger på arbeidsforhold - skal vi sende arbeidsforhold-id slikt at man kan hente det inn AREG - hva om areg slutter med arbeforhID
-
-
-    StønadsstatistikkVedtak(Saksnummer saksnummer,
-                            YtelseType ytelseType,
-                            UUID behandlingUuid,
-                            AktørId søker,
-                            ForeldrepengerRettigheter foreldrepengerRettigheter) {
-        this.saksnummer = saksnummer;
-        this.ytelseType = ytelseType;
-        this.behandlingUuid = behandlingUuid;
-        this.søker = søker;
-        this.foreldrepengerRettigheter = foreldrepengerRettigheter;
-    }
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
@@ -102,7 +83,7 @@ public class StønadsstatistikkVedtak {
         return forrigeBehandlingUuid;
     }
 
-    public LocalDateTime getSkjæringstidspunkt() {
+    public LocalDate getSkjæringstidspunkt() {
         return skjæringstidspunkt;
     }
 
@@ -142,19 +123,15 @@ public class StønadsstatistikkVedtak {
         return utbetalingsreferanse;
     }
 
-    public BigDecimal getBruttoÅrsinntekt() {
-        return bruttoÅrsinntekt;
-    }
-
-    public BigDecimal getEngangsstønadInnvilget() {
+    public Long getEngangsstønadInnvilget() {
         return engangsstønadInnvilget;
     }
 
-    public LocalDate getTilretteleggingsbehovFom() {
-        return tilretteleggingsbehovFom;
+    public List<StønadsstatistikkUttakPeriode> getUttaksperioder() {
+        return uttaksperioder;
     }
 
-    public List<StønadsstatistikkUtbetalingPeriode> getVedtaksperioder() {
+    public List<StønadsstatistikkUtbetalingPeriode> getUtbetalingssperioder() {
         return utbetalingssperioder;
     }
 
@@ -162,13 +139,13 @@ public class StønadsstatistikkVedtak {
         return foreldrepengerRettigheter;
     }
 
-    record Beregning(@NotNull BigDecimal bruttoÅrsinntekt, Set<AktivitetStatus> aktivitetStatuser, Set<String> næringOrgNr) {} //på skjæringstidspunkt
+    record Beregning(@NotNull BigDecimal bruttoÅrsinntekt, Set<String> næringOrgNr) {} //på skjæringstidspunkt
 
-    record FamilieHendelse(@NotNull LocalDate termindato,
+    record FamilieHendelse(LocalDate termindato,
                            LocalDate adopsjonsdato,
                            @NotNull @Positive Integer antallBarn,
                            @NotEmpty @Valid List<Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
-                           @NotNull HendelseType behandlingTema) {
+                           @NotNull HendelseType hendelseType) {
 
         record Barn(AktørId aktørId, @NotNull LocalDate fødselsdato, LocalDate dødsdato) {}
 
@@ -196,19 +173,19 @@ public class StønadsstatistikkVedtak {
     }
 
     record ForeldrepengerRettigheter(@NotNull @Valid Dekningsgrad dekningsgrad,
-    @NotNull RettighetType rettighetType,
-    @NotNull @NotEmpty @Valid Set<Stønadskonto> stønadskonti,
-    @Valid Trekkdager flerbarnsdager,
-    @Valid Trekkdager prematurdager,
-    @Valid Trekkdager minsterett) { // kun ved to tette
+                                     @NotNull RettighetType rettighetType,
+                                     @NotNull @NotEmpty @Valid Set<Stønadskonto> stønadskonti,
+                                     @Valid Trekkdager flerbarnsdager) {
 
-        record Stønadskonto(@NotNull StønadskontoType type, @NotNull @Valid Trekkdager maksdager, @Valid Trekkdager minsterett) {}
+        record Stønadskonto(@NotNull StønadskontoType type,
+                            @NotNull @Valid Trekkdager maksdager,
+                            @NotNull @Valid Trekkdager restdager,
+                            @Valid Trekkdager minsterett) {
+        }
 
         // minsterett - kun for far har rett, uføre (mors aktivitet er ikke et krav i disse tilfeller)
 
-        record Trekkdager(@Min(0) @Max(500) @NotNull BigDecimal antall) {
-            public static final Trekkdager ZERO = new Trekkdager(0);
-
+        record Trekkdager(@JsonValue @Min(0) @Max(500) @NotNull BigDecimal antall) {
             public Trekkdager(int antall) {
                 this(BigDecimal.valueOf(antall));
             }
@@ -218,13 +195,13 @@ public class StønadsstatistikkVedtak {
 
     record AnnenForelder(@NotNull @Valid AktørId aktørId, Saksnummer saksnummer) {}
 
-    public record AktørId(@NotNull @jakarta.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "AktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
-                          String id) {
+    public record AktørId(@NotNull @Pattern(regexp = VALID_REGEXP, message = "AktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
+                          @JsonValue String id) {
         private static final String VALID_REGEXP = "^\\d{13}$";
     }
 
-    record Saksnummer(@NotNull @jakarta.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
-                      String id) {
+    record Saksnummer(@NotNull @Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
+                      @JsonValue String id) {
         private static final String VALID_REGEXP = "^[0-9]*$";
     }
 
@@ -245,5 +222,92 @@ public class StønadsstatistikkVedtak {
 
     enum YtelseType {
         FORELDREPENGER, SVANGERSKAPSPENGER, ENGANGSSTØNAD
+    }
+
+    static class Builder {
+
+        private final StønadsstatistikkVedtak kladd = new StønadsstatistikkVedtak();
+
+        Builder medSaksnummer(Saksnummer saksnummer) {
+            kladd.saksnummer = saksnummer;
+            return this;
+        }
+        Builder medYtelseType(YtelseType ytelseType) {
+            kladd.ytelseType = ytelseType;
+            return this;
+        }
+        Builder medLovVersjon(LovVersjon lovVersjon) {
+            kladd.lovVersjon = lovVersjon;
+            return this;
+        }
+        Builder medBehandlingUuid(UUID behandlingUuid) {
+            kladd.behandlingUuid = behandlingUuid;
+            return this;
+        }
+        Builder medForrigeBehandlingUuid(UUID forrigeBehandlingUuid) {
+            kladd.forrigeBehandlingUuid = forrigeBehandlingUuid;
+            return this;
+        }
+        Builder medSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
+            kladd.skjæringstidspunkt = skjæringstidspunkt;
+            return this;
+        }
+        Builder medVedtakstidspunkt(LocalDateTime vedtakstidspunkt) {
+            kladd.vedtakstidspunkt = vedtakstidspunkt;
+            return this;
+        }
+        Builder medVedtaksresultat(VedtakResultat vedtaksresultat) {
+            kladd.vedtaksresultat = vedtaksresultat;
+            return this;
+        }
+        Builder medVilkårIkkeOppfylt(VilkårVerdiDvh vilkårIkkeOppfylt) {
+            kladd.vilkårIkkeOppfylt = vilkårIkkeOppfylt;
+            return this;
+        }
+        Builder medSøker(AktørId søker) {
+            kladd.søker = søker;
+            return this;
+        }
+        Builder medUtlandsTilsnitt(UtlandsTilsnitt utlandsTilsnitt) {
+            kladd.utlandsTilsnitt = utlandsTilsnitt;
+            return this;
+        }
+        Builder medAnnenForelder(AnnenForelder annenForelder) {
+            kladd.annenForelder = annenForelder;
+            return this;
+        }
+        Builder medFamilieHendelse(FamilieHendelse familieHendelse) {
+            kladd.familieHendelse = familieHendelse;
+            return this;
+        }
+        Builder medBeregning(Beregning beregning) {
+            kladd.beregning = beregning;
+            return this;
+        }
+        Builder medUtbetalingsreferanse(String utbetalingsreferanse) {
+            kladd.utbetalingsreferanse = utbetalingsreferanse;
+            return this;
+        }
+        Builder medEngangsstønadInnvilget(Long engangsstønadInnvilget) {
+            kladd.engangsstønadInnvilget = engangsstønadInnvilget;
+            return this;
+        }
+
+        Builder medUtbetalingssperioder(List<StønadsstatistikkUtbetalingPeriode> utbetalingssperioder) {
+            kladd.utbetalingssperioder = utbetalingssperioder;
+            return this;
+        }
+        Builder medUttakssperioder(List<StønadsstatistikkUttakPeriode> uttaksperioder) {
+            kladd.uttaksperioder = uttaksperioder;
+            return this;
+        }
+        Builder medForeldrepengerRettigheter(ForeldrepengerRettigheter foreldrepengerRettigheter) {
+            kladd.foreldrepengerRettigheter = foreldrepengerRettigheter;
+            return this;
+        }
+
+        public StønadsstatistikkVedtak build() {
+            return kladd;
+        }
     }
 }

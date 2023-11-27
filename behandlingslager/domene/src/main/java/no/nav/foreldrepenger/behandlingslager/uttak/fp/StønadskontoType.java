@@ -68,6 +68,10 @@ public enum StønadskontoType implements Kodeverdi {
         return Set.of(MØDREKVOTE, FEDREKVOTE, FELLESPERIODE).contains(this);
     }
 
+    public boolean harAktivitetskrav() {
+        return Set.of(FELLESPERIODE, FORELDREPENGER).contains(this);
+    }
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<StønadskontoType, String> {
         @Override

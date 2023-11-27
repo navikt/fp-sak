@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.datavarehus.v2;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
@@ -25,6 +24,8 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
         UTSETTELSE_INNLEGGELSE,
         UTSETTELSE_BARNINNLAGT,
         UTSETTELSE_SYKDOM,
+        UTSETTELSE_HVOVELSE,
+        UTSETTELSE_NAVTILTAK,
         OVERFØRING_ANNEN_PART_SYKDOM,
         OVERFØRING_ANNEN_PART_INNLAGT,
 
