@@ -51,7 +51,7 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
         historikkAdapter = new HistorikkTjenesteAdapter(behandlingRepositoryProvider.getHistorikkRepository(), null,
                 behandlingRepositoryProvider.getBehandlingRepository());
         var behandlingRepository = new BehandlingRepository(entityManager);
-        var risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste, behandlingRepository);
+        var risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(behandlingRepositoryProvider);
         vurderFaresignalerOppdaterer = new VurderFaresignalerOppdaterer(risikovurderingTjeneste, historikkAdapter, behandlingRepository);
