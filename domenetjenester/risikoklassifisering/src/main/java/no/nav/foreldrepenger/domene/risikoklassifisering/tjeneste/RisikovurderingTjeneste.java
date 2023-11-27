@@ -35,28 +35,28 @@ public class RisikovurderingTjeneste {
     }
 
     @Inject
-    public RisikovurderingTjeneste(FpriskTjeneste fpriskTjeneste, ProsessTaskTjeneste prosessTaskTjeneste) {
+    public RisikovurderingTjeneste(FpriskTjeneste fpriskTjeneste,
+                                   ProsessTaskTjeneste prosessTaskTjeneste) {
         this.fpriskTjeneste = fpriskTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
-    private boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
-        var resultat = hentFaresignalerFraFprisk(referanse);
-        return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
-    }
 
     public Optional<FaresignalWrapper> hentRisikoklassifisering(BehandlingReferanse referanse) {
-        // Tidlig return for å spare oss unødige restkall, kun førstegangsbehandlinger blir klassifisert.
-        if (!referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
-            return Optional.empty();
+        if (referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            return hentFaresignalerFraFprisk(referanse);
         }
-        return hentFaresignalerFraFprisk(referanse);
+        return Optional.empty();
     }
 
     public boolean skalVurdereFaresignaler(BehandlingReferanse referanse) {
         Objects.requireNonNull(referanse, "referanse");
-        var wrapper = hentRisikoklassifisering(referanse);
-        return wrapper.map(this::erHøyRisiko).orElse(false);
+        // Skal kun løse aksjonspunkt for faresignaler i førstegangsbehandling
+        if (referanse.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            var wrapper = hentRisikoklassifisering(referanse);
+            return wrapper.map(this::erHøyRisiko).orElse(false);
+        }
+        return false;
     }
 
     public void lagreVurderingAvFaresignalerForBehandling(BehandlingReferanse referanse, FaresignalVurdering vurdering) {
@@ -86,6 +86,11 @@ public class RisikovurderingTjeneste {
             LOG.info("Iverksetter risikoklassifisering på behandling " + referanse.behandlingId());
             fpriskTjeneste.sendRisikoklassifiseringsoppdrag(request);
         }
+    }
+
+    private boolean behandlingHarBlittRisikoklassifisert(BehandlingReferanse referanse) {
+        var resultat = hentFaresignalerFraFprisk(referanse);
+        return resultat.map(res -> !res.kontrollresultat().equals(Kontrollresultat.IKKE_KLASSIFISERT)).orElse(false);
     }
 
     private void sendVurderingTilFprisk(BehandlingReferanse referanse, FaresignalVurdering vurdering) {

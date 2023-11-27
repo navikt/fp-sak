@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
+import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.FaresignalgruppeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
@@ -31,17 +32,21 @@ public class KontrollDtoTjeneste {
         if (wrapperOpt.isEmpty()) {
             return Optional.of(KontrollresultatDto.ikkeKlassifisert());
         }
-        var wrapper = wrapperOpt.get();
+        return wrapperOpt.flatMap(this::lagDto);
+    }
+
+    private Optional<KontrollresultatDto> lagDto(FaresignalWrapper wrapper) {
         if (Kontrollresultat.HØY.equals(wrapper.kontrollresultat())) {
-            var iayFaresignaler = lagFaresignalDto(wrapper.iayFaresignaler());
-            var medlemskapFaresignaler = lagFaresignalDto(wrapper.medlemskapFaresignaler());
-            return Optional.of(new KontrollresultatDto(wrapper.kontrollresultat(), iayFaresignaler, medlemskapFaresignaler, wrapper.faresignalVurdering()));
+            var iayFaresignaler = lagFaresignalGruppeDto(wrapper.iayFaresignaler());
+            var medlemskapFaresignaler = lagFaresignalGruppeDto(wrapper.medlemskapFaresignaler());
+            return Optional.of(
+                new KontrollresultatDto(wrapper.kontrollresultat(), iayFaresignaler, medlemskapFaresignaler, wrapper.faresignalVurdering()));
         } else {
             return Optional.of(new KontrollresultatDto(wrapper.kontrollresultat(), null, null, null));
         }
     }
 
-    private FaresignalgruppeDto lagFaresignalDto(FaresignalGruppeWrapper faresignalgruppe) {
+    private FaresignalgruppeDto lagFaresignalGruppeDto(FaresignalGruppeWrapper faresignalgruppe) {
         if (faresignalgruppe == null || faresignalgruppe.faresignaler().isEmpty()) {
             return null;
         }

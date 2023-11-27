@@ -128,8 +128,8 @@ public class FagsakBehandlingDtoTjeneste {
         }
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
             kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).ifPresent(dto::setKontrollResultat);
+            AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
         }
 
         if (BehandlingType.REVURDERING.equals(behandling.getType())) {

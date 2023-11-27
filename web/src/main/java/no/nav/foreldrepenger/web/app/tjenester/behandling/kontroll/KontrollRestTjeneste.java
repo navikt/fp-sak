@@ -27,6 +27,9 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Denne finnes utelukkende pga fplos
  */
@@ -35,6 +38,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Produces(MediaType.APPLICATION_JSON)
 @Transactional
 public class KontrollRestTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(KontrollRestTjeneste.class);
 
     static final String BASE_PATH = "/behandling";
     private static final String KONTROLLRESULTAT_V2_PART_PATH = "/kontrollresultat/resultat";
@@ -61,6 +65,7 @@ public class KontrollRestTjeneste {
     @Path(KONTROLLRESULTAT_V2_PART_PATH)
     public KontrollresultatDto hentKontrollresultatV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                       @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Kall på deprekert endepunkt kontrollresultat");
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var referanse = BehandlingReferanse.fra(behandling);
         return kontrollDtoTjeneste.lagKontrollresultatForBehandling(referanse).orElse(null);
