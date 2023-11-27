@@ -56,7 +56,8 @@ public class StønadsstatistikkVedtak {
     //SVP på periode???
     private LocalDate tilretteleggingsbehovFom;
 
-    private List<StønadsstatistikkVedtakPeriode> vedtaksperioder;
+    private List<StønadsstatistikkUttakPeriode> uttaksperioder;
+    private List<StønadsstatistikkUtbetalingPeriode> utbetalingssperioder;
     private ForeldrepengerRettigheter foreldrepengerRettigheter; //konto saldo, utregnet ut i fra rettigheter, minsteretter
 
     // Nei: Inntektsmeldingen er dette interesant? Se på personopplysninger-dvh-fp-v2.xsd - svar fra Hans - ikke interessant
@@ -153,8 +154,8 @@ public class StønadsstatistikkVedtak {
         return tilretteleggingsbehovFom;
     }
 
-    public List<StønadsstatistikkVedtakPeriode> getVedtaksperioder() {
-        return vedtaksperioder;
+    public List<StønadsstatistikkUtbetalingPeriode> getVedtaksperioder() {
+        return utbetalingssperioder;
     }
 
     public ForeldrepengerRettigheter getForeldrepengerRettigheter() {
