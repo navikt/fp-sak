@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -249,35 +248,11 @@ public class FordelRestTjeneste {
         return Response.ok().build();
     }
 
-    /**
-     * @deprecated Erstattes med finnAlleSakerForBrukerV2 som bruker felles kontrakt - må ryddes i fpfordel først.
-     * @param bruker aktørId til bruker.
-     */
-    @Deprecated(forRemoval = true)
-    @POST
-    @Path("/finnFagsaker")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Finn alle saker for en bruker.", summary = "Finn alle saker for en bruker", tags = "fordel", responses = {@ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SakInfoDto.class))))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public List<SakInfoDto> finnAlleSakerForBruker(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @Parameter(description = "AktørId") @Valid AktørIdDto bruker) {
-        ensureCallId();
-        if (!AktørId.erGyldigAktørId(bruker.aktørId())) {
-            throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
-        }
-        List<SakInfoDto> saksinfoDtoer = new ArrayList<>();
-        var fagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(bruker.aktørId()));
-        for (var fagsak : fagsaker) {
-            saksinfoDtoer.add(sakInfoDtoTjeneste.mapSakInfoDto(fagsak));
-        }
-        return saksinfoDtoer;
-    }
-
     @POST
     @Path("/finnFagsaker/v2")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Finn alle saker for en bruker.", summary = "Finn alle saker for en bruker", tags = "fordel", responses = {@ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SakInfoDto.class))))})
+    @Operation(description = "Finn alle saker for en bruker.", summary = "Finn alle saker for en bruker", tags = "fordel", responses = {@ApiResponse(responseCode = "200", description = "Liste av alle brukers saker, ellers tom liste", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = List.class), schema = @Schema(implementation = SakInfoV2Dto.class))))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     public List<SakInfoV2Dto> finnAlleSakerForBrukerV2(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @Parameter(description = "AktørId") @Valid AktørIdDto bruker) {
         ensureCallId();
