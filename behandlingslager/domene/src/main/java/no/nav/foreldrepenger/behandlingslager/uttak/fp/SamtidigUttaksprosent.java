@@ -47,6 +47,10 @@ public class SamtidigUttaksprosent implements Comparable<SamtidigUttaksprosent> 
         return this.verdi.compareTo(BigDecimal.ZERO) > 0;
     }
 
+    public boolean mindreEnnEllerLik50() {
+        return this.verdi.compareTo(new BigDecimal(50)) <= 0;
+    }
+
     public static boolean erSamtidigUttak(SamtidigUttaksprosent samtidigUttaksprosent) {
         return samtidigUttaksprosent != null && samtidigUttaksprosent.merEnn0();
     }

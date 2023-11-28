@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårVerdiDvh;
 
-class BehandlingVedtakDvhMapper {
+public class BehandlingVedtakDvhMapper {
 
     private static final Set<VedtakResultatType> VEDTAK_IKKE_OPPFYLT = Set.of(VedtakResultatType.AVSLAG, VedtakResultatType.OPPHØR);
 
@@ -39,7 +39,7 @@ class BehandlingVedtakDvhMapper {
                 .build();
     }
 
-    private static VilkårVerdiDvh mapVilkårIkkeOppfylt(VedtakResultatType vedtakResultatType, FagsakYtelseType ytelseType, Set<VilkårType> vilkårIkkeOppfylt) {
+    public static VilkårVerdiDvh mapVilkårIkkeOppfylt(VedtakResultatType vedtakResultatType, FagsakYtelseType ytelseType, Set<VilkårType> vilkårIkkeOppfylt) {
         if (!VEDTAK_IKKE_OPPFYLT.contains(vedtakResultatType)) {
             return null;
         }

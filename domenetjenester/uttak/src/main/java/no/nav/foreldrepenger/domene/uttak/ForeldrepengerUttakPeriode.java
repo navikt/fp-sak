@@ -197,7 +197,7 @@ public class ForeldrepengerUttakPeriode {
     }
 
     public boolean isOverføringAvslått() {
-        return !isInnvilget() && isSøktOverføring();
+        return !isInnvilgetOverføring();
     }
 
     public boolean isSøktOverføring() {
@@ -210,6 +210,10 @@ public class ForeldrepengerUttakPeriode {
 
     public boolean isOpphold() {
         return !OppholdÅrsak.UDEFINERT.equals(getOppholdÅrsak());
+    }
+
+    public boolean isInnvilgetOverføring() {
+        return isSøktOverføring() && isInnvilget();
     }
 
     public MorsAktivitet getMorsAktivitet() {
