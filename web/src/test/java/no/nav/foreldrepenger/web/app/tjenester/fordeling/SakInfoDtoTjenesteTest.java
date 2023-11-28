@@ -63,7 +63,7 @@ class SakInfoDtoTjenesteTest {
 
         var fagsak= Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak.setOpprettetTidspunkt(opprettetTidSak1);
-        fagsak.setId(125L);
+
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.of(behandling));
@@ -95,7 +95,7 @@ class SakInfoDtoTjenesteTest {
 
         var fagsak= Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
         fagsak.setOpprettetTidspunkt(opprettetTidSak1);
-        fagsak.setId(125L);
+
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.of(behandling));
@@ -117,33 +117,6 @@ class SakInfoDtoTjenesteTest {
         assertThat(sakInfoDto.familiehendelseInfoDto().familiehendelseDato()).isEqualTo(skjæringstidspunkt);
         assertThat(sakInfoDto.familiehendelseInfoDto().familihendelseType()).isEqualTo(SakInfoV2Dto.FamilieHendelseTypeDto.FØDSEL);
         assertThat(sakInfoDto.førsteUttaksdato()).isEqualTo(førsteuttaksdato);
-    }
-
-    /**
-     * @deprecated fjernes etter bytte til mapSakInfoV2Dto
-     */
-    @Deprecated(forRemoval = true)
-    @Test
-    void skalMappeSakInfoDtoMedNullVerdier() {
-        var saknr = new Saksnummer("TEST4");
-        var ytelseType = FagsakYtelseType.FORELDREPENGER;
-        var opprettetTid = LocalDateTime.now().minusMonths(16);
-
-
-        var fagsak= Fagsak.opprettNy(ytelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saknr);
-        fagsak.setOpprettetTidspunkt(opprettetTid);
-        fagsak.setId(125L);
-
-        when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.empty());
-
-        var sakInfoDto = sakInfoDtoTjeneste.mapSakInfoV2Dto(fagsak);
-
-        assertThat(sakInfoDto.saksnummer().getSaksnummer()).isEqualTo(saknr.getVerdi());
-        assertThat(sakInfoDto.status()).isEqualTo(SakInfoV2Dto.FagsakStatusDto.UNDER_BEHANDLING);
-        assertThat(sakInfoDto.opprettetDato()).isEqualTo(opprettetTid.toLocalDate());
-        assertThat(sakInfoDto.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
-        assertThat(sakInfoDto.familiehendelseInfoDto()).isNull();
-        assertThat(sakInfoDto.førsteUttaksdato()).isNull();
     }
 
     @Test
