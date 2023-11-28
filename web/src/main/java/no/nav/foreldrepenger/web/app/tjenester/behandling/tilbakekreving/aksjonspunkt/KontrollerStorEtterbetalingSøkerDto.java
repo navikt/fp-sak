@@ -8,8 +8,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER_KODE)
 public class KontrollerStorEtterbetalingSøkerDto extends BekreftetAksjonspunktDto {
 
-    @SuppressWarnings("unused")
-    public KontrollerStorEtterbetalingSøkerDto(String bekreftelse) {
-        super(bekreftelse);
+    public KontrollerStorEtterbetalingSøkerDto() {
+        // For Jackson
+    }
+
+    public KontrollerStorEtterbetalingSøkerDto(String begrunnelse) {
+        super(begrunnelse);
     }
 }

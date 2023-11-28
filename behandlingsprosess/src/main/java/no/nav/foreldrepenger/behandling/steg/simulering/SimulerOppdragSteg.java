@@ -128,11 +128,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
         var etterbetalingskontrollResultat = harStorEtterbetalingTilSøker(behandling);
         if (etterbetalingskontrollResultat.map(EtterbetalingskontrollResultat::overstigerGrense).orElse(false)) {
-            // TODO legg inn denne etter at frontend er klar
-            // TODO Sjekk om det er mulig å både få VURDER_FEILUTBETALING og KONTROLLER_STOR_ETTERBETALING_SØKER samtidig
-            // aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER);
-            LOG.info("Høy etterbetaling på kr {} til bruker på sak {}", etterbetalingskontrollResultat.get().etterbetalingssum(),
-                behandling.getFagsak().getSaksnummer());
+            aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER);
         }
 
         var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
