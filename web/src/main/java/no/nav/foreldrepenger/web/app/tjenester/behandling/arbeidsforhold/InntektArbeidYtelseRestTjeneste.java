@@ -64,9 +64,12 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYrkesaktivitetTil
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.kodeverk.MottakerType;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -96,6 +99,7 @@ public class InntektArbeidYtelseRestTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper;
+    private FpOppdragRestKlient fpOppdragRestKlient;
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
@@ -112,7 +116,8 @@ public class InntektArbeidYtelseRestTjeneste {
                                            YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                            SvangerskapspengerRepository svangerskapspengerRepository,
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                           AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper) {
+                                           AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper,
+                                           FpOppdragRestKlient fpOppdragRestKlient) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -122,6 +127,7 @@ public class InntektArbeidYtelseRestTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.alleInntektsmeldingerMapper = alleInntektsmeldingerMapper;
+        this.fpOppdragRestKlient = fpOppdragRestKlient;
     }
 
     @GET
@@ -230,6 +236,9 @@ public class InntektArbeidYtelseRestTjeneste {
                 .filter(Objects::nonNull).forEach(alleReferanser::add);
         });
 
+        var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId());
+        arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));
+
         if (!overstyrtNavn.isEmpty()) {
             alleReferanser.add(new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, overstyrtNavn.get(0)));
         } else if (arbeidsgivere.stream().map(Arbeidsgiver::getIdentifikator).anyMatch(OrgNummer.KUNSTIG_ORG::equals)) {
@@ -246,6 +255,32 @@ public class InntektArbeidYtelseRestTjeneste {
         oversikt.putIfAbsent(OrgNummer.KUNSTIG_ORG, new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
 
         return new ArbeidsgiverOversiktDto(oversikt);
+    }
+
+    private Set<Arbeidsgiver> finnArbeidsgivereFraSimulering(SimuleringDto simDto) {
+        var agFraSimRes = finnArbeidsgivereFraSimuleringRestultat(simDto.simuleringResultat());
+        agFraSimRes.addAll(finnArbeidsgivereFraSimuleringRestultat(simDto.simuleringResultatUtenInntrekk()));
+        return agFraSimRes;
+    }
+
+    private Set<Arbeidsgiver> finnArbeidsgivereFraSimuleringRestultat(SimuleringDto.DetaljertSimuleringResultatDto simuleringResultat) {
+        if (simuleringResultat == null || simuleringResultat.perioderPerMottaker() == null) {
+            return Collections.emptySet();
+        }
+        return simuleringResultat.perioderPerMottaker().stream()
+            .map(InntektArbeidYtelseRestTjeneste::mapSimuleringsmottaker)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
+    }
+
+    private static Optional<Arbeidsgiver> mapSimuleringsmottaker(SimuleringDto.SimuleringForMottakerDto mottaker) {
+        if (mottaker.mottakerType().equals(MottakerType.ARBG_PRIV)) {
+            return Optional.of(Arbeidsgiver.person(new AktørId(mottaker.mottakerIdentifikator())));
+        } else if (mottaker.mottakerType().equals(MottakerType.ARBG_ORG)) {
+            return Optional.of(Arbeidsgiver.virksomhet(mottaker.mottakerIdentifikator()));
+        }
+        return Optional.empty();
     }
 
 
