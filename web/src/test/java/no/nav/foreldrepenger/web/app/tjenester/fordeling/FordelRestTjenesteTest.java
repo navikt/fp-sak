@@ -36,7 +36,9 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -137,8 +139,8 @@ class FordelRestTjenesteTest {
         var saknr1 = new Saksnummer("TEST3");
         var saknr2 = new Saksnummer("TEST4");
         var foreldrepenger = FagsakYtelseType.FORELDREPENGER;
-        var forventetYtelseType = SakInfoDto.FagsakYtelseTypeDto.FORELDREPENGER;
-        var forventetStatus = SakInfoDto.FagsakStatusDto.UNDER_BEHANDLING;
+        var forventetYtelseType = YtelseTypeDto.FORELDREPENGER;
+        var forventetStatus = SakInfoV2Dto.FagsakStatusDto.UNDER_BEHANDLING;
         var opprettetTidSak1 = LocalDateTime.now().minusMonths(16);
         var opprettetTidSak2 = LocalDateTime.now();
         var skjæringstidspunkt = LocalDate.now().minusMonths(15);
@@ -157,16 +159,16 @@ class FordelRestTjenesteTest {
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         when(behandlingRepositoryProviderMock.getFamilieHendelseRepository()).thenReturn(familieHendelseRepositoryMock);
 
-        var sakDto1 = new SakInfoDto(new SaksnummerDto(saknr1.getVerdi()),  forventetYtelseType, opprettetTidSak1.toLocalDate(), forventetStatus, new SakInfoDto.FamiliehendelseInfoDto(skjæringstidspunkt, SakInfoDto.FamilieHendelseTypeDto.FØDSEL), førsteuttaksdato);
-        var sakDto2 = new SakInfoDto(new SaksnummerDto(saknr2.getVerdi()), forventetYtelseType, opprettetTidSak2.toLocalDate(), forventetStatus, null, null);
+        var sakDto1 = new SakInfoV2Dto(new SaksnummerDto(saknr1.getVerdi()),  forventetYtelseType, forventetStatus, new SakInfoV2Dto.FamiliehendelseInfoDto(skjæringstidspunkt, SakInfoV2Dto.FamilieHendelseTypeDto.FØDSEL), opprettetTidSak1.toLocalDate(), førsteuttaksdato);
+        var sakDto2 = new SakInfoV2Dto(new SaksnummerDto(saknr2.getVerdi()), forventetYtelseType, forventetStatus, null, opprettetTidSak2.toLocalDate(), null);
 
-        when(sakInfoDtoTjenesteMock.mapSakInfoDto(fagsak1)).thenReturn(sakDto1);
-        when(sakInfoDtoTjenesteMock.mapSakInfoDto(fagsak2)).thenReturn(sakDto2);
+        when(sakInfoDtoTjenesteMock.mapSakInfoV2Dto(fagsak1)).thenReturn(sakDto1);
+        when(sakInfoDtoTjenesteMock.mapSakInfoV2Dto(fagsak2)).thenReturn(sakDto2);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock);
 
-        var result = tjeneste.finnAlleSakerForBruker(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
+        var result = tjeneste.finnAlleSakerForBrukerV2(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
 
         assertThat(result).hasSize(2);
     }
@@ -178,7 +180,7 @@ class FordelRestTjenesteTest {
             BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock);
 
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
-        var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBruker(aktørIdDto));
+        var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBrukerV2(aktørIdDto));
 
         var expectedMessage = "Oppgitt aktørId er ikke en gyldig ident.";
         var actualMessage = exception.getMessage();
