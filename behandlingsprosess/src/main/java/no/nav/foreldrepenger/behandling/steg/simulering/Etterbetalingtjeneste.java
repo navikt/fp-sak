@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregnytelse;
+package no.nav.foreldrepenger.behandling.steg.simulering;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,7 +22,7 @@ public class Etterbetalingtjeneste {
 
 
     /**
-     * Tjeneste som lager tidslinje over tidligere og nytt beregningsresultat og sjekker om det vil bli etterbetalt for perioder 3 mnd tilbake i tid
+     * Tjeneste som lager tidslinje over tidligere og nytt beregningsresultat og sjekker om det vil bli etterbetalt for perioder som allerede er utbetalt i tidligere behandling
      * og om etterbetalingssum vil overskride et gitt beløp
      *
      * @param dagensDato             taes inn som parameter for å kunne skrive bedre tester

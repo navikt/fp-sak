@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.beregnytelse;
+package no.nav.foreldrepenger.behandling.steg.simulering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

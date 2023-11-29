@@ -10,8 +10,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.steg.beregnytelse.EtterbetalingskontrollResultat;
-import no.nav.foreldrepenger.behandling.steg.beregnytelse.Etterbetalingtjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 
 import org.slf4j.Logger;
