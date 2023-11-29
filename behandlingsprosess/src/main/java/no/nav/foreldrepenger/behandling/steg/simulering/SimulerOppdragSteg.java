@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,6 +148,9 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private Optional<EtterbetalingskontrollResultat> harStorEtterbetalingTilSøker(Behandling behandling) {
+        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
+            return Optional.empty(); // Ikke relevant for ES
+        }
         var utbetResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
         // Ingen utbetaling i denne behandlingen, vil ikke bli etterbetaling
         return utbetResultat.flatMap(beregningsresultatEntitet -> behandling.getOriginalBehandlingId()
