@@ -43,7 +43,7 @@ public class OpptjeningsaktiviteterPerYtelse {
     }
 
     private boolean harOppgittFrilansISøknad(InntektArbeidYtelseGrunnlag grunnlag) {
-        return grunnlag.getOppgittOpptjening().stream()
+        return grunnlag.getGjeldendeOppgittOpptjening().stream()
             .flatMap(oppgittOpptjening -> oppgittOpptjening.getAnnenAktivitet().stream())
             .anyMatch(annenAktivitet -> annenAktivitet.getArbeidType().equals(ArbeidType.FRILANSER));
     }

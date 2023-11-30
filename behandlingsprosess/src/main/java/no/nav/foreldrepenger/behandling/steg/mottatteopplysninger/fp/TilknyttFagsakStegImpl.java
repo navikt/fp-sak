@@ -94,7 +94,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private boolean harOppgittUtenlandskInntekt(Long behandlingId) {
         var oppgittOpptening = iayTjeneste.finnGrunnlag(behandlingId)
-                .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
+                .flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening);
         return oppgittOpptening.map(oppgittOpptjening -> oppgittOpptjening.getOppgittArbeidsforhold().stream()
                 .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);
     }

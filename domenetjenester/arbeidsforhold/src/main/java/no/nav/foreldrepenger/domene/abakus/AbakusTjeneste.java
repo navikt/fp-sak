@@ -76,6 +76,7 @@ public class AbakusTjeneste {
     private URI endpointInntektsmeldinger;
     private URI endpointYtelser;
     private URI endpointOverstyring;
+    private URI endpointLagreOverstyrtOppgittOpptjening;
 
     AbakusTjeneste() {
         // for CDI
@@ -95,6 +96,7 @@ public class AbakusTjeneste {
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointYtelser = toUri("/api/ytelse/v1/hent-vedtak-ytelse");
         this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
+        this.endpointLagreOverstyrtOppgittOpptjening = toUri("/api/iay/oppgitt/v1/overstyr");
     }
 
     private URI toUri(String relativeUri) {
@@ -283,6 +285,26 @@ public class AbakusTjeneste {
             var responseBody = rawResponse.body();
             var feilmelding = String.format("Kunne ikke lagre oppgitt opptjening for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
                 dto.getKoblingReferanse(), endpointMottaOppgittOpptjening, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
+            }
+            throw feilVedKallTilAbakus(feilmelding);
+        }
+    }
+
+    public void lagreOverstyrtOppgittOpptjening(OppgittOpptjeningMottattRequest dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
+
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+        var request = RestRequest.newRequest(method, endpointLagreOverstyrtOppgittOpptjening, restConfig).timeout(Duration.ofSeconds(30));
+
+        LOG.info("Lagre overstyrt oppgitt opptjening (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Kunne ikke lagre overstyrt oppgitt opptjening for behandling: %s til abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getKoblingReferanse(), endpointLagreOverstyrtOppgittOpptjening, responseCode, responseBody);
             if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw feilKallTilAbakus(feilmelding);
             }

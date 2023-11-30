@@ -105,7 +105,7 @@ public class IAYMapperTilKalkulus {
             builder.setInntektsmeldinger(mapInntektsmelding(inntektsmeldinger, iayGrunnlag.getArbeidsforholdInformasjon()));
         }
         iayGrunnlag.getArbeidsforholdInformasjon().ifPresent(arbeidsforholdInformasjon -> builder.medInformasjon(mapArbeidsforholdInformasjon(arbeidsforholdInformasjon)));
-        iayGrunnlag.getOppgittOpptjening().ifPresent(oppgittOpptjening -> builder.medOppgittOpptjening(mapOppgittOpptjening(oppgittOpptjening)));
+        iayGrunnlag.getGjeldendeOppgittOpptjening().ifPresent(oppgittOpptjening -> builder.medOppgittOpptjening(mapOppgittOpptjening(oppgittOpptjening)));
         builder.medErAktivtGrunnlag(iayGrunnlag.isAktiv());
         return builder.build();
     }
