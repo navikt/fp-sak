@@ -28,7 +28,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -102,6 +104,7 @@ public class InntektArbeidYtelseRestTjeneste {
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private FpOppdragRestKlient fpOppdragRestKlient;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     public InntektArbeidYtelseRestTjeneste() {
         // for CDI proxy
@@ -117,7 +120,8 @@ public class InntektArbeidYtelseRestTjeneste {
                                            SvangerskapspengerRepository svangerskapspengerRepository,
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                            AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper,
-                                           FpOppdragRestKlient fpOppdragRestKlient) {
+                                           FpOppdragRestKlient fpOppdragRestKlient,
+                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -128,6 +132,7 @@ public class InntektArbeidYtelseRestTjeneste {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.alleInntektsmeldingerMapper = alleInntektsmeldingerMapper;
         this.fpOppdragRestKlient = fpOppdragRestKlient;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     @GET
@@ -236,8 +241,10 @@ public class InntektArbeidYtelseRestTjeneste {
                 .filter(Objects::nonNull).forEach(alleReferanser::add);
         });
 
-        var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId());
-        arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));
+        if (behandling.erAvsluttet() || behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.SIMULER_OPPDRAG)) {
+            var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId());
+            arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));
+        }
 
         if (!overstyrtNavn.isEmpty()) {
             alleReferanser.add(new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, overstyrtNavn.get(0)));
