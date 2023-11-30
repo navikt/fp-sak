@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -147,10 +148,12 @@ class StønadsstatistikkUttakPeriodeMapper {
     }
 
     private static Optional<ForeldrepengerUttakPeriodeAktivitet> velgAktivitet(ForeldrepengerUttakPeriode periode) {
+        Predicate<ForeldrepengerUttakPeriodeAktivitet> kompatibelKonto = a -> periode.getSøktKonto() == null ||
+            a.getTrekkonto().getKode().equals(periode.getSøktKonto().getKode());
         if (periode.harTrekkdager()) {
             return periode.getAktiviteter()
                 .stream()
-                .filter(a -> a.getTrekkonto().getKode().equals(periode.getSøktKonto().getKode()))
+                .filter(kompatibelKonto)
                 .filter(a -> a.getTrekkdager().merEnn0())
                 .min(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getTrekkdager))
                 .or(() -> periode.getAktiviteter()
@@ -160,7 +163,7 @@ class StønadsstatistikkUttakPeriodeMapper {
         } else if (periode.harUtbetaling()) {
             return periode.getAktiviteter()
                 .stream()
-                .filter(a -> a.getTrekkonto().getKode().equals(periode.getSøktKonto().getKode()))
+                .filter(kompatibelKonto)
                 .filter(a -> a.getUtbetalingsgrad().harUtbetaling())
                 .min(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getTrekkdager))
                 .or(() -> periode.getAktiviteter()
@@ -170,7 +173,7 @@ class StønadsstatistikkUttakPeriodeMapper {
         } else {
             return periode.getAktiviteter()
                 .stream()
-                .filter(a -> a.getTrekkonto().getKode().equals(periode.getSøktKonto().getKode()))
+                .filter(kompatibelKonto)
                 .min(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getTrekkdager))
                 .or(() -> periode.getAktiviteter().stream().min(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getTrekkdager)));
         }
