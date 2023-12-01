@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Uidenti
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -46,6 +47,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -53,7 +55,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.datavarehus.domene.VilkårVerdiDvh;
+import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.foreldrepenger.datavarehus.tjeneste.BehandlingVedtakDvhMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
@@ -148,12 +150,14 @@ public class StønadsstatistikkTjeneste {
         var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var ytelseType = mapYtelseType(fagsak.getYtelseType());
         var søker = mapAktørId(fagsak.getAktørId());
+        var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
         var familieHendelse = mapFamilieHendelse(behandlingReferanse, familiehendelse);
 
 
         var builder = new Builder().medLovVersjon(lovVersjon)
             .medSaksnummer(saksnummer)
             .medSøker(søker)
+            .medSøkersRolle(søkersRolle)
             .medYtelseType(ytelseType)
             .medBehandlingUuid(behandlingReferanse.behandlingUuid())
             .medForrigeBehandlingUuid(forrigeBehandlingUuid.orElse(null))
@@ -178,6 +182,16 @@ public class StønadsstatistikkTjeneste {
             builder.medUtbetalingssperioder(utbetalingssperioder).medBeregning(utledBeregning(behandling));
         }
         return builder.build();
+    }
+
+    private StønadsstatistikkVedtak.Saksrolle mapBrukerRolle(RelasjonsRolleType relasjonsRolleType) {
+        return switch (relasjonsRolleType) {
+            case FARA -> StønadsstatistikkVedtak.Saksrolle.FAR;
+            case MORA -> StønadsstatistikkVedtak.Saksrolle.MOR;
+            case MEDMOR -> StønadsstatistikkVedtak.Saksrolle.MEDMOR;
+            case UDEFINERT -> StønadsstatistikkVedtak.Saksrolle.UKJENT;
+            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD -> throw new IllegalStateException("Unexpected value: " + relasjonsRolleType.getKode());
+        };
     }
 
     private Beregning utledBeregning(Behandling behandling) {
@@ -259,16 +273,18 @@ public class StønadsstatistikkTjeneste {
     private AnnenForelder utledAnnenForelder(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
-            .map(relatert -> new AnnenForelder(mapAktørId(relatert.getAktørId()), mapSaksnummer(relatert.getSaksnummer())))
+            .map(relatert -> new AnnenForelder(mapAktørId(relatert.getAktørId()), mapSaksnummer(relatert.getSaksnummer()), mapBrukerRolle(relatert.getRelasjonsRolleType())))
             .or(() -> personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId()).map(OppgittAnnenPartEntitet::getAktørId).map(a -> {
                 var annenPartsEngangsstønadSak = finnEngangsstønadSak(a, familiehendelse);
-                return new AnnenForelder(mapAktørId(a), annenPartsEngangsstønadSak.orElse(null));
+                var annenPartsEngangsstønadSaksnummer = annenPartsEngangsstønadSak.map(snr -> mapSaksnummer(snr.getSaksnummer())).orElse(null);
+                var annenPartsEngangsstønadSaksrolle = annenPartsEngangsstønadSak.map(Fagsak::getRelasjonsRolleType).map(this::mapBrukerRolle).orElse(null);
+                return new AnnenForelder(mapAktørId(a), annenPartsEngangsstønadSaksnummer, annenPartsEngangsstønadSaksrolle);
             }))
             .orElse(null);
 
     }
 
-    private Optional<StønadsstatistikkVedtak.Saksnummer> finnEngangsstønadSak(AktørId aktørId, FamilieHendelseEntitet familieHendelse) {
+    private Optional<Fagsak> finnEngangsstønadSak(AktørId aktørId, FamilieHendelseEntitet familieHendelse) {
         return fagsakRepository.hentForBruker(aktørId)
             .stream()
             .filter(f -> FagsakYtelseType.ENGANGSTØNAD.equals(f.getYtelseType()))
@@ -276,7 +292,7 @@ public class StønadsstatistikkTjeneste {
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .filter(b -> matcherFamiliehendelseMedSak(familieHendelse, b))
             .findFirst()
-            .map(esBehandling -> mapSaksnummer(esBehandling.getFagsak().getSaksnummer()));
+            .map(Behandling::getFagsak);
     }
 
     private boolean matcherFamiliehendelseMedSak(FamilieHendelseEntitet familieHendelse, Behandling behandling) {
@@ -299,7 +315,7 @@ public class StønadsstatistikkTjeneste {
         };
     }
 
-    private VilkårVerdiDvh utledVilkårIkkeOppfylt(BehandlingVedtak vedtak, Behandling behandling) {
+    private VilkårIkkeOppfylt utledVilkårIkkeOppfylt(BehandlingVedtak vedtak, Behandling behandling) {
         var vilkårIkkeOppfylt = Optional.ofNullable(vedtak.getBehandlingsresultat().getVilkårResultat())
             .map(VilkårResultat::getVilkårene)
             .orElse(List.of())

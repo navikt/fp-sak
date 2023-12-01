@@ -90,6 +90,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @Column(name = "OVERSTYRT_FAMILIE_HENDELSE")
     private String overstyrtFamilieHendelse;
 
+    @Column(name = "FAMILIE_HENDELSE_TYPE")
+    private String familieHendelseType;
+
     @Column(name = "MOTTATT_TIDSPUNKT")
     private LocalDateTime mottattTidspunkt;
 
@@ -123,6 +126,19 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     @Column(name = "FORVENTET_OPPSTART_TID")
     private LocalDate forventetOppstartTid;
+
+    @Column(name = "VEDTAK_TID")
+    private LocalDateTime vedtakTid;
+
+    @Column(name = "VEDTAK_RESULTAT_TYPE")
+    private String vedtakResultatType;
+
+    @Column(name = "UTBETALT_TID")
+    private LocalDate utbetaltTid;
+
+    @Column(name = "VILKAR_IKKE_OPPFYLT")
+    private String vilkårIkkeOppfylt;
+
 
     BehandlingDvh() {
         // Hibernate
@@ -210,6 +226,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return overstyrtFamilieHendelse;
     }
 
+    public String getFamilieHendelseType() {
+        return familieHendelseType;
+    }
+
     public LocalDateTime getMottattTidspunkt() {
         return mottattTidspunkt;
     }
@@ -254,6 +274,22 @@ public class BehandlingDvh extends DvhBaseEntitet {
         return forventetOppstartTid;
     }
 
+    public LocalDateTime getVedtakTid() {
+        return vedtakTid;
+    }
+
+    public String getVedtakResultatType() {
+        return vedtakResultatType;
+    }
+
+    public LocalDate getUtbetaltTid() {
+        return utbetaltTid;
+    }
+
+    public String getVilkårIkkeOppfylt() {
+        return vilkårIkkeOppfylt;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -283,6 +319,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
                 && Objects.equals(soeknadFamilieHendelse, other.soeknadFamilieHendelse)
                 && Objects.equals(bekreftetFamilieHendelse, other.bekreftetFamilieHendelse)
                 && Objects.equals(overstyrtFamilieHendelse, other.overstyrtFamilieHendelse)
+                && Objects.equals(familieHendelseType, other.familieHendelseType)
                 && Objects.equals(mottattTidspunkt, other.mottattTidspunkt)
                 && Objects.equals(foersteStoenadsdag, other.foersteStoenadsdag)
                 && Objects.equals(uuid, other.uuid)
@@ -293,15 +330,20 @@ public class BehandlingDvh extends DvhBaseEntitet {
                 && Objects.equals(registrertTid, other.registrertTid)
                 && Objects.equals(kanBehandlesTid, other.kanBehandlesTid)
                 && Objects.equals(ferdigBehandletTid, other.ferdigBehandletTid)
-                && Objects.equals(forventetOppstartTid, other.forventetOppstartTid);
+                && Objects.equals(forventetOppstartTid, other.forventetOppstartTid)
+                && Objects.equals(vedtakTid, other.vedtakTid)
+                && Objects.equals(utbetaltTid, other.utbetaltTid)
+                && Objects.equals(vedtakResultatType, other.vedtakResultatType)
+                && Objects.equals(vilkårIkkeOppfylt, other.vilkårIkkeOppfylt);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), behandlingId, fagsakId, vedtakId, opprettetDato, behandlingResultatType, behandlingType,
             behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter, soeknadFamilieHendelse,
-            bekreftetFamilieHendelse, overstyrtFamilieHendelse, mottattTidspunkt,foersteStoenadsdag,papirSøknad,behandlingMetode,
-            revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid);
+            bekreftetFamilieHendelse, overstyrtFamilieHendelse, familieHendelseType, mottattTidspunkt,foersteStoenadsdag,papirSøknad,
+            behandlingMetode, revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
+            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt);
     }
 
     public static Builder builder() {
@@ -330,6 +372,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
         private String soeknadFamilieHendelse;
         private String bekreftetFamilieHendelse;
         private String overstyrtFamilieHendelse;
+        private String familieHendelseType;
         private LocalDateTime mottattTidspunkt;
         private LocalDate foersteStoenadsdag;
         private UUID uuid;
@@ -341,6 +384,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
         private LocalDateTime kanBehandlesTid;
         private LocalDateTime ferdigBehandletTid;
         private LocalDate forventetOppstartTid;
+        private LocalDateTime vedtakTid;
+        private String vedtakResultatType;
+        private LocalDate utbetaltTid;
+        private String vilkårIkkeOppfylt;
 
         public Builder behandlingId(Long behandlingId) {
             this.behandlingId = behandlingId;
@@ -453,6 +500,11 @@ public class BehandlingDvh extends DvhBaseEntitet {
             return this;
         }
 
+        public Builder familieHendelseType(String familieHendelseType) {
+            this.familieHendelseType = familieHendelseType;
+            return this;
+        }
+
         public Builder medMottattTidspunkt(LocalDateTime mottattTidspunkt) {
             this.mottattTidspunkt = mottattTidspunkt;
             return this;
@@ -503,6 +555,26 @@ public class BehandlingDvh extends DvhBaseEntitet {
             return this;
         }
 
+        public Builder vedtakTid(LocalDateTime vedtakTid) {
+            this.vedtakTid = vedtakTid;
+            return this;
+        }
+
+        public Builder vedtakResultatType(String vedtakResultatType) {
+            this.vedtakResultatType = vedtakResultatType;
+            return this;
+        }
+
+        public Builder vilkårIkkeOppfylt(VilkårIkkeOppfylt vilkårIkkeOppfylt) {
+            this.vilkårIkkeOppfylt = vilkårIkkeOppfylt != null ? vilkårIkkeOppfylt.name() : null;
+            return this;
+        }
+
+        public Builder utbetaltTid(LocalDate utbetaltTid) {
+            this.utbetaltTid = utbetaltTid;
+            return this;
+        }
+
         public BehandlingDvh build() {
             var behandlingDvh = new BehandlingDvh();
             behandlingDvh.behandlingId = behandlingId;
@@ -526,6 +598,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.soeknadFamilieHendelse = soeknadFamilieHendelse;
             behandlingDvh.bekreftetFamilieHendelse = bekreftetFamilieHendelse;
             behandlingDvh.overstyrtFamilieHendelse = overstyrtFamilieHendelse;
+            behandlingDvh.familieHendelseType = familieHendelseType;
             behandlingDvh.mottattTidspunkt = mottattTidspunkt;
             behandlingDvh.foersteStoenadsdag = foersteStoenadsdag;
             behandlingDvh.uuid = uuid;
@@ -537,6 +610,10 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingDvh.kanBehandlesTid = kanBehandlesTid;
             behandlingDvh.ferdigBehandletTid = ferdigBehandletTid;
             behandlingDvh.forventetOppstartTid = forventetOppstartTid;
+            behandlingDvh.vedtakTid = vedtakTid;
+            behandlingDvh.utbetaltTid = utbetaltTid;
+            behandlingDvh.vedtakResultatType = vedtakResultatType;
+            behandlingDvh.vilkårIkkeOppfylt = vilkårIkkeOppfylt;
             return behandlingDvh;
         }
     }
