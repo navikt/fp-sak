@@ -36,7 +36,7 @@
         <fp-kontrakter.version>8.1.2</fp-kontrakter.version>
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <fp-nare.version>2.6.1</fp-nare.version>
-        <abakus-kontrakt.version>2.0.0</abakus-kontrakt.version>
+        <abakus-kontrakt.version>2.0.1</abakus-kontrakt.version>
         <kalkulus.version>2.6.4</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
