@@ -204,7 +204,7 @@ public class StønadsstatistikkVedtak {
 
     }
 
-    record AnnenForelder(@NotNull @Valid AktørId aktørId, Saksnummer saksnummer, Saksrolle saksrolle) {}
+    record AnnenForelder(@NotNull @Valid AktørId aktørId, Saksnummer saksnummer, YtelseType ytelseType, Saksrolle saksrolle) {}
 
     public record AktørId(@NotNull @Pattern(regexp = VALID_REGEXP, message = "AktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
                           @JsonValue String id) {
