@@ -28,6 +28,7 @@ class BehandlingDvhEntityTest {
         assertThat(behandlingDvh.getSoeknadFamilieHendelse()).isEqualTo(DatavarehusTestUtils.SOEKNAD_FAMILIE_HENDELSE);
         assertThat(behandlingDvh.getBekreftetFamilieHendelse()).isEqualTo(DatavarehusTestUtils.BEKREFTET_FAMILIE_HENDELSE);
         assertThat(behandlingDvh.getOverstyrtFamilieHendelse()).isEqualTo(DatavarehusTestUtils.OVERSTYRT_FAMILIE_HENDELSE);
+        assertThat(behandlingDvh.getFamilieHendelseType()).isEqualTo(DatavarehusTestUtils.FAMILIE_HENDELSE_TYPE);
         assertThat(behandlingDvh.getRelatertBehandling()).isEqualTo(DatavarehusTestUtils.BEHANDLING_ID);
         assertThat(behandlingDvh.getPapirSøknad()).isFalse();
         assertThat(behandlingDvh.getBehandlingMetode()).isEqualTo(BehandlingMetode.AUTOMATISK.name());
@@ -39,5 +40,9 @@ class BehandlingDvhEntityTest {
         assertThat(behandlingDvh.getFerdigBehandletTid()).isEqualTo(DatavarehusTestUtils.FUNKSJONELL_TID.plusMinutes(1));
         assertThat(behandlingDvh.getFoersteStoenadsdag()).isEqualTo(DatavarehusTestUtils.OPPRETTET_DATE.plusDays(1));
         assertThat(behandlingDvh.getForventetOppstartTid()).isEqualTo(DatavarehusTestUtils.OPPRETTET_DATE.plusDays(2));
+        assertThat(behandlingDvh.getVedtakResultatType()).isEqualTo(DatavarehusTestUtils.VEDTAK_RESULTAT_TYPE);
+        assertThat(behandlingDvh.getVilkårIkkeOppfylt()).isNull();
+        assertThat(behandlingDvh.getVedtakTid()).isEqualTo(DatavarehusTestUtils.VEDTAK_TID);
+        assertThat(behandlingDvh.getUtbetaltTid()).isEqualTo(DatavarehusTestUtils.VEDTAK_DATO.plusWeeks(1));
     }
 }
