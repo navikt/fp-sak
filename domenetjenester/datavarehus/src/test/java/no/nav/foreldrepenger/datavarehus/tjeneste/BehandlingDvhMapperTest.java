@@ -14,6 +14,8 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -79,8 +81,8 @@ class BehandlingDvhMapperTest {
             Optional.of(grunnlag), Optional.empty(), Optional.empty(), Optional.empty(), FagsakMarkering.NASJONAL, Optional.empty());
         assertThat(dvh).isNotNull();
         assertThat(dvh.isVedtatt()).isFalse();
-        assertThat(dvh.getSoeknadFamilieHendelse()).isEqualTo("FODSL");
-        assertThat(dvh.getFamilieHendelseType()).isEqualTo("FØDSEL");
+        assertThat(dvh.getSoeknadFamilieHendelse()).isEqualTo(FamilieHendelseType.FØDSEL.getKode());
+        assertThat(dvh.getFamilieHendelseType()).isEqualTo(FamilieHendelseType.FØDSEL.getKode());
         assertThat(dvh.getMottattTidspunkt()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
         assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
     }

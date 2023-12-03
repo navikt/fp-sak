@@ -42,7 +42,7 @@ public class DatavarehusTestUtils {
     protected static final String SOEKNAD_FAMILIE_HENDELSE = "SOEKNAD_FAMILIE_HENDELSE";
     protected static final String BEKREFTET_FAMILIE_HENDELSE = "BEKREFTET_FAMILIE_HENDELSE";
     protected static final String OVERSTYRT_FAMILIE_HENDELSE = "OVERSTYRT_FAMILIE_HENDELSE";
-    protected static final String FAMILIE_HENDELSE_TYPE = "FØDSEL";
+    protected static final String FAMILIE_HENDELSE_TYPE = FamilieHendelseType.FØDSEL.getKode();
     protected static final String SOEKNAD_TYPE = "TERM";
     protected static final String VEDTAK_XML = "<personOpplysninger> </personOpplysninger>";
     protected static final LocalDate AVSLUTTNINGS_DATO = LocalDate.now().plusDays(100);
@@ -87,7 +87,7 @@ public class DatavarehusTestUtils {
                 .soeknadFamilieHendelse(SOEKNAD_FAMILIE_HENDELSE)
                 .bekreftetFamilieHendelse(BEKREFTET_FAMILIE_HENDELSE)
                 .overstyrtFamilieHendelse(OVERSTYRT_FAMILIE_HENDELSE)
-                .familieHendelseType(FamilieHendelseType.FØDSEL.name())
+                .familieHendelseType(FamilieHendelseType.FØDSEL.getKode())
                 .relatertBehandling(BEHANDLING_ID)
                 .medPapirSøknad(false)
                 .medBehandlingMetode(BehandlingMetode.AUTOMATISK)
