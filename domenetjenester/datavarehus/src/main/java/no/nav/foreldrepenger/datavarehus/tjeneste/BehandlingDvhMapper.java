@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VenteGrupp
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -147,7 +148,7 @@ public class BehandlingDvhMapper {
     private static String mapFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
         return fh.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getType)
-            .map(Enum::name)
+            .map(FamilieHendelseType::getKode)
             .orElse(null);
     }
 
