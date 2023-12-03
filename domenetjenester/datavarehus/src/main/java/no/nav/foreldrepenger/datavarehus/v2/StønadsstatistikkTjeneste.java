@@ -273,15 +273,12 @@ public class StønadsstatistikkTjeneste {
     private AnnenForelder utledAnnenForelder(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
-            .map(relatert -> new AnnenForelder(mapAktørId(relatert.getAktørId()), mapSaksnummer(relatert.getSaksnummer()), mapBrukerRolle(relatert.getRelasjonsRolleType())))
-            .or(() -> personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId()).map(OppgittAnnenPartEntitet::getAktørId).map(a -> {
-                var annenPartsEngangsstønadSak = finnEngangsstønadSak(a, familiehendelse);
-                var annenPartsEngangsstønadSaksnummer = annenPartsEngangsstønadSak.map(snr -> mapSaksnummer(snr.getSaksnummer())).orElse(null);
-                var annenPartsEngangsstønadSaksrolle = annenPartsEngangsstønadSak.map(Fagsak::getRelasjonsRolleType).map(this::mapBrukerRolle).orElse(null);
-                return new AnnenForelder(mapAktørId(a), annenPartsEngangsstønadSaksnummer, annenPartsEngangsstønadSaksrolle);
-            }))
+            .or(() -> personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId())
+                .map(OppgittAnnenPartEntitet::getAktørId)
+                .flatMap(apaid -> finnEngangsstønadSak(apaid, familiehendelse)))
+            .map(relatert -> new AnnenForelder(mapAktørId(relatert.getAktørId()), mapSaksnummer(relatert.getSaksnummer()),
+                mapYtelseType(relatert.getYtelseType()), mapBrukerRolle(relatert.getRelasjonsRolleType())))
             .orElse(null);
-
     }
 
     private Optional<Fagsak> finnEngangsstønadSak(AktørId aktørId, FamilieHendelseEntitet familieHendelse) {
