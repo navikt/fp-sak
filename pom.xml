@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>2.1.0</version>
+        <version>3.0.0</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -30,10 +30,10 @@
         <fp-stonadskonto.version>1.1.1</fp-stonadskonto.version>
         <svp-uttak.version>2.4.1</svp-uttak.version>
 
-        <felles.version>6.0.0</felles.version>
-        <prosesstask.version>4.1.1</prosesstask.version>
+        <felles.version>5.0.0</felles.version>
+        <prosesstask.version>5.0.0</prosesstask.version>
 
-        <fp-kontrakter.version>8.1.2</fp-kontrakter.version>
+        <fp-kontrakter.version>9.0.0</fp-kontrakter.version>
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <fp-nare.version>2.6.1</fp-nare.version>
         <abakus-kontrakt.version>2.0.1</abakus-kontrakt.version>
@@ -52,7 +52,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>2.1.0</version>
+                <version>3.0.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -439,8 +439,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-plus</artifactId>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-plus</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

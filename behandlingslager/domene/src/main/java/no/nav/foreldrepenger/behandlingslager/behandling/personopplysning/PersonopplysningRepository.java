@@ -245,7 +245,7 @@ public class PersonopplysningRepository {
                 + " inner join Behandling b on b.fagsak=f "
                 + " join PersonopplysningGrunnlagEntitet gr on gr.behandlingId=b.id "
                 + " join SøknadAnnenPart ap on gr.søknadAnnenPart=ap "
-                + " where ap.aktørId = :aktoerId and gr.aktiv='J'", Fagsak.class)
+                + " where ap.aktørId = :aktoerId and gr.aktiv = true", Fagsak.class)
             .setParameter("aktoerId", annenPart);
         return aktørQuery.getResultList();
     }
