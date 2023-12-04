@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.datavarehus.domene.VilkårVerdiDvh;
+import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 
 class BehandlingVedtakDvhMapperTest {
 
@@ -71,7 +71,7 @@ class BehandlingVedtakDvhMapperTest {
         assertThat(dvh.getVedtakResultatTypeKode()).isEqualTo(VedtakResultatType.AVSLAG.getKode());
         assertThat(dvh.getVedtakTid()).isEqualTo(VEDTAK_DATO);
         assertThat(dvh.getUtbetaltTid()).isEqualTo(utbetaltTid);
-        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårVerdiDvh.ENGANSSTØNAD.name());
+        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårIkkeOppfylt.ENGANGSSTØNAD.name());
     }
 
     @Test
@@ -96,7 +96,7 @@ class BehandlingVedtakDvhMapperTest {
         assertThat(dvh.getVedtakResultatTypeKode()).isEqualTo(VedtakResultatType.AVSLAG.getKode());
         assertThat(dvh.getVedtakTid()).isEqualTo(VEDTAK_DATO);
         assertThat(dvh.getUtbetaltTid()).isEqualTo(utbetaltTid);
-        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårVerdiDvh.OPPLYSNINGSPLIKT.name());
+        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårIkkeOppfylt.OPPLYSNINGSPLIKT.name());
     }
 
     @Test
@@ -124,7 +124,7 @@ class BehandlingVedtakDvhMapperTest {
         assertThat(dvh.getVedtakResultatTypeKode()).isEqualTo(VedtakResultatType.OPPHØR.getKode());
         assertThat(dvh.getVedtakTid()).isEqualTo(VEDTAK_DATO);
         assertThat(dvh.getUtbetaltTid()).isEqualTo(utbetaltTid);
-        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårVerdiDvh.FORELDREPENGER_OPPTJENING.name());
+        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårIkkeOppfylt.FORELDREPENGER_OPPTJENING.name());
     }
 
     @Test
@@ -152,7 +152,7 @@ class BehandlingVedtakDvhMapperTest {
         assertThat(dvh.getVedtakResultatTypeKode()).isEqualTo(VedtakResultatType.AVSLAG.getKode());
         assertThat(dvh.getVedtakTid()).isEqualTo(VEDTAK_DATO);
         assertThat(dvh.getUtbetaltTid()).isEqualTo(utbetaltTid);
-        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårVerdiDvh.FORELDREPENGER_UTTAK.name());
+        assertThat(dvh.getVilkårIkkeOppfylt()).isEqualTo(VilkårIkkeOppfylt.FORELDREPENGER_UTTAK.name());
     }
 
     private Behandling byggBehandling() {

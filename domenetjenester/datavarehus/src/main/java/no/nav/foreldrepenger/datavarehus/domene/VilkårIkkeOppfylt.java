@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-public enum VilkårVerdiDvh {
+public enum VilkårIkkeOppfylt {
     MEDLEMSKAP,
     SØKNADSFRIST,
     OPPLYSNINGSPLIKT,
     SVANGERSKAPSPENGER,
-    ENGANSSTØNAD,
+    ENGANGSSTØNAD,
     FORELDREPENGER_GENERELL,
     FORELDREPENGER_OPPTJENING,
     FORELDREPENGER_BEREGNING,

@@ -226,8 +226,8 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
             return this;
         }
 
-        public Builder vilkårIkkeOppfylt(VilkårVerdiDvh vilkårVerdierDvh) {
-            this.vilkårIkkeOppfylt = vilkårVerdierDvh != null ? vilkårVerdierDvh.name() : null;
+        public Builder vilkårIkkeOppfylt(VilkårIkkeOppfylt vilkårIkkeOppfylt) {
+            this.vilkårIkkeOppfylt = vilkårIkkeOppfylt != null ? vilkårIkkeOppfylt.name() : null;
             return this;
         }
 

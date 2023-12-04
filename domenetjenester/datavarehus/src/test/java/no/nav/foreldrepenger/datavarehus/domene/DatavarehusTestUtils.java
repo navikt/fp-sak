@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 
 public class DatavarehusTestUtils {
@@ -41,6 +42,7 @@ public class DatavarehusTestUtils {
     protected static final String SOEKNAD_FAMILIE_HENDELSE = "SOEKNAD_FAMILIE_HENDELSE";
     protected static final String BEKREFTET_FAMILIE_HENDELSE = "BEKREFTET_FAMILIE_HENDELSE";
     protected static final String OVERSTYRT_FAMILIE_HENDELSE = "OVERSTYRT_FAMILIE_HENDELSE";
+    protected static final String FAMILIE_HENDELSE_TYPE = FamilieHendelseType.FØDSEL.getKode();
     protected static final String SOEKNAD_TYPE = "TERM";
     protected static final String VEDTAK_XML = "<personOpplysninger> </personOpplysninger>";
     protected static final LocalDate AVSLUTTNINGS_DATO = LocalDate.now().plusDays(100);
@@ -85,6 +87,7 @@ public class DatavarehusTestUtils {
                 .soeknadFamilieHendelse(SOEKNAD_FAMILIE_HENDELSE)
                 .bekreftetFamilieHendelse(BEKREFTET_FAMILIE_HENDELSE)
                 .overstyrtFamilieHendelse(OVERSTYRT_FAMILIE_HENDELSE)
+                .familieHendelseType(FamilieHendelseType.FØDSEL.getKode())
                 .relatertBehandling(BEHANDLING_ID)
                 .medPapirSøknad(false)
                 .medBehandlingMetode(BehandlingMetode.AUTOMATISK)
@@ -96,6 +99,10 @@ public class DatavarehusTestUtils {
                 .medFerdigBehandletTid(FUNKSJONELL_TID.plusMinutes(1))
                 .medFoersteStoenadsdag(OPPRETTET_DATE.plusDays(1))
                 .medForventetOppstartTid(OPPRETTET_DATE.plusDays(2))
+                .vedtakResultatType(VEDTAK_RESULTAT_TYPE)
+                .vilkårIkkeOppfylt(null)
+                .vedtakTid(VEDTAK_TID)
+                .utbetaltTid(VEDTAK_DATO.plusWeeks(1))
                 .build();
     }
 

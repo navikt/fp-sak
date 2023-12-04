@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>2.0.1</version>
+        <version>2.1.0</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -31,12 +31,12 @@
         <svp-uttak.version>2.4.1</svp-uttak.version>
 
         <felles.version>6.0.0</felles.version>
-        <prosesstask.version>4.1.0</prosesstask.version>
+        <prosesstask.version>4.1.1</prosesstask.version>
 
         <fp-kontrakter.version>8.1.2</fp-kontrakter.version>
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <fp-nare.version>2.6.1</fp-nare.version>
-        <abakus-kontrakt.version>2.0.0</abakus-kontrakt.version>
+        <abakus-kontrakt.version>2.0.1</abakus-kontrakt.version>
         <kalkulus.version>2.6.4</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -52,7 +52,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>2.0.1</version>
+                <version>2.1.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
