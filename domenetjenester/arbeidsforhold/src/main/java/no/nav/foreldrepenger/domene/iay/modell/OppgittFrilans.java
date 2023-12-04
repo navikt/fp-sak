@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -11,8 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 public class OppgittFrilans extends BaseEntitet {
-
-    private OppgittOpptjening oppgittOpptjening;
 
     @Convert(converter = BooleanToStringConverter.class)
     private boolean harInntektFraFosterhjem;
@@ -44,19 +43,17 @@ public class OppgittFrilans extends BaseEntitet {
             return false;
         }
         return harInntektFraFosterhjem == that.harInntektFraFosterhjem && erNyoppstartet == that.erNyoppstartet
-            && harNærRelasjon == that.harNærRelasjon && Objects.equals(oppgittOpptjening, that.oppgittOpptjening) && Objects.equals(frilansoppdrag,
-            that.frilansoppdrag);
+            && harNærRelasjon == that.harNærRelasjon && Objects.equals(frilansoppdrag, that.frilansoppdrag);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppgittOpptjening, harInntektFraFosterhjem, erNyoppstartet, harNærRelasjon, frilansoppdrag);
+        return Objects.hash(harInntektFraFosterhjem, erNyoppstartet, harNærRelasjon, frilansoppdrag);
     }
 
     @Override
     public String toString() {
         return "FrilansEntitet{" +
-                "oppgittOpptjening=" + oppgittOpptjening +
                 ", harInntektFraFosterhjem=" + harInntektFraFosterhjem +
                 ", erNyoppstartet=" + erNyoppstartet +
                 ", harNærRelasjon=" + harNærRelasjon +
@@ -64,26 +61,26 @@ public class OppgittFrilans extends BaseEntitet {
                 '}';
     }
 
-    void setOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
-        this.oppgittOpptjening = oppgittOpptjening;
+    void leggTilFrilansoppdrag(OppgittFrilansoppdrag oppgittFrilansoppdrag) {
+        if (this.frilansoppdrag == null) {
+            this.frilansoppdrag = new ArrayList<>();
+        }
+        frilansoppdrag.add(oppgittFrilansoppdrag);
     }
 
     public boolean getHarInntektFraFosterhjem() {
         return harInntektFraFosterhjem;
     }
 
-    // FIXME (OJR) kan ikke ha mutators
-    public void setHarInntektFraFosterhjem(boolean harInntektFraFosterhjem) {
+    void setHarInntektFraFosterhjem(boolean harInntektFraFosterhjem) {
         this.harInntektFraFosterhjem = harInntektFraFosterhjem;
     }
 
-    // FIXME (OJR) kan ikke ha mutators
-    public void setErNyoppstartet(boolean erNyoppstartet) {
+    void setErNyoppstartet(boolean erNyoppstartet) {
         this.erNyoppstartet = erNyoppstartet;
     }
 
-    // FIXME (OJR) kan ikke ha mutators
-    public void setHarNærRelasjon(boolean harNærRelasjon) {
+    void setHarNærRelasjon(boolean harNærRelasjon) {
         this.harNærRelasjon = harNærRelasjon;
     }
 

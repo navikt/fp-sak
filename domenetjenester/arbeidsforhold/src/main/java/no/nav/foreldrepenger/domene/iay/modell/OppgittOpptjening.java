@@ -81,7 +81,6 @@ public class OppgittOpptjening extends BaseEntitet {
 
     void leggTilFrilans(OppgittFrilans frilans) {
         if (frilans != null) {
-            frilans.setOppgittOpptjening(this);
             this.frilans = frilans;
         } else {
             this.frilans = null;
