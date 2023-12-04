@@ -111,7 +111,7 @@ public class RegistrerFagsakEgenskaper {
 
     private boolean harOppgittEgenNæring(Long behandlingId) {
         return !iayTjeneste.finnGrunnlag(behandlingId)
-            .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening)
+            .flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening)
             .map(OppgittOpptjening::getEgenNæring).orElse(List.of())
             .isEmpty();
     }

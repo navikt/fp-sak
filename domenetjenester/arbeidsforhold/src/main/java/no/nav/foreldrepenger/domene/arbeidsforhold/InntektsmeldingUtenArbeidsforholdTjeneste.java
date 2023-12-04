@@ -125,7 +125,7 @@ public class InntektsmeldingUtenArbeidsforholdTjeneste {
     }
 
     private static boolean harOppgittFiske(InntektArbeidYtelseGrunnlag grunnlag) {
-        return grunnlag.getOppgittOpptjening().stream().anyMatch(
+        return grunnlag.getGjeldendeOppgittOpptjening().stream().anyMatch(
             oppgittOpptjening -> oppgittOpptjening.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
     }
 

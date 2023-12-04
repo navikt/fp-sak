@@ -198,6 +198,20 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         lagreOgFlush(behandlingId, iayGrunnlag.build());
     }
 
+    @Override
+    public void lagreOverstyrtOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder oppgittOpptjening) {
+        if (oppgittOpptjening == null) {
+            return;
+        }
+        var inntektArbeidAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
+
+        var iayGrunnlag = InMemoryInntektArbeidYtelseGrunnlagBuilder.oppdatere(inntektArbeidAggregat);
+        iayGrunnlag.medOverstyrtOppgittOpptjening(oppgittOpptjening);
+
+        lagreOgFlush(behandlingId, iayGrunnlag.build());
+
+    }
+
     private SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer) {
         var resultat = new SakInntektsmeldinger(saksnummer);
         for (var iayg : grunnlag) {

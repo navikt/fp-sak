@@ -187,19 +187,26 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         if (oppgittOpptjeningBuilder == null) {
             return;
         }
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
-        var oppgittOpptjening = new IAYTilDtoMapper(behandling.getAktørId(),
-                KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-                null, behandling.getUuid()).mapTilDto(oppgittOpptjeningBuilder);
-        var request = new OppgittOpptjeningMottattRequest(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid(), aktør,
-                KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), oppgittOpptjening);
-
+        OppgittOpptjeningMottattRequest request = lagOppgittOpptjeningRequest(oppgittOpptjeningBuilder, behandlingId);
         try {
             abakusTjeneste.lagreOppgittOpptjening(request);
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Lagre oppgitt opptjening i abakus: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void lagreOverstyrtOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder oppgittOpptjeningBuilder) {
+        if (oppgittOpptjeningBuilder == null) {
+            return;
+        }
+        OppgittOpptjeningMottattRequest request = lagOppgittOpptjeningRequest(oppgittOpptjeningBuilder, behandlingId);
+        try {
+            abakusTjeneste.lagreOverstyrtOppgittOpptjening(request);
+        } catch (IOException e) {
+            throw feilVedKallTilAbakus("Lagre oppgitt opptjening i abakus: " + e.getMessage(), e);
+        }
+
     }
 
     @Override
@@ -281,6 +288,17 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
         }
+    }
+
+    private OppgittOpptjeningMottattRequest lagOppgittOpptjeningRequest(OppgittOpptjeningBuilder oppgittOpptjeningBuilder,
+                                                                        Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
+        var oppgittOpptjening = new IAYTilDtoMapper(behandling.getAktørId(),
+            KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+            null, behandling.getUuid()).mapTilDto(oppgittOpptjeningBuilder);
+        return new OppgittOpptjeningMottattRequest(behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid(), aktør,
+            KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), oppgittOpptjening);
     }
 
     private InntektArbeidYtelseGrunnlag hentOgMapGrunnlag(InntektArbeidYtelseGrunnlagRequest request, AktørId aktørId) {
