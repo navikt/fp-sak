@@ -57,7 +57,6 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStønadsst
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSvangerskapspengerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTilkjentYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.fpoversikt.FpoversiktMigreringRestTjeneste;
@@ -145,7 +144,6 @@ public class RestImplementationClasses {
         classes.add(ForvaltningTekniskRestTjeneste.class);
         classes.add(ForvaltningUttrekkRestTjeneste.class);
         classes.add(ForvaltningOppdragRestTjeneste.class);
-        classes.add(ForvaltningTilkjentYtelseRestTjeneste.class);
         classes.add(ForvaltningOpptjeningRestTjeneste.class);
         classes.add(ForvaltningUttakRestTjeneste.class);
         classes.add(ForvaltningStønadsstatistikkRestTjeneste.class);

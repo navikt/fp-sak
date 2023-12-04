@@ -17,14 +17,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VenteGruppe;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingMetode;
 import no.nav.foreldrepenger.datavarehus.domene.RevurderingÅrsak;
+import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 public class BehandlingDvhMapper {
@@ -36,6 +40,8 @@ public class BehandlingDvhMapper {
                                     Behandlingsresultat behandlingsresultat,
                                     List<MottattDokument> mottatteDokument,
                                     Optional<BehandlingVedtak> vedtak,
+                                    Optional<LocalDate> utbetaltTid,
+                                    Optional<VilkårIkkeOppfylt> vilkårIkkeOppfylt,
                                     Optional<FamilieHendelseGrunnlagEntitet> fh,
                                     Optional<KlageResultatEntitet> klageResultat,
                                     Optional<AnkeResultatEntitet> ankeResultat,
@@ -43,7 +49,7 @@ public class BehandlingDvhMapper {
                                     FagsakMarkering fagsakMarkering,
                                     Optional<LocalDate> forventetOppstartDato) {
 
-        return BehandlingDvh.builder()
+        var builder = BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
             .ansvarligSaksbehandler(utledAnsvarligSaksbehandler(behandling))
             .behandlendeEnhet(behandling.getBehandlendeEnhet())
@@ -58,7 +64,6 @@ public class BehandlingDvhMapper {
             .opprettetDato(behandling.getOpprettetDato().toLocalDate())
             .utlandstilsnitt(getUtlandstilsnitt(fagsakMarkering))
             .toTrinnsBehandling(behandling.isToTrinnsBehandling())
-            .vedtakId(vedtak.map(BehandlingVedtak::getId).orElse(null))
             .relatertBehandling(getRelatertBehandling(behandling, klageResultat, ankeResultat))
             .ferdig(mapFerdig(behandling))
             .vedtatt(behandlingsresultat != null && mapVedtatt(behandlingsresultat, behandling.getFagsak().getStatus()))
@@ -66,6 +71,7 @@ public class BehandlingDvhMapper {
             .soeknadFamilieHendelse(mapSoeknadFamilieHendelse(fh))
             .bekreftetFamilieHendelse(mapbekreftetFamilieHendelse(fh))
             .overstyrtFamilieHendelse(mapoverstyrtFamilieHendelse(fh))
+            .familieHendelseType(mapFamilieHendelse(fh))
             .medMottattTidspunkt(finnMottattTidspunkt(mottatteDokument))
             .medFoersteStoenadsdag(skjæringstidspunkt.orElse(null))
             .medPapirSøknad(finnPapirSøknad(behandling, mottatteDokument))
@@ -75,8 +81,13 @@ public class BehandlingDvhMapper {
             .medRegistrertTid(behandling.getOpprettetTidspunkt())
             .medKanBehandlesTid(kanBehandlesTid(behandling))
             .medFerdigBehandletTid(behandling.erAvsluttet() ? behandling.getEndretTidspunkt() : null)
-            .medForventetOppstartTid(forventetOppstartDato.orElse(null))
-            .build();
+            .medForventetOppstartTid(forventetOppstartDato.orElse(null));
+        vedtak.ifPresent(v -> builder.vedtakId(v.getId())
+            .vedtakTid(v.getVedtakstidspunkt())
+            .vedtakResultatType(Optional.ofNullable(v.getVedtakResultatType()).map(Kodeverdi::getKode).orElse(null))
+            .vilkårIkkeOppfylt(vilkårIkkeOppfylt.orElse(null))
+            .utbetaltTid(utbetaltTid.orElse(null)));
+        return builder.build();
     }
 
     private static String mapBehandlingStatus(Behandling behandling) {
@@ -133,6 +144,14 @@ public class BehandlingDvhMapper {
     private static String mapoverstyrtFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
         return fh.flatMap(f -> f.getOverstyrtVersjon().map(bv -> bv.getType().getKode())).orElse(null);
     }
+
+    private static String mapFamilieHendelse(Optional<FamilieHendelseGrunnlagEntitet> fh) {
+        return fh.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(FamilieHendelseEntitet::getType)
+            .map(FamilieHendelseType::getKode)
+            .orElse(null);
+    }
+
 
     private static boolean mapAvbrutt(Behandlingsresultat behandlingsresultat, FagsakStatus fagsakStatus) {
         return FagsakStatus.AVSLUTTET.equals(fagsakStatus) && behandlingsresultat.getBehandlingResultatType().erHenlagt();

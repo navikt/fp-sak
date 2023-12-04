@@ -88,7 +88,7 @@ public class InntektsmeldingTjeneste {
         if (yrkesaktiviteter.isEmpty()) {
             return inntektsmeldinger;
         }
-        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, datoFilterDato, iayGrunnlag.getOppgittOpptjening());
+        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, datoFilterDato, iayGrunnlag.getGjeldendeOppgittOpptjening());
     }
 
     /**

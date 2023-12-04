@@ -118,7 +118,7 @@ public class OpptjeningsperioderTjeneste {
             mapYrkesaktivitet(behandlingReferanse, perioder, yrkesaktivitet, grunnlag, vurderOpptjening, mapArbeidOpptjening);
         }
 
-        var oppgittOpptjening = grunnlag.getOppgittOpptjening();
+        var oppgittOpptjening = grunnlag.getGjeldendeOppgittOpptjening();
         if (oppgittOpptjening.isPresent()) {
             // map
             var opptjening = oppgittOpptjening.get();

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,6 +18,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -53,7 +53,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -182,8 +181,19 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
         var forventetOppstart = forventetOppstartDato(behandling, skjæringstidspunkt.orElse(null));
+        var ytelseMedUtbetalingFra = vedtak.map(v -> finnUtbetaltDato(behandling, v));
+        var vilkårSomIkkeErOppfylt = vedtak.map(BehandlingVedtak::getBehandlingsresultat)
+            .map(Behandlingsresultat::getVilkårResultat)
+            .map(VilkårResultat::getVilkårene).orElse(List.of()).stream()
+            .filter(v -> VilkårUtfallType.IKKE_OPPFYLT.equals(v.getGjeldendeVilkårUtfall()))
+            .map(Vilkår::getVilkårType)
+            .collect(Collectors.toSet());
+        var vilkårIkkeOppfylt = vedtak
+            .map(v -> BehandlingVedtakDvhMapper.mapVilkårIkkeOppfylt(v.getVedtakResultatType(), behandling.getFagsakYtelseType(), vilkårSomIkkeErOppfylt));
+
         var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null),
-            mottatteDokumenter, vedtak, familieHendelseGrunnlag, gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat,
+            mottatteDokumenter, vedtak, ytelseMedUtbetalingFra, vilkårIkkeOppfylt, familieHendelseGrunnlag,
+            gjeldendeKlagevurderingresultat, gjeldendeAnkevurderingresultat,
             skjæringstidspunkt.flatMap(Skjæringstidspunkt::getSkjæringstidspunktHvisUtledet), utlandMarkering, forventetOppstart);
         datavarehusRepository.lagre(behandlingDvh);
     }

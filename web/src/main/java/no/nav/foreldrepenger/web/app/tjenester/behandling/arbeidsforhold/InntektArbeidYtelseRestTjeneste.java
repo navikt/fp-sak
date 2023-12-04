@@ -28,7 +28,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -64,9 +66,12 @@ import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYrkesaktivitetTil
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.kodeverk.MottakerType;
+import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -98,6 +103,8 @@ public class InntektArbeidYtelseRestTjeneste {
     private AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper;
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
+    private FpOppdragRestKlient fpOppdragRestKlient;
+    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     public InntektArbeidYtelseRestTjeneste() {
         // for CDI proxy
@@ -112,7 +119,9 @@ public class InntektArbeidYtelseRestTjeneste {
                                            YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                            SvangerskapspengerRepository svangerskapspengerRepository,
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                           AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper) {
+                                           AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper,
+                                           FpOppdragRestKlient fpOppdragRestKlient,
+                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -122,6 +131,8 @@ public class InntektArbeidYtelseRestTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.alleInntektsmeldingerMapper = alleInntektsmeldingerMapper;
+        this.fpOppdragRestKlient = fpOppdragRestKlient;
+        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
 
     @GET
@@ -220,15 +231,16 @@ public class InntektArbeidYtelseRestTjeneste {
             iayg.getArbeidsforholdOverstyringer().stream()
                 .filter(o -> o.getArbeidsgiver() != null && o.getArbeidsgiverNavn() != null && OrgNummer.KUNSTIG_ORG.equals(o.getArbeidsgiver().getIdentifikator()))
                 .forEach(o -> overstyrtNavn.add(o.getArbeidsgiverNavn()));
-            iayg.getOppgittOpptjening().map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
-                .map(OppgittEgenNæring::getVirksomhetOrgnr).filter(Objects::nonNull).map(Arbeidsgiver::virksomhet).forEach(arbeidsgivere::add);
-            iayg.getOppgittOpptjening().map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
-                .map(OppgittEgenNæring::getVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
-                .filter(Objects::nonNull).forEach(alleReferanser::add);
-            iayg.getOppgittOpptjening().map(OppgittOpptjening::getOppgittArbeidsforhold).orElse(Collections.emptyList()).stream()
-                .map(OppgittArbeidsforhold::getUtenlandskVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
-                .filter(Objects::nonNull).forEach(alleReferanser::add);
+            arbeidsgivere.addAll(finnArbeidsgivereFraOppgittOpptjening(iayg.getOppgittOpptjening()));
+            arbeidsgivere.addAll(finnArbeidsgivereFraOppgittOpptjening(iayg.getOverstyrtOppgittOpptjening()));
+            alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getOppgittOpptjening()));
+            alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getOverstyrtOppgittOpptjening()));
         });
+
+        if (behandling.erAvsluttet() || behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.SIMULER_OPPDRAG)) {
+            var simuleringResultatDto = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId());
+            arbeidsgivere.addAll(simuleringResultatDto.map(this::finnArbeidsgivereFraSimulering).orElse(Collections.emptySet()));
+        }
 
         if (!overstyrtNavn.isEmpty()) {
             alleReferanser.add(new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, overstyrtNavn.get(0)));
@@ -246,6 +258,22 @@ public class InntektArbeidYtelseRestTjeneste {
         oversikt.putIfAbsent(OrgNummer.KUNSTIG_ORG, new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
 
         return new ArbeidsgiverOversiktDto(oversikt);
+    }
+
+    private static Set<ArbeidsgiverOpplysningerDto> referanserFraOppgittOpptjening(Optional<OppgittOpptjening> oppgittOpptjening) {
+        Set<ArbeidsgiverOpplysningerDto> refFraOppgittOpptjening= new HashSet<>();
+        refFraOppgittOpptjening.addAll(oppgittOpptjening.map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
+            .map(OppgittEgenNæring::getVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
+            .filter(Objects::nonNull).collect(Collectors.toSet()));
+        refFraOppgittOpptjening.addAll(oppgittOpptjening.map(OppgittOpptjening::getOppgittArbeidsforhold).orElse(Collections.emptyList()).stream()
+            .map(OppgittArbeidsforhold::getUtenlandskVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
+            .filter(Objects::nonNull).collect(Collectors.toSet()));
+        return refFraOppgittOpptjening;
+    }
+
+    private static Set<Arbeidsgiver> finnArbeidsgivereFraOppgittOpptjening(Optional<OppgittOpptjening> opptjening) {
+        return opptjening.map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
+            .map(OppgittEgenNæring::getVirksomhetOrgnr).filter(Objects::nonNull).map(Arbeidsgiver::virksomhet).collect(Collectors.toSet());
     }
 
 
@@ -267,6 +295,31 @@ public class InntektArbeidYtelseRestTjeneste {
         }
         var ref = MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.lagReferanseForUtlandskOrganisasjon(virksomhet.getNavn());
         return new ArbeidsgiverOpplysningerDto(ref, virksomhet.getNavn());
+    }
+    private Set<Arbeidsgiver> finnArbeidsgivereFraSimulering(SimuleringDto simDto) {
+        var agFraSimRes = finnArbeidsgivereFraSimuleringRestultat(simDto.simuleringResultat());
+        agFraSimRes.addAll(finnArbeidsgivereFraSimuleringRestultat(simDto.simuleringResultatUtenInntrekk()));
+        return agFraSimRes;
+    }
+
+    private Set<Arbeidsgiver> finnArbeidsgivereFraSimuleringRestultat(SimuleringDto.DetaljertSimuleringResultatDto simuleringResultat) {
+        if (simuleringResultat == null || simuleringResultat.perioderPerMottaker() == null) {
+            return Collections.emptySet();
+        }
+        return simuleringResultat.perioderPerMottaker().stream()
+            .map(InntektArbeidYtelseRestTjeneste::mapSimuleringsmottaker)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
+    }
+
+    private static Optional<Arbeidsgiver> mapSimuleringsmottaker(SimuleringDto.SimuleringForMottakerDto mottaker) {
+        if (mottaker.mottakerType().equals(MottakerType.ARBG_PRIV)) {
+            return Optional.of(Arbeidsgiver.person(new AktørId(mottaker.mottakerIdentifikator())));
+        } else if (mottaker.mottakerType().equals(MottakerType.ARBG_ORG)) {
+            return Optional.of(Arbeidsgiver.virksomhet(mottaker.mottakerIdentifikator()));
+        }
+        return Optional.empty();
     }
 
 }

@@ -82,6 +82,16 @@ public class InntektArbeidYtelseGrunnlagBuilder {
         return this;
     }
 
+    public InntektArbeidYtelseGrunnlagBuilder medOverstyrtOppgittOpptjening(OppgittOpptjeningBuilder builder) {
+        if (builder != null) {
+            if (kladd.getOverstyrtOppgittOpptjening().isPresent()) {
+                throw new IllegalStateException("Utviklerfeil: Er ikke lov å endre overstyrt oppgitt opptjening!");
+            }
+            kladd.setOverstyrtOppgittOpptjening(builder.build());
+        }
+        return this;
+    }
+
     public InntektArbeidYtelseGrunnlag build() {
         var k = kladd;
         if (kladd.getArbeidsforholdInformasjon().isPresent()) {

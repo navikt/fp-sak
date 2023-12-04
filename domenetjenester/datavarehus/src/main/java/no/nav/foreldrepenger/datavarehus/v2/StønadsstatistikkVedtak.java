@@ -17,7 +17,7 @@ import jakarta.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import no.nav.foreldrepenger.datavarehus.domene.VilkårVerdiDvh;
+import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 
 public class StønadsstatistikkVedtak {
     // Teknisk tid
@@ -35,10 +35,12 @@ public class StønadsstatistikkVedtak {
     private LocalDateTime vedtakstidspunkt; // Funksjonelt tid
     @NotNull
     private VedtakResultat vedtaksresultat;
-    private VilkårVerdiDvh vilkårIkkeOppfylt; //kun opphør og avslag
+    private VilkårIkkeOppfylt vilkårIkkeOppfylt; //kun opphør og avslag
     @NotNull
     @Valid
     private AktørId søker;
+    @NotNull
+    private Saksrolle søkersRolle;
     @NotNull
     private UtlandsTilsnitt utlandsTilsnitt;
     @Valid
@@ -52,9 +54,10 @@ public class StønadsstatistikkVedtak {
     //ES
     private Long engangsstønadInnvilget;
 
+    private ForeldrepengerRettigheter foreldrepengerRettigheter; //konto saldo, utregnet ut i fra rettigheter, minsteretter
     private List<StønadsstatistikkUttakPeriode> uttaksperioder;
     private List<StønadsstatistikkUtbetalingPeriode> utbetalingssperioder;
-    private ForeldrepengerRettigheter foreldrepengerRettigheter; //konto saldo, utregnet ut i fra rettigheter, minsteretter
+
 
     // Etter møte: Dokumentasjonsperiode for aleneomsorg per uttaksperioder
     // Etter møte: annen forelder har engangsstønad
@@ -95,12 +98,16 @@ public class StønadsstatistikkVedtak {
         return vedtaksresultat;
     }
 
-    public VilkårVerdiDvh getVilkårIkkeOppfylt() {
+    public VilkårIkkeOppfylt getVilkårIkkeOppfylt() {
         return vilkårIkkeOppfylt;
     }
 
     public AktørId getSøker() {
         return søker;
+    }
+
+    public Saksrolle getSøkersRolle() {
+        return søkersRolle;
     }
 
     public UtlandsTilsnitt getUtlandsTilsnitt() {
@@ -164,6 +171,10 @@ public class StønadsstatistikkVedtak {
         FEDREKVOTE
     }
 
+    enum Saksrolle {
+        MOR, FAR, MEDMOR, UKJENT
+    }
+
     enum Dekningsgrad {
         ÅTTI, HUNDRE
     }
@@ -193,7 +204,7 @@ public class StønadsstatistikkVedtak {
 
     }
 
-    record AnnenForelder(@NotNull @Valid AktørId aktørId, Saksnummer saksnummer) {}
+    record AnnenForelder(@NotNull @Valid AktørId aktørId, Saksnummer saksnummer, YtelseType ytelseType, Saksrolle saksrolle) {}
 
     public record AktørId(@NotNull @Pattern(regexp = VALID_REGEXP, message = "AktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
                           @JsonValue String id) {
@@ -260,12 +271,16 @@ public class StønadsstatistikkVedtak {
             kladd.vedtaksresultat = vedtaksresultat;
             return this;
         }
-        Builder medVilkårIkkeOppfylt(VilkårVerdiDvh vilkårIkkeOppfylt) {
+        Builder medVilkårIkkeOppfylt(VilkårIkkeOppfylt vilkårIkkeOppfylt) {
             kladd.vilkårIkkeOppfylt = vilkårIkkeOppfylt;
             return this;
         }
         Builder medSøker(AktørId søker) {
             kladd.søker = søker;
+            return this;
+        }
+        Builder medSøkersRolle(Saksrolle saksrolle) {
+            kladd.søkersRolle = saksrolle;
             return this;
         }
         Builder medUtlandsTilsnitt(UtlandsTilsnitt utlandsTilsnitt) {
@@ -293,6 +308,11 @@ public class StønadsstatistikkVedtak {
             return this;
         }
 
+        Builder medForeldrepengerRettigheter(ForeldrepengerRettigheter foreldrepengerRettigheter) {
+            kladd.foreldrepengerRettigheter = foreldrepengerRettigheter;
+            return this;
+        }
+
         Builder medUtbetalingssperioder(List<StønadsstatistikkUtbetalingPeriode> utbetalingssperioder) {
             kladd.utbetalingssperioder = utbetalingssperioder;
             return this;
@@ -301,11 +321,6 @@ public class StønadsstatistikkVedtak {
             kladd.uttaksperioder = uttaksperioder;
             return this;
         }
-        Builder medForeldrepengerRettigheter(ForeldrepengerRettigheter foreldrepengerRettigheter) {
-            kladd.foreldrepengerRettigheter = foreldrepengerRettigheter;
-            return this;
-        }
-
         public StønadsstatistikkVedtak build() {
             return kladd;
         }

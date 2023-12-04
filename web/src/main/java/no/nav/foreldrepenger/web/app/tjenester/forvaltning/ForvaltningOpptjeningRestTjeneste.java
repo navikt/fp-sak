@@ -75,7 +75,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     public Response leggTilOppgittFrilans(@BeanParam @Valid LeggTilOppgittFrilansDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
+        if (iayGrunnlag.getGjeldendeOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var nyoppstartet = dto.getStpOpptjening().minusMonths(3).isBefore(dto.getFrilansFom());
@@ -97,7 +97,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
+        if (iayGrunnlag.getGjeldendeOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         Optional<Virksomhet> virksomhet = dto.getOrgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();

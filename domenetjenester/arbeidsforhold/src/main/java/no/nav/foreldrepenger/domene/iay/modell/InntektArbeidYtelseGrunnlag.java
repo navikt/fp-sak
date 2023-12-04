@@ -35,6 +35,9 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     private OppgittOpptjening oppgittOpptjening;
 
     @ChangeTracked
+    private OppgittOpptjening overstyrtOppgittOpptjening;
+
+    @ChangeTracked
     private InntektsmeldingAggregat inntektsmeldinger;
 
     @ChangeTracked
@@ -53,6 +56,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         // NB! skal ikke lage ny versjon av oppgitt opptjening eller andre underlag!
         // Lenker bare inn på ferskt grunnlag
         grunnlag.getOppgittOpptjening().ifPresent(this::setOppgittOpptjening);
+        grunnlag.getOverstyrtOppgittOpptjening().ifPresent(this::setOverstyrtOppgittOpptjening);
         grunnlag.getRegisterVersjon().ifPresent(this::setRegister);
         grunnlag.getSaksbehandletVersjon().ifPresent(this::setSaksbehandlet);
         grunnlag.getInntektsmeldinger().ifPresent(this::setInntektsmeldinger);
@@ -179,8 +183,26 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         return Optional.ofNullable(oppgittOpptjening);
     }
 
+    /**
+     * Returnerer overstyrt oppgitt opptjening hvis det finnes. (Inneholder søkers oppgitt opptjening i tillegg til endringer fra saksbehandler)
+     */
+    public Optional<OppgittOpptjening> getOverstyrtOppgittOpptjening() {
+        return Optional.ofNullable(overstyrtOppgittOpptjening);
+    }
+
+    /**
+     * Returnerer overstyrt oppgitt hvis det finnes, ellers oppgitt opptjening (fra søknad)
+     */
+    public Optional<OppgittOpptjening> getGjeldendeOppgittOpptjening() {
+        return getOverstyrtOppgittOpptjening().or(this::getOppgittOpptjening);
+    }
+
     void setOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
         this.oppgittOpptjening = oppgittOpptjening;
+    }
+
+    void setOverstyrtOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
+        this.overstyrtOppgittOpptjening = oppgittOpptjening;
     }
 
     public List<InntektsmeldingSomIkkeKommer> getInntektsmeldingerSomIkkeKommer() {

@@ -80,9 +80,11 @@ public class IAYFraDtoMapper {
         var inntektsmeldinger = mapInntektsmeldinger.map(arbeidsforholdInformasjonBuilder, dto.getInntektsmeldinger());
 
         var oppgittOpptjening = new MapOppgittOpptjening().mapFraDto(dto.getOppgittOpptjening());
+        var overstyrtOppgittOpptjening = new MapOppgittOpptjening().mapFraDto(dto.getOverstyrtOppgittOpptjening());
         var arbeidsforholdInformasjon = arbeidsforholdInformasjonBuilder.build();
 
         builder.medOppgittOpptjening(oppgittOpptjening);
+        builder.medOverstyrtOppgittOpptjening(overstyrtOppgittOpptjening);
         builder.setInntektsmeldinger(inntektsmeldinger);
         builder.medInformasjon(arbeidsforholdInformasjon);
     }
