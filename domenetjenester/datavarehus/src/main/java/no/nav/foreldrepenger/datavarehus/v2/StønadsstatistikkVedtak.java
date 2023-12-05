@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.datavarehus.v2;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,9 +55,10 @@ public class StønadsstatistikkVedtak {
     //ES
     private Long engangsstønadInnvilget;
 
+    @Valid
     private ForeldrepengerRettigheter foreldrepengerRettigheter; //konto saldo, utregnet ut i fra rettigheter, minsteretter
-    private List<StønadsstatistikkUttakPeriode> uttaksperioder;
-    private List<StønadsstatistikkUtbetalingPeriode> utbetalingssperioder;
+    private List<@Valid StønadsstatistikkUttakPeriode> uttaksperioder;
+    private List<@Valid StønadsstatistikkUtbetalingPeriode> utbetalingssperioder;
 
 
     // Etter møte: Dokumentasjonsperiode for aleneomsorg per uttaksperioder
@@ -198,13 +200,12 @@ public class StønadsstatistikkVedtak {
 
         record Trekkdager(@JsonValue @Min(0) @Max(500) @NotNull BigDecimal antall) {
             public Trekkdager(int antall) {
-                this(BigDecimal.valueOf(antall));
+                this(BigDecimal.valueOf(antall).setScale(1, RoundingMode.DOWN));
             }
         }
-
     }
 
-    record AnnenForelder(@NotNull @Valid AktørId aktørId, Saksnummer saksnummer, YtelseType ytelseType, Saksrolle saksrolle) {}
+    record AnnenForelder(@NotNull @Valid AktørId aktørId, @Valid Saksnummer saksnummer, YtelseType ytelseType, Saksrolle saksrolle) {}
 
     public record AktørId(@NotNull @Pattern(regexp = VALID_REGEXP, message = "AktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
                           @JsonValue String id) {

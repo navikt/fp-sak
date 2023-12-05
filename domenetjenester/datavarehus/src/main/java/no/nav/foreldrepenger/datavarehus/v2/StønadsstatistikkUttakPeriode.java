@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.datavarehus.v2;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
@@ -11,8 +12,8 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
                                      Forklaring forklaring,
                                      boolean erUtbetaling, // Skal utbetales for perioden
                                      int virkedager,
-                                     @NotNull BigDecimal trekkdager,
-                                     Gradering gradering, // Perioden er gradert
+                                     @NotNull StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager trekkdager,
+                                     @Valid Gradering gradering, // Perioden er gradert
                                      BigDecimal samtidigUttakProsent ) {
 
 
@@ -48,9 +49,4 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
     }
 
     record Gradering(AktivitetType aktivitetType, BigDecimal arbeidsprosent) {}
-
-    record PeriodeAktivitet(AktivitetType aktivitetType, String identifikator) {
-    }
-
-
 }

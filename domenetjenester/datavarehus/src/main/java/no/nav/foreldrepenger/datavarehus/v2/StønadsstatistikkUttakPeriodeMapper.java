@@ -61,7 +61,8 @@ class StønadsstatistikkUttakPeriodeMapper {
 
         var samtidigUttakProsent = periode.getSamtidigUttaksprosent() != null ? periode.getSamtidigUttaksprosent().decimalValue() : null;
         return new StønadsstatistikkUttakPeriode(periode.getFom(), periode.getTom(), mapStønadskonto(foretrukketAktivitet.getTrekkonto()), rettighet,
-            forklaring, erUtbetaling, virkedager, trekkdager.decimalValue(), gradering, samtidigUttakProsent);
+            forklaring, erUtbetaling, virkedager, new StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager(trekkdager.decimalValue()),
+            gradering, samtidigUttakProsent);
     }
 
     private static StønadsstatistikkUttakPeriode.Gradering utledGradering(ForeldrepengerUttakPeriode periode) {
