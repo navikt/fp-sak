@@ -34,7 +34,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.Callback;
-import org.eclipse.jetty.util.resource.PathResourceFactory;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.slf4j.Logger;
@@ -159,8 +159,7 @@ public class JettyServer {
         ctx.setParentLoaderPriority(true);
 
         // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra filsystem.
-        var resourceFactory = new PathResourceFactory();
-        var resource = resourceFactory.newClassLoaderResource("/WEB-INF/web.xml", false);
+        var resource = ResourceFactory.of(ctx).newClassLoaderResource("/WEB-INF/web.xml", false);
         var descriptor = resource.getURI().toURL().toExternalForm();
         ctx.setDescriptor(descriptor);
 
