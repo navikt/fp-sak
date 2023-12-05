@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -19,6 +20,11 @@ public class OppgittOpptjeningBuilder {
 
     private OppgittOpptjeningBuilder(OppgittOpptjening kladd) {
         this.kladd = kladd;
+    }
+
+    public static OppgittOpptjeningBuilder oppdater(Optional<OppgittOpptjening> kladd) {
+        return kladd.map(oppgittOpptjening -> new OppgittOpptjeningBuilder(new OppgittOpptjening(oppgittOpptjening)))
+            .orElseGet(() -> new OppgittOpptjeningBuilder(new OppgittOpptjening(UUID.randomUUID())));
     }
 
     public static OppgittOpptjeningBuilder ny() {
