@@ -62,7 +62,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
             perioder.addAll(opptjeningsperioder);
         }
 
-        var oppgittOpptjening = grunnlag.getOppgittOpptjening();
+        var oppgittOpptjening = grunnlag.getGjeldendeOppgittOpptjening();
         perioder.addAll(mapOppgittOpptjening(mapArbeidOpptjening, oppgittOpptjening));
         perioder.addAll(MapYtelseperioderTjeneste.mapYtelsePerioder(behandlingReferanse, grunnlag, vurderOpptjening, skjæringstidspunkt));
         lagOpptjeningsperiodeForFrilansAktivitet(behandlingReferanse, oppgittOpptjening.orElse(null), grunnlag, perioder, skjæringstidspunkt,

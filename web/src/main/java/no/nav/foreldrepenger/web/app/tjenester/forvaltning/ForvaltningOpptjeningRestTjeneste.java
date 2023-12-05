@@ -75,17 +75,16 @@ public class ForvaltningOpptjeningRestTjeneste {
     public Response leggTilOppgittFrilans(@BeanParam @Valid LeggTilOppgittFrilansDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        if (iayGrunnlag.getGjeldendeOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
+        if (iayGrunnlag == null || behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+        var builder = OppgittOpptjeningBuilder.oppdater(iayGrunnlag.getGjeldendeOppgittOpptjening());
         var nyoppstartet = dto.getStpOpptjening().minusMonths(3).isBefore(dto.getFrilansFom());
         var periode = dto.getFrilansTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFrilansFom(), dto.getFrilansTom())
                 : DatoIntervallEntitet.fraOgMed(dto.getFrilansFom());
-        var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
-                .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, ArbeidType.FRILANSER))
+        builder.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, ArbeidType.FRILANSER))
                 .leggTilFrilansOpplysninger(new OppgittFrilans(false, nyoppstartet, false));
-        inntektArbeidYtelseTjeneste.lagreOppgittOpptjening(behandling.getId(), ooBuilder);
-
+        inntektArbeidYtelseTjeneste.lagreOverstyrtOppgittOpptjening(behandling.getId(), builder);
         return Response.noContent().build();
     }
 
@@ -97,9 +96,10 @@ public class ForvaltningOpptjeningRestTjeneste {
     public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        if (iayGrunnlag.getGjeldendeOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
+        if (iayGrunnlag == null || behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+        var builder = OppgittOpptjeningBuilder.oppdater(iayGrunnlag.getGjeldendeOppgittOpptjening());
         Optional<Virksomhet> virksomhet = dto.getOrgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();
         var brutto = new BigDecimal(dto.getBruttoBeløp());
         var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom())
@@ -121,9 +121,8 @@ public class ForvaltningOpptjeningRestTjeneste {
         if (JA.equals(dto.getNyoppstartet())) {
             enBuilder.medNyoppstartet(true);
         }
-        var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
-                .leggTilEgneNæringer(List.of(enBuilder));
-        inntektArbeidYtelseTjeneste.lagreOppgittOpptjening(behandling.getId(), ooBuilder);
+        builder.leggTilEgneNæringer(List.of(enBuilder));
+        inntektArbeidYtelseTjeneste.lagreOverstyrtOppgittOpptjening(behandling.getId(), builder);
 
         return Response.noContent().build();
     }
