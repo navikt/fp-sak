@@ -303,7 +303,7 @@ public class StønadsstatistikkTjeneste {
         return annenpartIntervall.filter(i -> i.overlaps(egetIntervall)).isPresent();
     }
 
-    private UtlandsTilsnitt utledUtlandsTilsnitt(FagsakMarkering fagsakMarkering) {
+    private static UtlandsTilsnitt utledUtlandsTilsnitt(FagsakMarkering fagsakMarkering) {
         return switch (fagsakMarkering) {
             case NASJONAL -> UtlandsTilsnitt.NASJONAL;
             case EØS_BOSATT_NORGE -> UtlandsTilsnitt.EØS_BOSATT_NORGE;
@@ -312,7 +312,7 @@ public class StønadsstatistikkTjeneste {
         };
     }
 
-    private VilkårIkkeOppfylt utledVilkårIkkeOppfylt(BehandlingVedtak vedtak, Behandling behandling) {
+    private static VilkårIkkeOppfylt utledVilkårIkkeOppfylt(BehandlingVedtak vedtak, Behandling behandling) {
         var vilkårIkkeOppfylt = Optional.ofNullable(vedtak.getBehandlingsresultat().getVilkårResultat())
             .map(VilkårResultat::getVilkårene)
             .orElse(List.of())
@@ -323,7 +323,7 @@ public class StønadsstatistikkTjeneste {
         return BehandlingVedtakDvhMapper.mapVilkårIkkeOppfylt(vedtak.getVedtakResultatType(), behandling.getFagsakYtelseType(), vilkårIkkeOppfylt);
     }
 
-    private VedtakResultat mapVedtaksresultat(BehandlingVedtak vedtak) {
+    private static VedtakResultat mapVedtaksresultat(BehandlingVedtak vedtak) {
         return switch (vedtak.getVedtakResultatType()) {
 
             case INNVILGET -> VedtakResultat.INNVILGET;
@@ -334,7 +334,7 @@ public class StønadsstatistikkTjeneste {
         };
     }
 
-    private LovVersjon utledLovVersjon(Skjæringstidspunkt stp) {
+    private static LovVersjon utledLovVersjon(Skjæringstidspunkt stp) {
         if (stp.utenMinsterett()) {
             return stp.kreverSammenhengendeUttak() ? LovVersjon.FØRSTE_FPSAK : LovVersjon.FRI_UTSETTELSE;
         }
@@ -375,7 +375,7 @@ public class StønadsstatistikkTjeneste {
         return UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yfa) ? RettighetType.BEGGE_RETT_EØS : RettighetType.BEGGE_RETT;
     }
 
-    private StønadsstatistikkVedtak.Dekningsgrad map(Dekningsgrad dekningsgrad) {
+    private static StønadsstatistikkVedtak.Dekningsgrad map(Dekningsgrad dekningsgrad) {
         return switch (dekningsgrad.getVerdi()) {
             case 80 -> StønadsstatistikkVedtak.Dekningsgrad.ÅTTI;
             case 100 -> StønadsstatistikkVedtak.Dekningsgrad.HUNDRE;
