@@ -40,11 +40,12 @@ public class OppgittOpptjening extends BaseEntitet {
         setOpprettetTidspunkt(LocalDateTime.now());
     }
     public OppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
-        this.uuid = oppgittOpptjening.uuid; // TODO Skal denne være med eller bør vi ha ny?
+        this.uuid = oppgittOpptjening.uuid;
         this.frilans = oppgittOpptjening.frilans;
         this.oppgittArbeidsforhold = oppgittOpptjening.oppgittArbeidsforhold;
         this.annenAktivitet = oppgittOpptjening.annenAktivitet;
         this.egenNæring = oppgittOpptjening.egenNæring;
+        setOpprettetTidspunkt(LocalDateTime.now());
     }
 
     OppgittOpptjening(UUID eksternReferanse, LocalDateTime opprettetTidspunktOriginalt) {
