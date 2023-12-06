@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerT
 import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårEttFeriepengeårSkalOpphøre;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +59,7 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
 
     private BeregningsresultatEntitet oppsettBeregningsresultatForFeriepenger(boolean erOpptjentOverFlereÅr, Long årsbeløp1, Long årsbeløp2) {
         return buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1,
-            årsbeløp2, DAGENS_DATO);
+            årsbeløp2);
     }
 
     /**
@@ -829,7 +828,7 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    void skalSendeOppdragForFeriepengerNårDetGjelderAdopsjonStandard() {
+    void skalSendeOppdragForFeriepengerNårDetGjelderAdopsjon() {
         //Arrange
         //Act
         //Førstegangsbehandling
@@ -845,39 +844,7 @@ class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenes
             .get();
         var opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
         assertThat(opp150FeriepengerBruker).isNotEmpty()
-            .allSatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_FERIEPENGER_BRUKER));
-        // Arbeidsgiver
-        var oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()
-            .stream()
-            .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
-            .findFirst()
-            .get();
-        var opp150FeriepengerArbeidsgiver = getOppdragslinje150Feriepenger(oppdrag110Arbeidsgiver);
-        assertThat(opp150FeriepengerArbeidsgiver).isNotEmpty()
-            .allSatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_FERIEPENGER_AG));
-    }
-
-    @Test
-    void skalSendeOppdragForFeriepengerNårDetGjelderAdopsjonStandardOvergang2022() {
-        //Arrange
-        //Act
-        //Førstegangsbehandling
-        var baseDato = LocalDate.of(2022, 7,1);
-        var oppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, false, 11000L, 6000L, baseDato);
-
-        //Assert
-        assertThat(oppdrag.getOppdrag110Liste()).hasSize(2);
-        //Bruker
-        var oppdrag110Bruker = oppdrag.getOppdrag110Liste()
-            .stream()
-            .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
-            .findFirst()
-            .get();
-        var opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
-        assertThat(opp150FeriepengerBruker).isNotEmpty()
-            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER)); // Gammel konvensjon for opptjeningsår 2022
-        assertThat(opp150FeriepengerBruker).isNotEmpty()
-            .satisfiesOnlyOnce(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_FERIEPENGER_BRUKER)); // Ny konvensjon for opptjeningsår 2023
+            .allSatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
         // Arbeidsgiver
         var oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()
             .stream()

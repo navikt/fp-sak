@@ -14,10 +14,8 @@ public enum KodeKlassifik {
     //Engangsstønad adopsjon
     ES_ADOPSJON("FPENAD-OP"),
 
-    //Feriepenger til bruker
-    FERIEPENGER_BRUKER("FPATFER"), // både FP adopsjon, fødsel og SVP for opptjening tom 2022 / utbetaling 2023. Fødsel fom opptjeningsår 2023
-    FPA_FERIEPENGER_BRUKER("FPADATFER"), // Bruker - Feriepenger. Adopsjon fom opptjeningsår 2023
-    SVP_FERIEPENGER_BRUKER("FPSVATFER"), // Bruker - Feriepenger. Adopsjon fom opptjeningsår 2023
+    //Feriepenger både FP adopsjon, fødsel og SVP
+    FERIEPENGER_BRUKER("FPATFER"), // Bruker - Feriepenger.
 
     //Fødsel
     FPF_ARBEIDSTAKER("FPATORD"), // FP (foreldrepenger), AT - arbeidstaker, ORD - ordinær
@@ -85,8 +83,8 @@ public enum KodeKlassifik {
     }
 
     public boolean gjelderFeriepenger() {
-        return this.equals(FERIEPENGER_BRUKER) || this.equals(FPA_FERIEPENGER_BRUKER) || this.equals(SVP_FERIEPENGER_BRUKER) ||
-            this.equals(FPF_FERIEPENGER_AG) || this.equals(FPA_FERIEPENGER_AG) || this.equals(SVP_FERIEPENGER_AG);
+        return this.equals(FERIEPENGER_BRUKER) || this.equals(FPF_FERIEPENGER_AG) || this.equals(FPA_FERIEPENGER_AG) || this.equals(
+            SVP_FERIEPENGER_AG);
     }
 
     public boolean gjelderArbeidsgiver() {

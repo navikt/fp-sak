@@ -509,20 +509,20 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     }
 
     protected BeregningsresultatEntitet buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(boolean erOpptjentOverFlereÅr,
-                                                                                                       Long årsbeløp1,
-                                                                                                       Long årsbeløp2, LocalDate brukDato) {
+                                                                                                     Long årsbeløp1,
+                                                                                                     Long årsbeløp2) {
         var builder = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2");
         var beregningsresultat = builder.build();
-        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, brukDato, brukDato.plusDays(10));
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         var andel1 = buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(100),
             virksomhet);
         var andel2 = buildBeregningsresultatAndel(brPeriode1, false, 1300, BigDecimal.valueOf(100),
             virksomhet);
         var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
-        oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel1, feriepenger, brukDato);
-        oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel2, feriepenger, brukDato);
+        oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel1, feriepenger);
+        oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel2, feriepenger);
 
         return beregningsresultat;
     }
@@ -531,12 +531,12 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                     Long årsbeløp1,
                                     Long årsbeløp2,
                                     BeregningsresultatAndel andel1,
-                                    BeregningsresultatFeriepenger feriepenger, LocalDate brukDato) {
+                                    BeregningsresultatFeriepenger feriepenger) {
         List<LocalDate> opptjeningsårListe;
         if (erOpptjentOverFlereÅr) {
-            opptjeningsårListe = List.of(brukDato, brukDato.plusYears(1));
+            opptjeningsårListe = List.of(DAGENS_DATO, DAGENS_DATO.plusYears(1));
         } else if (årsbeløp1 > 0 || årsbeløp2 > 0) {
-            opptjeningsårListe = årsbeløp2 > 0 ? List.of(brukDato.plusYears(1)) : List.of(brukDato);
+            opptjeningsårListe = årsbeløp2 > 0 ? List.of(DAGENS_DATO.plusYears(1)) : List.of(DAGENS_DATO);
         } else {
             opptjeningsårListe = Collections.emptyList();
         }
@@ -709,16 +709,8 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                                                            boolean gjelderFødsel,
                                                                                            Long årsbeløp1,
                                                                                            Long årsbeløp2) {
-        return opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(erOpptjentOverFlereÅr, gjelderFødsel, årsbeløp1, årsbeløp2, DAGENS_DATO);
-    }
-
-    protected Oppdragskontroll opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(boolean erOpptjentOverFlereÅr,
-                                                                                           boolean gjelderFødsel,
-                                                                                           Long årsbeløp1,
-                                                                                           Long årsbeløp2,
-                                                                                           LocalDate brukDato) {
         var beregningsresultat = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(
-            erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, brukDato);
+            erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
 
         if (gjelderFødsel) {
             var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);

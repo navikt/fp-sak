@@ -133,11 +133,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return kodeKlassifik;
     }
 
-    // Kun testformål for å sjekke ett tilfelle av migrering
-    public void setKodeKlassifik(KodeKlassifik kodeKlassifik) {
-        this.kodeKlassifik = kodeKlassifik;
-    }
-
     public LocalDate getDatoVedtakFom() {
         return vedtakPeriode.getFomDato();
     }

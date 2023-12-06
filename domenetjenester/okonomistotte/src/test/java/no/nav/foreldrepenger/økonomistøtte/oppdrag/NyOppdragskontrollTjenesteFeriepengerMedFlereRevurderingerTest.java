@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -18,12 +17,8 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 
 public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends NyOppdragskontrollTjenesteTestBase {
@@ -66,7 +61,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     private BeregningsresultatEntitet oppsettBeregningsresultatForFeriepenger(boolean erOpptjentOverFlereÅr,
                                                                               Long årsbeløp1,
                                                                               Long årsbeløp2) {
-        return buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, DAGENS_DATO);
+        return buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
     }
 
     @Test
@@ -810,44 +805,4 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
         }
     }
 
-    @Test
-    void skalEndreKlassekodeFeriepengerAdopsjonForMigreringOvergangstilfelle() {
-        //Arrange
-        //Førstegangsbehandling
-        //Her vil det være 2 feriepenger til bruker: en med FPATFER til utbetaling i 2023 og en med FPADATFER til utbetaling i 2024
-        var baseDato = LocalDate.of(2022, 7,1);
-        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, false, 6000L, 7000L, baseDato);
-
-        // Først sørge for at begge feriepengene er FPATFER - slik som tidligere sendte oppdrag vil være
-        var original150L = originaltOppdrag.getOppdrag110Liste().stream()
-            .map(Oppdrag110::getOppdragslinje150Liste)
-            .flatMap(Collection::stream)
-            .filter(o150 -> o150.getKodeKlassifik().gjelderFeriepenger())
-            .toList();
-        original150L.stream().filter(o150 -> KodeKlassifik.FPA_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))
-            .filter(o150 -> o150.getDatoVedtakFom().isAfter(baseDato.withDayOfYear(1).plusYears(2)))
-            .forEach(o150 -> o150.setKodeKlassifik(KodeKlassifik.FERIEPENGER_BRUKER));
-        assertThat(original150L.stream().filter(o150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(2);
-        assertThat(original150L.stream().filter(o150 -> KodeKlassifik.FPA_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()))).hasSize(0);
-
-        //Revurdering #1
-        var beregningsresultatRevurderingFP = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(true, 6000L, 7000L, baseDato);
-
-        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.ADOPSJON);
-        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
-        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
-
-        var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(builder2.build());
-
-        var ny150L = oppdragRevurdering.orElseThrow().getOppdrag110Liste().stream()
-            .map(Oppdrag110::getOppdragslinje150Liste)
-            .flatMap(Collection::stream)
-            .filter(o150 -> o150.getKodeKlassifik().gjelderFeriepenger())
-            .toList();
-
-        // Validere at eneste endring er opphør av FPATFER og innvilget FPADATFER
-        assertThat(ny150L).hasSize(2);
-        assertThat(ny150L.stream().filter(o150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()) && KodeStatusLinje.OPPH.equals(o150.getKodeStatusLinje()))).hasSize(1);
-        assertThat(ny150L.stream().filter(o150 -> KodeKlassifik.FPA_FERIEPENGER_BRUKER.equals(o150.getKodeKlassifik()) && KodeEndringLinje.NY.equals(o150.getKodeEndringLinje()))).hasSize(1);
-    }
 }
