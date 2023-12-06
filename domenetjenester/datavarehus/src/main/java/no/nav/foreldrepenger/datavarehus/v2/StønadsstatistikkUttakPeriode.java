@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
-                                     @NotNull StønadsstatistikkVedtak.StønadskontoType stønadskontoType, // hvilken konta man tar ut fra
+                                     StønadsstatistikkVedtak.StønadskontoType stønadskontoType, // hvilken konta man tar ut fra
                                      @NotNull StønadsstatistikkVedtak.RettighetType rettighetType,
                                      Forklaring forklaring,
                                      boolean erUtbetaling, // Skal utbetales for perioden
