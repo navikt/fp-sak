@@ -160,17 +160,17 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
     private String getRegelEvalueringVilkårvurdering(BeregningResultatAggregat beregningResultatAggregat) {
         var regelSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
-        return regelSporing.map(RegelSporingPeriode::getRegelEvaluering).orElse(null);
+        return regelSporing.map(RegelSporingPeriode::regelEvaluering).orElse(null);
     }
 
     private String getRegelInputVilkårvurdering(BeregningResultatAggregat beregningResultatAggregat) {
         var regelSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
-        return regelSporing.map(RegelSporingPeriode::getRegelInput).orElse(null);
+        return regelSporing.map(RegelSporingPeriode::regelInput).orElse(null);
     }
 
     private Optional<RegelSporingPeriode> finnRegelSporingVilkårVurdering(BeregningResultatAggregat beregningResultatAggregat) {
         var regelSporingPerioder = beregningResultatAggregat.getRegelSporingAggregat()
-            .map(RegelSporingAggregat::getRegelsporingPerioder)
+            .map(RegelSporingAggregat::regelsporingPerioder)
             .orElse(Collections.emptyList());
         if (regelSporingPerioder.isEmpty()) {
             return Optional.empty();
@@ -180,7 +180,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             .get(0)
             .getPeriode();
         return regelSporingPerioder.stream()
-            .filter(p -> p.getPeriode().overlapper(førstePeriode) && p.getRegelType()
+            .filter(p -> p.periode().overlapper(førstePeriode) && p.regelType()
                 .equals(BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING))
             .findFirst();
     }
