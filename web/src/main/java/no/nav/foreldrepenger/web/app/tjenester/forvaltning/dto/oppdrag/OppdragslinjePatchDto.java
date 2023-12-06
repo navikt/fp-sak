@@ -29,7 +29,7 @@ public class OppdragslinjePatchDto {
     private LocalDate opphørFom;
 
     @NotNull
-    @Pattern(regexp = "^((FP(AD|SV)?(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPATFER|FPENFOD-OP|FPENAD-OP)$")
+    @Pattern(regexp = "^((FP(AD|SV)?(ATORD|ATFRI|SND-OP|ATAL|ATSJO|SNDDM-OP|SNDJB-OP|SNDFI|REFAG-IOP|REFAGFER-IOP))|FPATFER|FPADATFER|FPSVATFER|FPENFOD-OP|FPENAD-OP)$")
     @JsonProperty("kodeKlassifik")
     private String kodeKlassifik;
 
