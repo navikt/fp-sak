@@ -89,7 +89,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste;
     private OpptjeningRepository opptjeningRepository;
 
     KontrollerFaktaRevurderingStegImpl() {
@@ -106,7 +105,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) StartpunktTjeneste startpunktTjeneste,
                                        BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
                                        SvangerskapspengerRepository svangerskapspengerRepository,
-                                       NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste,
                                        MottatteDokumentTjeneste mottatteDokumentTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -121,7 +119,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.nyeTilretteleggingerTjeneste = nyeTilretteleggingerTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
     }
@@ -144,9 +141,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
         kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
 
-        if (DEFAULT_STARTPUNKT.equals(startpunkt)) {
-            nyeTilretteleggingerTjeneste.utledNyeTilretteleggingerLagreJustert(behandling, skjæringstidspunkter);
-        }
         var transisjon = TransisjonIdentifikator.forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
         return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, aksjonspunktResultater);
     }

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
+package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp.UtledTilretteleggingerMedArbeidsgiverTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,14 +93,10 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Act
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, List.of(tilrettelegging));
-
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).isEmpty();
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-
+        assertThat(result.get(0).getInternArbeidsforholdRef()).isEmpty();
+        assertThat(result.get(0).getArbeidsgiver()).isEqualTo(Optional.of(DEFAULT_VIRKSOMHET));
     }
 
     @Test
@@ -122,18 +120,11 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Act
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
-
         // Assert
         assertThat(result).hasSize(2);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)))).isTrue();
     }
 
     @Test
@@ -160,11 +151,8 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(person));
-        });
-
+        assertThat(result.get(0).getInternArbeidsforholdRef()).isEqualTo((Optional.of(ref_2)));
+        assertThat(result.get(0).getArbeidsgiver()).isEqualTo(Optional.of(person));
     }
 
     @Test
@@ -191,18 +179,11 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Act
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
-
         // Assert
         assertThat(result).hasSize(2);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_3));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_3)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)))).isTrue();
     }
 
     @Test
@@ -227,15 +208,9 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Assert
         assertThat(result).hasSize(2);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)))).isTrue();
     }
 
     @Test
@@ -289,25 +264,14 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
         // Act
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
 
-        // Assert
         assertThat(result).hasSize(4);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(virksomhet));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(virksomhet));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_3));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(person));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_4));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(person));
-        });
-
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(virksomhet)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_3)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_4)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(person)))).isTrue();
+        // Assert
     }
 
     @Test
@@ -335,19 +299,11 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Assert
         assertThat(result).hasSize(3);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(ref_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_3));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(VIRKSOMHET_2));
-        });
-
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(VIRKSOMHET_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_3)))).isTrue();
     }
 
     @Test
@@ -374,18 +330,10 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Assert
         assertThat(result).hasSize(3);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_3));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(VIRKSOMHET_2));
-        });
+        assertThat(result.get(0).getArbeidsgiver()).isEqualTo(Optional.of(DEFAULT_VIRKSOMHET));
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_3)))).isTrue();
 
     }
 
@@ -413,19 +361,34 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
 
         // Assert
         assertThat(result).hasSize(3);
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_1));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_2));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
-        assertThat(result).anySatisfy(r -> {
-            assertThat(r.getInternArbeidsforholdRef()).hasValueSatisfying(ref -> assertThat(ref).isEqualTo(INTERN_ARBEIDSFORHOLD_REF_3));
-            assertThat(r.getArbeidsgiver()).hasValueSatisfying(arbeidsgiver -> assertThat(arbeidsgiver).isEqualTo(DEFAULT_VIRKSOMHET));
-        });
+        assertThat(result.get(0).getArbeidsgiver()).isEqualTo(Optional.of(DEFAULT_VIRKSOMHET));
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(INTERN_ARBEIDSFORHOLD_REF_3)))).isTrue();
+    }
 
+    @Test
+    void skal_fjerne_tilrettelegginger_dersom_ny_IM_ikke_har_arbeidsforholdsId() {
+
+        // Arrange
+        var tilrettelegginger = List.of(
+            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1),
+            lagTilrettelegging(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2));
+
+
+        when(iayTjeneste.hentGrunnlag(anyLong())).thenReturn(lagGrunnlag(behandling, List.of(
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, INTERN_ARBEIDSFORHOLD_REF_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
+
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, null)));
+
+        // Act
+        var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
+
+        // Assert
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getArbeidsgiver()).isEqualTo(Optional.of(DEFAULT_VIRKSOMHET));
     }
 
     private SvpTilretteleggingEntitet lagTilrettelegging(Arbeidsgiver arbeidsgiver, ArbeidType arbeidType,

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
+package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,11 +31,11 @@ class NyeTilretteleggingerTjeneste {
     }
 
     public void utledNyeTilretteleggingerLagreJustert(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
-        var opprinneligeTilrettelegginger = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+        var gjeldendeTilrettelegginger = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
             .orElseThrow(() -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()))
-            .getOpprinneligeTilrettelegginger().getTilretteleggingListe();
-        var justerteTilrettelegginger = utledJusterte(behandling, skjæringstidspunkt);
-        if (!likeTilrettelegginger(justerteTilrettelegginger, opprinneligeTilrettelegginger)) {
+            .getGjeldendeVersjon().getTilretteleggingListe();
+        var justerteTilrettelegginger = utledJusterte(behandling, skjæringstidspunkt, gjeldendeTilrettelegginger);
+        if (!likeTilrettelegginger(justerteTilrettelegginger, gjeldendeTilrettelegginger)) {
             lagre(behandling, justerteTilrettelegginger);
         }
     }
@@ -45,13 +45,10 @@ class NyeTilretteleggingerTjeneste {
     }
 
 
-    List<SvpTilretteleggingEntitet> utledJusterte(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
-        var opprinneligeTilrettelegginger = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
-            .orElseThrow(() -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()))
-            .getOpprinneligeTilrettelegginger().getTilretteleggingListe();
-        var tilretteleggingerUtenArbeidsgiver = utledUtenArbeidsgiver(opprinneligeTilrettelegginger);
+    List<SvpTilretteleggingEntitet> utledJusterte(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt, List<SvpTilretteleggingEntitet> gjeldendeTilrettelegginger) {
+        var tilretteleggingerUtenArbeidsgiver = utledUtenArbeidsgiver(gjeldendeTilrettelegginger);
         var tilretteleggingerMedArbeidsgiver = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt,
-                opprinneligeTilrettelegginger);
+                gjeldendeTilrettelegginger);
         return Stream.of(tilretteleggingerUtenArbeidsgiver, tilretteleggingerMedArbeidsgiver)
                 .flatMap(Collection::stream)
                 .toList();

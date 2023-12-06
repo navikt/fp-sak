@@ -90,7 +90,8 @@ class StartpunktUtlederInntektsmelding {
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
 
-        if ( FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && nyeIm.stream().anyMatch(nyIm -> nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm))) {
+        if ( FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && (nyeIm.stream().anyMatch(nyIm -> nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm))
+            || nyeIm.stream().anyMatch(nyIm -> endringIArbeidsforholdIdForSammeArbgiver(nyIm, gamleIm)))) {
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
 
@@ -107,7 +108,7 @@ class StartpunktUtlederInntektsmelding {
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
 
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm)) {
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && (nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm) || endringIArbeidsforholdIdForSammeArbgiver(nyIm, gamleIm))){
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erStartpunktForNyImBeregning(grunnlag, nyIm, gamleIm, ref)) {
@@ -200,6 +201,12 @@ class StartpunktUtlederInntektsmelding {
         var arbeidsgiverFinnesFraFør = origIM.stream().anyMatch(im -> Objects.equals(im.getArbeidsgiver(), ny.getArbeidsgiver()));
         return arbeidsgiverFinnesFraFør && origIM.stream()
             .noneMatch(ny::gjelderSammeArbeidsforhold);
+    }
+
+    private boolean endringIArbeidsforholdIdForSammeArbgiver(Inntektsmelding ny, List<Inntektsmelding> origIM) {
+        var arbeidsgiverFinnesFraFør = origIM.stream().anyMatch(im -> Objects.equals(im.getArbeidsgiver(), ny.getArbeidsgiver()));
+        return arbeidsgiverFinnesFraFør && origIM.stream()
+            .anyMatch(ny::endringIArbeidsforholdsIdForSammeArbGiver);
     }
 
     private boolean erEndringPåNaturalYtelser(Inntektsmelding nyInntektsmelding, Inntektsmelding opprinneligInntektsmelding) {

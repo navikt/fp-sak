@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
+package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

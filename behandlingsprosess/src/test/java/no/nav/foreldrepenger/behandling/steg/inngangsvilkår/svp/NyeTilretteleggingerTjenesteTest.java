@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
+package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -7,6 +7,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+
+import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp.NyeTilretteleggingerTjeneste;
+
+import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp.UtledTilretteleggingerMedArbeidsgiverTjeneste;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -53,7 +57,7 @@ class NyeTilretteleggingerTjenesteTest {
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.of(grunnlagEntitet));
 
         // Act
-        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt);
+        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt, grunnlagEntitet.getGjeldendeVersjon().getTilretteleggingListe() );
 
         // Assert
         assertThat(result).hasSize(2);
@@ -84,7 +88,7 @@ class NyeTilretteleggingerTjenesteTest {
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.of(grunnlagEntitet));
 
         // Act
-        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt);
+        var result = utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt, grunnlagEntitet.getGjeldendeVersjon().getTilretteleggingListe());
 
         // Assert
         assertThat(result).hasSize(2);
@@ -99,6 +103,6 @@ class NyeTilretteleggingerTjenesteTest {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().build();
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class, () -> utledNyeTilretteleggingerTjeneste.utledJusterte(behandling, skjæringstidspunkt));
+        assertThrows(IllegalStateException.class, () -> utledNyeTilretteleggingerTjeneste.utledNyeTilretteleggingerLagreJustert(behandling, skjæringstidspunkt));
     }
 }
