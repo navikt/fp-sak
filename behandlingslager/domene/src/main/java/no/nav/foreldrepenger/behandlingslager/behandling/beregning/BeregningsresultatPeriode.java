@@ -163,11 +163,6 @@ public class BeregningsresultatPeriode extends BaseEntitet {
             beregningsresultatPeriodeMal = eksisterendeBeregningsresultatPeriode;
         }
 
-        public Builder medBeregningsresultatAndeler(List<BeregningsresultatAndel> beregningsresultatAndelList) {
-            beregningsresultatPeriodeMal.beregningsresultatAndelList.addAll(beregningsresultatAndelList);
-            return this;
-        }
-
         public Builder medBeregningsresultatPeriodeFomOgTom(LocalDate beregningsresultatPeriodeFom, LocalDate beregningsresultatPeriodeTom) {
             beregningsresultatPeriodeMal.periode = DatoIntervallEntitet.fraOgMedTilOgMed(beregningsresultatPeriodeFom, beregningsresultatPeriodeTom);
             return this;
