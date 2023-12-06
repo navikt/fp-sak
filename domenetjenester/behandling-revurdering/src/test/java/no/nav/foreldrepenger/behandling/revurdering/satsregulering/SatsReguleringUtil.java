@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
@@ -249,7 +248,6 @@ public class SatsReguleringUtil {
             .build();
         var brFPper = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
-            .medBeregningsresultatAndeler(Collections.emptyList())
             .build(brFP);
         BeregningsresultatAndel.builder()
             .medDagsats(dagsats)
