@@ -55,7 +55,7 @@ public final class KalkulusTilBehandlingslagerMapper {
         //med
         builder.medGrunnbeløp(new Beløp(beregningsgrunnlagFraKalkulus.getGrunnbeløp().getVerdi()));
         builder.medOverstyring(beregningsgrunnlagFraKalkulus.isOverstyrt());
-        var regelSporingerGrunnlag = regelSporingAggregat.map(RegelSporingAggregat::getRegelsporingerGrunnlag)
+        var regelSporingerGrunnlag = regelSporingAggregat.map(RegelSporingAggregat::regelsporingerGrunnlag)
             .orElse(Collections.emptyList());
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
@@ -87,8 +87,8 @@ public final class KalkulusTilBehandlingslagerMapper {
     private static List<RegelSporingPeriode> finnRegelsporingerForPeriode(Optional<RegelSporingAggregat> regelSporingAggregat,
                                                                           Intervall periode) {
         return regelSporingAggregat.stream()
-            .flatMap(rs -> rs.getRegelsporingPerioder().stream())
-            .filter(rs -> rs.getPeriode().overlapper(periode))
+            .flatMap(rs -> rs.regelsporingPerioder().stream())
+            .filter(rs -> rs.periode().overlapper(periode))
             .toList();
     }
 
@@ -96,10 +96,10 @@ public final class KalkulusTilBehandlingslagerMapper {
                                             BeregningsgrunnlagEntitet.Builder builder,
                                             BeregningsgrunnlagRegelType regelType) {
         var regelLogg = regelSporingerGrunnlag.stream()
-            .filter(rs -> rs.getRegelType().getKode().equals(regelType.getKode()))
+            .filter(rs -> rs.regelType().getKode().equals(regelType.getKode()))
             .findFirst();
-        regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(regelSporingGrunnlag.getRegelInput(),
-            regelSporingGrunnlag.getRegelEvaluering(),
+        regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(regelSporingGrunnlag.regelInput(),
+            regelSporingGrunnlag.regelEvaluering(),
             no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())));
     }
 
