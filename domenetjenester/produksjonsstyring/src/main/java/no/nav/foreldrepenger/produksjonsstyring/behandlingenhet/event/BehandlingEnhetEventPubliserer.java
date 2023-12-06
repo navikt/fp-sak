@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event;
 
-import java.lang.annotation.Annotation;
-
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -13,22 +11,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetE
 @ApplicationScoped
 public class BehandlingEnhetEventPubliserer {
 
-    private BeanManager beanManager;
+    private Event<BehandlingEnhetEvent> eventHandler;
 
     BehandlingEnhetEventPubliserer() {
         //Cyclopedia Drainage Invariant
     }
 
     @Inject
-    public BehandlingEnhetEventPubliserer(BeanManager beanManager) {
-        this.beanManager = beanManager;
+    public BehandlingEnhetEventPubliserer(Event<BehandlingEnhetEvent> behandlingEnhetEvent) {
+        this.eventHandler = behandlingEnhetEvent;
     }
 
     public void fireEvent(Behandling behandling) {
-        if (beanManager == null) {
+        if (eventHandler == null || behandling == null) {
             return;
         }
         var event = new BehandlingEnhetEvent(behandling);
-        beanManager.fireEvent(event, new Annotation[] {});
+        eventHandler.fire(event);
     }
 }

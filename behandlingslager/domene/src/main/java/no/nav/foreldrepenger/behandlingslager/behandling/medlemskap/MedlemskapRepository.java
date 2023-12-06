@@ -265,7 +265,7 @@ public class MedlemskapRepository {
 
     protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
-            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id AND mbg.aktiv = 'J'",
+            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id AND mbg.aktiv = true",
             MedlemskapBehandlingsgrunnlagEntitet.class)
                 .setParameter("behandling_id", behandlingId);
 

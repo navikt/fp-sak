@@ -5,12 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -108,13 +105,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
             var namespaceName = getSchemaName(namespace);
             var dbColumns = getColumns(namespaceName);
             for (var table : namespace.getTables()) {
-                var columns = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                table.getColumnIterator(),
-                                Spliterator.ORDERED),
-                        false);
-
-                var columnNames = columns.map(c -> c.getName().toUpperCase()).collect(Collectors.toCollection(TreeSet::new));
+                var columnNames = table.getColumns().stream().map(c -> c.getName().toUpperCase()).collect(Collectors.toCollection(TreeSet::new));
                 var tableName = table.getName().toUpperCase();
                 if (dbColumns.containsKey(tableName)) {
                     var unmapped = new TreeSet<>(dbColumns.get(tableName));
