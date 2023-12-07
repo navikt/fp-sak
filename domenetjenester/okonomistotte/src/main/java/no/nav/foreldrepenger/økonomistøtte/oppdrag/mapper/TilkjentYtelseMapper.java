@@ -133,9 +133,10 @@ public class TilkjentYtelseMapper {
     private KjedeNøkkel tilNøkkelFeriepenger(BeregningsresultatAndel andel, int opptjeningsår) {
         var brukferiepengerMaksdato = beregnFeriepengePeriode(opptjeningsår).getTom();
         var tilBruker = andel.skalTilBrukerEllerPrivatperson();
-        return tilBruker ? KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepenger(), Betalingsmottaker.BRUKER, brukferiepengerMaksdato) :
-            KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType),
-                Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), brukferiepengerMaksdato);
+        var klasseKode = tilBruker ? KlassekodeUtleder.utledForFeriepenger(ytelseType, opptjeningsår, feriepengerDødsdato) :
+            KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType);
+        return tilBruker ? KjedeNøkkel.lag(klasseKode, Betalingsmottaker.BRUKER, brukferiepengerMaksdato) :
+            KjedeNøkkel.lag(klasseKode, Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().orElseThrow().getOrgnr()), brukferiepengerMaksdato);
     }
 
     private Periode beregnFeriepengePeriode(int opptjeningsår) {

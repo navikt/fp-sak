@@ -11,7 +11,7 @@ public class ØkonomiKodeKlassifikSortering {
         "ATORD", "ATAL", "ATFRI", "ATSJO",
         "SND-OP", "SNDDM-OP", "SNDJB-OP", "SNDFI",
         "REFAG-IOP",
-        "FER", "FER-IOP",
+        "SVATFER", "ADATFER", "FER", "FER-IOP", // For å skille feriepenger til bruker ifm migrering
         "ENFOD-OP", "ENAD-OP"
     );
 
