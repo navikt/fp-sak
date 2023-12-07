@@ -84,7 +84,7 @@ public class OpptjeningRepository {
 
     private Optional<Opptjening> hentTidligereOpptjening(Long vilkårResultatId, boolean readOnly) {
         // slår opp med HQL istedf. å traverse grafen
-        var query = em.createQuery("from Opptjening o where o.vilkårResultat.id=:id and o.aktiv = 'J'", Opptjening.class);
+        var query = em.createQuery("from Opptjening o where o.vilkårResultat.id=:id and o.aktiv = true", Opptjening.class);
         query.setParameter("id", vilkårResultatId);
 
         if (readOnly) {

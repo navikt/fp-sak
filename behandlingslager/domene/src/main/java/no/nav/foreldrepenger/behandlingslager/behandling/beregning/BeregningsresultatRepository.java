@@ -49,7 +49,7 @@ public class BeregningsresultatRepository {
     public Optional<BehandlingBeregningsresultatEntitet> hentBeregningsresultatAggregat(Long behandlingId) {
         var query = entityManager.createQuery(
             "from BeregningsresultatFPAggregatEntitet aggregat " +
-                "where aggregat.behandlingId=:behandlingId and aggregat.aktiv = 'J'", BehandlingBeregningsresultatEntitet.class);
+                "where aggregat.behandlingId=:behandlingId and aggregat.aktiv = true", BehandlingBeregningsresultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);
     }

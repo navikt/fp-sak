@@ -133,7 +133,7 @@ public class FpUttakRepository {
         var query = entityManager.createQuery(
             "select uttakResultat from UttakResultatEntitet uttakResultat "
                 + "join uttakResultat.behandlingsresultat resultat"
-                + " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv='J'",
+                + " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv = true",
             UttakResultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);

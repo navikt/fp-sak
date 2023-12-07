@@ -110,7 +110,7 @@ public class VergeRepository {
 
     private Optional<VergeGrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
         var query = entityManager.createQuery(
-            "SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = 'J'",
+            "SELECT vg FROM VergeGrunnlag vg WHERE vg.behandlingId = :behandling_id AND vg.aktiv = true",
             VergeGrunnlagEntitet.class);
 
         query.setParameter("behandling_id", behandlingId);

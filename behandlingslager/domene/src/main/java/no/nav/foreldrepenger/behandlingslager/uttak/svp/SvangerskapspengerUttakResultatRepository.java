@@ -41,7 +41,7 @@ public class SvangerskapspengerUttakResultatRepository {
         var query = entityManager.createQuery(
                 "select uttakResultat from SvangerskapspengerUttakResultatEntitet uttakResultat " +
                 "join uttakResultat.behandlingsresultat resultat " +
-                "where resultat.behandling.id = :behandlingId and uttakResultat.aktiv='J'",
+                "where resultat.behandling.id = :behandlingId and uttakResultat.aktiv = true",
             SvangerskapspengerUttakResultatEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return hentUniktResultat(query);

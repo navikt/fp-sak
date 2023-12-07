@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl;
 
-import java.lang.annotation.Annotation;
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -28,15 +27,15 @@ public class BehandlingskontrollEventPubliserer {
 
     public static final BehandlingskontrollEventPubliserer NULL_EVENT_PUB = new BehandlingskontrollEventPubliserer();
 
-    private BeanManager beanManager;
+    private Event<BehandlingEvent> behandlingEventHandler;
 
     BehandlingskontrollEventPubliserer() {
         // null ctor, publiserer ingen events
     }
 
     @Inject
-    public BehandlingskontrollEventPubliserer(BeanManager beanManager) {
-        this.beanManager = beanManager;
+    public BehandlingskontrollEventPubliserer(Event<BehandlingEvent> behandlingEvent) {
+        this.behandlingEventHandler = behandlingEvent;
     }
 
     public void fireEvent(BehandlingStegOvergangEvent event) {
@@ -85,9 +84,9 @@ public class BehandlingskontrollEventPubliserer {
      * events blir korrekt.
      */
     protected void doFireEvent(BehandlingEvent event) {
-        if (beanManager == null) {
+        if (behandlingEventHandler == null || event == null) {
             return;
         }
-        beanManager.fireEvent(event, new Annotation[] {});
+        behandlingEventHandler.fire(event);
     }
 }
