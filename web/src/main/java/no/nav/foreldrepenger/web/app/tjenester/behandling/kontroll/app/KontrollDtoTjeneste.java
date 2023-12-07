@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresul
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.FaresignalgruppeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
 @ApplicationScoped
@@ -46,12 +45,11 @@ public class KontrollDtoTjeneste {
         }
     }
 
-    private FaresignalgruppeDto lagFaresignalGruppeDto(FaresignalGruppeWrapper faresignalgruppe) {
+    private KontrollresultatDto.FaresignalgruppeDto lagFaresignalGruppeDto(FaresignalGruppeWrapper faresignalgruppe) {
         if (faresignalgruppe == null || faresignalgruppe.faresignaler().isEmpty()) {
             return null;
         }
-
-        return new FaresignalgruppeDto(faresignalgruppe.faresignaler());
+        return new KontrollresultatDto.FaresignalgruppeDto(faresignalgruppe.faresignaler());
     }
 
 }
