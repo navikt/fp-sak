@@ -356,7 +356,7 @@ public class FagsakRelasjonRepository {
     public List<Fagsak> finnFagsakerForAvsluttning(LocalDate dato) {
         // La saker som er unde behandling være i fred
         var query = entityManager.createQuery("select f from Fagsak f " +
-                "inner join FagsakRelasjon fr on (f.id in (fr.fagsakNrEn, fr.fagsakNrTo) and fr.aktiv=true) " +
+                "inner join FagsakRelasjon fr on (f.id in (fr.fagsakNrEn.id, fr.fagsakNrTo.id) and fr.aktiv=true) " +
                 "where f.fagsakStatus = :lopende and fr.avsluttningsdato < :datogrense",
             Fagsak.class)
             .setParameter("datogrense", Optional.ofNullable(dato).orElseGet(LocalDate::now))
