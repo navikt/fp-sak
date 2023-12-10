@@ -33,7 +33,7 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
-        tjeneste.sendVedtaksbrev(behandlingId);
+        //tjeneste.sendVedtaksbrev(behandlingId);
         LOG.info("Utført for behandling: {}", behandlingId);
     }
 }

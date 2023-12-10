@@ -53,7 +53,7 @@ public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var referanse = BehandlingReferanse.fra(behandling);
         var request = opprettRequest(referanse);
-        risikovurderingTjeneste.startRisikoklassifisering(referanse, request);
+        //risikovurderingTjeneste.startRisikoklassifisering(referanse, request);
     }
 
     private RisikovurderingRequestDto opprettRequest(BehandlingReferanse ref) {

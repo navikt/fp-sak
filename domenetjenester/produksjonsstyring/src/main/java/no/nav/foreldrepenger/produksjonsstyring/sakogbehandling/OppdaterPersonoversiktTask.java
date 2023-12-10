@@ -92,7 +92,7 @@ public class OppdaterPersonoversiktTask extends GenerellProsessTask {
             var ident = personinfoAdapter.hentFnr(behandling.getAktørId()).orElse(null);
             var personSoB = PersonoversiktBehandlingStatusDto.lagPersonoversiktBehandlingStatusDto(hendelseTYpe, callId, behandling.getAktørId(),
                 tidspunkt, behandlingType, behandlingRef, behandlingTema, enhet, ident, erAvsluttet);
-            aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
+            //aivenProducer.sendJsonMedNøkkel(createUniqueKey(String.valueOf(behandling.getId()), behandling.getStatus().getKode()), StandardJsonConfig.toJson(personSoB));
         } catch (Exception e) {
             LOG.info("OppdaterPersonoversikt noe gikk feil for fagsak {}", fagsakId, e);
             if (CLUSTER.isProd())
