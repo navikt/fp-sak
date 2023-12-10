@@ -142,7 +142,6 @@ public class JettyServer {
             new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
 
         ctx.setParentLoaderPriority(true);
-        ctx.setContextPath(CONTEXT_PATH);
 
         // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra filsystem.
         String baseResource;
