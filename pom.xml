@@ -30,8 +30,8 @@
         <fp-stonadskonto.version>1.1.1</fp-stonadskonto.version>
         <svp-uttak.version>2.4.1</svp-uttak.version>
 
-        <felles.version>7.0.0</felles.version>
-        <prosesstask.version>5.0.0</prosesstask.version>
+        <felles.version>7.0.2</felles.version>
+        <prosesstask.version>5.0.2</prosesstask.version>
 
         <fp-kontrakter.version>9.0.2</fp-kontrakter.version>
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
