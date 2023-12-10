@@ -85,13 +85,20 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
+        try {
+            startSimulering(behandling);
+            return utledAksjonspunkt(behandling);
+        } catch (IntegrasjonException e) {
+            opprettFortsettBehandlingTask(behandling);
+            return BehandleStegResultat.settPåVent();
+        }
     }
 
     @Override
     public BehandleStegResultat gjenopptaSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        return BehandleStegResultat.utførtUtenAksjonspunkter();
+        startSimulering(behandling);
+        return utledAksjonspunkt(behandling);
     }
 
     @Override

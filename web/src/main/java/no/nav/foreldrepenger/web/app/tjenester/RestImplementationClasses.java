@@ -69,7 +69,6 @@ import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestT
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.VedtakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.VedtakJsonFeedRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.PipRestTjeneste;
-import no.nav.foreldrepenger.web.server.jetty.AuthFilter;
 import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
@@ -163,7 +162,6 @@ public class RestImplementationClasses {
         // Applikasjonsoppsett
         classes.add(TimingFilter.class);
         classes.add(JacksonJsonConfig.class);
-        classes.add(AuthFilter.class);
 
         // ExceptionMappers pga de som finnes i Jackson+Jersey-media
         classes.add(ConstraintViolationMapper.class);

@@ -68,7 +68,7 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
             .medYtelse(mapYtelse(behandling))
             .medTidspunkt(LocalDateTime.now())
             .build();
-        //kafkaProducer.sendJsonMedNøkkel(behandling.getFagsak().getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(hendelse);
+        kafkaProducer.sendJsonMedNøkkel(behandling.getFagsak().getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(hendelse));
         LOG.info("Publiser behandlingshendelse på kafka for behandlingsId: {}", behandling.getId());
     }
 
