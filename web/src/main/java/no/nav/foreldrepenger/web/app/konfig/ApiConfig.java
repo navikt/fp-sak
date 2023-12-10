@@ -65,7 +65,7 @@ public class ApiConfig extends Application {
         classes.addAll(RestImplementationClasses.getForvaltningClasses());
 
         // Applikasjonsoppsett
-        classes.addAll(RestImplementationClasses.getFellesConfigClasses());
+        classes.addAll(FellesConfigClasses.getFellesConfigClasses());
 
         return Collections.unmodifiableSet(classes);
     }

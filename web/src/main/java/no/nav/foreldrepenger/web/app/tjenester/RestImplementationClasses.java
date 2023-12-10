@@ -5,12 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
-import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.abakus.IAYRegisterdataCallbackRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.batch.BatchRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingBackendRestTjeneste;
@@ -69,7 +63,6 @@ import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestT
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.VedtakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.VedtakJsonFeedRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.PipRestTjeneste;
-import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 public class RestImplementationClasses {
@@ -151,25 +144,6 @@ public class RestImplementationClasses {
         classes.add(ForvaltningSøknadRestTjeneste.class);
         classes.add(FpoversiktMigreringRestTjeneste.class);
 
-        return Collections.unmodifiableSet(classes);
-    }
-
-    public static Set<Class<?>> getFellesConfigClasses() {
-        Set<Class<?>> classes = new HashSet<>();
-        // swagger
-        classes.add(OpenApiResource.class);
-
-        // Applikasjonsoppsett
-        classes.add(TimingFilter.class);
-        classes.add(JacksonJsonConfig.class);
-
-        // ExceptionMappers pga de som finnes i Jackson+Jersey-media
-        classes.add(ConstraintViolationMapper.class);
-        classes.add(JsonMappingExceptionMapper.class);
-        classes.add(JsonParseExceptionMapper.class);
-
-        // Generell exceptionmapper m/logging for øvrige tilfelle
-        classes.add(GeneralRestExceptionMapper.class);
         return Collections.unmodifiableSet(classes);
     }
 }

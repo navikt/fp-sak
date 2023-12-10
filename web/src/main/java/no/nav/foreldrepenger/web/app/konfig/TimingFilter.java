@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.server.jetty;
+package no.nav.foreldrepenger.web.app.konfig;
 
 import java.time.Duration;
 
