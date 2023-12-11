@@ -8,7 +8,9 @@ import jakarta.validation.constraints.NotNull;
 record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
                                           @NotNull String klasseKode, // Koder som brukes mot OS
                                           String arbeidsgiver,  // Orgnummer eller aktørId
-                                          @NotNull Integer dagsats, @NotNull BigDecimal utbetalingsgrad) {
+                                          @NotNull Integer dagsats,
+                                          @NotNull Integer dagsatsFraBeregningsgrunnlag,
+                                          @NotNull BigDecimal utbetalingsgrad) {
 
     //Feriepenger ikke interessant - sier konsumenten
 

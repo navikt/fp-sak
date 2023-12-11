@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
+                                     PeriodeType type,
                                      StønadsstatistikkVedtak.StønadskontoType stønadskontoType, // hvilken konta man tar ut fra
                                      @NotNull StønadsstatistikkVedtak.RettighetType rettighetType,
                                      Forklaring forklaring,
@@ -29,6 +30,8 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
         UTSETTELSE_NAVTILTAK,
         OVERFØRING_ANNEN_PART_SYKDOM,
         OVERFØRING_ANNEN_PART_INNLAGT,
+        OVERFØRING_ALENEOMSORG,
+        OVERFØRING_BARE_SØKER_RETT,
 
         // Far fellesperiode/foreldrepenger
         AKTIVITETSKRAV_ARBEID,
@@ -49,4 +52,8 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
     }
 
     record Gradering(AktivitetType aktivitetType, BigDecimal arbeidsprosent) {}
+
+    enum PeriodeType {
+        UTTAK, UTSETTELSE, AVSLAG
+    }
 }

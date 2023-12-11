@@ -90,7 +90,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             BEGGE_RETT, uttakPeriode);
 
         assertThat(stønadsstatistikkUttakPeriode.rettighetType()).isEqualTo(ALENEOMSORG);
-        assertThat(stønadsstatistikkUttakPeriode.forklaring()).isNull();
+        assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.OVERFØRING_ALENEOMSORG);
     }
 
     @Test
@@ -114,7 +114,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             BEGGE_RETT, uttakPeriode);
 
         assertThat(stønadsstatistikkUttakPeriode.rettighetType()).isEqualTo(BARE_SØKER_RETT);
-        assertThat(stønadsstatistikkUttakPeriode.forklaring()).isNull();
+        assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.OVERFØRING_BARE_SØKER_RETT);
     }
 
     @Test
@@ -136,6 +136,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
         var stønadsstatistikkUttakPeriode = mapUttakPeriode(MORA, BEGGE_RETT, uttakPeriode);
 
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.UTSETTELSE_BARNINNLAGT);
+        assertThat(stønadsstatistikkUttakPeriode.type()).isEqualTo(PeriodeType.UTSETTELSE);
         assertThat(stønadsstatistikkUttakPeriode.stønadskontoType()).isNull();
     }
 

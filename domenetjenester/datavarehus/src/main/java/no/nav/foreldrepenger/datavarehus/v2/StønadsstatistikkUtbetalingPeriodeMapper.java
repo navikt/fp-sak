@@ -44,7 +44,7 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
             .map(ldt -> ldt.compress(StønadsstatistikkUtbetalingPeriodeMapper::likeNaboer, StandardCombinators::leftOnly))
             .flatMap(LocalDateTimeline::stream)
             .map(s -> new StønadsstatistikkUtbetalingPeriode(s.getFom(), s.getTom(), s.getValue().klassekode(), s.getValue().arbeidsgiver(),
-                s.getValue().dagsats(), s.getValue().utbetalingsgrad()))
+                s.getValue().dagsats(), s.getValue().dagsatsFraBeregningsgrunnlag(), s.getValue().utbetalingsgrad()))
             .toList();
     }
 
@@ -63,8 +63,9 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
                                                                              List<UtbetalingSammenlign> utbetalinger) {
         var any = utbetalinger.stream().findFirst().orElseThrow();
         var sumDagsats = utbetalinger.stream().map(UtbetalingSammenlign::dagsats).reduce(0, Integer::sum);
+        var sumDagsatsFraBeregningsgrunnlag = utbetalinger.stream().map(UtbetalingSammenlign::dagsatsFraBeregningsgrunnlag).reduce(0, Integer::sum);
         return new LocalDateSegment<>(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom(),
-            new UtbetalingSammenlign(any, sumDagsats));
+            new UtbetalingSammenlign(any, sumDagsats, sumDagsatsFraBeregningsgrunnlag));
     }
 
     private static UtbetalingSammenlign mapTilkjentAndel(FamilieYtelseType familieYtelseType, BeregningsresultatAndel andel) {
@@ -72,7 +73,7 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
         // Kan løses ved å simulere Tilkjent for dissse tilfellene og så plukke utbetalingsgrad fra MapBeregningsresultatFraRegelTilVL - bruke MapUttakResultatFraVLTilRegel
         return new UtbetalingSammenlign(KlassekodeUtleder.utled(andel, familieYtelseType).getKode(),
             andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
-            andel.getDagsats(), andel.getUtbetalingsgrad());
+            andel.getDagsats(), andel.getDagsatsFraBg(), andel.getUtbetalingsgrad());
     }
 
     // Bruker int for å slippe hash-problematikk rundt BigDecimal
@@ -82,9 +83,9 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
         }
     }
 
-    private record UtbetalingSammenlign(String klassekode, String arbeidsgiver, int dagsats, BigDecimal utbetalingsgrad) {
-        UtbetalingSammenlign(UtbetalingSammenlign utbetaling, int dagsats) {
-            this(utbetaling.klassekode(), utbetaling.arbeidsgiver(), dagsats, utbetaling.utbetalingsgrad());
+    private record UtbetalingSammenlign(String klassekode, String arbeidsgiver, int dagsats, int dagsatsFraBeregningsgrunnlag, BigDecimal utbetalingsgrad) {
+        UtbetalingSammenlign(UtbetalingSammenlign utbetaling, int dagsats, int dagsatsFraBeregningsgrunnlag) {
+            this(utbetaling.klassekode(), utbetaling.arbeidsgiver(), dagsats, dagsatsFraBeregningsgrunnlag, utbetaling.utbetalingsgrad());
         }
     }
 

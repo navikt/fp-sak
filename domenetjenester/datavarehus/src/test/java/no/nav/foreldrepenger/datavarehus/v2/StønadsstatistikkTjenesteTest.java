@@ -82,11 +82,14 @@ class StønadsstatistikkTjenesteTest {
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning());
         var bruttoPrÅr = BigDecimal.valueOf(400000);
+        var avkortetPrÅr = BigDecimal.valueOf(300000);
+        var redusertPrÅr = BigDecimal.valueOf(200000);
         var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(fødselsdato.minusYears(1),
-            fødselsdato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr);
+            fødselsdato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr);
+        var grunnbeløp = Beløp.av(100000);
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(fødselsdato)
-            .medGrunnbeløp(Beløp.av(100000))
+            .medGrunnbeløp(grunnbeløp)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
             .build();
         beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
@@ -103,9 +106,10 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(fødselsdato);
         assertThat(vedtak.getEngangsstønadInnvilget()).isNull();
-        assertThat(vedtak.getLovVersjon()).isEqualTo(LovVersjon.MINSTERETT_22);
+        assertThat(vedtak.getLovVersjon()).isEqualTo(LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02);
         assertThat(vedtak.getForrigeBehandlingUuid()).isNull();
         assertThat(vedtak.getSaksnummer().id()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(vedtak.getFagsakId()).isEqualTo(behandling.getFagsak().getId());
         assertThat(vedtak.getSøker().id()).isEqualTo(behandling.getAktørId().getId());
         assertThat(vedtak.getSøkersRolle()).isEqualTo(Saksrolle.MOR);
         assertThat(vedtak.getVedtaksresultat()).isEqualTo(VedtakResultat.INNVILGET);
@@ -122,8 +126,11 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getFamilieHendelse().barn().get(0).fødselsdato()).isEqualTo(fødselsdato);
         assertThat(vedtak.getFamilieHendelse().barn().get(0).dødsdato()).isNull();
 
-        assertThat(vedtak.getBeregning().bruttoÅrsinntekt()).isEqualByComparingTo(bruttoPrÅr);
+        assertThat(vedtak.getBeregning().årsbeløp().brutto()).isEqualByComparingTo(bruttoPrÅr);
+        assertThat(vedtak.getBeregning().årsbeløp().avkortet()).isEqualByComparingTo(avkortetPrÅr);
+        assertThat(vedtak.getBeregning().årsbeløp().redusert()).isEqualByComparingTo(redusertPrÅr);
         assertThat(vedtak.getBeregning().næringOrgNr()).isEmpty();
+        assertThat(vedtak.getBeregning().grunnbeløp()).isEqualByComparingTo(grunnbeløp.getVerdi());
 
         assertThat(vedtak.getForeldrepengerRettigheter().rettighetType()).isEqualTo(RettighetType.BEGGE_RETT);
         assertThat(vedtak.getForeldrepengerRettigheter().dekningsgrad()).isEqualTo(Dekningsgrad.HUNDRE);
@@ -137,6 +144,7 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getUttaksperioder()).hasSize(1);
         assertThat(vedtak.getUttaksperioder().get(0).fom()).isEqualTo(uttaksperiode.getFom());
         assertThat(vedtak.getUttaksperioder().get(0).tom()).isEqualTo(uttaksperiode.getTom());
+        assertThat(vedtak.getUttaksperioder().get(0).type()).isEqualTo(StønadsstatistikkUttakPeriode.PeriodeType.UTTAK);
         assertThat(vedtak.getUttaksperioder().get(0).trekkdager().antall()).isEqualTo(
             uttaksperiode.getAktiviteter().get(0).getTrekkdager().decimalValue());
         assertThat(vedtak.getUttaksperioder().get(0).forklaring()).isNull();
