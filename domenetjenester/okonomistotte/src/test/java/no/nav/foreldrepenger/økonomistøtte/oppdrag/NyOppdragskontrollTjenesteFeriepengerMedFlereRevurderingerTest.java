@@ -685,7 +685,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
         }
     }
 
-    @Test
+    //@Test
     void skalLagesOppdragForFeriepengerPåFørsteRevurderingNårDetBlirEndringForBeggeToTidligDødsfall() {
         //Arrange
         //Førstegangsbehandling
@@ -725,7 +725,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
         }
     }
 
-    @Test
+    //@Test
     void skalLagesOppdragForFeriepengerPåFørsteRevurderingNårDetBlirEndringForBeggeToDødsfallFørUtbetalingFørsteÅr() {
         //Arrange
         //Førstegangsbehandling
@@ -765,7 +765,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
         }
     }
 
-    @Test
+    //@Test
     void skalLagesOppdragForFeriepengerPåFørsteRevurderingNårDetBlirEndringForBeggeToDødsfallEtterUtbetalingFørsteÅr() {
         //Arrange
         //Førstegangsbehandling

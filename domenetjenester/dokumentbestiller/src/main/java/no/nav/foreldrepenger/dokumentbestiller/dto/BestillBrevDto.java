@@ -27,7 +27,7 @@ public class BestillBrevDto {
     @NotNull
     private DokumentMalType brevmalkode;
 
-    @Size(max = 6000)
+    @Size(max = 10000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String fritekst;
 
