@@ -14,7 +14,7 @@
     "mem": "2048Mi"
   },
   "requests": {
-    "cpu": "1",
+    "cpu": "200m",
     "mem": "1024Mi"
   },
   "ingresses": [

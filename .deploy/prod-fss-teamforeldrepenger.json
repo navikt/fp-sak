@@ -7,14 +7,14 @@
   "fpsakserviceuser": "serviceuser/data/prod/srvengangsstonad",
   "ldapserviceuser": "serviceuser/data/prod/srvssolinux",
   "mqserviceuser": "serviceuser/data/prod/srvfpsak",
-  "minReplicas": "4",
+  "minReplicas": "3",
   "maxReplicas": "9",
   "limits": {
     "cpu": "4",
     "mem": "3072Mi"
   },
   "requests": {
-    "cpu": "1",
+    "cpu": "500m",
     "mem": "2816Mi"
   },
   "ingresses": [
