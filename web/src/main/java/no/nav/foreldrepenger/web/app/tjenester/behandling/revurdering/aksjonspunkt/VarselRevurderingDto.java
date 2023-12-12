@@ -13,7 +13,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 public abstract class VarselRevurderingDto extends BekreftetAksjonspunktDto {
     private boolean sendVarsel;
 
-    @Size(max = 6000)
+    @Size(max = 10000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String fritekst;
 
