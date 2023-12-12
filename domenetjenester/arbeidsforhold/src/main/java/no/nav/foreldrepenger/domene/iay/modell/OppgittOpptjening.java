@@ -39,8 +39,8 @@ public class OppgittOpptjening extends BaseEntitet {
         // å lagring
         setOpprettetTidspunkt(LocalDateTime.now());
     }
-    public OppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
-        this.uuid = oppgittOpptjening.uuid;
+    public OppgittOpptjening(OppgittOpptjening oppgittOpptjening, UUID uuid) {
+        this.uuid = uuid;
         this.frilans = oppgittOpptjening.frilans;
         this.oppgittArbeidsforhold = oppgittOpptjening.oppgittArbeidsforhold;
         this.annenAktivitet = oppgittOpptjening.annenAktivitet;

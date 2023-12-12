@@ -23,7 +23,7 @@ public class OppgittOpptjeningBuilder {
     }
 
     public static OppgittOpptjeningBuilder oppdater(Optional<OppgittOpptjening> kladd) {
-        return kladd.map(oppgittOpptjening -> new OppgittOpptjeningBuilder(new OppgittOpptjening(oppgittOpptjening)))
+        return kladd.map(oppgittOpptjening -> new OppgittOpptjeningBuilder(new OppgittOpptjening(oppgittOpptjening, UUID.randomUUID())))
             .orElseGet(() -> new OppgittOpptjeningBuilder(new OppgittOpptjening(UUID.randomUUID())));
     }
 
