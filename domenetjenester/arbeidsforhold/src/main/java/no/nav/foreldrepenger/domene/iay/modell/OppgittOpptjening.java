@@ -39,6 +39,14 @@ public class OppgittOpptjening extends BaseEntitet {
         // å lagring
         setOpprettetTidspunkt(LocalDateTime.now());
     }
+    public OppgittOpptjening(OppgittOpptjening oppgittOpptjening, UUID uuid) {
+        this.uuid = uuid;
+        this.frilans = oppgittOpptjening.frilans;
+        this.oppgittArbeidsforhold = oppgittOpptjening.oppgittArbeidsforhold;
+        this.annenAktivitet = oppgittOpptjening.annenAktivitet;
+        this.egenNæring = oppgittOpptjening.egenNæring;
+        setOpprettetTidspunkt(LocalDateTime.now());
+    }
 
     OppgittOpptjening(UUID eksternReferanse, LocalDateTime opprettetTidspunktOriginalt) {
         Objects.requireNonNull(eksternReferanse, "eksternReferanse");
@@ -81,7 +89,6 @@ public class OppgittOpptjening extends BaseEntitet {
 
     void leggTilFrilans(OppgittFrilans frilans) {
         if (frilans != null) {
-            frilans.setOppgittOpptjening(this);
             this.frilans = frilans;
         } else {
             this.frilans = null;

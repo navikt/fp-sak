@@ -737,16 +737,14 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private OppgittFrilans mapFrilansOpplysninger(Frilans frilans) {
-        var frilansEntitet = new OppgittFrilans();
-        frilansEntitet.setErNyoppstartet(frilans.isErNyoppstartet());
-        frilansEntitet.setHarInntektFraFosterhjem(frilans.isHarInntektFraFosterhjem());
-        frilansEntitet.setHarNærRelasjon(frilans.isNaerRelasjon());
-        frilansEntitet.setFrilansoppdrag(frilans.getFrilansoppdrag().stream().map(fo -> {
-            var frilansoppdragEntitet = new OppgittFrilansoppdrag(fo.getOppdragsgiver(), mapPeriode(fo.getPeriode()));
-            frilansoppdragEntitet.setFrilans(frilansEntitet);
-            return frilansoppdragEntitet;
-        }).toList());
-        return frilansEntitet;
+        var builder = OppgittOpptjeningBuilder.OppgittFrilansBuilder.ny()
+            .medErNyoppstartet(frilans.isErNyoppstartet())
+            .medHarInntektFraFosterhjem(frilans.isHarInntektFraFosterhjem())
+            .medHarNærRelasjon(frilans.isNaerRelasjon());
+        frilans.getFrilansoppdrag().stream()
+            .map(fo -> new OppgittFrilansoppdrag(fo.getOppdragsgiver(), mapPeriode(fo.getPeriode())))
+            .forEach(builder::leggTilFrilansoppdrag);
+        return builder.build();
     }
 
     private OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder mapOppgittUtenlandskArbeidsforhold(

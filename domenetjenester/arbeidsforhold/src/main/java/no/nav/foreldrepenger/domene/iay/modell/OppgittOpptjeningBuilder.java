@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -19,6 +20,11 @@ public class OppgittOpptjeningBuilder {
 
     private OppgittOpptjeningBuilder(OppgittOpptjening kladd) {
         this.kladd = kladd;
+    }
+
+    public static OppgittOpptjeningBuilder oppdater(Optional<OppgittOpptjening> kladd) {
+        return kladd.map(oppgittOpptjening -> new OppgittOpptjeningBuilder(new OppgittOpptjening(oppgittOpptjening, UUID.randomUUID())))
+            .orElseGet(() -> new OppgittOpptjeningBuilder(new OppgittOpptjening(UUID.randomUUID())));
     }
 
     public static OppgittOpptjeningBuilder ny() {
@@ -59,10 +65,10 @@ public class OppgittOpptjeningBuilder {
     }
 
     public static class EgenNæringBuilder {
-        private final OppgittEgenNæring entitet;
+        private final OppgittEgenNæring kladd;
 
         private EgenNæringBuilder(OppgittEgenNæring entitet) {
-            this.entitet = entitet;
+            this.kladd = entitet;
         }
 
         public static EgenNæringBuilder ny() {
@@ -70,7 +76,7 @@ public class OppgittOpptjeningBuilder {
         }
 
         public EgenNæringBuilder medPeriode(DatoIntervallEntitet periode) {
-            this.entitet.setPeriode(periode);
+            this.kladd.setPeriode(periode);
             return this;
         }
 
@@ -79,76 +85,76 @@ public class OppgittOpptjeningBuilder {
         }
 
         public EgenNæringBuilder medVirksomhetType(VirksomhetType type) {
-            this.entitet.setVirksomhetType(type);
+            this.kladd.setVirksomhetType(type);
             return this;
         }
 
         public EgenNæringBuilder medRegnskapsførerNavn(String navn) {
-            this.entitet.setRegnskapsførerNavn(navn);
+            this.kladd.setRegnskapsførerNavn(navn);
             return this;
         }
 
         public EgenNæringBuilder medRegnskapsførerTlf(String tlf) {
-            this.entitet.setRegnskapsførerTlf(tlf);
+            this.kladd.setRegnskapsførerTlf(tlf);
             return this;
         }
 
         public EgenNæringBuilder medEndringDato(LocalDate dato) {
-            this.entitet.setEndringDato(dato);
+            this.kladd.setEndringDato(dato);
             return this;
         }
 
         public EgenNæringBuilder medBegrunnelse(String begrunnelse) {
-            this.entitet.setBegrunnelse(begrunnelse);
+            this.kladd.setBegrunnelse(begrunnelse);
             return this;
         }
 
         public EgenNæringBuilder medNyoppstartet(boolean nyoppstartet) {
-            this.entitet.setNyoppstartet(nyoppstartet);
+            this.kladd.setNyoppstartet(nyoppstartet);
             return this;
         }
 
         public EgenNæringBuilder medVarigEndring(boolean varigEndring) {
-            this.entitet.setVarigEndring(varigEndring);
+            this.kladd.setVarigEndring(varigEndring);
             return this;
         }
 
         public EgenNæringBuilder medNærRelasjon(boolean nærRelasjon) {
-            this.entitet.setNærRelasjon(nærRelasjon);
+            this.kladd.setNærRelasjon(nærRelasjon);
             return this;
         }
 
         public EgenNæringBuilder medBruttoInntekt(BigDecimal bruttoInntekt) {
-            this.entitet.setBruttoInntekt(bruttoInntekt);
+            this.kladd.setBruttoInntekt(bruttoInntekt);
             return this;
         }
 
         public EgenNæringBuilder medUtenlandskVirksomhet(OppgittUtenlandskVirksomhet utenlandskVirksomhet) {
-            this.entitet.setUtenlandskVirksomhet(utenlandskVirksomhet);
+            this.kladd.setUtenlandskVirksomhet(utenlandskVirksomhet);
             return this;
         }
 
         public OppgittEgenNæring build() {
-            return entitet;
+            return kladd;
         }
 
         public EgenNæringBuilder medNyIArbeidslivet(boolean nyIArbeidslivet) {
-            this.entitet.setNyIArbeidslivet(nyIArbeidslivet);
+            this.kladd.setNyIArbeidslivet(nyIArbeidslivet);
             return this;
 
         }
 
         public EgenNæringBuilder medVirksomhet(OrgNummer orgNr) {
-            this.entitet.setVirksomhetOrgnr(orgNr);
+            this.kladd.setVirksomhetOrgnr(orgNr);
             return this;
         }
     }
 
     public static class OppgittArbeidsforholdBuilder {
-        private OppgittArbeidsforhold entitet;
+        private OppgittArbeidsforhold kladd;
 
         private OppgittArbeidsforholdBuilder(OppgittArbeidsforhold entitet) {
-            this.entitet = entitet;
+            this.kladd = entitet;
         }
 
         public static OppgittArbeidsforholdBuilder ny() {
@@ -156,27 +162,64 @@ public class OppgittOpptjeningBuilder {
         }
 
         public OppgittArbeidsforholdBuilder medPeriode(DatoIntervallEntitet periode) {
-            this.entitet.setPeriode(periode);
+            this.kladd.setPeriode(periode);
             return this;
         }
 
         public OppgittArbeidsforholdBuilder medErUtenlandskInntekt(Boolean erUtenlandskInntekt) {
-            this.entitet.setErUtenlandskInntekt(erUtenlandskInntekt);
+            this.kladd.setErUtenlandskInntekt(erUtenlandskInntekt);
             return this;
         }
 
         public OppgittArbeidsforholdBuilder medArbeidType(ArbeidType arbeidType) {
-            this.entitet.setArbeidType(arbeidType);
+            this.kladd.setArbeidType(arbeidType);
             return this;
         }
 
         public OppgittArbeidsforholdBuilder medUtenlandskVirksomhet(OppgittUtenlandskVirksomhet utenlandskVirksomhet) {
-            this.entitet.setUtenlandskVirksomhet(utenlandskVirksomhet);
+            this.kladd.setUtenlandskVirksomhet(utenlandskVirksomhet);
             return this;
         }
 
         public OppgittArbeidsforhold build() {
-            return entitet;
+            return kladd;
         }
     }
+
+    public static class OppgittFrilansBuilder {
+        private OppgittFrilans kladd;
+
+        private OppgittFrilansBuilder(OppgittFrilans entitet) {
+            this.kladd = entitet;
+        }
+
+        public static OppgittFrilansBuilder ny() {
+            return new OppgittFrilansBuilder(new OppgittFrilans());
+        }
+
+        public OppgittFrilansBuilder medErNyoppstartet(boolean erNyoppstartet) {
+            this.kladd.setErNyoppstartet(erNyoppstartet);
+            return this;
+        }
+
+        public OppgittFrilansBuilder medHarNærRelasjon(boolean harNærRelasjon) {
+            this.kladd.setHarNærRelasjon(harNærRelasjon);
+            return this;
+        }
+
+        public OppgittFrilansBuilder medHarInntektFraFosterhjem(boolean harInntektFraFosterhjem) {
+            this.kladd.setHarInntektFraFosterhjem(harInntektFraFosterhjem);
+            return this;
+        }
+
+        public OppgittFrilansBuilder leggTilFrilansoppdrag(OppgittFrilansoppdrag oppgittFrilansoppdrag) {
+            this.kladd.leggTilFrilansoppdrag(oppgittFrilansoppdrag);
+            return this;
+        }
+
+        public OppgittFrilans build() {
+            return kladd;
+        }
+    }
+
 }

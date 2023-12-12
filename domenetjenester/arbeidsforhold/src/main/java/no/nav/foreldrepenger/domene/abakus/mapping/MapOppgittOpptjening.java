@@ -246,17 +246,15 @@ class MapOppgittOpptjening {
                 return null;
             }
 
-            var frilans = new OppgittFrilans();
-
-            frilans.setErNyoppstartet(dto.isErNyoppstartet());
-            frilans.setHarNærRelasjon(dto.isHarNærRelasjon());
-            frilans.setHarInntektFraFosterhjem(dto.isHarInntektFraFosterhjem());
-
-            var frilansoppdrag = mapEach(dto.getFrilansoppdrag(),
+            var builder = OppgittOpptjeningBuilder.OppgittFrilansBuilder.ny()
+                .medErNyoppstartet(dto.isErNyoppstartet())
+                .medHarNærRelasjon(dto.isHarNærRelasjon())
+                .medHarInntektFraFosterhjem(dto.isHarInntektFraFosterhjem());
+            mapEach(dto.getFrilansoppdrag(),
                     f -> new OppgittFrilansoppdrag(fjernUnicodeControlOgAlternativeWhitespaceCharacters(f.getOppdragsgiver()),
-                            DatoIntervallEntitet.fraOgMedTilOgMed(f.getPeriode().getFom(), f.getPeriode().getTom())));
-            frilans.setFrilansoppdrag(frilansoppdrag);
-            return frilans;
+                            DatoIntervallEntitet.fraOgMedTilOgMed(f.getPeriode().getFom(), f.getPeriode().getTom())))
+                .forEach(builder::leggTilFrilansoppdrag);
+            return builder.build();
         }
 
         private static EgenNæringBuilder mapEgenNæring(OppgittEgenNæringDto dto) {
