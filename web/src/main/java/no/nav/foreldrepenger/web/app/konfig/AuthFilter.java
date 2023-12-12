@@ -13,7 +13,7 @@ import jakarta.ws.rs.ext.Provider;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
 
 @Provider
-@Priority(Priorities.USER)
+@Priority(Priorities.AUTHENTICATION)
 public class AuthFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     @Context
