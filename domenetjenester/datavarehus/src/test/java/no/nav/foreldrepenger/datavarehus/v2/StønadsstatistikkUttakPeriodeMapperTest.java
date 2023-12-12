@@ -115,6 +115,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
 
         assertThat(stønadsstatistikkUttakPeriode.rettighetType()).isEqualTo(BARE_SØKER_RETT);
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.OVERFØRING_BARE_SØKER_RETT);
+        assertThat(stønadsstatistikkUttakPeriode.type()).isEqualTo(PeriodeType.UTTAK);
     }
 
     @Test
@@ -277,9 +278,10 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .build();
         var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode);
 
-        assertThat(stønadsstatistikkUttakPeriode.forklaring()).isNull();
         assertThat(stønadsstatistikkUttakPeriode.stønadskontoType()).isEqualTo(StønadsstatistikkVedtak.StønadskontoType.FEDREKVOTE);
         assertThat(stønadsstatistikkUttakPeriode.erUtbetaling()).isFalse();
         assertThat(stønadsstatistikkUttakPeriode.trekkdager().antall()).isEqualByComparingTo(BigDecimal.valueOf(5));
+        assertThat(stønadsstatistikkUttakPeriode.type()).isEqualTo(PeriodeType.AVSLAG);
+        assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.AVSLAG_IKKE_SØKT);
     }
 }

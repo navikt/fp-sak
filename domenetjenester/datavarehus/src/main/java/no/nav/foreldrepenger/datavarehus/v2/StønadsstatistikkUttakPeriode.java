@@ -44,7 +44,18 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
         MINSTERETT,
         FLERBARNSDAGER,
         //Samtidig
-        SAMTIDIG_MØDREKVOTE
+        SAMTIDIG_MØDREKVOTE,
+
+        AVSLAG_ANNET,
+        AVSLAG_AKTIVITETSKRAV,
+        AVSLAG_SØKNADSFRIST,
+        AVSLAG_IKKE_SØKT,
+        AVSLAG_UTSETTELSE,
+        AVSLAG_UTSETTELSE_TILBAKE_I_TID,
+        AVSLAG_PLEIEPENGER,
+        AVSLAG_STARTET_NY_STØNADSPERIODE,
+        AVSLAG_BARNETS_ALDER,
+        AVSLAG_VILKÅR
     }
 
     enum AktivitetType {

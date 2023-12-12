@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅr
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_INNLAGT;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_SYKDOM_SKADE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OVERFØRING_SØKER_HAR_ALENEOMSORG_FOR_BARNET;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.*;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -14,9 +15,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import jakarta.jms.IllegalStateException;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
@@ -57,7 +61,7 @@ class StønadsstatistikkUttakPeriodeMapper {
         var rettighet = utledRettighet(rolleType, rettighetType, foretrukketAktivitet.getTrekkonto(), periode);
 
         var periodeType = utledPeriodeType(periode);
-        var forklaring = periodeType == StønadsstatistikkUttakPeriode.PeriodeType.AVSLAG ? utledForklaringAvslag(periode)
+        var forklaring = periodeType == PeriodeType.AVSLAG ? utledForklaringAvslag(periode)
             : utledForklaring(periode, foretrukketAktivitet.getTrekkonto(), rolleType);
 
         var samtidigUttakProsent = periode.getSamtidigUttaksprosent() != null ? periode.getSamtidigUttaksprosent().decimalValue() : null;
@@ -67,25 +71,72 @@ class StønadsstatistikkUttakPeriodeMapper {
             gradering, samtidigUttakProsent);
     }
 
-    private static StønadsstatistikkUttakPeriode.Forklaring utledForklaringAvslag(ForeldrepengerUttakPeriode periode) {
-        //TODO
-        return null;
-    }
-
-    private static StønadsstatistikkUttakPeriode.PeriodeType utledPeriodeType(ForeldrepengerUttakPeriode periode) {
-        if (periode.harTrekkdager()) {
-            return periode.harUtbetaling() ? StønadsstatistikkUttakPeriode.PeriodeType.UTTAK : StønadsstatistikkUttakPeriode.PeriodeType.AVSLAG;
+    private static Forklaring utledForklaringAvslag(ForeldrepengerUttakPeriode periode) {
+        if (periode.getResultatÅrsak().getUtfallType() != PeriodeResultatÅrsak.UtfallType.AVSLÅTT) {
+            throw new IllegalArgumentException("Forventer periode med avslågsårsak. Fikk " + periode.getResultatÅrsak()
+                + " for periode " + periode.getTidsperiode());
         }
-        return StønadsstatistikkUttakPeriode.PeriodeType.UTSETTELSE;
+
+        return switch (periode.getResultatÅrsak()) {
+            case AKTIVITETSKRAVET_ARBEID_I_KOMB_UTDANNING_IKKE_DOKUMENTERT,
+                AKTIVITETSKRAVET_ARBEID_IKKE_DOKUMENTERT,
+                AKTIVITETSKRAVET_ARBEID_IKKE_OPPFYLT,
+                AKTIVITETSKRAVET_INNLEGGELSE_IKKE_DOKUMENTERT,
+                AKTIVITETSKRAVET_INTROPROGRAM_IKKE_DOKUMENTERT,
+                AKTIVITETSKRAVET_KVP_IKKE_DOKUMENTERT,
+                AKTIVITETSKRAVET_SYKDOM_ELLER_SKADE_IKKE_DOKUMENTERT,
+                AKTIVITETSKRAVET_UTDANNING_IKKE_DOKUMENTERT,
+                AKTIVITETSKRAVET_MORS_DELTAKELSE_PÅ_INTRODUKSJONSPROGRAM_IKKE_OPPFYLT,
+                AKTIVITETSKRAVET_MORS_DELTAKELSE_PÅ_KVALIFISERINGSPROGRAM_IKKE_OPPFYLT,
+                AKTIVITETSKRAVET_MORS_INNLEGGELSE_IKKE_OPPFYLT,
+                AKTIVITETSKRAVET_MORS_SYKDOM_IKKE_OPPFYLT,
+                AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_I_KOMBINASJON_MED_ARBEID_IKKE_OPPFYLT,
+                AKTIVITETSKRAVET_OFFENTLIG_GODKJENT_UTDANNING_IKKE_OPPFYLT,
+                MORS_MOTTAK_AV_UFØRETRYGD_IKKE_OPPFYLT,
+                BARE_FAR_RETT_MOR_FYLLES_IKKE_AKTIVITETSKRAVET,
+                BARE_FAR_RETT_MANGLER_MORS_AKTIVITET -> Forklaring.AVSLAG_AKTIVITETSKRAV;
+            case SØKNADSFRIST -> Forklaring.AVSLAG_SØKNADSFRIST;
+            case HULL_MELLOM_FORELDRENES_PERIODER,
+                MOR_TAR_IKKE_ALLE_UKENE,
+                BARE_FAR_RETT_IKKE_SØKT,
+                MOR_FØRSTE_SEKS_UKER_IKKE_SØKT -> Forklaring.AVSLAG_IKKE_SØKT;
+            case UTSETTELSE_ARBEID_IKKE_DOKUMENTERT,
+                UTSETTELSE_FERIE_IKKE_DOKUMENTERT,
+                UTSETTELSE_BARNETS_INNLEGGELSE_IKKE_DOKUMENTERT,
+                UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT,
+                UTSETTELSE_SØKERS_SYKDOM_ELLER_SKADE_IKKE_DOKUMENTERT,
+                IKKE_HELTIDSARBEID,
+                SØKERS_SYKDOM_SKADE_IKKE_OPPFYLT,
+                SØKERS_INNLEGGELSE_IKKE_OPPFYLT,
+                BARNETS_INNLEGGELSE_IKKE_OPPFYLT -> Forklaring.AVSLAG_UTSETTELSE;
+            case AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID,
+                AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID -> Forklaring.AVSLAG_UTSETTELSE_TILBAKE_I_TID;
+            case FRATREKK_PLEIEPENGER -> Forklaring.AVSLAG_PLEIEPENGER;
+            case STØNADSPERIODE_NYTT_BARN -> Forklaring.AVSLAG_STARTET_NY_STØNADSPERIODE;
+            case BARN_OVER_3_ÅR -> Forklaring.AVSLAG_BARNETS_ALDER;
+            case OPPHØR_MEDLEMSKAP,
+                OPPTJENINGSVILKÅRET_IKKE_OPPFYLT,
+                ADOPSJONSVILKÅRET_IKKE_OPPFYLT,
+                FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT,
+                FØDSELSVILKÅRET_IKKE_OPPFYLT -> Forklaring.AVSLAG_VILKÅR;
+            default -> Forklaring.AVSLAG_ANNET;
+        };
     }
 
-    private static StønadsstatistikkUttakPeriode.Gradering utledGradering(ForeldrepengerUttakPeriode periode) {
+    private static PeriodeType utledPeriodeType(ForeldrepengerUttakPeriode periode) {
+        if (periode.harTrekkdager()) {
+            return periode.harUtbetaling() ? PeriodeType.UTTAK : PeriodeType.AVSLAG;
+        }
+        return PeriodeType.UTSETTELSE;
+    }
+
+    private static Gradering utledGradering(ForeldrepengerUttakPeriode periode) {
         return periode.isGraderingInnvilget() ? periode.getAktiviteter()
             .stream()
             .filter(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode)
             .filter(a -> a.getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0)
             .max(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getArbeidsprosent))
-            .map(g -> new StønadsstatistikkUttakPeriode.Gradering(mapArbeidType(g), g.getArbeidsprosent()))
+            .map(g -> new Gradering(mapArbeidType(g), g.getArbeidsprosent()))
             .orElseThrow() : null;
     }
 
@@ -97,9 +148,9 @@ class StønadsstatistikkUttakPeriodeMapper {
      * - Utsettelse - Fritt uttak: utsettelser første 6 uker etter fødsel
      * - Utsettelse - Sammenhengende: alle utsettelser
      **/
-    private static StønadsstatistikkUttakPeriode.Forklaring utledForklaring(ForeldrepengerUttakPeriode periode,
-                                                                            StønadskontoType stønadskontoType,
-                                                                            RelasjonsRolleType rolleType) {
+    private static Forklaring utledForklaring(ForeldrepengerUttakPeriode periode,
+                                              StønadskontoType stønadskontoType,
+                                              RelasjonsRolleType rolleType) {
         var forklaringForMorsAktivitet = utledForklaringAktivitetskrav(rolleType, periode.getMorsAktivitet(), stønadskontoType);
         if (periode.isInnvilgetUtsettelse()) { //Se bort i fra innvilget, se på trekk og utbetaling
             return utledForklaringVedUtsettelse(periode, forklaringForMorsAktivitet);
@@ -108,70 +159,70 @@ class StønadsstatistikkUttakPeriodeMapper {
         if (overførerAnnenPartsKvote(rolleType, stønadskontoType)) {
             if (OVERFØRING_ANNEN_PART_INNLAGT.equals(periode.getResultatÅrsak())
                 || OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER.equals(periode.getOverføringÅrsak())) {
-                return StønadsstatistikkUttakPeriode.Forklaring.OVERFØRING_ANNEN_PART_INNLAGT;
+                return Forklaring.OVERFØRING_ANNEN_PART_INNLAGT;
             }
             if (OVERFØRING_ANNEN_PART_SYKDOM_SKADE.equals(periode.getResultatÅrsak())
                 || OverføringÅrsak.SYKDOM_ANNEN_FORELDER.equals(periode.getOverføringÅrsak())) {
-                return StønadsstatistikkUttakPeriode.Forklaring.OVERFØRING_ANNEN_PART_SYKDOM;
+                return Forklaring.OVERFØRING_ANNEN_PART_SYKDOM;
             }
             if (OVERFØRING_SØKER_HAR_ALENEOMSORG_FOR_BARNET.equals(periode.getResultatÅrsak())
                 || OverføringÅrsak.ALENEOMSORG.equals(periode.getOverføringÅrsak())) {
-                return StønadsstatistikkUttakPeriode.Forklaring.OVERFØRING_ALENEOMSORG;
+                return Forklaring.OVERFØRING_ALENEOMSORG;
             }
             if (OVERFØRING_ANNEN_PART_HAR_IKKE_RETT_TIL_FORELDREPENGER.equals(periode.getResultatÅrsak())
                 || OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER.equals(periode.getOverføringÅrsak())) {
-                return StønadsstatistikkUttakPeriode.Forklaring.OVERFØRING_BARE_SØKER_RETT;
+                return Forklaring.OVERFØRING_BARE_SØKER_RETT;
             }
         }
 
         if (stønadskontoType != null && stønadskontoType.harAktivitetskrav() && RelasjonsRolleType.erFarEllerMedmor(rolleType)) {
             if (Set.of(FORELDREPENGER_KUN_FAR_HAR_RETT_MOR_UFØR, GRADERING_KUN_FAR_HAR_RETT_MOR_UFØR).contains(periode.getResultatÅrsak())) {
-                return StønadsstatistikkUttakPeriode.Forklaring.MINSTERETT;
+                return Forklaring.MINSTERETT;
             }
             if (periode.isFlerbarnsdager()) {
-                return StønadsstatistikkUttakPeriode.Forklaring.FLERBARNSDAGER;
+                return Forklaring.FLERBARNSDAGER;
             }
             if (forklaringForMorsAktivitet == null
                 && StønadskontoType.FELLESPERIODE.equals(stønadskontoType)
                 && periode.isSamtidigUttak()
                 && periode.getSamtidigUttaksprosent().mindreEnnEllerLik50()) {
-                return StønadsstatistikkUttakPeriode.Forklaring.SAMTIDIG_MØDREKVOTE;
+                return Forklaring.SAMTIDIG_MØDREKVOTE;
             }
             return forklaringForMorsAktivitet;
         }
         return null;
     }
 
-    private static StønadsstatistikkUttakPeriode.Forklaring utledForklaringVedUtsettelse(ForeldrepengerUttakPeriode periode,
-                                                                          StønadsstatistikkUttakPeriode.Forklaring forklaringForMorsAktivitet) {
+    private static Forklaring utledForklaringVedUtsettelse(ForeldrepengerUttakPeriode periode,
+                                                                          Forklaring forklaringForMorsAktivitet) {
         return switch (periode.getUtsettelseType()) { //Se på årsak??
-            case ARBEID -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_ARBEID;
-            case FERIE -> StønadsstatistikkUttakPeriode.Forklaring.UTSETTELSE_FERIE;
-            case SYKDOM_SKADE -> StønadsstatistikkUttakPeriode.Forklaring.UTSETTELSE_SYKDOM;
-            case SØKER_INNLAGT -> StønadsstatistikkUttakPeriode.Forklaring.UTSETTELSE_INNLEGGELSE;
-            case BARN_INNLAGT -> StønadsstatistikkUttakPeriode.Forklaring.UTSETTELSE_BARNINNLAGT;
-            case HV_OVELSE -> StønadsstatistikkUttakPeriode.Forklaring.UTSETTELSE_HVOVELSE;
-            case NAV_TILTAK -> StønadsstatistikkUttakPeriode.Forklaring.UTSETTELSE_NAVTILTAK;
+            case ARBEID -> Forklaring.AKTIVITETSKRAV_ARBEID;
+            case FERIE -> Forklaring.UTSETTELSE_FERIE;
+            case SYKDOM_SKADE -> Forklaring.UTSETTELSE_SYKDOM;
+            case SØKER_INNLAGT -> Forklaring.UTSETTELSE_INNLEGGELSE;
+            case BARN_INNLAGT -> Forklaring.UTSETTELSE_BARNINNLAGT;
+            case HV_OVELSE -> Forklaring.UTSETTELSE_HVOVELSE;
+            case NAV_TILTAK -> Forklaring.UTSETTELSE_NAVTILTAK;
             case FRI -> forklaringForMorsAktivitet;
             case UDEFINERT -> null;
         };
     }
 
-    private static StønadsstatistikkUttakPeriode.Forklaring utledForklaringAktivitetskrav(RelasjonsRolleType rolleType,
+    private static Forklaring utledForklaringAktivitetskrav(RelasjonsRolleType rolleType,
                                                                                           MorsAktivitet morsAktivitet,
                                                                                           StønadskontoType stønadskontoType) {
         if (RelasjonsRolleType.erMor(rolleType) || !stønadskontoType.harAktivitetskrav()) {
             return null;
         }
         return switch (morsAktivitet) {
-            case UDEFINERT, UFØRE, IKKE_OPPGITT -> StønadskontoType.FORELDREPENGER.equals(stønadskontoType) ? StønadsstatistikkUttakPeriode.Forklaring.MINSTERETT : null;
-            case ARBEID -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_ARBEID;
-            case UTDANNING -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_UTDANNING;
-            case KVALPROG -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_KVALIFISERINGSPROGRAM;
-            case INTROPROG -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_INTRODUKSJONSPROGRAM;
-            case TRENGER_HJELP -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_SYKDOM;
-            case INNLAGT -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_INNLEGGELSE;
-            case ARBEID_OG_UTDANNING -> StønadsstatistikkUttakPeriode.Forklaring.AKTIVITETSKRAV_ARBEIDUTDANNING;
+            case UDEFINERT, UFØRE, IKKE_OPPGITT -> StønadskontoType.FORELDREPENGER.equals(stønadskontoType) ? Forklaring.MINSTERETT : null;
+            case ARBEID -> Forklaring.AKTIVITETSKRAV_ARBEID;
+            case UTDANNING -> Forklaring.AKTIVITETSKRAV_UTDANNING;
+            case KVALPROG -> Forklaring.AKTIVITETSKRAV_KVALIFISERINGSPROGRAM;
+            case INTROPROG -> Forklaring.AKTIVITETSKRAV_INTRODUKSJONSPROGRAM;
+            case TRENGER_HJELP -> Forklaring.AKTIVITETSKRAV_SYKDOM;
+            case INNLAGT -> Forklaring.AKTIVITETSKRAV_INNLEGGELSE;
+            case ARBEID_OG_UTDANNING -> Forklaring.AKTIVITETSKRAV_ARBEIDUTDANNING;
         };
     }
 
@@ -207,11 +258,11 @@ class StønadsstatistikkUttakPeriodeMapper {
         }
     }
 
-    private static StønadsstatistikkUttakPeriode.AktivitetType mapArbeidType(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
+    private static AktivitetType mapArbeidType(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
         return switch (aktivitet.getUttakArbeidType()) {
-            case ORDINÆRT_ARBEID -> StønadsstatistikkUttakPeriode.AktivitetType.ARBEIDSTAKER;
-            case FRILANS -> StønadsstatistikkUttakPeriode.AktivitetType.FRILANS;
-            case SELVSTENDIG_NÆRINGSDRIVENDE -> StønadsstatistikkUttakPeriode.AktivitetType.NÆRING;
+            case ORDINÆRT_ARBEID -> AktivitetType.ARBEIDSTAKER;
+            case FRILANS -> AktivitetType.FRILANS;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> AktivitetType.NÆRING;
             case ANNET -> throw new IllegalStateException("Skal ikke kunne gradere andre aktiviteter");
         };
     }
