@@ -404,6 +404,27 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
         assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
+    @Test
+    void skal_returnere_opplysningsplikt_dersom_svp_og_endring_i_arbeidsforholdsId_ved_førstegangsbehandling() {
+        // Arrange - opprette avsluttet førstegangsbehandling
+        var behandlingSvp = opprettFørstegangsbehandlingSvp();
+
+        var førsteUttaksdato = LocalDate.now();
+
+        var førstegangsbehandlingIM = lagInntektsmelding(InntektsmeldingInnsendingsårsak.NY, INNTEKTBELØP_DEFAULT, førsteUttaksdato,
+            ARBEIDSID_DEFAULT);
+        lenient().when(førstegangsbehandlingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(førstegangsbehandlingIM);
+
+        var inntektsmeldingerMottattEtterVedtak = lagInntektsmelding(InntektsmeldingInnsendingsårsak.ENDRING, INNTEKTBELØP_DEFAULT,
+            førsteUttaksdato, InternArbeidsforholdRef.nullRef());
+        var ref = lagReferanse(behandlingSvp, førsteUttaksdato);
+        lenient().when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingSvp.getId())).thenReturn(Optional.of(førstegangsbehandlingGrunnlagIAY));
+        lenient().when(revurderingIMAggregat.getInntektsmeldingerSomSkalBrukes()).thenReturn(inntektsmeldingerMottattEtterVedtak);
+
+        // Act/Assert
+        assertThat(utledStartpunkt(ref)).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+    }
+
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg.avklarfakta.svp;
+package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.svp;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.AA_REGISTER_TYPER;
 
@@ -42,10 +42,10 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
 
     public List<SvpTilretteleggingEntitet> utled(Behandling behandling,
             Skjæringstidspunkt skjæringstidspunkt,
-            List<SvpTilretteleggingEntitet> opprinneligeTilrettelegginger) {
+            List<SvpTilretteleggingEntitet> gjeldendeTilrettelegginger) {
 
         var nyeTilrettelegginger = new ArrayList<SvpTilretteleggingEntitet>();
-        var tilretteleggingerMedArbeidsgiver = opprinneligeTilrettelegginger.stream()
+        var tilretteleggingerMedArbeidsgiver = gjeldendeTilrettelegginger.stream()
             .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent())
             .toList();
 
@@ -76,6 +76,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
 
         //Vi må sjekke om tilretteleggingene i listen tilretteleggingerMedArbeidsforholdId fortsatt har en matchende inntektsmelding
         //Dersom det ikke finnes må det opprettes nye tilrettelegginger for nye yrkesaktiviteter (feks pga endringer i aa-Reg og det er sendt inn ny IM)
+        //Eller om det er endring på om arbeidsforholdsId er satt på IM eller ikke
         if (!tilretteleggingerMedArbeidsforholdId.isEmpty()) {
             var arbeidsforholdIdgruppertPerArbeidsgiver = tilretteleggingerMedArbeidsforholdId.stream().collect(Collectors.groupingBy(this::tilretteleggingNøkkel));
             List<SvpTilretteleggingEntitet> måVurderesPåNytt = finnTilretteleggingerSomMåVurderesPåNytt(inntektsmeldinger, arbeidsforholdIdgruppertPerArbeidsgiver);

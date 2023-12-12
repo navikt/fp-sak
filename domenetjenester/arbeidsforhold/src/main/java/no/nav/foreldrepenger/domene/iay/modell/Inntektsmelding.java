@@ -233,6 +233,11 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
             || getArbeidsforholdRef() != null && getArbeidsforholdRef().gjelderFor(annen.getArbeidsforholdRef()));
     }
 
+    public boolean endringIArbeidsforholdsIdForSammeArbGiver(Inntektsmelding annen) {
+        return getArbeidsgiver().equals(annen.getArbeidsgiver()) && (!gjelderForEtSpesifiktArbeidsforhold() && annen.gjelderForEtSpesifiktArbeidsforhold()
+            || gjelderForEtSpesifiktArbeidsforhold() && !annen.gjelderForEtSpesifiktArbeidsforhold());
+    }
+
     /**
      * Setter intern arbeidsdforhold Id for inntektsmelding
      *

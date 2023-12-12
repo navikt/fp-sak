@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederHolder;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaUtledere;
 import no.nav.foreldrepenger.domene.medlem.kontrollerfakta.AksjonspunktutlederForMedlemskapSkjæringstidspunkt;
-import no.nav.foreldrepenger.domene.medlem.kontrollerfakta.AksjonspunktutlederForSvangerskapspengerTilrettelegging;
 
 @ApplicationScoped
 class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
@@ -27,9 +26,7 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
         return utlederHolder.getUtledere();
     }
 
-    // TODO(OJR) skal det være flere her???
     private void leggTilStandardUtledere(AksjonspunktUtlederHolder utlederHolder) {
         utlederHolder.leggTil(AksjonspunktutlederForMedlemskapSkjæringstidspunkt.class);
-        utlederHolder.leggTil(AksjonspunktutlederForSvangerskapspengerTilrettelegging.class);
     }
 }

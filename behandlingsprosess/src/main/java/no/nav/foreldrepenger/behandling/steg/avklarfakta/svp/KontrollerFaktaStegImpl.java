@@ -39,7 +39,6 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste;
 
     KontrollerFaktaStegImpl() {
         // for CDI proxy
@@ -48,14 +47,12 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     @Inject
     KontrollerFaktaStegImpl(BehandlingRepositoryProvider repositoryProvider,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KontrollerFaktaTjeneste tjeneste,
-            NyeTilretteleggingerTjeneste nyeTilretteleggingerTjeneste) {
+            @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KontrollerFaktaTjeneste tjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.tjeneste = tjeneste;
-        this.nyeTilretteleggingerTjeneste = nyeTilretteleggingerTjeneste;
     }
 
     @Override
@@ -67,7 +64,6 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
         var aksjonspunktResultater = tjeneste.utledAksjonspunkter(ref);
         utledVilkår(kontekst);
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT); // Settes til første steg i Inngangsvilkår.
-        nyeTilretteleggingerTjeneste.utledNyeTilretteleggingerLagreJustert(behandling, skjæringstidspunkter);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunktResultater);
     }
 
