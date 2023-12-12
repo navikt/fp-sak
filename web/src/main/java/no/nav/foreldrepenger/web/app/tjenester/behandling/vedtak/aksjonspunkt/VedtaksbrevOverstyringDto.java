@@ -12,7 +12,7 @@ public abstract class VedtaksbrevOverstyringDto extends BekreftetAksjonspunktDto
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String overskrift;
 
-    @Size(max = 5000)
+    @Size(max = 10000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String fritekstBrev;
 
