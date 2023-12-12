@@ -6,7 +6,10 @@ import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅr
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_INNLAGT;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OVERFØRING_ANNEN_PART_SYKDOM_SKADE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak.OVERFØRING_SØKER_HAR_ALENEOMSORG_FOR_BARNET;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.*;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.AktivitetType;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.Forklaring;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.Gradering;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.PeriodeType;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -14,8 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import jakarta.jms.IllegalStateException;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
