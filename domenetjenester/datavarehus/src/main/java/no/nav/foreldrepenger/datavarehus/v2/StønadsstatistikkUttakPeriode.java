@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
+                                     PeriodeType type,
                                      StønadsstatistikkVedtak.StønadskontoType stønadskontoType, // hvilken konta man tar ut fra
                                      @NotNull StønadsstatistikkVedtak.RettighetType rettighetType,
                                      Forklaring forklaring,
@@ -29,6 +30,8 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
         UTSETTELSE_NAVTILTAK,
         OVERFØRING_ANNEN_PART_SYKDOM,
         OVERFØRING_ANNEN_PART_INNLAGT,
+        OVERFØRING_ALENEOMSORG,
+        OVERFØRING_BARE_SØKER_RETT,
 
         // Far fellesperiode/foreldrepenger
         AKTIVITETSKRAV_ARBEID,
@@ -41,7 +44,17 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
         MINSTERETT,
         FLERBARNSDAGER,
         //Samtidig
-        SAMTIDIG_MØDREKVOTE
+        SAMTIDIG_MØDREKVOTE,
+
+        AVSLAG_ANNET,
+        AVSLAG_AKTIVITETSKRAV, //14-13
+        AVSLAG_SØKNADSFRIST, //22-13
+        AVSLAG_IKKE_SØKT, //14-10, 14-14, 14-9-6
+        AVSLAG_UTSETTELSE, //14-11
+        AVSLAG_UTSETTELSE_TILBAKE_I_TID, //14-11
+        AVSLAG_PLEIEPENGER, //14-10 a
+        AVSLAG_STØNADSPERIODE_UTLØPT, //14-10-3
+        AVSLAG_VILKÅR //14-2, 14-5, 14-6
     }
 
     enum AktivitetType {
@@ -49,4 +62,8 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
     }
 
     record Gradering(AktivitetType aktivitetType, BigDecimal arbeidsprosent) {}
+
+    enum PeriodeType {
+        UTTAK, UTSETTELSE, AVSLAG
+    }
 }

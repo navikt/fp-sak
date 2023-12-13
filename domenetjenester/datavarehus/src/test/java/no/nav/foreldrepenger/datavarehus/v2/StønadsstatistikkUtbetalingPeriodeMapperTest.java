@@ -52,6 +52,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
         assertThat(stønadsstatistikkUtbetalingPeriode.klasseKode()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG.getKode());
         assertThat(stønadsstatistikkUtbetalingPeriode.arbeidsgiver()).isEqualTo(orgnr);
         assertThat(stønadsstatistikkUtbetalingPeriode.dagsats()).isEqualTo(andel2.getDagsats());
+        assertThat(stønadsstatistikkUtbetalingPeriode.dagsatsFraBeregningsgrunnlag()).isEqualTo(andel2.getDagsatsFraBg());
         assertThat(stønadsstatistikkUtbetalingPeriode.utbetalingsgrad()).isEqualTo(andel2.getUtbetalingsgrad());
 
     }

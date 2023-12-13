@@ -24,6 +24,7 @@ public class StønadsstatistikkVedtak {
     // Teknisk tid
     @Valid
     private Saksnummer saksnummer; // felt 1
+    private Long fagsakId;
     @NotNull
     private YtelseType ytelseType; // felt 39
     @NotNull
@@ -52,6 +53,7 @@ public class StønadsstatistikkVedtak {
     private Beregning beregning;
     @NotNull
     private String utbetalingsreferanse; // en referanse mot oppdrag
+    private Long behandlingId;
     //ES
     private Long engangsstønadInnvilget;
 
@@ -70,6 +72,10 @@ public class StønadsstatistikkVedtak {
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
+    }
+
+    public Long getFagsakId() {
+        return fagsakId;
     }
 
     public YtelseType getYtelseType() {
@@ -132,6 +138,10 @@ public class StønadsstatistikkVedtak {
         return utbetalingsreferanse;
     }
 
+    public Long getBehandlingId() {
+        return behandlingId;
+    }
+
     public Long getEngangsstønadInnvilget() {
         return engangsstønadInnvilget;
     }
@@ -148,7 +158,7 @@ public class StønadsstatistikkVedtak {
         return foreldrepengerRettigheter;
     }
 
-    record Beregning(@NotNull BigDecimal bruttoÅrsinntekt, Set<String> næringOrgNr) {} //på skjæringstidspunkt
+    record Beregning(@NotNull BigDecimal grunnbeløp, @NotNull BeregningÅrsbeløp årsbeløp, Set<String> næringOrgNr) { } //på skjæringstidspunkt
 
     record FamilieHendelse(LocalDate termindato,
                            LocalDate adopsjonsdato,
@@ -177,15 +187,11 @@ public class StønadsstatistikkVedtak {
         MOR, FAR, MEDMOR, UKJENT
     }
 
-    enum Dekningsgrad {
-        ÅTTI, HUNDRE
-    }
-
     enum RettighetType {
         ALENEOMSORG, BARE_SØKER_RETT, BEGGE_RETT, BEGGE_RETT_EØS
     }
 
-    record ForeldrepengerRettigheter(@NotNull @Valid Dekningsgrad dekningsgrad,
+    record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
                                      @NotNull @NotEmpty @Valid Set<Stønadskonto> stønadskonti,
                                      @Valid Trekkdager flerbarnsdager) {
@@ -218,10 +224,12 @@ public class StønadsstatistikkVedtak {
     }
 
     enum LovVersjon {
-        FØRSTE_FPSAK, // LOV-2017-12-19-116 - 1/1-2019
-        PREMATURDAGER, // LOV-2019-06-21-28 - 1/7-2019 - prematurdager
-        FRI_UTSETTELSE, // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
-        MINSTERETT_22 // LOV-2022-03-18-11 - 2/8-2022 - minsterett
+        FORELDREPENGER_2019_01_01, // LOV-2017-12-19-116 - 1/1-2019
+        FORELDREPENGER_FRI_2021_10_01, // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
+        FORELDREPENGER_MINSTERETT_2022_08_02, // LOV-2022-03-18-11 - 2/8-2022 - minsterett
+
+        ENGANGSSTØNAD_2019_01_01,
+        SVANGERSKAPSPENGER_2019_01_01,
     }
 
     enum UtlandsTilsnitt {
@@ -240,8 +248,9 @@ public class StønadsstatistikkVedtak {
 
         private final StønadsstatistikkVedtak kladd = new StønadsstatistikkVedtak();
 
-        Builder medSaksnummer(Saksnummer saksnummer) {
+        Builder medSak(Saksnummer saksnummer, Long fagsakId) {
             kladd.saksnummer = saksnummer;
+            kladd.fagsakId = fagsakId;
             return this;
         }
         Builder medYtelseType(YtelseType ytelseType) {
@@ -304,6 +313,10 @@ public class StønadsstatistikkVedtak {
             kladd.utbetalingsreferanse = utbetalingsreferanse;
             return this;
         }
+        Builder medBehandlingId(Long behandlingId) {
+            kladd.behandlingId = behandlingId;
+            return this;
+        }
         Builder medEngangsstønadInnvilget(Long engangsstønadInnvilget) {
             kladd.engangsstønadInnvilget = engangsstønadInnvilget;
             return this;
@@ -325,5 +338,8 @@ public class StønadsstatistikkVedtak {
         public StønadsstatistikkVedtak build() {
             return kladd;
         }
+    }
+
+    record BeregningÅrsbeløp(BigDecimal brutto, BigDecimal avkortet, BigDecimal redusert) {
     }
 }

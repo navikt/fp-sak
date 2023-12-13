@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -58,7 +57,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.foreldrepenger.datavarehus.tjeneste.BehandlingVedtakDvhMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
@@ -145,17 +143,17 @@ public class StønadsstatistikkTjeneste {
         var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
         var familiehendelse = familieHendelseTjeneste.hentAggregat(behandlingId).getGjeldendeVersjon();
 
-        var lovVersjon = utledLovVersjon(stp);
         var fagsak = behandling.getFagsak();
-        var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var ytelseType = mapYtelseType(fagsak.getYtelseType());
+        var lovVersjon = utledLovVersjon(stp, ytelseType);
+        var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
         var familieHendelse = mapFamilieHendelse(behandlingReferanse, familiehendelse);
 
-
-        var builder = new Builder().medLovVersjon(lovVersjon)
-            .medSaksnummer(saksnummer)
+        var builder = new Builder()
+            .medLovVersjon(lovVersjon)
+            .medSak(saksnummer, fagsak.getId())
             .medSøker(søker)
             .medSøkersRolle(søkersRolle)
             .medYtelseType(ytelseType)
@@ -168,7 +166,8 @@ public class StønadsstatistikkTjeneste {
             .medUtlandsTilsnitt(utledUtlandsTilsnitt(utlandMarkering))
             .medAnnenForelder(utledAnnenForelder(behandling, familiehendelse))
             .medFamilieHendelse(familieHendelse)
-            .medUtbetalingsreferanse(String.valueOf(behandlingReferanse.behandlingId()));
+            .medUtbetalingsreferanse(String.valueOf(behandlingReferanse.behandlingId()))
+            .medBehandlingId(behandlingId);
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
             var rettigheter = utledRettigheter(behandling);
@@ -201,12 +200,12 @@ public class StønadsstatistikkTjeneste {
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
         var skjæringstidspunkt = beregningsgrunnlag.getSkjæringstidspunkt();
 
-        var bruttoÅrsinntekt = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
+        var periodePåStp = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
             .stream()
             .filter(p -> p.getPeriode().inkluderer(skjæringstidspunkt))
             .findFirst()
-            .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
             .orElseThrow();
+        var grunnbeløp = beregningsgrunnlag.getGrunnbeløp().getVerdi();
 
         var næringOrgNr = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
             .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening)
@@ -215,7 +214,9 @@ public class StønadsstatistikkTjeneste {
             .stream()
             .map(OppgittEgenNæring::getOrgnr)
             .collect(Collectors.toSet());
-        return new Beregning(bruttoÅrsinntekt, næringOrgNr);
+        var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), periodePåStp.getAvkortetPrÅr(),
+            periodePåStp.getRedusertPrÅr());
+        return new Beregning(grunnbeløp, årsbeløp, næringOrgNr);
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {
@@ -334,11 +335,19 @@ public class StønadsstatistikkTjeneste {
         };
     }
 
-    private static LovVersjon utledLovVersjon(Skjæringstidspunkt stp) {
+    private static LovVersjon utledLovVersjon(Skjæringstidspunkt stp, YtelseType ytelseType) {
+        return switch (ytelseType) {
+            case FORELDREPENGER -> utledLovVersjonFp(stp);
+            case SVANGERSKAPSPENGER -> LovVersjon.SVANGERSKAPSPENGER_2019_01_01;
+            case ENGANGSSTØNAD -> LovVersjon.ENGANGSSTØNAD_2019_01_01;
+        };
+    }
+
+    private static LovVersjon utledLovVersjonFp(Skjæringstidspunkt stp) {
         if (stp.utenMinsterett()) {
-            return stp.kreverSammenhengendeUttak() ? LovVersjon.FØRSTE_FPSAK : LovVersjon.FRI_UTSETTELSE;
+            return stp.kreverSammenhengendeUttak() ? LovVersjon.FORELDREPENGER_2019_01_01 : LovVersjon.FORELDREPENGER_FRI_2021_10_01;
         }
-        return LovVersjon.MINSTERETT_22;
+        return LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02;
     }
 
     private ForeldrepengerRettigheter utledRettigheter(Behandling behandling) {
@@ -364,7 +373,7 @@ public class StønadsstatistikkTjeneste {
             .map(sk -> new ForeldrepengerRettigheter.Trekkdager(sk.getMaxDager()))
             .orElse(null);
 
-        var dekningsgrad = map(fagsakRelasjon.getDekningsgrad());
+        var dekningsgrad = fagsakRelasjon.getDekningsgrad().getVerdi();
         return new ForeldrepengerRettigheter(dekningsgrad, rettighetType, konti, flerbarnsdager);
     }
 
@@ -373,14 +382,6 @@ public class StønadsstatistikkTjeneste {
             return UttakOmsorgUtil.harAleneomsorg(yfa) ? RettighetType.ALENEOMSORG : RettighetType.BARE_SØKER_RETT;
         }
         return UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yfa) ? RettighetType.BEGGE_RETT_EØS : RettighetType.BEGGE_RETT;
-    }
-
-    private static StønadsstatistikkVedtak.Dekningsgrad map(Dekningsgrad dekningsgrad) {
-        return switch (dekningsgrad.getVerdi()) {
-            case 80 -> StønadsstatistikkVedtak.Dekningsgrad.ÅTTI;
-            case 100 -> StønadsstatistikkVedtak.Dekningsgrad.HUNDRE;
-            default -> throw new IllegalStateException("Unexpected value: " + dekningsgrad.getVerdi());
-        };
     }
 
     private static ForeldrepengerRettigheter.Stønadskonto map(Stønadskonto stønadskonto, SaldoUtregning saldoUtregning) {
