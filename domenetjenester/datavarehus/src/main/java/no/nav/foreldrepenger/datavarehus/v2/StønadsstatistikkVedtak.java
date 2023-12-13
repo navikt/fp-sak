@@ -53,6 +53,7 @@ public class StønadsstatistikkVedtak {
     private Beregning beregning;
     @NotNull
     private String utbetalingsreferanse; // en referanse mot oppdrag
+    private Long behandlingId;
     //ES
     private Long engangsstønadInnvilget;
 
@@ -137,6 +138,10 @@ public class StønadsstatistikkVedtak {
         return utbetalingsreferanse;
     }
 
+    public Long getBehandlingId() {
+        return behandlingId;
+    }
+
     public Long getEngangsstønadInnvilget() {
         return engangsstønadInnvilget;
     }
@@ -182,15 +187,11 @@ public class StønadsstatistikkVedtak {
         MOR, FAR, MEDMOR, UKJENT
     }
 
-    enum Dekningsgrad {
-        ÅTTI, HUNDRE
-    }
-
     enum RettighetType {
         ALENEOMSORG, BARE_SØKER_RETT, BEGGE_RETT, BEGGE_RETT_EØS
     }
 
-    record ForeldrepengerRettigheter(@NotNull @Valid Dekningsgrad dekningsgrad,
+    record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
                                      @NotNull @NotEmpty @Valid Set<Stønadskonto> stønadskonti,
                                      @Valid Trekkdager flerbarnsdager) {
@@ -310,6 +311,10 @@ public class StønadsstatistikkVedtak {
         }
         Builder medUtbetalingsreferanse(String utbetalingsreferanse) {
             kladd.utbetalingsreferanse = utbetalingsreferanse;
+            return this;
+        }
+        Builder medBehandlingId(Long behandlingId) {
+            kladd.behandlingId = behandlingId;
             return this;
         }
         Builder medEngangsstønadInnvilget(Long engangsstønadInnvilget) {

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.v2;
 
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Dekningsgrad;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.ForeldrepengerRettigheter;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.HendelseType;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon;
@@ -133,7 +132,7 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getBeregning().grunnbeløp()).isEqualByComparingTo(grunnbeløp.getVerdi());
 
         assertThat(vedtak.getForeldrepengerRettigheter().rettighetType()).isEqualTo(RettighetType.BEGGE_RETT);
-        assertThat(vedtak.getForeldrepengerRettigheter().dekningsgrad()).isEqualTo(Dekningsgrad.HUNDRE);
+        assertThat(vedtak.getForeldrepengerRettigheter().dekningsgrad()).isEqualTo(100);
         assertThat(vedtak.getForeldrepengerRettigheter().flerbarnsdager()).isNull();
         assertThat(vedtak.getForeldrepengerRettigheter().stønadskonti()).hasSize(4);
         assertThat(vedtak.getForeldrepengerRettigheter().stønadskonti()).contains(

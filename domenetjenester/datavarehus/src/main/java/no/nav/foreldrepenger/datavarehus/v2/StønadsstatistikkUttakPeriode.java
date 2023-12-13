@@ -47,15 +47,14 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
         SAMTIDIG_MØDREKVOTE,
 
         AVSLAG_ANNET,
-        AVSLAG_AKTIVITETSKRAV,
-        AVSLAG_SØKNADSFRIST,
-        AVSLAG_IKKE_SØKT,
-        AVSLAG_UTSETTELSE,
-        AVSLAG_UTSETTELSE_TILBAKE_I_TID,
-        AVSLAG_PLEIEPENGER,
-        AVSLAG_STARTET_NY_STØNADSPERIODE,
-        AVSLAG_BARNETS_ALDER,
-        AVSLAG_VILKÅR
+        AVSLAG_AKTIVITETSKRAV, //14-13
+        AVSLAG_SØKNADSFRIST, //22-13
+        AVSLAG_IKKE_SØKT, //14-10, 14-14, 14-9-6
+        AVSLAG_UTSETTELSE, //14-11
+        AVSLAG_UTSETTELSE_TILBAKE_I_TID, //14-11
+        AVSLAG_PLEIEPENGER, //14-10 a
+        AVSLAG_STØNADSPERIODE_UTLØPT, //14-10-3
+        AVSLAG_VILKÅR //14-2, 14-5, 14-6
     }
 
     enum AktivitetType {

@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -167,7 +166,8 @@ public class StønadsstatistikkTjeneste {
             .medUtlandsTilsnitt(utledUtlandsTilsnitt(utlandMarkering))
             .medAnnenForelder(utledAnnenForelder(behandling, familiehendelse))
             .medFamilieHendelse(familieHendelse)
-            .medUtbetalingsreferanse(String.valueOf(behandlingReferanse.behandlingId()));
+            .medUtbetalingsreferanse(String.valueOf(behandlingReferanse.behandlingId()))
+            .medBehandlingId(behandlingId);
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
             var rettigheter = utledRettigheter(behandling);
@@ -373,7 +373,7 @@ public class StønadsstatistikkTjeneste {
             .map(sk -> new ForeldrepengerRettigheter.Trekkdager(sk.getMaxDager()))
             .orElse(null);
 
-        var dekningsgrad = map(fagsakRelasjon.getDekningsgrad());
+        var dekningsgrad = fagsakRelasjon.getDekningsgrad().getVerdi();
         return new ForeldrepengerRettigheter(dekningsgrad, rettighetType, konti, flerbarnsdager);
     }
 
@@ -382,14 +382,6 @@ public class StønadsstatistikkTjeneste {
             return UttakOmsorgUtil.harAleneomsorg(yfa) ? RettighetType.ALENEOMSORG : RettighetType.BARE_SØKER_RETT;
         }
         return UttakOmsorgUtil.avklartAnnenForelderHarRettEØS(yfa) ? RettighetType.BEGGE_RETT_EØS : RettighetType.BEGGE_RETT;
-    }
-
-    private static StønadsstatistikkVedtak.Dekningsgrad map(Dekningsgrad dekningsgrad) {
-        return switch (dekningsgrad.getVerdi()) {
-            case 80 -> StønadsstatistikkVedtak.Dekningsgrad.ÅTTI;
-            case 100 -> StønadsstatistikkVedtak.Dekningsgrad.HUNDRE;
-            default -> throw new IllegalStateException("Unexpected value: " + dekningsgrad.getVerdi());
-        };
     }
 
     private static ForeldrepengerRettigheter.Stønadskonto map(Stønadskonto stønadskonto, SaldoUtregning saldoUtregning) {
