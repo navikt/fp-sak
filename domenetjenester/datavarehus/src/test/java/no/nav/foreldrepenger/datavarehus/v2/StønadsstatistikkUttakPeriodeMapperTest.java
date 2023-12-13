@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.datavarehus.v2;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.FARA;
 import static no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.MORA;
-import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.*;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.AktivitetType;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.Forklaring;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.PeriodeType;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriodeMapper.mapUttakPeriode;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.RettighetType.ALENEOMSORG;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.RettighetType.BARE_SØKER_RETT;
@@ -10,6 +12,7 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Rett
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -283,5 +286,71 @@ class StønadsstatistikkUttakPeriodeMapperTest {
         assertThat(stønadsstatistikkUttakPeriode.trekkdager().antall()).isEqualByComparingTo(BigDecimal.valueOf(5));
         assertThat(stønadsstatistikkUttakPeriode.type()).isEqualTo(PeriodeType.AVSLAG);
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.AVSLAG_IKKE_SØKT);
+    }
+
+    @Test
+    void skal_slå_sammen_gjennom_helg() {
+        var fomTirsdag = LocalDate.of(2023, 12, 5);
+        var uttakPeriode1 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fomTirsdag, fomTirsdag.with(DayOfWeek.FRIDAY))
+            .medGraderingInnvilget(false)
+            .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 4)))
+            .build();
+        var uttakPeriode2 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fomTirsdag.plusWeeks(1).with(DayOfWeek.MONDAY), fomTirsdag.plusWeeks(1).with(DayOfWeek.MONDAY))
+            .medGraderingInnvilget(false)
+            .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 1)))
+            .build();
+        var uttakPeriode3 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fomTirsdag.plusWeeks(1), fomTirsdag.plusWeeks(2).with(DayOfWeek.THURSDAY))
+            .medGraderingInnvilget(false)
+            .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 8)))
+            .build();
+        var uttakPeriode4 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fomTirsdag.plusWeeks(2).with(DayOfWeek.FRIDAY), fomTirsdag.plusWeeks(3).with(DayOfWeek.WEDNESDAY))
+            .medGraderingInnvilget(false)
+            .medSøktKonto(UttakPeriodeType.FELLESPERIODE)
+            .medResultatÅrsak(PeriodeResultatÅrsak.FELLESPERIODE_ELLER_FORELDREPENGER)
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.FELLESPERIODE, 4)))
+            .build();
+        var uttakPeriode5 = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(fomTirsdag.plusWeeks(3).with(DayOfWeek.THURSDAY), fomTirsdag.plusWeeks(3).with(DayOfWeek.FRIDAY))
+            .medGraderingInnvilget(false)
+            .medSøktKonto(UttakPeriodeType.MØDREKVOTE)
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 2)))
+            .build();
+        var stønadsstatistikkUttakPerioder = StønadsstatistikkUttakPeriodeMapper.mapUttak(MORA,
+            BEGGE_RETT, List.of(uttakPeriode1, uttakPeriode2, uttakPeriode3, uttakPeriode4, uttakPeriode5));
+
+        assertThat(stønadsstatistikkUttakPerioder).hasSize(3);
+        var stønadsstatistikkUttakPeriode = stønadsstatistikkUttakPerioder.getFirst();
+        assertThat(stønadsstatistikkUttakPeriode.stønadskontoType()).isEqualTo(StønadsstatistikkVedtak.StønadskontoType.MØDREKVOTE);
+        assertThat(stønadsstatistikkUttakPeriode.erUtbetaling()).isTrue();
+        assertThat(stønadsstatistikkUttakPeriode.trekkdager().antall()).isEqualByComparingTo(BigDecimal.valueOf(13));
+        assertThat(stønadsstatistikkUttakPeriode.virkedager()).isEqualTo(13);
+        assertThat(stønadsstatistikkUttakPeriode.type()).isEqualTo(PeriodeType.UTTAK);
+        assertThat(stønadsstatistikkUttakPeriode.forklaring()).isNull();
+        assertThat(stønadsstatistikkUttakPerioder.get(1).stønadskontoType()).isEqualTo(StønadsstatistikkVedtak.StønadskontoType.FELLESPERIODE);
+        assertThat(stønadsstatistikkUttakPerioder.get(1).virkedager()).isEqualTo(4);
+        assertThat(stønadsstatistikkUttakPerioder.get(2).stønadskontoType()).isEqualTo(StønadsstatistikkVedtak.StønadskontoType.MØDREKVOTE);
+        assertThat(stønadsstatistikkUttakPerioder.get(2).virkedager()).isEqualTo(2);
+    }
+
+    private static ForeldrepengerUttakPeriodeAktivitet getArbeidMedFulltUttak(StønadskontoType konto, int trekkdager) {
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder()
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet("123"), null))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+            .medTrekkonto(konto)
+            .medSøktGraderingForAktivitetIPeriode(false)
+            .medTrekkdager(new Trekkdager(trekkdager))
+            .build();
     }
 }

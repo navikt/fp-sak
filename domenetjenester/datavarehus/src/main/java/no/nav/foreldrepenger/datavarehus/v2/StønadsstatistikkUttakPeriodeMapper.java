@@ -12,8 +12,10 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriod
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriode.PeriodeType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -26,6 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 class StønadsstatistikkUttakPeriodeMapper {
 
@@ -36,10 +41,11 @@ class StønadsstatistikkUttakPeriodeMapper {
     static List<StønadsstatistikkUttakPeriode> mapUttak(RelasjonsRolleType rolleType,
                                                         StønadsstatistikkVedtak.RettighetType rettighetType,
                                                         List<ForeldrepengerUttakPeriode> perioder) {
-        return perioder.stream()
+        var statistikkPerioder = perioder.stream()
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .filter(p -> p.harTrekkdager() || p.harUtbetaling() || p.isInnvilgetUtsettelse())
             .map(p -> mapUttakPeriode(rolleType, rettighetType, p)).toList();
+        return komprimerTidslinje(statistikkPerioder);
     }
 
     static StønadsstatistikkUttakPeriode mapUttakPeriode(RelasjonsRolleType rolleType,
@@ -315,6 +321,62 @@ class StønadsstatistikkUttakPeriodeMapper {
             case FORELDREPENGER -> StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER;
             case UDEFINERT, FLERBARNSDAGER -> null;
         };
+    }
+
+    private static List<StønadsstatistikkUttakPeriode> komprimerTidslinje(List<StønadsstatistikkUttakPeriode> perioder) {
+        var segmenter = perioder.stream()
+            .map(p -> new LocalDateSegment<>(p.fom(), p.tom(), new UttakSammenlign(p)))
+            .toList();
+        return new LocalDateTimeline<>(segmenter)
+            .compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUttakPeriodeMapper::likeNaboer, StønadsstatistikkUttakPeriodeMapper::slåSammen)
+            .stream()
+            .map(s -> s.getValue().tilUttakperiode(s.getFom(), s.getTom()))
+            .toList();
+    }
+
+    private record UttakSammenlign(PeriodeType type, StønadsstatistikkVedtak.StønadskontoType stønadskontoType,
+                                   StønadsstatistikkVedtak.RettighetType rettighetType, Forklaring forklaring,
+                                   boolean erUtbetaling, int virkedager, BigDecimal trekkdager,
+                                   AktivitetType graderingAktivitetType, BigDecimal graderingArbeidsprosent, BigDecimal samtidigUttakProsent) {
+        UttakSammenlign(StønadsstatistikkUttakPeriode periode) {
+            this(periode.type(), periode.stønadskontoType(), periode.rettighetType(), periode.forklaring(), periode.erUtbetaling(), periode.virkedager(),
+                periode.trekkdager().antall(), Optional.ofNullable(periode.gradering()).map(Gradering::aktivitetType).orElse(null),
+                Optional.ofNullable(periode.gradering()).map(Gradering::arbeidsprosent).orElse(null), periode.samtidigUttakProsent());
+        }
+
+        StønadsstatistikkUttakPeriode tilUttakperiode(LocalDate fom, LocalDate tom) {
+            var gradering = graderingAktivitetType() != null ? new Gradering(graderingAktivitetType(), graderingArbeidsprosent()) : null;
+            return new StønadsstatistikkUttakPeriode(fom, tom, type(), stønadskontoType(), rettighetType(), forklaring(), erUtbetaling(), virkedager(),
+                new StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager(trekkdager()), gradering, samtidigUttakProsent());
+        }
+    }
+
+    // For å få til compress - må ha equals som gjør BigDecimal.compareTo
+    private static boolean likeNaboer(UttakSammenlign u1, UttakSammenlign u2) {
+        return u1.erUtbetaling == u2.erUtbetaling && Objects.equals(u1.type, u2.type) && Objects.equals(u1.stønadskontoType, u2.stønadskontoType)
+            && Objects.equals(u1.rettighetType, u2.rettighetType) && Objects.equals(u1.forklaring, u2.forklaring)
+            && Objects.equals(u1.graderingAktivitetType, u2.graderingAktivitetType) && likeBD(u1.graderingArbeidsprosent, u2.graderingArbeidsprosent)
+            && likeBD(u1.samtidigUttakProsent, u2.samtidigUttakProsent);
+    }
+
+    private static LocalDateSegment<UttakSammenlign> slåSammen(LocalDateInterval i, LocalDateSegment<UttakSammenlign> lhs, LocalDateSegment<UttakSammenlign> rhs) {
+        var u1 = lhs.getValue();
+        var u2 = rhs.getValue();
+        var virkedager = u1.virkedager + u2.virkedager;
+        var trekkdager = u1.trekkdager.add(u2.trekkdager);
+        var ny = new UttakSammenlign(u1.type(), u1.stønadskontoType(), u1.rettighetType(), u1.forklaring(), u1.erUtbetaling(), virkedager,
+            trekkdager, u1.graderingAktivitetType(), u1.graderingArbeidsprosent(), u1.samtidigUttakProsent());
+        return new LocalDateSegment<>(i, ny);
+    }
+
+    private static boolean likeBD(BigDecimal d1, BigDecimal d2) {
+        if (Objects.equals(d1, d2)) {
+            return true;
+        } else if (d1 == null || d2 == null) {
+            return false;
+        } else {
+            return d1.compareTo(d2) == 0;
+        }
     }
 
 
