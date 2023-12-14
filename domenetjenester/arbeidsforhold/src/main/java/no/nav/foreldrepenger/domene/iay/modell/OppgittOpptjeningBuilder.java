@@ -50,13 +50,18 @@ public class OppgittOpptjeningBuilder {
         return this;
     }
 
-    public OppgittOpptjeningBuilder leggTilEgneNæringer(List<EgenNæringBuilder> builders) {
+    public OppgittOpptjeningBuilder leggTilEgenNæring(List<EgenNæringBuilder> builders) {
         builders.forEach(builder -> this.kladd.leggTilEgenNæring(builder.build()));
         return this;
     }
 
-    public OppgittOpptjeningBuilder leggTilOppgittArbeidsforhold(OppgittArbeidsforholdBuilder builder) {
-        this.kladd.leggTilOppgittArbeidsforhold(builder.build());
+    public OppgittOpptjeningBuilder leggTilEgenNæring(OppgittEgenNæring egenNæring) {
+        this.kladd.leggTilEgenNæring(egenNæring);
+        return this;
+    }
+
+    public OppgittOpptjeningBuilder leggTilOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
+        this.kladd.leggTilOppgittArbeidsforhold(oppgittArbeidsforhold);
         return this;
     }
 
