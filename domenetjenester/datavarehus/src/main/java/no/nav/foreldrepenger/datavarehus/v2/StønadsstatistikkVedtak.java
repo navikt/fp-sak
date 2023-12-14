@@ -208,6 +208,10 @@ public class StønadsstatistikkVedtak {
             public Trekkdager(int antall) {
                 this(BigDecimal.valueOf(antall).setScale(1, RoundingMode.DOWN));
             }
+
+            public Trekkdager add(Trekkdager other) {
+                return new Trekkdager(antall().add(other.antall()));
+            }
         }
     }
 

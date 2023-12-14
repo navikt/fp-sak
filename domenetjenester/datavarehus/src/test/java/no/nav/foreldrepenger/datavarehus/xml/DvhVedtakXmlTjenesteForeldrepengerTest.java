@@ -192,7 +192,7 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
                 new UnitTestLookupInstanceImpl<>(dvhPersonopplysningXmlTjenesteImpl),
                 new UnitTestLookupInstanceImpl<>(oppdragXmlTjenesteImpl),
                 behandlingsresultatXmlTjeneste,
-                skjæringstidspunktTjeneste);
+                skjæringstidspunktTjeneste, null);
 
     }
 
