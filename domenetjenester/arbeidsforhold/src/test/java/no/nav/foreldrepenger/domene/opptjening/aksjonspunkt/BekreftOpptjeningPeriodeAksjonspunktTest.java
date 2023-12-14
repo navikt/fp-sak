@@ -181,7 +181,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(2));
 
         var oppgitt = OppgittOpptjeningBuilder.ny();
-        oppgitt.leggTilEgneNæringer(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+        oppgitt.leggTilEgenNæring(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
             .medPeriode(periode1)));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 

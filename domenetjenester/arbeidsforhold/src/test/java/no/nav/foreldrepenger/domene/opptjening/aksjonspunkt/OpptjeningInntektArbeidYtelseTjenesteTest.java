@@ -90,7 +90,7 @@ class OpptjeningInntektArbeidYtelseTjenesteTest {
         when(virksomhetTjeneste.finnOrganisasjon(NAV_ORG_NUMMER)).thenReturn(Optional.of(virksomhet));
 
         var oppgitt = OppgittOpptjeningBuilder.ny();
-        oppgitt.leggTilEgneNæringer(Collections.singletonList(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+        oppgitt.leggTilEgenNæring(Collections.singletonList(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
                 .medVirksomhet(NAV_ORG_NUMMER)
                 .medPeriode(periode)
                 .medRegnskapsførerNavn("Børre Larsen")

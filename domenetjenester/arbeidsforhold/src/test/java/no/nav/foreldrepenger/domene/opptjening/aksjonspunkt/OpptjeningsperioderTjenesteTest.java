@@ -319,7 +319,7 @@ class OpptjeningsperioderTjenesteTest {
                 .medPeriode(periode2);
 
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode2, ArbeidType.MILITÆR_ELLER_SIVILTJENESTE));
-        oppgitt.leggTilEgneNæringer(List.of(egenNæringBuilder));
+        oppgitt.leggTilEgenNæring(List.of(egenNæringBuilder));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         var bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,

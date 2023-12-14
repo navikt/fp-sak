@@ -16,6 +16,11 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+
+import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,6 +130,8 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Person;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet;
+
+import javax.swing.text.html.Option;
 
 
 @NamespaceRef(SøknadConstants.NAMESPACE)
@@ -540,23 +547,25 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private void byggOpptjeningsspesifikkeFelter(SøknadWrapper skjemaWrapper, Long behandlingId) {
-        var iayGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
-        if (iayGrunnlag.isPresent() && iayGrunnlag.get().getOppgittOpptjening().isPresent()) {
-            // TFP-1671: Abakus støtter ikke at oppgitt opptjening endres
-            return;
-        }
-
-        Opptjening opptjening = null;
+        var eksisterendeOppgittOpptjening = iayTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
+        Opptjening opptjeningFraSøknad = null;
         if (skjemaWrapper.getOmYtelse() instanceof final Foreldrepenger omYtelse) {
-            opptjening = omYtelse.getOpptjening();
+            opptjeningFraSøknad = omYtelse.getOpptjening();
         } else if (skjemaWrapper.getOmYtelse() instanceof final Svangerskapspenger omYtelse) {
-            opptjening = omYtelse.getOpptjening();
+            opptjeningFraSøknad = omYtelse.getOpptjening();
         }
 
-        if (opptjening != null && (!opptjening.getUtenlandskArbeidsforhold().isEmpty()
-            || !opptjening.getAnnenOpptjening().isEmpty() || !opptjening.getEgenNaering().isEmpty() || nonNull(
-            opptjening.getFrilans()))) {
-            iayTjeneste.lagreOppgittOpptjening(behandlingId, mapOppgittOpptjening(opptjening));
+        if (opptjeningFraSøknad != null && (!opptjeningFraSøknad.getUtenlandskArbeidsforhold().isEmpty()
+            || !opptjeningFraSøknad.getAnnenOpptjening().isEmpty() || !opptjeningFraSøknad.getEgenNaering().isEmpty() || nonNull(
+            opptjeningFraSøknad.getFrilans()))) {
+            OppgittOpptjeningBuilder nyOppgittOpptjening;
+            if (eksisterendeOppgittOpptjening.isPresent()) {
+                LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling " + behandlingId);
+                nyOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
+            } else {
+                nyOppgittOpptjening = mapOppgittOpptjening(opptjeningFraSøknad);
+            }
+            iayTjeneste.lagreOppgittOpptjening(behandlingId, nyOppgittOpptjening);
         }
     }
 
@@ -719,11 +728,28 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         throw new IllegalStateException("Ukjent arbeidsgiver type " + arbeidsgiverFraSøknad.getClass());
     }
 
+    private OppgittOpptjeningBuilder flettOppgittOpptjening(Opptjening opptjening, OppgittOpptjening eksisterendeOppgittOpptjening) {
+        // Bygger ny opptjening fra gammelt grunnlag for å ta vare på gamle opplysninger, så lenge equals metoder er rett vil ikke dette gi dobble innslag
+        var flettetBuilder = OppgittOpptjeningBuilder.oppdater(Optional.of(eksisterendeOppgittOpptjening));
+        var opptjeningFraNySøknad = mapOppgittOpptjening(opptjening).build();
+        opptjeningFraNySøknad.getFrilans().ifPresent(flettetBuilder::leggTilFrilansOpplysninger);
+        opptjeningFraNySøknad.getAnnenAktivitet().stream()
+            .filter(aa -> !eksisterendeOppgittOpptjening.getAnnenAktivitet().contains(aa))
+            .forEach(flettetBuilder::leggTilAnnenAktivitet);
+        opptjeningFraNySøknad.getEgenNæring()
+            .stream().filter(en -> !eksisterendeOppgittOpptjening.getEgenNæring().contains(en))
+            .forEach(flettetBuilder::leggTilEgenNæring);
+        opptjeningFraNySøknad.getOppgittArbeidsforhold()
+            .stream().filter(oa -> !eksisterendeOppgittOpptjening.getOppgittArbeidsforhold().contains(oa))
+            .forEach(flettetBuilder::leggTilOppgittArbeidsforhold);
+        return flettetBuilder;
+    }
+
     private OppgittOpptjeningBuilder mapOppgittOpptjening(Opptjening opptjening) {
         var builder = OppgittOpptjeningBuilder.ny();
         opptjening.getAnnenOpptjening()
             .forEach(annenOpptjening -> builder.leggTilAnnenAktivitet(mapAnnenAktivitet(annenOpptjening)));
-        opptjening.getEgenNaering().forEach(egenNaering -> builder.leggTilEgneNæringer(mapEgenNæring(egenNaering)));
+        opptjening.getEgenNaering().forEach(egenNaering -> builder.leggTilEgenNæring(mapEgenNæring(egenNaering)));
         opptjening.getUtenlandskArbeidsforhold()
             .forEach(arbeidsforhold -> builder.leggTilOppgittArbeidsforhold(
                 mapOppgittUtenlandskArbeidsforhold(arbeidsforhold)));
@@ -747,7 +773,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         return builder.build();
     }
 
-    private OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder mapOppgittUtenlandskArbeidsforhold(
+    private OppgittArbeidsforhold mapOppgittUtenlandskArbeidsforhold(
         UtenlandskArbeidsforhold utenlandskArbeidsforhold) {
         var builder = OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder.ny();
         var landkode = finnLandkode(utenlandskArbeidsforhold.getArbeidsland().getKode());
@@ -758,7 +784,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         var periode = mapPeriode(utenlandskArbeidsforhold.getPeriode());
         builder.medPeriode(periode);
-        return builder;
+        return builder.build();
     }
 
     private OppgittAnnenAktivitet mapFrilansPeriode(Periode periode) {

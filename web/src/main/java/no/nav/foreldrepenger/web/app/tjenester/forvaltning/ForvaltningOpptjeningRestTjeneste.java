@@ -122,7 +122,7 @@ public class ForvaltningOpptjeningRestTjeneste {
             enBuilder.medNyoppstartet(true);
         }
         var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
-                .leggTilEgneNæringer(List.of(enBuilder));
+                .leggTilEgenNæring(List.of(enBuilder));
         inntektArbeidYtelseTjeneste.lagreOppgittOpptjening(behandling.getId(), ooBuilder);
 
         return Response.noContent().build();
