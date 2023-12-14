@@ -547,7 +547,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private void byggOpptjeningsspesifikkeFelter(SøknadWrapper skjemaWrapper, Long behandlingId) {
-        var eksisterendeOppgittOpptjening = iayTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
         Opptjening opptjeningFraSøknad = null;
         if (skjemaWrapper.getOmYtelse() instanceof final Foreldrepenger omYtelse) {
             opptjeningFraSøknad = omYtelse.getOpptjening();
@@ -559,6 +558,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             || !opptjeningFraSøknad.getAnnenOpptjening().isEmpty() || !opptjeningFraSøknad.getEgenNaering().isEmpty() || nonNull(
             opptjeningFraSøknad.getFrilans()))) {
             OppgittOpptjeningBuilder nyOppgittOpptjening;
+            var eksisterendeOppgittOpptjening = iayTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
             if (eksisterendeOppgittOpptjening.isPresent()) {
                 LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling " + behandlingId);
                 nyOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
