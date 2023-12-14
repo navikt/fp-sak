@@ -118,7 +118,7 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
         var oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
         dvhVedtakXmlTjenesteES = new DvhVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjenesteEngangsstønad),
-                new UnitTestLookupInstanceImpl<>(oppdragXmlTjenesteImpl), behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
+                new UnitTestLookupInstanceImpl<>(oppdragXmlTjenesteImpl), behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste, null);
     }
 
     @Test

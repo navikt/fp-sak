@@ -14,6 +14,7 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkUttakPeriod
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -26,6 +27,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 class StønadsstatistikkUttakPeriodeMapper {
 
@@ -36,10 +40,11 @@ class StønadsstatistikkUttakPeriodeMapper {
     static List<StønadsstatistikkUttakPeriode> mapUttak(RelasjonsRolleType rolleType,
                                                         StønadsstatistikkVedtak.RettighetType rettighetType,
                                                         List<ForeldrepengerUttakPeriode> perioder) {
-        return perioder.stream()
+        var statistikkPerioder = perioder.stream()
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .filter(p -> p.harTrekkdager() || p.harUtbetaling() || p.isInnvilgetUtsettelse())
             .map(p -> mapUttakPeriode(rolleType, rettighetType, p)).toList();
+        return komprimerTidslinje(statistikkPerioder);
     }
 
     static StønadsstatistikkUttakPeriode mapUttakPeriode(RelasjonsRolleType rolleType,
@@ -315,6 +320,44 @@ class StønadsstatistikkUttakPeriodeMapper {
             case FORELDREPENGER -> StønadsstatistikkVedtak.StønadskontoType.FORELDREPENGER;
             case UDEFINERT, FLERBARNSDAGER -> null;
         };
+    }
+
+    private static List<StønadsstatistikkUttakPeriode> komprimerTidslinje(List<StønadsstatistikkUttakPeriode> perioder) {
+        var segmenter = perioder.stream()
+            .map(p -> new LocalDateSegment<>(p.fom(), p.tom(), p))
+            .toList();
+        return new LocalDateTimeline<>(segmenter)
+            .compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUttakPeriodeMapper::likeNaboer, StønadsstatistikkUttakPeriodeMapper::slåSammen)
+            .stream().map(LocalDateSegment::getValue).toList();
+    }
+
+    // For å få til compress - må ha equals som gjør BigDecimal.compareTo
+    private static boolean likeNaboer(StønadsstatistikkUttakPeriode u1, StønadsstatistikkUttakPeriode u2) {
+        return u1.erUtbetaling() == u2.erUtbetaling() && Objects.equals(u1.type(), u2.type())
+            && Objects.equals(u1.stønadskontoType(), u2.stønadskontoType())
+            && Objects.equals(u1.rettighetType(), u2.rettighetType()) && Objects.equals(u1.forklaring(), u2.forklaring())
+            && likGradering(u1.gradering(), u2.gradering())
+            && likeBD(u1.samtidigUttakProsent(), u2.samtidigUttakProsent());
+    }
+
+    private static LocalDateSegment<StønadsstatistikkUttakPeriode> slåSammen(LocalDateInterval i,
+                                                                             LocalDateSegment<StønadsstatistikkUttakPeriode> lhs,
+                                                                             LocalDateSegment<StønadsstatistikkUttakPeriode> rhs) {
+        var u1 = lhs.getValue();
+        var u2 = rhs.getValue();
+        var virkedager = u1.virkedager() + u2.virkedager();
+        var trekkdager = u1.trekkdager().add(u2.trekkdager());
+        var ny = new StønadsstatistikkUttakPeriode(i.getFomDato(), i.getTomDato(), u1.type(), u1.stønadskontoType(),
+            u1.rettighetType(), u1.forklaring(), u1.erUtbetaling(), virkedager, trekkdager, u1.gradering(), u1.samtidigUttakProsent());
+        return new LocalDateSegment<>(i, ny);
+    }
+
+    private static boolean likGradering(Gradering g1, Gradering g2) {
+        return Objects.equals(g1, g2)
+            || (g1 != null && g2 != null && Objects.equals(g1.aktivitetType(), g2.aktivitetType()) && likeBD(g1.arbeidsprosent(), g2.arbeidsprosent()));
+    }
+    private static boolean likeBD(BigDecimal d1, BigDecimal d2) {
+        return Objects.equals(d1, d2) || (d1 != null && d2 != null && d1.compareTo(d2) == 0);
     }
 
 

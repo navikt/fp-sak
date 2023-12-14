@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.KlassekodeUtleder;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
@@ -41,7 +42,7 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
             .collect(Collectors.groupingBy(s -> new Gruppering(s.getValue())))
             .values().stream()
             .map(LocalDateTimeline::new)
-            .map(ldt -> ldt.compress(StønadsstatistikkUtbetalingPeriodeMapper::likeNaboer, StandardCombinators::leftOnly))
+            .map(ldt -> ldt.compress(LocalDateInterval::abutsWorkdays, StønadsstatistikkUtbetalingPeriodeMapper::likeNaboer, StandardCombinators::leftOnly))
             .flatMap(LocalDateTimeline::stream)
             .map(s -> new StønadsstatistikkUtbetalingPeriode(s.getFom(), s.getTom(), s.getValue().klassekode(), s.getValue().arbeidsgiver(),
                 s.getValue().dagsats(), s.getValue().dagsatsFraBeregningsgrunnlag(), s.getValue().utbetalingsgrad()))
