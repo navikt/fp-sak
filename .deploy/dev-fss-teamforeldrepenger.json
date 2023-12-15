@@ -21,9 +21,6 @@
     "https://fpsak-api.dev-fss-pub.nais.io",
     "https://fpsak-api.dev.intern.nav.no"
   ],
-  "env": {
-    "APPD_ENABLED": "true"
-  },
   "groups": [
     "27e77109-fef2-48ce-a174-269074490353",
     "8cddda87-0a22-4d35-9186-a2c32a6ab450",

@@ -60,11 +60,6 @@ spec:
         kvPath: {{mqserviceuser}}
       - mountPath: /var/run/secrets/nais.io/ldap
         kvPath: {{ldapserviceuser}}
-  env:
-  {{#each env}}
-   - name: {{@key}}
-     value: "{{this}}"
-  {{/each}}
   azure:
     application:
       enabled: true
