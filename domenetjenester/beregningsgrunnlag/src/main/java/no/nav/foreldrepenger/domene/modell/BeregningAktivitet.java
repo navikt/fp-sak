@@ -45,8 +45,6 @@ public class BeregningAktivitet {
     public BeregningAktivitetNøkkel getNøkkel() {
         var builder = BeregningAktivitetNøkkel.builder()
                 .medOpptjeningAktivitetType(opptjeningAktivitetType)
-                .medFom(periode.getFomDato())
-                .medTom(periode.getTomDato())
                 .medArbeidsforholdRef(getArbeidsforholdRef().getReferanse());
         if (arbeidsgiver != null) {
             builder.medArbeidsgiverIdentifikator(arbeidsgiver.getIdentifikator());

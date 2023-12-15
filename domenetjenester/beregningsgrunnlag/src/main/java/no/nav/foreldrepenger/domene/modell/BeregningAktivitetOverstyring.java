@@ -42,8 +42,6 @@ public class BeregningAktivitetOverstyring {
                 .medArbeidsgiverIdentifikator(getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
                 .medArbeidsforholdRef(arbeidsforholdRef != null ? arbeidsforholdRef.getReferanse() : null)
                 .medOpptjeningAktivitetType(opptjeningAktivitetType)
-                .medFom(periode.getFomDato())
-                .medTom(periode.getTomDato())
                 .build();
     }
 
