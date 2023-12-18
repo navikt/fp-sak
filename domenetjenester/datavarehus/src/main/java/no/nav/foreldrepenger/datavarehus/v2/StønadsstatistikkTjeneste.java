@@ -197,7 +197,10 @@ public class StønadsstatistikkTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return null;
         }
-        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
+        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(behandling.getId()).orElse(null);
+        if (beregningsgrunnlag == null) {
+            return null;
+        }
         var skjæringstidspunkt = beregningsgrunnlag.getSkjæringstidspunkt();
 
         var periodePåStp = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
