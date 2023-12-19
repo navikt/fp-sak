@@ -70,10 +70,12 @@ class StønadsstatistikkUttakPeriodeMapper {
         var forklaring = periodeType == PeriodeType.AVSLAG ? utledForklaringAvslag(periode)
             : utledForklaring(periode, foretrukketAktivitet.getTrekkonto(), rolleType);
 
+        var mottattDato = Optional.ofNullable(periode.getTidligstMottatttDato()).orElseGet(periode::getMottattDato);
+
         var samtidigUttakProsent = periode.getSamtidigUttaksprosent() != null ? periode.getSamtidigUttaksprosent().decimalValue() : null;
         var stønadskontoType = !trekkdager.merEnn0() ? null : mapStønadskonto(foretrukketAktivitet.getTrekkonto());
         return new StønadsstatistikkUttakPeriode(periode.getFom(), periode.getTom(), periodeType, stønadskontoType, rettighet,
-            forklaring, erUtbetaling, virkedager, new StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager(trekkdager.decimalValue()),
+            forklaring, mottattDato, erUtbetaling, virkedager, new StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager(trekkdager.decimalValue()),
             gradering, samtidigUttakProsent);
     }
 
@@ -347,8 +349,10 @@ class StønadsstatistikkUttakPeriodeMapper {
         var u2 = rhs.getValue();
         var virkedager = u1.virkedager() + u2.virkedager();
         var trekkdager = u1.trekkdager().add(u2.trekkdager());
+        var mottatt = u1.søknadsDato() != null && u2.søknadsDato() != null && u2.søknadsDato().isBefore(u1.søknadsDato()) ?
+            u2.søknadsDato() : Optional.ofNullable(u1.søknadsDato()).orElseGet(u2::søknadsDato);
         var ny = new StønadsstatistikkUttakPeriode(i.getFomDato(), i.getTomDato(), u1.type(), u1.stønadskontoType(),
-            u1.rettighetType(), u1.forklaring(), u1.erUtbetaling(), virkedager, trekkdager, u1.gradering(), u1.samtidigUttakProsent());
+            u1.rettighetType(), u1.forklaring(), mottatt, u1.erUtbetaling(), virkedager, trekkdager, u1.gradering(), u1.samtidigUttakProsent());
         return new LocalDateSegment<>(i, ny);
     }
 

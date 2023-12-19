@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 
 class StønadsstatistikkUtbetalingPeriodeMapperTest {
 
@@ -43,14 +42,15 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
             .medUtbetalingsgrad(BigDecimal.valueOf(50))
             .build(beregningsresultatPeriode);
         var utbetalingsperioder = StønadsstatistikkUtbetalingPeriodeMapper.mapTilkjent(
-            StønadsstatistikkVedtak.YtelseType.FORELDREPENGER, StønadsstatistikkVedtak.HendelseType.FØDSEL, List.of(beregningsresultatPeriode));
+                List.of(beregningsresultatPeriode));
 
         assertThat(utbetalingsperioder).hasSize(1);
         var stønadsstatistikkUtbetalingPeriode = utbetalingsperioder.get(0);
         assertThat(stønadsstatistikkUtbetalingPeriode.fom()).isEqualTo(beregningsresultatPeriode.getBeregningsresultatPeriodeFom());
         assertThat(stønadsstatistikkUtbetalingPeriode.tom()).isEqualTo(beregningsresultatPeriode.getBeregningsresultatPeriodeTom());
-        assertThat(stønadsstatistikkUtbetalingPeriode.klasseKode()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG.getKode());
+        assertThat(stønadsstatistikkUtbetalingPeriode.inntektskategori()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
         assertThat(stønadsstatistikkUtbetalingPeriode.arbeidsgiver()).isEqualTo(orgnr);
+        assertThat(stønadsstatistikkUtbetalingPeriode.mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.ARBEIDSGIVER);
         assertThat(stønadsstatistikkUtbetalingPeriode.dagsats()).isEqualTo(andel2.getDagsats());
         assertThat(stønadsstatistikkUtbetalingPeriode.dagsatsFraBeregningsgrunnlag()).isEqualTo(andel2.getDagsatsFraBg());
         assertThat(stønadsstatistikkUtbetalingPeriode.utbetalingsgrad()).isEqualTo(andel2.getUtbetalingsgrad());
@@ -85,15 +85,15 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
             .medUtbetalingsgrad(BigDecimal.valueOf(50))
             .build(beregningsresultatPeriode2);
         var utbetalingsperioder = StønadsstatistikkUtbetalingPeriodeMapper.mapTilkjent(
-            StønadsstatistikkVedtak.YtelseType.FORELDREPENGER, StønadsstatistikkVedtak.HendelseType.FØDSEL,
-            List.of(beregningsresultatPeriode1, beregningsresultatPeriode2));
+                List.of(beregningsresultatPeriode1, beregningsresultatPeriode2));
 
         assertThat(utbetalingsperioder).hasSize(1);
         var stønadsstatistikkUtbetalingPeriode = utbetalingsperioder.get(0);
         assertThat(stønadsstatistikkUtbetalingPeriode.fom()).isEqualTo(beregningsresultatPeriode1.getBeregningsresultatPeriodeFom());
         assertThat(stønadsstatistikkUtbetalingPeriode.tom()).isEqualTo(beregningsresultatPeriode2.getBeregningsresultatPeriodeTom());
-        assertThat(stønadsstatistikkUtbetalingPeriode.klasseKode()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER.getKode());
+        assertThat(stønadsstatistikkUtbetalingPeriode.inntektskategori()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
         assertThat(stønadsstatistikkUtbetalingPeriode.arbeidsgiver()).isEqualTo(orgnr);
+        assertThat(stønadsstatistikkUtbetalingPeriode.mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.BRUKER);
         assertThat(stønadsstatistikkUtbetalingPeriode.dagsats()).isEqualTo(andel2.getDagsats());
         assertThat(stønadsstatistikkUtbetalingPeriode.dagsatsFraBeregningsgrunnlag()).isEqualTo(andel2.getDagsatsFraBg());
         assertThat(stønadsstatistikkUtbetalingPeriode.utbetalingsgrad()).isEqualTo(andel2.getUtbetalingsgrad());
