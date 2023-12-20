@@ -32,6 +32,7 @@ public class StønadsstatistikkVedtak {
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
+    private LocalDate søknadsdato;
     private LocalDate skjæringstidspunkt;
     @NotNull
     private LocalDateTime vedtakstidspunkt; // Funksjonelt tid
@@ -92,6 +93,10 @@ public class StønadsstatistikkVedtak {
 
     public UUID getForrigeBehandlingUuid() {
         return forrigeBehandlingUuid;
+    }
+
+    public LocalDate getSøknadsdato() {
+        return søknadsdato;
     }
 
     public LocalDate getSkjæringstidspunkt() {
@@ -158,7 +163,21 @@ public class StønadsstatistikkVedtak {
         return foreldrepengerRettigheter;
     }
 
-    record Beregning(@NotNull BigDecimal grunnbeløp, @NotNull BeregningÅrsbeløp årsbeløp, Set<String> næringOrgNr) { } //på skjæringstidspunkt
+    record Beregning(@NotNull BigDecimal grunnbeløp, @NotNull BeregningÅrsbeløp årsbeløp, List<BeregningAndel> andeler, Set<String> næringOrgNr) {
+        @Override
+        public String toString() {
+            return "Beregning{" + "grunnbeløp=" + grunnbeløp + ", årsbeløp=" + årsbeløp + '}';
+        }
+    } //på skjæringstidspunkt
+
+    record BeregningAndel(AndelType aktivitet, String arbeidsgiver, BeregningÅrsbeløp årsbeløp) {
+        @Override
+        public String toString() {
+            return "BeregningAndel{" + "aktivitet=" + aktivitet + ", årsbeløp=" + årsbeløp + '}';
+        }
+    }
+
+    record BeregningÅrsbeløp(BigDecimal brutto, BigDecimal avkortet, BigDecimal redusert, Long dagsats) { }
 
     record FamilieHendelse(LocalDate termindato,
                            LocalDate adopsjonsdato,
@@ -189,6 +208,12 @@ public class StønadsstatistikkVedtak {
 
     enum RettighetType {
         ALENEOMSORG, BARE_SØKER_RETT, BEGGE_RETT, BEGGE_RETT_EØS
+    }
+
+    enum AndelType {
+        ARBEIDSAVKLARINGSPENGER, ARBEIDSTAKER,
+        DAGPENGER, FRILANSER, MILITÆR_SIVILTJENESTE,
+        SELVSTENDIG_NÆRINGSDRIVENDE, YTELSE
     }
 
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
@@ -273,6 +298,10 @@ public class StønadsstatistikkVedtak {
             kladd.forrigeBehandlingUuid = forrigeBehandlingUuid;
             return this;
         }
+        Builder medSøknadsdato(LocalDate søknadsdato) {
+            kladd.søknadsdato = søknadsdato;
+            return this;
+        }
         Builder medSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
             kladd.skjæringstidspunkt = skjæringstidspunkt;
             return this;
@@ -342,8 +371,5 @@ public class StønadsstatistikkVedtak {
         public StønadsstatistikkVedtak build() {
             return kladd;
         }
-    }
-
-    record BeregningÅrsbeløp(BigDecimal brutto, BigDecimal avkortet, BigDecimal redusert) {
     }
 }

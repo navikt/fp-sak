@@ -43,7 +43,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
@@ -162,7 +161,8 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getUtbetalingssperioder().get(0).arbeidsgiver()).isEqualTo(
             andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseThrow());
         assertThat(vedtak.getUtbetalingssperioder().get(0).dagsats()).isEqualTo(beregningsresultatPeriode.getDagsats());
-        assertThat(vedtak.getUtbetalingssperioder().get(0).klasseKode()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER.getKode());
+        assertThat(vedtak.getUtbetalingssperioder().get(0).inntektskategori()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Inntektskategori.ARBEIDSTAKER);
+        assertThat(vedtak.getUtbetalingssperioder().get(0).mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.BRUKER);
 
         try (var factory = Validation.buildDefaultValidatorFactory()) {
             var validated = factory.getValidator().validate(vedtak);

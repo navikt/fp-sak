@@ -12,7 +12,10 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Utla
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.VedtakResultat;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.YtelseType;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,6 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -57,9 +61,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.foreldrepenger.datavarehus.tjeneste.BehandlingVedtakDvhMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -94,6 +95,7 @@ public class StønadsstatistikkTjeneste {
     private LegacyESBeregningRepository legacyESBeregningRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
@@ -111,7 +113,8 @@ public class StønadsstatistikkTjeneste {
                                      StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                      LegacyESBeregningRepository legacyESBeregningRepository,
                                      HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                     MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -128,6 +131,7 @@ public class StønadsstatistikkTjeneste {
         this.legacyESBeregningRepository = legacyESBeregningRepository;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
     }
 
     StønadsstatistikkTjeneste() {
@@ -150,6 +154,7 @@ public class StønadsstatistikkTjeneste {
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
         var familieHendelse = mapFamilieHendelse(behandlingReferanse, familiehendelse);
+        var søknadsdato = finnSøknadsdato(behandlingReferanse);
 
         var builder = new Builder()
             .medLovVersjon(lovVersjon)
@@ -159,6 +164,7 @@ public class StønadsstatistikkTjeneste {
             .medYtelseType(ytelseType)
             .medBehandlingUuid(behandlingReferanse.behandlingUuid())
             .medForrigeBehandlingUuid(forrigeBehandlingUuid.orElse(null))
+            .medSøknadsdato(søknadsdato)
             .medSkjæringstidspunkt(stp.getSkjæringstidspunktHvisUtledet().orElse(null))
             .medVedtakstidspunkt(vedtak.getVedtakstidspunkt())
             .medVedtaksresultat(mapVedtaksresultat(vedtak))
@@ -177,10 +183,17 @@ public class StønadsstatistikkTjeneste {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             builder.medEngangsstønadInnvilget(utledTilkjentEngangsstønad(behandlingId));
         } else {
-            var utbetalingssperioder = mapUtbetalingssperioder(behandling, ytelseType, familieHendelse.hendelseType());
+            var utbetalingssperioder = mapUtbetalingssperioder(behandling);
             builder.medUtbetalingssperioder(utbetalingssperioder).medBeregning(utledBeregning(behandling));
         }
         return builder.build();
+    }
+
+    private LocalDate finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
+        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId()).stream()
+            .filter(md -> md.getJournalpostId() != null && (md.getDokumentType().erSøknadType() || md.getDokumentType().erEndringsSøknadType()))
+            .map(d -> d.getMottattTidspunkt().isBefore(d.getOpprettetTidspunkt()) ? d.getMottattTidspunkt() : d.getOpprettetTidspunkt())
+            .min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(null);
     }
 
     private StønadsstatistikkVedtak.Saksrolle mapBrukerRolle(RelasjonsRolleType relasjonsRolleType) {
@@ -201,38 +214,19 @@ public class StønadsstatistikkTjeneste {
         if (beregningsgrunnlag == null) {
             return null;
         }
-        var skjæringstidspunkt = beregningsgrunnlag.getSkjæringstidspunkt();
-
-        var periodePåStp = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
-            .stream()
-            .filter(p -> p.getPeriode().inkluderer(skjæringstidspunkt))
-            .findFirst()
-            .orElseThrow();
-        var grunnbeløp = beregningsgrunnlag.getGrunnbeløp().getVerdi();
-
-        var næringOrgNr = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
-            .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening)
-            .map(OppgittOpptjening::getEgenNæring)
-            .orElse(List.of())
-            .stream()
-            .map(OppgittEgenNæring::getOrgnr)
-            .collect(Collectors.toSet());
-        var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), periodePåStp.getAvkortetPrÅr(),
-            periodePåStp.getRedusertPrÅr());
-        return new Beregning(grunnbeløp, årsbeløp, næringOrgNr);
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).orElse(null);
+        return StønadsstatistikkBeregningMapper.mapBeregning(beregningsgrunnlag, iayGrunnlag);
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {
         return legacyESBeregningRepository.getSisteBeregning(behandlingId).map(LegacyESBeregning::getBeregnetTilkjentYtelse).orElse(null);
     }
 
-    private List<StønadsstatistikkUtbetalingPeriode> mapUtbetalingssperioder(Behandling behandling,
-                                                                             YtelseType ytelseType,
-                                                                             HendelseType hendelseType) {
+    private List<StønadsstatistikkUtbetalingPeriode> mapUtbetalingssperioder(Behandling behandling) {
         var perioder = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
             .orElse(List.of());
-        return StønadsstatistikkUtbetalingPeriodeMapper.mapTilkjent(ytelseType, hendelseType, perioder);
+        return StønadsstatistikkUtbetalingPeriodeMapper.mapTilkjent(perioder);
     }
 
     private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(Behandling behandling, RettighetType rettighetType) {

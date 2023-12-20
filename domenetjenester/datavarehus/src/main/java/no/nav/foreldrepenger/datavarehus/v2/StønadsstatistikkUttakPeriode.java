@@ -10,8 +10,7 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
                                      PeriodeType type,
                                      StønadsstatistikkVedtak.StønadskontoType stønadskontoType, // hvilken konta man tar ut fra
                                      @NotNull StønadsstatistikkVedtak.RettighetType rettighetType,
-                                     Forklaring forklaring,
-                                     boolean erUtbetaling, // Skal utbetales for perioden
+                                     Forklaring forklaring, LocalDate søknadsDato, boolean erUtbetaling, // Skal utbetales for perioden
                                      int virkedager,
                                      @NotNull StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager trekkdager,
                                      @Valid Gradering gradering, // Perioden er gradert
