@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.datavarehus.v2;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,7 @@ class StønadsstatistikkBeregningMapper {
         var andeler = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .collect(Collectors.groupingBy(Gruppering::new))
             .entrySet().stream()
+            .filter(e -> e.getValue().stream().anyMatch(b -> b.getBruttoPrÅr() != null || b.getAvkortetPrÅr() != null || b.getRedusertPrÅr() != null || b.getDagsats() != null))
             .map(e -> mapAndeler(e.getKey(), e.getValue()))
             .toList();
 
@@ -59,10 +61,10 @@ class StønadsstatistikkBeregningMapper {
     }
 
     private static StønadsstatistikkVedtak.BeregningAndel mapAndeler(Gruppering gruppering, List<BeregningsgrunnlagPrStatusOgAndel> andeler) {
-        var bruttoÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr).reduce(BigDecimal.ZERO, BigDecimal::add);
-        var avkortetÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getAvkortetPrÅr).reduce(BigDecimal.ZERO, BigDecimal::add);
-        var redusertÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getRedusertPrÅr).reduce(BigDecimal.ZERO, BigDecimal::add);
-        var dagsats = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getDagsats).reduce(0L, Long::sum);
+        var bruttoÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+        var avkortetÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getAvkortetPrÅr).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+        var redusertÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getRedusertPrÅr).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+        var dagsats = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getDagsats).filter(Objects::nonNull).reduce(0L, Long::sum);
         var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(bruttoÅr, avkortetÅr, redusertÅr, dagsats);
         return new StønadsstatistikkVedtak.BeregningAndel(gruppering.andelType(), gruppering.arbeidsgiver(), årsbeløp);
     }
