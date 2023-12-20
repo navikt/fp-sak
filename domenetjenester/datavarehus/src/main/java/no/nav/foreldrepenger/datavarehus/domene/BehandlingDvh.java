@@ -35,6 +35,15 @@ public class BehandlingDvh extends DvhBaseEntitet {
     @Column(name = "FAGSAK_ID", nullable = false)
     private Long fagsakId;
 
+    @Column(name = "SAKSNUMMER")
+    private String saksnummer;
+
+    @Column(name = "AKTOER_ID")
+    private String aktørId;
+
+    @Column(name = "YTELSE_TYPE")
+    private String ytelseType;
+
     @Column(name = "VEDTAK_ID")
     private Long vedtakId;
 
@@ -156,6 +165,18 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
     public Long getFagsakId() {
         return fagsakId;
+    }
+
+    public String getSaksnummer() {
+        return saksnummer;
+    }
+
+    public String getAktørId() {
+        return aktørId;
+    }
+
+    public String getYtelseType() {
+        return ytelseType;
     }
 
     public Long getVedtakId() {
@@ -303,6 +324,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
         }
         return Objects.equals(behandlingId, other.behandlingId)
                 && Objects.equals(fagsakId, other.fagsakId)
+                && Objects.equals(saksnummer, other.saksnummer)
+                && Objects.equals(aktørId, other.aktørId)
+                && Objects.equals(ytelseType, other.ytelseType)
                 && Objects.equals(vedtakId, other.vedtakId)
                 && Objects.equals(opprettetDato, other.opprettetDato)
                 && Objects.equals(behandlingResultatType, other.behandlingResultatType)
@@ -343,7 +367,7 @@ public class BehandlingDvh extends DvhBaseEntitet {
             behandlingStatus, behandlendeEnhet, utlandstilsnitt, ansvarligSaksbehandler, ansvarligBeslutter, soeknadFamilieHendelse,
             bekreftetFamilieHendelse, overstyrtFamilieHendelse, familieHendelseType, mottattTidspunkt,foersteStoenadsdag,papirSøknad,
             behandlingMetode, revurderingÅrsak, mottattTid, registrertTid, kanBehandlesTid, ferdigBehandletTid, forventetOppstartTid,
-            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt);
+            vedtakTid, utbetaltTid, vedtakResultatType, vilkårIkkeOppfylt, saksnummer, aktørId, ytelseType);
     }
 
     public static Builder builder() {
@@ -353,6 +377,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
     public static class Builder {
         private Long behandlingId;
         private Long fagsakId;
+        private String saksnummer;
+        private String aktørId;
+        private String ytelseType;
         private Long vedtakId;
         private LocalDate opprettetDato;
         private String behandlingResultatType;
@@ -402,6 +429,21 @@ public class BehandlingDvh extends DvhBaseEntitet {
 
         public Builder fagsakId(Long fagsakId) {
             this.fagsakId = fagsakId;
+            return this;
+        }
+
+        public Builder saksnummer(String saksnummer) {
+            this.saksnummer = saksnummer;
+            return this;
+        }
+
+        public Builder aktørId(String aktørId) {
+            this.aktørId = aktørId;
+            return this;
+        }
+
+        public Builder ytelseType(String ytelseType) {
+            this.ytelseType = ytelseType;
             return this;
         }
 
@@ -579,6 +621,9 @@ public class BehandlingDvh extends DvhBaseEntitet {
             var behandlingDvh = new BehandlingDvh();
             behandlingDvh.behandlingId = behandlingId;
             behandlingDvh.fagsakId = fagsakId;
+            behandlingDvh.saksnummer = saksnummer;
+            behandlingDvh.aktørId = aktørId;
+            behandlingDvh.ytelseType = ytelseType;
             behandlingDvh.vedtakId = vedtakId;
             behandlingDvh.opprettetDato = opprettetDato;
             behandlingDvh.behandlingResultatType = behandlingResultatType;
