@@ -20,6 +20,9 @@ class BehandlingDvhEntityTest {
         assertThat(behandlingDvh.getBehandlingType()).isEqualTo(DatavarehusTestUtils.BEHANDLING_TYPE);
         assertThat(behandlingDvh.getEndretAv()).isEqualTo(DatavarehusTestUtils.ENDRET_AV);
         assertThat(behandlingDvh.getFagsakId()).isEqualTo(DatavarehusTestUtils.FAGSAK_ID);
+        assertThat(behandlingDvh.getSaksnummer()).isEqualTo(String.valueOf(DatavarehusTestUtils.SAKSNUMMER));
+        assertThat(behandlingDvh.getAktørId()).isEqualTo(DatavarehusTestUtils.BRUKER_AKTØR_ID);
+        assertThat(behandlingDvh.getYtelseType()).isEqualTo(DatavarehusTestUtils.FAGSAK_YTELSE);
         assertThat(behandlingDvh.getFunksjonellTid()).isEqualTo(DatavarehusTestUtils.FUNKSJONELL_TID);
         assertThat(behandlingDvh.getOpprettetDato()).isEqualTo(DatavarehusTestUtils.OPPRETTET_DATE);
         assertThat(behandlingDvh.getUtlandstilsnitt()).isEqualTo(DatavarehusTestUtils.UTLANDSTILSNITT);

@@ -16,6 +16,8 @@ import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 
+import no.nav.foreldrepenger.datavarehus.domene.DatavarehusTestUtils;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -109,6 +111,9 @@ class BehandlingDvhMapperTest {
         assertThat(dvh.getBehandlingType()).isEqualTo(BehandlingType.FØRSTEGANGSSØKNAD.getKode());
         assertThat(dvh.getEndretAv()).isEqualTo("OpprettetAv");
         assertThat(dvh.getFagsakId()).isEqualTo(behandling.getFagsakId());
+        assertThat(dvh.getSaksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
+        assertThat(dvh.getAktørId()).isEqualTo(behandling.getAktørId().getId());
+        assertThat(dvh.getYtelseType()).isEqualTo(behandling.getFagsakYtelseType().getKode());
         assertThat(dvh.getFunksjonellTid()).isCloseTo(LocalDateTime.now(), within(5, ChronoUnit.SECONDS));
         assertThat(dvh.getOpprettetDato()).isEqualTo(OPPRETTET_TID.toLocalDate());
         assertThat(dvh.getUtlandstilsnitt()).isEqualTo("NASJONAL");
