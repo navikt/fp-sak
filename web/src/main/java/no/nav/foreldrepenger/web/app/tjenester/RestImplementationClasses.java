@@ -52,7 +52,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRest
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStønadsstatistikkRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk.ForvaltningStønadsstatistikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSvangerskapspengerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
