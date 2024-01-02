@@ -44,7 +44,7 @@ public class FpoversiktMigreringRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Oppretter task for migrering", tags = "FORVALTNING-migrering")
+    @Operation(description = "Oppretter task for migrering", tags = "FORVALTNING-fpoversikt")
     @Path("/opprettTask")
     @Consumes(MediaType.APPLICATION_JSON)
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)

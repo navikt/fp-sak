@@ -73,7 +73,11 @@ public class BehandlingVedtakRepository {
     }
 
     public Optional<BehandlingVedtak> hentGjeldendeVedtak(Fagsak fagsak) {
-        var avsluttedeIkkeHenlagteBehandlinger = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsak.getId());
+        return hentGjeldendeVedtak(fagsak.getId());
+    }
+
+    public Optional<BehandlingVedtak> hentGjeldendeVedtak(Long fagsakId) {
+        var avsluttedeIkkeHenlagteBehandlinger = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId);
         if (avsluttedeIkkeHenlagteBehandlinger.isEmpty()) {
             return Optional.empty();
         }

@@ -1,14 +1,22 @@
-package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
+package no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk;
+
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk.StønadsstatistikkMigreringTask.opprettTaskForDato;
+
+import java.time.LocalDate;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -18,6 +26,9 @@ import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -31,15 +42,19 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
-    public ForvaltningStønadsstatistikkRestTjeneste(StønadsstatistikkTjeneste stønadsstatistikkTjeneste, BehandlingRepository behandlingRepository,
+    public ForvaltningStønadsstatistikkRestTjeneste(StønadsstatistikkTjeneste stønadsstatistikkTjeneste,
+                                                    BehandlingRepository behandlingRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                    BehandlingsresultatRepository behandlingsresultatRepository) {
+                                                    BehandlingsresultatRepository behandlingsresultatRepository,
+                                                    ProsessTaskTjeneste taskTjeneste) {
         this.stønadsstatistikkTjeneste = stønadsstatistikkTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     ForvaltningStønadsstatistikkRestTjeneste() {
@@ -58,5 +73,24 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
         }
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         return stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
+    }
+
+    @POST
+    @Operation(description = "Oppretter task for migrering", tags = "FORVALTNING-stønadsstatistikk")
+    @Path("/opprettTask")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response opprettTask(@Valid ForvaltningStønadsstatistikkRestTjeneste.TaskInput taskInput) {
+        var task = opprettTaskForDato(taskInput.fagsakOpprettetFom, taskInput.fagsakOpprettetTom, taskInput.secondsBetween);
+        taskTjeneste.lagre(task);
+        return Response.ok().build();
+    }
+
+    private record TaskInput(LocalDate fagsakOpprettetFom, LocalDate fagsakOpprettetTom, @Min(0) @Max(60) int secondsBetween) implements AbacDto {
+
+        @Override
+        public AbacDataAttributter abacAttributter() {
+            return AbacDataAttributter.opprett();
+        }
     }
 }
