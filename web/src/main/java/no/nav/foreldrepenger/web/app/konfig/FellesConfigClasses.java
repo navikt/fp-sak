@@ -18,7 +18,7 @@ public class FellesConfigClasses {
     public static Set<Class<?>> getFellesConfigClasses() {
         Set<Class<?>> classes = new HashSet<>();
         // Autentisering
-        classes.add(AuthFilter.class);
+        classes.add(AuthenticationFilter.class);
         // Monitorering
         classes.add(TimingFilter.class);
         // swagger

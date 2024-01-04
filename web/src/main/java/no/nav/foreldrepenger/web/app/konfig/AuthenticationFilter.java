@@ -14,12 +14,12 @@ import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
-public class AuthFilter implements ContainerRequestFilter, ContainerResponseFilter {
+public class AuthenticationFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     @Context
     private ResourceInfo resourceinfo;
 
-    public AuthFilter() {
+    public AuthenticationFilter() {
         // Ingenting
     }
 
