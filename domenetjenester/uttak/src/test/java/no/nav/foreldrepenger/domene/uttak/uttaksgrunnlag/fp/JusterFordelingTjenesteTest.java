@@ -1358,6 +1358,33 @@ class JusterFordelingTjenesteTest {
         assertThatThrownBy(() -> juster(oppgittePerioder, termindato, fødselsdato)).isInstanceOf(IllegalStateException.class);
     }
 
+    @Test
+    void fellesperiode_før_fødsel_og_fødsel_etter_fødsel_skal_ikke_lage_hull() {
+        //FAGSYSTEM-307795
+        var termindato = LocalDate.of(2023, 12, 14);
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.minusWeeks(4), termindato.minusWeeks(4));
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(10));
+        var fødselsdato = LocalDate.of(2024, 1, 3);
+        var oppgittePerioder = List.of(fellesperiode, fpff, mødrekvote);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(4);
+        assertThat(justertePerioder.getFirst().getFom()).isEqualTo(fellesperiode.getFom());
+        assertThat(justertePerioder.getFirst().getTom()).isEqualTo(fellesperiode.getTom());
+        assertThat(justertePerioder.getFirst().getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fpff.getFom());
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(fødselsdato.minusWeeks(3).minusDays(1));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato.minusWeeks(3));
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fødselsdato.minusDays(1));
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(3).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(3).getTom()).isEqualTo(termindato.plusWeeks(10));
+        assertThat(justertePerioder.get(3).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
     static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
     }
