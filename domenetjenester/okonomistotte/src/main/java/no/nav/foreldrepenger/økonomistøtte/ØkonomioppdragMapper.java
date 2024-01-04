@@ -108,7 +108,7 @@ public class ØkonomioppdragMapper {
 
     private Ompostering116 mapOmpostering116(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116 okoOmpostering116, String saksbehandlerId) {
         var ompostering116 = objectFactory.createOmpostering116();
-        ompostering116.setOmPostering(okoOmpostering116.getOmPostering() ? "J" : "N");
+        ompostering116.setOmPostering(Boolean.TRUE.equals(okoOmpostering116.getOmPostering()) ? "J" : "N");
         ompostering116.setDatoOmposterFom(toXmlGregCal(okoOmpostering116.getDatoOmposterFom()));
         ompostering116.setSaksbehId(saksbehandlerId);
         ompostering116.setTidspktReg(okoOmpostering116.getTidspktReg());
