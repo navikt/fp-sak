@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
@@ -36,7 +37,7 @@ class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    void ingen_aksjonspunkter_dersom_søker_oppgitt_ikke_ha_aleneomsorg() {
+    void ingen_aksjonspunkt_dersom_søker_oppgitt_ikke_ha_aleneomsorg() {
         var behandling = behandlingMedOppgittRettighet(true, false);
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -45,11 +46,41 @@ class BrukerHarAleneomsorgAksjonspunktUtlederTest {
     }
 
     @Test
-    void aksjonspunkter_dersom_søker_oppgitt_ha_aleneomsorg_men_oppgitt_annenForeldre_og_ha_samme_address_som_bruker() {
+    void aksjonspunkt_dersom_søker_oppgitt_ha_aleneomsorg_men_oppgitt_annenForeldre_og_ha_samme_address_som_bruker() {
         var behandling = behandlingMedOppgittRettighet(false, true);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.annenpartHarSammeBosted(ref)).thenReturn(true);
         when(personopplysninger.harOppgittAnnenpartMedNorskID(ref)).thenReturn(true);
+
+        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
+
+        // Assert
+        assertThat(aksjonspunktResultater).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
+    }
+
+    @Test
+    void aksjonspunkt_dersom_bruker_ikke_oppgitt_annenForeldre_men_er_gift_og_ha_samme_address_som_bruker() {
+        var behandling = behandlingMedOppgittRettighet(false, true);
+        when(personopplysninger.ektefelleHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(true);
+        when(personopplysninger.harOppgittAnnenpartMedNorskID(BehandlingReferanse.fra(behandling))).thenReturn(false);
+
+        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
+
+        // Assert
+        assertThat(aksjonspunktResultater).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
+    }
+
+    @Test
+    void aksjonspunkt_dersom_søker_oppgitt_ha_aleneomsorg_og_er_far() {
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build();
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medAvklarteUttakDatoer(avklarteUttakDatoer)
+            .medOppgittRettighet(oppgittRettighet(false, true))
+            .lagre(repositoryProvider);
+
+        var ref = BehandlingReferanse.fra(behandling);
+        when(personopplysninger.annenpartHarSammeBosted(ref)).thenReturn(false);
+        when(personopplysninger.harOppgittAnnenpartMedNorskID(ref)).thenReturn(false);
 
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
@@ -63,18 +94,6 @@ class BrukerHarAleneomsorgAksjonspunktUtlederTest {
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medOppgittRettighet(oppgittRettighet(annenpartRett, aleneomsorg))
             .lagre(repositoryProvider);
-    }
-
-    @Test
-    void aksjonspunkter_dersom_bruker_ikke_oppgitt_annenForeldre_men_er_gift_og_ha_samme_address_som_bruker() {
-        var behandling = behandlingMedOppgittRettighet(false, true);
-        when(personopplysninger.ektefelleHarSammeBosted(BehandlingReferanse.fra(behandling))).thenReturn(true);
-        when(personopplysninger.harOppgittAnnenpartMedNorskID(BehandlingReferanse.fra(behandling))).thenReturn(false);
-
-        var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling));
-
-        // Assert
-        assertThat(aksjonspunktResultater).containsExactly(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
     }
 
     private UttakInput lagInput(Behandling behandling) {
