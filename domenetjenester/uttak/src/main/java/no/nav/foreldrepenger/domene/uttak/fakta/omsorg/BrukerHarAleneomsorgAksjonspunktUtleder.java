@@ -8,8 +8,10 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -44,16 +46,20 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements OmsorgRettAksjon
 
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
 
-        if (harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
-            if (personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
-                if (personopplysninger.annenpartHarSammeBosted(ref)) {
-                    return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
-                }
-            } else if (personopplysninger.ektefelleHarSammeBosted(ref)) {
-                return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
-            }
+        return trengerAvklaring(ref, ytelseFordelingAggregat) ? List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG) : List.of();
+    }
+
+    private boolean trengerAvklaring(BehandlingReferanse ref, YtelseFordelingAggregat ytelseFordelingAggregat) {
+        if (!harOppgittÅHaAleneomsorg(ytelseFordelingAggregat)) {
+            return false;
         }
-        return List.of();
+        return RelasjonsRolleType.erFarEllerMedmor(ref.relasjonRolle())
+            || oppgittNorskAnnenpartMedSammeBosted(ref)
+            || personopplysninger.ektefelleHarSammeBosted(ref);
+    }
+
+    private boolean oppgittNorskAnnenpartMedSammeBosted(BehandlingReferanse ref) {
+        return personopplysninger.harOppgittAnnenpartMedNorskID(ref) && personopplysninger.annenpartHarSammeBosted(ref);
     }
 
     private boolean harOppgittÅHaAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
