@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -161,16 +162,19 @@ public class TilkjentYtelseMapper {
     private Map<KjedeNøkkel, Ytelse> build(Map<KjedeNøkkel, Ytelse.Builder> buildere) {
         Map<KjedeNøkkel, Ytelse> kjeder = new HashMap<>();
         for (var entry : buildere.entrySet()) {
-            var segmenter = entry.getValue().build().getPerioder().stream()
-                .map(p -> new LocalDateSegment<>(p.getPeriode().fom(), p.getPeriode().tom(), p.getVerdi()))
-                .toList();
             var komprimertYtelse = Ytelse.builder();
-            new LocalDateTimeline<>(segmenter).compress(LocalDateInterval::abutsWorkdays, YtelseVerdi::equals, StandardCombinators::leftOnly).stream()
+            entry.getValue().build().getPerioder().stream()
+                .map(p -> new LocalDateSegment<>(p.getPeriode().fom(), p.getPeriode().tom(), p.getVerdi()))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), TilkjentYtelseMapper::komprimerPerioder)) // Samle og komprimer og strøm
                 .map(s -> new YtelsePeriode(new Periode(s.getFom(), s.getTom()), s.getValue()))
                 .forEach(komprimertYtelse::leggTilPeriode);
             kjeder.put(entry.getKey(), komprimertYtelse.build());
         }
         return kjeder;
+    }
+
+    private static Stream<LocalDateSegment<YtelseVerdi>> komprimerPerioder(List<LocalDateSegment<YtelseVerdi>> segmenter) {
+        return new LocalDateTimeline<>(segmenter).compress(LocalDateInterval::abutsWorkdays, YtelseVerdi::equals, StandardCombinators::leftOnly).stream();
     }
 
     private static List<BeregningsresultatPeriode> sortert(Collection<BeregningsresultatPeriode> usortert) {
