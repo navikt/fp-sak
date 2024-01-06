@@ -30,6 +30,8 @@ class TilkjentYtelseMapperTest {
     private static final LocalDate JAN_2 = LocalDate.of(2020, 1, 2);
     private static final LocalDate JAN_3 = LocalDate.of(2020, 1, 3);
     private static final LocalDate JAN_4 = LocalDate.of(2020, 1, 4);
+    private static final LocalDate JAN_6 = LocalDate.of(2020, 1, 6);
+    private static final LocalDate JAN_7 = LocalDate.of(2020, 1, 7);
 
     private static final LocalDate NESTE_MAI_1 = LocalDate.of(2021, 5, 1);
     private static final LocalDate NESTE_MAI_31 = LocalDate.of(2021, 5, 31);
@@ -199,10 +201,10 @@ class TilkjentYtelseMapperTest {
 
     @Test
     void skal_mappe_andeler_fra_private_arbeidsgivere_til_bruker() {
-        var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(JAN_1, JAN_2).build(ENTITET);
+        var periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(JAN_1, JAN_3).build(ENTITET);
         lagAndelTilBruker(Inntektskategori.ARBEIDSTAKER, 1000, periode1);
         lagAndelTilOrg(Arbeidsgiver.person(new AktørId(1234567891234L)), 500, periode1);
-        var periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(JAN_3, JAN_4).build(ENTITET);
+        var periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(JAN_6, JAN_7).build(ENTITET);
         lagAndelTilBruker(Inntektskategori.ARBEIDSTAKER, 1000, periode2);
         lagAndelTilOrg(Arbeidsgiver.person(new AktørId(1234567891234L)), 500, periode2);
         var perioder = List.of(periode1, periode2);
@@ -214,16 +216,12 @@ class TilkjentYtelseMapperTest {
         Assertions.assertThat(resultat).containsOnlyKeys(forventetNøkkelYtelse);
 
         var ytelse = resultat.get(forventetNøkkelYtelse);
-        Assertions.assertThat(ytelse.getPerioder()).hasSize(2);
+        // Skal være komprimert til 1 sammenhengende periode
+        Assertions.assertThat(ytelse.getPerioder()).hasSize(1);
         var ytelsePeriode1 = ytelse.getPerioder().get(0);
         Assertions.assertThat(ytelsePeriode1.getSats()).isEqualTo(Satsen.dagsats(1500));
-        Assertions.assertThat(ytelsePeriode1.getPeriode()).isEqualTo(Periode.of(JAN_1, JAN_2));
+        Assertions.assertThat(ytelsePeriode1.getPeriode()).isEqualTo(Periode.of(JAN_1, JAN_7));
         Assertions.assertThat(ytelsePeriode1.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
-
-        var ytelsePeriode2 = ytelse.getPerioder().get(1);
-        Assertions.assertThat(ytelsePeriode2.getSats()).isEqualTo(Satsen.dagsats(1500));
-        Assertions.assertThat(ytelsePeriode2.getPeriode()).isEqualTo(Periode.of(JAN_3, JAN_4));
-        Assertions.assertThat(ytelsePeriode2.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
     }
 
     private static BeregningsresultatAndel lagAndelTilBruker(Inntektskategori inntektskategori, int dagsats, BeregningsresultatPeriode periode) {
