@@ -1026,13 +1026,13 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var builder = getInputStandardBuilder(gruppertYtelse);
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        // Arrange : Revurdering
+        // Arrange : Revurdering som endrer både klassekoder og perioder etter de første dagene
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();
         var b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 5);
         buildBeregningsresultatAndel(b2Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_1, true, 1500, BigDecimal.valueOf(100), null, AktivitetStatus.DAGPENGER, Inntektskategori.DAGPENGER);
-        var b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 6, 20);
+        var b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 15, 25);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), null, AktivitetStatus.DAGPENGER, Inntektskategori.DAGPENGER);
@@ -1047,7 +1047,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var oppdrag110RevurderingListe = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110RevurderingListe).hasSize(1);
         var opp150RevurderingListe = oppdrag110RevurderingListe.get(0).getOppdragslinje150Liste();
-        assertThat(opp150RevurderingListe).hasSize(4);
+        assertThat(opp150RevurderingListe).hasSize(6);
         //Opphør for FL
         var opp150OpphForFLListe = getOpp150MedKodeklassifik(opp150RevurderingListe, KodeKlassifik.FPF_FRILANSER);
         assertThat(opp150OpphForFLListe).hasSize(1).allSatisfy(oppdragslinje150 -> assertThat(oppdragslinje150.gjelderOpphør()).isTrue());
@@ -1056,18 +1056,22 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(opp150OpphForSNListe).hasSize(1).allSatisfy(oppdragslinje150 -> assertThat(oppdragslinje150.gjelderOpphør()).isTrue());
         //Oppdragslinje150 for AT
         var opp150ForATListe = getOpp150MedKodeklassifik(opp150RevurderingListe, KodeKlassifik.FPF_ARBEIDSTAKER);
-        assertThat(opp150ForATListe).hasSize(1).allSatisfy(oppdragslinje150 -> assertThat(oppdragslinje150.gjelderOpphør()).isFalse());
+        assertThat(opp150ForATListe).hasSize(2).allSatisfy(oppdragslinje150 -> assertThat(oppdragslinje150.gjelderOpphør()).isFalse());
         var sortertOpp150OpphForATListe = sortOppdragslinj150Liste(opp150ForATListe);
         var førsteOpp150ForAT = sortertOpp150OpphForATListe.get(0);
         assertThat(førsteOpp150ForAT.getRefFagsystemId()).isNull();
         assertThat(førsteOpp150ForAT.getRefDelytelseId()).isNull();
+        var andreOpp150ForAT = sortertOpp150OpphForATListe.get(1);
+        assertThat(andreOpp150ForAT.getRefDelytelseId()).isEqualTo(førsteOpp150ForAT.getDelytelseId());
         //Oppdragslinje150 for DP
         var opp150OpphForDPListe = getOpp150MedKodeklassifik(opp150RevurderingListe, KodeKlassifik.FPF_DAGPENGER);
-        assertThat(opp150OpphForDPListe).hasSize(1).allSatisfy(oppdragslinje150 -> assertThat(oppdragslinje150.gjelderOpphør()).isFalse());
+        assertThat(opp150OpphForDPListe).hasSize(2).allSatisfy(oppdragslinje150 -> assertThat(oppdragslinje150.gjelderOpphør()).isFalse());
         var sortertOpp150OpphForDPListe = sortOppdragslinj150Liste(opp150OpphForDPListe);
         var førsteOpp150ForDP = sortertOpp150OpphForDPListe.get(0);
         assertThat(førsteOpp150ForDP.getRefFagsystemId()).isNull();
         assertThat(førsteOpp150ForDP.getRefDelytelseId()).isNull();
+        var andreOpp150ForDP = sortertOpp150OpphForDPListe.get(1);
+        assertThat(andreOpp150ForDP.getRefDelytelseId()).isEqualTo(førsteOpp150ForDP.getDelytelseId());
         //Sjekk om delytelseId er unikt for oppdragslinje150
         var delytelseIdList = opp150RevurderingListe.stream().map(Oppdragslinje150::getDelytelseId).toList();
         Set<Long> delytelseIdSet = Sets.newHashSet(delytelseIdList);
