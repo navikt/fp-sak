@@ -1,34 +1,16 @@
 package no.nav.foreldrepenger.økonomistøtte.oppdrag.domene;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+public record Periode(LocalDate fom, LocalDate tom) {
 
-@Embeddable
-public class Periode {
-
-    private static final DateTimeFormatter DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
-    @Column(name = "fom")
-    private LocalDate fom;
-
-    @Column(name = "tom")
-    private LocalDate tom;
-
-    private Periode() {
-    }
-
-    public Periode(LocalDate fom, LocalDate tom) {
+    public Periode {
         Objects.requireNonNull(fom, "Fra-og-med-dato må være satt");
         Objects.requireNonNull(tom, "Til-og-med-dato må være satt");
         if (tom.isBefore(fom)) {
             throw new IllegalArgumentException("Til-og-med-dato før fra-og-med-dato: " + fom + ">" + tom);
         }
-        this.fom = fom;
-        this.tom = tom;
     }
 
     public static Periode of(LocalDate fom, LocalDate tom) {
@@ -57,25 +39,6 @@ public class Periode {
 
     public static LocalDate min(LocalDate en, LocalDate to) {
         return en.isBefore(to) ? en : to;
-    }
-
-    @Override
-    public String toString() {
-        return fom.format(DATO_FORMAT) + "-" + tom.format(DATO_FORMAT);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Periode per) {
-            return Objects.equals(getFom(), per.getFom())
-                && Objects.equals(getTom(), per.getTom());
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fom, tom);
     }
 
 }
