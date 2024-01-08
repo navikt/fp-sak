@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -23,7 +24,12 @@ import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Utbetalingsgrad;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelsePeriode;
+import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.YtelseVerdi;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.domene.samlinger.GruppertYtelse;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 public class TilkjentYtelseMapper {
 
@@ -156,9 +162,19 @@ public class TilkjentYtelseMapper {
     private Map<KjedeNøkkel, Ytelse> build(Map<KjedeNøkkel, Ytelse.Builder> buildere) {
         Map<KjedeNøkkel, Ytelse> kjeder = new HashMap<>();
         for (var entry : buildere.entrySet()) {
-            kjeder.put(entry.getKey(), entry.getValue().build());
+            var komprimertYtelse = Ytelse.builder();
+            entry.getValue().build().getPerioder().stream()
+                .map(p -> new LocalDateSegment<>(p.getPeriode().fom(), p.getPeriode().tom(), p.getVerdi()))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), TilkjentYtelseMapper::komprimerPerioder)) // Samle og komprimer og strøm
+                .map(s -> new YtelsePeriode(new Periode(s.getFom(), s.getTom()), s.getValue()))
+                .forEach(komprimertYtelse::leggTilPeriode);
+            kjeder.put(entry.getKey(), komprimertYtelse.build());
         }
         return kjeder;
+    }
+
+    private static Stream<LocalDateSegment<YtelseVerdi>> komprimerPerioder(List<LocalDateSegment<YtelseVerdi>> segmenter) {
+        return new LocalDateTimeline<>(segmenter).compress(LocalDateInterval::abutsWorkdays, YtelseVerdi::equals, StandardCombinators::leftOnly).stream();
     }
 
     private static List<BeregningsresultatPeriode> sortert(Collection<BeregningsresultatPeriode> usortert) {
