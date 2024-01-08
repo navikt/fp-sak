@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
@@ -70,7 +69,7 @@ class PdpRequestBuilderTest {
         var ansvarligSaksbehandler = "Z123456";
         var fagsakStatus = FagsakStatus.UNDER_BEHANDLING.getKode();
         lenient().when(pipRepository.hentDataForBehandling(BEHANDLING_ID)).thenReturn(
-                Optional.of(new PipBehandlingsData(behandligStatus, ansvarligSaksbehandler, BigDecimal.valueOf(FAGSAK_ID), fagsakStatus)));
+                Optional.of(new PipBehandlingsData(behandligStatus, ansvarligSaksbehandler, FAGSAK_ID, fagsakStatus)));
 
         var request = requestBuilder.lagAppRessursData(attributter);
         assertThat(request.getAktørIdSet()).containsOnly(AKTØR_1.getId());
@@ -146,7 +145,7 @@ class PdpRequestBuilderTest {
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, 1234L));
 
         when(pipRepository.hentDataForBehandling(1234L)).thenReturn(Optional.of(
-                new PipBehandlingsData(BehandlingStatus.OPPRETTET.getKode(), "Z1234", BigDecimal.valueOf(666), FagsakStatus.OPPRETTET.getKode())));
+                new PipBehandlingsData(BehandlingStatus.OPPRETTET.getKode(), "Z1234", 666L, FagsakStatus.OPPRETTET.getKode())));
 
         var e = assertThrows(ManglerTilgangException.class, () -> requestBuilder.lagAppRessursData(attributter));
         assertThat(e.getMessage()).contains("Ugyldig input. Ikke samsvar mellom behandlingId 1234 og fagsakId [123]");

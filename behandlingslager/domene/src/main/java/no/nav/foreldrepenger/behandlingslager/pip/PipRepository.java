@@ -46,15 +46,16 @@ public class PipRepository {
             WHERE b.id = :behandlingId
             """;
 
-        var query = entityManager.createNativeQuery(sql, "PipDataResult");
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter("behandlingId", behandlingId);
 
-        var resultater = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultater = query.getResultList();
         if (resultater.isEmpty()) {
             return Optional.empty();
         }
         if (resultater.size() == 1) {
-            return Optional.of((PipBehandlingsData) resultater.get(0));
+            return mapPipBehandlingsdata(resultater.getFirst());
         }
         throw new IllegalStateException("Forventet 0 eller 1 treff etter søk på behandlingId, fikk flere for behandlingId " + behandlingId);
     }
@@ -65,23 +66,28 @@ public class PipRepository {
         var sql = """
             SELECT b.behandling_status behandligStatus,
             b.ansvarlig_saksbehandler ansvarligSaksbehandler,
-            f.id fagsakId, f.fagsak_status fagsakStatus
+            f.id fagsakId,
+            f.fagsak_status fagsakStatus
             FROM BEHANDLING b
             JOIN FAGSAK f ON b.fagsak_id = f.id
             WHERE b.uuid = :behandlingUuid
             """;
 
-        var query = entityManager.createNativeQuery(sql, "PipDataResult");
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter("behandlingUuid", behandlingUuid);
-
-        @SuppressWarnings("rawtypes") var resultater = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> resultater = query.getResultList();
         if (resultater.isEmpty()) {
             return Optional.empty();
         }
         if (resultater.size() == 1) {
-            return Optional.of((PipBehandlingsData) resultater.get(0));
+            return mapPipBehandlingsdata(resultater.getFirst());
         }
         throw new IllegalStateException("Forventet 0 eller 1 treff etter søk på behandlingId, fikk flere for behandlingUuid " + behandlingUuid);
+    }
+
+    private static Optional<PipBehandlingsData> mapPipBehandlingsdata(Object[] resultat) {
+        return Optional.of(new PipBehandlingsData((String) resultat[0], (String) resultat[1], (Long) resultat[2], (String) resultat[3]));
     }
 
     public Set<AktørId> hentAktørIdKnyttetTilFagsaker(Collection<Long> fagsakIder) {

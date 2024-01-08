@@ -16,8 +16,6 @@ import java.util.stream.Stream;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ColumnResult;
-import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,7 +27,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
@@ -49,23 +46,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-@SqlResultSetMapping(
-    name = "PipDataResult",
-    classes = @ConstructorResult(
-        targetClass = PipBehandlingsData.class,
-        columns = {
-            @ColumnResult(name = "behandligStatus"),
-            @ColumnResult(name = "ansvarligSaksbehandler"),
-            @ColumnResult(name = "fagsakId"),
-            @ColumnResult(name = "fagsakStatus")
-        }
-    )
-)
 @Entity(name = "Behandling")
 @Table(name = "BEHANDLING")
 public class Behandling extends BaseEntitet {

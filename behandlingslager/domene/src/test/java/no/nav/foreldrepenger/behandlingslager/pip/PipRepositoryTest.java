@@ -49,6 +49,20 @@ class PipRepositoryTest extends EntityManagerAwareTest {
         lagreBehandling(behandling);
 
         var pipBehandlingsData = pipRepository.hentDataForBehandling(behandling.getId());
+        assertThat(pipBehandlingsData).isPresent();
+        assertThat(pipBehandlingsData.get()).isNotNull();
+        assertThat(pipBehandlingsData.get().getBehandligStatus()).isEqualTo(behandling.getStatus().getKode());
+        assertThat(pipBehandlingsData.get().getFagsakStatus()).isEqualTo(behandling.getFagsak().getStatus().getKode());
+        assertThat(pipBehandlingsData.get().getFagsakId()).isEqualTo(behandling.getFagsak().getId());
+    }
+
+    @Test
+    void skal_finne_behandligstatus_og_sakstatus_for_behandlingUuid() {
+        var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        lagreBehandling(behandling);
+
+        var pipBehandlingsData = pipRepository.hentDataForBehandlingUuid(behandling.getUuid());
+        assertThat(pipBehandlingsData).isPresent();
         assertThat(pipBehandlingsData.get()).isNotNull();
         assertThat(pipBehandlingsData.get().getBehandligStatus()).isEqualTo(behandling.getStatus().getKode());
         assertThat(pipBehandlingsData.get().getFagsakStatus()).isEqualTo(behandling.getFagsak().getStatus().getKode());
