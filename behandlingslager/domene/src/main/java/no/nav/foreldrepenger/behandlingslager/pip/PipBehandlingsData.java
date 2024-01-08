@@ -14,7 +14,7 @@ public class PipBehandlingsData {
 
     public PipBehandlingsData(String behandligStatus, String ansvarligSaksbehandler, Long fagsakId, String fagsakStatus) {
         this.behandligStatus = behandligStatus;
-        this.fagsakId = fagsakId.longValue();
+        this.fagsakId = fagsakId;
         this.fagsakStatus = fagsakStatus;
         this.ansvarligSaksbehandler = ansvarligSaksbehandler;
     }
