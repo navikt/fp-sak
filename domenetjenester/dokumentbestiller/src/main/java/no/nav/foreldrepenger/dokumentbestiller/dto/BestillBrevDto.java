@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.dokumentbestiller.dto;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -15,11 +13,6 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class BestillBrevDto {
-
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    private Long behandlingId;
-
     @Valid
     private UUID behandlingUuid;
 
@@ -37,24 +30,19 @@ public class BestillBrevDto {
     public BestillBrevDto() {
     }
 
-    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak arsakskode) {
-        this.behandlingId = behandlingId;
+    public BestillBrevDto(UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak arsakskode) {
         this.behandlingUuid = behandlingUuid;
         this.brevmalkode = dokumentMalType;
         this.fritekst = fritekst;
         this.arsakskode = arsakskode;
     }
 
-    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType) {
-        this(behandlingId, behandlingUuid, dokumentMalType, null, null);
+    public BestillBrevDto(UUID behandlingUuid, DokumentMalType dokumentMalType) {
+        this(behandlingUuid, dokumentMalType, null, null);
     }
 
-    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst) {
-        this(behandlingId, behandlingUuid, dokumentMalType, fritekst, null);
-    }
-
-    public Long getBehandlingId() {
-        return behandlingId;
+    public BestillBrevDto(UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst) {
+        this(behandlingUuid, dokumentMalType, fritekst, null);
     }
 
     public UUID getBehandlingUuid() {
@@ -67,10 +55,6 @@ public class BestillBrevDto {
 
     public void setArsakskode(RevurderingVarslingÅrsak arsakskode) {
         this.arsakskode = arsakskode;
-    }
-
-    public void setBehandlingId(Long behandlingId) {
-        this.behandlingId = behandlingId;
     }
 
     public DokumentMalType getBrevmalkode() {

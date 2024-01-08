@@ -43,10 +43,11 @@ public class DokumentBestillerTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
 
-        dokumentBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
+        var bestillBrevDto = new BestillBrevDto(behandling.getUuid(), dokumentMal, null, null);
+        bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-        dokumentBestiller.bestillBrev(bestillBrevDto, aktør);
+        dokumentBestiller.bestillDokumentOgLoggHistorikk(bestillBrevDto, aktør);
     }
 }

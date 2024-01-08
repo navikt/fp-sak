@@ -63,11 +63,13 @@ public class DokumentBehandlingTjeneste {
     public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode, UUID bestillingUuid) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
                 .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
+
         behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
                 .medBehandlingDokument(behandlingDokument)
                 .medDokumentMalType(dokumentMalTypeKode.getKode())
                 .medBestillingUuid(bestillingUuid)
                 .build());
+
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
     }
 

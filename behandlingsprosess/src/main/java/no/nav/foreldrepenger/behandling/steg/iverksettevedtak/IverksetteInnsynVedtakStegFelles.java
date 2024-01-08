@@ -69,7 +69,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
         var begrunnelse = ap.getBegrunnelse();
         var fritekst = nullOrEmpty(begrunnelse) ? " " : begrunnelse;
 
-        return new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.INNSYN_SVAR, fritekst);
+        return new BestillBrevDto(behandling.getUuid(), DokumentMalType.INNSYN_SVAR, fritekst);
     }
 
     private boolean nullOrEmpty(String begrunnelse) {
