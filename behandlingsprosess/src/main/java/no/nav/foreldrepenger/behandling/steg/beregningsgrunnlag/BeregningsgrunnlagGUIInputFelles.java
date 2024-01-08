@@ -32,19 +32,16 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @Inject
     public BeregningsgrunnlagGUIInputFelles(BehandlingRepository behandlingRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
                                             InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
-        this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
@@ -75,17 +72,11 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var iayGrunnlagDto = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, inntektsmeldinger, ref.aktørId());
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
-        var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
-        var mappetOpptjening = opptjeningAktiviteter
-            .map(opptjeningAktiviteter1 -> OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter1, iayGrunnlag,
-            ref)).orElse(null);
-
         var kravperioder = mapKravperioder(ref, iayGrunnlag);
         var input = new BeregningsgrunnlagGUIInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagDto,
             kravperioder,
-            mappetOpptjening,
             ytelseGrunnlag);
         input.medAvklaringsbehov(mapAvklaringsbehov(aksjonspunkter));
         return Optional.of(input);

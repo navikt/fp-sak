@@ -6,6 +6,8 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.EndreDekningsgradVedDødTjeneste;
 import no.nav.foreldrepenger.behandling.VurderDekningsgradVedDødsfallAksjonspunktUtleder;
@@ -62,15 +64,22 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
                 .toList();
 
-        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
-            var måDekningsgradJusteres = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(input.getYtelsespesifiktGrunnlag().getDekningsgrad(),
-                getBarn(ref.behandlingId()));
+        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) && input.getYtelsespesifiktGrunnlag() instanceof ForeldrepengerGrunnlag fg) {
+            var måDekningsgradJusteres = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(mapTilDekningsgradFpsak(fg.getDekningsgrad()), getBarn(ref.behandlingId()));
             if (måDekningsgradJusteres) {
                 endreDekningsgradVedDødTjeneste.endreDekningsgradTil100(ref);
             }
         }
 
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+    }
+
+    private no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad mapTilDekningsgradFpsak(Dekningsgrad dekningsgrad) {
+        return switch (dekningsgrad) {
+            case DEKNINGSGRAD_80 -> no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad._80;
+            case DEKNINGSGRAD_100 -> no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad._100;
+            case DEKNINGSGRAD_60, DEKNINGSGRAD_65, DEKNINGSGRAD_70 -> throw new IllegalStateException("Ugyldig dekningsgrad for foreldrepenger: " + dekningsgrad);
+        };
     }
 
     @Override

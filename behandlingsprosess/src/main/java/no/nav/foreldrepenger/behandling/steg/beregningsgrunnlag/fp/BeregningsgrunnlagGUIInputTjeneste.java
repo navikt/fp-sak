@@ -14,6 +14,7 @@ import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningMånedGrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningVurderingGrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Inntekt;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
@@ -57,8 +58,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                               HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste,
                                               OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
-                opptjeningForBeregningTjeneste, inntektsmeldingTjeneste);
+        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, inntektsmeldingTjeneste);
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
                 "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
@@ -78,10 +78,21 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
             .map(BeregningsgrunnlagGUIInputTjeneste::mapTilVurderinsgrunnlag);
-        var fpGr = besteberegninggrunnlag.map(bbGrunnlag -> new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), bbGrunnlag))
-            .orElse(new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), kvalifisererTilBesteberegning, aktivitetGradering));
+        var fpGr = besteberegninggrunnlag.map(bbGrunnlag -> new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), bbGrunnlag))
+            .orElse(new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), kvalifisererTilBesteberegning, aktivitetGradering));
         fpGr.setAktivitetGradering(aktivitetGradering);
         return fpGr;
+    }
+
+    private Dekningsgrad mapTilDekningsgradKalkulator(int verdi) {
+        // Kan ikke bruke switch siden fpsak ikke representerer som enum
+        if (verdi == 80) {
+            return Dekningsgrad.DEKNINGSGRAD_80;
+        }
+        if (verdi == 100) {
+            return Dekningsgrad.DEKNINGSGRAD_100;
+        }
+        throw new IllegalStateException("Ugyldig dekningsgrad for foreldrepenger " + verdi);
     }
 
     private static BesteberegningVurderingGrunnlag mapTilVurderinsgrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {

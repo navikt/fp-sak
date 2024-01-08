@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +76,7 @@ class ForeslåBeregningsgrunnlagStegTest {
                 .medFørsteUttaksdatoGrunnbeløp(LocalDate.now())
                 .medSkjæringstidspunktOpptjening(LocalDate.now());
         var ref = BehandlingReferanse.fra(behandling, stp.build());
-        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING);
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(Dekningsgrad.DEKNINGSGRAD_100, false, AktivitetGradering.INGEN_GRADERING);
         var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, List.of(),
                 foreldrepengerGrunnlag);
         var inputTjeneste = mock(BeregningsgrunnlagInputTjeneste.class);

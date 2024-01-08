@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,6 +41,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NæringsinntektType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OffentligYtelseType;
@@ -76,6 +78,8 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
+import org.jboss.jdeparser.FormatPreferences;
 
 public class IAYMapperTilKalkulus {
 
@@ -270,6 +274,16 @@ public class IAYMapperTilKalkulus {
     private static InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder mapAktørInntekt(AktørInntekt aktørInntekt){
         var builder = InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder.oppdatere(Optional.empty());
         aktørInntekt.getInntekt().forEach(inntekt -> builder.leggTilInntekt(mapInntekt(inntekt)));
+        builder.leggTilInntekt(mockYtelse());
+        return builder;
+    }
+
+    private static InntektDtoBuilder mockYtelse() {
+        var builder = InntektDtoBuilder.oppdatere(Optional.empty());
+        builder.medInntektsKilde(InntektskildeType.INNTEKT_SAMMENLIGNING);
+        builder.medArbeidsgiver(Arbeidsgiver.virksomhet("992257822"));
+        builder.leggTilInntektspost(InntektspostDtoBuilder.ny().medBeløp(BigDecimal.valueOf(5000)).medInntektspostType(InntektspostType.YTELSE).medPeriode(
+            LocalDate.of(2023,10,1), LocalDate.of(2023,10,31)));
         return builder;
     }
 
