@@ -70,7 +70,7 @@ public class HenleggBehandlingTjeneste {
         if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
-            sendHenleggelsesbrev(behandling.getId(), behandling.getUuid(), HistorikkAktør.VEDTAKSLØSNINGEN);
+            sendHenleggelsesbrev(behandling.getUuid(), HistorikkAktør.VEDTAKSLØSNINGEN);
         }
         lagHistorikkinnslagForHenleggelse(behandlingId, årsakKode, begrunnelse, HistorikkAktør.SAKSBEHANDLER);
 
@@ -103,8 +103,8 @@ public class HenleggBehandlingTjeneste {
         taskTjeneste.lagre(taskData);
     }
 
-    private void sendHenleggelsesbrev(long behandlingId, UUID behandlingUuid, HistorikkAktør aktør) {
-        var bestillBrevDto = new BestillBrevDto(behandlingId, behandlingUuid, DokumentMalType.INFO_OM_HENLEGGELSE);
+    private void sendHenleggelsesbrev(UUID behandlingUuid, HistorikkAktør aktør) {
+        var bestillBrevDto = new BestillBrevDto(behandlingUuid, DokumentMalType.INFO_OM_HENLEGGELSE);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør);
     }
 

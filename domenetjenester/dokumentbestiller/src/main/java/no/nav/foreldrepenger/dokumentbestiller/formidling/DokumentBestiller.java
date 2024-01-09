@@ -40,18 +40,17 @@ public class DokumentBestiller {
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
-    public void bestillBrev(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-        var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
-            : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
+    public void bestillDokumentOgLoggHistorikk(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
+        var behandling =  behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
 
-        bestillBrev(behandling,
-                    bestillBrevDto.getBrevmalkode(),
-                    bestillBrevDto.getFritekst(),
-                    bestillBrevDto.getArsakskode(),
-                    aktør);
+        bestillDokumentOgLoggHistorikk(behandling,
+            bestillBrevDto.getBrevmalkode(),
+            bestillBrevDto.getFritekst(),
+            bestillBrevDto.getArsakskode(),
+            aktør);
     }
 
-    public void bestillBrev(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
+    private void bestillDokumentOgLoggHistorikk(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
         var bestillingUuid = UUID.randomUUID();
         opprettBestillDokumentTask(behandling, dokumentMalType, fritekst, årsak, bestillingUuid);
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType, bestillingUuid);

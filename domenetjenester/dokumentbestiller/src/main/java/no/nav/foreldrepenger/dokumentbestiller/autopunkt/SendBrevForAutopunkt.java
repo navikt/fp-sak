@@ -58,7 +58,7 @@ public class SendBrevForAutopunkt {
 
     private BestillBrevDto opprettBestillBrevDto(Behandling behandling,
                                                  DokumentMalType forlengetSaksbehandlingstidTidlig) {
-        return new BestillBrevDto(behandling.getId(), behandling.getUuid(), forlengetSaksbehandlingstidTidlig);
+        return new BestillBrevDto(behandling.getUuid(), forlengetSaksbehandlingstidTidlig);
     }
 
     public void sendBrevForEtterkontroll(Behandling behandling) {
