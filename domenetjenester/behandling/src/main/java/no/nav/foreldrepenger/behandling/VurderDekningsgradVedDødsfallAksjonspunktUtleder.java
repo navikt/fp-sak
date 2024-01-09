@@ -20,7 +20,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtleder {
 
     private static boolean utledAksjonspunktVedDødfødselOgDekningsgradUlik100(Dekningsgrad dekningsgradFraFagsakRelasjon,
                                                                               List<UidentifisertBarn> registerBarn) {
-        if (Dekningsgrad._80.equals(dekningsgradFraFagsakRelasjon) || registerBarn.isEmpty()) {
+        if (Dekningsgrad._100.equals(dekningsgradFraFagsakRelasjon) || registerBarn.isEmpty()) {
             return false;
         }
         return registerBarn.stream().allMatch(VurderDekningsgradVedDødsfallAksjonspunktUtleder::dødeBarnetInnenDeFørsteSeksLeveuker);
