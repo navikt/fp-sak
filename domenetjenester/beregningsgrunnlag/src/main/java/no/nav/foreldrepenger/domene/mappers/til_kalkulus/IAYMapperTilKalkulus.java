@@ -79,8 +79,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-import org.jboss.jdeparser.FormatPreferences;
-
 public class IAYMapperTilKalkulus {
 
     private IAYMapperTilKalkulus() {
