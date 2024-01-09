@@ -40,13 +40,13 @@ class DokumentBestillerTjenesteTest {
 
         var dokumentMalTypeInput = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
-        var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalTypeInput, "fritekst");
+        var bestillBrevDto = new BestillBrevDto(behandling.getUuid(), dokumentMalTypeInput, "fritekst");
 
         // Act
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør);
 
         // Assert
-        verify(dokumentBestiller).bestillBrev(bestillBrevDto, historikkAktør);
+        verify(dokumentBestiller).bestillDokumentOgLoggHistorikk(bestillBrevDto, historikkAktør);
     }
 
 }

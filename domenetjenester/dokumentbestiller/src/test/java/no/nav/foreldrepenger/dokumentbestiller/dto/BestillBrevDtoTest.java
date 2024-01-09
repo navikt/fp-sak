@@ -15,19 +15,17 @@ class BestillBrevDtoTest {
 
     @Test
     void serdes() {
-        var behandlingId = 12L;
         var uuid = "5ffbf59b-76d5-4c78-bd27-6c84e0d445a3";
+        var behandlingUuid = UUID.fromString(uuid);
         var dokumentMal = DokumentMalType.FRITEKSTBREV;
         var arsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
 
-        var brev = new BestillBrevDto(behandlingId, UUID.fromString(uuid), dokumentMal, null, arsak);
+        var brev = new BestillBrevDto(behandlingUuid, dokumentMal, null, arsak);
 
         var json = DefaultJsonMapper.toJson(brev);
 
         var etterRoundtrip = DefaultJsonMapper.fromJson(json, BestillBrevDto.class);
 
-        assertEquals(brev.getBehandlingId(), etterRoundtrip.getBehandlingId());
-        assertEquals(behandlingId, etterRoundtrip.getBehandlingId());
         assertEquals(brev.getBrevmalkode(), etterRoundtrip.getBrevmalkode());
         assertEquals(dokumentMal, brev.getBrevmalkode());
         assertEquals(brev.getArsakskode(), etterRoundtrip.getArsakskode());
