@@ -86,7 +86,7 @@ public class OverstyrDekningsgradTjeneste {
         if (fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             throw new ForvaltningException("Ikke støttet: Berørt sak");
         }
-        var fraVerdi = fagsakRelasjon.orElseThrow().getDekningsgrad();
+        var fraVerdi = fagsakRelasjon.orElseThrow().getGjeldendeDekningsgrad();
         var tilVerdi = overstyrtVerdi.get();
         if (fraVerdi.equals(tilVerdi)) {
             return Response.noContent().build();
