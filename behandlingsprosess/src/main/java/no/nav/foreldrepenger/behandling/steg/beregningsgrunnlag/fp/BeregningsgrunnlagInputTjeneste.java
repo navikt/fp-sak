@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Dekningsgrad;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
@@ -59,7 +60,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
         var dekningsgrad = fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad)
                 .orElseThrow(() -> new IllegalStateException("Mangler FagsakRelasjon#dekningsgrad for behandling: " + ref));
         var kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
-        var fpGrunnlag = new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), kvalifisererTilBesteberegning, aktivitetGradering);
+        var fpGrunnlag = new ForeldrepengerGrunnlag(mapTilDekningsgradKalkulator(dekningsgrad.getVerdi()), kvalifisererTilBesteberegning, aktivitetGradering);
         beregningUttakTjeneste.finnSisteTilnærmedeUttaksdato(ref).ifPresent(fpGrunnlag::setSisteSøkteUttaksdag);
         if (besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref)) {
             fpGrunnlag.setBesteberegningYtelsegrunnlag(besteberegningFødendeKvinneTjeneste.lagBesteberegningYtelseinput(ref));
@@ -67,4 +68,16 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
         fpGrunnlag.setBehandlingstidspunkt(behandlingRepository.hentBehandling(ref.behandlingId()).getOpprettetDato().toLocalDate());
         return fpGrunnlag;
     }
+
+    private Dekningsgrad mapTilDekningsgradKalkulator(int verdi) {
+        // Kan ikke bruke switch siden fpsak ikke representerer som enum
+        if (verdi == 80) {
+            return Dekningsgrad.DEKNINGSGRAD_80;
+        }
+        if (verdi == 100) {
+            return Dekningsgrad.DEKNINGSGRAD_100;
+        }
+        throw new IllegalStateException("Ugyldig dekningsgrad for foreldrepenger " + verdi);
+    }
+
 }

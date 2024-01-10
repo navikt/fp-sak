@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import no.nav.folketrygdloven.kalkulus.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum FaktaVurderingKilde implements Kodeverdi {
 
@@ -59,5 +59,10 @@ public enum FaktaVurderingKilde implements Kodeverdi {
     @Override
     public String getKodeverk() {
         return KODEVERK;
+    }
+
+    @Override
+    public String getNavn() {
+        return navn;
     }
 }
