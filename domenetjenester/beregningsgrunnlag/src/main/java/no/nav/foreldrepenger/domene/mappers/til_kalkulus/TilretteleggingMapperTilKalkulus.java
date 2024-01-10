@@ -50,12 +50,7 @@ public class TilretteleggingMapperTilKalkulus {
         return new AktivitetDto(
             tilretteleggingArbeidsforhold.getArbeidsgiver().map(IAYMapperTilKalkulus::mapArbeidsgiver).orElse(null),
             mapArbeidsforholdRef(tilretteleggingArbeidsforhold.getInternArbeidsforholdRef()),
-            mapUttakArbeidType(tilretteleggingArbeidsforhold.getUttakArbeidType())
+            KodeverkTilKalkulusMapper.mapUttakArbeidType(tilretteleggingArbeidsforhold.getUttakArbeidType())
         );
     }
-
-    private static UttakArbeidType mapUttakArbeidType(no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType uttakArbeidType) {
-        return UttakArbeidType.fraKode(uttakArbeidType.getKode());
-    }
-
 }
