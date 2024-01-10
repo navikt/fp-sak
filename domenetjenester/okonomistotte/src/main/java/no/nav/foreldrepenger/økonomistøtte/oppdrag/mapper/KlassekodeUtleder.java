@@ -7,11 +7,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.InntektskategoriKlassekodeMapper;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.konfig.Environment;
 
 public class KlassekodeUtleder {
 
-    private static final boolean ER_PROD = Environment.current().isProd();
     private static final int FERIEPENGER_NY_MAPPING_OPPTJENINGSÅR = 2023;
 
     private KlassekodeUtleder() {
