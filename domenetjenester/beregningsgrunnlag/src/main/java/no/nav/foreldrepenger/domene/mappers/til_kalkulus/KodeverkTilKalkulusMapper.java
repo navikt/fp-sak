@@ -4,7 +4,10 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
@@ -16,15 +19,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
-
-import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.pdl.IdentInformasjon;
-
-import org.apache.kafka.common.quota.ClientQuotaAlteration;
-
-import java.util.Map;
 
 public class KodeverkTilKalkulusMapper {
 
@@ -124,7 +120,7 @@ public class KodeverkTilKalkulusMapper {
     }
 
     public static Hjemmel mapHjemmel(no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel hjemmel) {
-        return switch(hjemmel) {
+        return switch (hjemmel) {
             case F_14_7 -> Hjemmel.F_14_7;
             case F_14_7_8_30 -> Hjemmel.F_14_7_8_30;
             case F_14_7_8_28_8_30 -> Hjemmel.F_14_7_8_28_8_30;
@@ -279,6 +275,69 @@ public class KodeverkTilKalkulusMapper {
             case ARBEIDSAVKLARINGSPENGER -> FagsakYtelseType.ARBEIDSAVKLARINGSPENGER;
             case DAGPENGER -> FagsakYtelseType.DAGPENGER;
             case UDEFINERT -> FagsakYtelseType.UDEFINERT;
+        };
+    }
+
+    public static FagsakYtelseType mapFagsakytelsetype(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fagsakYtelseType) {
+        return switch (fagsakYtelseType) {
+            case ENGANGSTØNAD -> FagsakYtelseType.ENGANGSTØNAD;
+            case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
+            case UDEFINERT -> FagsakYtelseType.UDEFINERT;
+        };
+    }
+
+    public static FaktaOmBeregningTilfelle mapFaktaBeregningTilfelle(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle tilfelle) {
+        return switch (tilfelle) {
+            case VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD -> FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD;
+            case VURDER_SN_NY_I_ARBEIDSLIVET -> FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET;
+            case VURDER_NYOPPSTARTET_FL -> FaktaOmBeregningTilfelle.VURDER_NYOPPSTARTET_FL;
+            case FASTSETT_MAANEDSINNTEKT_FL -> FaktaOmBeregningTilfelle.FASTSETT_MAANEDSINNTEKT_FL;
+            case FASTSETT_BG_ARBEIDSTAKER_UTEN_INNTEKTSMELDING -> FaktaOmBeregningTilfelle.FASTSETT_BG_ARBEIDSTAKER_UTEN_INNTEKTSMELDING;
+            case VURDER_LØNNSENDRING -> FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING;
+            case FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING ->
+                FaktaOmBeregningTilfelle.FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING;
+            case VURDER_AT_OG_FL_I_SAMME_ORGANISASJON -> FaktaOmBeregningTilfelle.VURDER_AT_OG_FL_I_SAMME_ORGANISASJON;
+            case FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE -> FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE;
+            case VURDER_ETTERLØNN_SLUTTPAKKE -> FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE;
+            case FASTSETT_ETTERLØNN_SLUTTPAKKE -> FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE;
+            case VURDER_MOTTAR_YTELSE -> FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE;
+            case VURDER_BESTEBEREGNING -> FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING;
+            case VURDER_MILITÆR_SIVILTJENESTE -> FaktaOmBeregningTilfelle.VURDER_MILITÆR_SIVILTJENESTE;
+            case VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT -> FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT;
+            case FASTSETT_BG_KUN_YTELSE -> FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE;
+            case TILSTØTENDE_YTELSE -> FaktaOmBeregningTilfelle.TILSTØTENDE_YTELSE;
+            case FASTSETT_ENDRET_BEREGNINGSGRUNNLAG -> FaktaOmBeregningTilfelle.FASTSETT_ENDRET_BEREGNINGSGRUNNLAG;
+            case UDEFINERT -> FaktaOmBeregningTilfelle.UDEFINERT;
+        };
+    }
+
+    public static BeregningAktivitetHandlingType mapBeregningAktivitetHandling(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType handling) {
+        return switch (handling) {
+            case BENYTT -> BeregningAktivitetHandlingType.BENYTT;
+            case IKKE_BENYTT -> BeregningAktivitetHandlingType.IKKE_BENYTT;
+            case UDEFINERT -> BeregningAktivitetHandlingType.UDEFINERT;
+        };
+    }
+
+    public static BeregningsgrunnlagTilstand mapBeregningsgrunnlagTilstand(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        return switch (beregningsgrunnlagTilstand) {
+            case OPPRETTET -> BeregningsgrunnlagTilstand.OPPRETTET;
+            case FASTSATT_BEREGNINGSAKTIVITETER -> BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER;
+            case OPPDATERT_MED_ANDELER -> BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
+            case KOFAKBER_UT -> BeregningsgrunnlagTilstand.KOFAKBER_UT;
+            case BESTEBEREGNET -> BeregningsgrunnlagTilstand.BESTEBEREGNET;
+            case FORESLÅTT -> BeregningsgrunnlagTilstand.FORESLÅTT;
+            case FORESLÅTT_UT -> BeregningsgrunnlagTilstand.FORESLÅTT_UT;
+            case FORESLÅTT_2 -> BeregningsgrunnlagTilstand.FORESLÅTT_2;
+            case FORESLÅTT_2_UT -> BeregningsgrunnlagTilstand.FORESLÅTT_2_UT;
+            case VURDERT_VILKÅR -> BeregningsgrunnlagTilstand.VURDERT_VILKÅR;
+            case VURDERT_REFUSJON -> BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
+            case VURDERT_REFUSJON_UT -> BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT;
+            case OPPDATERT_MED_REFUSJON_OG_GRADERING -> BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
+            case FASTSATT_INN -> BeregningsgrunnlagTilstand.FASTSATT_INN;
+            case FASTSATT -> BeregningsgrunnlagTilstand.FASTSATT;
+            case UDEFINERT -> BeregningsgrunnlagTilstand.UDEFINERT;
         };
     }
 }
