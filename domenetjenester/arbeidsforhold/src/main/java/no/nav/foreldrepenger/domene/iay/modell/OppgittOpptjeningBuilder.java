@@ -60,6 +60,16 @@ public class OppgittOpptjeningBuilder {
         return this;
     }
 
+    /**
+     * Hvis det allerede finnes et objekt i liste egenNæring med matchende orgnr som nyEgenNæring, blir dette erastattet av nyEgenNæring.
+     * Ellers blir nyEgenNæring lagt til
+     * @param nyEgenNæring
+     */
+    public OppgittOpptjeningBuilder leggTilEllerErstattEgenNæring(OppgittEgenNæring nyEgenNæring) {
+        this.kladd.leggTilEllerErstattEgenNæring(nyEgenNæring);
+        return this;
+    }
+
     public OppgittOpptjeningBuilder leggTilOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
         this.kladd.leggTilOppgittArbeidsforhold(oppgittArbeidsforhold);
         return this;

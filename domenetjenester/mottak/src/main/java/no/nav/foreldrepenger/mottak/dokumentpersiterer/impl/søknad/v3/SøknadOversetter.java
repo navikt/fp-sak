@@ -131,9 +131,6 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet;
 
-import javax.swing.text.html.Option;
-
-
 @NamespaceRef(SøknadConstants.NAMESPACE)
 @ApplicationScoped
 public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapper> {
@@ -732,16 +729,23 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         // Bygger ny opptjening fra gammelt grunnlag for å ta vare på gamle opplysninger, så lenge equals metoder er rett vil ikke dette gi dobble innslag
         var flettetBuilder = OppgittOpptjeningBuilder.oppdater(Optional.of(eksisterendeOppgittOpptjening));
         var opptjeningFraNySøknad = mapOppgittOpptjening(opptjening).build();
+
+        // Erstatter eksiterende frilans om finnes
         opptjeningFraNySøknad.getFrilans().ifPresent(flettetBuilder::leggTilFrilansOpplysninger);
+
+        // Legger til nye perioder med annen aktivitet (type eller periode må være ulik)
         opptjeningFraNySøknad.getAnnenAktivitet().stream()
             .filter(aa -> !eksisterendeOppgittOpptjening.getAnnenAktivitet().contains(aa))
             .forEach(flettetBuilder::leggTilAnnenAktivitet);
-        opptjeningFraNySøknad.getEgenNæring()
-            .stream().filter(en -> !eksisterendeOppgittOpptjening.getEgenNæring().contains(en))
-            .forEach(flettetBuilder::leggTilEgenNæring);
+
+        // Legger til nye næringer, eller erstatter næring med samme orgnr
+        opptjeningFraNySøknad.getEgenNæring().forEach(flettetBuilder::leggTilEgenNæring);
+
+        // Legger til nye perioder med oppgitt arbeidsforhold (type, utenlandskVirksomhet eller periode må være ulik)
         opptjeningFraNySøknad.getOppgittArbeidsforhold()
             .stream().filter(oa -> !eksisterendeOppgittOpptjening.getOppgittArbeidsforhold().contains(oa))
             .forEach(flettetBuilder::leggTilOppgittArbeidsforhold);
+
         return flettetBuilder;
     }
 
