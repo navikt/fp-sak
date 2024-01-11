@@ -557,7 +557,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             OppgittOpptjeningBuilder nyOppgittOpptjening;
             var eksisterendeOppgittOpptjening = iayTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
             if (eksisterendeOppgittOpptjening.isPresent()) {
-                LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling " + behandlingId);
+                LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling med id {}", behandlingId);
                 nyOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
             } else {
                 nyOppgittOpptjening = mapOppgittOpptjening(opptjeningFraSøknad);
