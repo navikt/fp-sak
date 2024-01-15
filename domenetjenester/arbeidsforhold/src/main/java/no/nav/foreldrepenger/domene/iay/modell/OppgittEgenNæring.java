@@ -204,7 +204,7 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
     public String toString() {
         return "EgenNæringEntitet{" +
             "periode=" + periode +
-            ", virksomhet=" + virksomhetOrgnr +
+            ", virksomhet=" + masker(virksomhetOrgnr) +
             ", nyoppstartet=" + nyoppstartet +
             ", virksomhetType=" + virksomhetType +
             ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
@@ -214,5 +214,9 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
             ", bruttoInntekt=" + bruttoInntekt +
             ", utenlandskVirksomhet=" + utenlandskVirksomhet +
             '}';
+    }
+
+    private String masker(OrgNummer virksomhetOrgnr) {
+        return virksomhetOrgnr == null ? null : OrgNummer.tilMaskertNummer(virksomhetOrgnr.getId());
     }
 }
