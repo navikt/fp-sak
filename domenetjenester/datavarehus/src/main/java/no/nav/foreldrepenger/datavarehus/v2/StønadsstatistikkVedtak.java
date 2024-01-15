@@ -11,7 +11,6 @@ import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
@@ -182,7 +181,7 @@ public class StønadsstatistikkVedtak {
     record FamilieHendelse(LocalDate termindato,
                            LocalDate adopsjonsdato,
                            @NotNull @Positive Integer antallBarn,
-                           @NotEmpty @Valid List<Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
+                           List<@Valid Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
                            @NotNull HendelseType hendelseType) {
 
         record Barn(AktørId aktørId, @NotNull LocalDate fødselsdato, LocalDate dødsdato) {}
@@ -218,7 +217,7 @@ public class StønadsstatistikkVedtak {
 
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
-                                     @NotNull @NotEmpty @Valid Set<Stønadskonto> stønadskonti,
+                                     @NotNull Set<@Valid Stønadskonto> stønadskonti,
                                      @Valid Trekkdager flerbarnsdager) {
 
         record Stønadskonto(@NotNull StønadskontoType type,
