@@ -300,4 +300,54 @@ public class ForvaltningUttrekkRestTjeneste {
     private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
         return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).toList();
     }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lag tasks for nye feriepengekoder til bruker adopsjon", tags = "FORVALTNING-uttrekk")
+    @Path("/omposterFeriepengerAdopsjon")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response omposterFeriepengerAdopsjon() {
+        var query = entityManager.createNativeQuery("""
+            select distinct fagsak_id
+            from fpsak.fh_adopsjon ad join fpsak.gr_familie_hendelse g on ad.familie_hendelse_id in (g.soeknad_familie_hendelse_id, g.bekreftet_familie_hendelse_id, g.overstyrt_familie_hendelse_id)
+            join fpsak.behandling b on g.behandling_id = b.id join fpsak.fagsak f on fagsak_id = f.id
+            where aktiv = 'J' and ytelse_type='FP' and behandling_status = 'AVSLU' and BEHANDLING_TYPE in ('BT-002', 'BT-004')
+             """);
+        @SuppressWarnings("unchecked")
+        List<BigDecimal> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(BigDecimal::longValue).toList();
+        åpneAksjonspunkt.forEach(this::omposterTask);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lag tasks for nye feriepengekoder til bruker SVP", tags = "FORVALTNING-uttrekk")
+    @Path("/omposterFeriepengerSvangerskapspenger")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response omposterFeriepengerSvangerskapspenger() {
+        var query = entityManager.createNativeQuery("""
+            insert into prosess_task (id, task_type, task_parametere)
+                 select seq_prosess_task.nextval, 'feriepenger.omposter24', 'fagsakId=' || fid
+                 from (
+              select f.id fid from fpsak.fagsak f join fpsak.fagsak_relasjon fr on f.id in (fr.fagsak_en_id, fr.fagsak_to_id)
+              where ytelse_type = 'SVP' and aktiv = 'J'
+              and f.id not in (select fagsak_id from fpsak.behandling where behandling_status <> 'AVSLU' and BEHANDLING_TYPE in ('BT-002', 'BT-004'))
+              and avsluttningsdato is not null and avsluttningsdato > '31.12.2022')
+             """);
+        @SuppressWarnings("unchecked")
+        int rader = query.executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    private void omposterTask(Long fagsakId) {
+        var task = ProsessTaskData.forProsessTask(FeriepengerOmposterTask.class);
+        task.setFagsakId(fagsakId);
+        task.setCallIdFraEksisterende();
+        taskTjeneste.lagre(task);
+
+    }
 }
