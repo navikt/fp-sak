@@ -178,7 +178,8 @@ class MapTilKalkulatorInput {
         }
         if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag) {
             var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
-            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad()), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
+            // Forventer prosent her, så må gange opp. Brukes kun i forvaltning swaggerkall
+            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad().getVerdi()).multiply(BigDecimal.valueOf(100)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
         }
         return null;
     }

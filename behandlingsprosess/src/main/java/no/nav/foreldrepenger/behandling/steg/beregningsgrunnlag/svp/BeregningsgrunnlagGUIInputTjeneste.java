@@ -37,7 +37,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                               OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
-                opptjeningForBeregningTjeneste, inntektsmeldingTjeneste);
+                inntektsmeldingTjeneste);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }
 

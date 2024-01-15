@@ -8,6 +8,8 @@ import java.util.List;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private final BehandlingVedtakRepository behandlingVedtakRepository;
     private final ProsessTaskTjeneste prosessTaskTjeneste;
+    private Validator validator;
 
     @Inject
     public StønadsstatistikkMigreringTask(BehandlingRepository behandlingRepository,
@@ -55,6 +58,10 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
+
+        @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
+        // hibernate validator implementations er thread-safe, trenger ikke close
+        validator = factory.getValidator();
     }
 
     @Override
@@ -91,7 +98,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     private List<Long> finnSakerOpprettetPåDato(LocalDate dato) {
         var sql = """
             select f.id from fagsak f
-            where trunc(opprettet_tid) =:dato
+            where trunc(opprettet_tid) =:dato and til_infotrygd = 'N'
             """;
         var query = entityManager.createNativeQuery(sql).setParameter("dato", dato);
         return query.getResultList().stream().map(num -> Long.parseLong(num.toString())).toList();
@@ -117,6 +124,12 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {}", behandling.getFagsak().getSaksnummer(), behandling.getId(),
             vedtak.getId());
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
+        var generertVedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
+        var violations = validator.validate(generertVedtak);
+        if (!violations.isEmpty()) {
+            // Har feilet validering
+            var allErrors = violations.stream().map(it -> it.getPropertyPath().toString() + " :: " + it.getMessage()).toList();
+            throw new IllegalArgumentException("stønadsstatistikk valideringsfeil \n " + allErrors);
+        }
     }
 }

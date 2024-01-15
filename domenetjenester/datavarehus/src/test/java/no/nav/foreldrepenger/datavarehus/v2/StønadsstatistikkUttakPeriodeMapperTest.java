@@ -63,7 +63,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(gradertAktivitet, annenAktivitet))
             .build();
         var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA,
-            BEGGE_RETT, uttakPeriode);
+            BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.stønadskontoType()).isEqualTo(StønadsstatistikkVedtak.StønadskontoType.FEDREKVOTE);
         assertThat(stønadsstatistikkUttakPeriode.trekkdager().antall()).isEqualByComparingTo(BigDecimal.valueOf(0.9));
@@ -90,7 +90,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet))
             .build();
         var stønadsstatistikkUttakPeriode = mapUttakPeriode(MORA,
-            BEGGE_RETT, uttakPeriode);
+            BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.rettighetType()).isEqualTo(ALENEOMSORG);
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.OVERFØRING_ALENEOMSORG);
@@ -114,7 +114,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet))
             .build();
         var stønadsstatistikkUttakPeriode = mapUttakPeriode(MORA,
-            BEGGE_RETT, uttakPeriode);
+            BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.rettighetType()).isEqualTo(BARE_SØKER_RETT);
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.OVERFØRING_BARE_SØKER_RETT);
@@ -137,7 +137,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medResultatÅrsak(PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_BARN_INNLAGT)
             .medAktiviteter(List.of(uttakPeriodeAktivitet))
             .build();
-        var stønadsstatistikkUttakPeriode = mapUttakPeriode(MORA, BEGGE_RETT, uttakPeriode);
+        var stønadsstatistikkUttakPeriode = mapUttakPeriode(MORA, BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.UTSETTELSE_BARNINNLAGT);
         assertThat(stønadsstatistikkUttakPeriode.type()).isEqualTo(PeriodeType.UTSETTELSE);
@@ -162,7 +162,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet))
             .medSøktKonto(UttakPeriodeType.FORELDREPENGER)
             .build();
-        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BARE_SØKER_RETT, uttakPeriode);
+        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BARE_SØKER_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.AKTIVITETSKRAV_ARBEID);
     }
@@ -185,7 +185,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet))
             .medSøktKonto(UttakPeriodeType.FORELDREPENGER)
             .build();
-        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode);
+        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.AKTIVITETSKRAV_UTDANNING);
     }
@@ -208,7 +208,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet))
             .medSøktKonto(UttakPeriodeType.FORELDREPENGER)
             .build();
-        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BARE_SØKER_RETT, uttakPeriode);
+        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BARE_SØKER_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.MINSTERETT);
     }
@@ -232,7 +232,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medSøktKonto(UttakPeriodeType.FELLESPERIODE)
             .medFlerbarnsdager(true)
             .build();
-        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode);
+        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.FLERBARNSDAGER);
     }
@@ -257,7 +257,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(new SamtidigUttaksprosent(50))
             .build();
-        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode);
+        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.forklaring()).isEqualTo(Forklaring.SAMTIDIG_MØDREKVOTE);
     }
@@ -279,7 +279,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(uttakPeriodeAktivitet))
             .medSøktKonto(UttakPeriodeType.UDEFINERT)
             .build();
-        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode);
+        var stønadsstatistikkUttakPeriode = mapUttakPeriode(FARA, BEGGE_RETT, uttakPeriode, "");
 
         assertThat(stønadsstatistikkUttakPeriode.stønadskontoType()).isEqualTo(StønadsstatistikkVedtak.StønadskontoType.FEDREKVOTE);
         assertThat(stønadsstatistikkUttakPeriode.erUtbetaling()).isFalse();
@@ -327,7 +327,7 @@ class StønadsstatistikkUttakPeriodeMapperTest {
             .medAktiviteter(List.of(getArbeidMedFulltUttak(StønadskontoType.MØDREKVOTE, 2)))
             .build();
         var stønadsstatistikkUttakPerioder = StønadsstatistikkUttakPeriodeMapper.mapUttak(MORA,
-            BEGGE_RETT, List.of(uttakPeriode1, uttakPeriode2, uttakPeriode3, uttakPeriode4, uttakPeriode5));
+            BEGGE_RETT, List.of(uttakPeriode1, uttakPeriode2, uttakPeriode3, uttakPeriode4, uttakPeriode5), "");
 
         assertThat(stønadsstatistikkUttakPerioder).hasSize(3);
         var stønadsstatistikkUttakPeriode = stønadsstatistikkUttakPerioder.getFirst();

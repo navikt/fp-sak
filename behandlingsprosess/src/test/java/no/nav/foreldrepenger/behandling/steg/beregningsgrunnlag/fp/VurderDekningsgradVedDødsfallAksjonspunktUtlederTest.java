@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,10 +27,9 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         // Arrange
         var dødsdato = fødselsdato.plusWeeks(6).plusDays(1);
         var barnList = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
-        var dekningsgrad = 80;
 
         // Act
-        var skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
+        var skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(Dekningsgrad._80, List.of(barnList));
 
         // Assert
         assertThat(skalHaAksjonspunkt).isFalse();
@@ -42,7 +43,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        var skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
+        var skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(Dekningsgrad._80, List.of(barnList));
 
         // Assert
         assertThat(skalHaAksjonspunkt).isTrue();
@@ -56,7 +57,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
+        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(Dekningsgrad._80, List.of(barnList));
         // Assert
         assertThat(resultat).isTrue();
     }
@@ -69,7 +70,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 100;
 
         // Act
-        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barn));
+        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(Dekningsgrad._100, List.of(barn));
 
         // Assert
         assertThat(resultat).isFalse();
@@ -81,7 +82,7 @@ class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of());
+        var resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(Dekningsgrad._80, List.of());
 
         // Assert
         assertThat(resultat).isFalse();

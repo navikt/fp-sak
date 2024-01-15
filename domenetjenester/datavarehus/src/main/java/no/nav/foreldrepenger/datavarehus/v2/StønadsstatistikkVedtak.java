@@ -11,10 +11,8 @@ import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -44,13 +42,13 @@ public class StønadsstatistikkVedtak {
     private AktørId søker;
     @NotNull
     private Saksrolle søkersRolle;
-    @NotNull
+    
     private UtlandsTilsnitt utlandsTilsnitt;
     @Valid
     private AnnenForelder annenForelder;
-    @NotNull
     @Valid
     private FamilieHendelse familieHendelse;
+    @Valid
     private Beregning beregning;
     @NotNull
     private String utbetalingsreferanse; // en referanse mot oppdrag
@@ -181,8 +179,8 @@ public class StønadsstatistikkVedtak {
 
     record FamilieHendelse(LocalDate termindato,
                            LocalDate adopsjonsdato,
-                           @NotNull @Positive Integer antallBarn,
-                           @NotEmpty @Valid List<Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
+                           @NotNull Integer antallBarn,
+                           List<@Valid Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
                            @NotNull HendelseType hendelseType) {
 
         record Barn(AktørId aktørId, @NotNull LocalDate fødselsdato, LocalDate dødsdato) {}
@@ -218,7 +216,7 @@ public class StønadsstatistikkVedtak {
 
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
-                                     @NotNull @NotEmpty @Valid Set<Stønadskonto> stønadskonti,
+                                     @NotNull Set<@Valid Stønadskonto> stønadskonti,
                                      @Valid Trekkdager flerbarnsdager) {
 
         record Stønadskonto(@NotNull StønadskontoType type,
@@ -253,12 +251,29 @@ public class StønadsstatistikkVedtak {
     }
 
     enum LovVersjon {
-        FORELDREPENGER_2019_01_01, // LOV-2017-12-19-116 - 1/1-2019
-        FORELDREPENGER_FRI_2021_10_01, // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
-        FORELDREPENGER_MINSTERETT_2022_08_02, // LOV-2022-03-18-11 - 2/8-2022 - minsterett
+        FORELDREPENGER_2019_01_01(YtelseType.FORELDREPENGER, LocalDate.of(2019,1,1)), // LOV-2017-12-19-116 - 1/1-2019
+        FORELDREPENGER_FRI_2021_10_01(YtelseType.FORELDREPENGER, LocalDate.of(2021,10,1)), // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
+        FORELDREPENGER_MINSTERETT_2022_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2022,8,2)), // LOV-2022-03-18-11 - 2/8-2022 - minsterett
 
-        ENGANGSSTØNAD_2019_01_01,
-        SVANGERSKAPSPENGER_2019_01_01,
+        ENGANGSSTØNAD_2019_01_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2019,1,1)),
+        SVANGERSKAPSPENGER_2019_01_01(YtelseType.SVANGERSKAPSPENGER, LocalDate.of(2019,1,1))
+        ;
+
+        private final YtelseType ytelseType;
+        private final LocalDate datoFom;
+
+        LovVersjon(YtelseType ytelseType, LocalDate datoFom) {
+            this.ytelseType = ytelseType;
+            this.datoFom = datoFom;
+        }
+
+        public LocalDate getDatoFom() {
+            return datoFom;
+        }
+
+        public YtelseType getYtelseType() {
+            return ytelseType;
+        }
     }
 
     enum UtlandsTilsnitt {
