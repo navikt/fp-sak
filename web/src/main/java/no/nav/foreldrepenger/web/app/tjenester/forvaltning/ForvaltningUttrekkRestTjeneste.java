@@ -145,10 +145,10 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("""
-            select b.id from fpsak.behandling b join fpsak.fagsak f on fagsak_id = f.id
-            where behandling_status <> 'AVSLU'
-            and exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def = '5051' and aksjonspunkt_status = 'OPPR')
-            and not exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
+            select distinct b.id from fpsak.behandling_arsak ba join fpsak.behandling b on ba.behandling_id = b.id join fpsak.fagsak f on b.fagsak_id = f.id
+            where ytelse_type = 'SVP' and behandling_arsak_type = 'REBEREGN-FERIEPENGER' and ba.opprettet_tid >= '15.01.2024' and behandling_status <> 'AVSLU'
+            and b.id in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def = 5028)
+            and b.id not in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def <> 5028)
              """);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
@@ -159,7 +159,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttTilbakeTilStart(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.VURDER_OPPTJENINGSVILKÅR.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.FORESLÅ_VEDTAK.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
