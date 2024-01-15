@@ -2,10 +2,12 @@ package no.nav.foreldrepenger.domene.iay.modell;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType;
@@ -44,7 +46,8 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
 
     @Override
     public String getIndexKey() {
-        return IndexKey.createKey(getInntektspostType(), getInntektYtelseType().getKode(), getSkatteOgAvgiftsregelType(), periode);
+        var inntektYtelse = Optional.ofNullable(getInntektYtelseType()).map(Kodeverdi::getKode).orElse(null);
+        return IndexKey.createKey(getInntektspostType(), inntektYtelse, getSkatteOgAvgiftsregelType(), periode);
     }
 
     /**
