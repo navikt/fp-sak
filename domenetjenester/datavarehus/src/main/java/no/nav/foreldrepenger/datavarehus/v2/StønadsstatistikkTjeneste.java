@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Fami
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.ForeldrepengerRettigheter;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.HendelseType;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon;
+import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.RettighetType;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.UtlandsTilsnitt;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.VedtakResultat;
@@ -15,6 +16,7 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Ytel
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -78,6 +79,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 public class StønadsstatistikkTjeneste {
 
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
+    private static final LocalDateTime VEDTAK_MED_TIDSPUNKT = LocalDateTime.of(2019, 6, 27, 11, 45,0);
 
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -145,15 +147,16 @@ public class StønadsstatistikkTjeneste {
         var stp = behandlingReferanse.getSkjæringstidspunkt();
         var forrigeBehandlingUuid = behandling.getOriginalBehandlingId().map(id -> behandlingRepository.hentBehandling(id)).map(Behandling::getUuid);
         var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
-        var familiehendelse = familieHendelseTjeneste.hentAggregat(behandlingId).getGjeldendeVersjon();
+        var familiehendelse = familieHendelseTjeneste.finnAggregat(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).orElse(null);
+        var vedtakstidspunkt = vedtak.getVedtakstidspunkt().isBefore(VEDTAK_MED_TIDSPUNKT) ? vedtak.getOpprettetTidspunkt() : vedtak.getVedtakstidspunkt();
 
         var fagsak = behandling.getFagsak();
         var ytelseType = mapYtelseType(fagsak.getYtelseType());
-        var lovVersjon = utledLovVersjon(stp, ytelseType);
+        var lovVersjon = utledLovVersjon(stp, ytelseType, vedtakstidspunkt);
         var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
-        var familieHendelse = mapFamilieHendelse(behandlingReferanse, familiehendelse);
         var søknadsdato = finnSøknadsdato(behandlingReferanse);
 
         var builder = new Builder()
@@ -166,12 +169,12 @@ public class StønadsstatistikkTjeneste {
             .medForrigeBehandlingUuid(forrigeBehandlingUuid.orElse(null))
             .medSøknadsdato(søknadsdato)
             .medSkjæringstidspunkt(stp.getSkjæringstidspunktHvisUtledet().orElse(null))
-            .medVedtakstidspunkt(vedtak.getVedtakstidspunkt())
+            .medVedtakstidspunkt(vedtakstidspunkt)
             .medVedtaksresultat(mapVedtaksresultat(vedtak))
             .medVilkårIkkeOppfylt(utledVilkårIkkeOppfylt(vedtak, behandling))
             .medUtlandsTilsnitt(utledUtlandsTilsnitt(utlandMarkering))
             .medAnnenForelder(utledAnnenForelder(behandling, familiehendelse))
-            .medFamilieHendelse(familieHendelse)
+            .medFamilieHendelse(mapFamilieHendelse(behandlingReferanse, familiehendelse))
             .medUtbetalingsreferanse(String.valueOf(behandlingReferanse.behandlingId()))
             .medBehandlingId(behandlingId);
 
@@ -230,12 +233,16 @@ public class StønadsstatistikkTjeneste {
     }
 
     private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(Behandling behandling, RettighetType rettighetType) {
+        var logContext = String.format("saksnummer %s behandling %s", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid().toString());
         return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
-            .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(behandling.getRelasjonsRolleType(), rettighetType, u.getGjeldendePerioder()))
+            .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(behandling.getRelasjonsRolleType(), rettighetType, u.getGjeldendePerioder(), logContext))
             .orElse(List.of());
     }
 
     private FamilieHendelse mapFamilieHendelse(BehandlingReferanse behandling, FamilieHendelseEntitet familiehendelse) {
+        if (familiehendelse == null) {
+            return null;
+        }
         var termindato = familiehendelse.getTermindato().orElse(null);
         var adopsjonsdato = familiehendelse.getGjelderAdopsjon() ? familiehendelse.getAdopsjon()
             .map(AdopsjonEntitet::getOmsorgsovertakelseDato)
@@ -271,12 +278,14 @@ public class StønadsstatistikkTjeneste {
     private AnnenForelder utledAnnenForelder(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
-            .or(() -> personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId())
-                .map(OppgittAnnenPartEntitet::getAktørId)
+            .or(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
                 .flatMap(apaid -> finnEngangsstønadSak(apaid, familiehendelse)))
             .map(relatert -> new AnnenForelder(mapAktørId(relatert.getAktørId()), mapSaksnummer(relatert.getSaksnummer()),
                 mapYtelseType(relatert.getYtelseType()), mapBrukerRolle(relatert.getRelasjonsRolleType())))
-            .orElse(null);
+            // Vi har ikke annenpart med sak. Lag AnnenForelder med oppgitt aktør id, uten saksinfo
+            .orElseGet(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
+                .map(a -> new AnnenForelder(mapAktørId(a), null, null, null))
+                .orElse(null));
     }
 
     private Optional<Fagsak> finnEngangsstønadSak(AktørId aktørId, FamilieHendelseEntitet familieHendelse) {
@@ -291,6 +300,9 @@ public class StønadsstatistikkTjeneste {
     }
 
     private boolean matcherFamiliehendelseMedSak(FamilieHendelseEntitet familieHendelse, Behandling behandling) {
+        if (familieHendelse == null || familieHendelse.getSkjæringstidspunkt() == null) {
+            return false;
+        }
         var fhDato = familieHendelse.getSkjæringstidspunkt();
         var egetIntervall = new LocalDateInterval(fhDato.minus(INTERVALL_SAMME_BARN), fhDato.plus(INTERVALL_SAMME_BARN));
         var annenpartIntervall = familieHendelseTjeneste.finnAggregat(behandling.getId())
@@ -332,19 +344,26 @@ public class StønadsstatistikkTjeneste {
         };
     }
 
-    private static LovVersjon utledLovVersjon(Skjæringstidspunkt stp, YtelseType ytelseType) {
+    private static LovVersjon utledLovVersjon(Skjæringstidspunkt stp, YtelseType ytelseType, LocalDateTime vedtakstidspunkt) {
         return switch (ytelseType) {
-            case FORELDREPENGER -> utledLovVersjonFp(stp);
+            case FORELDREPENGER -> utledLovVersjonFp(stp, vedtakstidspunkt);
             case SVANGERSKAPSPENGER -> LovVersjon.SVANGERSKAPSPENGER_2019_01_01;
             case ENGANGSSTØNAD -> LovVersjon.ENGANGSSTØNAD_2019_01_01;
         };
     }
 
-    private static LovVersjon utledLovVersjonFp(Skjæringstidspunkt stp) {
+    private static LovVersjon utledLovVersjonFp(Skjæringstidspunkt stp, LocalDateTime vedtakstidspunkt) {
+        if (stp == null || stp.getSkjæringstidspunktHvisUtledet().isEmpty()) {
+            var vedtaksdatoPlus1 = vedtakstidspunkt.toLocalDate().plusDays(1);
+            return Arrays.stream(LovVersjon.values())
+                .filter(v -> YtelseType.FORELDREPENGER.equals(v.getYtelseType()))
+                .filter(v -> vedtaksdatoPlus1.isAfter(v.getDatoFom()))
+                .max(Comparator.comparing(LovVersjon::getDatoFom)).orElseThrow();
+        }
         if (stp.utenMinsterett()) {
             return stp.kreverSammenhengendeUttak() ? LovVersjon.FORELDREPENGER_2019_01_01 : LovVersjon.FORELDREPENGER_FRI_2021_10_01;
         }
-        return LovVersjon.FORELDREPENGER_MINSTERETT_2022_08_02;
+        return FORELDREPENGER_MINSTERETT_2022_08_02;
     }
 
     private ForeldrepengerRettigheter utledRettigheter(Behandling behandling) {
