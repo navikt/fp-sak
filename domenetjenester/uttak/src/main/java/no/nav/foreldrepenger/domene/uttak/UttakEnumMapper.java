@@ -300,7 +300,6 @@ public final class UttakEnumMapper {
             return GraderingAvslagÅrsak.UKJENT;
         }
         return switch (graderingIkkeInnvilgetÅrsak) {
-            case AVSLAG_PGA_SEN_SØKNAD -> GraderingAvslagÅrsak.FOR_SEN_SØKNAD;
             case AVSLAG_PGA_FOR_TIDLIG_GRADERING -> GraderingAvslagÅrsak.GRADERING_FØR_UKE_7;
         };
     }
