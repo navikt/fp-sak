@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -145,7 +144,8 @@ public class StønadsstatistikkTjeneste {
         var stp = behandlingReferanse.getSkjæringstidspunkt();
         var forrigeBehandlingUuid = behandling.getOriginalBehandlingId().map(id -> behandlingRepository.hentBehandling(id)).map(Behandling::getUuid);
         var utlandMarkering = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).orElse(FagsakMarkering.NASJONAL);
-        var familiehendelse = familieHendelseTjeneste.hentAggregat(behandlingId).getGjeldendeVersjon();
+        var familiehendelse = familieHendelseTjeneste.finnAggregat(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).orElse(null);
 
         var fagsak = behandling.getFagsak();
         var ytelseType = mapYtelseType(fagsak.getYtelseType());
@@ -153,7 +153,6 @@ public class StønadsstatistikkTjeneste {
         var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
-        var familieHendelse = mapFamilieHendelse(behandlingReferanse, familiehendelse);
         var søknadsdato = finnSøknadsdato(behandlingReferanse);
 
         var builder = new Builder()
@@ -171,7 +170,7 @@ public class StønadsstatistikkTjeneste {
             .medVilkårIkkeOppfylt(utledVilkårIkkeOppfylt(vedtak, behandling))
             .medUtlandsTilsnitt(utledUtlandsTilsnitt(utlandMarkering))
             .medAnnenForelder(utledAnnenForelder(behandling, familiehendelse))
-            .medFamilieHendelse(familieHendelse)
+            .medFamilieHendelse(mapFamilieHendelse(behandlingReferanse, familiehendelse))
             .medUtbetalingsreferanse(String.valueOf(behandlingReferanse.behandlingId()))
             .medBehandlingId(behandlingId);
 
@@ -236,6 +235,9 @@ public class StønadsstatistikkTjeneste {
     }
 
     private FamilieHendelse mapFamilieHendelse(BehandlingReferanse behandling, FamilieHendelseEntitet familiehendelse) {
+        if (familiehendelse == null) {
+            return null;
+        }
         var termindato = familiehendelse.getTermindato().orElse(null);
         var adopsjonsdato = familiehendelse.getGjelderAdopsjon() ? familiehendelse.getAdopsjon()
             .map(AdopsjonEntitet::getOmsorgsovertakelseDato)
@@ -271,12 +273,14 @@ public class StønadsstatistikkTjeneste {
     private AnnenForelder utledAnnenForelder(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
-            .or(() -> personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId())
-                .map(OppgittAnnenPartEntitet::getAktørId)
+            .or(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
                 .flatMap(apaid -> finnEngangsstønadSak(apaid, familiehendelse)))
             .map(relatert -> new AnnenForelder(mapAktørId(relatert.getAktørId()), mapSaksnummer(relatert.getSaksnummer()),
                 mapYtelseType(relatert.getYtelseType()), mapBrukerRolle(relatert.getRelasjonsRolleType())))
-            .orElse(null);
+            // Vi har ikke annenpart med sak. Lag AnnenForelder med oppgitt aktør id, uten saksinfo
+            .orElseGet(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
+                .map(a -> new AnnenForelder(mapAktørId(a), null, null, null))
+                .orElse(null));
     }
 
     private Optional<Fagsak> finnEngangsstønadSak(AktørId aktørId, FamilieHendelseEntitet familieHendelse) {
@@ -291,6 +295,9 @@ public class StønadsstatistikkTjeneste {
     }
 
     private boolean matcherFamiliehendelseMedSak(FamilieHendelseEntitet familieHendelse, Behandling behandling) {
+        if (familieHendelse == null) {
+            return false;
+        }
         var fhDato = familieHendelse.getSkjæringstidspunkt();
         var egetIntervall = new LocalDateInterval(fhDato.minus(INTERVALL_SAMME_BARN), fhDato.plus(INTERVALL_SAMME_BARN));
         var annenpartIntervall = familieHendelseTjeneste.finnAggregat(behandling.getId())
@@ -341,6 +348,9 @@ public class StønadsstatistikkTjeneste {
     }
 
     private static LovVersjon utledLovVersjonFp(Skjæringstidspunkt stp) {
+        if (stp == null || stp.getSkjæringstidspunktHvisUtledet().isEmpty()) {
+            return LovVersjon.FORELDREPENGER_2019_01_01; // TODO: Vurder å returnere null - da må NotNull fra vedtak fjernes
+        }
         if (stp.utenMinsterett()) {
             return stp.kreverSammenhengendeUttak() ? LovVersjon.FORELDREPENGER_2019_01_01 : LovVersjon.FORELDREPENGER_FRI_2021_10_01;
         }

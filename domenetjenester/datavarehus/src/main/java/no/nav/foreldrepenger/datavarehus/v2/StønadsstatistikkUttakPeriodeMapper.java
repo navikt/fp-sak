@@ -19,6 +19,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
@@ -33,6 +36,7 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 class StønadsstatistikkUttakPeriodeMapper {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StønadsstatistikkUttakPeriodeMapper.class);
 
     private StønadsstatistikkUttakPeriodeMapper() {
     }
@@ -81,8 +85,9 @@ class StønadsstatistikkUttakPeriodeMapper {
 
     private static Forklaring utledForklaringAvslag(ForeldrepengerUttakPeriode periode) {
         if (periode.getResultatÅrsak().getUtfallType() != PeriodeResultatÅrsak.UtfallType.AVSLÅTT) {
-            throw new IllegalArgumentException("Forventer periode med avslågsårsak. Fikk " + periode.getResultatÅrsak()
-                + " for periode " + periode.getTidsperiode());
+            // TODO ta med saksnummer + behandling ned i kontekst
+            LOG.info("Stønadsstatistikk forventer periode med avslågsårsak. Fikk {} for periode {}", periode.getResultatÅrsak(), periode.getTidsperiode());
+            return Forklaring.AVSLAG_ANNET;
         }
 
         return switch (periode.getResultatÅrsak()) {

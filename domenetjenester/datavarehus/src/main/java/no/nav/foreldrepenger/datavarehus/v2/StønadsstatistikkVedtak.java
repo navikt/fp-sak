@@ -48,9 +48,9 @@ public class StønadsstatistikkVedtak {
     private UtlandsTilsnitt utlandsTilsnitt;
     @Valid
     private AnnenForelder annenForelder;
-    @NotNull
     @Valid
     private FamilieHendelse familieHendelse;
+    @Valid
     private Beregning beregning;
     @NotNull
     private String utbetalingsreferanse; // en referanse mot oppdrag
