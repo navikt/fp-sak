@@ -89,7 +89,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
 
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultater = query.getResultList();
-        return resultater.stream().map(Number::longValue).toList();
+        return resultater.stream().map(r -> ((Number) r).longValue()).toList();
 
     }
 
@@ -107,7 +107,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
 
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultater = query.getResultList();
-        return resultater.stream().map(Number::longValue).toList();
+        return resultater.stream().map(r -> ((Number) r).longValue()).toList();
     }
 
 }

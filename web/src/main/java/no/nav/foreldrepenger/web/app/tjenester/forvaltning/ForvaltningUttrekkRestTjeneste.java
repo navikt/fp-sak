@@ -153,7 +153,7 @@ public class ForvaltningUttrekkRestTjeneste {
              """);
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        var åpneAksjonspunkt =  resultatList.stream().map(r -> ((Number) r).longValue()).toList();
         åpneAksjonspunkt.forEach(this::flyttTilbakeTilStart);
         return Response.ok().build();
     }
@@ -317,7 +317,7 @@ public class ForvaltningUttrekkRestTjeneste {
              """);
         @SuppressWarnings("unchecked")
         List<BigDecimal> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        var åpneAksjonspunkt =  resultatList.stream().map(r -> ((Number) r).longValue()).toList();
         åpneAksjonspunkt.forEach(this::omposterTask);
         return Response.ok().build();
     }
