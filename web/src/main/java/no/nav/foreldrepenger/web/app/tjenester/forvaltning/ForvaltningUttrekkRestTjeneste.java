@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -152,8 +151,8 @@ public class ForvaltningUttrekkRestTjeneste {
             and not exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
              """);
         @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(r -> ((Number) r).longValue()).toList();
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
         åpneAksjonspunkt.forEach(this::flyttTilbakeTilStart);
         return Response.ok().build();
     }
@@ -316,8 +315,8 @@ public class ForvaltningUttrekkRestTjeneste {
             where aktiv = 'J' and ytelse_type='FP' and behandling_status = 'AVSLU' and BEHANDLING_TYPE in ('BT-002', 'BT-004')
              """);
         @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(r -> ((Number) r).longValue()).toList();
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
         åpneAksjonspunkt.forEach(this::omposterTask);
         return Response.ok().build();
     }
