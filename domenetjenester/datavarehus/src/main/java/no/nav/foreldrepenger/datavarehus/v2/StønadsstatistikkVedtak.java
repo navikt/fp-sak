@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -180,7 +179,7 @@ public class StønadsstatistikkVedtak {
 
     record FamilieHendelse(LocalDate termindato,
                            LocalDate adopsjonsdato,
-                           @NotNull @Positive Integer antallBarn,
+                           @NotNull Integer antallBarn,
                            List<@Valid Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
                            @NotNull HendelseType hendelseType) {
 
