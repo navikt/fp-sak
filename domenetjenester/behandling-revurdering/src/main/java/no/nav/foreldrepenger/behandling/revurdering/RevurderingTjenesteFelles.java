@@ -64,7 +64,7 @@ public class RevurderingTjenesteFelles {
         var revurderingÅrsak = BehandlingÅrsak.builder(revurderingsÅrsak)
                 .medOriginalBehandlingId(opprinneligBehandling.getId())
                 .medManueltOpprettet(manueltOpprettet);
-        if (BehandlingÅrsakType.årsakerForRelatertVedtak().contains(revurderingsÅrsak)
+        if (BehandlingÅrsakType.BERØRT_BEHANDLING.equals(revurderingsÅrsak)
             && opprinneligBehandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                     .orElseThrow(() -> new IllegalStateException(
