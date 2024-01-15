@@ -13,21 +13,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum SkatteOgAvgiftsregelType implements Kodeverdi, MedOffisiellKode {
+public enum SkatteOgAvgiftsregelType implements Kodeverdi {
 
-    SÆRSKILT_FRADRAG_FOR_SJØFOLK("SÆRSKILT_FRADRAG_FOR_SJØFOLK", "Særskilt fradrag for sjøfolk", "saerskiltFradragForSjoefolk"),
-    SVALBARD("SVALBARD", "Svalbardinntekt", "svalbard"),
-    SKATTEFRI_ORGANISASJON("SKATTEFRI_ORGANISASJON", "Skattefri Organisasjon", "skattefriOrganisasjon"),
-    NETTOLØNN_FOR_SJØFOLK("NETTOLØNN_FOR_SJØFOLK", "Nettolønn for sjøfolk", "nettoloennForSjoefolk"),
-    NETTOLØNN("NETTOLØNN", "Nettolønn", "nettoloenn"),
-    KILDESKATT_PÅ_PENSJONER("KILDESKATT_PÅ_PENSJONER", "Kildeskatt på pensjoner", "kildeskattPaaPensjoner"),
-    JAN_MAYEN_OG_BILANDENE("JAN_MAYEN_OG_BILANDENE", "Inntekt på Jan Mayen og i norske biland i Antarktis", "janMayenOgBilandene"),
+    SÆRSKILT_FRADRAG_FOR_SJØFOLK("SÆRSKILT_FRADRAG_FOR_SJØFOLK", "Særskilt fradrag for sjøfolk"),
+    SVALBARD("SVALBARD", "Svalbardinntekt"),
+    SKATTEFRI_ORGANISASJON("SKATTEFRI_ORGANISASJON", "Skattefri Organisasjon"),
+    NETTOLØNN_FOR_SJØFOLK("NETTOLØNN_FOR_SJØFOLK", "Nettolønn for sjøfolk"),
+    NETTOLØNN("NETTOLØNN", "Nettolønn"),
+    KILDESKATT_PÅ_PENSJONER("KILDESKATT_PÅ_PENSJONER", "Kildeskatt på pensjoner"),
+    JAN_MAYEN_OG_BILANDENE("JAN_MAYEN_OG_BILANDENE", "Inntekt på Jan Mayen og i norske biland i Antarktis"),
 
-    UDEFINERT("-", "Udefinert", "Ikke definert"),
+    UDEFINERT("-", "Udefinert"),
     ;
 
     private static final Map<String, SkatteOgAvgiftsregelType> KODER = new LinkedHashMap<>();
@@ -46,13 +45,10 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi, MedOffisiellKode {
     private final String navn;
 
     private final String kode;
-    @JsonIgnore
-    private final String offisiellKode;
 
-    SkatteOgAvgiftsregelType(String kode, String navn, String offisiellKode) {
+    SkatteOgAvgiftsregelType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.offisiellKode = offisiellKode;
     }
 
     @JsonCreator
@@ -88,9 +84,5 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi, MedOffisiellKode {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
-    }
 
 }

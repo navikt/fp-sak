@@ -33,14 +33,13 @@ import no.nav.abakus.iaygrunnlag.kodeverk.ArbeidType;
 import no.nav.abakus.iaygrunnlag.kodeverk.Arbeidskategori;
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.InntektPeriodeType;
+import no.nav.abakus.iaygrunnlag.kodeverk.InntektYtelseType;
 import no.nav.abakus.iaygrunnlag.kodeverk.InntektsmeldingInnsendingsårsakType;
 import no.nav.abakus.iaygrunnlag.kodeverk.InntektspostType;
 import no.nav.abakus.iaygrunnlag.kodeverk.Landkode;
 import no.nav.abakus.iaygrunnlag.kodeverk.NaturalytelseType;
 import no.nav.abakus.iaygrunnlag.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.abakus.iaygrunnlag.kodeverk.SkatteOgAvgiftsregelType;
-import no.nav.abakus.iaygrunnlag.kodeverk.TemaUnderkategori;
-import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType;
 import no.nav.abakus.iaygrunnlag.kodeverk.UtsettelseÅrsakType;
 import no.nav.abakus.iaygrunnlag.kodeverk.VirksomhetType;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus;
@@ -143,6 +142,8 @@ class IAYDtoMapperRoundtripTest {
         var dtoInntekt = dto.getRegister().getInntekt().get(0).getUtbetalinger();
         assertThat(fpsakInntekt.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(dtoInntekt.get(0).getUtbetaler().getIdent());
         assertThat(fpsakInntekt.get(0).getInntektsKilde().getKode()).isEqualTo(dtoInntekt.get(0).getKilde().getKode());
+        var x = fpsakInntekt.get(0).getAlleInntektsposter().stream().findFirst().orElseThrow();
+        assertThat(fpsakInntekt.get(0).getAlleInntektsposter().stream().findFirst().orElseThrow().getInntektYtelseType().getKode()).isEqualTo(InntektYtelseType.FORELDREPENGER.getKode());
 
         // Assert ytelse
         var fpsakYtelse = fpsakGrunnlag.getAktørYtelseFraRegister(aktørId).get().getAlleYtelser().stream().toList();
@@ -180,7 +181,7 @@ class IAYDtoMapperRoundtripTest {
                                                         .medArbeidsgiver(org)
                                                         .medPoster(List.of(
                                                                 new UtbetalingsPostDto(periode, InntektspostType.fraKode("LØNN"))
-                                                                        .medUtbetaltYtelseType(UtbetaltYtelseFraOffentligeType.FORELDREPENGER)
+                                                                        .medInntektYtelseType(InntektYtelseType.FORELDREPENGER)
                                                                         .medBeløp(100)
                                                                         .medSkattAvgiftType(SkatteOgAvgiftsregelType.NETTOLØNN)))))))
                         .medYtelse(List.of(
@@ -188,7 +189,6 @@ class IAYDtoMapperRoundtripTest {
                                         .medYtelser(List.of(
                                                 new YtelseDto(Fagsystem.FPSAK, ytelseType, periode, YtelseStatus.LØPENDE)
                                                         .medSaksnummer("1234")
-                                                        .medTemaUnderkategori(TemaUnderkategori.fraKode("FØ"))
                                                         .medGrunnlag(
                                                                 new YtelseGrunnlagDto()
                                                                         .medArbeidskategoriDto(Arbeidskategori.ARBEIDSTAKER)

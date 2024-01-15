@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -387,8 +386,7 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
             .medSaksnummer(new Saksnummer(SAK_ID))
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(ytelserFom, ytelserTom))
             .medStatus(RelatertYtelseTilstand.LØPENDE)
-            .medYtelseType(RelatertYtelseType.DAGPENGER)
-            .medBehandlingsTema(TemaUnderkategori.UDEFINERT);
+            .medYtelseType(RelatertYtelseType.DAGPENGER);
         byggYtelserAnvist(ytelserFom, ytelserTom, t1, ytelseBuilder).forEach(
             ytelseBuilder::medYtelseAnvist);
         return ytelseBuilder;

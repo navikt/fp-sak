@@ -20,7 +20,6 @@ public enum RelatertYtelseType implements Kodeverdi {
     SVANGERSKAPSPENGER("SVANGERSKAPSPENGER", "Svangerskapspenger"),
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
     ENGANGSSTØNAD("ENGANGSSTØNAD", "Engangsstønad"),
-    PÅRØRENDESYKDOM("PÅRØRENDESYKDOM", "Pårørendesykdom"),
     FRISINN("FRISINN", "FRISINN"),
     PLEIEPENGER_SYKT_BARN("PSB", "Pleiepenger sykt barn"),
     PLEIEPENGER_NÆRSTÅENDE("PPN", "Pleiepenger nærstående"),
@@ -34,7 +33,7 @@ public enum RelatertYtelseType implements Kodeverdi {
     public static final Set<RelatertYtelseType> PLEIEPENGER = Set.of(PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE);
 
     private static final Set<RelatertYtelseType> OPPTJENING_RELATERTYTELSE_FELLES = Set.of(SYKEPENGER, SVANGERSKAPSPENGER, FORELDREPENGER,
-        PÅRØRENDESYKDOM, PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN, DAGPENGER);
+        PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN, DAGPENGER);
 
     private static final Map<FagsakYtelseType, Set<RelatertYtelseType>> OPPTJENING_RELATERTYTELSE_CONFIG = Map.of(
         FagsakYtelseType.FORELDREPENGER, Set.of(ENSLIG_FORSØRGER, ARBEIDSAVKLARINGSPENGER),

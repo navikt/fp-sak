@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class InntektspostBuilder {
@@ -39,8 +39,8 @@ public class InntektspostBuilder {
         return this;
     }
 
-    public InntektspostBuilder medYtelse(YtelseType offentligYtelseType) {
-        this.inntektspost.setYtelse(offentligYtelseType);
+    public InntektspostBuilder medInntektYtelse(InntektYtelseType inntektYtelseType) {
+        this.inntektspost.setInntektYtelseType(inntektYtelseType);
         return this;
     }
 
