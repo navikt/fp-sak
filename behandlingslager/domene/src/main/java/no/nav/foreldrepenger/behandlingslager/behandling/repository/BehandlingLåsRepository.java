@@ -60,7 +60,7 @@ public class BehandlingLåsRepository {
             .createNativeQuery("select beh.id from BEHANDLING beh where beh.uuid=:uuid FOR UPDATE")
             .setParameter("uuid", eksternBehandlingRef)
             .getSingleResult();
-        return Long.valueOf(((Number) result).longValue()); // JPA tar ikke scalar output mapping direkte
+        return ((Number) result).longValue(); // JPA tar ikke scalar output mapping direkte
     }
 
     /**
