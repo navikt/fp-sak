@@ -13,6 +13,7 @@ import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.Utla
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.VedtakResultat;
 import static no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak.YtelseType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -413,8 +414,10 @@ public class StønadsstatistikkTjeneste {
             case FORELDREPENGER -> Stønadskontotype.FORELDREPENGER;
             case FLERBARNSDAGER, UDEFINERT -> throw new IllegalStateException("Ukjent " + stønadskonto.getStønadskontoType());
             case FORELDREPENGER_FØR_FØDSEL -> Stønadskontotype.FORELDREPENGER_FØR_FØDSEL;
-        }).decimalValue();
-        return new ForeldrepengerRettigheter.Stønadskonto(stønadskontoType, maksdager, new ForeldrepengerRettigheter.Trekkdager(restdager),
+        });
+        //Kan være trukket i minus
+        var restdagerDto = new ForeldrepengerRettigheter.Trekkdager(restdager.mindreEnn0() ? BigDecimal.ZERO : restdager.decimalValue());
+        return new ForeldrepengerRettigheter.Stønadskonto(stønadskontoType, maksdager, restdagerDto,
             new ForeldrepengerRettigheter.Trekkdager(minsterett));
     }
 
