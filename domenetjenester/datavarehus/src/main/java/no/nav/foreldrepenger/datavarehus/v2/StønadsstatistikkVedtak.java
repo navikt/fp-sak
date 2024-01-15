@@ -42,7 +42,7 @@ public class StønadsstatistikkVedtak {
     private AktørId søker;
     @NotNull
     private Saksrolle søkersRolle;
-    @NotNull
+    
     private UtlandsTilsnitt utlandsTilsnitt;
     @Valid
     private AnnenForelder annenForelder;
