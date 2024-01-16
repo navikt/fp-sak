@@ -739,7 +739,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             .forEach(flettetBuilder::leggTilAnnenAktivitet);
 
         // Legger til nye næringer, eller erstatter næring med samme orgnr
-        opptjeningFraNySøknad.getEgenNæring().forEach(flettetBuilder::leggTilEgenNæring);
+        opptjeningFraNySøknad.getEgenNæring().forEach(flettetBuilder::leggTilEllerErstattEgenNæring);
 
         // Legger til nye perioder med oppgitt arbeidsforhold (type, utenlandskVirksomhet eller periode må være ulik)
         opptjeningFraNySøknad.getOppgittArbeidsforhold()
