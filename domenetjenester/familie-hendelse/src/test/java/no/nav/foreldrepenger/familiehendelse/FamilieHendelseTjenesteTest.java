@@ -139,6 +139,37 @@ class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
+    void lagre_bekreftet_med_overstyrt_termin_når_finnes_ovst_uten_fødsel() {
+        // Arrange
+        var tdato = LocalDate.now().minusDays(2);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknadHendelse()
+            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                .medNavnPå("ASDASD ASD ASD")
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(tdato))
+            .medAntallBarn(1);
+        scenario.medOverstyrtHendelse(scenario.medOverstyrtHendelse()
+            .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+                .medNavnPå("ASDASD ASD ASD")
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(tdato.plusDays(1)))
+            .medAntallBarn(1));
+        var behandling = scenario.lagre(repositoryProvider);
+
+        // Act
+        tjeneste.oppdaterFødselPåGrunnlag(behandling.getId(), List.of(new FødtBarnInfo.Builder().medFødselsdato(tdato).medIdent(new PersonIdent("11111111111")).build()));
+
+        // Assert
+        var aggregat = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
+        assertThat(aggregat.getBekreftetVersjon()).isPresent();
+        assertThat(aggregat.getOverstyrtVersjon()).isEmpty();
+        // Skal bli kopiert fra søknad
+        assertThat(aggregat.getBekreftetVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse)).isPresent();
+        assertThat(aggregat.getBekreftetVersjon().orElseThrow().getTerminbekreftelse().orElseThrow().getTermindato()).isEqualTo(tdato.plusDays(1));
+    }
+
+    @Test
     void sjekk_intervaller_bekreftet_termin() {
         var grunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
         var søknadHendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
