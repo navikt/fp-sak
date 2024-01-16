@@ -16,11 +16,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-
-import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +73,12 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilans;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilansoppdrag;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittUtenlandskVirksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
@@ -554,15 +552,15 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         if (opptjeningFraSøknad != null && (!opptjeningFraSøknad.getUtenlandskArbeidsforhold().isEmpty()
             || !opptjeningFraSøknad.getAnnenOpptjening().isEmpty() || !opptjeningFraSøknad.getEgenNaering().isEmpty() || nonNull(
             opptjeningFraSøknad.getFrilans()))) {
-            OppgittOpptjeningBuilder nyOppgittOpptjening;
             var eksisterendeOppgittOpptjening = iayTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
             if (eksisterendeOppgittOpptjening.isPresent()) {
                 LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling med id {}", behandlingId);
-                nyOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
+                var flettetOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
+                iayTjeneste.lagreOverstyrtOppgittOpptjening(behandlingId, flettetOppgittOpptjening);
             } else {
-                nyOppgittOpptjening = mapOppgittOpptjening(opptjeningFraSøknad);
+                var nyOppgittOpptjening = mapOppgittOpptjening(opptjeningFraSøknad);
+                iayTjeneste.lagreOppgittOpptjening(behandlingId, nyOppgittOpptjening);
             }
-            iayTjeneste.lagreOppgittOpptjening(behandlingId, nyOppgittOpptjening);
         }
     }
 
