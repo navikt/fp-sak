@@ -9,8 +9,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
 
-    private OppgittFrilans frilans;
-
     @ChangeTracked
     private String oppdragsgiver;
 
@@ -30,14 +28,6 @@ public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
         return IndexKey.createKey(periode, oppdragsgiver);
     }
 
-    void setOppgittOpptjening(OppgittFrilans frilans) {
-        this.frilans = frilans;
-    }
-
-    void setPeriode(DatoIntervallEntitet periode) {
-        this.periode = periode;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -46,20 +36,18 @@ public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
         if (!(o instanceof OppgittFrilansoppdrag that)) {
             return false;
         }
-        return Objects.equals(frilans, that.frilans) &&
-                Objects.equals(oppdragsgiver, that.oppdragsgiver) &&
+        return Objects.equals(oppdragsgiver, that.oppdragsgiver) &&
                 Objects.equals(periode, that.periode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(frilans, oppdragsgiver, periode);
+        return Objects.hash(oppdragsgiver, periode);
     }
 
     @Override
     public String toString() {
         return "FrilansoppdragEntitet{" +
-                "frilans=" + frilans +
                 ", oppdragsgiver='" + oppdragsgiver + '\'' +
                 ", periode=" + periode +
                 '}';
@@ -71,10 +59,5 @@ public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
 
     public String getOppdragsgiver() {
         return oppdragsgiver;
-    }
-
-    // FIXME (OJR) kan ikke ha mutators
-    public void setFrilans(OppgittFrilans frilans) {
-        this.frilans = frilans;
     }
 }

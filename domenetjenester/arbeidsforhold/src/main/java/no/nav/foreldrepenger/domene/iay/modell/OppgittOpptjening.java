@@ -113,6 +113,17 @@ public class OppgittOpptjening extends BaseEntitet {
         }
     }
 
+    void leggTilEllerErstattEgenNæring(OppgittEgenNæring nyEgenNæring) {
+        if (this.egenNæring == null) {
+            this.egenNæring = new ArrayList<>();
+        }
+        if (nyEgenNæring != null) {
+            var eksisterendeNæringerMedSammeOrgnr = egenNæring.stream().filter(en -> Objects.equals(en.getOrgnr(), nyEgenNæring.getOrgnr())).toList();
+            egenNæring.removeAll(eksisterendeNæringerMedSammeOrgnr);
+            this.egenNæring.add(nyEgenNæring);
+        }
+    }
+
     void leggTilOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
         if (this.oppgittArbeidsforhold == null) {
             this.oppgittArbeidsforhold = new ArrayList<>();

@@ -98,8 +98,4 @@ public class OppgittFrilans extends BaseEntitet {
         }
         return Collections.emptyList();
     }
-
-    public void setFrilansoppdrag(List<OppgittFrilansoppdrag> frilansoppdrag) {
-        this.frilansoppdrag = frilansoppdrag;
-    }
 }
