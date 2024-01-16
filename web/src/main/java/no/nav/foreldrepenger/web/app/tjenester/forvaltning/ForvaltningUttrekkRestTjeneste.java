@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -146,21 +145,21 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("""
-            select b.id from fpsak.behandling b join fpsak.fagsak f on fagsak_id = f.id
-            where behandling_status <> 'AVSLU'
-            and exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def = '5051' and aksjonspunkt_status = 'OPPR')
-            and not exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
+            select distinct b.id from fpsak.behandling_arsak ba join fpsak.behandling b on ba.behandling_id = b.id join fpsak.fagsak f on b.fagsak_id = f.id
+            where ytelse_type = 'SVP' and behandling_arsak_type = 'REBEREGN-FERIEPENGER' and ba.opprettet_tid >= '15.01.2024' and behandling_status <> 'AVSLU'
+            and b.id in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def = 5028)
+            and b.id not in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def <> 5028)
              """);
         @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(BigDecimal::longValue).toList();
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
         åpneAksjonspunkt.forEach(this::flyttTilbakeTilStart);
         return Response.ok().build();
     }
 
     private void flyttTilbakeTilStart(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.VURDER_OPPTJENINGSVILKÅR.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.FORESLÅ_VEDTAK.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
@@ -299,5 +298,55 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
         return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).toList();
+    }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lag tasks for nye feriepengekoder til bruker adopsjon", tags = "FORVALTNING-uttrekk")
+    @Path("/omposterFeriepengerAdopsjon")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response omposterFeriepengerAdopsjon() {
+        var query = entityManager.createNativeQuery("""
+            select distinct fagsak_id
+            from fpsak.fh_adopsjon ad join fpsak.gr_familie_hendelse g on ad.familie_hendelse_id in (g.soeknad_familie_hendelse_id, g.bekreftet_familie_hendelse_id, g.overstyrt_familie_hendelse_id)
+            join fpsak.behandling b on g.behandling_id = b.id join fpsak.fagsak f on fagsak_id = f.id
+            where aktiv = 'J' and ytelse_type='FP' and behandling_status = 'AVSLU' and BEHANDLING_TYPE in ('BT-002', 'BT-004')
+             """);
+        @SuppressWarnings("unchecked")
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        åpneAksjonspunkt.forEach(this::omposterTask);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lag tasks for nye feriepengekoder til bruker SVP", tags = "FORVALTNING-uttrekk")
+    @Path("/omposterFeriepengerSvangerskapspenger")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response omposterFeriepengerSvangerskapspenger() {
+        var query = entityManager.createNativeQuery("""
+            insert into prosess_task (id, task_type, task_parametere)
+                 select seq_prosess_task.nextval, 'feriepenger.omposter24', 'fagsakId=' || fid
+                 from (
+              select f.id fid from fpsak.fagsak f join fpsak.fagsak_relasjon fr on f.id in (fr.fagsak_en_id, fr.fagsak_to_id)
+              where ytelse_type = 'SVP' and aktiv = 'J'
+              and f.id not in (select fagsak_id from fpsak.behandling where behandling_status <> 'AVSLU' and BEHANDLING_TYPE in ('BT-002', 'BT-004'))
+              and avsluttningsdato is not null and avsluttningsdato > '31.12.2022')
+             """);
+        @SuppressWarnings("unchecked")
+        int rader = query.executeUpdate();
+        return Response.ok(rader).build();
+    }
+
+    private void omposterTask(Long fagsakId) {
+        var task = ProsessTaskData.forProsessTask(FeriepengerOmposterTask.class);
+        task.setFagsakId(fagsakId);
+        task.setCallIdFraEksisterende();
+        taskTjeneste.lagre(task);
+
     }
 }

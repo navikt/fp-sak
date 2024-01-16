@@ -83,7 +83,7 @@ public class DvhVedtakXmlTjeneste {
                 stønadsstatistikkTjeneste.genererVedtak(ref);
             }
         } catch (Exception e) {
-            LOG.info("STØNADSTAT feil for behandling {}", behandlingId, e);
+            LOG.info("STØNADSTAT feil for sak {} behandling {}", fagsak.getSaksnummer().getVerdi(), behandlingId, e);
         }
 
         return genererXml(behandlingId, vedtak);

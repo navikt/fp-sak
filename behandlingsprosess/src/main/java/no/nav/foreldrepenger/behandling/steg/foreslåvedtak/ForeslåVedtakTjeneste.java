@@ -114,8 +114,17 @@ class ForeslåVedtakTjeneste {
         if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilDød())) {
             return true;
         }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling() &&
+            behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) && !harAndreAPEnnForeslåVedtak(behandling)) {
+            return false;
+        }
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling()
             && !erOpphørEllerUendretUtenAndreAksjonspunkt(behandling, aksjonspunktDefinisjoner);
+    }
+
+    private boolean harAndreAPEnnForeslåVedtak(Behandling behandling) {
+        return behandling.getAksjonspunkter().stream()
+            .anyMatch(a -> !a.erAutopunkt() && !AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(a.getAksjonspunktDefinisjon()));
     }
 
     private boolean skalUtføreTotrinnsbehandling(Behandling behandling) {

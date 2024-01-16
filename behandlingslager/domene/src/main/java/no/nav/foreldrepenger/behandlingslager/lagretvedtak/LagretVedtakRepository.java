@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.lagretvedtak;
 
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -88,7 +87,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
         query.setParameter("tom", tom);
 
         @SuppressWarnings("unchecked")
-        List<BigDecimal> resultater = query.getResultList();
+        List<Number> resultater = query.getResultList();
         return resultater.stream().map(Number::longValue).toList();
 
     }
@@ -106,7 +105,7 @@ public class LagretVedtakRepository implements BehandlingslagerRepository {
         query.setParameter("fagsakYtelseType", fagsakYtelseType.getKode());
 
         @SuppressWarnings("unchecked")
-        List<BigDecimal> resultater = query.getResultList();
+        List<Number> resultater = query.getResultList();
         return resultater.stream().map(Number::longValue).toList();
     }
 
