@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.BehandlingRelaterteYtelserMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.RelaterteYtelserDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelserDto;
@@ -200,7 +199,6 @@ class BehandlingRelaterteYtelserMapperTest {
         var ytelserBuilder = builder.getAktørYtelseBuilder(AktørId.dummy());
         var ytelse = ytelserBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK, ytelseType, new Saksnummer("22"))
                 .medYtelseType(ytelseType)
-                .medBehandlingsTema(TemaUnderkategori.UDEFINERT)
                 .medStatus(ytelseTilstand)
                 .medPeriode(opphoerFomDato == null
                         ? DatoIntervallEntitet.fraOgMed(iverksettelsesDato)

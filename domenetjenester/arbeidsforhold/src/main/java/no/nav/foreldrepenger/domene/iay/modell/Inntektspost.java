@@ -1,51 +1,31 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NæringsinntektType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PensjonTrygdType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class Inntektspost extends BaseEntitet implements IndexKey {
 
-    private static final Map<String, Map<String, ? extends YtelseType>> YTELSE_TYPER = new LinkedHashMap<>();
-
-    static {
-        YTELSE_TYPER.put(OffentligYtelseType.KODEVERK, OffentligYtelseType.kodeMap());
-        YTELSE_TYPER.put(NæringsinntektType.KODEVERK, NæringsinntektType.kodeMap());
-        YTELSE_TYPER.put(PensjonTrygdType.KODEVERK, PensjonTrygdType.kodeMap());
-
-    }
     private InntektspostType inntektspostType;
 
     private SkatteOgAvgiftsregelType skatteOgAvgiftsregelType = SkatteOgAvgiftsregelType.UDEFINERT;
 
     private Inntekt inntekt;
 
-    /**
-     * Brukes kun til FK validering. Default OffentligYtelseType. Må settes sammen
-     * med {@link #ytelse}
-     */
-    private String ytelseType = OffentligYtelseType.KODEVERK;
-
-    private String ytelse = OffentligYtelseType.UDEFINERT.getKode();
-
     private DatoIntervallEntitet periode;
 
     @ChangeTracked
     private Beløp beløp;
+
+    private InntektYtelseType inntektYtelseType;
 
     public Inntektspost() {
         // hibernate
@@ -57,16 +37,14 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
     Inntektspost(Inntektspost inntektspost) {
         this.inntektspostType = inntektspost.getInntektspostType();
         this.skatteOgAvgiftsregelType = inntektspost.getSkatteOgAvgiftsregelType();
-        this.ytelse = inntektspost.getYtelseType().getKode();
         this.periode = inntektspost.getPeriode();
         this.beløp = inntektspost.getBeløp();
-        this.ytelseType = inntektspost.getYtelseType().getKodeverk();
+        this.inntektYtelseType = inntektspost.getInntektYtelseType();
     }
 
     @Override
     public String getIndexKey() {
-        return IndexKey.createKey(getInntektspostType(), getYtelseType().getKodeverk(), getYtelseType().getKode(), getSkatteOgAvgiftsregelType(),
-                periode);
+        return IndexKey.createKey(getInntektspostType(), getInntektYtelseType(), getSkatteOgAvgiftsregelType(), periode);
     }
 
     /**
@@ -124,11 +102,6 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
         this.beløp = beløp;
     }
 
-    public YtelseType getYtelseType() {
-        var yt = YTELSE_TYPER.getOrDefault(ytelseType, Collections.emptyMap()).get(ytelse);
-        return yt != null ? yt : OffentligYtelseType.UDEFINERT;
-    }
-
     public Inntekt getInntekt() {
         return inntekt;
     }
@@ -137,9 +110,12 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
         this.inntekt = inntekt;
     }
 
-    void setYtelse(YtelseType ytelse) {
-        this.ytelseType = ytelse.getKodeverk();
-        this.ytelse = ytelse.getKode();
+    public InntektYtelseType getInntektYtelseType() {
+        return inntektYtelseType;
+    }
+
+    public void setInntektYtelseType(InntektYtelseType inntektYtelseType) {
+        this.inntektYtelseType = inntektYtelseType;
     }
 
     @Override
@@ -151,7 +127,7 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
             return false;
         }
         return Objects.equals(this.getInntektspostType(), other.getInntektspostType())
-                && Objects.equals(this.getYtelseType(), other.getYtelseType())
+                && Objects.equals(this.getInntektYtelseType(), other.getInntektYtelseType())
                 && Objects.equals(this.getSkatteOgAvgiftsregelType(), other.getSkatteOgAvgiftsregelType())
                 && Objects.equals(this.getPeriode().getFomDato(), other.getPeriode().getFomDato())
                 && Objects.equals(this.getPeriode().getTomDato(), other.getPeriode().getTomDato());
@@ -159,14 +135,14 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInntektspostType(), getYtelseType(), getSkatteOgAvgiftsregelType(), getPeriode().getFomDato(),
+        return Objects.hash(getInntektspostType(), getInntektYtelseType(), getSkatteOgAvgiftsregelType(), getPeriode().getFomDato(),
                 getPeriode().getTomDato());
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" +
-                "ytelseType=" + ytelseType +
+                "inntektYtelseType=" + inntektYtelseType +
                 "inntektspostType=" + inntektspostType +
                 "skatteOgAvgiftsregelType=" + skatteOgAvgiftsregelType +
                 ", fraOgMed=" + periode.getFomDato() +

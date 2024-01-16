@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -46,9 +45,6 @@ public class Ytelse extends BaseEntitet implements IndexKey {
     private Fagsystem kilde;
 
     @ChangeTracked
-    private TemaUnderkategori temaUnderkategori = TemaUnderkategori.UDEFINERT;
-
-    @ChangeTracked
     private Set<YtelseAnvist> ytelseAnvist = new LinkedHashSet<>();
 
     public Ytelse() {
@@ -61,7 +57,6 @@ public class Ytelse extends BaseEntitet implements IndexKey {
         this.vedtattTidspunkt = ytelse.getVedtattTidspunkt();
         this.periode = ytelse.getPeriode();
         this.saksnummer = ytelse.getSaksnummer();
-        this.temaUnderkategori = ytelse.getBehandlingsTema();
         this.kilde = ytelse.getKilde();
         ytelse.getYtelseGrunnlag().ifPresent(yg -> this.ytelseGrunnlag = new YtelseGrunnlag(yg));
         this.ytelseAnvist = ytelse.getYtelseAnvist().stream().map(YtelseAnvist::new).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -78,14 +73,6 @@ public class Ytelse extends BaseEntitet implements IndexKey {
 
     void setRelatertYtelseType(RelatertYtelseType relatertYtelseType) {
         this.relatertYtelseType = relatertYtelseType;
-    }
-
-    public TemaUnderkategori getBehandlingsTema() {
-        return temaUnderkategori;
-    }
-
-    void setBehandlingsTema(TemaUnderkategori behandlingsTema) {
-        this.temaUnderkategori = behandlingsTema;
     }
 
     public RelatertYtelseTilstand getStatus() {
@@ -160,7 +147,6 @@ public class Ytelse extends BaseEntitet implements IndexKey {
             return false;
         }
         return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&
-                Objects.equals(temaUnderkategori, that.temaUnderkategori) &&
                 Objects.equals(periode, that.periode) &&
                 Objects.equals(saksnummer, that.saksnummer);
     }
@@ -174,7 +160,6 @@ public class Ytelse extends BaseEntitet implements IndexKey {
     public String toString() {
         return "YtelseEntitet{" +
                 "relatertYtelseType=" + relatertYtelseType +
-                ", typeUnderkategori=" + temaUnderkategori +
                 ", periode=" + periode +
                 ", relatertYtelseStatus=" + status +
                 ", saksNummer='" + saksnummer + '\'' +

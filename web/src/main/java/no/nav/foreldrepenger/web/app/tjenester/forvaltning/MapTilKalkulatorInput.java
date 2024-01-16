@@ -76,7 +76,6 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.RelatertYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UtbetaltYtelseFraOffentligeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
@@ -266,10 +265,8 @@ class MapTilKalkulatorInput {
         var ytelseAnvist = mapYtelseAnvistSet(ytelseDto.getYtelseAnvist());
         var relatertYtelseType = new RelatertYtelseType(ytelseDto.getYtelseType().getKode());
         var periode = mapPeriode(ytelseDto.getPeriode());
-        var temaUnderkategori = ytelseDto.getBehandlingsTema() == null || ytelseDto.getBehandlingsTema()
-            .equals(TemaUnderkategori.UDEFINERT) ? null : TemaUnderkategori.fraKode(ytelseDto.getBehandlingsTema().getKode());
         var ytelseGrunnlag = mapYtelsegrunnlag(ytelseDto).orElse(null);
-        return new YtelseDto(vedtaksDagsats, ytelseAnvist, relatertYtelseType, periode, temaUnderkategori, ytelseGrunnlag);
+        return new YtelseDto(vedtaksDagsats, ytelseAnvist, relatertYtelseType, periode, ytelseGrunnlag);
     }
 
     private static Optional<YtelseGrunnlagDto> mapYtelsegrunnlag(no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto ytelseDto) {

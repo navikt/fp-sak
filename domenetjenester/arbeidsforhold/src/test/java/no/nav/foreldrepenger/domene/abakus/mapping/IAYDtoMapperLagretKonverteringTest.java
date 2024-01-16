@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -95,7 +93,7 @@ class IAYDtoMapperLagretKonverteringTest {
                 .medBeløp(BigDecimal.TEN)
                 .medPeriode(fraOgMed, tilOgMed)
                 .medInntektspostType(InntektspostType.YTELSE)
-                .medYtelse(OffentligYtelseType.UDEFINERT);
+                .medInntektYtelse(null);
 
         inntektBuilder
                 .leggTilInntektspost(inntektspost)
@@ -121,7 +119,6 @@ class IAYDtoMapperLagretKonverteringTest {
         ytelselseBuilder.tilbakestillAnvisteYtelser();
         return ytelselseBuilder.medKilde(Fagsystem.INFOTRYGD)
                 .medYtelseType(RelatertYtelseType.FORELDREPENGER)
-                .medBehandlingsTema(TemaUnderkategori.UDEFINERT)
                 .medStatus(RelatertYtelseTilstand.AVSLUTTET)
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(FOM_DATO, TOM_DATO))
                 .medSaksnummer(sakId)
