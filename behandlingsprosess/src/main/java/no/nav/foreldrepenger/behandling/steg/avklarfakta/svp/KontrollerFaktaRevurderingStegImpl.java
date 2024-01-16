@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -131,6 +132,14 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
 
+        // Spesialhåndtering for enkelte behandlinger - kun feriepenger i denne omgang
+        if (SpesialBehandling.erSpesialBehandling(behandling)) {
+            var startpunkt = StartpunktType.UTTAKSVILKÅR;
+            behandling.setStartpunkt(startpunkt);
+            kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
+            return utledStegResultat(startpunkt, List.of());
+        }
+
         // Spesialhåndtering for enkelte behandlinger
         behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
 
@@ -141,8 +150,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
         kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
 
-        var transisjon = TransisjonIdentifikator.forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
-        return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, aksjonspunktResultater);
+        return utledStegResultat(startpunkt, aksjonspunktResultater);
+    }
+
+    private BehandleStegResultat utledStegResultat(StartpunktType startpunkt, List<AksjonspunktResultat> aksjonspunkt) {
+        var transisjon = TransisjonIdentifikator
+            .forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
+        return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, aksjonspunkt);
     }
 
 
@@ -238,13 +252,16 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                                       BehandlingskontrollKontekst kontekst) {
         var origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
+        if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
+            throw new IllegalStateException("Skal ikke ha startpunkt TILKJENT for SVP - skal ikke skje");
+        }
 
         revurdering = kopierVilkårFørStartpunkt(origBehandling, revurdering, kontekst);
         // Skal være kopiert ved opprettelse av revurdering for å få tak i riktig STP.
         // Kan ha blitt nullstilt i denne revurderingen ved tilbakehopp til KOARB (fx pga IM).
         kopierOpptjeningVedBehov(origBehandling, revurdering);
 
-        if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
+        if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(origBehandling.getId(), revurdering.getId());
         }
 
