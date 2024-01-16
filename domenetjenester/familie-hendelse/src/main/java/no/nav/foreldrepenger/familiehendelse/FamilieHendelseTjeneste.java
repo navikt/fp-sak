@@ -140,6 +140,7 @@ public class FamilieHendelseTjeneste {
 
     public void oppdaterFødselPåGrunnlag(Long behandlingId, List<FødtBarnInfo> bekreftetTps) {
         var tidligereRegistrertFødselsdato = hentRegisterFødselsdato(behandlingId).orElse(null);
+        var gjeldendeTermin = hentGjeldendeTerminbekreftelse(behandlingId); // Kun overstyrt/bekreftet
 
         if (bekreftetTps.isEmpty()) {
             if (tidligereRegistrertFødselsdato != null) {
@@ -152,6 +153,14 @@ public class FamilieHendelseTjeneste {
 
         bekreftetTps.forEach(barn -> hendelseBuilder.leggTilBarn(barn.fødselsdato(), barn.getDødsdato().orElse(null)));
         hendelseBuilder.medAntallBarn(bekreftetTps.size());
+        // Bruker gjeldende bekreftet termindato fra forrige behandling - ellers brukes den fra søknad implisitt
+        gjeldendeTermin.ifPresent(t -> {
+            var tBuilder = hendelseBuilder.getTerminbekreftelseBuilder()
+                .medTermindato(t.getTermindato())
+                .medUtstedtDato(t.getUtstedtdato())
+                .medNavnPå(t.getNavnPå());
+            hendelseBuilder.medTerminbekreftelse(tBuilder);
+        });
 
         familieGrunnlagRepository.lagreRegisterHendelse(behandlingId, hendelseBuilder);
 
@@ -218,6 +227,12 @@ public class FamilieHendelseTjeneste {
     private boolean erBarnRelatertTilSøknad(List<LocalDateInterval> relasjonsintervall, LocalDate dato) {
         return relasjonsintervall.stream()
             .anyMatch(periode -> periode.encloses(dato));
+    }
+
+    private Optional<TerminbekreftelseEntitet> hentGjeldendeTerminbekreftelse(Long behandlingId) {
+        return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
+            .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
+            .flatMap(FamilieHendelseEntitet::getTerminbekreftelse);
     }
 
     private Optional<LocalDate> hentRegisterFødselsdato(Long behandlingId) {

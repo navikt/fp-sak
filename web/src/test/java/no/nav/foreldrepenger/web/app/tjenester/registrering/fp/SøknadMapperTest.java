@@ -584,7 +584,7 @@ class SøknadMapperTest {
         oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
             Optional.empty());
 
-        verify(iayTjeneste, times(0)).lagreOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
+        verify(iayTjeneste, times(1)).lagreOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
     }
 
     @Test

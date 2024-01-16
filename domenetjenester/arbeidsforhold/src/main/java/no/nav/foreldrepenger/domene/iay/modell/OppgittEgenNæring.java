@@ -181,36 +181,42 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
             return false;
         }
         return Objects.equals(periode, that.periode) &&
-                Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
-                Objects.equals(nyoppstartet, that.nyoppstartet) &&
-                Objects.equals(virksomhetType, that.virksomhetType) &&
-                Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) &&
-                Objects.equals(regnskapsførerTlf, that.regnskapsførerTlf) &&
-                Objects.equals(endringDato, that.endringDato) &&
-                Objects.equals(begrunnelse, that.begrunnelse) &&
-                Objects.equals(bruttoInntekt, that.bruttoInntekt) &&
-                Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
+            Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
+            Objects.equals(nyoppstartet, that.nyoppstartet) &&
+            Objects.equals(varigEndring, that.varigEndring) &&
+            Objects.equals(nyIArbeidslivet, that.nyIArbeidslivet) &&
+            Objects.equals(virksomhetType, that.virksomhetType) &&
+            Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) &&
+            Objects.equals(regnskapsførerTlf, that.regnskapsførerTlf) &&
+            Objects.equals(endringDato, that.endringDato) &&
+            Objects.equals(begrunnelse, that.begrunnelse) &&
+            Objects.equals(bruttoInntekt, that.bruttoInntekt) &&
+            Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(periode, virksomhetOrgnr, virksomhetType, nyoppstartet, regnskapsførerNavn, regnskapsførerTlf, endringDato, begrunnelse,
-                bruttoInntekt, utenlandskVirksomhet);
+        return Objects.hash(periode, virksomhetOrgnr, virksomhetType, nyoppstartet, varigEndring, nyIArbeidslivet, regnskapsførerNavn, regnskapsførerTlf, endringDato, begrunnelse,
+            bruttoInntekt, utenlandskVirksomhet);
     }
 
     @Override
     public String toString() {
         return "EgenNæringEntitet{" +
-                "periode=" + periode +
-                ", virksomhet=" + virksomhetOrgnr +
-                ", nyoppstartet=" + nyoppstartet +
-                ", virksomhetType=" + virksomhetType +
-                ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
-                ", regnskapsførerTlf='" + regnskapsførerTlf + '\'' +
-                ", endringDato=" + endringDato +
-                ", begrunnelse='" + begrunnelse + '\'' +
-                ", bruttoInntekt=" + bruttoInntekt +
-                ", utenlandskVirksomhet=" + utenlandskVirksomhet +
-                '}';
+            "periode=" + periode +
+            ", virksomhet=" + masker(virksomhetOrgnr) +
+            ", nyoppstartet=" + nyoppstartet +
+            ", virksomhetType=" + virksomhetType +
+            ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
+            ", regnskapsførerTlf='" + regnskapsførerTlf + '\'' +
+            ", endringDato=" + endringDato +
+            ", begrunnelse='" + begrunnelse + '\'' +
+            ", bruttoInntekt=" + bruttoInntekt +
+            ", utenlandskVirksomhet=" + utenlandskVirksomhet +
+            '}';
+    }
+
+    private String masker(OrgNummer virksomhetOrgnr) {
+        return virksomhetOrgnr == null ? null : OrgNummer.tilMaskertNummer(virksomhetOrgnr.getId());
     }
 }
