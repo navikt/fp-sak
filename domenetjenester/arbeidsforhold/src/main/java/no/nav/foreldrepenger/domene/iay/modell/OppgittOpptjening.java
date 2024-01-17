@@ -26,6 +26,8 @@ public class OppgittOpptjening {
     @ChangeTracked
     private OppgittFrilans frilans;
 
+    private LocalDateTime opprettetTidspunkt;
+
     @SuppressWarnings("unused")
     private OppgittOpptjening() {
         // hibernate
@@ -50,7 +52,7 @@ public class OppgittOpptjening {
     OppgittOpptjening(UUID eksternReferanse, LocalDateTime opprettetTidspunktOriginalt) {
         Objects.requireNonNull(eksternReferanse, "eksternReferanse");
         this.uuid = eksternReferanse;
-        super.setOpprettetTidspunkt(opprettetTidspunktOriginalt);
+        setOpprettetTidspunkt(opprettetTidspunktOriginalt);
     }
 
     /**
@@ -87,11 +89,7 @@ public class OppgittOpptjening {
     }
 
     void leggTilFrilans(OppgittFrilans frilans) {
-        if (frilans != null) {
-            this.frilans = frilans;
-        } else {
-            this.frilans = null;
-        }
+        this.frilans = frilans;
     }
 
     void leggTilAnnenAktivitet(OppgittAnnenAktivitet annenAktivitet) {
@@ -130,6 +128,14 @@ public class OppgittOpptjening {
         if (oppgittArbeidsforhold != null) {
             this.oppgittArbeidsforhold.add(oppgittArbeidsforhold);
         }
+    }
+
+    public LocalDateTime getOpprettetTidspunkt() {
+        return opprettetTidspunkt;
+    }
+
+    public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+        this.opprettetTidspunkt = opprettetTidspunkt;
     }
 
     @Override

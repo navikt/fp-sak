@@ -23,6 +23,8 @@ public class InntektArbeidYtelseAggregat {
     @ChangeTracked
     private Set<AktørYtelse> aktørYtelse = new LinkedHashSet<>();
 
+    private LocalDateTime opprettetTidspunkt;
+
     InntektArbeidYtelseAggregat() {
         // hibernate
     }
@@ -88,6 +90,14 @@ public class InntektArbeidYtelseAggregat {
 
     void setAktørYtelse(Collection<AktørYtelse> aktørYtelse) {
         this.aktørYtelse = new LinkedHashSet<>(aktørYtelse);
+    }
+
+    public LocalDateTime getOpprettetTidspunkt() {
+        return opprettetTidspunkt;
+    }
+
+    public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+        this.opprettetTidspunkt = opprettetTidspunkt;
     }
 
     @Override
