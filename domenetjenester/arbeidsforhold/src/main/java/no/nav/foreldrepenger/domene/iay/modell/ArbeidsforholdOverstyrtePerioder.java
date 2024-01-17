@@ -4,11 +4,10 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class ArbeidsforholdOverstyrtePerioder extends BaseEntitet implements IndexKey {
+public class ArbeidsforholdOverstyrtePerioder implements IndexKey {
 
     private DatoIntervallEntitet periode;
 

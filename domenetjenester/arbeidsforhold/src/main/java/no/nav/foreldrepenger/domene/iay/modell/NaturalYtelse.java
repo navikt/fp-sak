@@ -4,14 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
-public class NaturalYtelse extends BaseEntitet implements IndexKey {
+public class NaturalYtelse implements IndexKey {
 
     @ChangeTracked
     private DatoIntervallEntitet periode;

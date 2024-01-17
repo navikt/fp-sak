@@ -39,7 +39,7 @@ public class BehandlingRelaterteYtelserMapper {
     private BehandlingRelaterteYtelserMapper() {
     }
 
-    public static List<TilgrensendeYtelserDto> mapFraBehandlingRelaterteYtelser(Collection<Ytelse> ytelser) {
+    public static List<TilgrensendeYtelser> mapFraBehandlingRelaterteYtelser(Collection<Ytelse> ytelser) {
         return ytelser.stream()
                 .map(BehandlingRelaterteYtelserMapper::lagTilgrensendeYtelse)
                 .toList();
@@ -49,25 +49,13 @@ public class BehandlingRelaterteYtelserMapper {
         return YTELSE_TYPE_MAP.getOrDefault(type, RelatertYtelseType.UDEFINERT);
     }
 
-    private static TilgrensendeYtelserDto lagTilgrensendeYtelse(Ytelse ytelse) {
-        var tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
-        tilgrensendeYtelserDto.setRelatertYtelseType(ytelse.getRelatertYtelseType().getKode());
-        tilgrensendeYtelserDto.setPeriodeFraDato(ytelse.getPeriode().getFomDato());
-        tilgrensendeYtelserDto.setPeriodeTilDato(endreTomDatoHvisLøpende(ytelse.getPeriode().getTomDato()));
-        tilgrensendeYtelserDto.setStatus(ytelse.getStatus().getKode());
-        tilgrensendeYtelserDto.setSaksNummer(ytelse.getSaksnummer());
-        return tilgrensendeYtelserDto;
+    private static TilgrensendeYtelser lagTilgrensendeYtelse(Ytelse ytelse) {
+        return new TilgrensendeYtelser(ytelse);
     }
 
-    public static TilgrensendeYtelserDto mapFraFagsak(Fagsak fagsak, LocalDate periodeDato) {
-        var tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
+    public static TilgrensendeYtelser mapFraFagsak(Fagsak fagsak, LocalDate periodeDato) {
         var relatertYtelseType = YTELSE_TYPE_MAP.getOrDefault(fagsak.getYtelseType(), RelatertYtelseType.UDEFINERT);
-        tilgrensendeYtelserDto.setRelatertYtelseType(relatertYtelseType.getKode());
-        tilgrensendeYtelserDto.setStatus(fagsak.getStatus().getKode());
-        tilgrensendeYtelserDto.setPeriodeFraDato(periodeDato);
-        tilgrensendeYtelserDto.setPeriodeTilDato(endreTomDatoHvisLøpende(periodeDato));
-        tilgrensendeYtelserDto.setSaksNummer(fagsak.getSaksnummer());
-        return tilgrensendeYtelserDto;
+        return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getKode(), fagsak.getSaksnummer());
     }
 
     private static LocalDate endreTomDatoHvisLøpende(LocalDate tomDato) {
@@ -77,20 +65,21 @@ public class BehandlingRelaterteYtelserMapper {
         return tomDato;
     }
 
-    public static List<RelaterteYtelserDto> samleYtelserBasertPåYtelseType(List<TilgrensendeYtelserDto> tilgrensendeYtelser,
+    public static List<RelaterteYtelserDto> samleYtelserBasertPåYtelseType(List<TilgrensendeYtelser> tilgrensendeYtelser,
             List<RelatertYtelseType> ytelsesTyper) {
         List<RelaterteYtelserDto> relaterteYtelserDtos = new LinkedList<>();
         for (var relatertYtelseType : ytelsesTyper) {
-            relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getKode(),
-                    sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType.getKode())));
+            relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getKode(), relatertYtelseType.getNavn(),
+                    sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType)));
         }
         return relaterteYtelserDtos;
     }
 
-    private static List<TilgrensendeYtelserDto> sortTilgrensendeYtelser(List<TilgrensendeYtelserDto> relatertYtelser, String relatertYtelseType) {
+    private static List<RelaterteYtelserDto.TilgrensendeYtelserDto> sortTilgrensendeYtelser(List<TilgrensendeYtelser> relatertYtelser, RelatertYtelseType relatertYtelseType) {
         return relatertYtelser.stream()
-            .filter(tilgrensendeYtelserDto -> relatertYtelseType.equals(tilgrensendeYtelserDto.getRelatertYtelseType()))
+            .filter(tilgrensendeYtelser -> relatertYtelseType.equals(tilgrensendeYtelser.relatertYtelseType()))
             .sorted()
+            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.status(), t.saksNummer().getVerdi()))
             .toList();
     }
 }

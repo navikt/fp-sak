@@ -8,10 +8,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 
-public class InntektArbeidYtelseAggregat extends BaseEntitet {
+public class InntektArbeidYtelseAggregat {
 
     private UUID uuid;
 

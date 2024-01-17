@@ -82,8 +82,6 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
         var builder = InntektsmeldingBuilder.builder();
 
-        builder.medYtelse(wrapper.getYtelse());
-
         mapInnsendingstidspunkt(wrapper, mottattDokument, builder);
 
         builder.medMottattDato(mottattDokument.getMottattDato());

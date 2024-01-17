@@ -9,19 +9,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.OrderBy;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class ArbeidsforholdInformasjon extends BaseEntitet {
+public class ArbeidsforholdInformasjon {
 
     @ChangeTracked
-    @OrderBy("opprettetTidspunkt ASC")
     private Set<ArbeidsforholdReferanse> referanser = new LinkedHashSet<>();
 
     @ChangeTracked
@@ -91,10 +87,7 @@ public class ArbeidsforholdInformasjon extends BaseEntitet {
                         && re.getArbeidsgiver().equals(ov.getArbeidsgiver()) && re.getEksternReferanse().equals(arbeidsforholdRef)
                         && re.getInternReferanse().equals(ov.getArbeidsforholdRef())))
             .findAny();
-        if (referanseEntitet.isPresent()) {
-            return Optional.ofNullable(referanseEntitet.get().getInternReferanse());
-        }
-        return finnForEkstern(arbeidsgiver, arbeidsforholdRef);
+        return referanseEntitet.map(ArbeidsforholdReferanse::getInternReferanse).or(() -> finnForEkstern(arbeidsgiver, arbeidsforholdRef));
     }
 
     public Optional<InternArbeidsforholdRef> finnForEkstern(Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef ref) {

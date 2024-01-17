@@ -8,10 +8,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 
-public class OppgittOpptjening extends BaseEntitet {
+public class OppgittOpptjening {
 
     private UUID uuid;
 

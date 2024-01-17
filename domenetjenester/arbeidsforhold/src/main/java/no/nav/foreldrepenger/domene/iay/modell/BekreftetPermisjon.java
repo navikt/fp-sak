@@ -3,16 +3,15 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import jakarta.persistence.Embeddable;
-
+import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-@Embeddable
 public class BekreftetPermisjon {
 
     private BekreftetPermisjonStatus status = BekreftetPermisjonStatus.UDEFINERT;
 
+    @ChangeTracked
     private DatoIntervallEntitet periode;
 
     BekreftetPermisjon() {

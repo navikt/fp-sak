@@ -6,14 +6,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
-public class YtelseAnvist extends BaseEntitet implements IndexKey {
+public class YtelseAnvist implements IndexKey {
 
     @ChangeTracked
     private DatoIntervallEntitet anvistPeriode;
