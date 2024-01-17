@@ -177,7 +177,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
                 Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, erManueltBehandlet, "mellom_30_og_10")).increment();
                 LOG.info("Stor etterbetaling til søker over 10_000 med årsaker {}", behandlingÅrsakerStreng);
             } else if (etterbetalingssum.compareTo(BigDecimal.ZERO) > 0 ) {
-                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, erManueltBehandlet, "under_10")).increment();
+                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, erManueltBehandlet, "over_0_under_10")).increment();
             }
         } catch (Exception e) {
             LOG.info("Noe gikk galt med logging av stor etterbetaling", e);
