@@ -55,7 +55,7 @@ public class BehandlingRelaterteYtelserMapper {
 
     public static TilgrensendeYtelser mapFraFagsak(Fagsak fagsak, LocalDate periodeDato) {
         var relatertYtelseType = YTELSE_TYPE_MAP.getOrDefault(fagsak.getYtelseType(), RelatertYtelseType.UDEFINERT);
-        return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getKode(), fagsak.getSaksnummer());
+        return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getKode(), fagsak.getStatus().getNavn(), fagsak.getSaksnummer());
     }
 
     private static LocalDate endreTomDatoHvisLøpende(LocalDate tomDato) {
@@ -79,7 +79,7 @@ public class BehandlingRelaterteYtelserMapper {
         return relatertYtelser.stream()
             .filter(tilgrensendeYtelser -> relatertYtelseType.equals(tilgrensendeYtelser.relatertYtelseType()))
             .sorted()
-            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.status(), t.saksNummer().getVerdi()))
+            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.status(), t.statusNavn(), t.saksNummer().getVerdi()))
             .toList();
     }
 }

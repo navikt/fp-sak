@@ -80,24 +80,22 @@ public final class KodeverkMapper {
             return null;
         }
 
-        var kode = dto.getKode();
-        return switch (kode) {
-            case "OPPR" -> RelatertYtelseTilstand.IKKE_STARTET;
-            case "UBEH" -> RelatertYtelseTilstand.ÅPEN;
-            case "AVSLU" -> RelatertYtelseTilstand.AVSLUTTET;
-            case "LOP" -> RelatertYtelseTilstand.LØPENDE;
+        return switch (dto) {
+            case OPPRETTET -> RelatertYtelseTilstand.IKKE_STARTET;
+            case UNDER_BEHANDLING -> RelatertYtelseTilstand.ÅPEN;
+            case AVSLUTTET -> RelatertYtelseTilstand.AVSLUTTET;
+            case LØPENDE -> RelatertYtelseTilstand.LØPENDE;
             default -> throw new IllegalArgumentException("Ukjent YtelseStatus: " + dto);
         };
     }
 
     static YtelseStatus getAbakusYtelseStatusForFpsakRelatertYtelseTilstand(RelatertYtelseTilstand tilstand) {
-        var kode = tilstand.getKode();
-        return switch (kode) {
-            case "IKKESTARTET" -> YtelseStatus.OPPRETTET;
-            case "ÅPEN" -> YtelseStatus.UNDER_BEHANDLING;
-            case "AVSLUTTET" -> YtelseStatus.AVSLUTTET;
-            case "LØPENDE" -> YtelseStatus.LØPENDE;
-            default -> throw new IllegalArgumentException("Ukjent RelatertYtelseTilstand: " + kode);
+        return switch (tilstand) {
+            case IKKE_STARTET -> YtelseStatus.OPPRETTET;
+            case ÅPEN -> YtelseStatus.UNDER_BEHANDLING;
+            case AVSLUTTET -> YtelseStatus.AVSLUTTET;
+            case LØPENDE -> YtelseStatus.LØPENDE;
+            default -> throw new IllegalArgumentException("Ukjent RelatertYtelseTilstand: " + tilstand);
         };
     }
 
