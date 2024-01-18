@@ -74,10 +74,8 @@ class BehandlingRelaterteYtelserMapperTest {
 
         assertThat(resultatListe).hasSize(4);
         assertThat(resultatListe.get(0).relatertYtelseType()).isEqualTo(RelatertYtelseType.SYKEPENGER);
-        assertThat(resultatListe.get(0).status()).isEqualTo(RelatertYtelseTilstand.AVSLUTTET.getKode());
         assertThat(resultatListe.get(0).statusNavn()).isEqualTo(RelatertYtelseTilstand.AVSLUTTET.getNavn());
         assertThat(resultatListe.get(1).relatertYtelseType()).isEqualTo(RelatertYtelseType.FORELDREPENGER);
-        assertThat(resultatListe.get(1).status()).isEqualTo(RelatertYtelseTilstand.AVSLUTTET.getKode());
         assertThat(resultatListe.get(1).statusNavn()).isEqualTo(RelatertYtelseTilstand.AVSLUTTET.getNavn());
     }
 
@@ -87,8 +85,7 @@ class BehandlingRelaterteYtelserMapperTest {
 
         var tilgrensendeYtelser = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsakFødsel, I_DAG.minusDays(5));
 
-        assertThat(tilgrensendeYtelser.relatertYtelseType()).isEqualTo(RelatertYtelseType.ENGANGSSTØNAD);
-        assertThat(tilgrensendeYtelser.status()).isEqualTo(FagsakStatus.AVSLUTTET.getKode());
+        assertThat(tilgrensendeYtelser.relatertYtelseType()).isEqualTo(RelatertYtelseType.ENGANGSTØNAD);
         assertThat(tilgrensendeYtelser.statusNavn()).isEqualTo(FagsakStatus.AVSLUTTET.getNavn());
         assertThat(tilgrensendeYtelser.periodeTil()).isEqualTo(I_DAG.minusDays(5));
         assertThat(tilgrensendeYtelser.periodeFra()).isEqualTo(I_DAG.minusDays(5));
@@ -103,7 +100,6 @@ class BehandlingRelaterteYtelserMapperTest {
 
         assertThat(resultatListe).hasSize(11);
         IntStream.range(0, RELATERT_YTELSE_TYPER_FOR_SØKER.size()).forEach(i -> {
-            assertThat(resultatListe.get(i).relatertYtelseType()).isEqualTo(RELATERT_YTELSE_TYPER_FOR_SØKER.get(i).getKode());
             assertThat(resultatListe.get(i).relatertYtelseNavn()).isEqualTo(RELATERT_YTELSE_TYPER_FOR_SØKER.get(i).getNavn());
             assertThat(resultatListe.get(i).tilgrensendeYtelserListe()).isEmpty();
         });
@@ -117,7 +113,6 @@ class BehandlingRelaterteYtelserMapperTest {
 
         assertThat(resultatListe).hasSize(2);
         IntStream.range(0, RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER.size()).forEach(i -> {
-            assertThat(resultatListe.get(i).relatertYtelseType()).isEqualTo(RELATERT_YTELSE_TYPER_FOR_SØKER.get(i).getKode());
             assertThat(resultatListe.get(i).relatertYtelseNavn()).isEqualTo(RELATERT_YTELSE_TYPER_FOR_SØKER.get(i).getNavn());
             assertThat(resultatListe.get(i).tilgrensendeYtelserListe()).isEmpty();
         });
@@ -176,7 +171,7 @@ class BehandlingRelaterteYtelserMapperTest {
                         null),
                 opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, null, null),
                 opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG, null),
-                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.ENGANGSSTØNAD, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(500),
+                opprettTilgrensendeYtelser(SAKSNUMMER_9999, RelatertYtelseType.ENGANGSTØNAD, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(500),
                         I_DAG.plusDays(400)));
 
         var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelser,
@@ -192,7 +187,7 @@ class BehandlingRelaterteYtelserMapperTest {
         assertThat(foreldrepengerYtelserListe.get(3).periodeFraDato()).isEqualTo(I_DAG.minusDays(5));
         assertThat(foreldrepengerYtelserListe.get(4).periodeFraDato()).isEqualTo(I_DAG.minusDays(165));
         assertThat(foreldrepengerYtelserListe.get(5).periodeFraDato()).isEqualTo(I_DAG.minusDays(365));
-        assertThat(resultatListe.get(1).relatertYtelseNavn()).isEqualTo(RelatertYtelseType.ENGANGSSTØNAD.getNavn());
+        assertThat(resultatListe.get(1).relatertYtelseNavn()).isEqualTo(RelatertYtelseType.ENGANGSTØNAD.getNavn());
         assertThat(resultatListe.get(1).tilgrensendeYtelserListe()).hasSize(1);
         assertThat(resultatListe.get(1).tilgrensendeYtelserListe().get(0).saksNummer()).isEqualTo(SAKSNUMMER_9999.getVerdi());
     }
@@ -226,6 +221,6 @@ class BehandlingRelaterteYtelserMapperTest {
                                                            RelatertYtelseTilstand ytelseTilstand,
                                                            LocalDate iverksettelsesDato,
                                                            LocalDate opphoerFomDato) {
-        return new TilgrensendeYtelser(ytelseType, iverksettelsesDato, opphoerFomDato, ytelseTilstand.getKode(), ytelseTilstand.getNavn(), saksnummer);
+        return new TilgrensendeYtelser(ytelseType, iverksettelsesDato, opphoerFomDato, ytelseTilstand.getNavn(), saksnummer);
     }
 }

@@ -37,7 +37,7 @@ public final class KodeverkMapper {
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER, RelatertYtelseType.OMSORGSPENGER),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER, RelatertYtelseType.OPPLÆRINGSPENGER),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN, RelatertYtelseType.FRISINN),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSSTØNAD),
+            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSTØNAD),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER, RelatertYtelseType.ENSLIG_FORSØRGER));
@@ -51,7 +51,7 @@ public final class KodeverkMapper {
             Map.entry(RelatertYtelseType.OMSORGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER),
             Map.entry(RelatertYtelseType.OPPLÆRINGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER),
             Map.entry(RelatertYtelseType.FRISINN, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN),
-            Map.entry(RelatertYtelseType.ENGANGSSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
+            Map.entry(RelatertYtelseType.ENGANGSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
             Map.entry(RelatertYtelseType.FORELDREPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER),
             Map.entry(RelatertYtelseType.SVANGERSKAPSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER),
             Map.entry(RelatertYtelseType.ENSLIG_FORSØRGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER));
