@@ -552,15 +552,22 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         if (opptjeningFraSøknad != null && (!opptjeningFraSøknad.getUtenlandskArbeidsforhold().isEmpty()
             || !opptjeningFraSøknad.getAnnenOpptjening().isEmpty() || !opptjeningFraSøknad.getEgenNaering().isEmpty() || nonNull(
             opptjeningFraSøknad.getFrilans()))) {
-            var eksisterendeOppgittOpptjening = iayTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
+            var iayGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
+            var eksisterendeOppgittOpptjening = iayGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening);
+            var erOverstyrt = iayGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getOverstyrtOppgittOpptjening).isPresent();
             if (eksisterendeOppgittOpptjening.isPresent()) {
                 LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling med id {}", behandlingId);
                 var flettetOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
-                iayTjeneste.lagreOverstyrtOppgittOpptjening(behandlingId, flettetOppgittOpptjening);
+                if (erOverstyrt) {
+                    iayTjeneste.lagreOverstyrtOppgittOpptjening(behandlingId, flettetOppgittOpptjening);
+                } else {
+                    iayTjeneste.lagreOppgittOpptjening(behandlingId, flettetOppgittOpptjening);
+                }
             } else {
                 var nyOppgittOpptjening = mapOppgittOpptjening(opptjeningFraSøknad);
                 iayTjeneste.lagreOppgittOpptjening(behandlingId, nyOppgittOpptjening);
             }
+
         }
     }
 

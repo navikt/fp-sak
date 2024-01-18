@@ -179,7 +179,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
      * Returnerer oppgitt opptjening hvis det finnes. (Inneholder opplysninger søker
      * opplyser om i søknaden)
      */
-    public Optional<OppgittOpptjening> getOppgittOpptjening() {
+    Optional<OppgittOpptjening> getOppgittOpptjening() {
         return Optional.ofNullable(oppgittOpptjening);
     }
 

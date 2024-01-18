@@ -119,7 +119,7 @@ public class FrilansAvvikLoggTjeneste {
     }
 
     private Optional<OppgittFrilans> finnOppgittFrilansFraSøknad(InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        return iayGrunnlag.getOppgittOpptjening().flatMap(OppgittOpptjening::getFrilans);
+        return iayGrunnlag.getGjeldendeOppgittOpptjening().flatMap(OppgittOpptjening::getFrilans);
     }
 
     private List<Yrkesaktivitet> finnFrilansIRegisterSomKrysserSTP(LocalDate stpBG,

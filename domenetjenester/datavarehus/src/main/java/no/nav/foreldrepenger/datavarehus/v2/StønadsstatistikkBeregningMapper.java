@@ -43,7 +43,7 @@ class StønadsstatistikkBeregningMapper {
             .toList();
 
         var næringOrgNr = Optional.ofNullable(iaygrunnlag)
-            .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening)
+            .flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening)
             .map(OppgittOpptjening::getEgenNæring)
             .orElse(List.of())
             .stream()
