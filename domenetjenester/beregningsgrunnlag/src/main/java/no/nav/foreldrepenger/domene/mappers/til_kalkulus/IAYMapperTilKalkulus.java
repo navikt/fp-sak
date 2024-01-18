@@ -112,7 +112,7 @@ public class IAYMapperTilKalkulus {
         var builder = OppgittOpptjeningDtoBuilder.ny();
         oppgittOpptjening.getFrilans().ifPresent(oppgittFrilans -> builder.leggTilFrilansOpplysninger(new OppgittFrilansDto(oppgittFrilans.getErNyoppstartet())));
 
-        oppgittOpptjening.getAnnenAktivitet().forEach(oppgittAnnenAktivitet -> builder.leggTilAnnenAktivitet(new OppgittAnnenAktivitetDto(mapDatoIntervall(oppgittAnnenAktivitet.getPeriode()), ArbeidType.fraKode(oppgittAnnenAktivitet.getArbeidType().getKode()))));
+        oppgittOpptjening.getAnnenAktivitet().forEach(oppgittAnnenAktivitet -> builder.leggTilAnnenAktivitet(new OppgittAnnenAktivitetDto(mapDatoIntervall(oppgittAnnenAktivitet.getPeriode()), KodeverkTilKalkulusMapper.mapArbeidtype(oppgittAnnenAktivitet.getArbeidType()))));
         oppgittOpptjening.getEgenNæring().forEach(oppgittEgenNæring -> builder.leggTilEgneNæring(mapEgenNæring(oppgittEgenNæring)));
         oppgittOpptjening.getOppgittArbeidsforhold().forEach(oppgittArbeidsforhold -> builder.leggTilOppgittArbeidsforhold(mapOppgittArbeidsforhold(oppgittArbeidsforhold)));
 
@@ -134,7 +134,7 @@ public class IAYMapperTilKalkulus {
             .medBruttoInntekt(oppgittEgenNæring.getBruttoInntekt())
             .medEndringDato(oppgittEgenNæring.getEndringDato())
             .medNyIArbeidslivet(oppgittEgenNæring.getNyIArbeidslivet())
-            .medVirksomhetType(VirksomhetType.fraKode(oppgittEgenNæring.getVirksomhetType().getKode()))
+            .medVirksomhetType(KodeverkTilKalkulusMapper.mapVirksomhetstype(oppgittEgenNæring.getVirksomhetType()))
             .medVarigEndring(oppgittEgenNæring.getVarigEndring())
             .medBegrunnelse(oppgittEgenNæring.getBegrunnelse())
             .medNyoppstartet(oppgittEgenNæring.getNyoppstartet());
@@ -154,7 +154,7 @@ public class IAYMapperTilKalkulus {
     private static ArbeidsforholdOverstyringDtoBuilder mapOverstyringerDto(ArbeidsforholdOverstyring arbeidsforholdOverstyring) {
         var builder = ArbeidsforholdOverstyringDtoBuilder.oppdatere(Optional.empty());
         arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder().forEach(arbeidsforholdOverstyrtePerioder -> builder.leggTilOverstyrtPeriode(arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getFomDato(), arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getTomDato()));
-        builder.medHandling(ArbeidsforholdHandlingType.fraKode(arbeidsforholdOverstyring.getHandling().getKode()));
+        builder.medHandling(KodeverkTilKalkulusMapper.mapArbeidsforholdHandling(arbeidsforholdOverstyring.getHandling()));
         builder.medArbeidsgiver(mapArbeidsgiver(arbeidsforholdOverstyring.getArbeidsgiver()));
         builder.medAngittArbeidsgiverNavn(arbeidsforholdOverstyring.getArbeidsgiverNavn());
         builder.medAngittStillingsprosent(arbeidsforholdOverstyring.getStillingsprosent() == null ? null : new Stillingsprosent(arbeidsforholdOverstyring.getStillingsprosent().getVerdi()));
@@ -192,7 +192,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static NaturalYtelseDto mapNaturalYtelse(NaturalYtelse naturalYtelse) {
-        return new NaturalYtelseDto(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato(), naturalYtelse.getBeloepPerMnd().getVerdi(), NaturalYtelseType.fraKode(naturalYtelse.getType().getKode()));
+        return new NaturalYtelseDto(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato(), naturalYtelse.getBeloepPerMnd().getVerdi(), KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType()));
     }
 
     private static RefusjonDto mapRefusjon(Refusjon refusjon) {
@@ -212,7 +212,7 @@ public class IAYMapperTilKalkulus {
         yrkesaktivitet.getAlleAktivitetsAvtaler().forEach(aktivitetsAvtale -> dtoBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtale)));
         dtoBuilder.medArbeidsforholdId(mapArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef()));
         dtoBuilder.medArbeidsgiver(yrkesaktivitet.getArbeidsgiver() == null ? null : mapArbeidsgiver(yrkesaktivitet.getArbeidsgiver()));
-        dtoBuilder.medArbeidType(ArbeidType.fraKode(yrkesaktivitet.getArbeidType().getKode()));
+        dtoBuilder.medArbeidType(KodeverkTilKalkulusMapper.mapArbeidtype(yrkesaktivitet.getArbeidType()));
         yrkesaktivitet.getPermisjon().stream()
             .filter(perm -> erRelevantForBeregning(perm, finnBekreftetPermisjon(yrkesaktivitet, arbeidsforholdOverstyringer)))
             .forEach(perm -> dtoBuilder.leggTilPermisjon(mapPermisjon(perm)));
@@ -275,16 +275,16 @@ public class IAYMapperTilKalkulus {
         var builder = InntektDtoBuilder.oppdatere(Optional.empty());
         inntekt.getAlleInntektsposter().forEach(inntektspost -> builder.leggTilInntektspost(mapInntektspost(inntektspost)));
         builder.medArbeidsgiver(inntekt.getArbeidsgiver() == null ? null : mapArbeidsgiver(inntekt.getArbeidsgiver()));
-        builder.medInntektsKilde(InntektskildeType.fraKode(inntekt.getInntektsKilde().getKode()));
+        builder.medInntektsKilde(KodeverkTilKalkulusMapper.mapInntektskilde(inntekt.getInntektsKilde()));
         return builder;
     }
 
     private static InntektspostDtoBuilder mapInntektspost(Inntektspost inntektspost) {
         var builder = InntektspostDtoBuilder.ny();
         builder.medBeløp(inntektspost.getBeløp().getVerdi());
-        builder.medInntektspostType(mapInntektspostType(inntektspost.getInntektspostType()));
+        builder.medInntektspostType(KodeverkTilKalkulusMapper.mapInntektspostType(inntektspost.getInntektspostType()));
         builder.medPeriode(inntektspost.getPeriode().getFomDato(), inntektspost.getPeriode().getTomDato());
-        builder.medSkatteOgAvgiftsregelType(mapSkatteOgAvgitsregelType(inntektspost.getSkatteOgAvgiftsregelType()));
+        builder.medSkatteOgAvgiftsregelType(KodeverkTilKalkulusMapper.mapSkatteOgAvgitsregelType(inntektspost.getSkatteOgAvgiftsregelType()));
         builder.medInntektYtelse(inntektspost.getInntektYtelseType() != null ? InntektYtelseType.valueOf(inntektspost.getInntektYtelseType().name()) : null);
 
         return builder;

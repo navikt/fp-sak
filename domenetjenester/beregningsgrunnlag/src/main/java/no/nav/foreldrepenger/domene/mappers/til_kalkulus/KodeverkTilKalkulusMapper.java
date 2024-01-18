@@ -11,6 +11,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
@@ -18,6 +19,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
+import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
@@ -28,7 +30,7 @@ public class KodeverkTilKalkulusMapper {
         // Skjuler default konstruktør
     }
 
-    public static Inntektskategori mapInntektskategori(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori inntektskategori) {
+    static Inntektskategori mapInntektskategori(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori inntektskategori) {
         return switch (inntektskategori) {
             case ARBEIDSTAKER -> Inntektskategori.ARBEIDSTAKER;
             case FRILANSER -> Inntektskategori.FRILANSER;
@@ -44,7 +46,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static AndelKilde mapAndelkilde(no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde andelKilde) {
+    static AndelKilde mapAndelkilde(no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde andelKilde) {
         return switch (andelKilde) {
             case SAKSBEHANDLER_KOFAKBER -> AndelKilde.SAKSBEHANDLER_KOFAKBER;
             case PROSESS_BESTEBEREGNING -> AndelKilde.PROSESS_BESTEBEREGNING;
@@ -55,7 +57,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static AktivitetStatus mapAktivitetstatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus aktivitetStatus) {
+    static AktivitetStatus mapAktivitetstatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus aktivitetStatus) {
         return switch (aktivitetStatus) {
             case ARBEIDSAVKLARINGSPENGER -> AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
             case ARBEIDSTAKER -> AktivitetStatus.ARBEIDSTAKER;
@@ -75,7 +77,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static SammenligningsgrunnlagType mapSammenligningsgrunnlagtype(no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType sammenligningsgrunnlagType) {
+    static SammenligningsgrunnlagType mapSammenligningsgrunnlagtype(no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType sammenligningsgrunnlagType) {
         return switch (sammenligningsgrunnlagType) {
             case SAMMENLIGNING_AT -> SammenligningsgrunnlagType.SAMMENLIGNING_AT;
             case SAMMENLIGNING_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_FL;
@@ -85,7 +87,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static UttakArbeidType mapUttakArbeidType(no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType uttakArbeidType) {
+    static UttakArbeidType mapUttakArbeidType(no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType uttakArbeidType) {
         return switch (uttakArbeidType) {
             case ORDINÆRT_ARBEID -> UttakArbeidType.ORDINÆRT_ARBEID;
             case SELVSTENDIG_NÆRINGSDRIVENDE -> UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
@@ -94,7 +96,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static OpptjeningAktivitetType mapOpptjeningAktivitetType(no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType opptjeningtype) {
+    static OpptjeningAktivitetType mapOpptjeningAktivitetType(no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType opptjeningtype) {
         return switch (opptjeningtype) {
             case ARBEIDSAVKLARING -> OpptjeningAktivitetType.ARBEIDSAVKLARING;
             case ARBEID -> OpptjeningAktivitetType.ARBEID;
@@ -119,7 +121,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static Hjemmel mapHjemmel(no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel hjemmel) {
+    static Hjemmel mapHjemmel(no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel hjemmel) {
         return switch (hjemmel) {
             case F_14_7 -> Hjemmel.F_14_7;
             case F_14_7_8_30 -> Hjemmel.F_14_7_8_30;
@@ -136,7 +138,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static PeriodeÅrsak mapPeriodeårsak(no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak periodeÅrsak) {
+    static PeriodeÅrsak mapPeriodeårsak(no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak periodeÅrsak) {
         return switch (periodeÅrsak) {
             case NATURALYTELSE_BORTFALT -> PeriodeÅrsak.NATURALYTELSE_BORTFALT;
             case ARBEIDSFORHOLD_AVSLUTTET -> PeriodeÅrsak.ARBEIDSFORHOLD_AVSLUTTET;
@@ -151,7 +153,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static ArbeidType mapArbeidtype(no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType arbeidType) {
+    static ArbeidType mapArbeidtype(no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType arbeidType) {
         return switch (arbeidType) {
             case ETTERLØNN_SLUTTPAKKE -> ArbeidType.ETTERLØNN_SLUTTPAKKE;
             case FORENKLET_OPPGJØRSORDNING -> ArbeidType.FORENKLET_OPPGJØRSORDNING;
@@ -170,7 +172,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static VirksomhetType mapVirksomhetstype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType virksomhetType) {
+    static VirksomhetType mapVirksomhetstype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType virksomhetType) {
         return switch (virksomhetType) {
             case DAGMAMMA -> VirksomhetType.DAGMAMMA;
             case FISKE -> VirksomhetType.FISKE;
@@ -181,7 +183,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static ArbeidsforholdHandlingType mapArbeidsforholdHandling(no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType handling) {
+    static ArbeidsforholdHandlingType mapArbeidsforholdHandling(no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType handling) {
         return switch (handling) {
             case UDEFINERT -> ArbeidsforholdHandlingType.UDEFINERT;
             case BRUK -> ArbeidsforholdHandlingType.BRUK;
@@ -196,7 +198,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static NaturalYtelseType mapNaturalytelsetype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType type) {
+    static NaturalYtelseType mapNaturalytelsetype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType type) {
         return switch (type) {
             case ELEKTRISK_KOMMUNIKASJON -> NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON;
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalYtelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
@@ -221,7 +223,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static InntektskildeType mapInntektskilde(InntektsKilde inntektsKilde) {
+    static InntektskildeType mapInntektskilde(InntektsKilde inntektsKilde) {
         return switch (inntektsKilde) {
             case UDEFINERT -> InntektskildeType.UDEFINERT;
             case INNTEKT_OPPTJENING -> InntektskildeType.INNTEKT_OPPTJENING;
@@ -232,41 +234,13 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static TemaUnderkategori mapTemaUnderkategori(no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori behandlingsTema) {
-        return switch (behandlingsTema) {
-            case UDEFINERT -> TemaUnderkategori.UDEFINERT;
-            case FORELDREPENGER -> TemaUnderkategori.FORELDREPENGER;
-            case BT -> TemaUnderkategori.BT;
-            case FL -> TemaUnderkategori.FL;
-            case UT -> TemaUnderkategori.UT;
-            case OVERGANGSSTØNAD -> TemaUnderkategori.OVERGANGSSTØNAD;
-            case ENGANGSSTONAD_FODSEL -> TemaUnderkategori.ENGANGSSTONAD_FODSEL;
-            case FORELDREPENGER_FODSEL -> TemaUnderkategori.FORELDREPENGER_FODSEL;
-            case FORELDREPENGER_ADOPSJON -> TemaUnderkategori.FORELDREPENGER_ADOPSJON;
-            case FORELDREPENGER_SVANGERSKAPSPENGER -> TemaUnderkategori.FORELDREPENGER_SVANGERSKAPSPENGER;
-            case SYKEPENGER_SYKEPENGER -> TemaUnderkategori.SYKEPENGER_SYKEPENGER;
-            case PÅRØRENDE_OMSORGSPENGER -> TemaUnderkategori.PÅRØRENDE_OMSORGSPENGER;
-            case PÅRØRENDE_OPPLÆRINGSPENGER -> TemaUnderkategori.PÅRØRENDE_OPPLÆRINGSPENGER;
-            case PÅRØRENDE_PLEIETRENGENDE_SYKT_BARN -> TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE_SYKT_BARN;
-            case PÅRØRENDE_PLEIETRENGENDE -> TemaUnderkategori.PÅRØRENDE_PLEIEPENGER;
-            case PÅRØRENDE_PLEIETRENGENDE_PÅRØRENDE -> TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE_PÅRØRENDE;
-            case PÅRØRENDE_PLEIEPENGER -> TemaUnderkategori.PÅRØRENDE_PLEIEPENGER;
-            case ENGANGSSTONAD_ADOPSJON -> TemaUnderkategori.ENGANGSSTONAD_ADOPSJON;
-            case SYKEPENGER_FORSIKRINGSRISIKO -> TemaUnderkategori.SYKEPENGER_FORSIKRINGSRISIKO;
-            case SYKEPENGER_REISETILSKUDD -> TemaUnderkategori.SYKEPENGER_REISETILSKUDD;
-            case SYKEPENGER_UTENLANDSOPPHOLD -> TemaUnderkategori.SYKEPENGER_UTENLANDSOPPHOLD;
-            case FORELDREPENGER_FODSEL_UTLAND -> TemaUnderkategori.FORELDREPENGER_FODSEL_UTLAND;
-        };
-    }
-
-    public static FagsakYtelseType mapRelatertYtelseTilFagsakytelse(RelatertYtelseType relatertYtelseType) {
+    static FagsakYtelseType mapRelatertYtelseTilFagsakytelse(RelatertYtelseType relatertYtelseType) {
         return switch (relatertYtelseType) {
             case ENSLIG_FORSØRGER -> FagsakYtelseType.ENSLIG_FORSØRGER;
             case SYKEPENGER -> FagsakYtelseType.SYKEPENGER;
             case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
             case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
             case ENGANGSSTØNAD -> FagsakYtelseType.ENGANGSTØNAD;
-            case PÅRØRENDESYKDOM -> FagsakYtelseType.PÅRØRENDESYKDOM;
             case FRISINN -> FagsakYtelseType.FRISINN;
             case PLEIEPENGER_SYKT_BARN -> FagsakYtelseType.PLEIEPENGER_SYKT_BARN;
             case PLEIEPENGER_NÆRSTÅENDE -> FagsakYtelseType.PLEIEPENGER_NÆRSTÅENDE;
@@ -278,7 +252,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static FagsakYtelseType mapFagsakytelsetype(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fagsakYtelseType) {
+    static FagsakYtelseType mapFagsakytelsetype(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
             case ENGANGSTØNAD -> FagsakYtelseType.ENGANGSTØNAD;
             case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
@@ -287,7 +261,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static FaktaOmBeregningTilfelle mapFaktaBeregningTilfelle(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle tilfelle) {
+    static FaktaOmBeregningTilfelle mapFaktaBeregningTilfelle(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle tilfelle) {
         return switch (tilfelle) {
             case VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD -> FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD;
             case VURDER_SN_NY_I_ARBEIDSLIVET -> FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET;
@@ -312,7 +286,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static BeregningAktivitetHandlingType mapBeregningAktivitetHandling(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType handling) {
+    static BeregningAktivitetHandlingType mapBeregningAktivitetHandling(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType handling) {
         return switch (handling) {
             case BENYTT -> BeregningAktivitetHandlingType.BENYTT;
             case IKKE_BENYTT -> BeregningAktivitetHandlingType.IKKE_BENYTT;
@@ -320,7 +294,7 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static BeregningsgrunnlagTilstand mapBeregningsgrunnlagTilstand(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    static BeregningsgrunnlagTilstand mapBeregningsgrunnlagTilstand(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         return switch (beregningsgrunnlagTilstand) {
             case OPPRETTET -> BeregningsgrunnlagTilstand.OPPRETTET;
             case FASTSATT_BEREGNINGSAKTIVITETER -> BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER;
@@ -340,4 +314,30 @@ public class KodeverkTilKalkulusMapper {
             case UDEFINERT -> BeregningsgrunnlagTilstand.UDEFINERT;
         };
     }
+
+    static InntektspostType mapInntektspostType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType type) {
+        return switch (type) {
+            case UDEFINERT -> InntektspostType.UDEFINERT;
+            case LØNN -> InntektspostType.LØNN;
+            case YTELSE -> InntektspostType.YTELSE;
+            case VANLIG -> InntektspostType.VANLIG;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case NÆRING_FISKE_FANGST_FAMBARNEHAGE -> InntektspostType.NÆRING_FISKE_FANGST_FAMBARNEHAGE;
+            case null -> null;
+        };
+    }
+    static SkatteOgAvgiftsregelType mapSkatteOgAvgitsregelType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType type) {
+        return switch (type) {
+            case SÆRSKILT_FRADRAG_FOR_SJØFOLK -> SkatteOgAvgiftsregelType.SÆRSKILT_FRADRAG_FOR_SJØFOLK;
+            case SVALBARD -> SkatteOgAvgiftsregelType.SVALBARD;
+            case SKATTEFRI_ORGANISASJON -> SkatteOgAvgiftsregelType.SKATTEFRI_ORGANISASJON;
+            case NETTOLØNN_FOR_SJØFOLK -> SkatteOgAvgiftsregelType.NETTOLØNN_FOR_SJØFOLK;
+            case NETTOLØNN -> SkatteOgAvgiftsregelType.NETTOLØNN;
+            case KILDESKATT_PÅ_PENSJONER -> SkatteOgAvgiftsregelType.KILDESKATT_PÅ_PENSJONER;
+            case JAN_MAYEN_OG_BILANDENE -> SkatteOgAvgiftsregelType.JAN_MAYEN_OG_BILANDENE;
+            case UDEFINERT -> null;
+            case null -> null;
+        };
+    }
+
 }
