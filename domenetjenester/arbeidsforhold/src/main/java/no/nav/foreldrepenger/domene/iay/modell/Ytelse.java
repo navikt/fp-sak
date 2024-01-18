@@ -9,8 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.Convert;
-
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
@@ -24,7 +22,6 @@ public class Ytelse extends BaseEntitet implements IndexKey {
 
     private YtelseGrunnlag ytelseGrunnlag;
 
-    @Convert(converter = RelatertYtelseType.KodeverdiConverter.class)
     private RelatertYtelseType relatertYtelseType = RelatertYtelseType.UDEFINERT;
 
     @ChangeTracked
@@ -41,7 +38,6 @@ public class Ytelse extends BaseEntitet implements IndexKey {
     private LocalDateTime vedtattTidspunkt;
 
     @ChangeTracked
-    @Convert(converter = Fagsystem.KodeverdiConverter.class)
     private Fagsystem kilde;
 
     @ChangeTracked

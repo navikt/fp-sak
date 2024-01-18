@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
-public class YtelseGrunnlag extends BaseEntitet {
+public class YtelseGrunnlag {
 
     @ChangeTracked
     private List<YtelseStørrelse> ytelseStørrelse = new ArrayList<>();

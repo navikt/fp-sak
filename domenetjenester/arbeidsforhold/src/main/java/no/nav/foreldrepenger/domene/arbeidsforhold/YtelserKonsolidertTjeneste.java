@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.BehandlingRelaterteYtelserMapper;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelserDto;
+import no.nav.foreldrepenger.domene.arbeidsforhold.dto.TilgrensendeYtelser;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
@@ -68,7 +68,7 @@ public class YtelserKonsolidertTjeneste {
      * Sammenstilt informasjon om vedtatte ytelser fra grunnlag og saker til
      * behandling i VL (som ennå ikke har vedtak).
      */
-    public List<TilgrensendeYtelserDto> utledYtelserRelatertTilBehandling(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, Set<RelatertYtelseType> inkluder) {
+    public List<TilgrensendeYtelser> utledYtelserRelatertTilBehandling(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, Set<RelatertYtelseType> inkluder) {
 
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId));
         var ytelser = filter.getFiltrertYtelser();
@@ -77,7 +77,7 @@ public class YtelserKonsolidertTjeneste {
                .filter(ytelse -> inkluder.isEmpty() || inkluder.contains(ytelse.getRelatertYtelseType()))
                 .filter(ytelse -> !(RelatertYtelseType.ENGANGSSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
                 .toList();
-        List<TilgrensendeYtelserDto> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
+        List<TilgrensendeYtelser> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
         var saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
         var iDag = LocalDate.now();
@@ -99,7 +99,7 @@ public class YtelserKonsolidertTjeneste {
      * Sammenstilt informasjon om vedtatte ytelser fra grunnlag og saker til
      * behandling i VL (som ennå ikke har vedtak).
      */
-    public List<TilgrensendeYtelserDto> utledAnnenPartsYtelserRelatertTilBehandling(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, Set<RelatertYtelseType> inkluder) {
+    public List<TilgrensendeYtelser> utledAnnenPartsYtelserRelatertTilBehandling(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, Set<RelatertYtelseType> inkluder) {
 
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId));
         var ytelser = filter.getFiltrertYtelser();
@@ -108,7 +108,7 @@ public class YtelserKonsolidertTjeneste {
                 .filter(ytelse -> inkluder.isEmpty() || inkluder.contains(ytelse.getRelatertYtelseType()))
                 .filter(ytelse -> !(RelatertYtelseType.ENGANGSSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
                 .toList();
-        List<TilgrensendeYtelserDto> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
+        List<TilgrensendeYtelser> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
         var saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
         var resultatÅpen = fagsakRepository.hentForBruker(aktørId).stream()
@@ -123,47 +123,46 @@ public class YtelserKonsolidertTjeneste {
         return resultat;
     }
 
-    private TilgrensendeYtelserDto mapFraFagsakForBruker(Fagsak fagsak, LocalDate periodeDato) {
-        var tilgrensendeYtelserDto = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsak, periodeDato);
+    private TilgrensendeYtelser mapFraFagsakForBruker(Fagsak fagsak, LocalDate periodeDato) {
+        var tilgrensendeYtelse = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsak, periodeDato);
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            return setFamilieHendelseDatoForES(fagsak, tilgrensendeYtelserDto);
+            return setFamilieHendelseDatoForES(fagsak, tilgrensendeYtelse);
         }
-        return tilgrensendeYtelserDto;
+        return tilgrensendeYtelse;
     }
 
-    private TilgrensendeYtelserDto mapFraFagsakForAnnenPart(Fagsak fagsak, LocalDate periodeDato) {
-        var tilgrensendeYtelserDto = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsak, periodeDato);
+    private TilgrensendeYtelser mapFraFagsakForAnnenPart(Fagsak fagsak, LocalDate periodeDato) {
+        var tilgrensendeYtelser = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsak, periodeDato);
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            return setFamilieHendelseDatoForES(fagsak, tilgrensendeYtelserDto);
+            return setFamilieHendelseDatoForES(fagsak, tilgrensendeYtelser);
         }
-        behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).ifPresent(b -> {
-            var min = tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId())
-                    .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
-                    .map(p -> VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()))
-                    .min(Comparator.naturalOrder()).orElse(periodeDato);
-            var max = tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId())
-                    .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
-                    .map(p -> VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()))
-                    .max(Comparator.naturalOrder()).orElse(periodeDato);
-            tilgrensendeYtelserDto.setPeriodeFraDato(min);
-            tilgrensendeYtelserDto.setPeriodeTilDato(max);
-        });
-        return tilgrensendeYtelserDto;
+        return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .map(b -> justerPeriode(b, tilgrensendeYtelser, periodeDato)).orElse(tilgrensendeYtelser);
     }
 
-    private TilgrensendeYtelserDto setFamilieHendelseDatoForES(Fagsak fagsak, TilgrensendeYtelserDto tilgrensendeYtelserDto) {
+    private TilgrensendeYtelser justerPeriode(Behandling b, TilgrensendeYtelser ytelse, LocalDate periodeDato) {
+        var min = tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(p -> VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()))
+            .min(Comparator.naturalOrder()).orElse(periodeDato);
+        var max = tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(p -> VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()))
+            .max(Comparator.naturalOrder()).orElse(periodeDato);
+        return new TilgrensendeYtelser(ytelse.relatertYtelseType(), min, max, ytelse.status(), ytelse.statusNavn(), ytelse.saksNummer());
+    }
+
+    private TilgrensendeYtelser setFamilieHendelseDatoForES(Fagsak fagsak, TilgrensendeYtelser tilgrensendeYtelser) {
         try {
-            behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
+            return behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()))
                 .map(a -> a.getGjeldendeVersjon().getSkjæringstidspunkt())
-                .ifPresent(d -> {
-                    tilgrensendeYtelserDto.setPeriodeFraDato(d);
-                    tilgrensendeYtelserDto.setPeriodeTilDato(d);
-                });
+                .map(d -> new TilgrensendeYtelser(tilgrensendeYtelser.relatertYtelseType(), d, d, tilgrensendeYtelser.status(), tilgrensendeYtelser.statusNavn(), tilgrensendeYtelser.saksNummer()))
+                .orElse(tilgrensendeYtelser);
         } catch (Exception e) {
             LOG.info("Ytelse konsolidert uten familiehendelsedato");
         }
-        return tilgrensendeYtelserDto;
+        return tilgrensendeYtelser;
     }
 
     private boolean erSisteBehandlingAvsluttetAvslag(Fagsak fagsak) {

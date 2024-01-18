@@ -4,12 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
-public class Refusjon extends BaseEntitet implements IndexKey {
+public class Refusjon implements IndexKey {
 
     @ChangeTracked
     private Beløp refusjonsbeløpMnd;

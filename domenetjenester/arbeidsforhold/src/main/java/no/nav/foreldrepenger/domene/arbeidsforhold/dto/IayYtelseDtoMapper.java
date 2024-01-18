@@ -48,20 +48,20 @@ public class IayYtelseDtoMapper {
         });
     }
 
-    private List<RelaterteYtelserDto> mapTilDtoAnnenPart(List<TilgrensendeYtelserDto> tilgrensendeYtelserDtos) {
-        return BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos, RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
+    private List<RelaterteYtelserDto> mapTilDtoAnnenPart(List<TilgrensendeYtelser> tilgrensendeYtelser) {
+        return BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelser, RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
     }
 
-    private List<RelaterteYtelserDto> mapTilDtoSøker(List<TilgrensendeYtelserDto> tilgrensendeYtelserDtos) {
-        return BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos, RELATERT_YTELSE_TYPER_FOR_SØKER);
+    private List<RelaterteYtelserDto> mapTilDtoSøker(List<TilgrensendeYtelser> tilgrensendeYtelser) {
+        return BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelser, RELATERT_YTELSE_TYPER_FOR_SØKER);
     }
 
-    private List<TilgrensendeYtelserDto> hentRelaterteYtelser(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+    private List<TilgrensendeYtelser> hentRelaterteYtelser(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
         // Relaterte yteleser fra InntektArbeidYtelseAggregatet
         return ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, Set.of());
     }
 
-    private List<TilgrensendeYtelserDto> hentRelaterteYtelserAnnenPart(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+    private List<TilgrensendeYtelser> hentRelaterteYtelserAnnenPart(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
         return ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, Set.of());
     }
 }

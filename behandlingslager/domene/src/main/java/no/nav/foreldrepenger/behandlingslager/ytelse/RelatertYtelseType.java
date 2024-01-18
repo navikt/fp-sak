@@ -5,9 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -87,28 +84,5 @@ public enum RelatertYtelseType implements Kodeverdi {
         return OPPTJENING_RELATERTYTELSE_FELLES.contains(this) || relatertYtelseTypeSet.contains(this);
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<RelatertYtelseType, String> {
-        @Override
-        public String convertToDatabaseColumn(RelatertYtelseType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public RelatertYtelseType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static RelatertYtelseType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent RelatertYtelseType: " + kode);
-            }
-            return ad;
-        }
-    }
 
 }
