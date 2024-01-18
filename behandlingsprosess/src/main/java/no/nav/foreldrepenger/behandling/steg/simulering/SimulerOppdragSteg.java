@@ -45,6 +45,8 @@ import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlie
 import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.vedtak.exception.IntegrasjonException;
 
+import static no.nav.foreldrepenger.behandling.steg.simulering.StorEtterbetalingMetrikk.count;
+
 @BehandlingStegRef(BehandlingStegType.SIMULER_OPPDRAG)
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
@@ -55,7 +57,6 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private static final int ÅPNINGSTID = 7;
     private static final int STENGETID = 19;
-    private static final String COUNTER_ETTERBETALING_NAME = "foreldrepenger.etterbetaling";
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -168,30 +169,20 @@ public class SimulerOppdragSteg implements BehandlingSteg {
             var etterbetalingssum = etterbetalingskontrollResultatOpt.get().etterbetalingssum();
             var behandlingÅrsakerStreng = behandlingsårsakerString(behandling);
             if (etterbetalingssum.compareTo(BigDecimal.valueOf(60_000)) > 0 ) {
-                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "over_60")).increment();
+                count("over_60", behandlingÅrsakerStreng, behandling.getFagsakYtelseType().getKode(), harAndreAksjonspunkt);
                 LOG.info("Stor etterbetaling til søker over 60_000 med årsaker {}", behandlingÅrsakerStreng);
             } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(30_000)) > 0 ) {
-                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "mellom_60_og_30")).increment();
+                count("mellom_60_og_30", behandlingÅrsakerStreng, behandling.getFagsakYtelseType().getKode(), harAndreAksjonspunkt);
                 LOG.info("Stor etterbetaling til søker over 30_000 med årsaker {}", behandlingÅrsakerStreng);
             } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(10_000)) > 0 ) {
-                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "mellom_30_og_10")).increment();
+                count("mellom_30_og_10", behandlingÅrsakerStreng, behandling.getFagsakYtelseType().getKode(), harAndreAksjonspunkt);
                 LOG.info("Stor etterbetaling til søker over 10_000 med årsaker {}", behandlingÅrsakerStreng);
             } else if (etterbetalingssum.compareTo(BigDecimal.ZERO) > 0 ) {
-                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "over_0_under_10")).increment();
+                count("over_0_under_10", behandlingÅrsakerStreng, behandling.getFagsakYtelseType().getKode(), harAndreAksjonspunkt);
             }
         } catch (Exception e) {
             LOG.info("Noe gikk galt med logging av stor etterbetaling", e);
         }
-    }
-
-    private static List<Tag> lagTagsForCounter(Behandling behandling, boolean harAndreAksjonspunkt, String etterbetalingTag) {
-        var tags = new ArrayList<Tag>();
-        var behandlingsårsaker = behandlingsårsakerString(behandling);
-        tags.add(new ImmutableTag("behandlingsaarsaker", behandlingsårsaker));
-        tags.add(new ImmutableTag("ytelse", behandling.getFagsakYtelseType().getKode()));
-        tags.add(new ImmutableTag("harAndreAksjonspunkt", String.valueOf(harAndreAksjonspunkt)));
-        tags.add(new ImmutableTag("etterbetaling_verdi", etterbetalingTag));
-        return tags;
     }
 
     private static String behandlingsårsakerString(Behandling behandling) {

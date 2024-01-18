@@ -231,10 +231,8 @@ public class InntektArbeidYtelseRestTjeneste {
             iayg.getArbeidsforholdOverstyringer().stream()
                 .filter(o -> o.getArbeidsgiver() != null && o.getArbeidsgiverNavn() != null && OrgNummer.KUNSTIG_ORG.equals(o.getArbeidsgiver().getIdentifikator()))
                 .forEach(o -> overstyrtNavn.add(o.getArbeidsgiverNavn()));
-            arbeidsgivere.addAll(finnArbeidsgivereFraOppgittOpptjening(iayg.getOppgittOpptjening()));
-            arbeidsgivere.addAll(finnArbeidsgivereFraOppgittOpptjening(iayg.getOverstyrtOppgittOpptjening()));
-            alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getOppgittOpptjening()));
-            alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getOverstyrtOppgittOpptjening()));
+            arbeidsgivere.addAll(finnArbeidsgivereFraOppgittOpptjening(iayg.getGjeldendeOppgittOpptjening()));
+            alleReferanser.addAll(referanserFraOppgittOpptjening(iayg.getGjeldendeOppgittOpptjening()));
         });
 
         if (behandling.erAvsluttet() || behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.SIMULER_OPPDRAG)) {
