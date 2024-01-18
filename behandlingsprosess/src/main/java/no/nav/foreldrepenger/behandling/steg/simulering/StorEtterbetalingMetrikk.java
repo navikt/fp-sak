@@ -12,6 +12,7 @@ public class StorEtterbetalingMetrikk {
         counter = Counter.build()
             .name(NAME)
             .labelNames("etterbetaling_verdi", "behandlingsaarsaker", "ytelse", "harAndreAksjonspunkt")
+            .help("Antall store etterbetalinger")
             .register();
     }
 
