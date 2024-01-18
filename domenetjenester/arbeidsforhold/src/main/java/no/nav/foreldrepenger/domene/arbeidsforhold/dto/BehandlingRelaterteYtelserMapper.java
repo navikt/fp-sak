@@ -79,7 +79,7 @@ public class BehandlingRelaterteYtelserMapper {
         return relatertYtelser.stream()
             .filter(tilgrensendeYtelser -> relatertYtelseType.equals(tilgrensendeYtelser.relatertYtelseType()))
             .sorted()
-            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.status(), t.statusNavn(), t.saksNummer().getVerdi()))
+            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.status(), t.statusNavn(), t.saksNummer() == null ? null : t.saksNummer().getVerdi()))
             .toList();
     }
 }
