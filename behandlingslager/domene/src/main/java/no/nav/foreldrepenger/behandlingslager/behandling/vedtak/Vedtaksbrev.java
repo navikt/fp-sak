@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum Vedtaksbrev implements Kodeverdi{
+public enum Vedtaksbrev implements Kodeverdi {
 
     AUTOMATISK("AUTOMATISK", "Automatisk generert vedtaksbrev"),
     FRITEKST("FRITEKST", "Fritekstbrev"),
@@ -21,9 +21,7 @@ public enum Vedtaksbrev implements Kodeverdi{
 
     private static final Map<String, Vedtaksbrev> KODER = new LinkedHashMap<>();
 
-
     public static final String KODEVERK = "VEDTAKSBREV";
-
 
     private String navn;
     @JsonValue
