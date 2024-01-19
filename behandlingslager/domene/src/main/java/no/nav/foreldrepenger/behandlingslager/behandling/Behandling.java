@@ -79,7 +79,7 @@ public class Behandling extends BaseEntitet {
     private Long id;
 
     @NaturalId
-    @Column(name = "uuid")
+    @Column(name = "uuid", nullable = false)
     private UUID uuid;
 
     @ManyToOne(optional = false)
