@@ -46,9 +46,9 @@ public class DokumentBestillerTjeneste {
         DokumentMalType opprinneligDokumentMal = null;
         if (Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev())) {
             dokumentMal = DokumentMalType.FRITEKSTBREV;
-            opprinneligDokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
+            opprinneligDokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat.getBehandlingResultatType(), behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), klageRepository);
         } else {
-            dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
+            dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat.getBehandlingResultatType(), behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), klageRepository);
         }
 
         var bestillBrevDto = new BestillBrevDto(behandling.getUuid(), dokumentMal, null, null);

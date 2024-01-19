@@ -80,17 +80,20 @@ public class SendVedtaksbrev {
             return;
         }
 
-        if (behandlingVedtak.isBeslutningsvedtak()) {
-            if (harSendtVarselOmRevurdering(behandlingId) || harFritekstBrev(behandlingVedtak)) {
+        if (Boolean.TRUE.equals(behandlingVedtak.isBeslutningsvedtak())) { // Beslutningsvedtak betyr at vedtaket er innvilget men har ingen konsekvens for ytelsen.
+            if (Boolean.TRUE.equals(harSendtVarselOmRevurdering(behandlingId)) || harFritekstBrev(behandlingVedtak)) {
                 LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId);
+                // Dette her håndteres videre i dokumentMalUtleder
             } else {
                 LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering eller fritekst brev. Sender ikke brev for behandling: {}", behandlingId);
                 return;
             }
         } else if (gjelderEngangsstønad(behandling)) {
             LOG.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId);
-        } else {
+        } else if (gjelderForeldrepenger(behandling)){
             LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
+        } else {
+            LOG.info("Sender vedtaksbrev({}) for svangerskapspenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
         }
         dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtak);
     }
@@ -100,7 +103,10 @@ public class SendVedtaksbrev {
     }
 
     private boolean gjelderEngangsstønad(Behandling behandling) {
-        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsak().getYtelseType());
+        return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType());
+    }
+    private boolean gjelderForeldrepenger(Behandling behandling) {
+        return FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType());
     }
 
     private boolean skalSendeVedtaksbrevIKlagebehandling(Behandling behandling) {
