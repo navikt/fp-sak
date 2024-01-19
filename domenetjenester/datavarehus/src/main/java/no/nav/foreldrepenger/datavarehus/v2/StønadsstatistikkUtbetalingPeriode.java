@@ -5,21 +5,32 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotNull;
 
-record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
+record StønadsstatistikkUtbetalingPeriode(@NotNull LocalDate fom,
+                                          @NotNull LocalDate tom,
                                           @NotNull Inntektskategori inntektskategori,
                                           String arbeidsgiver,  // Orgnummer eller aktørId
                                           @NotNull Mottaker mottaker,
-                                          @NotNull Integer dagsats,
-                                          @NotNull Integer dagsatsFraBeregningsgrunnlag,
+                                          @NotNull Integer dagsats, //dagsatsFraBeregningsgrunnlag * utbetalingsgrad
+                                          @NotNull Integer dagsatsFraBeregningsgrunnlag, //TODO kan vi unngå?
                                           @NotNull BigDecimal utbetalingsgrad) {
 
     //Feriepenger ikke interessant - sier konsumenten
-    enum Mottaker { BRUKER, ARBEIDSGIVER }
+    enum Mottaker {
+        BRUKER,
+        ARBEIDSGIVER
+    }
 
     enum Inntektskategori {
-        ARBEIDSTAKER, ARBEIDSTAKER_UTEN_FERIEPENGER, SJØMANN, FRILANSER,
-        DAGPENGER, ARBEIDSAVKLARINGSPENGER,
-        SELVSTENDIG_NÆRINGSDRIVENDE, DAGMAMMA, JORDBRUKER, FISKER
+        ARBEIDSTAKER,
+        ARBEIDSTAKER_UTEN_FERIEPENGER,
+        SJØMANN,
+        FRILANSER,
+        DAGPENGER,
+        ARBEIDSAVKLARINGSPENGER,
+        SELVSTENDIG_NÆRINGSDRIVENDE,
+        DAGMAMMA,
+        JORDBRUKER,
+        FISKER
     }
 
     @Override

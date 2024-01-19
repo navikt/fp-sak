@@ -6,15 +6,18 @@ import java.time.LocalDate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate tom,
+record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom,
+                                     @NotNull LocalDate tom,
                                      PeriodeType type,
                                      StønadsstatistikkVedtak.StønadskontoType stønadskontoType, // hvilken konta man tar ut fra
                                      @NotNull StønadsstatistikkVedtak.RettighetType rettighetType,
-                                     Forklaring forklaring, LocalDate søknadsDato, boolean erUtbetaling, // Skal utbetales for perioden
+                                     Forklaring forklaring,
+                                     LocalDate søknadsdato,
+                                     boolean erUtbetaling, // Skal utbetales for perioden
                                      int virkedager,
                                      @NotNull StønadsstatistikkVedtak.ForeldrepengerRettigheter.Trekkdager trekkdager,
                                      @Valid Gradering gradering, // Perioden er gradert
-                                     BigDecimal samtidigUttakProsent ) {
+                                     BigDecimal samtidigUttakProsent) {
 
 
 
@@ -42,7 +45,7 @@ record StønadsstatistikkUttakPeriode(@NotNull LocalDate fom, @NotNull LocalDate
         AKTIVITETSKRAV_KVALIFISERINGSPROGRAM,
         MINSTERETT,
         FLERBARNSDAGER,
-        //Samtidig
+        //Samtidig 150% regel
         SAMTIDIG_MØDREKVOTE,
 
         AVSLAG_ANNET,
