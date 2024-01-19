@@ -109,7 +109,7 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getSaksnummer().id()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(vedtak.getFagsakId()).isEqualTo(behandling.getFagsak().getId());
         assertThat(vedtak.getSøker().id()).isEqualTo(behandling.getAktørId().getId());
-        assertThat(vedtak.getSøkersRolle()).isEqualTo(Saksrolle.MOR);
+        assertThat(vedtak.getSaksrolle()).isEqualTo(Saksrolle.MOR);
         assertThat(vedtak.getVedtaksresultat()).isEqualTo(VedtakResultat.INNVILGET);
         assertThat(vedtak.getUtlandsTilsnitt()).isEqualTo(UtlandsTilsnitt.NASJONAL);
         assertThat(vedtak.getVilkårIkkeOppfylt()).isNull();
