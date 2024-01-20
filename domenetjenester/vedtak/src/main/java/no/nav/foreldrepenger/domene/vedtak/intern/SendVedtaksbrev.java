@@ -60,12 +60,6 @@ public class SendVedtaksbrev {
         var behandlingVedtak = behandlingVedtakOpt.get();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        var fritekstVedtaksbrev = Vedtaksbrev.FRITEKST.equals(behandlingVedtak.getBehandlingsresultat().getVedtaksbrev());
-        if (Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde()) && !fritekstVedtaksbrev) {
-            LOG.info("Sender ikke vedtaksbrev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", behandling.getId());
-            return;
-        }
-
         if (BehandlingType.ANKE.equals(behandling.getType())) {
             LOG.info("Ankebrev sendes av kabal for behandling med id {} ", behandling.getId());
             return;

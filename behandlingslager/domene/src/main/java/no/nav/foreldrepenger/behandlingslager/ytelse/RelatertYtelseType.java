@@ -12,18 +12,18 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum RelatertYtelseType implements Kodeverdi {
 
-    ENSLIG_FORSØRGER("ENSLIG_FORSØRGER", "Enslig forsørger"),
-    SYKEPENGER("SYKEPENGER", "Sykepenger"),
-    SVANGERSKAPSPENGER("SVANGERSKAPSPENGER", "Svangerskapspenger"),
-    FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
-    ENGANGSSTØNAD("ENGANGSSTØNAD", "Engangsstønad"),
+    ENSLIG_FORSØRGER("EF", "Enslig forsørger"),
+    SYKEPENGER("SP", "Sykepenger"),
+    SVANGERSKAPSPENGER("SVP", "Svangerskapspenger"),
+    FORELDREPENGER("FP", "Foreldrepenger"),
+    ENGANGSTØNAD("ES", "Engangsstønad"),
     FRISINN("FRISINN", "FRISINN"),
     PLEIEPENGER_SYKT_BARN("PSB", "Pleiepenger sykt barn"),
     PLEIEPENGER_NÆRSTÅENDE("PPN", "Pleiepenger nærstående"),
     OMSORGSPENGER("OMP", "Omsorgspenger"),
     OPPLÆRINGSPENGER("OLP", "Opplæringspenger"),
-    ARBEIDSAVKLARINGSPENGER("ARBEIDSAVKLARINGSPENGER", "Arbeidsavklaringspenger"),
-    DAGPENGER("DAGPENGER", "Dagpenger"),
+    ARBEIDSAVKLARINGSPENGER("AAP", "Arbeidsavklaringspenger"),
+    DAGPENGER("DAG", "Dagpenger"),
     UDEFINERT("-", "Ikke definert"),
     ;
 
@@ -55,10 +55,6 @@ public enum RelatertYtelseType implements Kodeverdi {
     RelatertYtelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    public static Map<String, RelatertYtelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     @Override

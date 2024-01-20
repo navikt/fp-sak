@@ -15,13 +15,13 @@ import no.nav.vedtak.konfig.Tid;
 public class BehandlingRelaterteYtelserMapper {
 
     private static final Map<FagsakYtelseType, RelatertYtelseType> YTELSE_TYPE_MAP = Map.of(
-            FagsakYtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSSTØNAD,
+            FagsakYtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSTØNAD,
             FagsakYtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER,
             FagsakYtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER);
 
     public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_SØKER = List.of(
             RelatertYtelseType.FORELDREPENGER,
-            RelatertYtelseType.ENGANGSSTØNAD,
+            RelatertYtelseType.ENGANGSTØNAD,
             RelatertYtelseType.SYKEPENGER,
             RelatertYtelseType.DAGPENGER,
             RelatertYtelseType.ARBEIDSAVKLARINGSPENGER,
@@ -34,7 +34,7 @@ public class BehandlingRelaterteYtelserMapper {
 
     public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER = List.of(
             RelatertYtelseType.FORELDREPENGER,
-            RelatertYtelseType.ENGANGSSTØNAD);
+            RelatertYtelseType.ENGANGSTØNAD);
 
     private BehandlingRelaterteYtelserMapper() {
     }
@@ -55,7 +55,7 @@ public class BehandlingRelaterteYtelserMapper {
 
     public static TilgrensendeYtelser mapFraFagsak(Fagsak fagsak, LocalDate periodeDato) {
         var relatertYtelseType = YTELSE_TYPE_MAP.getOrDefault(fagsak.getYtelseType(), RelatertYtelseType.UDEFINERT);
-        return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getKode(), fagsak.getStatus().getNavn(), fagsak.getSaksnummer());
+        return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getNavn(), fagsak.getSaksnummer());
     }
 
     private static LocalDate endreTomDatoHvisLøpende(LocalDate tomDato) {
@@ -69,7 +69,7 @@ public class BehandlingRelaterteYtelserMapper {
             List<RelatertYtelseType> ytelsesTyper) {
         List<RelaterteYtelserDto> relaterteYtelserDtos = new LinkedList<>();
         for (var relatertYtelseType : ytelsesTyper) {
-            relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getKode(), relatertYtelseType.getNavn(),
+            relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getNavn(),
                     sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType)));
         }
         return relaterteYtelserDtos;
@@ -79,7 +79,7 @@ public class BehandlingRelaterteYtelserMapper {
         return relatertYtelser.stream()
             .filter(tilgrensendeYtelser -> relatertYtelseType.equals(tilgrensendeYtelser.relatertYtelseType()))
             .sorted()
-            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.status(), t.statusNavn(), t.saksNummer() == null ? null : t.saksNummer().getVerdi()))
+            .map(t -> new RelaterteYtelserDto.TilgrensendeYtelserDto(t.periodeFra(), t.periodeTil(), t.statusNavn(), t.saksNummer() != null ? t.saksNummer().getVerdi() : null))
             .toList();
     }
 }

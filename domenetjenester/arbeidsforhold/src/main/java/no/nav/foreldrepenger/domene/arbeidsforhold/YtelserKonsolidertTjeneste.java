@@ -75,7 +75,7 @@ public class YtelserKonsolidertTjeneste {
 
         Collection<Ytelse> fraGrunnlag = ytelser.stream()
                .filter(ytelse -> inkluder.isEmpty() || inkluder.contains(ytelse.getRelatertYtelseType()))
-                .filter(ytelse -> !(RelatertYtelseType.ENGANGSSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
+                .filter(ytelse -> !(RelatertYtelseType.ENGANGSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
                 .toList();
         List<TilgrensendeYtelser> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
@@ -106,7 +106,7 @@ public class YtelserKonsolidertTjeneste {
 
         Collection<Ytelse> fraGrunnlag = ytelser.stream()
                 .filter(ytelse -> inkluder.isEmpty() || inkluder.contains(ytelse.getRelatertYtelseType()))
-                .filter(ytelse -> !(RelatertYtelseType.ENGANGSSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
+                .filter(ytelse -> !(RelatertYtelseType.ENGANGSTØNAD.equals(ytelse.getRelatertYtelseType()) && Fagsystem.FPSAK.equals(ytelse.getKilde())))
                 .toList();
         List<TilgrensendeYtelser> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
@@ -149,7 +149,7 @@ public class YtelserKonsolidertTjeneste {
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
             .map(p -> VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()))
             .max(Comparator.naturalOrder()).orElse(periodeDato);
-        return new TilgrensendeYtelser(ytelse.relatertYtelseType(), min, max, ytelse.status(), ytelse.statusNavn(), ytelse.saksNummer());
+        return new TilgrensendeYtelser(ytelse.relatertYtelseType(), min, max, ytelse.statusNavn(), ytelse.saksNummer());
     }
 
     private TilgrensendeYtelser setFamilieHendelseDatoForES(Fagsak fagsak, TilgrensendeYtelser tilgrensendeYtelser) {
@@ -157,7 +157,7 @@ public class YtelserKonsolidertTjeneste {
             return behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .flatMap(b -> familieHendelseRepository.hentAggregatHvisEksisterer(b.getId()))
                 .map(a -> a.getGjeldendeVersjon().getSkjæringstidspunkt())
-                .map(d -> new TilgrensendeYtelser(tilgrensendeYtelser.relatertYtelseType(), d, d, tilgrensendeYtelser.status(), tilgrensendeYtelser.statusNavn(), tilgrensendeYtelser.saksNummer()))
+                .map(d -> new TilgrensendeYtelser(tilgrensendeYtelser.relatertYtelseType(), d, d, tilgrensendeYtelser.statusNavn(), tilgrensendeYtelser.saksNummer()))
                 .orElse(tilgrensendeYtelser);
         } catch (Exception e) {
             LOG.info("Ytelse konsolidert uten familiehendelsedato");
