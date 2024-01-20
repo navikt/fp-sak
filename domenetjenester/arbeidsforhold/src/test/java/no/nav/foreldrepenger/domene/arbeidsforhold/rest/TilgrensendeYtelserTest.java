@@ -41,6 +41,6 @@ class TilgrensendeYtelserTest {
     }
 
     private TilgrensendeYtelser lagTilgrensendeYtelser(LocalDate periodeFraDato) {
-        return new TilgrensendeYtelser(RelatertYtelseType.UDEFINERT, periodeFraDato, null, null, null, null);
+        return new TilgrensendeYtelser(RelatertYtelseType.UDEFINERT, periodeFraDato, null, null, null);
     }
 }

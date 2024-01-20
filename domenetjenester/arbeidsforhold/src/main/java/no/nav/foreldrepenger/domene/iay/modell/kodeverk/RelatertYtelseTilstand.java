@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,10 +35,6 @@ public enum RelatertYtelseTilstand implements Kodeverdi {
     RelatertYtelseTilstand(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    public static Map<String, RelatertYtelseTilstand> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     @Override
