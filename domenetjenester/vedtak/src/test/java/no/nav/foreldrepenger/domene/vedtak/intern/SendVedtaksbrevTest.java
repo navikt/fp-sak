@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
@@ -29,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -205,25 +203,6 @@ class SendVedtaksbrevTest {
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
         verify(dokumentBestillerTjeneste, never()).produserVedtaksbrev(behandlingVedtak);
-    }
-
-    @Test
-    void sender_ikke_brev_dersom_førstegangsøknad_som_er_migrert_fra_infotrygd() {
-        behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-
-        sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
-
-        verify(dokumentBestillerTjeneste, never()).produserVedtaksbrev(behandlingVedtak);
-    }
-
-    @Test
-    void sender_brev_dersom_førstegangsøknad_som_er_migrert_fra_infotrygd_men_overstyrt_til_fritekstbrev() {
-        behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-        lenient().when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
-
-        sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
-
-        verify(dokumentBestillerTjeneste, times(1)).produserVedtaksbrev(behandlingVedtak);
     }
 
 }
