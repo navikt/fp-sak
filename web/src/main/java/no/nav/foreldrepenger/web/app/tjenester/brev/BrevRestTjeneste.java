@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -75,7 +76,15 @@ public class BrevRestTjeneste {
                                     @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
         var behandlingId = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid()).getId();
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), behandlingId);
-        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
+
+        var brevBestilling = BrevBestilling.builder()
+            .medBehandlingUuid(bestillBrevDto.getBehandlingUuid())
+            .medDokumentMal(bestillBrevDto.getBrevmalkode())
+            .medRevurderingÅrsak(bestillBrevDto.getArsakskode())
+            .medFritekst(bestillBrevDto.getFritekst())
+            .build();
+
+        dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.getBrevmalkode(), behandlingId);
     }
 

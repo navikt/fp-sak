@@ -58,6 +58,12 @@ public class SendVedtaksbrev {
             return;
         }
         var behandlingVedtak = behandlingVedtakOpt.get();
+
+        if (Vedtaksbrev.INGEN.equals(behandlingVedtak.getBehandlingsresultat().getVedtaksbrev())) {
+            LOG.info("Sender ikke vedtaksbrev om det er eksplisit markert med INGEN: {}", behandlingId);
+            return;
+        }
+
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         if (BehandlingType.ANKE.equals(behandling.getType())) {

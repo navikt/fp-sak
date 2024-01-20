@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,15 +37,19 @@ class DokumentBestillerTjenesteTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario);
 
-        var dokumentMalTypeInput = DokumentMalType.INNHENTE_OPPLYSNINGER;
+        var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
-        var bestillBrevDto = new BestillBrevDto(behandling.getUuid(), dokumentMalTypeInput, "fritekst");
+        var brevBestilling = BrevBestilling.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medDokumentMal(dokumentMal)
+            .medFritekst("fritekst")
+            .build();
 
         // Act
-        tjeneste.bestillDokument(bestillBrevDto, historikkAktør);
+        tjeneste.bestillDokument(brevBestilling, historikkAktør);
 
         // Assert
-        verify(dokumentBestiller).bestillDokument(bestillBrevDto, historikkAktør);
+        verify(dokumentBestiller).bestillDokument(brevBestilling, historikkAktør);
     }
 
 }

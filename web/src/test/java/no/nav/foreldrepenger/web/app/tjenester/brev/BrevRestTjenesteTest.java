@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.dokumentbestiller.DokumentMalType.INNHENTE_O
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
@@ -47,13 +47,20 @@ class BrevRestTjenesteTest {
 
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(mock(Behandling.class));
 
-        var bestillBrevDto = new BestillBrevDto(behandlingUuid, INNHENTE_OPPLYSNINGER, "Dette er en fritekst");
+        var fritekst = "Dette er en fritekst";
+        var dokumentMal = INNHENTE_OPPLYSNINGER;
+        var brevBestilling = BrevBestilling.builder()
+            .medBehandlingUuid(behandlingUuid)
+            .medDokumentMal(dokumentMal)
+            .medFritekst(fritekst)
+            .build();
+        var bestillBrevDto = new BestillBrevDto(behandlingUuid, dokumentMal, fritekst);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);
 
         // Assert
-        verify(dokumentBestillerTjenesteMock).bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
+        verify(dokumentBestillerTjenesteMock).bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
         verify(behandlingRepository).hentBehandling(behandlingUuid);
     }
 

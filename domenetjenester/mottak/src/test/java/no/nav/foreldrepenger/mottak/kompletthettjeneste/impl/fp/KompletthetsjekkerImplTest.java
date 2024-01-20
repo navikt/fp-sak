@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -152,7 +154,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
         assertThat(kompletthetResultat.ventefrist()).isNull();
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(BrevBestilling.class), any());
     }
 
     @Test
@@ -171,7 +173,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
         assertThat(kompletthetResultat.ventefrist()).isNull();
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(BrevBestilling.class), any());
     }
 
     @Test
@@ -190,7 +192,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(STARTDATO_PERMISJON);
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(BrevBestilling.class), any());
     }
 
     @Test
@@ -209,7 +211,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(BrevBestilling.class), any());
 
         // Act 2
         stp = LocalDate.now().plusWeeks(3);
@@ -219,7 +221,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
         assertThat(kompletthetResultat2.ventefrist().toLocalDate()).isEqualTo(stp);
-        verify(dokumentBestillerTjenesteMock, times(2)).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, times(2)).bestillDokument(any(BrevBestilling.class), any());
     }
 
     @Test
@@ -238,7 +240,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
-        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(BrevBestilling.class), any());
     }
 
     @Test

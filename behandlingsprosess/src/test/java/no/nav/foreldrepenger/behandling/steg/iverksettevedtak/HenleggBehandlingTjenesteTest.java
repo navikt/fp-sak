@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -107,7 +109,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock).bestillDokument(any(BestillBrevDto.class), eq(HistorikkAktør.VEDTAKSLØSNINGEN));
+        verify(dokumentBestillerTjenesteMock).bestillDokument(any(BrevBestilling.class), eq(HistorikkAktør.VEDTAKSLØSNINGEN));
     }
 
     @Test
@@ -121,7 +123,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(BrevBestilling.class), any());
     }
 
     @Test
@@ -138,7 +140,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeastOnce()).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(BrevBestilling.class), any());
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 
@@ -153,7 +155,7 @@ class HenleggBehandlingTjenesteTest {
         // Assert
         verify(historikkRepositoryMock).lagre(any(Historikkinnslag.class));
         verify(repositoryProvider.getBehandlingRepository(), atLeast(2)).lagre(eq(behandling), any(BehandlingLås.class));
-        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(BrevBestilling.class), any());
     }
 
     @Test

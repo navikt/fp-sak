@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilt;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -54,9 +54,9 @@ public class DokumentBestiller {
         bestillOgLogg(bestillBrevDto, null, aktør);
     }
 
-    private void bestillOgLogg(BestillBrevDto bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
-        var behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
-        bestillDokumentOgLoggHistorikk(behandling, bestillBrevDto.getBrevmalkode(), bestillBrevDto.getFritekst(), bestillBrevDto.getArsakskode(), aktør,
+    private void bestillOgLogg(BrevBestilling brevBestilling, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
+        var behandling = behandlingRepository.hentBehandling(brevBestilling.behandlingUuid());
+        bestillDokumentOgLoggHistorikk(behandling, brevBestilling.dokumentMal(), brevBestilling.fritekst(), brevBestilling.revurderingÅrsak(), aktør,
             opprinneligDokumentMal);
     }
 
