@@ -25,8 +25,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PreRemove;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
@@ -41,11 +39,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -83,7 +79,7 @@ public class Behandling extends BaseEntitet {
     private Long id;
 
     @NaturalId
-    @Column(name = "uuid")
+    @Column(name = "uuid", nullable = false)
     private UUID uuid;
 
     @ManyToOne(optional = false)
@@ -160,11 +156,6 @@ public class Behandling extends BaseEntitet {
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "aapnet_for_endring", nullable = false)
     private boolean åpnetForEndring = false;
-
-    @ChangeTracked
-    @Convert(converter = Fagsystem.KodeverdiConverter.class)
-    @Column(name = "migrert_kilde", nullable = false)
-    private Fagsystem migrertKilde = Fagsystem.UDEFINERT;
 
     Behandling() {
         // Hibernate
@@ -686,18 +677,6 @@ public class Behandling extends BaseEntitet {
         return getFørsteÅpneAutopunkt().map(Aksjonspunkt::getVenteårsak).orElse(null);
     }
 
-    /**
-     * @deprecated - fjernes når alle behandlinger har UUID og denne er satt NOT
-     *             NULL i db. Inntil da sikrer denne lagring av UUID
-     */
-    @Deprecated
-    @PreUpdate
-    protected void onUpdateMigrerUuid() {
-        if (uuid == null) {
-            uuid = UUID.randomUUID();
-        }
-    }
-
     public boolean erSaksbehandlingAvsluttet() {
         return erAvsluttet() || erUnderIverksettelse() || erHenlagt();
     }
@@ -751,25 +730,10 @@ public class Behandling extends BaseEntitet {
         this.åpnetForEndring = åpnetForEndring;
     }
 
-    public Fagsystem getMigrertKilde() {
-        return migrertKilde;
-    }
-
-    public void setMigrertKilde(Fagsystem migrertKilde) {
-        guardTilstandPåBehandling();
-        this.migrertKilde = migrertKilde;
-    }
-
     private void guardTilstandPåBehandling() {
         if (erSaksbehandlingAvsluttet()) {
             throw new IllegalStateException("Utvikler-feil: kan ikke endre tilstand på en behandling som er avsluttet.");
         }
-    }
-
-    @PreRemove
-    protected void onDelete() {
-        // FIXME: FPFEIL-2799 (FrodeC): Fjern denne når FPFEIL-2799 er godkjent
-        throw new IllegalStateException("Skal aldri kunne slette behandling. [id=" + id + ", status=" + getStatus() + ", type=" + getType() + "]");
     }
 
     public static class Builder {

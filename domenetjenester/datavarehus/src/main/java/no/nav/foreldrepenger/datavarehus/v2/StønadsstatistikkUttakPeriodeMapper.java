@@ -362,8 +362,8 @@ class StønadsstatistikkUttakPeriodeMapper {
         var u2 = rhs.getValue();
         var virkedager = u1.virkedager() + u2.virkedager();
         var trekkdager = u1.trekkdager().add(u2.trekkdager());
-        var mottatt = u1.søknadsDato() != null && u2.søknadsDato() != null && u2.søknadsDato().isBefore(u1.søknadsDato()) ?
-            u2.søknadsDato() : Optional.ofNullable(u1.søknadsDato()).orElseGet(u2::søknadsDato);
+        var mottatt = u1.søknadsdato() != null && u2.søknadsdato() != null && u2.søknadsdato().isBefore(u1.søknadsdato()) ?
+            u2.søknadsdato() : Optional.ofNullable(u1.søknadsdato()).orElseGet(u2::søknadsdato);
         var ny = new StønadsstatistikkUttakPeriode(i.getFomDato(), i.getTomDato(), u1.type(), u1.stønadskontoType(),
             u1.rettighetType(), u1.forklaring(), mottatt, u1.erUtbetaling(), virkedager, trekkdager, u1.gradering(), u1.samtidigUttakProsent());
         return new LocalDateSegment<>(i, ny);

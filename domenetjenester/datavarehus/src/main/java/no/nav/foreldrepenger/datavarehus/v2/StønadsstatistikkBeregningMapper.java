@@ -33,7 +33,7 @@ class StønadsstatistikkBeregningMapper {
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp().getVerdi();
 
         var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), periodePåStp.getAvkortetPrÅr(),
-            periodePåStp.getRedusertPrÅr(),periodePåStp.getDagsats());
+            periodePåStp.getRedusertPrÅr(), periodePåStp.getDagsats());
 
         var andeler = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .collect(Collectors.groupingBy(Gruppering::new))
