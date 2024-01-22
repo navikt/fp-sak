@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
@@ -267,7 +268,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
         lagreAnnenPart(wrapper, behandling);
         byggYtelsesSpesifikkeFelter(wrapper, behandling, søknadBuilder);
-        byggOpptjeningsspesifikkeFelter(wrapper, behandlingId);
+        byggOpptjeningsspesifikkeFelter(wrapper, behandling);
         if (wrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             byggFamilieHendelseForSvangerskap(svangerskapspenger, hendelseBuilder);
         } else {
@@ -541,7 +542,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         }
     }
 
-    private void byggOpptjeningsspesifikkeFelter(SøknadWrapper skjemaWrapper, Long behandlingId) {
+    private void byggOpptjeningsspesifikkeFelter(SøknadWrapper skjemaWrapper, Behandling behandling) {
+        var behandlingId = behandling.getId();
         Opptjening opptjeningFraSøknad = null;
         if (skjemaWrapper.getOmYtelse() instanceof final Foreldrepenger omYtelse) {
             opptjeningFraSøknad = omYtelse.getOpptjening();
@@ -552,11 +554,11 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         if (opptjeningFraSøknad != null && (!opptjeningFraSøknad.getUtenlandskArbeidsforhold().isEmpty()
             || !opptjeningFraSøknad.getAnnenOpptjening().isEmpty() || !opptjeningFraSøknad.getEgenNaering().isEmpty() || nonNull(
             opptjeningFraSøknad.getFrilans()))) {
-            var iayGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
+            Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag = BehandlingType.REVURDERING.equals(behandling.getType()) ? iayTjeneste.finnGrunnlag(behandlingId) : Optional.empty();
             var eksisterendeOppgittOpptjening = iayGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getGjeldendeOppgittOpptjening);
             var erOverstyrt = iayGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getOverstyrtOppgittOpptjening).isPresent();
             if (eksisterendeOppgittOpptjening.isPresent()) {
-                LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling med id {}", behandlingId);
+                LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling med id {} ytelse {}", behandlingId, behandling.getFagsakYtelseType().getKode());
                 var flettetOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
                 if (erOverstyrt) {
                     iayTjeneste.lagreOverstyrtOppgittOpptjening(behandlingId, flettetOppgittOpptjening);
