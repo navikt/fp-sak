@@ -153,6 +153,7 @@ public class FagsakBehandlingDtoTjeneste {
         // Brev
         dto.setBrevmaler(brevmalTjeneste.hentBrevmalerFor(behandling));
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
+        dto.leggTil(post(BrevRestTjeneste.MANUELL_BREV_VIS_PATH, "brev-manuell-vis"));
 
         return dto;
     }

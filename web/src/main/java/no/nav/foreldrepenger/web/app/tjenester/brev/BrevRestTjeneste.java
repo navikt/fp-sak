@@ -47,6 +47,8 @@ public class BrevRestTjeneste {
     static final String BASE_PATH = "/brev";
     private static final String VARSEL_REVURDERING_PART_PATH = "/varsel/revurdering";
     public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
+    private static final String MANUELL_BREV_VIS_PART_PATH = "/forhandsvis/manuell";
+    public static final String MANUELL_BREV_VIS_PATH = BASE_PATH + MANUELL_BREV_VIS_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
 
@@ -72,8 +74,7 @@ public class BrevRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BestillBrevAbacDataSupplier.class)
-                                    @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
+    public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
         var behandlingId = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid()).getId();
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandlingId);
 
@@ -86,6 +87,24 @@ public class BrevRestTjeneste {
 
         dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandlingId);
+    }
+
+    @POST
+    @Path(MANUELL_BREV_VIS_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Forhåndsviser et manuell brev (sendt av saksbehandler fra GUI)", tags = "brev")
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    public void forhåndsvisManuelDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
+        LOG.info("Brev med brevmalkode={} forhåndsvist på behandlingUuid={}", bestillBrevDto.brevmalkode(), bestillBrevDto.behandlingUuid());
+
+        var brevBestilling = BrevBestilling.builder()
+            .medBehandlingUuid(bestillBrevDto.behandlingUuid())
+            .medDokumentMal(bestillBrevDto.brevmalkode())
+            .medRevurderingÅrsak(bestillBrevDto.arsakskode())
+            .medFritekst(bestillBrevDto.fritekst())
+            .build();
+
+       // dokumentBestillerTjeneste.bestillDokument(brevBestilling);
     }
 
     private void oppdaterBehandlingBasertPåManueltBrev(DokumentMalType brevmalkode, Long behandlingId) {
@@ -120,13 +139,12 @@ public class BrevRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sjekk har varsel sendt om revurdering", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
-    public Boolean harSendtVarselOmRevurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Boolean harSendtVarselOmRevurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }
 
-    public static class BestillBrevAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+    public static class BrevAbacDataSupplier implements Function<Object, AbacDataAttributter> {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
