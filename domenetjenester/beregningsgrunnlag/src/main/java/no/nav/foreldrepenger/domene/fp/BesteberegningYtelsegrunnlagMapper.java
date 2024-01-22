@@ -10,11 +10,12 @@ import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseperiode;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
-import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
+import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
@@ -51,18 +52,26 @@ public class BesteberegningYtelsegrunnlagMapper {
             .toList();
         return sykepengeperioder.isEmpty()
             ? Optional.empty()
-            : Optional.of(new Ytelsegrunnlag(FagsakYtelseType.SYKEPENGER, sykepengeperioder));
+            : Optional.of(new Ytelsegrunnlag(YtelseType.SYKEPENGER, sykepengeperioder));
     }
 
     public static Optional<Ytelsegrunnlag> mapFpsakYtelseTilYtelsegrunnlag(BeregningsresultatEntitet resultat,
-                                                                           no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType ytelseType) {
+                                                                           FagsakYtelseType ytelseType) {
         var ytelseperioder = resultat.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
             .map(BesteberegningYtelsegrunnlagMapper::mapPeriode)
             .toList();
         return ytelseperioder.isEmpty()
             ? Optional.empty()
-            : Optional.of(new Ytelsegrunnlag(FagsakYtelseType.fraKode(ytelseType.getKode()), ytelseperioder));
+            : Optional.of(new Ytelsegrunnlag(mapTilGenerellYtelse(ytelseType), ytelseperioder));
+    }
+
+    private static YtelseType mapTilGenerellYtelse(FagsakYtelseType ytelseType) {
+        return switch (ytelseType) {
+            case ENGANGSTØNAD, UDEFINERT -> throw new IllegalArgumentException("Skal ikke besteberegne basert på " + ytelseType.getKode());
+            case FORELDREPENGER -> YtelseType.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
+        };
     }
 
     private static Ytelseperiode mapPeriode(BeregningsresultatPeriode periode) {
