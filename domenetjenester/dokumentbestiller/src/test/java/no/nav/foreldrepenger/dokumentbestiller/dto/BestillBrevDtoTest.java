@@ -26,14 +26,14 @@ class BestillBrevDtoTest {
 
         var etterRoundtrip = DefaultJsonMapper.fromJson(json, BestillBrevDto.class);
 
-        assertEquals(brev.getBrevmalkode(), etterRoundtrip.getBrevmalkode());
-        assertEquals(dokumentMal, brev.getBrevmalkode());
-        assertEquals(brev.getArsakskode(), etterRoundtrip.getArsakskode());
-        assertEquals(arsak, etterRoundtrip.getArsakskode());
-        assertEquals(brev.getFritekst(), etterRoundtrip.getFritekst());
-        assertNull(etterRoundtrip.getFritekst());
-        assertEquals(brev.getBehandlingUuid(), etterRoundtrip.getBehandlingUuid());
-        assertEquals(uuid, etterRoundtrip.getBehandlingUuid().toString());
+        assertEquals(brev.brevmalkode(), etterRoundtrip.brevmalkode());
+        assertEquals(dokumentMal, brev.brevmalkode());
+        assertEquals(brev.arsakskode(), etterRoundtrip.arsakskode());
+        assertEquals(arsak, etterRoundtrip.arsakskode());
+        assertEquals(brev.fritekst(), etterRoundtrip.fritekst());
+        assertNull(etterRoundtrip.fritekst());
+        assertEquals(brev.behandlingUuid(), etterRoundtrip.behandlingUuid());
+        assertEquals(uuid, etterRoundtrip.behandlingUuid().toString());
     }
 
 }

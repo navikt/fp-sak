@@ -55,6 +55,7 @@ public final class Databaseskjemainitialisering {
                 .locations(getScriptLocation(schemaName))
                 .table("schema_version")
                 .baselineOnMigrate(true)
+                .cleanOnValidationError(true)
                 .cleanDisabled(false)
                 .load();
             try {

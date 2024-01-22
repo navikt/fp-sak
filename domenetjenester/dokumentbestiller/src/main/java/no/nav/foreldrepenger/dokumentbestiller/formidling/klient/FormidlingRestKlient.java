@@ -33,7 +33,4 @@ public class FormidlingRestKlient implements Brev {
         var request = RestRequest.newPOSTJson(dokumentbestillingV2Dto, uri, restConfig);
         restClient.sendReturnOptional(request, String.class);
     }
-
-
-
 }

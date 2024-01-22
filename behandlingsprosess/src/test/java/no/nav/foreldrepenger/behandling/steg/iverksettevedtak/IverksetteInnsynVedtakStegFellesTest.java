@@ -6,8 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -18,8 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
 class IverksetteInnsynVedtakStegFellesTest {

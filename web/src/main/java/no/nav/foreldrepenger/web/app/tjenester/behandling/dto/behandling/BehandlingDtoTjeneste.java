@@ -179,7 +179,7 @@ public class BehandlingDtoTjeneste {
         }
 
         // Brev
-        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill", new BestillBrevDto()));
+        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
 
         return dto;
     }

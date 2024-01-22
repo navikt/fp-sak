@@ -54,7 +54,7 @@ class BrevRestTjenesteTest {
             .medDokumentMal(dokumentMal)
             .medFritekst(fritekst)
             .build();
-        var bestillBrevDto = new BestillBrevDto(behandlingUuid, dokumentMal, fritekst);
+        var bestillBrevDto = new BestillBrevDto(behandlingUuid, dokumentMal, fritekst, null);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);

@@ -107,8 +107,6 @@ public class FagsakBehandlingDtoTjeneste {
         }).toList();
     }
 
-
-
     private FagsakBehandlingDto lagBehandlingDto(Behandling behandling,
                                            Behandlingsresultat behandlingsresultat,
                                            boolean erBehandlingMedGjeldendeVedtak, LocalDate vedtaksdato) {
@@ -154,7 +152,7 @@ public class FagsakBehandlingDtoTjeneste {
 
         // Brev
         dto.setBrevmaler(brevmalTjeneste.hentBrevmalerFor(behandling));
-        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill", new BestillBrevDto()));
+        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
 
         return dto;
     }

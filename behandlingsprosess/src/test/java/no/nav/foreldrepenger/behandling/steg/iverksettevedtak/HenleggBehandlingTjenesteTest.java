@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -43,8 +41,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest

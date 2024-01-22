@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 
 @ApplicationScoped
