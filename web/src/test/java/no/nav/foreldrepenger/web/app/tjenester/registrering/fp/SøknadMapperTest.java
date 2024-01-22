@@ -37,6 +37,8 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -562,7 +564,7 @@ class SøknadMapperTest {
 
         var navBruker = opprettBruker();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
-        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -604,7 +606,7 @@ class SøknadMapperTest {
 
         var navBruker = opprettBruker();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
-        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -634,9 +636,6 @@ class SøknadMapperTest {
     void skal_mappe_og_lagre_oppgitt_opptjening_når_det_ikke_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(kvinne));
-        when(iayGrunnlag.getGjeldendeOppgittOpptjening()).thenReturn(Optional.empty());
-        when(iayGrunnlag.getOverstyrtOppgittOpptjening()).thenReturn(Optional.empty());
-        when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(Virksomhet.getBuilder()
             .medOrgnr(KUNSTIG_ORG)
             .medNavn("Ukjent Firma")
