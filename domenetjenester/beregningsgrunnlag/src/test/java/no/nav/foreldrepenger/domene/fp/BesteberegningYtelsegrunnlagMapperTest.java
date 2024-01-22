@@ -40,11 +40,11 @@ class BesteberegningYtelsegrunnlagMapperTest {
         var filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
         var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusMonths(12), STP), filter);
         assertThat(mappetGrunnlag).isPresent();
-        assertThat(mappetGrunnlag.get().getPerioder()).hasSize(1);
-        assertThat(mappetGrunnlag.get().getPerioder().get(0).getPeriode().getFomDato()).isEqualTo(månederFørStp(15));
-        assertThat(mappetGrunnlag.get().getPerioder().get(0).getPeriode().getTomDato()).isEqualTo(månederFørStp(6));
-        assertThat(mappetGrunnlag.get().getPerioder().get(0).getAndeler()).hasSize(1);
-        assertThat(mappetGrunnlag.get().getPerioder().get(0).getAndeler().get(0).getArbeidskategori().getKode()).isEqualTo(Arbeidskategori.DAGPENGER.getKode());
+        assertThat(mappetGrunnlag.get().perioder()).hasSize(1);
+        assertThat(mappetGrunnlag.get().perioder().getFirst().getPeriode().getFomDato()).isEqualTo(månederFørStp(15));
+        assertThat(mappetGrunnlag.get().perioder().getFirst().getPeriode().getTomDato()).isEqualTo(månederFørStp(6));
+        assertThat(mappetGrunnlag.get().perioder().getFirst().getAndeler()).hasSize(1);
+        assertThat(mappetGrunnlag.get().perioder().getFirst().getAndeler().getFirst().getArbeidskategori().getKode()).isEqualTo(Arbeidskategori.DAGPENGER.getKode());
     }
 
     @Test
@@ -66,20 +66,20 @@ class BesteberegningYtelsegrunnlagMapperTest {
         lagFpsakResultatAndel(lagFpsakResultatPeriode(brres, månederFørStp(5), månederFørStp(2)), AktivitetStatus.ARBEIDSTAKER, 700);
         var mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapFpsakYtelseTilYtelsegrunnlag(brres, FagsakYtelseType.FORELDREPENGER);
         assertThat(mappetGrunnlag).isPresent();
-        var sortertePerioder = mappetGrunnlag.get().getPerioder().stream().sorted(Comparator.comparing(Ytelseperiode::getPeriode)).toList();
+        var sortertePerioder = mappetGrunnlag.get().perioder().stream().sorted(Comparator.comparing(Ytelseperiode::getPeriode)).toList();
         assertThat(sortertePerioder).hasSize(2);
-        assertThat(sortertePerioder.get(0).getPeriode().getFomDato()).isEqualTo(månederFørStp(12));
-        assertThat(sortertePerioder.get(0).getPeriode().getTomDato()).isEqualTo(månederFørStp(7));
-        assertThat(sortertePerioder.get(0).getAndeler()).hasSize(1);
-        assertThat(sortertePerioder.get(0).getAndeler().get(0).getAktivitetStatus().getKode()).isEqualTo(AktivitetStatus.ARBEIDSTAKER.getKode());
-        assertThat(sortertePerioder.get(0).getAndeler().get(0).getDagsats()).isEqualTo(350L);
+        assertThat(sortertePerioder.getFirst().getPeriode().getFomDato()).isEqualTo(månederFørStp(12));
+        assertThat(sortertePerioder.getFirst().getPeriode().getTomDato()).isEqualTo(månederFørStp(7));
+        assertThat(sortertePerioder.getFirst().getAndeler()).hasSize(1);
+        assertThat(sortertePerioder.get(0).getAndeler().getFirst().getAktivitetStatus().getKode()).isEqualTo(AktivitetStatus.ARBEIDSTAKER.getKode());
+        assertThat(sortertePerioder.get(0).getAndeler().getFirst().getDagsats()).isEqualTo(350L);
 
 
         assertThat(sortertePerioder.get(1).getPeriode().getFomDato()).isEqualTo(månederFørStp(5));
         assertThat(sortertePerioder.get(1).getPeriode().getTomDato()).isEqualTo(månederFørStp(2));
         assertThat(sortertePerioder.get(1).getAndeler()).hasSize(1);
-        assertThat(sortertePerioder.get(1).getAndeler().get(0).getAktivitetStatus().getKode()).isEqualTo(AktivitetStatus.ARBEIDSTAKER.getKode());
-        assertThat(sortertePerioder.get(1).getAndeler().get(0).getDagsats()).isEqualTo(700L);
+        assertThat(sortertePerioder.get(1).getAndeler().getFirst().getAktivitetStatus().getKode()).isEqualTo(AktivitetStatus.ARBEIDSTAKER.getKode());
+        assertThat(sortertePerioder.get(1).getAndeler().getFirst().getDagsats()).isEqualTo(700L);
     }
 
 

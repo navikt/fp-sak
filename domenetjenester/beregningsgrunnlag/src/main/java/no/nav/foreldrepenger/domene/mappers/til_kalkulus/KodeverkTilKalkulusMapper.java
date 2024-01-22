@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
-import no.nav.folketrygdloven.kalkulator.modell.uttak.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 
 public class KodeverkTilKalkulusMapper {
 
