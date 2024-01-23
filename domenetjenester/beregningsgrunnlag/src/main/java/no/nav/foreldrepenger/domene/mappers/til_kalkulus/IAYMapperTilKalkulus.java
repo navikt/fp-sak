@@ -284,8 +284,8 @@ public class IAYMapperTilKalkulus {
         builder.medBeløp(inntektspost.getBeløp().getVerdi());
         builder.medInntektspostType(KodeverkTilKalkulusMapper.mapInntektspostType(inntektspost.getInntektspostType()));
         builder.medPeriode(inntektspost.getPeriode().getFomDato(), inntektspost.getPeriode().getTomDato());
-        builder.medSkatteOgAvgiftsregelType(KodeverkTilKalkulusMapper.mapSkatteOgAvgitsregelType(inntektspost.getSkatteOgAvgiftsregelType()));
-        builder.medInntektYtelse(inntektspost.getInntektYtelseType() != null ? InntektYtelseType.valueOf(inntektspost.getInntektYtelseType().name()) : null);
+        builder.medSkatteOgAvgiftsregelType(inntektspost.getSkatteOgAvgiftsregelType() == null ? null : KodeverkTilKalkulusMapper.mapSkatteOgAvgitsregelType(inntektspost.getSkatteOgAvgiftsregelType()));
+        builder.medInntektYtelse(inntektspost.getInntektYtelseType() == null ? null : KodeverkTilKalkulusMapper.mapInntektytelseType(inntektspost.getInntektYtelseType()));
 
         return builder;
     }

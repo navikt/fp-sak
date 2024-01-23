@@ -9,6 +9,7 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel;
+import no.nav.folketrygdloven.kalkulus.kodeverk.InntektYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
@@ -18,10 +19,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 
-import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 
 public class KodeverkTilKalkulusMapper {
@@ -234,30 +233,11 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    static FagsakYtelseType mapRelatertYtelseTilFagsakytelse(RelatertYtelseType relatertYtelseType) {
-        return switch (relatertYtelseType) {
-            case ENSLIG_FORSØRGER -> FagsakYtelseType.ENSLIG_FORSØRGER;
-            case SYKEPENGER -> FagsakYtelseType.SYKEPENGER;
-            case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
-            case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
-            case ENGANGSSTØNAD -> FagsakYtelseType.ENGANGSTØNAD;
-            case FRISINN -> FagsakYtelseType.FRISINN;
-            case PLEIEPENGER_SYKT_BARN -> FagsakYtelseType.PLEIEPENGER_SYKT_BARN;
-            case PLEIEPENGER_NÆRSTÅENDE -> FagsakYtelseType.PLEIEPENGER_NÆRSTÅENDE;
-            case OMSORGSPENGER -> FagsakYtelseType.OMSORGSPENGER;
-            case OPPLÆRINGSPENGER -> FagsakYtelseType.OPPLÆRINGSPENGER;
-            case ARBEIDSAVKLARINGSPENGER -> FagsakYtelseType.ARBEIDSAVKLARINGSPENGER;
-            case DAGPENGER -> FagsakYtelseType.DAGPENGER;
-            case UDEFINERT -> FagsakYtelseType.UDEFINERT;
-        };
-    }
-
     static FagsakYtelseType mapFagsakytelsetype(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
-            case ENGANGSTØNAD -> FagsakYtelseType.ENGANGSTØNAD;
             case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
-            case UDEFINERT -> FagsakYtelseType.UDEFINERT;
+            case ENGANGSTØNAD, UDEFINERT -> throw new IllegalStateException("Skal ikke kalle kalkulus med ytelsetype " + fagsakYtelseType);
         };
     }
 
@@ -335,9 +315,41 @@ public class KodeverkTilKalkulusMapper {
             case NETTOLØNN -> SkatteOgAvgiftsregelType.NETTOLØNN;
             case KILDESKATT_PÅ_PENSJONER -> SkatteOgAvgiftsregelType.KILDESKATT_PÅ_PENSJONER;
             case JAN_MAYEN_OG_BILANDENE -> SkatteOgAvgiftsregelType.JAN_MAYEN_OG_BILANDENE;
-            case UDEFINERT -> null;
-            case null -> null;
+            case UDEFINERT -> SkatteOgAvgiftsregelType.UDEFINERT;
         };
     }
 
+    public static InntektYtelseType mapInntektytelseType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektYtelseType inntektYtelseType) {
+        return switch (inntektYtelseType) {
+            case SVANGERSKAPSPENGER -> InntektYtelseType.SVANGERSKAPSPENGER;
+            case FORELDREPENGER -> InntektYtelseType.FORELDREPENGER;
+            case SYKEPENGER -> InntektYtelseType.SYKEPENGER;
+            case OPPLÆRINGSPENGER -> InntektYtelseType.OPPLÆRINGSPENGER;
+            case OMSORGSPENGER -> InntektYtelseType.OMSORGSPENGER;
+            case ANNET -> InntektYtelseType.ANNET;
+            case AAP -> InntektYtelseType.AAP;
+            case VEDERLAG -> InntektYtelseType.VEDERLAG;
+            case OVERGANGSSTØNAD_ENSLIG -> InntektYtelseType.OVERGANGSSTØNAD_ENSLIG;
+            case VENTELØNN -> InntektYtelseType.VENTELØNN;
+            case PLEIEPENGER -> InntektYtelseType.PLEIEPENGER;
+            case DAGPENGER -> InntektYtelseType.DAGPENGER;
+            case FERIEPENGER_FORELDREPENGER -> InntektYtelseType.FERIEPENGER_FORELDREPENGER;
+            case FERIEPENGER_SVANGERSKAPSPENGER -> InntektYtelseType.FERIEPENGER_SVANGERSKAPSPENGER;
+            case FERIEPENGER_OMSORGSPENGER -> InntektYtelseType.FERIEPENGER_OMSORGSPENGER;
+            case FERIEPENGER_OPPLÆRINGSPENGER -> InntektYtelseType.FERIEPENGER_OPPLÆRINGSPENGER;
+            case FERIEPENGER_PLEIEPENGER -> InntektYtelseType.FERIEPENGER_PLEIEPENGER;
+            case FERIEPENGER_SYKEPENGER -> InntektYtelseType.FERIEPENGER_SYKEPENGER;
+            case FERIETILLEGG_DAGPENGER -> InntektYtelseType.FERIETILLEGG_DAGPENGER;
+            case KVALIFISERINGSSTØNAD -> InntektYtelseType.KVALIFISERINGSSTØNAD;
+            case FORELDREPENGER_NÆRING -> InntektYtelseType.FORELDREPENGER_NÆRING;
+            case SVANGERSKAPSPENGER_NÆRING -> InntektYtelseType.SVANGERSKAPSPENGER_NÆRING;
+            case SYKEPENGER_NÆRING -> InntektYtelseType.SYKEPENGER_NÆRING;
+            case OMSORGSPENGER_NÆRING -> InntektYtelseType.OMSORGSPENGER_NÆRING;
+            case OPPLÆRINGSPENGER_NÆRING -> InntektYtelseType.OPPLÆRINGSPENGER_NÆRING;
+            case PLEIEPENGER_NÆRING -> InntektYtelseType.PLEIEPENGER_NÆRING;
+            case DAGPENGER_NÆRING -> InntektYtelseType.DAGPENGER_NÆRING;
+            case LOTT_KUN_TRYGDEAVGIFT -> InntektYtelseType.LOTT_KUN_TRYGDEAVGIFT;
+            case KOMPENSASJON_FOR_TAPT_PERSONINNTEKT -> InntektYtelseType.KOMPENSASJON_FOR_TAPT_PERSONINNTEKT;
+        };
+    }
 }
