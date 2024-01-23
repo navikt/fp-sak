@@ -4,17 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import jakarta.persistence.Convert;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
+public class OppgittEgenNæring implements IndexKey {
 
     @ChangeTracked
     private DatoIntervallEntitet periode;
@@ -33,16 +29,12 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
 
     private BigDecimal bruttoInntekt;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean nyoppstartet;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean varigEndring;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean nærRelasjon;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean nyIArbeidslivet;
 
     private OppgittUtenlandskVirksomhet utenlandskVirksomhet = new OppgittUtenlandskVirksomhet();
@@ -181,36 +173,42 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
             return false;
         }
         return Objects.equals(periode, that.periode) &&
-                Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
-                Objects.equals(nyoppstartet, that.nyoppstartet) &&
-                Objects.equals(virksomhetType, that.virksomhetType) &&
-                Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) &&
-                Objects.equals(regnskapsførerTlf, that.regnskapsførerTlf) &&
-                Objects.equals(endringDato, that.endringDato) &&
-                Objects.equals(begrunnelse, that.begrunnelse) &&
-                Objects.equals(bruttoInntekt, that.bruttoInntekt) &&
-                Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
+            Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
+            Objects.equals(nyoppstartet, that.nyoppstartet) &&
+            Objects.equals(varigEndring, that.varigEndring) &&
+            Objects.equals(nyIArbeidslivet, that.nyIArbeidslivet) &&
+            Objects.equals(virksomhetType, that.virksomhetType) &&
+            Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) &&
+            Objects.equals(regnskapsførerTlf, that.regnskapsførerTlf) &&
+            Objects.equals(endringDato, that.endringDato) &&
+            Objects.equals(begrunnelse, that.begrunnelse) &&
+            Objects.equals(bruttoInntekt, that.bruttoInntekt) &&
+            Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(periode, virksomhetOrgnr, virksomhetType, nyoppstartet, regnskapsførerNavn, regnskapsførerTlf, endringDato, begrunnelse,
-                bruttoInntekt, utenlandskVirksomhet);
+        return Objects.hash(periode, virksomhetOrgnr, virksomhetType, nyoppstartet, varigEndring, nyIArbeidslivet, regnskapsførerNavn, regnskapsførerTlf, endringDato, begrunnelse,
+            bruttoInntekt, utenlandskVirksomhet);
     }
 
     @Override
     public String toString() {
         return "EgenNæringEntitet{" +
-                "periode=" + periode +
-                ", virksomhet=" + virksomhetOrgnr +
-                ", nyoppstartet=" + nyoppstartet +
-                ", virksomhetType=" + virksomhetType +
-                ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
-                ", regnskapsførerTlf='" + regnskapsførerTlf + '\'' +
-                ", endringDato=" + endringDato +
-                ", begrunnelse='" + begrunnelse + '\'' +
-                ", bruttoInntekt=" + bruttoInntekt +
-                ", utenlandskVirksomhet=" + utenlandskVirksomhet +
-                '}';
+            "periode=" + periode +
+            ", virksomhet=" + masker(virksomhetOrgnr) +
+            ", nyoppstartet=" + nyoppstartet +
+            ", virksomhetType=" + virksomhetType +
+            ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
+            ", regnskapsførerTlf='" + regnskapsførerTlf + '\'' +
+            ", endringDato=" + endringDato +
+            ", begrunnelse='" + begrunnelse + '\'' +
+            ", bruttoInntekt=" + bruttoInntekt +
+            ", utenlandskVirksomhet=" + utenlandskVirksomhet +
+            '}';
+    }
+
+    private String masker(OrgNummer virksomhetOrgnr) {
+        return virksomhetOrgnr == null ? null : OrgNummer.tilMaskertNummer(virksomhetOrgnr.getId());
     }
 }

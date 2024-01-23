@@ -50,13 +50,28 @@ public class OppgittOpptjeningBuilder {
         return this;
     }
 
-    public OppgittOpptjeningBuilder leggTilEgneNæringer(List<EgenNæringBuilder> builders) {
+    public OppgittOpptjeningBuilder leggTilEgenNæring(List<EgenNæringBuilder> builders) {
         builders.forEach(builder -> this.kladd.leggTilEgenNæring(builder.build()));
         return this;
     }
 
-    public OppgittOpptjeningBuilder leggTilOppgittArbeidsforhold(OppgittArbeidsforholdBuilder builder) {
-        this.kladd.leggTilOppgittArbeidsforhold(builder.build());
+    public OppgittOpptjeningBuilder leggTilEgenNæring(OppgittEgenNæring egenNæring) {
+        this.kladd.leggTilEgenNæring(egenNæring);
+        return this;
+    }
+
+    /**
+     * Hvis det allerede finnes et objekt i liste egenNæring med matchende orgnr som nyEgenNæring, blir dette erastattet av nyEgenNæring.
+     * Ellers blir nyEgenNæring lagt til
+     * @param nyEgenNæring
+     */
+    public OppgittOpptjeningBuilder leggTilEllerErstattEgenNæring(OppgittEgenNæring nyEgenNæring) {
+        this.kladd.leggTilEllerErstattEgenNæring(nyEgenNæring);
+        return this;
+    }
+
+    public OppgittOpptjeningBuilder leggTilOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
+        this.kladd.leggTilOppgittArbeidsforhold(oppgittArbeidsforhold);
         return this;
     }
 

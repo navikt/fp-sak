@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 
 /**
  * <h3>Internt kodeverk</h3>
@@ -29,82 +28,62 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
 
     ARBEIDSAVKLARING("AAP", "Arbeidsavklaringspenger",
             Set.of(),
-            Set.of(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER),
-            Set.of()),
+            Set.of(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER)),
     ARBEID("ARBEID", "Arbeid",
             Set.of(ArbeidType.FORENKLET_OPPGJØRSORDNING, ArbeidType.MARITIMT_ARBEIDSFORHOLD, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD),
-            Set.of(),
             Set.of()),
     DAGPENGER("DAGPENGER", "Dagpenger",
             Set.of(),
-            Set.of(RelatertYtelseType.DAGPENGER),
-            Set.of()),
+            Set.of(RelatertYtelseType.DAGPENGER)),
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger",
             Set.of(),
-            Set.of(RelatertYtelseType.FORELDREPENGER),
-            Set.of()),
+            Set.of(RelatertYtelseType.FORELDREPENGER)),
     FRILANS("FRILANS", "Frilans",
             Set.of(ArbeidType.FRILANSER),
-            Set.of(),
             Set.of()),
     FRILOPP("FRILOPP", "Frilansoppdrag",
         Set.of(ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER),
-        Set.of(),
         Set.of()),
     MILITÆR_ELLER_SIVILTJENESTE("MILITÆR_ELLER_SIVILTJENESTE", "Militær- eller siviltjeneste",
             Set.of(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE),
-            Set.of(),
             Set.of()),
     NÆRING("NÆRING", "Næring",
             Set.of(ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE),
-            Set.of(),
             Set.of()),
     OMSORGSPENGER("OMSORGSPENGER", "Omsorgspenger",
             Set.of(),
-            Set.of(RelatertYtelseType.OMSORGSPENGER),
-            Set.of(TemaUnderkategori.PÅRØRENDE_OMSORGSPENGER)),
+            Set.of(RelatertYtelseType.OMSORGSPENGER)),
     OPPLÆRINGSPENGER("OPPLÆRINGSPENGER", "Opplæringspenger",
             Set.of(),
-            Set.of(RelatertYtelseType.OPPLÆRINGSPENGER),
-            Set.of(TemaUnderkategori.PÅRØRENDE_OPPLÆRINGSPENGER)),
+            Set.of(RelatertYtelseType.OPPLÆRINGSPENGER)),
     PLEIEPENGER("PLEIEPENGER", "Pleiepenger",
             Set.of(),
-            Set.of(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.PLEIEPENGER_SYKT_BARN),
-            Set.of(TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE_SYKT_BARN, TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE,
-                TemaUnderkategori.PÅRØRENDE_PLEIETRENGENDE_PÅRØRENDE, TemaUnderkategori.PÅRØRENDE_PLEIEPENGER)),
+            Set.of(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.PLEIEPENGER_SYKT_BARN)),
     FRISINN("FRISINN", "FRISINN",
             Set.of(),
-            Set.of(RelatertYtelseType.FRISINN),
-            Set.of()),
+            Set.of(RelatertYtelseType.FRISINN)),
     ETTERLØNN_SLUTTPAKKE("ETTERLØNN_SLUTTPAKKE", "Etterlønn eller sluttpakke",
             Set.of(ArbeidType.ETTERLØNN_SLUTTPAKKE),
-            Set.of(),
             Set.of()),
     SVANGERSKAPSPENGER("SVANGERSKAPSPENGER", "Svangerskapspenger",
             Set.of(),
-            Set.of(RelatertYtelseType.SVANGERSKAPSPENGER),
-            Set.of()),
+            Set.of(RelatertYtelseType.SVANGERSKAPSPENGER)),
     SYKEPENGER("SYKEPENGER", "Sykepenger",
             Set.of(),
-            Set.of(RelatertYtelseType.SYKEPENGER),
-            Set.of()),
+            Set.of(RelatertYtelseType.SYKEPENGER)),
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn eller vartpenger",
             Set.of(ArbeidType.VENTELØNN_VARTPENGER),
-            Set.of(),
             Set.of()),
     VIDERE_ETTERUTDANNING("VIDERE_ETTERUTDANNING", "Videre- og etterutdanning",
             Set.of(ArbeidType.LØNN_UNDER_UTDANNING),
-            Set.of(),
             Set.of()),
     UTENLANDSK_ARBEIDSFORHOLD("UTENLANDSK_ARBEIDSFORHOLD", "Arbeid i utlandet",
             Set.of(ArbeidType.UTENLANDSK_ARBEIDSFORHOLD),
-            Set.of(),
             Set.of()),
 
     UTDANNINGSPERMISJON("UTDANNINGSPERMISJON", "Utdanningspermisjon",
-            Set.of(), Set.of(), Set.of()),
+            Set.of(), Set.of()),
     UDEFINERT("-", "UDEFINERT",
-            Set.of(),
             Set.of(),
             Set.of()),
             ;
@@ -113,7 +92,6 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
 
     private static final Map<OpptjeningAktivitetType, Set<ArbeidType>> INDEKS_OPPTJ_ARBEID = new LinkedHashMap<>();
     private static final Map<OpptjeningAktivitetType, Set<RelatertYtelseType>> INDEKS_OPPTJ_RELYT = new LinkedHashMap<>();
-    private static final Map<OpptjeningAktivitetType, Set<TemaUnderkategori>> INDEKS_OPPTJ_TEMAUN = new LinkedHashMap<>();
 
     public static final String KODEVERK = "OPPTJENING_AKTIVITET_TYPE";
 
@@ -123,8 +101,7 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
             INDEKS_OPPTJ_ARBEID.put(v, v.arbeidType);
-            INDEKS_OPPTJ_RELYT.put(v, v.relaterYtelseType);
-            INDEKS_OPPTJ_TEMAUN.put(v, v.temaUnderkategori);
+            INDEKS_OPPTJ_RELYT.put(v, v.relatertYtelseType);
 
         }
     }
@@ -135,26 +112,20 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
     @JsonValue
     private String kode;
 
-    private String navn;
+    private final String navn;
 
-    private Set<ArbeidType> arbeidType;
+    private final Set<ArbeidType> arbeidType;
 
-    private RelatertYtelseType relatertYtelseType;
-
-    private Set<TemaUnderkategori> temaUnderkategori;
-
-    private Set<RelatertYtelseType> relaterYtelseType;
+    private Set<RelatertYtelseType> relatertYtelseType;
 
     OpptjeningAktivitetType(String kode,
                             String navn,
                             Set<ArbeidType> arbeidType,
-                            Set<RelatertYtelseType> relaterYtelseType,
-                            Set<TemaUnderkategori> temaUnderkategori) {
+                            Set<RelatertYtelseType> relatertYtelseType) {
         this.kode = kode;
         this.navn = navn;
         this.arbeidType = arbeidType;
-        this.relaterYtelseType = relaterYtelseType;
-        this.temaUnderkategori = temaUnderkategori;
+        this.relatertYtelseType = relatertYtelseType;
     }
 
     public static OpptjeningAktivitetType fraKode(String kode) {
@@ -207,17 +178,6 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
 
     public static Map<OpptjeningAktivitetType, Set<RelatertYtelseType>> hentTilRelatertYtelseTyper() {
         return Collections.unmodifiableMap(INDEKS_OPPTJ_RELYT);
-    }
-
-    public static Map<OpptjeningAktivitetType, Set<TemaUnderkategori>> hentTilTemaUnderkategori() {
-        return Collections.unmodifiableMap(INDEKS_OPPTJ_TEMAUN);
-    }
-
-    public static Map<TemaUnderkategori, Set<OpptjeningAktivitetType>> hentFraTemaUnderkategori() {
-        return hentTilTemaUnderkategori().entrySet().stream()
-            .flatMap(entry -> entry.getValue().stream()
-                .map(v -> new AbstractMap.SimpleEntry<>(v, entry.getKey())))
-            .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toSet())));
     }
 
     public static Map<ArbeidType, Set<OpptjeningAktivitetType>> hentFraArbeidTypeRelasjoner() {

@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
@@ -68,7 +67,6 @@ public class InntektArbeidYtelseScenario {
         private final RelatertYtelseType ytelseType = null;
         private final LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
         private final RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
-        private final TemaUnderkategori ytelseBehandlingstema = TemaUnderkategori.FORELDREPENGER_SVANGERSKAPSPENGER;
         private final Saksnummer saksnummer = new Saksnummer("00001");
         private final Fagsystem ytelseKilde = Fagsystem.INFOTRYGD;
 
@@ -86,8 +84,7 @@ public class InntektArbeidYtelseScenario {
                 .medSaksnummer(saksnummer)
                 .medPeriode(DatoIntervallEntitet.fraOgMed(iverksettelsesDato))
                 .medStatus(relatertYtelseTilstand)
-                .medYtelseType(ytelseType)
-                .medBehandlingsTema(ytelseBehandlingstema);
+                .medYtelseType(ytelseType);
         }
 
         public InntektArbeidYtelseAggregatBuilder build() {

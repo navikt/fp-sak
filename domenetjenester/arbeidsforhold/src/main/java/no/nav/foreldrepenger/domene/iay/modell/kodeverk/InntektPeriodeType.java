@@ -8,18 +8,17 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-public enum InntektPeriodeType implements Kodeverdi, MedOffisiellKode {
+public enum InntektPeriodeType implements Kodeverdi {
 
-    DAGLIG("DAGLG", "Daglig", "D", Period.ofDays(1)),
-    UKENTLIG("UKNLG", "Ukentlig", "U", Period.ofWeeks(1)),
-    BIUKENTLIG("14DLG", "Fjorten-daglig", "F", Period.ofWeeks(2)),
-    MÅNEDLIG("MNDLG", "Månedlig", "M", Period.ofMonths(1)),
-    ÅRLIG("AARLG", "Årlig", "Å", Period.ofYears(1)),
-    FASTSATT25PAVVIK("INNFS", "Fastsatt etter 25 prosent avvik", "X", Period.ofYears(1)),
-    PREMIEGRUNNLAG("PREMGR", "Premiegrunnlag", "Y", Period.ofYears(1)),
-    UDEFINERT("-", "Ikke definert", null, null),
+    DAGLIG("DAGLG", "Daglig", Period.ofDays(1)),
+    UKENTLIG("UKNLG", "Ukentlig", Period.ofWeeks(1)),
+    BIUKENTLIG("14DLG", "Fjorten-daglig", Period.ofWeeks(2)),
+    MÅNEDLIG("MNDLG", "Månedlig", Period.ofMonths(1)),
+    ÅRLIG("AARLG", "Årlig", Period.ofYears(1)),
+    FASTSATT25PAVVIK("INNFS", "Fastsatt etter 25 prosent avvik", Period.ofYears(1)),
+    PREMIEGRUNNLAG("PREMGR", "Premiegrunnlag", Period.ofYears(1)),
+    UDEFINERT("-", "Ikke definert", null),
     ;
 
     private static final Map<String, InntektPeriodeType> KODER = new LinkedHashMap<>();
@@ -38,14 +37,12 @@ public enum InntektPeriodeType implements Kodeverdi, MedOffisiellKode {
 
     @JsonValue
     private final String kode;
-    private final String offisiellKode;
     private final Period periode;
 
-    InntektPeriodeType(String kode, String navn, String offisiellKode, Period periode) {
+    InntektPeriodeType(String kode, String navn, Period periode) {
         this.kode = kode;
         this.navn = navn;
         this.periode = periode;
-        this.offisiellKode = offisiellKode;
     }
 
     public static InntektPeriodeType fraKode(String kode) {
@@ -80,11 +77,6 @@ public enum InntektPeriodeType implements Kodeverdi, MedOffisiellKode {
 
     public Period getPeriode() {
         return periode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
     }
 
 }

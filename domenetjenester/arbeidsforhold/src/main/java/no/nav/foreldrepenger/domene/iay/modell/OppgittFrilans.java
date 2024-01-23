@@ -5,21 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.Convert;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-public class OppgittFrilans extends BaseEntitet {
+public class OppgittFrilans {
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean harInntektFraFosterhjem;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean erNyoppstartet;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean harNærRelasjon;
 
     @ChangeTracked
@@ -97,9 +90,5 @@ public class OppgittFrilans extends BaseEntitet {
             return Collections.unmodifiableList(frilansoppdrag);
         }
         return Collections.emptyList();
-    }
-
-    public void setFrilansoppdrag(List<OppgittFrilansoppdrag> frilansoppdrag) {
-        this.frilansoppdrag = frilansoppdrag;
     }
 }

@@ -8,10 +8,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 
-public class OppgittOpptjening extends BaseEntitet {
+public class OppgittOpptjening {
 
     private UUID uuid;
 
@@ -26,6 +25,8 @@ public class OppgittOpptjening extends BaseEntitet {
 
     @ChangeTracked
     private OppgittFrilans frilans;
+
+    private LocalDateTime opprettetTidspunkt;
 
     @SuppressWarnings("unused")
     private OppgittOpptjening() {
@@ -51,7 +52,7 @@ public class OppgittOpptjening extends BaseEntitet {
     OppgittOpptjening(UUID eksternReferanse, LocalDateTime opprettetTidspunktOriginalt) {
         Objects.requireNonNull(eksternReferanse, "eksternReferanse");
         this.uuid = eksternReferanse;
-        super.setOpprettetTidspunkt(opprettetTidspunktOriginalt);
+        setOpprettetTidspunkt(opprettetTidspunktOriginalt);
     }
 
     /**
@@ -88,11 +89,7 @@ public class OppgittOpptjening extends BaseEntitet {
     }
 
     void leggTilFrilans(OppgittFrilans frilans) {
-        if (frilans != null) {
-            this.frilans = frilans;
-        } else {
-            this.frilans = null;
-        }
+        this.frilans = frilans;
     }
 
     void leggTilAnnenAktivitet(OppgittAnnenAktivitet annenAktivitet) {
@@ -113,6 +110,17 @@ public class OppgittOpptjening extends BaseEntitet {
         }
     }
 
+    void leggTilEllerErstattEgenNæring(OppgittEgenNæring nyEgenNæring) {
+        if (this.egenNæring == null) {
+            this.egenNæring = new ArrayList<>();
+        }
+        if (nyEgenNæring != null) {
+            var eksisterendeNæringerMedSammeOrgnr = egenNæring.stream().filter(en -> Objects.equals(en.getOrgnr(), nyEgenNæring.getOrgnr())).toList();
+            egenNæring.removeAll(eksisterendeNæringerMedSammeOrgnr);
+            this.egenNæring.add(nyEgenNæring);
+        }
+    }
+
     void leggTilOppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
         if (this.oppgittArbeidsforhold == null) {
             this.oppgittArbeidsforhold = new ArrayList<>();
@@ -120,6 +128,14 @@ public class OppgittOpptjening extends BaseEntitet {
         if (oppgittArbeidsforhold != null) {
             this.oppgittArbeidsforhold.add(oppgittArbeidsforhold);
         }
+    }
+
+    public LocalDateTime getOpprettetTidspunkt() {
+        return opprettetTidspunkt;
+    }
+
+    public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+        this.opprettetTidspunkt = opprettetTidspunkt;
     }
 
     @Override

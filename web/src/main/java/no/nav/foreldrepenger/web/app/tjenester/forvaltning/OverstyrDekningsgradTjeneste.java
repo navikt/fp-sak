@@ -94,7 +94,9 @@ public class OverstyrDekningsgradTjeneste {
 
         lagHistorikkinnslagOverstyrtDekningsgrad(fagsak.getId(), fraVerdi, tilVerdi);
         fagsakRelasjonTjeneste.nullstillOverstyrtDekningsgrad(fagsak);
-        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, tilVerdi);
+
+        var nullstiltRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
+        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(fagsak, nullstiltRelasjon, tilVerdi);
         var behandling = hentÅpenBehandlingEllerOpprettRevurdering(fagsak);
 
         var uttakInput = uttakInputTjeneste.lagInput(behandling);

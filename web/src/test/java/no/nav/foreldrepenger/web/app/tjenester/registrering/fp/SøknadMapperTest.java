@@ -37,6 +37,8 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -547,10 +549,11 @@ class SøknadMapperTest {
     }
 
     @Test
-    void skal_ikke_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_i_grunnlaget() {
+    void skal_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(kvinne));
-        when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.of(mock(OppgittOpptjening.class)));
+        when(iayGrunnlag.getGjeldendeOppgittOpptjening()).thenReturn(Optional.of(mock(OppgittOpptjening.class)));
+        when(iayGrunnlag.getOverstyrtOppgittOpptjening()).thenReturn(Optional.empty());
         when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(Virksomhet.getBuilder()
             .medOrgnr(KUNSTIG_ORG)
@@ -561,7 +564,7 @@ class SøknadMapperTest {
 
         var navBruker = opprettBruker();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
-        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -584,15 +587,55 @@ class SøknadMapperTest {
         oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
             Optional.empty());
 
-        verify(iayTjeneste, times(0)).lagreOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
+        verify(iayTjeneste, times(1)).lagreOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
+    }
+
+    @Test
+    void skal_mappe_og_lagre_oppgitt_opptjening_når_det_allerede_finnes_overstyrt_i_grunnlaget() {
+        var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
+        when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(kvinne));
+        when(iayGrunnlag.getGjeldendeOppgittOpptjening()).thenReturn(Optional.of(mock(OppgittOpptjening.class)));
+        when(iayGrunnlag.getOverstyrtOppgittOpptjening()).thenReturn(Optional.of(mock(OppgittOpptjening.class)));
+        when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
+        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(Virksomhet.getBuilder()
+            .medOrgnr(KUNSTIG_ORG)
+            .medNavn("Ukjent Firma")
+            .medRegistrert(LocalDate.now().minusYears(1))
+            .medRegistrert(LocalDate.now().minusYears(1))
+            .build());
+
+        var navBruker = opprettBruker();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
+        repositoryProvider.getFagsakRepository().opprettNy(fagsak);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+
+        var dto = new ManuellRegistreringForeldrepengerDto();
+        oppdaterDtoForFødsel(dto, true, LocalDate.now(), 1);
+        var permisjonPerioder = List.of(opprettPermisjonPeriodeDto(LocalDate.now().minusWeeks(3), LocalDate.now(), MØDREKVOTE, null));
+        dto.setTidsromPermisjon(opprettTidsromPermisjonDto(permisjonPerioder));
+        dto.setDekningsgrad(DekningsgradDto.HUNDRE);
+        dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
+        dto.setAnnenForelderInformert(false);
+        var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
+
+        var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
+            .medFagsakId(behandling.getFagsakId())
+            .medElektroniskRegistrert(true);
+        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
+            datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+
+        oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
+            Optional.empty());
+
+        verify(iayTjeneste, times(1)).lagreOverstyrtOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
     }
 
     @Test
     void skal_mappe_og_lagre_oppgitt_opptjening_når_det_ikke_finnes_i_grunnlaget() {
         var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(kvinne));
-        when(iayGrunnlag.getOppgittOpptjening()).thenReturn(Optional.empty());
-        when(iayTjeneste.finnGrunnlag(any(Long.class))).thenReturn(Optional.of(iayGrunnlag));
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(Virksomhet.getBuilder()
             .medOrgnr(KUNSTIG_ORG)
             .medNavn("Ukjent Firma")

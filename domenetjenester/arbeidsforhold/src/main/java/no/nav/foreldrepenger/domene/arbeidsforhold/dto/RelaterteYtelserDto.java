@@ -1,24 +1,9 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
-public class RelaterteYtelserDto {
-    private String relatertYtelseType;
-    private List<TilgrensendeYtelserDto> tilgrensendeYtelserListe = new ArrayList<>();
+public record RelaterteYtelserDto(String relatertYtelseNavn, List<TilgrensendeYtelserDto> tilgrensendeYtelserListe) {
 
-    public RelaterteYtelserDto(String relatertYtelseType, List<TilgrensendeYtelserDto> tilgrensendeYtelserListe) {
-        this.relatertYtelseType = relatertYtelseType;
-        if (tilgrensendeYtelserListe != null) {
-            this.tilgrensendeYtelserListe.addAll(tilgrensendeYtelserListe);
-        }
-    }
-
-    public String getRelatertYtelseType() {
-        return relatertYtelseType;
-    }
-
-    public List<TilgrensendeYtelserDto> getTilgrensendeYtelserListe() {
-        return tilgrensendeYtelserListe;
-    }
+    public record TilgrensendeYtelserDto(LocalDate periodeFraDato, LocalDate periodeTilDato, String statusNavn, String saksNummer) { }
 }

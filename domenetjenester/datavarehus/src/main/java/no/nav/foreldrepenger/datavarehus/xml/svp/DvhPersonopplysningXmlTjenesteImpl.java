@@ -128,14 +128,12 @@ public class DvhPersonopplysningXmlTjenesteImpl extends DvhPersonopplysningXmlTj
 
     private RelatertYtelse konverterFraDomene(Ytelse ytelse) {
         var relatertYtelse = personopplysningDvhObjectFactory.createRelatertYtelse();
-        relatertYtelse.setBehandlingstema(VedtakXmlUtil.lagKodeverksOpplysning(ytelse.getBehandlingsTema()));
         relatertYtelse.setKilde(VedtakXmlUtil.lagKodeverksOpplysning(ytelse.getKilde()));
         Optional.ofNullable(ytelse.getPeriode())
             .ifPresent(periode -> relatertYtelse.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getFomDato(), periode.getTomDato())));
         Optional.ofNullable(ytelse.getSaksnummer())
             .ifPresent(saksnummer -> relatertYtelse.setSaksnummer(VedtakXmlUtil.lagStringOpplysning(saksnummer.getVerdi())));
         relatertYtelse.setStatus(VedtakXmlUtil.lagKodeverksOpplysning(ytelse.getStatus()));
-        relatertYtelse.setTemaUnderkategori(VedtakXmlUtil.lagKodeverksOpplysning(ytelse.getBehandlingsTema()));
         relatertYtelse.setType(VedtakXmlUtil.lagKodeverksOpplysning(ytelse.getRelatertYtelseType()));
 
         setYtelseAnvist(relatertYtelse, ytelse.getYtelseAnvist());

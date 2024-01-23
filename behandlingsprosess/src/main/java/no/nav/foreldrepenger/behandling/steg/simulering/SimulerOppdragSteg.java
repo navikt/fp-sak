@@ -1,22 +1,25 @@
 package no.nav.foreldrepenger.behandling.steg.simulering;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.micrometer.core.instrument.ImmutableTag;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tag;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -26,11 +29,14 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.kontrakter.simulering.resultat.v1.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
@@ -49,6 +55,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private static final int ÅPNINGSTID = 7;
     private static final int STENGETID = 19;
+    private static final String COUNTER_ETTERBETALING_NAME = "foreldrepenger.etterbetaling";
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -144,7 +151,54 @@ public class SimulerOppdragSteg implements BehandlingSteg {
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medAutomatiskInntrekk());
             }
         }
+        loggEtterbetalingVedFlereGrenseverdier(behandling, aksjonspunkter, etterbetalingskontrollResultat);
         return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunkter);
+    }
+
+    private static void loggEtterbetalingVedFlereGrenseverdier(Behandling behandling, ArrayList<AksjonspunktDefinisjon> aksjonspunkter, Optional<EtterbetalingskontrollResultat> etterbetalingskontrollResultatOpt) {
+        try {
+            if (etterbetalingskontrollResultatOpt.isEmpty()) {
+                return;
+            }
+
+            var harAndreAksjonspunkt = Stream.concat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getAksjonspunktDefinisjon), aksjonspunkter.stream())
+                .filter(other -> !AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER.equals(other))
+                .anyMatch(aksjonspunkt -> !aksjonspunkt.erAutopunkt());
+
+            var etterbetalingssum = etterbetalingskontrollResultatOpt.get().etterbetalingssum();
+            var behandlingÅrsakerStreng = behandlingsårsakerString(behandling);
+            if (etterbetalingssum.compareTo(BigDecimal.valueOf(60_000)) > 0 ) {
+                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "over_60")).increment();
+                LOG.info("Stor etterbetaling til søker over 60_000 med årsaker {}", behandlingÅrsakerStreng);
+            } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(30_000)) > 0 ) {
+                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "mellom_60_og_30")).increment();
+                LOG.info("Stor etterbetaling til søker over 30_000 med årsaker {}", behandlingÅrsakerStreng);
+            } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(10_000)) > 0 ) {
+                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "mellom_30_og_10")).increment();
+                LOG.info("Stor etterbetaling til søker over 10_000 med årsaker {}", behandlingÅrsakerStreng);
+            } else if (etterbetalingssum.compareTo(BigDecimal.ZERO) > 0 ) {
+                Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "over_0_under_10")).increment();
+            }
+        } catch (Exception e) {
+            LOG.info("Noe gikk galt med logging av stor etterbetaling", e);
+        }
+    }
+
+    private static List<Tag> lagTagsForCounter(Behandling behandling, boolean harAndreAksjonspunkt, String etterbetalingTag) {
+        var tags = new ArrayList<Tag>();
+        var behandlingsårsaker = behandlingsårsakerString(behandling);
+        tags.add(new ImmutableTag("behandlingsaarsaker", behandlingsårsaker));
+        tags.add(new ImmutableTag("ytelse", behandling.getFagsakYtelseType().getKode()));
+        tags.add(new ImmutableTag("harAndreAksjonspunkt", String.valueOf(harAndreAksjonspunkt)));
+        tags.add(new ImmutableTag("etterbetaling_verdi", etterbetalingTag));
+        return tags;
+    }
+
+    private static String behandlingsårsakerString(Behandling behandling) {
+        return behandling.getBehandlingÅrsaker().stream()
+            .map(årsak -> årsak.getBehandlingÅrsakType().getKode())
+            .sorted()
+            .collect(Collectors.joining(","));
     }
 
     private Optional<EtterbetalingskontrollResultat> harStorEtterbetalingTilSøker(Behandling behandling) {

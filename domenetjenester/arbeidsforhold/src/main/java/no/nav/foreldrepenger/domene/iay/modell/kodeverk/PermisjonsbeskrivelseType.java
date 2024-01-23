@@ -8,20 +8,19 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
+public enum PermisjonsbeskrivelseType implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert", null),
-    PERMISJON("PERMISJON", "Permisjon", "permisjon"),
-    UTDANNINGSPERMISJON("UTDANNINGSPERMISJON", "Utdanningspermisjon", "utdanningspermisjon"), // Utgår 31/12-2022
-    UTDANNINGSPERMISJON_IKKE_LOVFESTET("UTDANNINGSPERMISJON_IKKE_LOVFESTET", "Utdanningspermisjon (Ikke lovfestet)", "utdanningspermisjonIkkeLovfestet"),
-    UTDANNINGSPERMISJON_LOVFESTET("UTDANNINGSPERMISJON_LOVFESTET", "Utdanningspermisjon (Lovfestet)", "utdanningspermisjonLovfestet"),
-    VELFERDSPERMISJON("VELFERDSPERMISJON", "Velferdspermisjon", "velferdspermisjon"), // Utgår 31/12-2022
-    ANNEN_PERMISJON_IKKE_LOVFESTET("ANNEN_PERMISJON_IKKE_LOVFESTET", "Andre ikke-lovfestede permisjoner", "andreIkkeLovfestedePermisjoner"),
-    ANNEN_PERMISJON_LOVFESTET("ANNEN_PERMISJON_LOVFESTET", "Andre lovfestede permisjoner", "andreLovfestedePermisjoner"),PERMISJON_MED_FORELDREPENGER("PERMISJON_MED_FORELDREPENGER", "Permisjon med foreldrepenger", "permisjonMedForeldrepenger"),
-    PERMITTERING("PERMITTERING", "Permittering", "permittering"),
-    PERMISJON_VED_MILITÆRTJENESTE("PERMISJON_VED_MILITÆRTJENESTE", "Permisjon ved militærtjeneste", "permisjonVedMilitaertjeneste"),
+    UDEFINERT("-", "Ikke definert"),
+    PERMISJON("PERMISJON", "Permisjon"),
+    UTDANNINGSPERMISJON("UTDANNINGSPERMISJON", "Utdanningspermisjon"), // Utgår 31/12-2022
+    UTDANNINGSPERMISJON_IKKE_LOVFESTET("UTDANNINGSPERMISJON_IKKE_LOVFESTET", "Utdanningspermisjon (Ikke lovfestet)"),
+    UTDANNINGSPERMISJON_LOVFESTET("UTDANNINGSPERMISJON_LOVFESTET", "Utdanningspermisjon (Lovfestet)"),
+    VELFERDSPERMISJON("VELFERDSPERMISJON", "Velferdspermisjon"), // Utgår 31/12-2022
+    ANNEN_PERMISJON_IKKE_LOVFESTET("ANNEN_PERMISJON_IKKE_LOVFESTET", "Andre ikke-lovfestede permisjoner"),
+    ANNEN_PERMISJON_LOVFESTET("ANNEN_PERMISJON_LOVFESTET", "Andre lovfestede permisjoner"),PERMISJON_MED_FORELDREPENGER("PERMISJON_MED_FORELDREPENGER", "Permisjon med foreldrepenger"),
+    PERMITTERING("PERMITTERING", "Permittering"),
+    PERMISJON_VED_MILITÆRTJENESTE("PERMISJON_VED_MILITÆRTJENESTE", "Permisjon ved militærtjeneste"),
     ;
 
     public static final Set<PermisjonsbeskrivelseType> VELFERDSPERMISJONER = Set.of(
@@ -54,12 +53,10 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
 
     @JsonValue
     private final String kode;
-    private final String offisiellKode;
 
-    PermisjonsbeskrivelseType(String kode, String navn, String offisiellKode) {
+    PermisjonsbeskrivelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.offisiellKode = offisiellKode;
     }
 
     public static PermisjonsbeskrivelseType fraKode(String kode) {
@@ -90,11 +87,6 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
     }
 
     public boolean erRelevantForBeregningEllerArbeidsforhold() {

@@ -7,16 +7,15 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-public enum InntektsKilde implements Kodeverdi, MedOffisiellKode {
+public enum InntektsKilde implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert", null),
-    INNTEKT_OPPTJENING("INNTEKT_OPPTJENING", "INNTEKT_OPPTJENING", "INNTEKT"),
-    INNTEKT_BEREGNING("INNTEKT_BEREGNING", "INNTEKT_BEREGNING", null),
-    INNTEKT_SAMMENLIGNING("INNTEKT_SAMMENLIGNING", "INNTEKT_SAMMENLIGNING", null),
-    SIGRUN("SIGRUN", "Sigrun", "SIGRUN"),
-    VANLIG("VANLIG", "Vanlig", "VANLIG"),
+    UDEFINERT("-", "Ikke definert"),
+    INNTEKT_OPPTJENING("INNTEKT_OPPTJENING", "INNTEKT_OPPTJENING"),
+    INNTEKT_BEREGNING("INNTEKT_BEREGNING", "INNTEKT_BEREGNING"),
+    INNTEKT_SAMMENLIGNING("INNTEKT_SAMMENLIGNING", "INNTEKT_SAMMENLIGNING"),
+    SIGRUN("SIGRUN", "Sigrun"),
+    VANLIG("VANLIG", "Vanlig"),
     ;
 
     private static final Map<String, InntektsKilde> KODER = new LinkedHashMap<>();
@@ -34,12 +33,10 @@ public enum InntektsKilde implements Kodeverdi, MedOffisiellKode {
     private final String navn;
     @JsonValue
     private final String kode;
-    private final String offisiellKode;
 
-    InntektsKilde(String kode, String navn, String offisiellKode) {
+    InntektsKilde(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.offisiellKode = offisiellKode;
     }
 
     public static InntektsKilde fraKode(String kode) {
@@ -72,9 +69,5 @@ public enum InntektsKilde implements Kodeverdi, MedOffisiellKode {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
-    }
 
 }

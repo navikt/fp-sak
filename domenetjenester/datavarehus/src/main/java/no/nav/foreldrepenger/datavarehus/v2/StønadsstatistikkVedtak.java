@@ -19,18 +19,18 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 
 public class StønadsstatistikkVedtak {
-    // Teknisk tid
     @Valid
-    private Saksnummer saksnummer; // felt 1
+    private Saksnummer saksnummer;
+    //Deprecated
     private Long fagsakId;
     @NotNull
-    private YtelseType ytelseType; // felt 39
+    private YtelseType ytelseType;
     @NotNull
     private LovVersjon lovVersjon;
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
-    private LocalDate søknadsdato;
+    private LocalDate søknadsdato; //Tidligste mottatt søknad på fagsak
     private LocalDate skjæringstidspunkt;
     @NotNull
     private LocalDateTime vedtakstidspunkt; // Funksjonelt tid
@@ -41,8 +41,8 @@ public class StønadsstatistikkVedtak {
     @Valid
     private AktørId søker;
     @NotNull
-    private Saksrolle søkersRolle;
-    
+    private Saksrolle saksrolle;
+    @NotNull
     private UtlandsTilsnitt utlandsTilsnitt;
     @Valid
     private AnnenForelder annenForelder;
@@ -52,6 +52,7 @@ public class StønadsstatistikkVedtak {
     private Beregning beregning;
     @NotNull
     private String utbetalingsreferanse; // en referanse mot oppdrag
+    //Deprecated
     private Long behandlingId;
     //ES
     private Long engangsstønadInnvilget;
@@ -60,14 +61,6 @@ public class StønadsstatistikkVedtak {
     private ForeldrepengerRettigheter foreldrepengerRettigheter; //konto saldo, utregnet ut i fra rettigheter, minsteretter
     private List<@Valid StønadsstatistikkUttakPeriode> uttaksperioder;
     private List<@Valid StønadsstatistikkUtbetalingPeriode> utbetalingssperioder;
-
-
-    // Etter møte: Dokumentasjonsperiode for aleneomsorg per uttaksperioder
-    // Etter møte: annen forelder har engangsstønad
-    // Etter møte: Mann tar foreldrepenger - MORS_AKTIVITET er null i ca 12%
-    // Viktig å kunne agreggere trekkdager
-
-    // Yrkeskoder ligger på arbeidsforhold - skal vi sende arbeidsforhold-id slikt at man kan hente det inn AREG - hva om areg slutter med arbeforhID
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
@@ -117,8 +110,8 @@ public class StønadsstatistikkVedtak {
         return søker;
     }
 
-    public Saksrolle getSøkersRolle() {
-        return søkersRolle;
+    public Saksrolle getSaksrolle() {
+        return saksrolle;
     }
 
     public UtlandsTilsnitt getUtlandsTilsnitt() {
@@ -209,9 +202,13 @@ public class StønadsstatistikkVedtak {
     }
 
     enum AndelType {
-        ARBEIDSAVKLARINGSPENGER, ARBEIDSTAKER,
-        DAGPENGER, FRILANSER, MILITÆR_SIVILTJENESTE,
-        SELVSTENDIG_NÆRINGSDRIVENDE, YTELSE
+        ARBEIDSAVKLARINGSPENGER,
+        ARBEIDSTAKER,
+        DAGPENGER,
+        FRILANSER,
+        MILITÆR_SIVILTJENESTE,
+        SELVSTENDIG_NÆRINGSDRIVENDE,
+        YTELSE
     }
 
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
@@ -227,7 +224,7 @@ public class StønadsstatistikkVedtak {
 
         // minsterett - kun for far har rett, uføre (mors aktivitet er ikke et krav i disse tilfeller)
 
-        record Trekkdager(@JsonValue @Min(0) @Max(500) @NotNull BigDecimal antall) {
+        record Trekkdager(@JsonValue @Min(0) @Max(530) @NotNull BigDecimal antall) {
             public Trekkdager(int antall) {
                 this(BigDecimal.valueOf(antall).setScale(1, RoundingMode.DOWN));
             }
@@ -338,7 +335,7 @@ public class StønadsstatistikkVedtak {
             return this;
         }
         Builder medSøkersRolle(Saksrolle saksrolle) {
-            kladd.søkersRolle = saksrolle;
+            kladd.saksrolle = saksrolle;
             return this;
         }
         Builder medUtlandsTilsnitt(UtlandsTilsnitt utlandsTilsnitt) {

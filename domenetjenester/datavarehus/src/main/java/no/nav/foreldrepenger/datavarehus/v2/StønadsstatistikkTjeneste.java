@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
@@ -60,6 +61,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.foreldrepenger.datavarehus.tjeneste.BehandlingVedtakDvhMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -81,6 +83,7 @@ public class StønadsstatistikkTjeneste {
 
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
     private static final LocalDateTime VEDTAK_MED_TIDSPUNKT = LocalDateTime.of(2019, 6, 27, 11, 45,0);
+    private static final LocalDateTime SVP_ALLTID_100_PROSENT = LocalDate.of(2023, 3, 24).atStartOfDay();
 
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -99,6 +102,7 @@ public class StønadsstatistikkTjeneste {
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
@@ -117,7 +121,8 @@ public class StønadsstatistikkTjeneste {
                                      LegacyESBeregningRepository legacyESBeregningRepository,
                                      HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                     MottatteDokumentRepository mottatteDokumentRepository) {
+                                     MottatteDokumentRepository mottatteDokumentRepository,
+                                     SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -135,6 +140,7 @@ public class StønadsstatistikkTjeneste {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
     }
 
     StønadsstatistikkTjeneste() {
@@ -181,8 +187,10 @@ public class StønadsstatistikkTjeneste {
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
             var rettigheter = utledRettigheter(behandling);
-            var foreldrepengerUttaksperioder = mapForeldrepengerUttaksperioder(behandling, rettigheter.rettighetType());
-            builder.medUttakssperioder(foreldrepengerUttaksperioder).medForeldrepengerRettigheter(rettigheter);
+            rettigheter.ifPresent(f -> {
+                var foreldrepengerUttaksperioder = mapForeldrepengerUttaksperioder(behandling, f.rettighetType());
+                builder.medUttakssperioder(foreldrepengerUttaksperioder).medForeldrepengerRettigheter(f);
+            });
         }
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             builder.medEngangsstønadInnvilget(utledTilkjentEngangsstønad(behandlingId));
@@ -230,12 +238,22 @@ public class StønadsstatistikkTjeneste {
         var perioder = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
             .orElse(List.of());
+
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && trengerSvpLegacyUtregning(perioder)) {
+            var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId())
+                .orElseThrow();
+            return StønadsstatistikkUtbetalingSVPLegacyMapper.mapTilkjent(perioder, uttak);
+        }
         return StønadsstatistikkUtbetalingPeriodeMapper.mapTilkjent(perioder);
+    }
+
+    private boolean trengerSvpLegacyUtregning(List<BeregningsresultatPeriode> perioder) {
+        return perioder.stream().anyMatch(periode -> SVP_ALLTID_100_PROSENT.isAfter(periode.getOpprettetTidspunkt()));
     }
 
     private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(Behandling behandling, RettighetType rettighetType) {
         var logContext = String.format("saksnummer %s behandling %s", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getUuid().toString());
-        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId())
+        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId(), true)
             .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(behandling.getRelasjonsRolleType(), rettighetType, u.getGjeldendePerioder(), logContext))
             .orElse(List.of());
     }
@@ -316,10 +334,9 @@ public class StønadsstatistikkTjeneste {
 
     private static UtlandsTilsnitt utledUtlandsTilsnitt(FagsakMarkering fagsakMarkering) {
         return switch (fagsakMarkering) {
-            case NASJONAL -> UtlandsTilsnitt.NASJONAL;
+            case NASJONAL, SAMMENSATT_KONTROLL, DØD_DØDFØDSEL, SELVSTENDIG_NÆRING -> UtlandsTilsnitt.NASJONAL;
             case EØS_BOSATT_NORGE -> UtlandsTilsnitt.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> UtlandsTilsnitt.BOSATT_UTLAND;
-            case SAMMENSATT_KONTROLL, DØD_DØDFØDSEL, SELVSTENDIG_NÆRING -> null;
         };
     }
 
@@ -367,31 +384,32 @@ public class StønadsstatistikkTjeneste {
         return FORELDREPENGER_MINSTERETT_2022_08_02;
     }
 
-    private ForeldrepengerRettigheter utledRettigheter(Behandling behandling) {
+    private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling) {
         var fagsak = fagsakTjeneste.finnEksaktFagsak(behandling.getFagsakId());
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(fagsak);
+        var fr = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
+        return fr.map(fagsakRelasjon -> {
+            var gjeldendeStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
+            var uttakInput = uttakInputTjeneste.lagInput(behandling);
+            var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
+            var konti = gjeldendeStønadskontoberegning.stream()
+                .flatMap(b -> b.getStønadskontoer().stream())
+                .filter(sk -> sk.getStønadskontoType() != StønadskontoType.FLERBARNSDAGER)
+                .map(k -> map(k, saldoUtregning))
+                .collect(Collectors.toSet());
 
-        var gjeldendeStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
-        var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
-        var konti = gjeldendeStønadskontoberegning.stream()
-            .flatMap(b -> b.getStønadskontoer().stream())
-            .filter(sk -> sk.getStønadskontoType() != StønadskontoType.FLERBARNSDAGER)
-            .map(k -> map(k, saldoUtregning))
-            .collect(Collectors.toSet());
 
+            var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+            var rettighetType = utledRettighetType(yfa, konti);
+            var flerbarnsdager = gjeldendeStønadskontoberegning.stream()
+                .flatMap(b -> b.getStønadskontoer().stream())
+                .filter(sk -> sk.getStønadskontoType() == StønadskontoType.FLERBARNSDAGER)
+                .findFirst()
+                .map(sk -> new ForeldrepengerRettigheter.Trekkdager(sk.getMaxDager()))
+                .orElse(null);
 
-        var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
-        var rettighetType = utledRettighetType(yfa, konti);
-        var flerbarnsdager = gjeldendeStønadskontoberegning.stream()
-            .flatMap(b -> b.getStønadskontoer().stream())
-            .filter(sk -> sk.getStønadskontoType() == StønadskontoType.FLERBARNSDAGER)
-            .findFirst()
-            .map(sk -> new ForeldrepengerRettigheter.Trekkdager(sk.getMaxDager()))
-            .orElse(null);
-
-        var dekningsgrad = fagsakRelasjon.getDekningsgrad().getVerdi();
-        return new ForeldrepengerRettigheter(dekningsgrad, rettighetType, konti, flerbarnsdager);
+            var dekningsgrad = fagsakRelasjon.getDekningsgrad().getVerdi();
+            return new ForeldrepengerRettigheter(dekningsgrad, rettighetType, konti, flerbarnsdager);
+        });
     }
 
     private static RettighetType utledRettighetType(YtelseFordelingAggregat yfa, Set<ForeldrepengerRettigheter.Stønadskonto> konti) {

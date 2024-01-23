@@ -3,14 +3,13 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
-public class YtelseStørrelse extends BaseEntitet implements IndexKey {
+public class YtelseStørrelse implements IndexKey {
 
     @ChangeTracked
     private InntektPeriodeType hyppighet = InntektPeriodeType.UDEFINERT;

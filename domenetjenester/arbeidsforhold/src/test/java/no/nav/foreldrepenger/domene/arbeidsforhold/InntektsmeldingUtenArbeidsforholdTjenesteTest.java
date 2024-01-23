@@ -208,7 +208,7 @@ class InntektsmeldingUtenArbeidsforholdTjenesteTest {
     }
 
     private OppgittOpptjeningBuilder lagFiske() {
-        return OppgittOpptjeningBuilder.ny().leggTilEgneNæringer(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
+        return OppgittOpptjeningBuilder.ny().leggTilEgenNæring(List.of(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
             .medPeriode(DatoIntervallEntitet.fraOgMed(dagerFørStp(100)))
             .medVirksomhetType(VirksomhetType.FISKE)
             .medVirksomhet("999999999")));

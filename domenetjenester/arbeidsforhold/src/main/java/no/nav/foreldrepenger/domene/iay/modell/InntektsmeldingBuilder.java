@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import org.jboss.weld.exceptions.IllegalArgumentException;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -180,12 +179,6 @@ public class InntektsmeldingBuilder {
     public InntektsmeldingBuilder medStartDatoPermisjon(LocalDate startPermisjon) {
         precondition();
         kladd.setStartDatoPermisjon(startPermisjon);
-        return this;
-    }
-
-    public InntektsmeldingBuilder medYtelse(FagsakYtelseType ytelse) {
-        precondition();
-        kladd.setFagsakYtelseType(ytelse);
         return this;
     }
 

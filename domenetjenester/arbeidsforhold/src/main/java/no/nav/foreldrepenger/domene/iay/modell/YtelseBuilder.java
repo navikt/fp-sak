@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -69,11 +68,6 @@ public class YtelseBuilder {
 
     public YtelseBuilder medYtelseAnvist(YtelseAnvist ytelseAnvist) {
         ytelse.leggTilYtelseAnvist(ytelseAnvist);
-        return this;
-    }
-
-    public YtelseBuilder medBehandlingsTema(TemaUnderkategori behandlingsTema) {
-        ytelse.setBehandlingsTema(behandlingsTema);
         return this;
     }
 
