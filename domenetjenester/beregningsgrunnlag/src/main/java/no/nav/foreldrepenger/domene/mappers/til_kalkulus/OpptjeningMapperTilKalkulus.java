@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
@@ -38,7 +37,7 @@ public class OpptjeningMapperTilKalkulus {
             .stream()
             .filter(opp -> finnesInntektsmeldingForEllerKanBeregnesUten(opp, inntektsmeldinger, yrkesfilter, ref.getUtledetSkjæringstidspunkt()))
             .map(opptjeningPeriode -> OpptjeningAktiviteterDto.nyPeriode(
-                OpptjeningAktivitetType.fraKode(opptjeningPeriode.opptjeningAktivitetType().getKode()), mapPeriode(opptjeningPeriode),
+                KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(opptjeningPeriode.opptjeningAktivitetType()), mapPeriode(opptjeningPeriode),
                 opptjeningPeriode.arbeidsgiverOrgNummer(), opptjeningPeriode.arbeidsgiverAktørId(),
                 opptjeningPeriode.arbeidsforholdId() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(
                     opptjeningPeriode.arbeidsforholdId())))
