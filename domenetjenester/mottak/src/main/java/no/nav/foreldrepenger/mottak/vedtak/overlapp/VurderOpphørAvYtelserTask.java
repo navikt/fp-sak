@@ -39,10 +39,9 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         //kjøres for førstegangsvedtak og revurderingsvedtak for fp og SVP
         overlappsLoggerTjeneste.loggOverlappForVedtakFPSAK(behandlingId, behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
-        //kjøres kun for førstegangsvedtak for svp og fp
-        if (!behandling.erRevurdering()) {
-            vurderOpphørAvYtelser.vurderOpphørAvYtelser(behandling);
-        }
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(behandling);
+
     }
 
 }
