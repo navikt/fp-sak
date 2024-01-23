@@ -30,7 +30,7 @@ public class StønadsstatistikkVedtak {
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
-    private LocalDate søknadsdato; //Tidligste mottatt søknad på fagsak
+    private LocalDate søknadsdato; //Siste søknadsdato for gjeldende vedtak
     private LocalDate skjæringstidspunkt;
     @NotNull
     private LocalDateTime vedtakstidspunkt; // Funksjonelt tid
