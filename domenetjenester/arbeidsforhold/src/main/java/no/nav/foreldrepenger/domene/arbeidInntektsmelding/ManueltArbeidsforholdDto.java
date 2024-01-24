@@ -79,7 +79,9 @@ public class ManueltArbeidsforholdDto {
             @JsonProperty("stillingsprosent")
             Integer stillingsprosent,
             @JsonProperty("vurdering")
-            ArbeidsforholdKomplettVurderingType vurdering, Long behandlingVersjon) {
+            ArbeidsforholdKomplettVurderingType vurdering,
+            @JsonProperty("behandlingVersjon")
+            Long behandlingVersjon) {
         this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
         this.arbeidsgiverIdent = arbeidsgiverIdent;
