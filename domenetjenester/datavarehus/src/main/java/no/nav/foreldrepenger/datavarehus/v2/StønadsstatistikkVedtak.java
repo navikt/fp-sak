@@ -30,6 +30,7 @@ public class StønadsstatistikkVedtak {
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
+    @NotNull
     private LocalDate søknadsdato; //Siste søknadsdato for gjeldende vedtak
     private LocalDate skjæringstidspunkt;
     @NotNull
