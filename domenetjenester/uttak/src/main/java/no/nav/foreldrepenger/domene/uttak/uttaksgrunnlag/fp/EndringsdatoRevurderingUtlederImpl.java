@@ -185,7 +185,8 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
 
     private Optional<EndringsdatoType> førsteUttaksdatoGjeldendeVedtakEndringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        if (input.isBehandlingManueltOpprettet() || input.isOpplysningerOmDødEndret()
+        var fpGrunnlag = (ForeldrepengerGrunnlag) input.getYtelsespesifiktGrunnlag();
+        if (input.isBehandlingManueltOpprettet() || fpGrunnlag.isDødsfall()
             || arbeidsforholdRelevantForUttakErEndret(input) || endretDekningsgrad(ref)) {
 
             return Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);

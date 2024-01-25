@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -106,12 +107,36 @@ public class UttakGrunnlagTjeneste {
             .medPleiepengerGrunnlag(pleiepengerGrunnlag(ref).orElse(null))
             .medOppdagetPleiepengerOverlappendeUtbetaling(behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER))
             .medUføretrygdGrunnlag(uføretrygdGrunnlag(ref).orElse(null))
-            .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null));
+            .medNesteSakGrunnlag(nesteSakGrunnlag(ref).orElse(null))
+            .medDødsfall(harDødsfall(behandling, familiehendelser, ref))
+            ;
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
         }
         return grunnlag;
+    }
+
+    private boolean harDødsfall(Behandling behandling, FamilieHendelser familiehendelser, BehandlingReferanse ref) {
+        var barna = familiehendelser.getGjeldendeFamilieHendelse().getBarna();
+
+        var harDødsdatoPåBarn = barna.stream().anyMatch(barn -> barn.getDødsdato().isPresent());
+        var harBehandlingÅrsakMedDød = behandling.getBehandlingÅrsaker()
+            .stream()
+            .anyMatch(årsak -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(årsak.getBehandlingÅrsakType()));
+        return harDødsdatoPåBarn || harBehandlingÅrsakMedDød || erOpplysningerOmDødEndretIPersonopplysninger(ref);
+    }
+
+    private boolean erOpplysningerOmDødEndretIPersonopplysninger(BehandlingReferanse ref) {
+        var behandlingId = ref.behandlingId();
+        var originaltGrunnlag = personopplysningRepository.hentFørsteVersjonAvPersonopplysninger(behandlingId);
+        var nåværendeGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
+        var poDiff = new PersonopplysningGrunnlagDiff(ref.aktørId(), nåværendeGrunnlag, originaltGrunnlag);
+
+        var barnDødt = poDiff.erBarnDødsdatoEndret();
+        var foreldreDød = poDiff.erForeldreDødsdatoEndret();
+
+        return barnDødt || foreldreDød;
     }
 
     private Optional<PleiepengerGrunnlagEntitet> pleiepengerGrunnlag(BehandlingReferanse ref) {
