@@ -22,7 +22,6 @@ public class UttakInput {
     private LocalDate medlemskapOpphørsdato;
     private Set<BehandlingÅrsakType> behandlingÅrsaker = Set.of();
     private boolean behandlingManueltOpprettet;
-    private boolean opplysningerOmDødEndret;
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag;
 
     public UttakInput(BehandlingReferanse behandlingReferanse,
@@ -40,7 +39,6 @@ public class UttakInput {
         this.medlemskapOpphørsdato = input.medlemskapOpphørsdato;
         this.behandlingÅrsaker = input.behandlingÅrsaker;
         this.behandlingManueltOpprettet = input.behandlingManueltOpprettet;
-        this.opplysningerOmDødEndret = input.opplysningerOmDødEndret;
         this.finnesAndelerMedGraderingUtenBeregningsgrunnlag = input.finnesAndelerMedGraderingUtenBeregningsgrunnlag;
     }
 
@@ -78,16 +76,8 @@ public class UttakInput {
         return behandlingÅrsaker.stream().anyMatch(årsak -> årsak.equals(behandlingÅrsakType));
     }
 
-    public boolean harBehandlingÅrsakRelatertTilDød() {
-        return behandlingÅrsaker.stream().anyMatch(årsak -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(årsak));
-    }
-
     public boolean isBehandlingManueltOpprettet() {
         return behandlingManueltOpprettet;
-    }
-
-    public boolean isOpplysningerOmDødEndret() {
-        return opplysningerOmDødEndret;
     }
 
     public LocalDateTime getSøknadOpprettetTidspunkt() {
@@ -129,12 +119,6 @@ public class UttakInput {
     public UttakInput medBehandlingManueltOpprettet(boolean behandlingManueltOpprettet) {
         var newInput = new UttakInput(this);
         newInput.behandlingManueltOpprettet = behandlingManueltOpprettet;
-        return newInput;
-    }
-
-    public UttakInput medErOpplysningerOmDødEndret(boolean opplysningerOmDødEndret) {
-        var newInput = new UttakInput(this);
-        newInput.opplysningerOmDødEndret = opplysningerOmDødEndret;
         return newInput;
     }
 
