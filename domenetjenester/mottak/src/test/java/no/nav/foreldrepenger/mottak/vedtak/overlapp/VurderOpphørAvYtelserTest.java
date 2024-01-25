@@ -357,6 +357,22 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     }
 
     @Test
+    void identifiserOverlappNårInnvilgerFPOgHarLøpendeSVP() {
+        var løpendeSVP = lagBehandlingSVP(AKTØR_ID_MOR);
+
+        var starterFPSomOverlapperSVP = lagBehandlingMor(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.minusDays(2), AKTØR_ID_MOR, null);
+
+        when(stønadsperiodeTjeneste.stønadsperiodeStartdato(starterFPSomOverlapperSVP)).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING.minusDays(2)));
+        when(stønadsperiodeTjeneste.stønadsperiodeSluttdatoEnkeltSak(løpendeSVP.getFagsak())).thenReturn(Optional.of(SISTE_PERIODEDAG_LØPENDE_BEHANDLING));
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(starterFPSomOverlapperSVP);
+
+        var håndterOpphør = verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(1);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(løpendeSVP.getFagsakId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNull();
+    }
+
+    @Test
     void opprettHåndteringNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
         var løpendeFPMor = lagBehandlingMor(START_PERIODEDAG_LØPENDE_BEHANDLING, AKTØR_ID_MOR, null);
         // PGA sjekk gradering
