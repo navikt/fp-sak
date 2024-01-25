@@ -56,21 +56,16 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     }
 
     private UttakInput lagInput(Behandling behandling) {
-        return lagInput(behandling, false);
-    }
-
-    private UttakInput lagInput(Behandling behandling, boolean dødsfall) {
-        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medDødsfall(dødsfall).medFamilieHendelser(
-            new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(LocalDate.now(), null, List.of(), 1)));
-        return new UttakInput(BehandlingReferanse.fra(behandling), iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag);
+        return new UttakInput(BehandlingReferanse.fra(behandling), iayTjeneste.hentGrunnlag(behandling.getId()),
+            new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(LocalDate.now(),
+                null, List.of(), 1))));
     }
 
     @Test
     void skal_utlede_aksjonspunkt_for_død_når_behandling_er_manuelt_opprettet_med_dødsårsak() {
         var revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         lagreUttak(revurdering.getId());
-        var input = lagInput(revurdering, true)
-            .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD))
+        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD))
             .medBehandlingManueltOpprettet(true);
 
         var aksjonspunkter = utleder.utledAksjonspunkterFor(input);
@@ -82,7 +77,19 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     void skal_utlede_aksjonspunkt_for_død_når_grunnlaget_har_opplysninger_om_død() {
         var revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         lagreUttak(revurdering.getId());
-        var input = lagInput(revurdering, true);
+        var input = lagInput(revurdering).medErOpplysningerOmDødEndret(true);
+
+        var aksjonspunkter = utleder.utledAksjonspunkterFor(input);
+
+        assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
+    }
+
+    @Test
+    void skal_utlede_aksjonspunkt_for_død_når_behandlingen_har_en_årsak_relatert_til_hendelse_død() {
+        var revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER);
+        lagreUttak(revurdering.getId());
+        var input = lagInput(revurdering).medErOpplysningerOmDødEndret(false)
+            .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER));
 
         var aksjonspunkter = utleder.utledAksjonspunkterFor(input);
 
