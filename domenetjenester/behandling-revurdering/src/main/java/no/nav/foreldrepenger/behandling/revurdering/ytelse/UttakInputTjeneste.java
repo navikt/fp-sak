@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -96,7 +97,8 @@ public class UttakInputTjeneste {
             .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
             .medSøknadOpprettetTidspunkt(søknadOpprettetTidspunkt)
             .medBehandlingÅrsaker(map(årsaker))
-            .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker));
+            .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
+            .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.behandlingId());
         if (beregningsgrunnlag.isPresent()) {
             var bgStatuser = lagBeregningsgrunnlagStatuser(beregningsgrunnlag.get());
@@ -153,5 +155,17 @@ public class UttakInputTjeneste {
             case SVANGERSKAPSPENGER -> svpUttakGrunnlagTjeneste.grunnlag(ref);
             default -> throw new IllegalStateException("Finner ikke tjeneste for å lage ytelsesspesifikt grunnlag for ytelsetype " + ytelseType);
         };
+    }
+
+    private boolean erOpplysningerOmDødEndret(BehandlingReferanse ref) {
+        var behandlingId = ref.behandlingId();
+        var originaltGrunnlag = personopplysningRepository.hentFørsteVersjonAvPersonopplysninger(behandlingId);
+        var nåværendeGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
+        var poDiff = new PersonopplysningGrunnlagDiff(ref.aktørId(), nåværendeGrunnlag, originaltGrunnlag);
+
+        var barnDødt = poDiff.erBarnDødsdatoEndret();
+        var foreldreDød = poDiff.erForeldreDødsdatoEndret();
+
+        return barnDødt || foreldreDød;
     }
 }
