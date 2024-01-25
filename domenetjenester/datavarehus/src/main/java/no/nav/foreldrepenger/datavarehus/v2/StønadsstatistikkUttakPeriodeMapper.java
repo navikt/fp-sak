@@ -19,6 +19,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
@@ -33,23 +36,24 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 class StønadsstatistikkUttakPeriodeMapper {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StønadsstatistikkUttakPeriodeMapper.class);
 
     private StønadsstatistikkUttakPeriodeMapper() {
     }
 
     static List<StønadsstatistikkUttakPeriode> mapUttak(RelasjonsRolleType rolleType,
                                                         StønadsstatistikkVedtak.RettighetType rettighetType,
-                                                        List<ForeldrepengerUttakPeriode> perioder) {
+                                                        List<ForeldrepengerUttakPeriode> perioder, String logContext) {
         var statistikkPerioder = perioder.stream()
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .filter(p -> p.harTrekkdager() || p.harUtbetaling() || p.isInnvilgetUtsettelse())
-            .map(p -> mapUttakPeriode(rolleType, rettighetType, p)).toList();
+            .map(p -> mapUttakPeriode(rolleType, rettighetType, p, logContext)).toList();
         return komprimerTidslinje(statistikkPerioder);
     }
 
     static StønadsstatistikkUttakPeriode mapUttakPeriode(RelasjonsRolleType rolleType,
                                                          StønadsstatistikkVedtak.RettighetType rettighetType,
-                                                         ForeldrepengerUttakPeriode periode) {
+                                                         ForeldrepengerUttakPeriode periode, String logContext) {
         // Ser ikke på innvilget avslått men på kombinasjoner av harTrekkdager og erUtbetaling.
         // Søknad og PeriodeResultatÅrsak er supplerende informasjon men ikke endelig avgjørende
         // Ønsker ta med disse tilfellene:
@@ -67,7 +71,7 @@ class StønadsstatistikkUttakPeriodeMapper {
         var rettighet = utledRettighet(rolleType, rettighetType, foretrukketAktivitet.getTrekkonto(), periode);
 
         var periodeType = utledPeriodeType(periode);
-        var forklaring = periodeType == PeriodeType.AVSLAG ? utledForklaringAvslag(periode)
+        var forklaring = periodeType == PeriodeType.AVSLAG ? utledForklaringAvslag(periode, logContext)
             : utledForklaring(periode, foretrukketAktivitet.getTrekkonto(), rolleType);
 
         var mottattDato = Optional.ofNullable(periode.getTidligstMottatttDato()).orElseGet(periode::getMottattDato);
@@ -79,10 +83,11 @@ class StønadsstatistikkUttakPeriodeMapper {
             gradering, samtidigUttakProsent);
     }
 
-    private static Forklaring utledForklaringAvslag(ForeldrepengerUttakPeriode periode) {
+    private static Forklaring utledForklaringAvslag(ForeldrepengerUttakPeriode periode, String logContext) {
         if (periode.getResultatÅrsak().getUtfallType() != PeriodeResultatÅrsak.UtfallType.AVSLÅTT) {
-            throw new IllegalArgumentException("Forventer periode med avslågsårsak. Fikk " + periode.getResultatÅrsak()
-                + " for periode " + periode.getTidsperiode());
+            // TODO ta med saksnummer + behandling ned i kontekst
+            LOG.info("Stønadsstatistikk forventer periode med avslågsårsak {}. Fikk {} for periode {}", logContext, periode.getResultatÅrsak(), periode.getTidsperiode());
+            return Forklaring.AVSLAG_ANNET;
         }
 
         return switch (periode.getResultatÅrsak()) {
@@ -147,13 +152,21 @@ class StønadsstatistikkUttakPeriodeMapper {
     }
 
     private static Gradering utledGradering(ForeldrepengerUttakPeriode periode) {
-        return periode.isGraderingInnvilget() ? periode.getAktiviteter()
+        if (!periode.isGraderingInnvilget()) {
+            return null;
+        }
+        return periode.getAktiviteter()
             .stream()
             .filter(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode)
             .filter(a -> a.getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0)
             .max(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getArbeidsprosent))
             .map(g -> new Gradering(mapArbeidType(g), g.getArbeidsprosent()))
-            .orElseThrow() : null;
+            .orElseGet(() -> periode.getAktiviteter()
+                .stream()
+                .filter(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode)
+                .min(Comparator.comparing(ForeldrepengerUttakPeriodeAktivitet::getUtbetalingsgrad))
+                .map(g -> new Gradering(mapArbeidType(g), new BigDecimal(100).subtract(g.getUtbetalingsgrad().decimalValue())))
+                .orElseThrow());
     }
 
     /**
@@ -349,8 +362,8 @@ class StønadsstatistikkUttakPeriodeMapper {
         var u2 = rhs.getValue();
         var virkedager = u1.virkedager() + u2.virkedager();
         var trekkdager = u1.trekkdager().add(u2.trekkdager());
-        var mottatt = u1.søknadsDato() != null && u2.søknadsDato() != null && u2.søknadsDato().isBefore(u1.søknadsDato()) ?
-            u2.søknadsDato() : Optional.ofNullable(u1.søknadsDato()).orElseGet(u2::søknadsDato);
+        var mottatt = u1.søknadsdato() != null && u2.søknadsdato() != null && u2.søknadsdato().isBefore(u1.søknadsdato()) ?
+            u2.søknadsdato() : Optional.ofNullable(u1.søknadsdato()).orElseGet(u2::søknadsdato);
         var ny = new StønadsstatistikkUttakPeriode(i.getFomDato(), i.getTomDato(), u1.type(), u1.stønadskontoType(),
             u1.rettighetType(), u1.forklaring(), mottatt, u1.erUtbetaling(), virkedager, trekkdager, u1.gradering(), u1.samtidigUttakProsent());
         return new LocalDateSegment<>(i, ny);

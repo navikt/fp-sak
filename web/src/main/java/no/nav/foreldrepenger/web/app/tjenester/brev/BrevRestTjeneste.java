@@ -48,7 +48,6 @@ public class BrevRestTjeneste {
     public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
-    private static final String BREV_MALER_PART_PATH = "/maler";
 
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
@@ -74,8 +73,7 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BestillBrevAbacDataSupplier.class)
                                     @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
-        var behandlingId = bestillBrevDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid()).getId()
-            : bestillBrevDto.getBehandlingId();
+        var behandlingId = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid()).getId();
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), behandlingId);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.getBrevmalkode(), behandlingId);
@@ -124,14 +122,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BestillBrevDto) obj;
-            var attributter = AbacDataAttributter.opprett();
-            if (req.getBehandlingUuid() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
-            }
-            if (req.getBehandlingId() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
-            }
-            return attributter;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 

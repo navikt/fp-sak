@@ -17,6 +17,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private ArbeidOgInntektsmeldingProsessTjeneste arbeidOgInntektsmeldingProsessTjeneste;
     private TilgangerTjeneste tilgangerTjeneste;
+    private BehandlingsutredningTjeneste behandlingutredningTjeneste;
 
     ArbeidOgInntektsmeldingRestTjeneste() {
         // CDI
@@ -80,13 +83,15 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
                                                ArbeidOgInntektsmeldingDtoTjeneste arbeidOgInntektsmeldingDtoTjeneste,
                                                ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
                                                ArbeidOgInntektsmeldingProsessTjeneste arbeidOgInntektsmeldingProsessTjeneste,
-                                               TilgangerTjeneste tilgangerTjeneste) {
+                                               TilgangerTjeneste tilgangerTjeneste,
+                                               BehandlingsutredningTjeneste behandlingutredningTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.arbeidOgInntektsmeldingDtoTjeneste = arbeidOgInntektsmeldingDtoTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
         this.arbeidOgInntektsmeldingProsessTjeneste = arbeidOgInntektsmeldingProsessTjeneste;
         this.tilgangerTjeneste = tilgangerTjeneste;
+        this.behandlingutredningTjeneste = behandlingutredningTjeneste;
     }
 
     @GET
@@ -110,6 +115,9 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     public Response lagreVurderingAvManglendeOpplysninger(@TilpassetAbacAttributt(supplierClass = ManglendeInntektsmeldingVurderingAbacDataSupplier.class)
                                                                    @NotNull @Parameter(description = "Vurdering av opplysning som mangler.") @Valid ManglendeOpplysningerVurderingDto manglendeOpplysningerVurderingDto) {
         LOG.info("Lagrer valg på behandling {}", manglendeOpplysningerVurderingDto.getBehandlingUuid());
+        if (manglendeOpplysningerVurderingDto.getBehandlingVersjon() != null) {
+            behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manglendeOpplysningerVurderingDto.getBehandlingUuid()), manglendeOpplysningerVurderingDto.getBehandlingVersjon());
+        }
         var ref = lagReferanse(manglendeOpplysningerVurderingDto.getBehandlingUuid());
         arbeidsforholdInntektsmeldingMangelTjeneste.lagreManglendeOpplysningerVurdering(ref, manglendeOpplysningerVurderingDto);
         return Response.ok().build();
@@ -123,6 +131,9 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
     public Response lagreManuelleArbeidsforhold(@TilpassetAbacAttributt(supplierClass = ManueltArbeidsforholdDtoAbacDataSupplier.class)
                                                  @NotNull @Parameter(description = "Registrering av arbeidsforhold.") @Valid ManueltArbeidsforholdDto manueltArbeidsforholdDto) {
         var ref = lagReferanse(manueltArbeidsforholdDto.getBehandlingUuid());
+        if (manueltArbeidsforholdDto.getBehandlingVersjon() != null) {
+            behandlingutredningTjeneste.kanEndreBehandling(behandlingRepository.hentBehandling(manueltArbeidsforholdDto.getBehandlingUuid()), manueltArbeidsforholdDto.getBehandlingVersjon());
+        }
         if (endringGjelderHelmanueltArbeidsforhold(manueltArbeidsforholdDto) && !erOverstyringLovlig()) {
             var msg = String.format(
                     "Feil: Prøve å gjøre endringer på et helmanuelt arbeidsforhold uten å være overstyrer på behandling %s", ref.behandlingId());

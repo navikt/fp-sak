@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.iay.modell;
 
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
@@ -10,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class ArbeidsforholdReferanse extends BaseEntitet implements IndexKey, TraverseValue {
+public class ArbeidsforholdReferanse implements IndexKey, TraverseValue {
 
     @ChangeTracked
     private Arbeidsgiver arbeidsgiver;

@@ -226,7 +226,7 @@ class MapOppgittOpptjening {
             arbeidsforhold.forEach(builder::leggTilOppgittArbeidsforhold);
 
             var egenNæring = mapEach(dto.getEgenNæring(), MapFraDto::mapEgenNæring);
-            builder.leggTilEgneNæringer(egenNæring);
+            builder.leggTilEgenNæring(egenNæring);
 
             var frilans = mapFrilans(dto.getFrilans());
             builder.leggTilFrilansOpplysninger(frilans);
@@ -286,7 +286,7 @@ class MapOppgittOpptjening {
             return builder;
         }
 
-        private static OppgittArbeidsforholdBuilder mapOppgittArbeidsforhold(OppgittArbeidsforholdDto dto) {
+        private static OppgittArbeidsforhold mapOppgittArbeidsforhold(OppgittArbeidsforholdDto dto) {
             if (dto == null) {
                 return null;
             }
@@ -298,7 +298,8 @@ class MapOppgittOpptjening {
                     .medArbeidType(KodeverkMapper.mapArbeidType(dto.getArbeidTypeDto()))
                     .medErUtenlandskInntekt(dto.isErUtenlandskInntekt())
                     .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(dto1.getFom(), dto1.getTom()))
-                    .medUtenlandskVirksomhet(virksomhet);
+                    .medUtenlandskVirksomhet(virksomhet)
+                    .build();
         }
 
         private static OppgittUtenlandskVirksomhet tilUtenlandskVirksomhet(OppgittArbeidsforholdDto dto) {

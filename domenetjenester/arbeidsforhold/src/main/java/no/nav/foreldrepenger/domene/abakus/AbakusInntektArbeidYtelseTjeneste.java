@@ -282,7 +282,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             fraBehandling.getUuid(),
             KodeverkMapper.fraFagsakYtelseType(tilBehandling.getFagsakYtelseType()),
             new AktørIdPersonident(tilBehandling.getAktørId().getId()),
-            Set.of(Dataset.INNTEKTSMELDING, Dataset.OPPGITT_OPPTJENING));
+            Set.of(Dataset.INNTEKTSMELDING, Dataset.OPPGITT_OPPTJENING, Dataset.OVERSTYRT_OPPGITT_OPPTJENING));
         try {
             abakusTjeneste.kopierGrunnlag(request);
         } catch (IOException e) {

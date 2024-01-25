@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-public enum RelatertYtelseTilstand implements Kodeverdi, MedOffisiellKode {
+public enum RelatertYtelseTilstand implements Kodeverdi {
 
     ÅPEN("ÅPEN", "Åpen"),
     LØPENDE("LØPENDE", "Løpende"),
@@ -39,10 +37,6 @@ public enum RelatertYtelseTilstand implements Kodeverdi, MedOffisiellKode {
         this.navn = navn;
     }
 
-    public static Map<String, RelatertYtelseTilstand> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -56,10 +50,5 @@ public enum RelatertYtelseTilstand implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
     }
 }

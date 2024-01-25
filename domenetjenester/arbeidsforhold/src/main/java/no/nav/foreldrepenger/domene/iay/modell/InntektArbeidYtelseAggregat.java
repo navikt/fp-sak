@@ -8,10 +8,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 
-public class InntektArbeidYtelseAggregat extends BaseEntitet {
+public class InntektArbeidYtelseAggregat {
 
     private UUID uuid;
 
@@ -23,6 +22,8 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
 
     @ChangeTracked
     private Set<AktørYtelse> aktørYtelse = new LinkedHashSet<>();
+
+    private LocalDateTime opprettetTidspunkt;
 
     InntektArbeidYtelseAggregat() {
         // hibernate
@@ -89,6 +90,14 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
 
     void setAktørYtelse(Collection<AktørYtelse> aktørYtelse) {
         this.aktørYtelse = new LinkedHashSet<>(aktørYtelse);
+    }
+
+    public LocalDateTime getOpprettetTidspunkt() {
+        return opprettetTidspunkt;
+    }
+
+    public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+        this.opprettetTidspunkt = opprettetTidspunkt;
     }
 
     @Override

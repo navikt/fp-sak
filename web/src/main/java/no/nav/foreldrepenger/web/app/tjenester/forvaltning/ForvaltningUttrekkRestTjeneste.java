@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +31,8 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsakTask;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -146,21 +147,21 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response flyttTilOmsorgRett() {
         var query = entityManager.createNativeQuery("""
-            select b.id from fpsak.behandling b join fpsak.fagsak f on fagsak_id = f.id
-            where behandling_status <> 'AVSLU'
-            and exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def = '5051' and aksjonspunkt_status = 'OPPR')
-            and not exists (select * from fpsak.aksjonspunkt ap where ap.behandling_id = b.id and aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
+            select distinct b.id from fpsak.behandling_arsak ba join fpsak.behandling b on ba.behandling_id = b.id join fpsak.fagsak f on b.fagsak_id = f.id
+            where ytelse_type = 'SVP' and behandling_arsak_type = 'REBEREGN-FERIEPENGER' and ba.opprettet_tid >= '15.01.2024' and behandling_status <> 'AVSLU'
+            and b.id in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def = 5028)
+            and b.id not in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def <> 5028)
              """);
         @SuppressWarnings("unchecked")
-        List<BigDecimal> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(BigDecimal::longValue).toList();
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
         åpneAksjonspunkt.forEach(this::flyttTilbakeTilStart);
         return Response.ok().build();
     }
 
     private void flyttTilbakeTilStart(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.VURDER_OPPTJENINGSVILKÅR.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.FORESLÅ_VEDTAK.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(MigrerTilOmsorgRettTask.class);
@@ -299,5 +300,40 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
         return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).toList();
+    }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lag tasks for nye feriepengekoder til bruker SVP", tags = "FORVALTNING-uttrekk")
+    @Path("/omposterFeriepengerSvangerskapspenger")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response omposterFeriepengerSvangerskapspenger() {
+        var query = entityManager.createNativeQuery("""
+            select b.id from fpsak.behandling_arsak ba join fpsak.behandling b on ba.behandling_id = b.id join fpsak.fagsak f on b.fagsak_id = f.id
+            where ytelse_type = 'SVP' and behandling_arsak_type = 'REBEREGN-FERIEPENGER' and behandling_status <> 'AVSLU'
+             """);
+        @SuppressWarnings("unchecked")
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        åpneAksjonspunkt.forEach(this::omposterTask);
+        return Response.ok().build();
+    }
+
+    private void omposterTask(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var gruppe = new ProsessTaskGruppe();
+        var henleggTask = ProsessTaskData.forProsessTask(HenleggFlyttFagsakTask.class);
+        henleggTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        henleggTask.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, BehandlingResultatType.HENLAGT_FEILOPPRETTET.getKode());
+        henleggTask.setCallIdFraEksisterende();
+        gruppe.addNesteSekvensiell(henleggTask);
+
+        var omposterTask = ProsessTaskData.forProsessTask(FeriepengerOmposterTask.class);
+        omposterTask.setFagsakId(behandling.getFagsakId());
+        omposterTask.setCallIdFraEksisterende();
+        gruppe.addNesteSekvensiell(omposterTask);
+        taskTjeneste.lagre(gruppe);
     }
 }

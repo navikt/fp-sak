@@ -53,29 +53,35 @@ public class ManueltArbeidsforholdDto {
     @Valid
     @NotNull
     private ArbeidsforholdKomplettVurderingType vurdering;
+    // Gjør denne @NotNull når frontend sender den med
+    @Min(0)
+    @Max(Long.MAX_VALUE)
+    private Long behandlingVersjon;
 
     public ManueltArbeidsforholdDto() {
     }
 
     public ManueltArbeidsforholdDto(
-        @JsonProperty("behandlingUuid")
+            @JsonProperty("behandlingUuid")
             UUID behandlingUuid,
-        @JsonProperty("begrunnelse")
+            @JsonProperty("begrunnelse")
             String begrunnelse,
-        @JsonProperty("arbeidsgiverIdent")
+            @JsonProperty("arbeidsgiverIdent")
             String arbeidsgiverIdent,
-        @JsonProperty("internArbeidsforholdRef")
+            @JsonProperty("internArbeidsforholdRef")
             String internArbeidsforholdRef,
-        @JsonProperty("arbeidsgiverNavn")
+            @JsonProperty("arbeidsgiverNavn")
             String arbeidsgiverNavn,
-        @JsonProperty("fom")
+            @JsonProperty("fom")
             LocalDate fom,
-        @JsonProperty("tom")
+            @JsonProperty("tom")
             LocalDate tom,
-        @JsonProperty("stillingsprosent")
+            @JsonProperty("stillingsprosent")
             Integer stillingsprosent,
-        @JsonProperty("vurdering")
-            ArbeidsforholdKomplettVurderingType vurdering) {
+            @JsonProperty("vurdering")
+            ArbeidsforholdKomplettVurderingType vurdering,
+            @JsonProperty("behandlingVersjon")
+            Long behandlingVersjon) {
         this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
         this.arbeidsgiverIdent = arbeidsgiverIdent;
@@ -85,6 +91,7 @@ public class ManueltArbeidsforholdDto {
         this.tom = tom;
         this.stillingsprosent = stillingsprosent;
         this.vurdering = vurdering;
+        this.behandlingVersjon = behandlingVersjon;
     }
 
     public UUID getBehandlingUuid() {
@@ -121,5 +128,9 @@ public class ManueltArbeidsforholdDto {
 
     public String getInternArbeidsforholdRef() {
         return internArbeidsforholdRef;
+    }
+
+    public Long getBehandlingVersjon() {
+        return behandlingVersjon;
     }
 }

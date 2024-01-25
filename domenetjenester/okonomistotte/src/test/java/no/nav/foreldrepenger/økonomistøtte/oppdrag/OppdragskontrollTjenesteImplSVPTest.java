@@ -124,7 +124,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         assertThat(oppdrag110_Arbeidsgiver).isPresent();
         //Oppdragslinje150 - Bruker
         var opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
-        assertThat(opp150List_Bruker.stream().filter(opp150 -> KodeKlassifik.SVP_ARBEDISTAKER.equals(opp150.getKodeKlassifik()))).hasSize(2);
+        assertThat(opp150List_Bruker.stream().filter(opp150 -> KodeKlassifik.SVP_ARBEDISTAKER.equals(opp150.getKodeKlassifik()))).hasSize(1);
         assertThat(opp150List_Bruker.stream().filter(opp150 -> KodeKlassifik.FERIEPENGER_BRUKER.equals(opp150.getKodeKlassifik()))).hasSize(1);
         assertThat(opp150List_Bruker.stream().filter(opp150 -> KodeKlassifik.SVP_FERIEPENGER_BRUKER.equals(opp150.getKodeKlassifik()))).hasSize(1);
         //Oppdragslinje150 - Arbeidsgiver

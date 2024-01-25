@@ -8,12 +8,6 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.Beregningsgru
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPeriodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPrStatusOgAndelDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
-import no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel;
-import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Utfall;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
@@ -57,8 +51,8 @@ public class BGMapperTilKalkulus {
 
     public static BeregningsgrunnlagAktivitetStatusDto.Builder mapAktivitetStatus(BeregningsgrunnlagAktivitetStatus fraFpsak) {
         var builder = new BeregningsgrunnlagAktivitetStatusDto.Builder();
-        builder.medAktivitetStatus(AktivitetStatus.fraKode(fraFpsak.getAktivitetStatus().getKode()));
-        builder.medHjemmel(Hjemmel.fraKode(fraFpsak.getHjemmel().getKode()));
+        builder.medAktivitetStatus(KodeverkTilKalkulusMapper.mapAktivitetstatus(fraFpsak.getAktivitetStatus()));
+        builder.medHjemmel(KodeverkTilKalkulusMapper.mapHjemmel(fraFpsak.getHjemmel()));
 
         return builder;
     }
@@ -73,7 +67,7 @@ public class BGMapperTilKalkulus {
         builder.medRedusertPrÅr(fraFpsak.getRedusertPrÅr());
 
         //legg til
-        fraFpsak.getPeriodeÅrsaker().forEach(periodeÅrsak -> builder.leggTilPeriodeÅrsak(PeriodeÅrsak.fraKode(periodeÅrsak.getKode())));
+        fraFpsak.getPeriodeÅrsaker().forEach(periodeÅrsak -> builder.leggTilPeriodeÅrsak(KodeverkTilKalkulusMapper.mapPeriodeårsak(periodeÅrsak)));
         fraFpsak.getBeregningsgrunnlagPrStatusOgAndelList().forEach( statusOgAndel -> builder.leggTilBeregningsgrunnlagPrStatusOgAndel(mapStatusOgAndel(statusOgAndel)));
 
         return builder;
@@ -83,7 +77,7 @@ public class BGMapperTilKalkulus {
         var builder = new SammenligningsgrunnlagPrStatusDto.Builder();
         builder.medAvvikPromilleNy(fraFpsak.getAvvikPromille());
         builder.medRapportertPrÅr(fraFpsak.getRapportertPrÅr());
-        builder.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.fraKode(fraFpsak.getSammenligningsgrunnlagType().getKode()));
+        builder.medSammenligningsgrunnlagType(KodeverkTilKalkulusMapper.mapSammenligningsgrunnlagtype(fraFpsak.getSammenligningsgrunnlagType()));
         builder.medSammenligningsperiode(fraFpsak.getSammenligningsperiodeFom(), fraFpsak.getSammenligningsperiodeTom());
 
         return builder.build();
@@ -91,9 +85,9 @@ public class BGMapperTilKalkulus {
 
     private static BeregningsgrunnlagPrStatusOgAndelDto.Builder mapStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel fraFpsak) {
         var builder = BeregningsgrunnlagPrStatusOgAndelDto.ny()
-            .medAktivitetStatus(AktivitetStatus.fraKode(fraFpsak.getAktivitetStatus().getKode()))
+            .medAktivitetStatus(KodeverkTilKalkulusMapper.mapAktivitetstatus(fraFpsak.getAktivitetStatus()))
             .medAndelsnr(fraFpsak.getAndelsnr())
-            .medArbforholdType(fraFpsak.getArbeidsforholdType() == null ? null : OpptjeningAktivitetType.fraKode(fraFpsak.getArbeidsforholdType().getKode()))
+            .medArbforholdType(fraFpsak.getArbeidsforholdType() == null ? null : KodeverkTilKalkulusMapper.mapOpptjeningAktivitetType(fraFpsak.getArbeidsforholdType()))
             .medAvkortetBrukersAndelPrÅr(fraFpsak.getAvkortetBrukersAndelPrÅr())
             .medAvkortetPrÅr(fraFpsak.getAvkortetPrÅr())
             .medAvkortetRefusjonPrÅr(fraFpsak.getAvkortetRefusjonPrÅr())
@@ -108,10 +102,10 @@ public class BGMapperTilKalkulus {
             .medMaksimalRefusjonPrÅr(fraFpsak.getMaksimalRefusjonPrÅr())
             .medRedusertRefusjonPrÅr(fraFpsak.getRedusertRefusjonPrÅr())
             .medÅrsbeløpFraTilstøtendeYtelse(fraFpsak.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraFpsak.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
-            .medInntektskategori(fraFpsak.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategori().getKode()))
-            .medInntektskategoriAutomatiskFordeling(fraFpsak.getInntektskategoriAutomatiskFordeling() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategoriAutomatiskFordeling().getKode()))
-            .medInntektskategoriManuellFordeling(fraFpsak.getInntektskategoriManuellFordeling() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategoriManuellFordeling().getKode()))
-            .medKilde(AndelKilde.fraKode(fraFpsak.getKilde().getKode()))
+            .medInntektskategori(fraFpsak.getInntektskategori() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(fraFpsak.getInntektskategori()))
+            .medInntektskategoriAutomatiskFordeling(fraFpsak.getInntektskategoriAutomatiskFordeling() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(fraFpsak.getInntektskategoriAutomatiskFordeling()))
+            .medInntektskategoriManuellFordeling(fraFpsak.getInntektskategoriManuellFordeling() == null ? null : KodeverkTilKalkulusMapper.mapInntektskategori(fraFpsak.getInntektskategoriManuellFordeling()))
+            .medKilde(KodeverkTilKalkulusMapper.mapAndelkilde(fraFpsak.getKilde()))
             .medOrginalDagsatsFraTilstøtendeYtelse(fraFpsak.getOrginalDagsatsFraTilstøtendeYtelse());
 
 

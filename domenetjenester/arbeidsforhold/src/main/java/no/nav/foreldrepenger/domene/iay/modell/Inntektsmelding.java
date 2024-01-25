@@ -8,21 +8,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.Convert;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-public class Inntektsmelding extends BaseEntitet implements IndexKey {
+public class Inntektsmelding implements IndexKey {
 
     @ChangeTracked
     private List<Gradering> graderinger = new ArrayList<>();
@@ -42,7 +37,6 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
     @ChangeTracked
     private LocalDate startDatoPermisjon;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean nærRelasjon;
 
     /**
@@ -76,9 +70,6 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
     @ChangeTracked
     private InntektsmeldingInnsendingsårsak innsendingsårsak = InntektsmeldingInnsendingsårsak.UDEFINERT;
 
-    @Convert(converter = FagsakYtelseType.KodeverdiConverter.class)
-    private FagsakYtelseType ytelseType = FagsakYtelseType.UDEFINERT;
-
     Inntektsmelding() {
     }
 
@@ -100,7 +91,6 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         this.naturalYtelser = inntektsmelding.getNaturalYtelser().stream().map(NaturalYtelse::new).toList();
         this.utsettelsePerioder = inntektsmelding.getUtsettelsePerioder().stream().map(UtsettelsePeriode::new).toList();
         this.endringerRefusjon = inntektsmelding.getEndringerRefusjon().stream().map(Refusjon::new).toList();
-        this.ytelseType = inntektsmelding.getFagsakYtelseType();
     }
 
     @Override
@@ -371,13 +361,5 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
                 ", innsendingstidspunkt= " + innsendingstidspunkt +
                 ", mottattDato = " + mottattDato +
                 '}';
-    }
-
-    public FagsakYtelseType getFagsakYtelseType() {
-        return ytelseType;
-    }
-
-    void setFagsakYtelseType(FagsakYtelseType fagsakYtelseType) {
-        this.ytelseType = fagsakYtelseType;
     }
 }

@@ -70,11 +70,13 @@ class StønadsstatistikkTjenesteTest {
         var arbeidsgiver = Arbeidsgiver.virksomhet("123");
         var periodeVirkedager = 65;
         var uttak = lagUttak(fødselsdato, arbeidsgiver, periodeVirkedager);
+        var søknadsdato = fødselsdato.minusWeeks(3);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
             .medFordeling(new OppgittFordelingEntitet(List.of(søktPeriode), true))
             .medDefaultOppgittDekningsgrad()
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
+            .medSøknadDato(søknadsdato)
             .medUttak(uttak);
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET).medVedtakstidspunkt(fødselsdato.atStartOfDay());
         var behandling = scenario.lagre(repositoryProvider);
@@ -99,7 +101,7 @@ class StønadsstatistikkTjenesteTest {
 
 
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        var vedtak = stønadsstatistikkTjeneste.genererVedtak(ref);
+        var vedtak = stønadsstatistikkTjeneste. genererVedtak(ref);
 
         assertThat(vedtak.getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(vedtak.getSkjæringstidspunkt()).isEqualTo(fødselsdato);
@@ -109,12 +111,13 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getSaksnummer().id()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
         assertThat(vedtak.getFagsakId()).isEqualTo(behandling.getFagsak().getId());
         assertThat(vedtak.getSøker().id()).isEqualTo(behandling.getAktørId().getId());
-        assertThat(vedtak.getSøkersRolle()).isEqualTo(Saksrolle.MOR);
+        assertThat(vedtak.getSaksrolle()).isEqualTo(Saksrolle.MOR);
         assertThat(vedtak.getVedtaksresultat()).isEqualTo(VedtakResultat.INNVILGET);
         assertThat(vedtak.getUtlandsTilsnitt()).isEqualTo(UtlandsTilsnitt.NASJONAL);
         assertThat(vedtak.getVilkårIkkeOppfylt()).isNull();
         assertThat(vedtak.getYtelseType()).isEqualTo(YtelseType.FORELDREPENGER);
         assertThat(vedtak.getAnnenForelder()).isNull();
+        assertThat(vedtak.getSøknadsdato()).isEqualTo(søknadsdato);
 
         assertThat(vedtak.getFamilieHendelse().hendelseType()).isEqualTo(HendelseType.FØDSEL);
         assertThat(vedtak.getFamilieHendelse().adopsjonsdato()).isNull();

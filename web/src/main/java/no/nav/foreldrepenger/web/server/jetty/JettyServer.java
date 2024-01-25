@@ -12,10 +12,10 @@ import javax.sql.DataSource;
 
 import org.eclipse.jetty.ee10.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
-import org.eclipse.jetty.ee10.plus.jndi.EnvEntry;
 import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
+import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.security.Constraint;

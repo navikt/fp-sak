@@ -7,16 +7,15 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-public enum InntektspostType implements Kodeverdi, MedOffisiellKode {
+public enum InntektspostType implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert", null),
-    LØNN("LØNN", "Lønn", "LONN"),
-    YTELSE("YTELSE", "Ytelse", "YTELSE"),
-    VANLIG("VANLIG", "Vanlig", "VANLIG"),
-    SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NÆRINGSDRIVENDE", "Selvstendig næringsdrivende", "-"),
-    NÆRING_FISKE_FANGST_FAMBARNEHAGE("NÆRING_FISKE_FANGST_FAMBARNEHAGE", "Jordbruk/Skogbruk/Fiske/FamilieBarnehage", "personinntektFiskeFangstFamilebarnehage"),
+    UDEFINERT("-", "Ikke definert"),
+    LØNN("LØNN", "Lønn"),
+    YTELSE("YTELSE", "Ytelse"),
+    VANLIG("VANLIG", "Vanlig"),
+    SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NÆRINGSDRIVENDE", "Selvstendig næringsdrivende"),
+    NÆRING_FISKE_FANGST_FAMBARNEHAGE("NÆRING_FISKE_FANGST_FAMBARNEHAGE", "Jordbruk/Skogbruk/Fiske/FamilieBarnehage"),
     ;
 
     private static final Map<String, InntektspostType> KODER = new LinkedHashMap<>();
@@ -34,12 +33,10 @@ public enum InntektspostType implements Kodeverdi, MedOffisiellKode {
     private final String navn;
     @JsonValue
     private final String kode;
-    private final String offisiellKode;
 
-    InntektspostType(String kode, String navn, String offisiellKode) {
+    InntektspostType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.offisiellKode = offisiellKode;
     }
 
     public static InntektspostType fraKode(String kode) {
@@ -72,9 +69,5 @@ public enum InntektspostType implements Kodeverdi, MedOffisiellKode {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
-    }
 
 }

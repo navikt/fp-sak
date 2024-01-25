@@ -5,10 +5,6 @@ import java.util.Map;
 import no.nav.abakus.iaygrunnlag.kodeverk.InntektskildeType;
 import no.nav.abakus.iaygrunnlag.kodeverk.InntektsmeldingInnsendingsårsakType;
 import no.nav.abakus.iaygrunnlag.kodeverk.NaturalytelseType;
-import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType;
-import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType;
-import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType;
-import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType;
 import no.nav.abakus.iaygrunnlag.kodeverk.UtsettelseÅrsakType;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
@@ -16,23 +12,19 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NæringsinntektType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PensjonTrygdType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
 
 public final class KodeverkMapper {
 
@@ -44,9 +36,8 @@ public final class KodeverkMapper {
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER, RelatertYtelseType.OMSORGSPENGER),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER, RelatertYtelseType.OPPLÆRINGSPENGER),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PÅRØRENDESYKDOM, RelatertYtelseType.PÅRØRENDESYKDOM),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN, RelatertYtelseType.FRISINN),
-            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSSTØNAD),
+            Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSTØNAD),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER),
             Map.entry(no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER, RelatertYtelseType.ENSLIG_FORSØRGER));
@@ -59,9 +50,8 @@ public final class KodeverkMapper {
             Map.entry(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PLEIEPENGER_NÆRSTÅENDE),
             Map.entry(RelatertYtelseType.OMSORGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OMSORGSPENGER),
             Map.entry(RelatertYtelseType.OPPLÆRINGSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.OPPLÆRINGSPENGER),
-            Map.entry(RelatertYtelseType.PÅRØRENDESYKDOM, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.PÅRØRENDESYKDOM),
             Map.entry(RelatertYtelseType.FRISINN, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FRISINN),
-            Map.entry(RelatertYtelseType.ENGANGSSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
+            Map.entry(RelatertYtelseType.ENGANGSTØNAD, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENGANGSTØNAD),
             Map.entry(RelatertYtelseType.FORELDREPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.FORELDREPENGER),
             Map.entry(RelatertYtelseType.SVANGERSKAPSPENGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.SVANGERSKAPSPENGER),
             Map.entry(RelatertYtelseType.ENSLIG_FORSØRGER, no.nav.abakus.iaygrunnlag.kodeverk.YtelseType.ENSLIG_FORSØRGER));
@@ -81,25 +71,6 @@ public final class KodeverkMapper {
         return RELATERT_YTELSE_TIL_ABAKUS_YTELSE.get(ytelseType);
     }
 
-    /**
-     * @deprecated fjern YtelseType og eksponert abakus-kodeverk i stedet fra fpsak
-     */
-    @Deprecated(forRemoval = true)
-    static UtbetaltYtelseType mapYtelseTypeTilDto(
-            YtelseType ytelseType) {
-        if (ytelseType == null || "-".equals(ytelseType.getKode())) {
-            return null;
-        }
-        return switch (ytelseType.getKodeverk()) {
-            case UtbetaltYtelseFraOffentligeType.KODEVERK -> UtbetaltYtelseFraOffentligeType.fraKode(ytelseType.getKode());
-            case UtbetaltNæringsYtelseType.KODEVERK -> UtbetaltNæringsYtelseType.fraKode(ytelseType.getKode());
-            case UtbetaltPensjonTrygdType.KODEVERK -> UtbetaltPensjonTrygdType.fraKode(ytelseType.getKode());
-            default -> throw new IllegalArgumentException("Ukjent YtelseType: " + ytelseType + ", kan ikke mappes til "
-                + UtbetaltYtelseType.class.getName());
-        };
-
-    }
-
     public static no.nav.abakus.iaygrunnlag.kodeverk.YtelseType fraFagsakYtelseType(FagsakYtelseType fagsakYtelseType) {
         return FAGSAKYTELSE_TIL_ABAKUS_YTELSE.get(fagsakYtelseType);
     }
@@ -109,47 +80,27 @@ public final class KodeverkMapper {
             return null;
         }
 
-        var kode = dto.getKode();
-        return switch (kode) {
-            case "OPPR" -> RelatertYtelseTilstand.IKKE_STARTET;
-            case "UBEH" -> RelatertYtelseTilstand.ÅPEN;
-            case "AVSLU" -> RelatertYtelseTilstand.AVSLUTTET;
-            case "LOP" -> RelatertYtelseTilstand.LØPENDE;
+        return switch (dto) {
+            case OPPRETTET -> RelatertYtelseTilstand.IKKE_STARTET;
+            case UNDER_BEHANDLING -> RelatertYtelseTilstand.ÅPEN;
+            case AVSLUTTET -> RelatertYtelseTilstand.AVSLUTTET;
+            case LØPENDE -> RelatertYtelseTilstand.LØPENDE;
             default -> throw new IllegalArgumentException("Ukjent YtelseStatus: " + dto);
         };
     }
 
     static YtelseStatus getAbakusYtelseStatusForFpsakRelatertYtelseTilstand(RelatertYtelseTilstand tilstand) {
-        var kode = tilstand.getKode();
-        return switch (kode) {
-            case "IKKESTARTET" -> YtelseStatus.OPPRETTET;
-            case "ÅPEN" -> YtelseStatus.UNDER_BEHANDLING;
-            case "AVSLUTTET" -> YtelseStatus.AVSLUTTET;
-            case "LØPENDE" -> YtelseStatus.LØPENDE;
-            default -> throw new IllegalArgumentException("Ukjent RelatertYtelseTilstand: " + kode);
+        return switch (tilstand) {
+            case IKKE_STARTET -> YtelseStatus.OPPRETTET;
+            case ÅPEN -> YtelseStatus.UNDER_BEHANDLING;
+            case AVSLUTTET -> YtelseStatus.AVSLUTTET;
+            case LØPENDE -> YtelseStatus.LØPENDE;
+            default -> throw new IllegalArgumentException("Ukjent RelatertYtelseTilstand: " + tilstand);
         };
     }
 
-    static YtelseType mapUtbetaltYtelseTypeTilGrunnlag(UtbetaltYtelseType type) {
-        if (type == null) {
-            return OffentligYtelseType.UDEFINERT;
-        }
-        var kode = type.getKode();
-        return switch (type.getKodeverk()) {
-            case UtbetaltYtelseFraOffentligeType.KODEVERK -> OffentligYtelseType.fraKode(kode);
-            case UtbetaltNæringsYtelseType.KODEVERK -> NæringsinntektType.fraKode(kode);
-            case UtbetaltPensjonTrygdType.KODEVERK -> PensjonTrygdType.fraKode(kode);
-            default -> throw new IllegalArgumentException("Ukjent UtbetaltYtelseType: " + type);
-        };
-    }
-
-    static TemaUnderkategori getTemaUnderkategori(no.nav.abakus.iaygrunnlag.kodeverk.TemaUnderkategori kode) {
-        return kode == null || "-".equals(kode.getKode()) ? TemaUnderkategori.UDEFINERT : TemaUnderkategori.fraKode(kode.getKode());
-    }
-
-    static no.nav.abakus.iaygrunnlag.kodeverk.TemaUnderkategori getBehandlingsTemaUnderkategori(TemaUnderkategori kode) {
-        return kode == null || TemaUnderkategori.UDEFINERT.equals(kode) ? null : no.nav.abakus.iaygrunnlag.kodeverk.TemaUnderkategori.fraKode(
-            kode.getKode());
+    static InntektYtelseType mapInntektYtelseTypeTilGrunnlag(no.nav.abakus.iaygrunnlag.kodeverk.InntektYtelseType type) {
+        return type != null ? InntektYtelseType.valueOf(type.name()) : null;
     }
 
     static BekreftetPermisjonStatus getBekreftetPermisjonStatus(no.nav.abakus.iaygrunnlag.kodeverk.BekreftetPermisjonStatus kode) {

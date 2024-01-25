@@ -201,7 +201,7 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
                 .medVirksomhet(KUNSTIG_ORG);
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder
-                .leggTilEgneNæringer(Collections.singletonList(egenNæringBuilder));
+                .leggTilEgenNæring(Collections.singletonList(egenNæringBuilder));
 
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
 
@@ -237,7 +237,7 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
         oppgittOpptjeningBuilder
                 .leggTilOppgittArbeidsforhold(
                         OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder.ny().medUtenlandskVirksomhet(svenska_stat).medPeriode(periode)
-                                .medErUtenlandskInntekt(true).medArbeidType(ArbeidType.UTENLANDSK_ARBEIDSFORHOLD));
+                                .medErUtenlandskInntekt(true).medArbeidType(ArbeidType.UTENLANDSK_ARBEIDSFORHOLD).build());
 
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
 
@@ -264,7 +264,7 @@ class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityManagerAwa
                 .medVirksomhetType(VirksomhetType.FISKE);
         var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder
-                .leggTilEgneNæringer(Collections.singletonList(egenNæringBuilder));
+                .leggTilEgenNæring(Collections.singletonList(egenNæringBuilder));
 
         var behandling = lagre(scenario);
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);

@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -25,18 +25,18 @@
     </modules>
 
     <properties>
-        <fp-uttak.version>15.0.3</fp-uttak.version>
+        <fp-uttak.version>15.1.2</fp-uttak.version>
         <fp-stonadskonto.version>1.1.1</fp-stonadskonto.version>
         <svp-uttak.version>2.4.1</svp-uttak.version>
 
         <felles.version>7.0.3</felles.version>
-        <prosesstask.version>5.0.2</prosesstask.version>
+        <prosesstask.version>5.0.4</prosesstask.version>
 
         <fp-kontrakter.version>9.0.2</fp-kontrakter.version>
         <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <fp-nare.version>2.6.1</fp-nare.version>
-        <abakus-kontrakt.version>2.0.1</abakus-kontrakt.version>
-        <kalkulus.version>2.7.1</kalkulus.version>
+        <abakus-kontrakt.version>2.0.4</abakus-kontrakt.version>
+        <kalkulus.version>2.7.7</kalkulus.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
@@ -51,7 +51,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -123,12 +123,12 @@
 
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-                <artifactId>kalkulus-kalkulator-jakarta</artifactId>
+                <artifactId>kalkulus-kalkulator</artifactId>
                 <version>${kalkulus.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-                <artifactId>kalkulus-kontrakt-jakarta</artifactId>
+                <artifactId>kalkulus-kontrakt</artifactId>
                 <version>${kalkulus.version}</version>
             </dependency>
 

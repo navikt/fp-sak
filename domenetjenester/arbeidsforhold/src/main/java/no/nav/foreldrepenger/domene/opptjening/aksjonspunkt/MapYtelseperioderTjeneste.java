@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
@@ -112,10 +111,6 @@ public class MapYtelseperioderTjeneste {
     }
 
     private static OpptjeningAktivitetType mapYtelseType(Ytelse ytelse) {
-        if (RelatertYtelseType.PÅRØRENDESYKDOM.equals(ytelse.getRelatertYtelseType())) {
-            return OpptjeningAktivitetType.hentFraTemaUnderkategori()
-                    .getOrDefault(ytelse.getBehandlingsTema(), Collections.singleton(UDEFINERT)).stream().findFirst().orElse(UDEFINERT);
-        }
         return OpptjeningAktivitetType.hentFraRelatertYtelseTyper()
                 .getOrDefault(ytelse.getRelatertYtelseType(), Collections.singleton(UDEFINERT)).stream().findFirst().orElse(UDEFINERT);
     }

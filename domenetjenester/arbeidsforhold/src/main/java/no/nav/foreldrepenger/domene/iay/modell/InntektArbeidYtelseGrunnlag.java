@@ -8,16 +8,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.persistence.Convert;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
+public class InntektArbeidYtelseGrunnlag {
 
     @DiffIgnore
     private UUID uuid;
@@ -43,7 +39,8 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     @ChangeTracked
     private ArbeidsforholdInformasjon arbeidsforholdInformasjon;
 
-    @Convert(converter = BooleanToStringConverter.class)
+    private LocalDateTime opprettetTidspunkt;
+
     private boolean aktiv = true;
 
     InntektArbeidYtelseGrunnlag() {
@@ -179,7 +176,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
      * Returnerer oppgitt opptjening hvis det finnes. (Inneholder opplysninger søker
      * opplyser om i søknaden)
      */
-    public Optional<OppgittOpptjening> getOppgittOpptjening() {
+    Optional<OppgittOpptjening> getOppgittOpptjening() {
         return Optional.ofNullable(oppgittOpptjening);
     }
 
@@ -264,6 +261,14 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
 
     void taHensynTilBetraktninger() {
         Optional.ofNullable(inntektsmeldinger).ifPresent(it -> it.taHensynTilBetraktninger(this.arbeidsforholdInformasjon));
+    }
+
+    public LocalDateTime getOpprettetTidspunkt() {
+        return opprettetTidspunkt;
+    }
+
+    public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+        this.opprettetTidspunkt = opprettetTidspunkt;
     }
 
     @Override

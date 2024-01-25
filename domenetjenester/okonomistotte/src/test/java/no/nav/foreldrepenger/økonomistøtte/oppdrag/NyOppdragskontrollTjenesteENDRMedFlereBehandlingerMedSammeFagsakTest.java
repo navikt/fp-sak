@@ -226,7 +226,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var oppdrag110Liste_1 = originaltOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(1);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_1, List.of(KodeEndring.NY));
-        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_1.get(0).getOppdragslinje150Liste(), List.of(KodeEndringLinje.NY, KodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_1.get(0).getOppdragslinje150Liste(), List.of(KodeEndringLinje.NY));
 
         // Assert : Revurdering
         var oppdrag110Liste_2 = oppdragRevurdering.getOppdrag110Liste();
@@ -238,8 +238,8 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var oppdrag110Liste_3 = oppdragRevurdering2.getOppdrag110Liste();
         assertThat(oppdrag110Liste_3).hasSize(2);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_3, List.of(KodeEndring.ENDR, KodeEndring.NY));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_3), List.of(KodeEndringLinje.NY, KodeEndringLinje.NY));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_3, virksomhet), List.of(KodeEndringLinje.NY, KodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_3), List.of(KodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_3, virksomhet), List.of(KodeEndringLinje.NY));
 
         // Assert : Kjeding
         verifiserKjedingNårDetErFlereBehandlingerMedSammeFagsak(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2, false);
@@ -360,7 +360,7 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         assertThat(oppdrag110ForBruker.getKodeEndring()).isEqualTo(KodeEndring.ENDR);
         //Oppdragslinje150 for Bruker
         var opp150ListeForBruker = oppdrag110ForBruker.getOppdragslinje150Liste();
-        assertThat(opp150ListeForBruker).hasSize(2);
+        assertThat(opp150ListeForBruker).hasSize(1);
         assertThat(opp150ListeForBruker).allSatisfy(opp150 -> {
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
             assertThat(opp150.gjelderOpphør()).isFalse();

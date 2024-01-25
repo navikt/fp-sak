@@ -86,14 +86,17 @@ public class OverstyrDekningsgradTjeneste {
         if (fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             throw new ForvaltningException("Ikke støttet: Berørt sak");
         }
-        var fraVerdi = fagsakRelasjon.orElseThrow().getDekningsgrad();
+        var fraVerdi = fagsakRelasjon.orElseThrow().getGjeldendeDekningsgrad();
         var tilVerdi = overstyrtVerdi.get();
         if (fraVerdi.equals(tilVerdi)) {
             return Response.noContent().build();
         }
 
         lagHistorikkinnslagOverstyrtDekningsgrad(fagsak.getId(), fraVerdi, tilVerdi);
-        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, tilVerdi);
+        fagsakRelasjonTjeneste.nullstillOverstyrtDekningsgrad(fagsak);
+
+        var nullstiltRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
+        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(fagsak, nullstiltRelasjon, tilVerdi);
         var behandling = hentÅpenBehandlingEllerOpprettRevurdering(fagsak);
 
         var uttakInput = uttakInputTjeneste.lagInput(behandling);

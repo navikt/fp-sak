@@ -67,6 +67,7 @@ public class SvangerskapspengerModellProducer {
     public BehandlingModell revurdering() {
         var modellBuilder = BehandlingModellImpl.builder(BehandlingType.REVURDERING, YTELSE_TYPE);
         modellBuilder.medSteg(
+                BehandlingStegType.VARSEL_REVURDERING, // Kun for feriepengeomregningsformål
                 BehandlingStegType.REGISTRER_SØKNAD,
                 BehandlingStegType.INNHENT_SØKNADOPP,
                 BehandlingStegType.VURDER_KOMPLETTHET,

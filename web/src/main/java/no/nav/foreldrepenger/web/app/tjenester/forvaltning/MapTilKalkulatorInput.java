@@ -74,13 +74,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.RelatertYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
-import no.nav.folketrygdloven.kalkulus.kodeverk.UtbetaltYtelseFraOffentligeType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittEgenNæringDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittFrilansDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittOpptjeningDto;
@@ -178,7 +173,8 @@ class MapTilKalkulatorInput {
         }
         if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag) {
             var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
-            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad()), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
+            // Forventer prosent her, så må gange opp. Brukes kun i forvaltning swaggerkall
+            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad().getVerdi()).multiply(BigDecimal.valueOf(100)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
         }
         return null;
     }
@@ -210,7 +206,7 @@ class MapTilKalkulatorInput {
     private static AktivitetDto mapArbeidsforholdDto(no.nav.folketrygdloven.kalkulator.modell.svp.AktivitetDto utbetalingsgradArbeidsforhold) {
         var arbeidsgiver = utbetalingsgradArbeidsforhold.getArbeidsgiver().map(MapTilKalkulatorInput::mapArbeidsgiverNullsafe).orElse(null);
         var internArbeidsforholdRef = mapAbakusReferanse(utbetalingsgradArbeidsforhold.getInternArbeidsforholdRef());
-        var uttakArbeidType = new UttakArbeidType(utbetalingsgradArbeidsforhold.getUttakArbeidType().getKode());
+        var uttakArbeidType = utbetalingsgradArbeidsforhold.getUttakArbeidType();
         return new AktivitetDto(arbeidsgiver, internArbeidsforholdRef, uttakArbeidType);
     }
 
@@ -263,12 +259,10 @@ class MapTilKalkulatorInput {
         }
         var vedtaksDagsats = ytelseDto.getVedtaksDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null);
         var ytelseAnvist = mapYtelseAnvistSet(ytelseDto.getYtelseAnvist());
-        var relatertYtelseType = new RelatertYtelseType(ytelseDto.getYtelseType().getKode());
+        var relatertYtelseType = ytelseDto.getYtelseType();
         var periode = mapPeriode(ytelseDto.getPeriode());
-        var temaUnderkategori = ytelseDto.getBehandlingsTema() == null || ytelseDto.getBehandlingsTema()
-            .equals(TemaUnderkategori.UDEFINERT) ? null : TemaUnderkategori.fraKode(ytelseDto.getBehandlingsTema().getKode());
         var ytelseGrunnlag = mapYtelsegrunnlag(ytelseDto).orElse(null);
-        return new YtelseDto(vedtaksDagsats, ytelseAnvist, relatertYtelseType, periode, temaUnderkategori, ytelseGrunnlag);
+        return new YtelseDto(vedtaksDagsats, ytelseAnvist, relatertYtelseType, periode, ytelseGrunnlag);
     }
 
     private static Optional<YtelseGrunnlagDto> mapYtelsegrunnlag(no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto ytelseDto) {
@@ -420,17 +414,9 @@ class MapTilKalkulatorInput {
         var skatteOgAvgiftsregelType = inntektspostDto.getSkatteOgAvgiftsregelType() != null
             ? SkatteOgAvgiftsregelType.fraKode(inntektspostDto.getSkatteOgAvgiftsregelType().getKode())
             : null;
-        var utbetaltYtelseFraOffentligeType = mapYtelsetype(inntektspostDto.getYtelseType());
         utbetaling.setSkattAvgiftType(skatteOgAvgiftsregelType);
-        utbetaling.setUtbetaltYtelseType(utbetaltYtelseFraOffentligeType);
+        utbetaling.setInntektYtelseType(inntektspostDto.getInntektYtelseType());
         return utbetaling;
-    }
-
-    private static UtbetaltYtelseFraOffentligeType mapYtelsetype(YtelseType type) {
-        if (type == null) {
-            return new UtbetaltYtelseFraOffentligeType("-");
-        }
-        return new UtbetaltYtelseFraOffentligeType(type.getKode());
     }
 
     private static Periode mapPeriodeNullsafe(Intervall periode) {

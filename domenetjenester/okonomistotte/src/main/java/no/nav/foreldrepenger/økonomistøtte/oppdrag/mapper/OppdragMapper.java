@@ -60,13 +60,13 @@ public class OppdragMapper {
         // - det er ikke en utbetaling til ny mottaker
         // - mottaker har gjeldende utbetalinger fra tidligere
         // - gjeldende oppdrag fører ikke til full opphør for mottaker
-        var tidligerOppdragForMottaker = tidligereOppdrag.filter(oppdrag.getBetalingsmottaker());
-        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
-            && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
-            && harGjeldendeUtbetalingerFraTidligere(tidligerOppdragForMottaker)
-            && !erOpphørForMottaker(tidligerOppdragForMottaker.utvidMed(oppdrag))) {
-            builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
-        }
+//        var tidligerOppdragForMottaker = tidligereOppdrag.filter(oppdrag.getBetalingsmottaker());
+//        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
+//            && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
+//            && harGjeldendeUtbetalingerFraTidligere(tidligerOppdragForMottaker)
+//            && !erOpphørForMottaker(tidligerOppdragForMottaker.utvidMed(oppdrag))) {
+//            builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
+//        }
 
         var oppdrag110 = builder.build();
 
@@ -154,15 +154,19 @@ public class OppdragMapper {
     }
 
     private LocalDate finnDatoOmposterFom(Oppdrag oppdrag) {
-        var endringsdato = oppdrag.getEndringsdato();
-        var korrigeringsdato = hentFørsteUtbetalingsdatoFraForrige(oppdrag);
+        var førsteDatoMedUtbetaling = hentFørsteUtbetalingsdatoFraForrige(oppdrag);
+        // var endringsdato = oppdrag.getEndringsdato();
         // Gjelder følgende scenario:
         // Tidslinnjer:
         // Behandling 1 ----------[xxxxxxxxxx]-- tidligere ytelses periode
         // Behandling 2 -----[xxxxxxxxxxxx]----- ny forlenget ytelse
         // Endringsdato blir satt til Beh. 2 fom dato - dette vil føre til at økonomi vil klage på dette siden de ikke har noen utbetalinger fra denne datoen ennå.
         // Derfor må omposteringsdato settes til første uttaksdag fra forrige utbetaling - Beh. 1 fom.
-        return korrigeringsdato != null && endringsdato.isBefore(korrigeringsdato) ? korrigeringsdato : endringsdato;
+        // Case 2:
+        // Behandling 1 -----[xxxxxxxxxxxx]----- tidligere ytelses periode
+        // Behandling 2 -----[xxxx]-[xxxxxxxxxx]-- ny ytelse med en helg uten periode
+        // Endringsdato blir satt til første dagen i helgen - bør egentlig være satt til fom av Beh 1.
+        return førsteDatoMedUtbetaling; // != null && endringsdato.isBefore(førsteDatoMedUtbetaling) ? førsteDatoMedUtbetaling : endringsdato;
     }
 
     private LocalDate hentFørsteUtbetalingsdatoFraForrige(Oppdrag nyttOppdrag) {

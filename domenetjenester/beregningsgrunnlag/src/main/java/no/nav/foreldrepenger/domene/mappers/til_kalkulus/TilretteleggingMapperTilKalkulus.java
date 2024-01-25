@@ -7,7 +7,6 @@ import java.util.List;
 import no.nav.folketrygdloven.kalkulator.modell.svp.AktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.svp.PeriodeMedUtbetalingsgradDto;
 import no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradPrAktivitetDto;
-import no.nav.folketrygdloven.kalkulator.modell.uttak.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.PeriodeMedUtbetalingsgrad;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.TilretteleggingArbeidsforhold;
@@ -50,12 +49,7 @@ public class TilretteleggingMapperTilKalkulus {
         return new AktivitetDto(
             tilretteleggingArbeidsforhold.getArbeidsgiver().map(IAYMapperTilKalkulus::mapArbeidsgiver).orElse(null),
             mapArbeidsforholdRef(tilretteleggingArbeidsforhold.getInternArbeidsforholdRef()),
-            mapUttakArbeidType(tilretteleggingArbeidsforhold.getUttakArbeidType())
+            KodeverkTilKalkulusMapper.mapUttakArbeidType(tilretteleggingArbeidsforhold.getUttakArbeidType())
         );
     }
-
-    private static UttakArbeidType mapUttakArbeidType(no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType uttakArbeidType) {
-        return UttakArbeidType.fraKode(uttakArbeidType.getKode());
-    }
-
 }

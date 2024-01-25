@@ -109,18 +109,16 @@ public class OppdragMapper {
     }
 
     private KodeFagområde utledFagområde(Behandling behandling, boolean erBrukerMottaker) {
-        switch (behandling.getFagsakYtelseType()) {
-            case ENGANGSTØNAD:
+        return switch (behandling.getFagsakYtelseType()) {
+            case ENGANGSTØNAD -> {
                 if (!erBrukerMottaker) {
                     throw new ForvaltningException("Engangstønad skal kun utbetales til bruker");
                 }
-                return KodeFagområde.REFUTG;
-            case FORELDREPENGER:
-                return erBrukerMottaker ? KodeFagområde.FP : KodeFagområde.FPREF;
-            case SVANGERSKAPSPENGER:
-                return erBrukerMottaker ? KodeFagområde.SVP : KodeFagområde.SVPREF;
-            default:
-                throw new ForvaltningException("Ukjent ytelsetype i behandlingId=" + behandling.getId());
-        }
+                yield KodeFagområde.REFUTG;
+            }
+            case FORELDREPENGER -> erBrukerMottaker ? KodeFagområde.FP : KodeFagområde.FPREF;
+            case SVANGERSKAPSPENGER -> erBrukerMottaker ? KodeFagområde.SVP : KodeFagområde.SVPREF;
+            default -> throw new ForvaltningException("Ukjent ytelsetype i behandlingId=" + behandling.getId());
+        };
     }
 }

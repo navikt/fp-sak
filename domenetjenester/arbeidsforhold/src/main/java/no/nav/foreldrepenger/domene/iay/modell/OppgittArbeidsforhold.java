@@ -3,14 +3,10 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import jakarta.persistence.Convert;
-
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 /**
  * Entitetsklasse for oppgitte arbeidsforhold.
@@ -21,15 +17,13 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
  * OBS: Legger man til nye felter så skal dette oppdateres mange steder:
  * builder, equals, hashcode etc.
  */
-public class OppgittArbeidsforhold extends BaseEntitet implements IndexKey {
+public class OppgittArbeidsforhold implements IndexKey {
 
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
-    @Convert(converter = BooleanToStringConverter.class)
     private boolean erUtenlandskInntekt;
 
-    @Convert(converter = ArbeidType.KodeverdiConverter.class)
     @ChangeTracked
     private ArbeidType arbeidType;
 

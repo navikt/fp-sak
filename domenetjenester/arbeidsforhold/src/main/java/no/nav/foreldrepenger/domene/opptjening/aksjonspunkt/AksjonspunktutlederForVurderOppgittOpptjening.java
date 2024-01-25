@@ -75,7 +75,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         if (inntektArbeidYtelseGrunnlagOptional.isEmpty() || fastsattOpptjeningOptional.isEmpty()) {
             return INGEN_AKSJONSPUNKTER;
         }
-        var oppgittOpptjening = inntektArbeidYtelseGrunnlagOptional.get().getOppgittOpptjening().orElse(null);
+        var oppgittOpptjening = inntektArbeidYtelseGrunnlagOptional.get().getGjeldendeOppgittOpptjening().orElse(null);
         var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
                 fastsattOpptjeningOptional.get().getTom());
 
@@ -216,7 +216,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         if (fastsattOpptjeningOptional.isEmpty()) {
             return false;
         }
-        var oppgittOpptjening = iayg.getOppgittOpptjening().orElse(null);
+        var oppgittOpptjening = iayg.getGjeldendeOppgittOpptjening().orElse(null);
         var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
             fastsattOpptjeningOptional.get().getTom());
 

@@ -193,7 +193,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #1.1
-    public void skal_utlede_at_endringsdato_er_fødselsdato_når_fødsel_har_forekommet_før_første_uttaksdato() {
+    void skal_utlede_at_endringsdato_er_fødselsdato_når_fødsel_har_forekommet_før_første_uttaksdato() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
         var bekreftetHendelse = FamilieHendelse.forFødsel(FØDSELSDATO, FØDSELSDATO, List.of(new Barn()), 1);
@@ -219,7 +219,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #1.2
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_fødsel_har_forekommet_etter_første_uttaksdato() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_fødsel_har_forekommet_etter_første_uttaksdato() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
         var bekreftetHendelse = FamilieHendelse.forFødsel(FØDSELSDATO, FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK,
@@ -240,7 +240,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #2
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_søknad_når_endringssøknad_er_mottatt() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_søknad_når_endringssøknad_er_mottatt() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_ENDRING_FRA_BRUKER);
         testUtil.byggOgLagreOppgittFordelingForMorFPFF(revurdering);
@@ -254,7 +254,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #2
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_søknad_når_endringssøknad_er_mottatt_selv_om_mottatt_dato_før_vedtaksdato_på_original_behandling() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_søknad_når_endringssøknad_er_mottatt_selv_om_mottatt_dato_før_vedtaksdato_på_original_behandling() {
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         var oppgittPeriode = OppgittPeriodeBuilder.ny()
@@ -296,7 +296,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #2
-    public void skal_utlede_at_endringsdato_er_siste_uttaksdato_pluss_1_virkedag_fra_original_behandling_når_første_uttaksdato_fra_søknad_er_senere() {
+    void skal_utlede_at_endringsdato_er_siste_uttaksdato_pluss_1_virkedag_fra_original_behandling_når_første_uttaksdato_fra_søknad_er_senere() {
         var originalScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         var originalOppgittPeriode = OppgittPeriodeBuilder.ny()
@@ -337,7 +337,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #3
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_manuelt_opprettet() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_manuelt_opprettet() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
         var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(RE_HENDELSE_FØDSEL))
@@ -351,7 +351,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #4.1
-    public void skal_utlede_at_endringsdato_på_mors_berørte_behandling_er_lik_fars_første_uttaksdag() {
+    void skal_utlede_at_endringsdato_på_mors_berørte_behandling_er_lik_fars_første_uttaksdag() {
         // Arrange førstegangsbehandling mor
         var behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR,
             testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK), testUtil.søknadsAggregatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK));
@@ -386,7 +386,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #4.2
-    public void skal_utlede_at_endringsdato_på_mors_berørte_behandling_er_første_uttaksdag_fra_vedtaket_når_fars_endringsdato_er_tidligere() {
+    void skal_utlede_at_endringsdato_på_mors_berørte_behandling_er_første_uttaksdag_fra_vedtaket_når_fars_endringsdato_er_tidligere() {
         // Arrange førstegangsbehandling mor
         var behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR,
             testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK), testUtil.søknadsAggregatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK));
@@ -421,7 +421,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #5
-    public void skal_utlede_at_endringsdato_er_manuelt_satt_første_uttaksdato() {
+    void skal_utlede_at_endringsdato_er_manuelt_satt_første_uttaksdato() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
         var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
@@ -439,7 +439,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #2 + #5
-    public void skal_utlede_at_endringsdato_er_første_uttaksdag_fra_søknad_når_denne_er_tidligere_enn_manuelt_satt_første_uttaksdato() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdag_fra_søknad_når_denne_er_tidligere_enn_manuelt_satt_første_uttaksdato() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_ENDRING_FRA_BRUKER);
         testUtil.byggOgLagreOppgittFordelingForMorFPFF(revurdering);
@@ -460,7 +460,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #6
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtaket_når_inntektsmelding_endrer_uttak() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtaket_når_inntektsmelding_endrer_uttak() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_ENDRET_INNTEKTSMELDING);
         testUtil.opprettInntektsmelding(revurdering);
@@ -473,12 +473,22 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // #7
-    public void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtaket_ved_opplysninger_om_død() {
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtaket_ved_opplysninger_om_død() {
         // Arrange
         var revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
+        var bekreftetHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1);
+        var ref = BehandlingReferanse.fra(revurdering, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(bekreftetHendelse.getFamilieHendelseDato()).build());
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.behandlingId());
+        var familiehendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse);
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(familiehendelser)
+            .medDødsfall(true)
+            .medOriginalBehandling(new OriginalBehandling(revurdering.getOriginalBehandlingId().orElseThrow(),
+                new FamilieHendelser().medBekreftetHendelse(bekreftetHendelse)));
+        var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+            uttakBeregningsandelTjeneste.hentStatuser());
 
         // Act
-        var input = lagInput(revurdering).medErOpplysningerOmDødEndret(true);
         var endringsdato = utleder.utledEndringsdato(input);
 
         // Assert
@@ -521,7 +531,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // Adopsjon.1
-    public void skal_utlede_at_endringsdato_er_omsorgsovertakelsedato_ved_adopsjon_uten_ankomstdato() {
+    void skal_utlede_at_endringsdato_er_omsorgsovertakelsedato_ved_adopsjon_uten_ankomstdato() {
         // Arrange
         var revurdering = testUtil.opprettRevurderingAdopsjon();
         var ref = BehandlingReferanse.fra(revurdering);
@@ -544,7 +554,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     @Test // Adopsjon.2
-    public void skal_utlede_at_endringsdato_er_ankomstdato_ved_adopsjon_når_ankomstdatoen_er_satt() {
+    void skal_utlede_at_endringsdato_er_ankomstdato_ved_adopsjon_når_ankomstdatoen_er_satt() {
         // Arrange
         var revurdering = testUtil.opprettRevurderingAdopsjon();
         var ref = BehandlingReferanse.fra(revurdering);

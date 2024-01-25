@@ -11,28 +11,27 @@ import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 
 public class StønadsstatistikkVedtak {
-    // Teknisk tid
     @Valid
-    private Saksnummer saksnummer; // felt 1
+    private Saksnummer saksnummer;
+    //Deprecated
     private Long fagsakId;
     @NotNull
-    private YtelseType ytelseType; // felt 39
+    private YtelseType ytelseType;
     @NotNull
     private LovVersjon lovVersjon;
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
-    private LocalDate søknadsdato;
+    @NotNull
+    private LocalDate søknadsdato; //Siste søknadsdato for gjeldende vedtak
     private LocalDate skjæringstidspunkt;
     @NotNull
     private LocalDateTime vedtakstidspunkt; // Funksjonelt tid
@@ -43,17 +42,18 @@ public class StønadsstatistikkVedtak {
     @Valid
     private AktørId søker;
     @NotNull
-    private Saksrolle søkersRolle;
+    private Saksrolle saksrolle;
     @NotNull
     private UtlandsTilsnitt utlandsTilsnitt;
     @Valid
     private AnnenForelder annenForelder;
-    @NotNull
     @Valid
     private FamilieHendelse familieHendelse;
+    @Valid
     private Beregning beregning;
     @NotNull
     private String utbetalingsreferanse; // en referanse mot oppdrag
+    //Deprecated
     private Long behandlingId;
     //ES
     private Long engangsstønadInnvilget;
@@ -62,14 +62,6 @@ public class StønadsstatistikkVedtak {
     private ForeldrepengerRettigheter foreldrepengerRettigheter; //konto saldo, utregnet ut i fra rettigheter, minsteretter
     private List<@Valid StønadsstatistikkUttakPeriode> uttaksperioder;
     private List<@Valid StønadsstatistikkUtbetalingPeriode> utbetalingssperioder;
-
-
-    // Etter møte: Dokumentasjonsperiode for aleneomsorg per uttaksperioder
-    // Etter møte: annen forelder har engangsstønad
-    // Etter møte: Mann tar foreldrepenger - MORS_AKTIVITET er null i ca 12%
-    // Viktig å kunne agreggere trekkdager
-
-    // Yrkeskoder ligger på arbeidsforhold - skal vi sende arbeidsforhold-id slikt at man kan hente det inn AREG - hva om areg slutter med arbeforhID
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
@@ -119,8 +111,8 @@ public class StønadsstatistikkVedtak {
         return søker;
     }
 
-    public Saksrolle getSøkersRolle() {
-        return søkersRolle;
+    public Saksrolle getSaksrolle() {
+        return saksrolle;
     }
 
     public UtlandsTilsnitt getUtlandsTilsnitt() {
@@ -181,8 +173,8 @@ public class StønadsstatistikkVedtak {
 
     record FamilieHendelse(LocalDate termindato,
                            LocalDate adopsjonsdato,
-                           @NotNull @Positive Integer antallBarn,
-                           @NotEmpty @Valid List<Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
+                           @NotNull Integer antallBarn,
+                           List<@Valid Barn> barn, // AktørId setter ikke ved adopsjon og utenlandsfødte barn
                            @NotNull HendelseType hendelseType) {
 
         record Barn(AktørId aktørId, @NotNull LocalDate fødselsdato, LocalDate dødsdato) {}
@@ -211,14 +203,18 @@ public class StønadsstatistikkVedtak {
     }
 
     enum AndelType {
-        ARBEIDSAVKLARINGSPENGER, ARBEIDSTAKER,
-        DAGPENGER, FRILANSER, MILITÆR_SIVILTJENESTE,
-        SELVSTENDIG_NÆRINGSDRIVENDE, YTELSE
+        ARBEIDSAVKLARINGSPENGER,
+        ARBEIDSTAKER,
+        DAGPENGER,
+        FRILANSER,
+        MILITÆR_SIVILTJENESTE,
+        SELVSTENDIG_NÆRINGSDRIVENDE,
+        YTELSE
     }
 
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
-                                     @NotNull @NotEmpty @Valid Set<Stønadskonto> stønadskonti,
+                                     @NotNull Set<@Valid Stønadskonto> stønadskonti,
                                      @Valid Trekkdager flerbarnsdager) {
 
         record Stønadskonto(@NotNull StønadskontoType type,
@@ -229,7 +225,7 @@ public class StønadsstatistikkVedtak {
 
         // minsterett - kun for far har rett, uføre (mors aktivitet er ikke et krav i disse tilfeller)
 
-        record Trekkdager(@JsonValue @Min(0) @Max(500) @NotNull BigDecimal antall) {
+        record Trekkdager(@JsonValue @Min(0) @Max(530) @NotNull BigDecimal antall) {
             public Trekkdager(int antall) {
                 this(BigDecimal.valueOf(antall).setScale(1, RoundingMode.DOWN));
             }
@@ -253,12 +249,29 @@ public class StønadsstatistikkVedtak {
     }
 
     enum LovVersjon {
-        FORELDREPENGER_2019_01_01, // LOV-2017-12-19-116 - 1/1-2019
-        FORELDREPENGER_FRI_2021_10_01, // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
-        FORELDREPENGER_MINSTERETT_2022_08_02, // LOV-2022-03-18-11 - 2/8-2022 - minsterett
+        FORELDREPENGER_2019_01_01(YtelseType.FORELDREPENGER, LocalDate.of(2019,1,1)), // LOV-2017-12-19-116 - 1/1-2019
+        FORELDREPENGER_FRI_2021_10_01(YtelseType.FORELDREPENGER, LocalDate.of(2021,10,1)), // LOV-2021-06-11-61 - 1/10-2021 - fri utsettelse
+        FORELDREPENGER_MINSTERETT_2022_08_02(YtelseType.FORELDREPENGER, LocalDate.of(2022,8,2)), // LOV-2022-03-18-11 - 2/8-2022 - minsterett
 
-        ENGANGSSTØNAD_2019_01_01,
-        SVANGERSKAPSPENGER_2019_01_01,
+        ENGANGSSTØNAD_2019_01_01(YtelseType.ENGANGSSTØNAD, LocalDate.of(2019,1,1)),
+        SVANGERSKAPSPENGER_2019_01_01(YtelseType.SVANGERSKAPSPENGER, LocalDate.of(2019,1,1))
+        ;
+
+        private final YtelseType ytelseType;
+        private final LocalDate datoFom;
+
+        LovVersjon(YtelseType ytelseType, LocalDate datoFom) {
+            this.ytelseType = ytelseType;
+            this.datoFom = datoFom;
+        }
+
+        public LocalDate getDatoFom() {
+            return datoFom;
+        }
+
+        public YtelseType getYtelseType() {
+            return ytelseType;
+        }
     }
 
     enum UtlandsTilsnitt {
@@ -323,7 +336,7 @@ public class StønadsstatistikkVedtak {
             return this;
         }
         Builder medSøkersRolle(Saksrolle saksrolle) {
-            kladd.søkersRolle = saksrolle;
+            kladd.saksrolle = saksrolle;
             return this;
         }
         Builder medUtlandsTilsnitt(UtlandsTilsnitt utlandsTilsnitt) {
