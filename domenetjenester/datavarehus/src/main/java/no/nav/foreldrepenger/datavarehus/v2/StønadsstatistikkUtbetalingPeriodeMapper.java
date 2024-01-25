@@ -58,8 +58,6 @@ class StønadsstatistikkUtbetalingPeriodeMapper {
     }
 
     private static UtbetalingSammenlign mapTilkjentAndel(BeregningsresultatAndel andel) {
-        // TODO gamle svangerskapspenger: her er utbetalingsgrad 100 og dagsats = dagsatsFraBG. Dette er senere fikset i beregning-ytelse
-        // Kan løses ved å simulere Tilkjent for dissse tilfellene og så plukke utbetalingsgrad fra MapBeregningsresultatFraRegelTilVL - bruke MapUttakResultatFraVLTilRegel
         return new UtbetalingSammenlign(mapInntektskategori(andel), andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
             mapMottaker(andel), andel.getDagsats(), andel.getDagsatsFraBg(), andel.getUtbetalingsgrad());
     }

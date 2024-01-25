@@ -7,15 +7,12 @@ import jakarta.inject.Inject;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import no.nav.abakus.vedtak.ytelse.Ytelse;
-import no.nav.folketrygdloven.kalkulator.JsonMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -74,10 +71,6 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
     }
 
     private String toJson(Ytelse ytelse) {
-        try {
-            return JsonMapper.toJson(ytelse);
-        } catch (JsonProcessingException e) {
-            throw new TekniskException("FP-190495", "Kunne ikke serialisere til json.", e);
-        }
+        return StandardJsonConfig.toJson(ytelse);
     }
 }

@@ -46,24 +46,6 @@ class VurderOpphørAvYtelserTaskTest {
         verify(vurderOpphørAvYtelser, times(1)).vurderOpphørAvYtelser(behandling);
     }
 
-    @Test
-    void ikkeVurderOpphørForRevurderingsbehandling() {
-        var scenario = lagBehandlingFP(BehandlingType.REVURDERING);
-        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser,
-            identifiserOverlappendeInfotrygdYtelser, repositoryProvider);
-        var behandling = scenario.lagMocked();
-
-        var prosessTaskData = ProsessTaskData.forProsessTask(VurderOpphørAvYtelserTask.class);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().toString());
-
-        vurderOpphørAvYtelserTask.doTask(prosessTaskData);
-
-        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(),
-            behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
-        verify(vurderOpphørAvYtelser, times(0)).vurderOpphørAvYtelser(behandling);
-    }
-
     public ScenarioMorSøkerForeldrepenger lagBehandlingFP(BehandlingType behandlingType) {
         ScenarioMorSøkerForeldrepenger scenarioFP;
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();

@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
@@ -45,7 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -60,6 +61,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.datavarehus.domene.VilkårIkkeOppfylt;
 import no.nav.foreldrepenger.datavarehus.tjeneste.BehandlingVedtakDvhMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -81,6 +83,7 @@ public class StønadsstatistikkTjeneste {
 
     private static final Period INTERVALL_SAMME_BARN = Period.ofWeeks(6);
     private static final LocalDateTime VEDTAK_MED_TIDSPUNKT = LocalDateTime.of(2019, 6, 27, 11, 45,0);
+    private static final LocalDateTime SVP_ALLTID_100_PROSENT = LocalDate.of(2023, 3, 24).atStartOfDay();
 
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -98,7 +101,8 @@ public class StønadsstatistikkTjeneste {
     private LegacyESBeregningRepository legacyESBeregningRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private MottatteDokumentRepository mottatteDokumentRepository;
+    private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
+    private SøknadRepository søknadRepository;
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
@@ -117,7 +121,8 @@ public class StønadsstatistikkTjeneste {
                                      LegacyESBeregningRepository legacyESBeregningRepository,
                                      HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                     MottatteDokumentRepository mottatteDokumentRepository) {
+                                     SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
+                                     SøknadRepository søknadRepository) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -134,7 +139,8 @@ public class StønadsstatistikkTjeneste {
         this.legacyESBeregningRepository = legacyESBeregningRepository;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
-        this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
+        this.søknadRepository = søknadRepository;
     }
 
     StønadsstatistikkTjeneste() {
@@ -196,10 +202,7 @@ public class StønadsstatistikkTjeneste {
     }
 
     private LocalDate finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
-        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId()).stream()
-            .filter(md -> md.getJournalpostId() != null && (md.getDokumentType().erSøknadType() || md.getDokumentType().erEndringsSøknadType()))
-            .map(d -> d.getMottattTidspunkt().isBefore(d.getOpprettetTidspunkt()) ? d.getMottattTidspunkt() : d.getOpprettetTidspunkt())
-            .min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(null);
+        return søknadRepository.hentSøknad(behandlingReferanse.behandlingId()).getSøknadsdato();
     }
 
     private StønadsstatistikkVedtak.Saksrolle mapBrukerRolle(RelasjonsRolleType relasjonsRolleType) {
@@ -232,7 +235,17 @@ public class StønadsstatistikkTjeneste {
         var perioder = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
             .orElse(List.of());
+
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && trengerSvpLegacyUtregning(perioder)) {
+            var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId())
+                .orElseThrow();
+            return StønadsstatistikkUtbetalingSVPLegacyMapper.mapTilkjent(perioder, uttak);
+        }
         return StønadsstatistikkUtbetalingPeriodeMapper.mapTilkjent(perioder);
+    }
+
+    private boolean trengerSvpLegacyUtregning(List<BeregningsresultatPeriode> perioder) {
+        return perioder.stream().anyMatch(periode -> SVP_ALLTID_100_PROSENT.isAfter(periode.getOpprettetTidspunkt()));
     }
 
     private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(Behandling behandling, RettighetType rettighetType) {

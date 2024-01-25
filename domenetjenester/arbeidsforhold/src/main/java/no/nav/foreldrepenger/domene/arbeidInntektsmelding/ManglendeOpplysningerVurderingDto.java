@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -33,6 +35,10 @@ public class ManglendeOpplysningerVurderingDto {
     @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String internArbeidsforholdRef;
+    // Gjør denne @NotNull når frontend sender den med
+    @Min(0)
+    @Max(Long.MAX_VALUE)
+    private Long behandlingVersjon;
 
     public ManglendeOpplysningerVurderingDto() {
     }
@@ -40,27 +46,30 @@ public class ManglendeOpplysningerVurderingDto {
     public ManglendeOpplysningerVurderingDto(@Valid
                                              @NotNull
                                              @JsonProperty("behandlingUuid")
-                                                 UUID behandlingUuid,
+                                             UUID behandlingUuid,
                                              @ValidKodeverk
                                              @JsonProperty("vurdering")
-                                                 ArbeidsforholdKomplettVurderingType vurdering,
+                                             ArbeidsforholdKomplettVurderingType vurdering,
                                              @Size(max = 100000)
                                              @Pattern(regexp = InputValideringRegex.FRITEKST)
                                              @JsonProperty("begrunnelse")
-                                                 String begrunnelse,
+                                             String begrunnelse,
                                              @NotNull
                                              @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
                                              @JsonProperty("arbeidsgiverIdent")
-                                                 String arbeidsgiverIdent,
+                                             String arbeidsgiverIdent,
                                              @Size(max = 100)
                                              @Pattern(regexp = InputValideringRegex.FRITEKST)
                                              @JsonProperty("internArbeidsforholdRef")
-                                                 String internArbeidsforholdRef) {
+                                             String internArbeidsforholdRef,
+                                             @JsonProperty("behandlingVersjon")
+                                             Long behandlingVersjon) {
         this.behandlingUuid = behandlingUuid;
         this.vurdering = vurdering;
         this.begrunnelse = begrunnelse;
         this.arbeidsgiverIdent = arbeidsgiverIdent;
         this.internArbeidsforholdRef = internArbeidsforholdRef;
+        this.behandlingVersjon = behandlingVersjon;
     }
 
     public UUID getBehandlingUuid() {
@@ -81,5 +90,9 @@ public class ManglendeOpplysningerVurderingDto {
 
     public String getInternArbeidsforholdRef() {
         return internArbeidsforholdRef;
+    }
+
+    public Long getBehandlingVersjon() {
+        return behandlingVersjon;
     }
 }
