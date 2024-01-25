@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.tjeneste;
 import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask.GJENOPPTA_STEG;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
@@ -217,13 +219,13 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     private void leggTilTasksForRegisterinnhenting(Behandling behandling, ProsessTaskGruppe gruppe, LocalDateTime nesteKjøringEtter) {
-
-        var innhentPersonopplysniger = lagTaskData(TaskType.forProsessTask(InnhentPersonopplysningerTask.class), behandling, nesteKjøringEtter);
-        var innhentMedlemskapOpplysniger = lagTaskData(TaskType.forProsessTask(InnhentMedlemskapOpplysningerTask.class), behandling, nesteKjøringEtter);
-        var abakusRegisterInnheting = lagTaskData(TaskType.forProsessTask(InnhentIAYIAbakusTask.class), behandling, nesteKjøringEtter);
-
-        gruppe.addNesteParallell(innhentPersonopplysniger, innhentMedlemskapOpplysniger, abakusRegisterInnheting);
-
+        var tasker = new ArrayList<ProsessTaskData>();
+        tasker.add(lagTaskData(TaskType.forProsessTask(InnhentPersonopplysningerTask.class), behandling, nesteKjøringEtter));
+        tasker.add(lagTaskData(TaskType.forProsessTask(InnhentMedlemskapOpplysningerTask.class), behandling, nesteKjøringEtter));
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+            tasker.add(lagTaskData(TaskType.forProsessTask(InnhentIAYIAbakusTask.class), behandling, nesteKjøringEtter));
+        }
+        gruppe.addNesteParallell(tasker);
         var oppdaterInnhentTidspunkt = lagTaskData(TaskType.forProsessTask(SettRegisterdataInnhentetTidspunktTask.class), behandling, nesteKjøringEtter);
         gruppe.addNesteSekvensiell(oppdaterInnhentTidspunkt);
     }
