@@ -17,7 +17,6 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     private boolean oppdagetPleiepengerOverlappendeUtbetaling;
     private UføretrygdGrunnlagEntitet uføretrygdGrunnlag;
     private NesteSakGrunnlagEntitet nesteSakGrunnlag;
-    private boolean dødsfall;
 
     public ForeldrepengerGrunnlag() {
 
@@ -33,7 +32,6 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         this.oppdagetPleiepengerOverlappendeUtbetaling = foreldrepengerGrunnlag.oppdagetPleiepengerOverlappendeUtbetaling;
         this.uføretrygdGrunnlag = foreldrepengerGrunnlag.uføretrygdGrunnlag;
         this.nesteSakGrunnlag = foreldrepengerGrunnlag.nesteSakGrunnlag;
-        this.dødsfall = foreldrepengerGrunnlag.dødsfall;
     }
 
     public boolean isBerørtBehandling() {
@@ -70,10 +68,6 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public Optional<NesteSakGrunnlagEntitet> getNesteSakGrunnlag() {
         return Optional.ofNullable(nesteSakGrunnlag);
-    }
-
-    public boolean isDødsfall() {
-        return dødsfall;
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -127,12 +121,6 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medNesteSakGrunnlag(NesteSakGrunnlagEntitet nesteSakGrunnlag) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.nesteSakGrunnlag = nesteSakGrunnlag;
-        return nyttGrunnlag;
-    }
-
-    public ForeldrepengerGrunnlag medDødsfall(boolean dødsfall) {
-        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
-        nyttGrunnlag.dødsfall = dødsfall;
         return nyttGrunnlag;
     }
 }

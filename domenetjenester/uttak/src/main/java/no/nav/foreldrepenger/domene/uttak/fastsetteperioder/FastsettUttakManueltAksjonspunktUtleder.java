@@ -60,13 +60,13 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForTetteFødsler(input).ifPresent(aksjonspunkter::add);
+        utledAksjonspunktForDødtBarn(input.getYtelsespesifiktGrunnlag()).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT)
             || input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_MED_END_INNTEKT)) {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE);
         }
-        var fpGrunnlag = (ForeldrepengerGrunnlag) input.getYtelsespesifiktGrunnlag();
-        if (fpGrunnlag.isDødsfall()) {
+        if (input.harBehandlingÅrsakRelatertTilDød() || input.isOpplysningerOmDødEndret()) {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
         }
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKNAD_FRIST)) {
@@ -123,10 +123,25 @@ public class FastsettUttakManueltAksjonspunktUtleder {
         return uttakEtterNesteStartdato ? Optional.of(AksjonspunktDefinisjon.FASTSETT_UTTAK_ETTER_NESTE_SAK) : Optional.empty();
     }
 
+    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForDødtBarn(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+        if (finnesDødsdatoIRegistertEllerOverstyrtVersjon(foreldrepengerGrunnlag)) {
+            return Optional.of(AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD);
+        }
+        return Optional.empty();
+    }
+
     private Optional<AksjonspunktDefinisjon> utledAksjonspunktForAnnenpartEØS(Long behandlingId) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .filter(UttakOmsorgUtil::avklartAnnenForelderHarRettEØS)
             .map(yfa -> AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS);
+    }
+
+    private boolean finnesDødsdatoIRegistertEllerOverstyrtVersjon(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+        var familieHendelser = foreldrepengerGrunnlag.getFamilieHendelser();
+        var barna = familieHendelser.getGjeldendeFamilieHendelse().getBarna();
+
+        return barna.stream()
+            .anyMatch(barn -> barn.getDødsdato().isPresent());
     }
 
     private AksjonspunktDefinisjon fastsettUttakAksjonspunkt() {
