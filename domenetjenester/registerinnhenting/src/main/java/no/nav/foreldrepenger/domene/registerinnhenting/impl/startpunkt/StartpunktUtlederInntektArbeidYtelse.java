@@ -87,6 +87,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         var erAktørArbeidEndretForSøker = iayGrunnlagDiff.erEndringPåAktørArbeidForAktør(skjæringstidspunkt, ref.aktørId());
         var erAktørInntektEndretForSøker = iayGrunnlagDiff.erEndringPåAktørInntektForAktør(skjæringstidspunkt, ref.aktørId());
         var erInntektsmeldingEndret = iayGrunnlagDiff.erEndringPåInntektsmelding();
+        var erOppgittOptjeningEndret = iayGrunnlagDiff.erEndringPåOppgittOpptjening();
 
         var saksnummer = ref.saksnummer();
 
@@ -138,6 +139,9 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         }
         if (erAktørInntektEndretForSøker) {
             leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, defaultStartpunktForRegisterEndringer, "aktør inntekt");
+        }
+        if (erOppgittOptjeningEndret) {
+            leggTilStartpunkt(startpunkter, grunnlagId1, grunnlagId2, StartpunktType.OPPTJENING, "oppgitt opptjening");
         }
 
         return startpunkter;

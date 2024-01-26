@@ -20,6 +20,11 @@ public class OppgittAnnenAktivitet implements IndexKey {
         this.arbeidType = arbeidType;
     }
 
+    public OppgittAnnenAktivitet(OppgittAnnenAktivitet oppgittAnnenAktivitet) {
+        this.periode = oppgittAnnenAktivitet.periode;
+        this.arbeidType = oppgittAnnenAktivitet.arbeidType;
+    }
+
     public OppgittAnnenAktivitet() {
         // hibernate
     }

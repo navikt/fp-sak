@@ -72,6 +72,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -560,8 +561,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             if (eksisterendeOppgittOpptjening.isPresent()) {
                 LOG.info("Fletter eksisterende oppgitt opptjening med ny data fra søknad for behandling med id {} ytelse {}", behandlingId, behandling.getFagsakYtelseType().getKode());
                 var flettetOppgittOpptjening = flettOppgittOpptjening(opptjeningFraSøknad, eksisterendeOppgittOpptjening.get());
+                var erEndringAvOppgittOpptjening = IAYGrunnlagDiff.erEndringPåOppgittOpptjening(eksisterendeOppgittOpptjening, Optional.of(flettetOppgittOpptjening.build()));
+                if (!erEndringAvOppgittOpptjening) {
+                    return;
+                }
                 if (erOverstyrt) {
-                    iayTjeneste.lagreOverstyrtOppgittOpptjening(behandlingId, flettetOppgittOpptjening);
+                    iayTjeneste.lagreOppgittOpptjeningNullstillOverstyring(behandlingId, flettetOppgittOpptjening);
                 } else {
                     iayTjeneste.lagreOppgittOpptjening(behandlingId, flettetOppgittOpptjening);
                 }

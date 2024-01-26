@@ -210,6 +210,20 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     @Override
+    public void lagreOppgittOpptjeningNullstillOverstyring(Long behandlingId, OppgittOpptjeningBuilder oppgittOpptjeningBuilder) {
+        if (oppgittOpptjeningBuilder == null) {
+            return;
+        }
+        OppgittOpptjeningMottattRequest request = lagOppgittOpptjeningRequest(oppgittOpptjeningBuilder, behandlingId);
+        try {
+            abakusTjeneste.lagreOppgittOpptjeningNullstillOverstyring(request);
+        } catch (IOException e) {
+            throw feilVedKallTilAbakus("Lagre oppgitt opptjening i abakus: " + e.getMessage(), e);
+        }
+
+    }
+
+    @Override
     public void lagreOverstyrtArbeidsforhold(Long behandlingId, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
         Objects.requireNonNull(informasjonBuilder, "informasjonBuilder");
 
