@@ -1092,7 +1092,7 @@ class MorsJusteringTest {
     }
 
     @Test
-    void skal_ikke_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin_ettersom_uttaksreglene_gjør_dette() {
+    void skal_ikke_fylle_hull_de_første_6_ukene_ved_fødsel_etter_termin_fordi_uttaksreglene_legger_på_manglende_søkte_perioder() {
         var termindato = LocalDate.of(2022, 11, 9);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
         var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(6).minusDays(1));
@@ -1124,7 +1124,7 @@ class MorsJusteringTest {
 
 
     @Test
-    void hull_etter_de_6_første_ukene_trekkes_fra_mødrekvote_som_skal_skyves_forbi_opphold() {
+    void hull_etter_de_6_første_ukene_er_mindre_enn_forskyvningen_grunnet_fødsel_som_fører_til_delvis_forskyvning_av_mødrekvoten() {
         var termindato = LocalDate.of(2022, 11, 9);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
         var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(6).minusDays(1));
