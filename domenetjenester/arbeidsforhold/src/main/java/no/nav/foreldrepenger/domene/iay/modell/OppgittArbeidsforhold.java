@@ -22,6 +22,7 @@ public class OppgittArbeidsforhold implements IndexKey {
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
+    @ChangeTracked
     private boolean erUtenlandskInntekt;
 
     @ChangeTracked
@@ -31,6 +32,14 @@ public class OppgittArbeidsforhold implements IndexKey {
 
     public OppgittArbeidsforhold() {
         // hibernate
+    }
+
+    public OppgittArbeidsforhold(OppgittArbeidsforhold oppgittArbeidsforhold) {
+        this.periode = oppgittArbeidsforhold.periode;
+        this.erUtenlandskInntekt = oppgittArbeidsforhold.erUtenlandskInntekt;
+        this.arbeidType = oppgittArbeidsforhold.arbeidType;
+        this.utenlandskVirksomhet = oppgittArbeidsforhold.utenlandskVirksomhet != null ?
+            new OppgittUtenlandskVirksomhet(oppgittArbeidsforhold.utenlandskVirksomhet) : null;
     }
 
     @Override
