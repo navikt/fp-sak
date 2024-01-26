@@ -30,6 +30,7 @@ public class StønadsstatistikkVedtak {
     @NotNull
     private UUID behandlingUuid;
     private UUID forrigeBehandlingUuid;
+    private RevurderingÅrsak revurderingÅrsak;
     @NotNull
     private LocalDate søknadsdato; //Siste søknadsdato for gjeldende vedtak
     private LocalDate skjæringstidspunkt;
@@ -85,6 +86,10 @@ public class StønadsstatistikkVedtak {
 
     public UUID getForrigeBehandlingUuid() {
         return forrigeBehandlingUuid;
+    }
+
+    public RevurderingÅrsak getRevurderingÅrsak() {
+        return revurderingÅrsak;
     }
 
     public LocalDate getSøknadsdato() {
@@ -212,6 +217,20 @@ public class StønadsstatistikkVedtak {
         YTELSE
     }
 
+    public enum RevurderingÅrsak {
+        MANUELL,
+        UTTAKMANUELL,
+        KLAGE,
+        ETTERKONTROLL,
+        SØKNAD,
+        INNTEKTSMELDING,
+        FOLKEREGISTER,
+        PLEIEPENGER,
+        NYSAK,
+        ANNENFORELDER,
+        REGULERING
+    }
+
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
                                      @NotNull Set<@Valid Stønadskonto> stønadskonti,
@@ -311,6 +330,12 @@ public class StønadsstatistikkVedtak {
             kladd.forrigeBehandlingUuid = forrigeBehandlingUuid;
             return this;
         }
+
+        Builder medRevurderingÅrsak(RevurderingÅrsak revurderingÅrsak) {
+            kladd.revurderingÅrsak = revurderingÅrsak;
+            return this;
+        }
+
         Builder medSøknadsdato(LocalDate søknadsdato) {
             kladd.søknadsdato = søknadsdato;
             return this;
