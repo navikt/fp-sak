@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -174,6 +175,7 @@ public class StønadsstatistikkTjeneste {
             .medYtelseType(ytelseType)
             .medBehandlingUuid(behandlingReferanse.behandlingUuid())
             .medForrigeBehandlingUuid(forrigeBehandlingUuid.orElse(null))
+            .medRevurderingÅrsak(utledRevurderingÅrsak(behandling))
             .medSøknadsdato(søknadsdato)
             .medSkjæringstidspunkt(stp.getSkjæringstidspunktHvisUtledet().orElse(null))
             .medVedtakstidspunkt(vedtakstidspunkt)
@@ -467,4 +469,48 @@ public class StønadsstatistikkTjeneste {
     private static StønadsstatistikkVedtak.Saksnummer mapSaksnummer(Saksnummer saksnummer) {
         return new StønadsstatistikkVedtak.Saksnummer(saksnummer.getVerdi());
     }
+
+    private static StønadsstatistikkVedtak.RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling) {
+        if (!behandling.erRevurdering()) {
+            return null;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerEtterKlageBehandling())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.KLAGE;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerForEtterkontroll())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.ETTERKONTROLL;
+        }
+        if (behandling.erManueltOpprettet() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.UTTAKMANUELL;
+        }
+        if (behandling.erManueltOpprettet()) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.MANUELL;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerForRelatertVedtak())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.ANNENFORELDER;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.NYSAK;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.PLEIEPENGER;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilPdl())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.FOLKEREGISTER;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.INNTEKTSMELDING;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.REGULERING;
+        }
+        return StønadsstatistikkVedtak.RevurderingÅrsak.MANUELL;
+    }
+
 }

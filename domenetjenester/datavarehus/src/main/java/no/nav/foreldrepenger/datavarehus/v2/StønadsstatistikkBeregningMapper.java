@@ -64,7 +64,7 @@ class StønadsstatistikkBeregningMapper {
         if (avkortet == null) {
             return null;
         }
-        return avkortet.divide(new BigDecimal(260), 0, RoundingMode.HALF_EVEN).longValue();
+        return avkortet.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_EVEN).longValue();
     }
 
     private static BigDecimal utledAvkortetÅrsbeløp(BeregningsgrunnlagPeriode periodePåStp, BigDecimal grunnbeløp) {
@@ -76,7 +76,7 @@ class StønadsstatistikkBeregningMapper {
         if (bruttoInkludertBortfaltNaturalytelsePrAar == null) {
             return null;
         }
-        BigDecimal seksG = grunnbeløp.multiply(new BigDecimal(6));
+        BigDecimal seksG = grunnbeløp.multiply(BigDecimal.valueOf(6));
         return bruttoInkludertBortfaltNaturalytelsePrAar.compareTo(seksG) > 0 ? seksG : bruttoInkludertBortfaltNaturalytelsePrAar;
     }
 
