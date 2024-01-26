@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto.Utfall.JA;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
