@@ -1,13 +1,16 @@
 package no.nav.foreldrepenger.datavarehus.v2;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
@@ -19,7 +22,8 @@ class StønadsstatistikkBeregningMapper {
     private StønadsstatistikkBeregningMapper() {
     }
 
-    static StønadsstatistikkVedtak.Beregning mapBeregning(BeregningsgrunnlagEntitet beregningsgrunnlag, InntektArbeidYtelseGrunnlag iaygrunnlag) {
+    static StønadsstatistikkVedtak.Beregning mapBeregning(FagsakYtelseType ytelseType,
+                                                          BeregningsgrunnlagEntitet beregningsgrunnlag, InntektArbeidYtelseGrunnlag iaygrunnlag) {
         if (beregningsgrunnlag == null) {
             return null;
         }
@@ -31,15 +35,18 @@ class StønadsstatistikkBeregningMapper {
             .findFirst()
             .orElseThrow();
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp().getVerdi();
+        var avkortet = FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? periodePåStp.getAvkortetPrÅr() :
+            utledAvkortetÅrsbeløp(periodePåStp, grunnbeløp);
+        var redusert = FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? periodePåStp.getRedusertPrÅr() : avkortet;
+        var dagsats = FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? periodePåStp.getDagsats() : utledDagsats(avkortet);
 
-        var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), periodePåStp.getAvkortetPrÅr(),
-            periodePåStp.getRedusertPrÅr(), periodePåStp.getDagsats());
+        var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), avkortet, redusert, dagsats);
 
         var andeler = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .collect(Collectors.groupingBy(Gruppering::new))
             .entrySet().stream()
             .filter(e -> e.getValue().stream().anyMatch(b -> b.getBruttoPrÅr() != null || b.getAvkortetPrÅr() != null || b.getRedusertPrÅr() != null || b.getDagsats() != null))
-            .map(e -> mapAndeler(e.getKey(), e.getValue()))
+            .map(e -> mapAndeler(e.getKey(), e.getValue(), ytelseType))
             .toList();
 
         var næringOrgNr = Optional.ofNullable(iaygrunnlag)
@@ -53,6 +60,26 @@ class StønadsstatistikkBeregningMapper {
         return new StønadsstatistikkVedtak.Beregning(grunnbeløp, årsbeløp, andeler, næringOrgNr);
     }
 
+    private static Long utledDagsats(BigDecimal avkortet) {
+        if (avkortet == null) {
+            return null;
+        }
+        return avkortet.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_EVEN).longValue();
+    }
+
+    private static BigDecimal utledAvkortetÅrsbeløp(BeregningsgrunnlagPeriode periodePåStp, BigDecimal grunnbeløp) {
+        var bruttoInkludertBortfaltNaturalytelsePrAar = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+            .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoInkludertNaturalYtelser)
+            .filter(Objects::nonNull)
+            .reduce(BigDecimal::add)
+            .orElse(null);
+        if (bruttoInkludertBortfaltNaturalytelsePrAar == null) {
+            return null;
+        }
+        BigDecimal seksG = grunnbeløp.multiply(BigDecimal.valueOf(6));
+        return bruttoInkludertBortfaltNaturalytelsePrAar.compareTo(seksG) > 0 ? seksG : bruttoInkludertBortfaltNaturalytelsePrAar;
+    }
+
     private record Gruppering(StønadsstatistikkVedtak.AndelType andelType, String arbeidsgiver) {
         Gruppering(BeregningsgrunnlagPrStatusOgAndel andel) {
             this(mapAktivitetStatus(andel.getAktivitetStatus()), andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null));
@@ -60,13 +87,32 @@ class StønadsstatistikkBeregningMapper {
 
     }
 
-    private static StønadsstatistikkVedtak.BeregningAndel mapAndeler(Gruppering gruppering, List<BeregningsgrunnlagPrStatusOgAndel> andeler) {
-        var bruttoÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
-        var avkortetÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getAvkortetPrÅr).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
-        var redusertÅr = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getRedusertPrÅr).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
-        var dagsats = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getDagsats).filter(Objects::nonNull).reduce(0L, Long::sum);
-        var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(bruttoÅr, avkortetÅr, redusertÅr, dagsats);
-        return new StønadsstatistikkVedtak.BeregningAndel(gruppering.andelType(), gruppering.arbeidsgiver(), årsbeløp);
+    private static StønadsstatistikkVedtak.BeregningAndel mapAndeler(Gruppering gruppering, List<BeregningsgrunnlagPrStatusOgAndel> andeler,
+                                                                     FagsakYtelseType ytelseType) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
+            var bruttoÅr = andeler.stream()
+                .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            var avkortetÅr = andeler.stream()
+                .map(BeregningsgrunnlagPrStatusOgAndel::getAvkortetPrÅr)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            var redusertÅr = andeler.stream()
+                .map(BeregningsgrunnlagPrStatusOgAndel::getRedusertPrÅr)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            var dagsats = andeler.stream().map(BeregningsgrunnlagPrStatusOgAndel::getDagsats).filter(Objects::nonNull).reduce(0L, Long::sum);
+            var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(bruttoÅr, avkortetÅr, redusertÅr, dagsats);
+            return new StønadsstatistikkVedtak.BeregningAndel(gruppering.andelType(), gruppering.arbeidsgiver(), årsbeløp);
+        } else {
+            var bruttoÅr = andeler.stream()
+                .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(bruttoÅr, null, null, null);
+            return new StønadsstatistikkVedtak.BeregningAndel(gruppering.andelType(), gruppering.arbeidsgiver(), årsbeløp);
+        }
     }
 
     private static StønadsstatistikkVedtak.AndelType mapAktivitetStatus(AktivitetStatus aktivitetStatus) {
