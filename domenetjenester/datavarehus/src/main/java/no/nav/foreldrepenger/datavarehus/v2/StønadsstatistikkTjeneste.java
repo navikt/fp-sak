@@ -171,7 +171,7 @@ public class StønadsstatistikkTjeneste {
         var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
-        var søknadsdato = finnSøknadsdato(behandlingReferanse);
+        var søknadsdato = finnSøknadsdato(behandlingReferanse).orElse(behandling.getOpprettetDato().toLocalDate());
 
         var builder = new Builder()
             .medLovVersjon(lovVersjon)
@@ -209,15 +209,14 @@ public class StønadsstatistikkTjeneste {
         return builder.build();
     }
 
-    private LocalDate finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
+    private Optional<LocalDate> finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
         return Optional.ofNullable(søknadRepository.hentSøknad(behandlingReferanse.behandlingId()))
             .map(SøknadEntitet::getSøknadsdato)
-            .or(() -> mottatteDokumentRepository.hentMottattDokument(behandlingReferanse.behandlingId()).stream()
+            .or(() -> mottatteDokumentRepository.hentMottatteDokument(behandlingReferanse.behandlingId()).stream()
                 .filter(MottattDokument::erSøknadsDokument)
                 .map(MottattDokument::getMottattTidspunkt)
                 .map(LocalDateTime::toLocalDate)
-                .min(Comparator.naturalOrder()))
-            .orElse(null);
+                .min(Comparator.naturalOrder()));
     }
 
     private StønadsstatistikkVedtak.Saksrolle mapBrukerRolle(RelasjonsRolleType relasjonsRolleType) {
