@@ -15,8 +15,10 @@ public class OppgittEgenNæring implements IndexKey {
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
+    @ChangeTracked
     private OrgNummer virksomhetOrgnr;
 
+    @ChangeTracked
     private VirksomhetType virksomhetType = VirksomhetType.UDEFINERT;
 
     private String regnskapsførerNavn;
@@ -27,19 +29,37 @@ public class OppgittEgenNæring implements IndexKey {
 
     private String begrunnelse;
 
+    @ChangeTracked
     private BigDecimal bruttoInntekt;
-
+    @ChangeTracked
     private boolean nyoppstartet;
-
+    @ChangeTracked
     private boolean varigEndring;
 
     private boolean nærRelasjon;
-
+    @ChangeTracked
     private boolean nyIArbeidslivet;
 
     private OppgittUtenlandskVirksomhet utenlandskVirksomhet = new OppgittUtenlandskVirksomhet();
 
     OppgittEgenNæring() {
+    }
+
+    public OppgittEgenNæring(OppgittEgenNæring oppgittEgenNæring) {
+        this.periode = oppgittEgenNæring.periode;
+        this.virksomhetOrgnr = oppgittEgenNæring.virksomhetOrgnr;
+        this.virksomhetType = oppgittEgenNæring.virksomhetType;
+        this.regnskapsførerNavn = oppgittEgenNæring.regnskapsførerNavn;
+        this.regnskapsførerTlf = oppgittEgenNæring.regnskapsførerTlf;
+        this.endringDato = oppgittEgenNæring.endringDato;
+        this.begrunnelse = oppgittEgenNæring.begrunnelse;
+        this.bruttoInntekt = oppgittEgenNæring.bruttoInntekt;
+        this.nyoppstartet = oppgittEgenNæring.nyoppstartet;
+        this.varigEndring = oppgittEgenNæring.varigEndring;
+        this.nærRelasjon = oppgittEgenNæring.nærRelasjon;
+        this.nyIArbeidslivet = oppgittEgenNæring.nyIArbeidslivet;
+        this.utenlandskVirksomhet = oppgittEgenNæring.utenlandskVirksomhet != null ?
+            new OppgittUtenlandskVirksomhet(oppgittEgenNæring.utenlandskVirksomhet) : null;
     }
 
     @Override

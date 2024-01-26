@@ -104,6 +104,12 @@ public interface InntektArbeidYtelseTjeneste {
     void lagreOverstyrtOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder oppgittOpptjeningBuilder);
 
     /**
+     * Lagre nytt grunnlag for Oppgitt Opptjening. Nullstiller eventuell overstyrt oppgtt opptjening
+     * Builder bør ikke gjenbrukes etter kall her.
+     */
+    void lagreOppgittOpptjeningNullstillOverstyring(Long behandlingId, OppgittOpptjeningBuilder oppgittOpptjeningBuilder);
+
+    /**
      * Kopier IAY grunnlag fra en behandling til en annen.
      *
      * @param fraBehandlingId - Kilde behandling

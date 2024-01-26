@@ -37,8 +37,6 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -629,7 +628,7 @@ class SøknadMapperTest {
         oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
             Optional.empty());
 
-        verify(iayTjeneste, times(1)).lagreOverstyrtOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
+        verify(iayTjeneste, times(1)).lagreOppgittOpptjeningNullstillOverstyring(anyLong(), any(OppgittOpptjeningBuilder.class));
     }
 
     @Test

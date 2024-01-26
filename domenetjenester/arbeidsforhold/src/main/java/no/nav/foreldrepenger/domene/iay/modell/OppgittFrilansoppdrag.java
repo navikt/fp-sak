@@ -14,12 +14,14 @@ public class OppgittFrilansoppdrag implements IndexKey {
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
-    OppgittFrilansoppdrag() {
-    }
-
     public OppgittFrilansoppdrag(String oppdragsgiver, DatoIntervallEntitet periode) {
         this.oppdragsgiver = oppdragsgiver;
         this.periode = periode;
+    }
+
+    public OppgittFrilansoppdrag(OppgittFrilansoppdrag oppgittFrilansoppdrag) {
+        this.oppdragsgiver = oppgittFrilansoppdrag.oppdragsgiver;
+        this.periode = oppgittFrilansoppdrag.periode;
     }
 
     @Override
