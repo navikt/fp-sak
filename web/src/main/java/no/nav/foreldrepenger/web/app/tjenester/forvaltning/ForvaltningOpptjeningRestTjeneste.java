@@ -103,21 +103,18 @@ public class ForvaltningOpptjeningRestTjeneste {
                 .medVirksomhetType(VirksomhetType.fraKode(dto.getTypeKode()))
                 .medPeriode(periode)
                 .medBruttoInntekt(brutto)
-                .medNærRelasjon(false)
-                .medNyIArbeidslivet(false)
-                .medNyoppstartet(false)
-                .medVarigEndring(false)
+                .medNærRelasjon(tilBoolsk(dto.getErRelasjon()))
+                .medNyIArbeidslivet(tilBoolsk(dto.getNyIArbeidslivet()))
+                .medNyoppstartet(tilBoolsk(dto.getNyoppstartet()))
+                .medVarigEndring(tilBoolsk(dto.getVarigEndring()))
                 .medRegnskapsførerNavn(dto.getRegnskapNavn())
+                .medBegrunnelse(dto.getBegrunnelse())
+                .medEndringDato(dto.getEndringsDato())
                 .medRegnskapsførerTlf(dto.getRegnskapTlf());
         virksomhet.ifPresent(v -> enBuilder.medVirksomhet(v.getOrgnr()));
-        if (JA.equals(dto.getVarigEndring())) {
-            enBuilder.medVarigEndring(true).medBegrunnelse(dto.getBegrunnelse()).medEndringDato(dto.getEndringsDato());
-        }
-        if (JA.equals(dto.getNyoppstartet())) {
-            enBuilder.medNyoppstartet(true);
-        }
+        // Ønsker å erstatte eksisterende egen næring om orgnr er likt
         var ooBuilder = OppgittOpptjeningBuilder.oppdater(oppgittOpptjening)
-            .leggTilEgenNæring(List.of(enBuilder));
+            .leggTilEllerErstattEgenNæring(enBuilder.build());
         inntektArbeidYtelseTjeneste.lagreOverstyrtOppgittOpptjening(behandling.getId(), ooBuilder);
 
         return Response.noContent().build();
@@ -151,6 +148,10 @@ public class ForvaltningOpptjeningRestTjeneste {
         var behandling = getBehandling(dto);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlagKontrakt(behandling.getId());
         return iayGrunnlag.getOppgittOpptjening();
+    }
+
+    private boolean tilBoolsk(LeggTilOppgittNæringDto.Utfall erRelasjon) {
+        return JA.equals(erRelasjon);
     }
 
     private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
