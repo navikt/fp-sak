@@ -44,8 +44,7 @@ final class JusterFordelingTjeneste {
             gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
             nyFamiliehendelse = flyttFraHelgTilMandag(nyFamiliehendelse);
             if (!gammelFamiliehendelse.equals(nyFamiliehendelse)) {
-                justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType,
-                    ønskerJustertVedFødsel);
+                justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType, ønskerJustertVedFødsel);
             }
             exceptionHvisOverlapp(justert);
         }
@@ -68,8 +67,9 @@ final class JusterFordelingTjeneste {
                                                               boolean ønskerJustertVedFødsel) {
         var fjernetHelgerFraStartOgSluttAvPerioder = fjernHelgerFraStartOgSlutt(oppgittePerioder);
         var splitetPåFødsel = splitPåDato(gammelFamiliehendelse, fjernetHelgerFraStartOgSluttAvPerioder);
-        var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ? new MorsJustering(gammelFamiliehendelse,
-            nyFamiliehendelse) : new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
+        var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ?
+            new MorsJustering(gammelFamiliehendelse, nyFamiliehendelse) :
+            new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
         if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
             return justering.justerVedFødselEtterTermin(splitetPåFødsel);
         }
