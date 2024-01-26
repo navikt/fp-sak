@@ -216,6 +216,11 @@ public class StønadsstatistikkTjeneste {
                 .filter(MottattDokument::erSøknadsDokument)
                 .map(MottattDokument::getMottattTidspunkt)
                 .map(LocalDateTime::toLocalDate)
+                .min(Comparator.naturalOrder()))
+            .or(() -> mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId()).stream()
+                .filter(MottattDokument::erSøknadsDokument)
+                .map(MottattDokument::getMottattTidspunkt)
+                .map(LocalDateTime::toLocalDate)
                 .min(Comparator.naturalOrder()));
     }
 
