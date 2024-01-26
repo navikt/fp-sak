@@ -81,7 +81,9 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
     private void produser(BehandlingVedtak vedtak) {
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        produser(behandling, vedtak.getId());
+        if (behandling.erYtelseBehandling()) {
+            produser(behandling, vedtak.getId());
+        }
     }
 
     private void produser(Behandling behandling, Long vedtakId) {
