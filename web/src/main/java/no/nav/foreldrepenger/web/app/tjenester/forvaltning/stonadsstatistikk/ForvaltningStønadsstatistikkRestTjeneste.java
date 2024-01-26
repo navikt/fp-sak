@@ -13,13 +13,21 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +64,7 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
     private EntityManager entityManager;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRepository fagsakRepository;
 
     @Inject
     public ForvaltningStønadsstatistikkRestTjeneste(StønadsstatistikkTjeneste stønadsstatistikkTjeneste,
@@ -64,7 +73,7 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
                                                     BehandlingsresultatRepository behandlingsresultatRepository,
                                                     ProsessTaskTjeneste taskTjeneste,
                                                     EntityManager entityManager,
-                                                    FagsakRelasjonRepository fagsakRelasjonRepository) {
+                                                    FagsakRelasjonRepository fagsakRelasjonRepository, FagsakRepository fagsakRepository) {
         this.stønadsstatistikkTjeneste = stønadsstatistikkTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -72,6 +81,7 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
         this.taskTjeneste = taskTjeneste;
         this.entityManager = entityManager;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRepository = fagsakRepository;
     }
 
     ForvaltningStønadsstatistikkRestTjeneste() {
@@ -90,6 +100,19 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
         }
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         return stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
+    }
+
+    @POST
+    @Operation(description = "Oppretter task for migrering enkeltssak", tags = "FORVALTNING-stønadsstatistikk")
+    @Path("/opprettTaskEnkeltSak")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response opprettTaskEnkeltSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+                                             @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+        var sak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(s.getVerdi())).orElseThrow();
+        taskTjeneste.lagre(opprettTaskForFagsak(sak.getId()));
+        return Response.ok().build();
+
     }
 
     @POST
