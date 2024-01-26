@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -47,6 +48,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -104,6 +107,7 @@ public class StønadsstatistikkTjeneste {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
     private SøknadRepository søknadRepository;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
@@ -123,7 +127,8 @@ public class StønadsstatistikkTjeneste {
                                      HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                      SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
-                                     SøknadRepository søknadRepository) {
+                                     SøknadRepository søknadRepository,
+                                     MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -142,6 +147,7 @@ public class StønadsstatistikkTjeneste {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.søknadRepository = søknadRepository;
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
     }
 
     StønadsstatistikkTjeneste() {
@@ -204,7 +210,14 @@ public class StønadsstatistikkTjeneste {
     }
 
     private LocalDate finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
-        return søknadRepository.hentSøknad(behandlingReferanse.behandlingId()).getSøknadsdato();
+        return Optional.ofNullable(søknadRepository.hentSøknad(behandlingReferanse.behandlingId()))
+            .map(SøknadEntitet::getSøknadsdato)
+            .or(() -> mottatteDokumentRepository.hentMottattDokument(behandlingReferanse.behandlingId()).stream()
+                .filter(MottattDokument::erSøknadsDokument)
+                .map(MottattDokument::getMottattTidspunkt)
+                .map(LocalDateTime::toLocalDate)
+                .min(Comparator.naturalOrder()))
+            .orElse(null);
     }
 
     private StønadsstatistikkVedtak.Saksrolle mapBrukerRolle(RelasjonsRolleType relasjonsRolleType) {
