@@ -64,10 +64,7 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
 
     @Override
     public String toString() {
-        return "Stønadskonto{" +
-            "maxDager=" + maxDager +
-            ", stønadskontoType=" + stønadskontoType +
-            '}';
+        return stønadskontoType + "<" + maxDager + ">";
     }
 
     public int getMaxDager() {
@@ -91,7 +88,7 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
     }
 
     public static class Builder {
-        private Stønadskonto kladd = new Stønadskonto();
+        private final Stønadskonto kladd = new Stønadskonto();
 
         public Builder medMaxDager(int maxDager) {
             kladd.maxDager = maxDager;
