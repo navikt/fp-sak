@@ -41,13 +41,14 @@ public class SkalKopiereUttakTjeneste {
         if (arbeidEndret) {
             return false;
         }
-        if (uttakInput.isOpplysningerOmDødEndret() || uttakInput.harBehandlingÅrsakRelatertTilDød()) {
+        var fpGrunnlag = (ForeldrepengerGrunnlag) uttakInput.getYtelsespesifiktGrunnlag();
+        if (fpGrunnlag.isDødsfall()) {
             return false;
         }
         if (saksbehandlerHarManueltAvklartStartdato(uttakInput)) {
             return false;
         }
-        if (familiehendelseEndret(uttakInput)) {
+        if (familiehendelseEndret(fpGrunnlag)) {
             return false;
         }
         var årsaker = uttakInput.getBehandlingÅrsaker();
@@ -56,8 +57,7 @@ public class SkalKopiereUttakTjeneste {
                 BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING));
     }
 
-    private boolean familiehendelseEndret(UttakInput uttakInput) {
-        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+    private boolean familiehendelseEndret(ForeldrepengerGrunnlag fpGrunnlag) {
         var originalBehandling = fpGrunnlag.getOriginalBehandling();
         if (originalBehandling.isEmpty()) {
             return false;
