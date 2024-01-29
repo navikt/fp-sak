@@ -70,6 +70,16 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     @FormParam("varigEndring")
     private Utfall varigEndring;
 
+    @Valid
+    @DefaultValue("NEI")
+    @FormParam("nyIArbeidslivet")
+    private Utfall nyIArbeidslivet;
+
+    @Valid
+    @DefaultValue("NEI")
+    @FormParam("erRelasjon")
+    private Utfall erRelasjon;
+
     @Parameter(description = "YYYY-MM-DD")
     @Pattern(regexp = DATO_PATTERN)
     @FormParam("endringsDato")
@@ -146,6 +156,14 @@ public class LeggTilOppgittNæringDto implements AbacDto {
 
     public long getBruttoBeløp() {
         return bruttoBeløp;
+    }
+
+    public Utfall getNyIArbeidslivet() {
+        return nyIArbeidslivet;
+    }
+
+    public Utfall getErRelasjon() {
+        return erRelasjon;
     }
 
     private LocalDate getLocalDate(String datoString) {

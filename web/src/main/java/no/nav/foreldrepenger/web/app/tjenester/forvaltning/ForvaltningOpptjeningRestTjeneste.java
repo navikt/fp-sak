@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto.Utfall.JA;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -74,17 +73,15 @@ public class ForvaltningOpptjeningRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response leggTilOppgittFrilans(@BeanParam @Valid LeggTilOppgittFrilansDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        if (iayGrunnlag.getGjeldendeOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
+        var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
         var nyoppstartet = dto.getStpOpptjening().minusMonths(3).isBefore(dto.getFrilansFom());
         var periode = dto.getFrilansTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFrilansFom(), dto.getFrilansTom())
                 : DatoIntervallEntitet.fraOgMed(dto.getFrilansFom());
-        var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
-                .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, ArbeidType.FRILANSER))
-                .leggTilFrilansOpplysninger(new OppgittFrilans(false, nyoppstartet, false));
-        inntektArbeidYtelseTjeneste.lagreOppgittOpptjening(behandling.getId(), ooBuilder);
+        var ooBuilder = OppgittOpptjeningBuilder.oppdater(oppgittOpptjening)
+            .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, ArbeidType.FRILANSER))
+            .leggTilFrilansOpplysninger(new OppgittFrilans(false, nyoppstartet, false));
+
+        inntektArbeidYtelseTjeneste.lagreOverstyrtOppgittOpptjening(behandling.getId(), ooBuilder);
 
         return Response.noContent().build();
     }
@@ -96,10 +93,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        if (iayGrunnlag.getGjeldendeOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
+        var oppgittOpptjening = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId()).getGjeldendeOppgittOpptjening();
         Optional<Virksomhet> virksomhet = dto.getOrgnummer() != null ? virksomhetTjeneste.finnOrganisasjon(dto.getOrgnummer()) : Optional.empty();
         var brutto = new BigDecimal(dto.getBruttoBeløp());
         var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom())
@@ -108,22 +102,19 @@ public class ForvaltningOpptjeningRestTjeneste {
                 .medVirksomhetType(VirksomhetType.fraKode(dto.getTypeKode()))
                 .medPeriode(periode)
                 .medBruttoInntekt(brutto)
-                .medNærRelasjon(false)
-                .medNyIArbeidslivet(false)
-                .medNyoppstartet(false)
-                .medVarigEndring(false)
+                .medNærRelasjon(tilBoolsk(dto.getErRelasjon()))
+                .medNyIArbeidslivet(tilBoolsk(dto.getNyIArbeidslivet()))
+                .medNyoppstartet(tilBoolsk(dto.getNyoppstartet()))
+                .medVarigEndring(tilBoolsk(dto.getVarigEndring()))
                 .medRegnskapsførerNavn(dto.getRegnskapNavn())
+                .medBegrunnelse(dto.getBegrunnelse())
+                .medEndringDato(dto.getEndringsDato())
                 .medRegnskapsførerTlf(dto.getRegnskapTlf());
         virksomhet.ifPresent(v -> enBuilder.medVirksomhet(v.getOrgnr()));
-        if (JA.equals(dto.getVarigEndring())) {
-            enBuilder.medVarigEndring(true).medBegrunnelse(dto.getBegrunnelse()).medEndringDato(dto.getEndringsDato());
-        }
-        if (JA.equals(dto.getNyoppstartet())) {
-            enBuilder.medNyoppstartet(true);
-        }
-        var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
-                .leggTilEgenNæring(List.of(enBuilder));
-        inntektArbeidYtelseTjeneste.lagreOppgittOpptjening(behandling.getId(), ooBuilder);
+        // Ønsker å erstatte eksisterende egen næring om orgnr er likt
+        var ooBuilder = OppgittOpptjeningBuilder.oppdater(oppgittOpptjening)
+            .leggTilEllerErstattEgenNæring(enBuilder.build());
+        inntektArbeidYtelseTjeneste.lagreOverstyrtOppgittOpptjening(behandling.getId(), ooBuilder);
 
         return Response.noContent().build();
     }
@@ -146,10 +137,6 @@ public class ForvaltningOpptjeningRestTjeneste {
         return Response.noContent().build();
     }
 
-    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
-        return behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
-    }
-
     @GET
     @Path("/hentOppgittOpptjening")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -160,5 +147,13 @@ public class ForvaltningOpptjeningRestTjeneste {
         var behandling = getBehandling(dto);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlagKontrakt(behandling.getId());
         return iayGrunnlag.getOppgittOpptjening();
+    }
+
+    private boolean tilBoolsk(LeggTilOppgittNæringDto.Utfall erRelasjon) {
+        return JA.equals(erRelasjon);
+    }
+
+    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
+        return behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
     }
 }
