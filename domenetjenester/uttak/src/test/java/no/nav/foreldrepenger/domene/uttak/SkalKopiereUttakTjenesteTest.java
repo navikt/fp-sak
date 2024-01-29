@@ -55,7 +55,7 @@ class SkalKopiereUttakTjenesteTest {
     }
 
     @Test
-    void endret_inntektsmelding_men_opplysninger_om_død_endret_skal_ikke_kopiere() {
+    void endret_inntektsmelding_men_med_dødsfall_skal_ikke_kopiere() {
         assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING), false, true, true)).isFalse();
     }
 
@@ -138,8 +138,8 @@ class SkalKopiereUttakTjenesteTest {
     private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker,
                                             boolean arbeidEndret,
                                             boolean erRevurdering,
-                                            boolean opplysningerOmDødEndret) {
-        var input = lagInput(årsaker, erRevurdering, opplysningerOmDødEndret);
+                                            boolean dødsfall) {
+        var input = lagInput(årsaker, erRevurdering, dødsfall);
         var tjeneste = opprettTjeneste(arbeidEndret);
         return tjeneste.skalKopiereStegResultat(input);
     }
@@ -154,15 +154,14 @@ class SkalKopiereUttakTjenesteTest {
 
     private UttakInput lagInput(Set<BehandlingÅrsakType> årsaker,
                                 boolean erRevurdering,
-                                boolean opplysningerOmDødEndret) {
+                                boolean dødsfall) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         if (erRevurdering) {
             scenario.medOriginalBehandling(ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider),
                 årsaker);
         }
         var behandling = scenario.lagre(repositoryProvider);
-        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag())
-            .medErOpplysningerOmDødEndret(opplysningerOmDødEndret)
+        return new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag().medDødsfall(dødsfall))
             .medBehandlingÅrsaker(årsaker);
     }
 }
