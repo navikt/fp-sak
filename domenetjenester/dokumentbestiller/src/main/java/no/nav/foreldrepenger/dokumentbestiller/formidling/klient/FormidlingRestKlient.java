@@ -22,8 +22,8 @@ public class FormidlingRestKlient implements Brev {
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    private final static String BESTILL_URL = "/bestill";
-    private final static String FORHÅNDSVIS_URL = "/forhaandsvis";
+    private static final String BESTILL_URL = "/bestill";
+    private static final String FORHÅNDSVIS_URL = "/forhaandsvis";
     private final URI uri;
 
     public FormidlingRestKlient() {
