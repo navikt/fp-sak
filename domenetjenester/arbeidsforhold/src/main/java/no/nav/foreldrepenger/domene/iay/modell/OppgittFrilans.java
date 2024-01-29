@@ -9,10 +9,13 @@ import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 
 public class OppgittFrilans {
 
+    @ChangeTracked
     private boolean harInntektFraFosterhjem;
 
+    @ChangeTracked
     private boolean erNyoppstartet;
 
+    @ChangeTracked
     private boolean harNærRelasjon;
 
     @ChangeTracked
@@ -25,6 +28,13 @@ public class OppgittFrilans {
         this.harInntektFraFosterhjem = harInntektFraFosterhjem;
         this.erNyoppstartet = erNyoppstartet;
         this.harNærRelasjon = harNærRelasjon;
+    }
+
+    public OppgittFrilans(OppgittFrilans oppgittFrilans) {
+        this.harInntektFraFosterhjem = oppgittFrilans.harInntektFraFosterhjem;
+        this.erNyoppstartet = oppgittFrilans.erNyoppstartet;
+        this.harNærRelasjon = oppgittFrilans.harNærRelasjon;
+        this.frilansoppdrag = new ArrayList<>(oppgittFrilans.getFrilansoppdrag().stream().map(OppgittFrilansoppdrag::new).toList());
     }
 
     @Override

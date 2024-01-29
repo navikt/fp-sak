@@ -42,10 +42,10 @@ public class OppgittOpptjening {
     }
     public OppgittOpptjening(OppgittOpptjening oppgittOpptjening, UUID uuid) {
         this.uuid = uuid;
-        this.frilans = oppgittOpptjening.frilans;
-        this.oppgittArbeidsforhold = oppgittOpptjening.oppgittArbeidsforhold;
-        this.annenAktivitet = oppgittOpptjening.annenAktivitet;
-        this.egenNæring = oppgittOpptjening.egenNæring;
+        this.frilans = oppgittOpptjening.frilans != null ? new OppgittFrilans(oppgittOpptjening.frilans) : null;
+        this.oppgittArbeidsforhold = new ArrayList<>(oppgittOpptjening.getOppgittArbeidsforhold().stream().map(OppgittArbeidsforhold::new).toList());
+        this.annenAktivitet = new ArrayList<>(oppgittOpptjening.getAnnenAktivitet().stream().map(OppgittAnnenAktivitet::new).toList());
+        this.egenNæring = new ArrayList<>(oppgittOpptjening.getEgenNæring().stream().map(OppgittEgenNæring::new).toList());
         setOpprettetTidspunkt(LocalDateTime.now());
     }
 

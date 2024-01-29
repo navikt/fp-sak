@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
@@ -140,5 +141,24 @@ public class IAYGrunnlagDiff {
         return filter.getFiltrertYtelser().stream()
             .filter(predikatYtelseskilde)
             .toList();
+    }
+
+    public boolean erEndringPåOppgittOpptjening() {
+        var eksisterende = grunnlag1.getGjeldendeOppgittOpptjening();
+        var nye = grunnlag2.getGjeldendeOppgittOpptjening();
+        return erEndringPåOppgittOpptjening(eksisterende, nye);
+    }
+
+    public static boolean erEndringPåOppgittOpptjening(Optional<OppgittOpptjening> eksisterende, Optional<OppgittOpptjening> nye) {
+        // quick check
+        if (eksisterende.isPresent() != nye.isPresent()) {
+            return true;
+        }
+        if (eksisterende.isEmpty()) {
+            return false;
+        }
+        // deep check
+        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.orElse(null));
+        return !diff.isEmpty();
     }
 }

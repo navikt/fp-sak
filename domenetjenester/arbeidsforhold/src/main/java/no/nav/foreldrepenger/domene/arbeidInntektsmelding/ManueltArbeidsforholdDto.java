@@ -53,7 +53,8 @@ public class ManueltArbeidsforholdDto {
     @Valid
     @NotNull
     private ArbeidsforholdKomplettVurderingType vurdering;
-    // Gjør denne @NotNull når frontend sender den med
+    @JsonProperty("behandlingVersjon")
+    @NotNull
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long behandlingVersjon;
@@ -80,7 +81,7 @@ public class ManueltArbeidsforholdDto {
             Integer stillingsprosent,
             @JsonProperty("vurdering")
             ArbeidsforholdKomplettVurderingType vurdering,
-            @JsonProperty("behandlingVersjon")
+            @NotNull @JsonProperty("behandlingVersjon")
             Long behandlingVersjon) {
         this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;

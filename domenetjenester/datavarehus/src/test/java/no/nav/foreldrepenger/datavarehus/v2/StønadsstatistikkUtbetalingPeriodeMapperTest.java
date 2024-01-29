@@ -52,7 +52,6 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
         assertThat(stønadsstatistikkUtbetalingPeriode.arbeidsgiver()).isEqualTo(orgnr);
         assertThat(stønadsstatistikkUtbetalingPeriode.mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.ARBEIDSGIVER);
         assertThat(stønadsstatistikkUtbetalingPeriode.dagsats()).isEqualTo(andel2.getDagsats());
-        assertThat(stønadsstatistikkUtbetalingPeriode.dagsatsFraBeregningsgrunnlag()).isEqualTo(andel2.getDagsatsFraBg());
         assertThat(stønadsstatistikkUtbetalingPeriode.utbetalingsgrad()).isEqualTo(andel2.getUtbetalingsgrad());
 
     }
@@ -95,7 +94,6 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
         assertThat(stønadsstatistikkUtbetalingPeriode.arbeidsgiver()).isEqualTo(orgnr);
         assertThat(stønadsstatistikkUtbetalingPeriode.mottaker()).isEqualTo(StønadsstatistikkUtbetalingPeriode.Mottaker.BRUKER);
         assertThat(stønadsstatistikkUtbetalingPeriode.dagsats()).isEqualTo(andel2.getDagsats());
-        assertThat(stønadsstatistikkUtbetalingPeriode.dagsatsFraBeregningsgrunnlag()).isEqualTo(andel2.getDagsatsFraBg());
         assertThat(stønadsstatistikkUtbetalingPeriode.utbetalingsgrad()).isEqualTo(andel2.getUtbetalingsgrad());
 
     }

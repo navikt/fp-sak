@@ -32,6 +32,8 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -47,6 +49,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -101,8 +105,9 @@ public class StønadsstatistikkTjeneste {
     private LegacyESBeregningRepository legacyESBeregningRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private MottatteDokumentRepository mottatteDokumentRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
+    private SøknadRepository søknadRepository;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
@@ -121,8 +126,9 @@ public class StønadsstatistikkTjeneste {
                                      LegacyESBeregningRepository legacyESBeregningRepository,
                                      HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
                                      InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                     MottatteDokumentRepository mottatteDokumentRepository,
-                                     SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository) {
+                                     SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
+                                     SøknadRepository søknadRepository,
+                                     MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -139,8 +145,9 @@ public class StønadsstatistikkTjeneste {
         this.legacyESBeregningRepository = legacyESBeregningRepository;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
-        this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
+        this.søknadRepository = søknadRepository;
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
     }
 
     StønadsstatistikkTjeneste() {
@@ -164,7 +171,7 @@ public class StønadsstatistikkTjeneste {
         var saksnummer = mapSaksnummer(fagsak.getSaksnummer());
         var søker = mapAktørId(fagsak.getAktørId());
         var søkersRolle = mapBrukerRolle(fagsak.getRelasjonsRolleType());
-        var søknadsdato = finnSøknadsdato(behandlingReferanse);
+        var søknadsdato = finnSøknadsdato(behandlingReferanse).orElse(behandling.getOpprettetDato().toLocalDate());
 
         var builder = new Builder()
             .medLovVersjon(lovVersjon)
@@ -174,6 +181,7 @@ public class StønadsstatistikkTjeneste {
             .medYtelseType(ytelseType)
             .medBehandlingUuid(behandlingReferanse.behandlingUuid())
             .medForrigeBehandlingUuid(forrigeBehandlingUuid.orElse(null))
+            .medRevurderingÅrsak(utledRevurderingÅrsak(behandling))
             .medSøknadsdato(søknadsdato)
             .medSkjæringstidspunkt(stp.getSkjæringstidspunktHvisUtledet().orElse(null))
             .medVedtakstidspunkt(vedtakstidspunkt)
@@ -201,11 +209,19 @@ public class StønadsstatistikkTjeneste {
         return builder.build();
     }
 
-    private LocalDate finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
-        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId()).stream()
-            .filter(md -> md.getJournalpostId() != null && (md.getDokumentType().erSøknadType() || md.getDokumentType().erEndringsSøknadType()))
-            .map(d -> d.getMottattTidspunkt().isBefore(d.getOpprettetTidspunkt()) ? d.getMottattTidspunkt() : d.getOpprettetTidspunkt())
-            .min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(null);
+    private Optional<LocalDate> finnSøknadsdato(BehandlingReferanse behandlingReferanse) {
+        return Optional.ofNullable(søknadRepository.hentSøknad(behandlingReferanse.behandlingId()))
+            .map(SøknadEntitet::getSøknadsdato)
+            .or(() -> mottatteDokumentRepository.hentMottatteDokument(behandlingReferanse.behandlingId()).stream()
+                .filter(MottattDokument::erSøknadsDokument)
+                .map(MottattDokument::getMottattTidspunkt)
+                .map(LocalDateTime::toLocalDate)
+                .min(Comparator.naturalOrder()))
+            .or(() -> mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandlingReferanse.fagsakId()).stream()
+                .filter(MottattDokument::erSøknadsDokument)
+                .map(MottattDokument::getMottattTidspunkt)
+                .map(LocalDateTime::toLocalDate)
+                .min(Comparator.naturalOrder()));
     }
 
     private StønadsstatistikkVedtak.Saksrolle mapBrukerRolle(RelasjonsRolleType relasjonsRolleType) {
@@ -227,7 +243,7 @@ public class StønadsstatistikkTjeneste {
             return null;
         }
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).orElse(null);
-        return StønadsstatistikkBeregningMapper.mapBeregning(beregningsgrunnlag, iayGrunnlag);
+        return StønadsstatistikkBeregningMapper.mapBeregning(behandling.getFagsakYtelseType(), beregningsgrunnlag, iayGrunnlag);
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {
@@ -470,4 +486,48 @@ public class StønadsstatistikkTjeneste {
     private static StønadsstatistikkVedtak.Saksnummer mapSaksnummer(Saksnummer saksnummer) {
         return new StønadsstatistikkVedtak.Saksnummer(saksnummer.getVerdi());
     }
+
+    private static StønadsstatistikkVedtak.RevurderingÅrsak utledRevurderingÅrsak(Behandling behandling) {
+        if (!behandling.erRevurdering()) {
+            return null;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_UTSATT_START)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.SØKNAD;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerEtterKlageBehandling())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.KLAGE;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerForEtterkontroll())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.ETTERKONTROLL;
+        }
+        if (behandling.erManueltOpprettet() && behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.UTTAKMANUELL;
+        }
+        if (behandling.erManueltOpprettet()) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.MANUELL;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerForRelatertVedtak())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.ANNENFORELDER;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.NYSAK;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.PLEIEPENGER;
+        }
+        if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilPdl())) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.FOLKEREGISTER;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.INNTEKTSMELDING;
+        }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
+            return StønadsstatistikkVedtak.RevurderingÅrsak.REGULERING;
+        }
+        return StønadsstatistikkVedtak.RevurderingÅrsak.MANUELL;
+    }
+
 }

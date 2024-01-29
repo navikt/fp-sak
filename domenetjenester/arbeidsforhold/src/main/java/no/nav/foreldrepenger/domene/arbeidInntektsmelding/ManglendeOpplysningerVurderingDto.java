@@ -35,7 +35,8 @@ public class ManglendeOpplysningerVurderingDto {
     @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String internArbeidsforholdRef;
-    // Gjør denne @NotNull når frontend sender den med
+    @JsonProperty("behandlingVersjon")
+    @NotNull
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long behandlingVersjon;
@@ -62,7 +63,7 @@ public class ManglendeOpplysningerVurderingDto {
                                              @Pattern(regexp = InputValideringRegex.FRITEKST)
                                              @JsonProperty("internArbeidsforholdRef")
                                              String internArbeidsforholdRef,
-                                             @JsonProperty("behandlingVersjon")
+                                             @NotNull @JsonProperty("behandlingVersjon")
                                              Long behandlingVersjon) {
         this.behandlingUuid = behandlingUuid;
         this.vurdering = vurdering;
