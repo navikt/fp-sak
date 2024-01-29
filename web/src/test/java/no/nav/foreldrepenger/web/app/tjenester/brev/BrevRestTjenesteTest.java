@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,18 +28,20 @@ class BrevRestTjenesteTest {
 
     private BrevRestTjeneste brevRestTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
+    private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjenesteMock;
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
     public void setUp() {
         dokumentBestillerTjenesteMock = mock(DokumentBestillerTjeneste.class);
+        dokumentForhåndsvisningTjenesteMock = mock(DokumentForhåndsvisningTjeneste.class);
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
         behandlingRepository = mock(BehandlingRepository.class);
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
     }
 
     @Test

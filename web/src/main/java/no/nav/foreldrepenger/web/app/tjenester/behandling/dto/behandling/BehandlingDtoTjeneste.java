@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManglendeOpplysningerVurderingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
@@ -180,7 +179,7 @@ public class BehandlingDtoTjeneste {
 
         // Brev
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
-        dto.leggTil(post(BrevRestTjeneste.MANUELL_BREV_VIS_PATH, "brev-manuel-vis"));
+        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
 
         return dto;
     }

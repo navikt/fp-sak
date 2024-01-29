@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
@@ -153,7 +152,7 @@ public class FagsakBehandlingDtoTjeneste {
         // Brev
         dto.setBrevmaler(brevmalTjeneste.hentBrevmalerFor(behandling));
         dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
-        dto.leggTil(post(BrevRestTjeneste.MANUELL_BREV_VIS_PATH, "brev-manuell-vis"));
+        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
 
         return dto;
     }
