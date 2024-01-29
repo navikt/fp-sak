@@ -14,13 +14,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-
 import jakarta.ws.rs.core.Response;
-
-import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
-
-import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +27,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
@@ -98,26 +95,6 @@ public class BrevRestTjeneste {
         dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandlingId);
     }
-
-
-    // V2
-//    @POST
-//    @Path(BREV_VIS_PART_PATH)
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Operation(description = "Forhåndsviser et manuell brev (sendt av saksbehandler fra GUI)", tags = "brev")
-//    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-//    public void forhåndsvisManuelDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
-//        LOG.info("Brev med brevmalkode={} forhåndsvist på behandlingUuid={}", bestillBrevDto.brevmalkode(), bestillBrevDto.behandlingUuid());
-//
-//        var brevBestilling = BrevBestilling.builder()
-//            .medBehandlingUuid(bestillBrevDto.behandlingUuid())
-//            .medDokumentMal(bestillBrevDto.brevmalkode())
-//            .medRevurderingÅrsak(bestillBrevDto.arsakskode())
-//            .medFritekst(bestillBrevDto.fritekst())
-//            .build();
-//
-//        dokumentBestillerTjeneste.bestillDokument(brevBestilling);
-//    }
 
     @POST
     @Path(BREV_VIS_PART_PATH)
