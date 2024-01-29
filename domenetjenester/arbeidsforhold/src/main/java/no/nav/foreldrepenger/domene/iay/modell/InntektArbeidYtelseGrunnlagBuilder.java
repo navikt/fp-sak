@@ -88,6 +88,8 @@ public class InntektArbeidYtelseGrunnlagBuilder {
                 throw new IllegalStateException("Utviklerfeil: Er ikke lov å endre overstyrt oppgitt opptjening!");
             }
             kladd.setOverstyrtOppgittOpptjening(builder.build());
+        } else {
+            kladd.setOverstyrtOppgittOpptjening(null);
         }
         return this;
     }
