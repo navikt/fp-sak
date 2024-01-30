@@ -21,6 +21,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class DokumentBestillerTask implements ProsessTaskHandler {
 
     public static final String DOKUMENT_MAL_TYPE = "dokumentMalType";
+    public static final String OPPRINNELIG_DOKUMENT_MAL = "opprinneligDokumentMal";
     public static final String REVURDERING_VARSLING_ÅRSAK = "revurderingVarslingAarsak";
     public static final String BESTILLING_UUID = "bestillingUuid";
 

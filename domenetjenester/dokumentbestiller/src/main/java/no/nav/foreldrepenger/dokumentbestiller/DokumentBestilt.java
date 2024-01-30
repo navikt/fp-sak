@@ -25,7 +25,8 @@ public class DokumentBestilt {
 
     public void opprettHistorikkinnslag(HistorikkAktør historikkAktør,
                                         Behandling behandling,
-                                        DokumentMalType dokumentMal) {
+                                        DokumentMalType dokumentMal,
+                                        DokumentMalType opprinneligDokumentMal) {
 
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);
@@ -33,8 +34,15 @@ public class DokumentBestilt {
         historikkinnslag.setType(HistorikkinnslagType.BREV_BESTILT);
 
         new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.BREV_BESTILT)
-            .medBegrunnelse(dokumentMal.getNavn())
+            .medBegrunnelse(utledBegrunnelse(dokumentMal, opprinneligDokumentMal))
             .build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
+    }
+
+    private String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType opprinneligDokumentMal) {
+        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) && opprinneligDokumentMal != null) {
+            return opprinneligDokumentMal.getNavn() + " (" + dokumentMal.getNavn() + ")";
+        }
+        return dokumentMal.getNavn();
     }
 }

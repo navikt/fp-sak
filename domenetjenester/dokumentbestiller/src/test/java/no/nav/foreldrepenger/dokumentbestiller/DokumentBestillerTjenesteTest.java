@@ -46,7 +46,7 @@ class DokumentBestillerTjenesteTest {
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør);
 
         // Assert
-        verify(dokumentBestiller).bestillDokumentOgLoggHistorikk(bestillBrevDto, historikkAktør);
+        verify(dokumentBestiller).bestillDokument(bestillBrevDto, historikkAktør);
     }
 
 }

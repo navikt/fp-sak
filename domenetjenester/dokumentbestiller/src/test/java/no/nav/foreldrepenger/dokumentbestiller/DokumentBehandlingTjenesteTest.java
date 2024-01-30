@@ -85,8 +85,6 @@ class DokumentBehandlingTjenesteTest {
                 .medFødselAdopsjonsdato(Collections.singletonList(fødselsdato))
                 .medDefaultSøknadTerminbekreftelse();
         lagBehandling();
-        var termindato = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeTerminbekreftelse()
-                .get().getTermindato();
         assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling))
                 .isEqualTo(fødselsdato.plusWeeks(fristUker));
     }
@@ -120,7 +118,7 @@ class DokumentBehandlingTjenesteTest {
         behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID());
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID(), null);
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
@@ -133,7 +131,7 @@ class DokumentBehandlingTjenesteTest {
     void skal_returnere_true_når_dokument_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID());
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID(), null);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isTrue();
@@ -143,7 +141,7 @@ class DokumentBehandlingTjenesteTest {
     void skal_returnere_false_når_dokument_ikke_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING, UUID.randomUUID());
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING, UUID.randomUUID(), DokumentMalType.ETTERLYS_INNTEKTSMELDING);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isFalse();
