@@ -46,11 +46,11 @@ public class DokumentBestiller {
      * @param opprinneligDokumentMal settes til den opprinnelige dokumentMalTypen hvis fritekstmalen brukes.
      * @param aktør historikk aktør.
      */
-    public void bestillVedtak(BestillBrevDto bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
+    public void bestillVedtak(BrevBestilling bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
         bestillOgLogg(bestillBrevDto, opprinneligDokumentMal, aktør);
     }
 
-    public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
+    public void bestillDokument(BrevBestilling bestillBrevDto, HistorikkAktør aktør) {
         bestillOgLogg(bestillBrevDto, null, aktør);
     }
 
