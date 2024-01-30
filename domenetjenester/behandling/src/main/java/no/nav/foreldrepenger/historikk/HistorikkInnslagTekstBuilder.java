@@ -171,26 +171,6 @@ public class HistorikkInnslagTekstBuilder {
         return this;
     }
 
-    public HistorikkInnslagTekstBuilder medAvklartSøknadperiode(HistorikkAvklartSoeknadsperiodeType endretFeltType, String verdi) {
-        HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.AVKLART_SOEKNADSPERIODE)
-                .medNavn(validerKodeverdi(endretFeltType))
-                .medTilVerdi(verdi)
-                .build(historikkinnslagDelBuilder);
-        return this;
-    }
-
-    public HistorikkInnslagTekstBuilder medNavnVerdiOgAvklartSøknadperiode(HistorikkAvklartSoeknadsperiodeType endretFeltType, String navnVerdi,
-            String verdi) {
-        HistorikkinnslagFelt.builder()
-                .medFeltType(HistorikkinnslagFeltType.AVKLART_SOEKNADSPERIODE)
-                .medNavn(endretFeltType)
-                .medNavnVerdi(navnVerdi)
-                .medTilVerdi(verdi)
-                .build(historikkinnslagDelBuilder);
-        return this;
-    }
-
     public HistorikkInnslagTekstBuilder medÅrsak(Venteårsak årsak) {
         return medÅrsakIntern(årsak);
     }
