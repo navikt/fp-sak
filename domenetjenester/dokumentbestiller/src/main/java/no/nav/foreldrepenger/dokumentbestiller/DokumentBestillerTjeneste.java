@@ -56,5 +56,6 @@ public class DokumentBestillerTjeneste {
 
     private void bestillVedtak(BrevBestilling bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
         dokumentBestiller.bestillVedtak(bestillBrevDto, opprinneligDokumentMal, aktør);
+    }
 
 }
