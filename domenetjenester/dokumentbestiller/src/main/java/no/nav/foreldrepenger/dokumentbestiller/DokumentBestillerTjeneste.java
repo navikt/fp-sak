@@ -41,13 +41,25 @@ public class DokumentBestillerTjeneste {
         }
 
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
-        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
+
+        DokumentMalType dokumentMal;
+        DokumentMalType opprinneligDokumentMal = null;
+        if (Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev())) {
+            dokumentMal = DokumentMalType.FRITEKSTBREV;
+            opprinneligDokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
+        } else {
+            dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
+        }
 
         var bestillBrevDto = new BestillBrevDto(behandling.getUuid(), dokumentMal, null, null);
-        bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
+        bestillVedtak(bestillBrevDto, opprinneligDokumentMal, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-        dokumentBestiller.bestillDokumentOgLoggHistorikk(bestillBrevDto, aktør);
+        dokumentBestiller.bestillDokument(bestillBrevDto, aktør);
+    }
+
+    private void bestillVedtak(BestillBrevDto bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
+        dokumentBestiller.bestillVedtak(bestillBrevDto, opprinneligDokumentMal, aktør);
     }
 }

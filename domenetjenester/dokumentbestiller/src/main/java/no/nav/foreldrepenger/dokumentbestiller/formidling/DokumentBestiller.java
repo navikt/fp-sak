@@ -26,7 +26,7 @@ public class DokumentBestiller {
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     public DokumentBestiller() {
-        //CDI
+        // CDI
     }
 
     @Inject
@@ -40,33 +40,50 @@ public class DokumentBestiller {
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
-    public void bestillDokumentOgLoggHistorikk(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-        var behandling =  behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
-
-        bestillDokumentOgLoggHistorikk(behandling,
-            bestillBrevDto.getBrevmalkode(),
-            bestillBrevDto.getFritekst(),
-            bestillBrevDto.getArsakskode(),
-            aktør);
+    /**
+     *
+     * @param bestillBrevDto bestill brev dto
+     * @param opprinneligDokumentMal settes til den opprinnelige dokumentMalTypen hvis fritekstmalen brukes.
+     * @param aktør historikk aktør.
+     */
+    public void bestillVedtak(BestillBrevDto bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
+        bestillOgLogg(bestillBrevDto, opprinneligDokumentMal, aktør);
     }
 
-    private void bestillDokumentOgLoggHistorikk(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
+    public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
+        bestillOgLogg(bestillBrevDto, null, aktør);
+    }
+
+    private void bestillOgLogg(BestillBrevDto bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
+        var behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
+        bestillDokumentOgLoggHistorikk(behandling, bestillBrevDto.getBrevmalkode(), bestillBrevDto.getFritekst(), bestillBrevDto.getArsakskode(), aktør,
+            opprinneligDokumentMal);
+    }
+
+    private void bestillDokumentOgLoggHistorikk(Behandling behandling,
+                                                DokumentMalType dokumentMal,
+                                                String fritekst,
+                                                RevurderingVarslingÅrsak årsak,
+                                                HistorikkAktør aktør,
+                                                DokumentMalType opprinneligDokumentMal) {
         var bestillingUuid = UUID.randomUUID();
-        opprettBestillDokumentTask(behandling, dokumentMalType, fritekst, årsak, bestillingUuid);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMalType, bestillingUuid);
-        dokumentBestilt.opprettHistorikkinnslag(aktør, behandling, dokumentMalType);
+        opprettBestillDokumentTask(behandling, dokumentMal, fritekst, årsak, bestillingUuid, opprinneligDokumentMal);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, dokumentMal, bestillingUuid, opprinneligDokumentMal);
+        dokumentBestilt.opprettHistorikkinnslag(aktør, behandling, dokumentMal, opprinneligDokumentMal);
     }
 
     private void opprettBestillDokumentTask(Behandling behandling,
                                             DokumentMalType dokumentMalType,
                                             String fritekst,
                                             RevurderingVarslingÅrsak årsak,
-                                            UUID bestillingUuid) {
+                                            UUID bestillingUuid,
+                                            DokumentMalType opprinneligDokumentMal) {
         var prosessTaskData = ProsessTaskData.forProsessTask(DokumentBestillerTask.class);
         prosessTaskData.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, behandling.getUuid().toString());
         prosessTaskData.setProperty(DokumentBestillerTask.BESTILLING_UUID, String.valueOf(bestillingUuid));
         prosessTaskData.setProperty(DokumentBestillerTask.DOKUMENT_MAL_TYPE, dokumentMalType.getKode());
+        Optional.ofNullable(opprinneligDokumentMal).ifPresent(a -> prosessTaskData.setProperty(DokumentBestillerTask.OPPRINNELIG_DOKUMENT_MAL, a.getKode()));
         Optional.ofNullable(årsak).ifPresent(a -> prosessTaskData.setProperty(DokumentBestillerTask.REVURDERING_VARSLING_ÅRSAK, a.getKode()));
         prosessTaskData.setPayload(fritekst);
         prosessTaskData.setCallIdFraEksisterende();

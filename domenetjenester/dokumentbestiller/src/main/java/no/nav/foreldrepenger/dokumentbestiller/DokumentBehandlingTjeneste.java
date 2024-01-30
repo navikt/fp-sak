@@ -60,7 +60,10 @@ public class DokumentBehandlingTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
 
-    public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode, UUID bestillingUuid) {
+    public void loggDokumentBestilt(Behandling behandling,
+                                    DokumentMalType dokumentMalTypeKode,
+                                    UUID bestillingUuid,
+                                    DokumentMalType opprinneligDokumentMal) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
                 .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
@@ -68,6 +71,7 @@ public class DokumentBehandlingTjeneste {
                 .medBehandlingDokument(behandlingDokument)
                 .medDokumentMalType(dokumentMalTypeKode.getKode())
                 .medBestillingUuid(bestillingUuid)
+                .medOpprinneligDokumentMal(opprinneligDokumentMal == null ? null : opprinneligDokumentMal.getKode())
                 .build());
 
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
@@ -76,7 +80,8 @@ public class DokumentBehandlingTjeneste {
     public boolean erDokumentBestilt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
         return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
             .map(BehandlingDokumentEntitet::getBestilteDokumenter).orElse(List.of()).stream()
-                .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()));
+                .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) ||
+                    dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()));
     }
 
     public void nullstillVedtakFritekstHvisFinnes(Long behandlingId) {

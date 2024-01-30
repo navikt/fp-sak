@@ -26,18 +26,22 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "behandling_dokument_id", nullable = false, updatable = false)
+    @JoinColumn(name = "BEHANDLING_DOKUMENT_ID", nullable = false, updatable = false)
     private BehandlingDokumentEntitet behandlingDokument;
 
-    @Column(name = "dokument_mal_type", nullable = false)
+    @Column(name = "DOKUMENT_MAL_TYPE", nullable = false)
     private String dokumentMalType;
 
-    @Column(name = "bestilling_uuid")
+    @Column(name = "BESTILLING_UUID")
     private UUID bestillingUuid;
 
     @Embedded
-    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id"))
+    // trenges til å kunne sette journalpost fra kvittering, siden JournalpostId har satt updatable = false
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "JOURNALPOST_ID"))
     private JournalpostId journalpostId;
+
+    @Column(name = "OPPRINNELIG_DOKUMENT_MAL")
+    private String opprineligDokumentMal;
 
     public BehandlingDokumentBestiltEntitet() {
         // for hibernate
@@ -63,6 +67,10 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         return journalpostId;
     }
 
+    public String getOpprineligDokumentMal() {
+        return opprineligDokumentMal;
+    }
+
     public void setJournalpostId(JournalpostId journalpostId) {
         this.journalpostId = journalpostId;
     }
@@ -79,13 +87,14 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         return Objects.equals(behandlingDokument, that.behandlingDokument) &&
             Objects.equals(dokumentMalType, that.dokumentMalType) &&
             Objects.equals(bestillingUuid, that.bestillingUuid) &&
-            Objects.equals(journalpostId, that.journalpostId)
+            Objects.equals(journalpostId, that.journalpostId) &&
+            Objects.equals(opprineligDokumentMal, that.opprineligDokumentMal)
             ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingDokument, dokumentMalType, bestillingUuid, journalpostId);
+        return Objects.hash(behandlingDokument, dokumentMalType, bestillingUuid, journalpostId, opprineligDokumentMal);
     }
 
     @Override
@@ -95,7 +104,8 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
             + "behandlingDokument=" + behandlingDokument + ", "
             + "dokumentMalType=" + dokumentMalType + ", "
             + "bestillingUuid=" + bestillingUuid + ", "
-            + "journalpostId=" + journalpostId
+            + "journalpostId=" + journalpostId + ", "
+            + "opprineligDokumentMal=" + opprineligDokumentMal
             + ">";
     }
 
@@ -123,6 +133,11 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
 
         public BehandlingDokumentBestiltEntitet.Builder medJournalpostId(JournalpostId journalpostId) {
             behandlingDokumentBestiltMal.journalpostId = journalpostId;
+            return this;
+        }
+
+        public BehandlingDokumentBestiltEntitet.Builder medOpprinneligDokumentMal(String opprineligDokumentMal) {
+            behandlingDokumentBestiltMal.opprineligDokumentMal = opprineligDokumentMal;
             return this;
         }
 

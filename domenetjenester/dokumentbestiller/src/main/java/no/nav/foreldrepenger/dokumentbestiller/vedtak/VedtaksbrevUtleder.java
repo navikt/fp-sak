@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.exception.TekniskException;
@@ -30,19 +29,16 @@ public class VedtaksbrevUtleder {
         return VedtakResultatType.INNVILGET.equals(behandlingVedtak.getVedtakResultatType());
     }
 
-    static boolean erLagetFritekstBrev(Behandlingsresultat behandlingsresultat) {
-        return Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev());
-    }
-
+    /**
+     * Denne metoden tar ikke hensyn til fritekstmalen.
+     */
     public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling,
                                                            Behandlingsresultat behandlingsresultat,
                                                            BehandlingVedtak behandlingVedtak,
                                                            KlageRepository klageRepository) {
         DokumentMalType dokumentMal = null;
 
-        if (erLagetFritekstBrev(behandlingsresultat)) {
-            dokumentMal = DokumentMalType.FRITEKSTBREV;
-        } else if (erRevurderingMedUendretUtfall(behandlingVedtak)) {
+        if (erRevurderingMedUendretUtfall(behandlingVedtak)) {
             dokumentMal = DokumentMalType.INGEN_ENDRING;
         } else if (erKlageBehandling(behandlingVedtak)) {
             dokumentMal = velgKlagemal(behandling, klageRepository);
@@ -60,7 +56,6 @@ public class VedtaksbrevUtleder {
     static boolean erRevurderingMedUendretUtfall(BehandlingVedtak vedtak) {
         return vedtak.isBeslutningsvedtak();
     }
-
 
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();
