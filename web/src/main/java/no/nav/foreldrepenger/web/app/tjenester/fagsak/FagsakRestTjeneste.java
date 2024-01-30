@@ -23,9 +23,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -78,8 +75,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class FagsakRestTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FagsakRestTjeneste.class);
 
     static final String BASE_PATH = "/fagsak";
     private static final String FAGSAK_PART_PATH = "";
@@ -226,7 +221,7 @@ public class FagsakRestTjeneste {
         if (fagsak != null) {
             var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(FagsakMarkering.NASJONAL);
             // Sjekk om uendret merking (nasjonal er default)
-            if (eksisterende.equals(endreUtland.fagsakMarkering())) {
+            if (Objects.equals(eksisterende, endreUtland.fagsakMarkering())) {
                 return Response.ok().build();
             }
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.fagsakMarkering());
