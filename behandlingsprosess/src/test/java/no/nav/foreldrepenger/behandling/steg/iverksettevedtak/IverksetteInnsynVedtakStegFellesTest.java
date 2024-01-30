@@ -16,8 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
 class IverksetteInnsynVedtakStegFellesTest {
@@ -34,13 +34,13 @@ class IverksetteInnsynVedtakStegFellesTest {
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
-        var argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
+        var argumentCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
         verify(dokumentBestillerTjeneste, times(1))
                 .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
     }
 
     @Test
-    void skalDefaulteFritekstTilMellomrom() {
+    void skalDefaulteFritekstTilNull() {
         var scenario = innsynsScenario();
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -51,11 +51,11 @@ class IverksetteInnsynVedtakStegFellesTest {
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
-        var argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
+        var argumentCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
         verify(dokumentBestillerTjeneste, times(1))
                 .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 
-        assertThat(argumentCaptor.getValue().getFritekst()).isEqualTo(" ");
+        assertThat(argumentCaptor.getValue().fritekst()).isNull();
     }
 
     @Test
@@ -71,11 +71,11 @@ class IverksetteInnsynVedtakStegFellesTest {
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
-        var argumentCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
+        var argumentCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
         verify(dokumentBestillerTjeneste, times(1))
                 .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 
-        assertThat(argumentCaptor.getValue().getFritekst()).isEqualTo(begrunnelse);
+        assertThat(argumentCaptor.getValue().fritekst()).isEqualTo(begrunnelse);
     }
 
     private ScenarioMorSøkerEngangsstønad innsynsScenario() {

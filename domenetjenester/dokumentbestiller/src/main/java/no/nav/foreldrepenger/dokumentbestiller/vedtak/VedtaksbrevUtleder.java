@@ -1,13 +1,12 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
+import java.util.Set;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -16,36 +15,24 @@ public class VedtaksbrevUtleder {
     private VedtaksbrevUtleder() {
     }
 
-    static boolean erAvlåttEllerOpphørt(BehandlingVedtak behandlingVedtak) {
-        return VedtakResultatType.AVSLAG.equals(behandlingVedtak.getVedtakResultatType())
-            || VedtakResultatType.OPPHØR.equals(behandlingVedtak.getVedtakResultatType());
-    }
-
-    static boolean erKlageBehandling(BehandlingVedtak behandlingVedtak) {
-        return VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING.equals(behandlingVedtak.getVedtakResultatType());
-    }
-
-    static boolean erInnvilget(BehandlingVedtak behandlingVedtak) {
-        return VedtakResultatType.INNVILGET.equals(behandlingVedtak.getVedtakResultatType());
-    }
-
     /**
      * Denne metoden tar ikke hensyn til fritekstmalen.
      */
     public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling,
-                                                           Behandlingsresultat behandlingsresultat,
-                                                           BehandlingVedtak behandlingVedtak,
+                                                           BehandlingResultatType behandlingResultatType,
+                                                           VedtakResultatType vedtakResultatType,
+                                                           Boolean erRevurderingMedUendretUtfall,
                                                            KlageRepository klageRepository) {
         DokumentMalType dokumentMal = null;
 
-        if (erRevurderingMedUendretUtfall(behandlingVedtak)) {
+        if (erRevurderingMedUendretUtfall) {
             dokumentMal = DokumentMalType.INGEN_ENDRING;
-        } else if (erKlageBehandling(behandlingVedtak)) {
+        } else if (VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING.equals(vedtakResultatType)) {
             dokumentMal = velgKlagemal(behandling, klageRepository);
-        } else if (erInnvilget(behandlingVedtak)) {
-            dokumentMal = velgPositivtVedtaksmal(behandling, behandlingsresultat);
-        } else if (erAvlåttEllerOpphørt(behandlingVedtak)) {
-            dokumentMal = velgNegativVedtaksmal(behandling, behandlingsresultat);
+        } else if (VedtakResultatType.INNVILGET.equals(vedtakResultatType)) {
+            dokumentMal = velgPositivtVedtaksmal(behandling, behandlingResultatType);
+        } else if (erAvlåttEllerOpphørt(vedtakResultatType)) {
+            dokumentMal = velgNegativVedtaksmal(behandling, behandlingResultatType);
         }
         if (dokumentMal == null) {
             throw new TekniskException("FP-666915", "Ingen brevmal konfigurert for behandling " + behandling.getId());
@@ -53,54 +40,49 @@ public class VedtaksbrevUtleder {
         return dokumentMal;
     }
 
-    static boolean erRevurderingMedUendretUtfall(BehandlingVedtak vedtak) {
-        return vedtak.isBeslutningsvedtak();
+    static boolean erAvlåttEllerOpphørt(VedtakResultatType vedtakResultatType) {
+        return Set.of(VedtakResultatType.AVSLAG, VedtakResultatType.OPPHØR).contains(vedtakResultatType);
     }
 
-    public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        var fagsakYtelseType = behandling.getFagsakYtelseType();
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-            return DokumentMalType.ENGANGSSTØNAD_AVSLAG;
-        }
-        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
-                return DokumentMalType.FORELDREPENGER_OPPHØR;
-            }
-            return DokumentMalType.FORELDREPENGER_AVSLAG;
-        }
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
-            if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
-                return DokumentMalType.SVANGERSKAPSPENGER_OPPHØR;
-            }
-            return DokumentMalType.SVANGERSKAPSPENGER_AVSLAG;
-        }
-        return null;
+    static DokumentMalType velgNegativVedtaksmal(Behandling behandling, BehandlingResultatType behandlingResultatType) {
+        return switch (behandling.getFagsakYtelseType()) {
+            case ENGANGSTØNAD -> DokumentMalType.ENGANGSSTØNAD_AVSLAG;
+            case FORELDREPENGER ->
+                erOpphør(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_OPPHØR : DokumentMalType.FORELDREPENGER_AVSLAG;
+            case SVANGERSKAPSPENGER ->
+                erOpphør(behandlingResultatType) ? DokumentMalType.SVANGERSKAPSPENGER_OPPHØR : DokumentMalType.SVANGERSKAPSPENGER_AVSLAG;
+            case null, default -> null;
+        };
     }
 
-    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        var ytelse = behandling.getFagsakYtelseType();
-
-        return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
-            velgForeldrepengerPositivtVedtaksmal(behandlingsresultat) : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
-            DokumentMalType.ENGANGSSTØNAD_INNVILGELSE : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
-            DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE : null;
+    private static boolean erOpphør(BehandlingResultatType behandlingResultatType) {
+        return BehandlingResultatType.OPPHØR.equals(behandlingResultatType);
     }
 
-    private static DokumentMalType velgForeldrepengerPositivtVedtaksmal(Behandlingsresultat behandlingsresultat) {
-        return BehandlingResultatType.FORELDREPENGER_SENERE.equals(behandlingsresultat.getBehandlingResultatType())
-            ? DokumentMalType.FORELDREPENGER_ANNULLERT : DokumentMalType.FORELDREPENGER_INNVILGELSE;
+    static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, BehandlingResultatType behandlingResultatType) {
+        return switch (behandling.getFagsakYtelseType()) {
+            case FORELDREPENGER -> erUtsettelse(behandlingResultatType) ?
+                DokumentMalType.FORELDREPENGER_ANNULLERT : DokumentMalType.FORELDREPENGER_INNVILGELSE;
+            case SVANGERSKAPSPENGER -> DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE;
+            case ENGANGSTØNAD -> DokumentMalType.ENGANGSSTØNAD_INNVILGELSE;
+            case null, default -> null;
+        };
     }
 
-    public static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
-        var klageVurdering = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).map(KlageVurderingResultat::getKlageVurdering).orElse(null);
-        if (klageVurdering == null) {
-            return null;
-        }
+    private static boolean erUtsettelse(BehandlingResultatType behandlingResultatType) {
+        return BehandlingResultatType.FORELDREPENGER_SENERE.equals(behandlingResultatType);
+    }
+
+    static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
+        var klageVurdering = klageRepository.hentGjeldendeKlageVurderingResultat(behandling)
+            .map(KlageVurderingResultat::getKlageVurdering)
+            .orElse(null);
 
         return switch (klageVurdering) {
             case MEDHOLD_I_KLAGE -> DokumentMalType.KLAGE_OMGJORT;
             case AVVIS_KLAGE -> DokumentMalType.KLAGE_AVVIST;
             case UDEFINERT, HJEMSENDE_UTEN_Å_OPPHEVE, OPPHEVE_YTELSESVEDTAK, STADFESTE_YTELSESVEDTAK -> null;
+            case null -> null;
         };
     }
 }

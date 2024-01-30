@@ -23,10 +23,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
@@ -200,8 +200,11 @@ public class KompletthetsjekkerFelles {
 
     private void sendEtterlysInntektsmeldingBrev(Long behandlingId, UUID behandlingUuid) {
         if (!erEtterlysInntektsmeldingBrevSendt(behandlingId)) {
-            var bestillBrevDto = new BestillBrevDto(behandlingUuid, DokumentMalType.ETTERLYS_INNTEKTSMELDING, null, null);
-            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
+            var brevBestilling = BrevBestilling.builder()
+                .medBehandlingUuid(behandlingUuid)
+                .medDokumentMal(DokumentMalType.ETTERLYS_INNTEKTSMELDING)
+                .build();
+            dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
     }
 

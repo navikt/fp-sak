@@ -19,9 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
 @BehandlingStegRef(BehandlingStegType.IVERKSETT_VEDTAK)
@@ -52,8 +52,8 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
-        var bestillBrevDto = brevDto(behandling);
-        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN);
+        // MS VEDTAKSBREV
+        dokumentBestillerTjeneste.bestillDokument(lagBrevBestilling(behandling), HistorikkAktør.VEDTAKSLØSNINGEN);
 
         var vedtak = vedtakRepository.hentForBehandling(behandling.getId());
         if (vedtak != null) {
@@ -64,15 +64,19 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
-    private BestillBrevDto brevDto(Behandling behandling) {
+    private BrevBestilling lagBrevBestilling(Behandling behandling) {
         var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
         var begrunnelse = ap.getBegrunnelse();
-        var fritekst = nullOrEmpty(begrunnelse) ? " " : begrunnelse;
+        var fritekst = !nullOrEmpty(begrunnelse) ? begrunnelse.trim() : null;
 
-        return new BestillBrevDto(behandling.getUuid(), DokumentMalType.INNSYN_SVAR, fritekst);
+        return BrevBestilling.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medDokumentMal(DokumentMalType.INNSYN_SVAR)
+            .medFritekst(fritekst)
+            .build();
     }
 
     private boolean nullOrEmpty(String begrunnelse) {
-        return Objects.isNull(begrunnelse) || Objects.equals(begrunnelse, "");
+        return Objects.isNull(begrunnelse) || Objects.equals(begrunnelse.trim(), "");
     }
 }

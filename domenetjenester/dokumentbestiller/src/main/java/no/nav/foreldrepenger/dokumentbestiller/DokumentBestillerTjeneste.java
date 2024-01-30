@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 
 @ApplicationScoped
@@ -36,30 +35,25 @@ public class DokumentBestillerTjeneste {
     public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
         var behandlingsresultat = behandlingVedtak.getBehandlingsresultat();
 
-        if (Vedtaksbrev.INGEN.equals(behandlingsresultat.getVedtaksbrev())) {
-            return;
-        }
-
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
 
         DokumentMalType dokumentMal;
         DokumentMalType opprinneligDokumentMal = null;
         if (Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev())) {
             dokumentMal = DokumentMalType.FRITEKSTBREV;
-            opprinneligDokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
+            opprinneligDokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat.getBehandlingResultatType(), behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), klageRepository);
         } else {
-            dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak, klageRepository);
+            dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat.getBehandlingResultatType(), behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), klageRepository);
         }
 
-        var bestillBrevDto = new BestillBrevDto(behandling.getUuid(), dokumentMal, null, null);
-        bestillVedtak(bestillBrevDto, opprinneligDokumentMal, HistorikkAktør.VEDTAKSLØSNINGEN);
+        bestillVedtak(BrevBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal).build(), opprinneligDokumentMal, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
-    public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
-        dokumentBestiller.bestillDokument(bestillBrevDto, aktør);
+    public void bestillDokument(BrevBestilling brevBestilling, HistorikkAktør aktør) {
+        dokumentBestiller.bestillDokument(brevBestilling, aktør);
     }
 
-    private void bestillVedtak(BestillBrevDto bestillBrevDto, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
-        dokumentBestiller.bestillVedtak(bestillBrevDto, opprinneligDokumentMal, aktør);
+    private void bestillVedtak(BrevBestilling brevBestilling, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
+        dokumentBestiller.bestillVedtak(brevBestilling, opprinneligDokumentMal, aktør);
     }
 }

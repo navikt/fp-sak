@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
+import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
 
 public interface Brev {
@@ -10,4 +11,9 @@ public interface Brev {
      */
     void bestill(DokumentbestillingV2Dto dokumentbestillingV2Dto);
 
+    /**
+     * Forhåndsviser et dokument definert i dtoen.
+     * @param dokumentbestillingDto
+     */
+    byte[] forhåndsvis(DokumentbestillingDto dokumentbestillingDto);
 }

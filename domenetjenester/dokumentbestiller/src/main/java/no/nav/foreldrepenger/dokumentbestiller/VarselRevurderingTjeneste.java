@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -41,9 +40,13 @@ public class VarselRevurderingTjeneste {
     }
 
     public void håndterVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
-        var bestillBrevDto = new BestillBrevDto(ref.behandlingUuid(), DokumentMalType.VARSEL_OM_REVURDERING, adapter.getFritekst());
-        bestillBrevDto.setArsakskode(RevurderingVarslingÅrsak.ANNET);
-        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
+        var brevBestilling = BrevBestilling.builder()
+            .medBehandlingUuid(ref.behandlingUuid())
+            .medDokumentMal(DokumentMalType.VARSEL_OM_REVURDERING)
+            .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET)
+            .medFritekst(adapter.getFritekst())
+            .build();
+        dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
         settBehandlingPaVent(ref, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
     }
 

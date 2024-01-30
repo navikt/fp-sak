@@ -14,8 +14,7 @@ public class VarselRevurderingManuellDto extends VarselRevurderingDto {
         // for jackson
     }
 
-    public VarselRevurderingManuellDto(String begrunnelse, boolean sendVarsel,
-            String fritekst, LocalDate frist, Venteårsak ventearsak) {
+    public VarselRevurderingManuellDto(String begrunnelse, boolean sendVarsel, String fritekst, LocalDate frist, Venteårsak ventearsak) {
         super(begrunnelse, sendVarsel, fritekst, frist, ventearsak);
     }
 
