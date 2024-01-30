@@ -115,14 +115,14 @@ public class DokumentBehandlingTjeneste {
         behandlingRepository.lagre(behandling, lås);
     }
 
-    public void kvitterBrevSent(DokumentProdusertDto kvittering) {
+    public void kvitterSendtBrev(DokumentProdusertDto kvittering) {
         var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
         var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
         historikkRepository.lagre(historikkInnslag);
         oppdaterDokumentBestillingMedJournalpostId(kvittering.dokumentbestillingUuid(), kvittering.journalpostId());
     }
 
-    public void kvitterBrevSent(DokumentKvitteringDto kvittering) {
+    public void kvitterSendtBrev(DokumentKvitteringDto kvittering) {
         var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
         var bestillingUuid = kvittering.dokumentbestillingUuid();
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);

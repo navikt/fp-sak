@@ -140,7 +140,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void kvittering(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto kvittering) {
-        dokumentBehandlingTjeneste.kvitterBrevSent(kvittering);
+        dokumentBehandlingTjeneste.kvitterSendtBrev(kvittering);
     }
 
     @POST
@@ -149,7 +149,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid DokumentKvitteringDto kvittering) {
-        dokumentBehandlingTjeneste.kvitterBrevSent(kvittering);
+        dokumentBehandlingTjeneste.kvitterSendtBrev(kvittering);
     }
 
     @GET
