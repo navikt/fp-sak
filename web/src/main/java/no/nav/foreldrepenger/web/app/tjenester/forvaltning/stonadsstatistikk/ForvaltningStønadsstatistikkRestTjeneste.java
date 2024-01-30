@@ -140,7 +140,35 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
         samlet.forEach(f -> taskTjeneste.lagre(opprettTaskForFagsak(f)));
 
         return Response.ok().build();
+    }
 
+    @POST
+    @Operation(description = "Oppretter task for migrering", tags = "FORVALTNING-stønadsstatistikk")
+    @Path("/opprettTasker")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response opprettTasker() {
+        var query = entityManager.createNativeQuery("""
+                select distinct fagsak_id from
+                (select *
+                 from fh_terminbekreftelse fht join gr_familie_hendelse gf on gf.soeknad_familie_hendelse_id = fht.familie_hendelse_id
+                                               join behandling b on b.id = gf.behandling_id join fagsak f on f.id=b.fagsak_id
+                                               join behandling_resultat br on br.behandling_id = b.id join behandling_vedtak bv on bv.behandling_resultat_id = br.id
+                 where to_char(termindato, 'YYYY') = :migrereMedTermindatoI and gf.aktiv = 'J'
+                     fetch first 3000 rows only)
+            """);
+        query.setParameter("migrereMedTermindatoI", )
+
+        @SuppressWarnings("unchecked")
+        List<Number> resultatList = query.getResultList();
+        var fagsakIds = resultatList.stream().map(Number::longValue).toList();
+        var relaterte = fagsakIds.stream().flatMap(f -> finnRelatertFagsak(f).stream()).collect(Collectors.toSet());
+        var samlet = new HashSet<>(fagsakIds);
+        samlet.addAll(relaterte);
+
+        samlet.forEach(f -> taskTjeneste.lagre(opprettTaskForFagsak(f)));
+
+        return Response.ok().build();
     }
 
     static ProsessTaskData opprettTaskForFagsak(Long fagsakId) {
