@@ -90,12 +90,12 @@ class KlagevurderingOppdatererTest {
         assertThat(klageVurderingResultat.getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NFP);
         assertThat(klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP)).isEqualTo(Optional.of(klageVurderingResultat));
 
-        // verifiserer BestillBrevDto
+        // verifiserer BrevBestilling
         var brevDtoCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
         verify(dokumentBestillerTjeneste).bestillDokument(brevDtoCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER));
-        var bestillBrevDto = brevDtoCaptor.getValue();
-        assertThat(bestillBrevDto.dokumentMal()).isEqualTo(DokumentMalType.KLAGE_OVERSENDT);
-        assertThat(bestillBrevDto.fritekst()).isNull();
+        var brevBestilling = brevDtoCaptor.getValue();
+        assertThat(brevBestilling.dokumentMal()).isEqualTo(DokumentMalType.KLAGE_OVERSENDT);
+        assertThat(brevBestilling.fritekst()).isNull();
 
         // Verifiserer HistorikkinnslagDto
         var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);

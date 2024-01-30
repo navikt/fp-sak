@@ -51,7 +51,7 @@ public class BrevRestTjeneste {
     static final String BASE_PATH = "/brev";
     private static final String VARSEL_REVURDERING_PART_PATH = "/varsel/revurdering";
     public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
-    private static final String BREV_VIS_PART_PATH = "/forhandsvis/manuell";
+    private static final String BREV_VIS_PART_PATH = "/forhandsvis";
     public static final String BREV_VIS_PATH = BASE_PATH + BREV_VIS_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
@@ -102,7 +102,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Returnerer en pdf som er en forhåndsvisning av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response forhaandsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid DokumentbestillingDto dokumentbestillingDto) { // NOSONAR
+    public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid DokumentbestillingDto dokumentbestillingDto) { // NOSONAR
 
         var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisBrev(dokumentbestillingDto);
         if (dokument != null && dokument.length != 0) {

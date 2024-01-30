@@ -359,18 +359,6 @@ public class Behandlingsresultat extends BaseEntitet {
         return BehandlingResultatType.OPPHØR.equals(behandlingResultatType);
     }
 
-    public boolean isForeldrepengerSenere() {
-        return BehandlingResultatType.FORELDREPENGER_SENERE.equals(behandlingResultatType);
-    }
-
-    public boolean isBehandlingsresultatInnvilget() {
-        return BehandlingResultatType.INNVILGET.equals(behandlingResultatType);
-    }
-
-    public boolean isBehandlingsresultatForeldrepengerEndret() {
-        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingResultatType);
-    }
-
     public boolean isBehandlingsresultatIkkeEndret() {
         return BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType);
     }
