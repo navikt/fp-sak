@@ -70,24 +70,12 @@ public class RegisterdataInnhenter {
         INNTEKT_BEREGNINGSGRUNNLAG,
         INNTEKT_SAMMENLIGNINGSGRUNNLAG
     );
-    private static final Set<RegisterdataType> FØRSTEGANGSSØKNAD_ES = Set.of(
-        YTELSE,
-        ARBEIDSFORHOLD,
-        INNTEKT_PENSJONSGIVENDE,
-        LIGNET_NÆRING
-    );
     private static final Set<RegisterdataType> REVURDERING_FP_SVP = Set.of(
         YTELSE,
         ARBEIDSFORHOLD,
         INNTEKT_PENSJONSGIVENDE,
         INNTEKT_BEREGNINGSGRUNNLAG,
         INNTEKT_SAMMENLIGNINGSGRUNNLAG
-    );
-
-    private static final Set<RegisterdataType> REVURDERING_ES = Set.of(
-        YTELSE,
-        ARBEIDSFORHOLD,
-        INNTEKT_PENSJONSGIVENDE
     );
 
     private PersonopplysningInnhenter personopplysningInnhenter;
@@ -241,16 +229,13 @@ public class RegisterdataInnhenter {
         var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), fagsakYtelseType);
         var periode = new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato());
         var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
-        var informasjonsElementer = utledBasertPå(behandlingType, fagsakYtelseType);
+        var informasjonsElementer = utledBasertPå(behandlingType);
 
         return new InnhentRegisterdataRequest(saksnummer, behandlingUuid, ytelseType, periode, aktør, informasjonsElementer);
     }
 
-    private Set<RegisterdataType> utledBasertPå(BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandlingType)) {
-            return FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType) ? FØRSTEGANGSSØKNAD_ES : FØRSTEGANGSSØKNAD_FP_SVP;
-        }
-        return FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType) ? REVURDERING_ES : REVURDERING_FP_SVP;
+    private Set<RegisterdataType> utledBasertPå(BehandlingType behandlingType) {
+        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandlingType) ? FØRSTEGANGSSØKNAD_FP_SVP : REVURDERING_FP_SVP;
     }
 
     private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(Behandling behandling, Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag,
