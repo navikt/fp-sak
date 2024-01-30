@@ -224,13 +224,13 @@ public class FagsakRestTjeneste {
                                           @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
-            var eksisterendeOpt = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId());
-            // Sjekk om unedret merking
-            if (eksisterendeOpt.filter(em -> Objects.equals(em, endreUtland.fagsakMarkering())).isPresent()) {
+            var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(FagsakMarkering.NASJONAL);
+            // Sjekk om uendret merking (nasjonal er default)
+            if (eksisterende.equals(endreUtland.fagsakMarkering())) {
                 return Response.ok().build();
             }
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.fagsakMarkering());
-            lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(FagsakMarkering.NASJONAL), endreUtland.fagsakMarkering());
+            lagHistorikkInnslag(fagsak, eksisterende, endreUtland.fagsakMarkering());
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS
             var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
