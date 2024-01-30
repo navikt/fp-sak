@@ -1,5 +1,9 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.svp;
 
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -12,6 +16,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -56,9 +61,12 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     private StartpunktType getStartpunktType(BehandlingReferanse revurdering, EndringsresultatDiff differanse, boolean normalDiff) {
-        return differanse.hentDelresultat(InntektArbeidYtelseGrunnlag.class)
+        return Stream.of(InntektArbeidYtelseGrunnlag.class, NesteSakGrunnlagEntitet.class)
+            .map(differanse::hentDelresultat)
+            .flatMap(Optional::stream)
             .filter(EndringsresultatDiff::erSporedeFeltEndret)
             .map(diff -> utledStartpunktForDelresultat(revurdering, diff, normalDiff))
+            .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
 
