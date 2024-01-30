@@ -16,6 +16,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,6 +140,15 @@ public class BrevRestTjeneste {
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void kvittering(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto kvittering) {
+        dokumentBehandlingTjeneste.kvitterBrevSent(kvittering);
+    }
+
+    @POST
+    @Path("/kvittering/v3")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
+    @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
+    public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid DokumentKvitteringDto kvittering) {
         dokumentBehandlingTjeneste.kvitterBrevSent(kvittering);
     }
 
