@@ -20,10 +20,6 @@ class HistorikkFraBrevKvitteringMapper {
         return opprettHistorikk(dokumentMal, journalpostId, dokumentId, behandlingId, fagsakId);
     }
 
-    static Historikkinnslag opprettHistorikkInnslag(DokumentProdusertDto kvittering, long behandlingId, long fagsakId) {
-        return opprettHistorikk(DokumentMalType.fraKode(kvittering.dokumentMal()), kvittering.journalpostId(), kvittering.dokumentId(), behandlingId, fagsakId);
-    }
-
     private static Historikkinnslag opprettHistorikk(DokumentMalType dokumentMal, String journalpostId, String dokumentId, long behandlingId, long fagsakId) {
         var nyttHistorikkInnslag = new Historikkinnslag.Builder()
             .medFagsakId(fagsakId)

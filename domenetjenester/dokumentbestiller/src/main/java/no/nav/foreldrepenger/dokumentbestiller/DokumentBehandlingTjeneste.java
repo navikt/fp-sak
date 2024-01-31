@@ -29,8 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
-import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
 
 @ApplicationScoped
 public class DokumentBehandlingTjeneste {
@@ -115,16 +113,9 @@ public class DokumentBehandlingTjeneste {
         behandlingRepository.lagre(behandling, lås);
     }
 
-    public void kvitterSendtBrev(DokumentProdusertDto kvittering) {
+    public void kvitterSendtBrev(DokumentKvittering kvittering) {
         var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
-        var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
-        historikkRepository.lagre(historikkInnslag);
-        oppdaterDokumentBestillingMedJournalpostId(kvittering.dokumentbestillingUuid(), kvittering.journalpostId());
-    }
-
-    public void kvitterSendtBrev(DokumentKvitteringDto kvittering) {
-        var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
-        var bestillingUuid = kvittering.dokumentbestillingUuid();
+        var bestillingUuid = kvittering.bestillingUuid();
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
         if (dokumentBestiling.isPresent()) {
             var bestilling = dokumentBestiling.get();
@@ -134,7 +125,7 @@ public class DokumentBehandlingTjeneste {
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
             }
-            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal());
+            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal(), kvittering.malType());
             lagreHistorikk(behandling, dokumentMal , journalpostId, kvittering.dokumentId());
         } else {
             LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid);
@@ -147,23 +138,17 @@ public class DokumentBehandlingTjeneste {
         historikkRepository.lagre(historikkInnslag);
     }
 
-    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal) {
+    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal, DokumentMalType malFraKvittering) {
+        // Midlertidig inntil formidling sender mal i kvittering.
+        if (malFraKvittering != null) {
+            LOG.info("Mal levert med kvittering: {}.", malFraKvittering);
+            return malFraKvittering;
+        }
         var dokumentMal = DokumentMalType.fraKode(dokumentMalType);
         if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) && opprineligDokumentMal != null) {
             return DokumentMalType.fraKode(opprineligDokumentMal);
         }
         return dokumentMal;
-    }
-
-    private void oppdaterDokumentBestillingMedJournalpostId(UUID bestillingUuid, String journalpostId) {
-        var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
-        dokumentBestiling.ifPresentOrElse(bestilling -> {
-            if (Objects.isNull(bestilling.getJournalpostId())) { // behandlinger med verge produserer to brev per bestilling - vi ble enig om å ignorere det andre.
-                bestilling.setJournalpostId(new JournalpostId(journalpostId));
-                LOG.trace("JournalpostId: {}.", journalpostId);
-                behandlingDokumentRepository.lagreOgFlush(bestilling);
-            }
-        }, () -> LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid));
     }
 
     LocalDate utledFristMedlemskap(Behandling behandling) {

@@ -16,6 +16,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.dokumentbestiller.DokumentKvittering;
+import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
 
 import org.slf4j.Logger;
@@ -139,8 +141,12 @@ public class BrevRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public void kvittering(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto kvittering) {
-        dokumentBehandlingTjeneste.kvitterSendtBrev(kvittering);
+    public void kvittering(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid DokumentProdusertDto kvittering) {
+        dokumentBehandlingTjeneste.kvitterSendtBrev(new DokumentKvittering(kvittering.behandlingUuid(),
+            kvittering.dokumentbestillingUuid(),
+            DokumentMalType.fraKode(kvittering.dokumentMal()),
+            kvittering.journalpostId(),
+            kvittering.dokumentId()));
     }
 
     @POST
@@ -148,8 +154,8 @@ public class BrevRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Kvitterer at brevet ble produsert og sendt. BREV_SENT historikk blir lagt og behandling dokument blir oppdatert med journalpostId.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentProdusertDataSupplier.class) @Valid DokumentKvitteringDto kvittering) {
-        dokumentBehandlingTjeneste.kvitterSendtBrev(kvittering);
+    public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentKvitteringDataSupplier.class) @Valid DokumentKvitteringDto kvitto) {
+        dokumentBehandlingTjeneste.kvitterSendtBrev(new DokumentKvittering(kvitto.behandlingUuid(), kvitto.dokumentbestillingUuid(), null, kvitto.journalpostId(), kvitto.dokumentId()));
     }
 
     @GET
@@ -175,7 +181,16 @@ public class BrevRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            var req = (no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto) obj;
+            var req = (DokumentProdusertDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+        }
+    }
+
+    public static class DokumentKvitteringDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (DokumentKvitteringDto) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
