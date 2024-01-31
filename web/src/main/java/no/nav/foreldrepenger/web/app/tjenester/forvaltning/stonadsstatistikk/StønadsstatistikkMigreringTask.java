@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk;
 
-import java.util.Comparator;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import jakarta.enterprise.context.Dependent;
@@ -9,12 +10,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
+import org.hibernate.jpa.HibernateHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -32,7 +34,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadsstatistikkMigreringTask.class);
-    static final String FAGSAK_ID = "fagsakId";
+    static final String DATO_KEY = "dato";
 
     private final BehandlingRepository behandlingRepository;
     private final StønadsstatistikkTjeneste stønadsstatistikkTjeneste;
@@ -60,30 +62,28 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fagsakId = Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID));
+        var fom = LocalDate.parse(prosessTaskData.getPropertyValue(DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+        LOG.info("Publiser migreringshendelse for vedtak opprettet {}", fom);
 
-        LOG.info("Produserer stønadsstatistikk for fagsak {}", fagsakId);
-        var alleVedtak = finnAlleVedtakForFagsak(fagsakId);
-        if (alleVedtak.isEmpty()) {
-            LOG.info("Produserer stønadsstatistikk ingen gjeldende vedtak for fagsak {}", fagsakId);
-        } else {
-            LOG.info("Fant {} vedtak på fagsak {}", alleVedtak.size(), fagsakId);
-        }
-        alleVedtak.stream().sorted(Comparator.comparing(BaseCreateableEntitet::getOpprettetTidspunkt)).forEach(this::produser);
+        var vedtak = finnAlleVedtakForDato(fom);
+
+        LOG.info("Publiser migreringshendelse for {} vedtak", vedtak.size());
+        vedtak.forEach(this::produser);
     }
 
-    private List<BehandlingVedtak> finnAlleVedtakForFagsak(long fagsakId) {
-        var query = entityManager.createQuery("FROM BehandlingVedtak bv where bv.behandlingsresultat.behandling.fagsak.id = :id", BehandlingVedtak.class)
-            .setParameter("id", fagsakId);
+    private List<BehandlingVedtak> finnAlleVedtakForDato(LocalDate vedtaksdato) {
+        var query = entityManager.createQuery("FROM BehandlingVedtak bv where bv.behandlingsresultat.behandling.behandlingType in (:behnadlingstyper) and trunc(bv.opprettetTidspunkt) =:vedtaksdato", BehandlingVedtak.class)
+            .setParameter("vedtaksdato", vedtaksdato)
+            .setParameter("behnadlingstyper", BehandlingType.getYtelseBehandlingTyper())
+            .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
     private void produser(BehandlingVedtak vedtak) {
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandling.erYtelseBehandling()) {
-            produser(behandling, vedtak.getId());
-        }
+
+        produser(behandling, vedtak.getId());
     }
 
     private void produser(Behandling behandling, Long vedtakId) {
