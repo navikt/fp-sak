@@ -4,7 +4,7 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -47,7 +47,7 @@ public class FpUttakRepository {
     }
 
     private void lagreUttaksresultat(Long behandlingId,
-                                     Function<UttakResultatEntitet.Builder, UttakResultatEntitet.Builder> resultatTransformator) {
+                                     UnaryOperator<UttakResultatEntitet.Builder> resultatTransformator) {
         var lås = behandlingLåsRepository.taLås(behandlingId);
 
         var eksistrendeResultat = hentUttakResultatHvisEksisterer(behandlingId);
