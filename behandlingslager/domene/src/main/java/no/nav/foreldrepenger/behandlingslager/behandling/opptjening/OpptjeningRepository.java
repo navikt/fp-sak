@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -111,7 +111,7 @@ public class OpptjeningRepository {
      */
     public Opptjening lagreOpptjeningsperiode(Behandling behandling, LocalDate opptjeningFom, LocalDate opptjeningTom, boolean skalBevareResultat) {
 
-        Function<Opptjening, Opptjening> oppdateringsfunksjon = tidligereOpptjening -> {
+        UnaryOperator<Opptjening> oppdateringsfunksjon = tidligereOpptjening -> {
             // lager ny opptjening alltid ved ny opptjeningsperiode.
             var nyOpptjening = new Opptjening(opptjeningFom, opptjeningTom);
             if (skalBevareResultat) {
@@ -135,7 +135,7 @@ public class OpptjeningRepository {
         behandlingRepository.verifiserBehandlingLås(behandlingLås);
     }
 
-    private Opptjening lagre(Behandling behandling, Function<Opptjening, Opptjening> oppdateringsfunksjon) {
+    private Opptjening lagre(Behandling behandling, UnaryOperator<Opptjening> oppdateringsfunksjon) {
         var behandlingId = behandling.getId();
         var vilkårResultat = validerRiktigBehandling(behandling);
 
@@ -167,7 +167,7 @@ public class OpptjeningRepository {
 
         var kopiListe = duplikatSjekk(opptjeningAktiviteter);
 
-        Function<Opptjening, Opptjening> oppdateringsfunksjon = tidligereOpptjening -> {
+        UnaryOperator<Opptjening> oppdateringsfunksjon = tidligereOpptjening -> {
             var ny = new Opptjening(tidligereOpptjening);
             ny.setOpptjeningAktivitet(kopiListe);
             ny.setOpptjentPeriode(opptjentPeriode);
