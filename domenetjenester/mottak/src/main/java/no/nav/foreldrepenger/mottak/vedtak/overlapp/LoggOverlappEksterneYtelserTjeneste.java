@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -23,6 +24,7 @@ import no.nav.abakus.vedtak.ytelse.Desimaltall;
 import no.nav.abakus.vedtak.ytelse.Kildesystem;
 import no.nav.abakus.vedtak.ytelse.Ytelser;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -39,10 +41,10 @@ import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -79,6 +81,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private AbakusTjeneste abakusTjeneste;
     private Spøkelse spøkelse;
     private OverlappVedtakRepository overlappRepository;
+    private OppgaveTjeneste oppgaveTjeneste;
 
 
     @Inject
@@ -90,7 +93,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                AbakusTjeneste abakusTjeneste,
                                                Spøkelse spøkelse,
                                                OverlappVedtakRepository overlappRepository,
-                                               BehandlingRepository behandlingRepository) {
+                                               BehandlingRepository behandlingRepository, OppgaveTjeneste oppgaveTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
@@ -100,24 +103,49 @@ public class LoggOverlappEksterneYtelserTjeneste {
         this.abakusTjeneste = abakusTjeneste;
         this.spøkelse = spøkelse;
         this.overlappRepository = overlappRepository;
+        this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
     LoggOverlappEksterneYtelserTjeneste() {
         // for CDI
     }
 
-    public void loggOverlappForVedtakFPSAK(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
-        try {
-            loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream()
-                .map(b -> b.medHendelse(OverlappVedtak.HENDELSE_VEDTAK_FOR))
-                .forEach(overlappRepository::lagre);
-        } catch (Exception e) {
-            LOG.info("Identifisering av overlapp for vedtak i VL feilet ", e);
-        }
+    public void loggOverlappForVedtakFPSAK(Behandling behandling) {
+        var overlappListe = loggOverlappendeYtelser(behandling).stream()
+            .map(b -> b.medHendelse(OverlappVedtak.HENDELSE_VEDTAK_FOR).build())
+            .toList();
+
+        overlappListe.forEach(overlappRepository::lagre);
+
+        håndterOverlapp(overlappListe, behandling);
     }
 
-    public void loggOverlappForAvstemming(String hendelse, Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
-        loggOverlappendeYtelser(behandlingId, saksnummer, aktørId).stream()
+    private void håndterOverlapp(List<OverlappVedtak> overlappListe, Behandling behandling) {
+        var sykerpengerOverlapp = overlappListe.stream()
+            .filter(overlappVedtak -> Fagsystem.VLSP.getKode().equals(overlappVedtak.getFagsystem()))
+            .toList();
+        if (sykerpengerOverlapp.isEmpty()) {
+            return;
+        }
+        var minFom = sykerpengerOverlapp.stream()
+            .map(periode -> periode.getPeriode().getFomDato())
+            .min(Comparator.naturalOrder()).orElseThrow();
+        var maxTom = sykerpengerOverlapp.stream()
+            .map(periode -> periode.getPeriode().getTomDato())
+            .max(Comparator.naturalOrder()).orElseThrow();
+        var ytelse = behandling.getFagsakYtelseType().getNavn().toLowerCase();
+        var maxUtbetalingsprosent = sykerpengerOverlapp.stream()
+            .map(OverlappVedtak::getFpsakUtbetalingsprosent)
+            .max(Comparator.naturalOrder()).orElse(100L);
+
+        var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i Speil. Vurder konsekvens for ytelse.", ytelse, maxUtbetalingsprosent, minFom, maxTom );
+        oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
+
+    }
+
+    public void loggOverlappForAvstemming(String hendelse, Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        loggOverlappendeYtelser(behandling).stream()
             .map(b -> b.medHendelse(hendelse))
             .forEach(overlappRepository::lagre);
     }
@@ -152,10 +180,10 @@ public class LoggOverlappEksterneYtelserTjeneste {
         };
     }
 
-    private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Long behandlingId,
-                                                                 Saksnummer saksnummer,
-                                                                 AktørId aktørId) {
-        var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
+    private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Behandling behandling) {
+        var ytelseType = behandling.getFagsakYtelseType();
+        var behandlingId = behandling.getId();
+        var aktørId = behandling.getAktørId();
         var perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
         if (perioderFpGradert.isEmpty()) {
             return Collections.emptyList();
@@ -169,7 +197,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         vurderOmOverlappOMS(aktørId, tidligsteUttakFP, perioderFpGradert, overlappene);
         vurderOmOverlappSYK(ident, tidligsteUttakFP, perioderFpGradert, overlappene);
         return overlappene.stream()
-            .map(b -> b.medSaksnummer(saksnummer).medBehandlingId(behandlingId))
+            .map(b -> b.medSaksnummer(behandling.getFagsak().getSaksnummer()).medBehandlingId(behandlingId))
             .toList();
     }
 
@@ -196,6 +224,15 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingSVP(Long behandlingId) {
+        var resultatPerioder = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
+            .toList();
+        if (resultatPerioder.isEmpty()) {
+            return new LocalDateTimeline<>(Collections.emptyList());
+        }
         var beregningsgrunnlag = beregningTjeneste.hent(behandlingId).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
             .orElse(null);
         if (beregningsgrunnlag == null) {
@@ -203,15 +240,11 @@ public class LoggOverlappEksterneYtelserTjeneste {
         }
         var grunnlagUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
             .stream()
-            .filter(p -> p.getDagsats() > 0)
+            .filter(p -> p.getDagsats() != null && p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(),
                 beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
             .toList();
-        var resultatsegments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
-            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
-            .orElse(Collections.emptyList())
-            .stream()
-            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
+        var resultatsegments = resultatPerioder.stream()
             .map(p -> finnUtbetalingsgradFor(p, grunnlagUtbetGrad))
             .filter(Objects::nonNull)
             .toList();
@@ -311,7 +344,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private List<SykepengeVedtak> hentSpøkelse(String fnr, LocalDate førsteUttaksDatoFP) {
-        if (!IS_PROD) return List.of();
         var it = SPOKELSE_TIMEOUTS.iterator();
         while (it.hasNext()) {
             try {
@@ -352,8 +384,13 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .map(filter::getSegment)
             .map(s -> opprettOverlappBuilder(s.getLocalDateInterval(), s.getValue()).medFagsystem(fagsystem)
                 .medYtelse(ytelseType)
+                .medFpsakUtbetalingsprosent(finnFpUtbetalingsprosent(perioderFP, s.getLocalDateInterval()))
                 .medReferanse(referanse))
             .toList();
+    }
+
+    private Long finnFpUtbetalingsprosent(LocalDateTimeline<BigDecimal> perioderFP, LocalDateInterval localDateInterval) {
+        return perioderFP.intersection(localDateInterval).stream().findFirst().map(s -> s.getValue().longValue() ).orElse(0L);
     }
 
     private LocalDateTimeline<BigDecimal> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag) {
@@ -414,5 +451,4 @@ public class LoggOverlappEksterneYtelserTjeneste {
         }
         return new LocalDateSegment<>(i, lhs.getValue());
     }
-
 }
