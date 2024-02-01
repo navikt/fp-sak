@@ -2,38 +2,19 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.fpoversikt.FpoversiktMigeringBehandlingHendelseTask;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.fpoversikt.FpoversiktMigreringRestTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +23,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -101,30 +82,27 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response opprettTaskForPeriode(@Valid MigreringTaskInput taskInput) {
         var sakDato = taskInput.fom;
-        var tasks = new ArrayList<ProsessTaskData>();
+        var baseline = LocalDateTime.now();
         while (!sakDato.isAfter(taskInput.tom)) {
-            var task = opprettTaskForDato(sakDato);
-            tasks.add(task);
+            var task = opprettTaskForDato(sakDato, taskInput.spreTasksPåAntallTimer, baseline);
+            taskTjeneste.lagre(task);
             sakDato = sakDato.plusDays(1);
         }
-        var gruppe = new ProsessTaskGruppe();
-        gruppe.addNesteParallell(tasks);
-        taskTjeneste.lagre(gruppe);
         return Response.ok().build();
     }
 
-    private static ProsessTaskData opprettTaskForDato(LocalDate dato) {
+    private static ProsessTaskData opprettTaskForDato(LocalDate dato, int antallTimerKjøring, LocalDateTime baseline) {
         var prosessTaskData = ProsessTaskData.forProsessTask(StønadsstatistikkMigreringTask.class);
 
-        var baseline = LocalDateTime.now();
         prosessTaskData.setProperty(StønadsstatistikkMigreringTask.DATO_KEY, dato.toString());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(150);
-        prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % 35999));
+        var nesteKjøringEtter = baseline.plusSeconds(LocalDateTime.now().getNano() % (antallTimerKjøring * 3600L - 1));
+        prosessTaskData.setNesteKjøringEtter(nesteKjøringEtter);
         return prosessTaskData;
     }
 
-    record MigreringTaskInput(LocalDate fom, LocalDate tom) implements AbacDto {
+    record MigreringTaskInput(LocalDate fom, LocalDate tom, int spreTasksPåAntallTimer) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {

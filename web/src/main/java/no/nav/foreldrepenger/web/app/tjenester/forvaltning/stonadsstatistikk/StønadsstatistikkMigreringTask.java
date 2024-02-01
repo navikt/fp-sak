@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -22,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkKafkaProducer;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
+import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -65,10 +67,11 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         var fom = LocalDate.parse(prosessTaskData.getPropertyValue(DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         LOG.info("Publiser migreringshendelse for vedtak opprettet {}", fom);
 
-        var vedtak = finnAlleVedtakForDato(fom);
+        var dtos = finnAlleVedtakForDato(fom).stream()
+            .map(this::produser)
+            .collect(Collectors.toSet());
 
-        LOG.info("Publiser migreringshendelse for {} vedtak", vedtak.size());
-        vedtak.forEach(this::produser);
+        dtos.forEach(v -> kafkaProducer.sendJson(v.getSaksnummer().id(), DefaultJsonMapper.toJson(v)));
     }
 
     private List<BehandlingVedtak> finnAlleVedtakForDato(LocalDate vedtaksdato) {
@@ -79,14 +82,14 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
         return query.getResultList();
     }
 
-    private void produser(BehandlingVedtak vedtak) {
+    private StønadsstatistikkVedtak produser(BehandlingVedtak vedtak) {
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        produser(behandling, vedtak.getId());
+        return produser(behandling, vedtak.getId());
     }
 
-    private void produser(Behandling behandling, Long vedtakId) {
+    private StønadsstatistikkVedtak produser(Behandling behandling, Long vedtakId) {
         LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {}", behandling.getFagsak().getSaksnummer(), behandling.getId(),
             vedtakId);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
@@ -97,6 +100,6 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
             var allErrors = violations.stream().map(it -> it.getPropertyPath().toString() + " :: " + it.getMessage()).toList();
             throw new IllegalArgumentException("stønadsstatistikk valideringsfeil \n " + allErrors);
         }
-        kafkaProducer.sendJson(behandling.getFagsak().getSaksnummer().getVerdi(), DefaultJsonMapper.toJson(generertVedtak));
+        return generertVedtak;
     }
 }
