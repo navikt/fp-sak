@@ -48,14 +48,11 @@ class MorsJustering implements ForelderFødselJustering {
                 var justert = flyttPeriodeTilHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
                 if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE) && erPeriodeFlyttbar(oppgittPeriode)) {
                     var justertFellesperiode = reduserJusterteFellesperioder(justert, virkedagerSomSkalSkyves);
-                    virkedagerSomSkalSkyves -= justert.stream().mapToInt(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom())).sum() - justertFellesperiode.stream().mapToInt(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom())).sum();
+                    virkedagerSomSkalSkyves -= antallDagerFellesperiodeErRedusert(justert, justertFellesperiode);
                     justert = justertFellesperiode;
                 }
 
-                // Trekk fra virkedager som fyller hull
-                virkedagerSomSkalSkyves -= oppgittPeriodeSomOverlapperMedHullForbeholdMorEtterFødsel(oppgittPeriode, ikkeFlyttbarePerioder).stream()
-                    .mapToInt(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()))
-                    .sum();
+                virkedagerSomSkalSkyves -= antallDagerJustertInnIOppholdSomErForbeholdtMorEtterFødsel(oppgittPeriode, ikkeFlyttbarePerioder);
 
                 justertePerioder.addAll(justert);
             } else {
@@ -68,6 +65,18 @@ class MorsJustering implements ForelderFødselJustering {
         justertePerioder.addAll(beholdtPerioder);
         justertePerioder = fjernPerioderEtterSisteSøkteDato(sorterEtterFom(justertePerioder), oppgittePerioder.getLast().getTom());
         return fjernHullPerioder(justertePerioder);
+    }
+
+    private int antallDagerJustertInnIOppholdSomErForbeholdtMorEtterFødsel(OppgittPeriodeEntitet oppgittPeriode, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
+        return oppgittPeriodeSomOverlapperMedHullForbeholdMorEtterFødsel(oppgittPeriode, ikkeFlyttbarePerioder).stream()
+            .mapToInt(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()))
+            .sum();
+    }
+
+    private static int antallDagerFellesperiodeErRedusert(List<OppgittPeriodeEntitet> justert, List<OppgittPeriodeEntitet> justertOgRedusert) {
+        var antallVirkedagerEtterJustering = justert.stream().mapToInt(p -> beregnAntallVirkedager(p.getFom(), p.getTom())).sum();
+        var antallVirkedagerEtterReduksjon = justertOgRedusert.stream().mapToInt(p -> beregnAntallVirkedager(p.getFom(), p.getTom())).sum();
+        return antallVirkedagerEtterJustering - antallVirkedagerEtterReduksjon;
     }
 
 
