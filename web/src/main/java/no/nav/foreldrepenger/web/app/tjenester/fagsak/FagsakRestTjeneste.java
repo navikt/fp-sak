@@ -23,9 +23,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -78,8 +75,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class FagsakRestTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FagsakRestTjeneste.class);
 
     static final String BASE_PATH = "/fagsak";
     private static final String FAGSAK_PART_PATH = "";
@@ -224,13 +219,13 @@ public class FagsakRestTjeneste {
                                           @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
-            var eksisterendeOpt = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId());
-            // Sjekk om unedret merking
-            if (eksisterendeOpt.filter(em -> Objects.equals(em, endreUtland.fagsakMarkering())).isPresent()) {
+            var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(fagsak.getId()).orElse(FagsakMarkering.NASJONAL);
+            // Sjekk om uendret merking (nasjonal er default)
+            if (Objects.equals(eksisterende, endreUtland.fagsakMarkering())) {
                 return Response.ok().build();
             }
             fagsakEgenskapRepository.lagreEgenskapUtenHistorikk(fagsak.getId(), endreUtland.fagsakMarkering());
-            lagHistorikkInnslag(fagsak, eksisterendeOpt.orElse(FagsakMarkering.NASJONAL), endreUtland.fagsakMarkering());
+            lagHistorikkInnslag(fagsak, eksisterende, endreUtland.fagsakMarkering());
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS
             var behandlingerSomBytterEnhet = fagsakTjeneste.hentÅpneBehandlinger(fagsak).stream()
