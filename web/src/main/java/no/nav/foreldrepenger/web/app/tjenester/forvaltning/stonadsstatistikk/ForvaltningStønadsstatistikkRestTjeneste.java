@@ -5,9 +5,10 @@ import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -16,15 +17,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -42,33 +38,23 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class ForvaltningStønadsstatistikkRestTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningStønadsstatistikkRestTjeneste.class);
-
     private StønadsstatistikkTjeneste stønadsstatistikkTjeneste;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private ProsessTaskTjeneste taskTjeneste;
-    private EntityManager entityManager;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private FagsakRepository fagsakRepository;
 
     @Inject
     public ForvaltningStønadsstatistikkRestTjeneste(StønadsstatistikkTjeneste stønadsstatistikkTjeneste,
                                                     BehandlingRepository behandlingRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                     BehandlingsresultatRepository behandlingsresultatRepository,
-                                                    ProsessTaskTjeneste taskTjeneste,
-                                                    EntityManager entityManager,
-                                                    FagsakRelasjonRepository fagsakRelasjonRepository, FagsakRepository fagsakRepository) {
+                                                    ProsessTaskTjeneste taskTjeneste) {
         this.stønadsstatistikkTjeneste = stønadsstatistikkTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.taskTjeneste = taskTjeneste;
-        this.entityManager = entityManager;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
-        this.fagsakRepository = fagsakRepository;
     }
 
     ForvaltningStønadsstatistikkRestTjeneste() {
@@ -102,7 +88,7 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
         return prosessTaskData;
     }
 
-    record MigreringTaskInput(LocalDate fom, LocalDate tom, int spreTasksPåAntallTimer) implements AbacDto {
+    record MigreringTaskInput(LocalDate fom, LocalDate tom, @Min(0) @Max(100) int spreTasksPåAntallTimer) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {

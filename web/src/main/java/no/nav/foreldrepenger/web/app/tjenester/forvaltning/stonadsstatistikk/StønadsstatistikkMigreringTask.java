@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -64,33 +63,39 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fom = LocalDate.parse(prosessTaskData.getPropertyValue(DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-        LOG.info("Publiser migreringshendelse for vedtak opprettet {}", fom);
+        var vedtaksdato = LocalDate.parse(prosessTaskData.getPropertyValue(DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
 
-        var dtos = finnAlleVedtakForDato(fom).stream()
-            .map(this::produser)
+        var dtos = finnAlleVedtakForDato(vedtaksdato).stream()
+            .map(this::lagDto)
             .collect(Collectors.toSet());
+        LOG.info("Publiser migreringshendelse for {} vedtak opprettet {}", dtos.size(), vedtaksdato);
 
         dtos.forEach(v -> kafkaProducer.sendJson(v.getSaksnummer().id(), DefaultJsonMapper.toJson(v)));
     }
 
     private List<BehandlingVedtak> finnAlleVedtakForDato(LocalDate vedtaksdato) {
-        var query = entityManager.createQuery("FROM BehandlingVedtak bv where bv.behandlingsresultat.behandling.behandlingType in (:behnadlingstyper) and trunc(bv.opprettetTidspunkt) =:vedtaksdato", BehandlingVedtak.class)
+        var sql ="""
+            select bv.* From BEHANDLING_VEDTAK bv
+            join BEHANDLING_RESULTAT br on br.id = bv.BEHANDLING_RESULTAT_ID
+            join BEHANDLING b on b.id = br.BEHANDLING_ID
+            where b.BEHANDLING_TYPE in ('BT-002','BT-004') and trunc(bv.OPPRETTET_TID) =:vedtaksdato
+            """;
+
+        var query = entityManager.createNativeQuery(sql, BehandlingVedtak.class)
             .setParameter("vedtaksdato", vedtaksdato)
-            .setParameter("behnadlingstyper", BehandlingType.getYtelseBehandlingTyper())
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
         return query.getResultList();
     }
 
-    private StønadsstatistikkVedtak produser(BehandlingVedtak vedtak) {
+    private StønadsstatistikkVedtak lagDto(BehandlingVedtak vedtak) {
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        return produser(behandling, vedtak.getId());
+        return lagDto(behandling, vedtak.getId());
     }
 
-    private StønadsstatistikkVedtak produser(Behandling behandling, Long vedtakId) {
-        LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {}", behandling.getFagsak().getSaksnummer(), behandling.getId(),
+    private StønadsstatistikkVedtak lagDto(Behandling behandling, Long vedtakId) {
+        LOG.info("Produserer stønadsstatistikk for sak {} behandling {} vedtak {}", behandling.getFagsak().getSaksnummer().getVerdi(), behandling.getId(),
             vedtakId);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var generertVedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling, stp));
