@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.dokumentbestiller;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -114,11 +113,6 @@ public enum DokumentMalType implements Kodeverdi {
 
     public static boolean erKlageVedtaksBrev(DokumentMalType brev) {
         return KLAGE_VEDTAKSBREV.contains(brev);
-    }
-
-    public static String utledDokumentTittel(String malKode) {
-        Objects.requireNonNull(malKode);
-        return utledDokumentTittel(fraKode(malKode));
     }
 
     public static boolean erOversendelsesBrev(DokumentMalType brev) {

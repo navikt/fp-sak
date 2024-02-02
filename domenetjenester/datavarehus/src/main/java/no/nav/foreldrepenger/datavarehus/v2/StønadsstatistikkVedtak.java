@@ -262,7 +262,7 @@ public class StønadsstatistikkVedtak {
         private static final String VALID_REGEXP = "^\\d{13}$";
     }
 
-    record Saksnummer(@NotNull @Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
+    public record Saksnummer(@NotNull @Pattern(regexp = VALID_REGEXP, message = "Saksnummer ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
                       @JsonValue String id) {
         private static final String VALID_REGEXP = "^[0-9]*$";
     }

@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 import no.nav.vedtak.exception.TekniskException;
 
 class HistorikkFraBrevKvitteringMapper {
@@ -16,7 +15,11 @@ class HistorikkFraBrevKvitteringMapper {
     private HistorikkFraBrevKvitteringMapper() {
     }
 
-    static Historikkinnslag opprettHistorikkInnslag(DokumentProdusertDto kvittering, long behandlingId, long fagsakId) {
+    static Historikkinnslag opprettHistorikkInnslag(DokumentMalType dokumentMal, String journalpostId, String dokumentId, long behandlingId, long fagsakId) {
+        return opprettHistorikk(dokumentMal, journalpostId, dokumentId, behandlingId, fagsakId);
+    }
+
+    private static Historikkinnslag opprettHistorikk(DokumentMalType dokumentMal, String journalpostId, String dokumentId, long behandlingId, long fagsakId) {
         var nyttHistorikkInnslag = new Historikkinnslag.Builder()
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
@@ -25,7 +28,7 @@ class HistorikkFraBrevKvitteringMapper {
             .build();
 
         mapBrevSendtDel(nyttHistorikkInnslag);
-        var dokumentLenker = mapDokumentlink(kvittering.dokumentMal(), kvittering.dokumentId(), kvittering.journalpostId(), nyttHistorikkInnslag);
+        var dokumentLenker = mapDokumentlink(dokumentMal, dokumentId, journalpostId, nyttHistorikkInnslag);
         nyttHistorikkInnslag.setDokumentLinker(List.of(dokumentLenker));
         return nyttHistorikkInnslag;
     }
@@ -34,9 +37,9 @@ class HistorikkFraBrevKvitteringMapper {
         new HistorikkInnslagTekstBuilder().medHendelse(nyttHistorikkInnslag.getType()).medBegrunnelse("").build(nyttHistorikkInnslag);
     }
 
-    private static HistorikkinnslagDokumentLink mapDokumentlink(String dokumentMal, String dokumentId, String journalpostId, Historikkinnslag historikkinnslag) {
+    private static HistorikkinnslagDokumentLink mapDokumentlink(DokumentMalType dokumentMal, String dokumentId, String journalpostId, Historikkinnslag historikkinnslag) {
         var builder = new HistorikkinnslagDokumentLink.Builder()
-            .medLinkTekst(DokumentMalType.utledDokumentTittel(dokumentMal))
+            .medLinkTekst(dokumentMal.getNavn())
             .medHistorikkinnslag(historikkinnslag)
             .medDokumentId(dokumentId);
         if (JournalpostId.erGyldig(journalpostId)) {
