@@ -23,14 +23,10 @@ public final class FeriepengegrunnlagMapper {
         if (feriepengerPrÅr.isEmpty()) {
             return Optional.empty();
         }
-        var feriepenger = entitet.getBeregningsresultatFeriepenger().orElseThrow();
-        var builder = FeriepengegrunnlagDto.builder()
-            .medFeriepengeperiodeFom(feriepenger.getFeriepengerPeriodeFom())
-            .medFeriepengeperiodeTom(feriepenger.getFeriepengerPeriodeTom());
-        feriepengerPrÅr.stream()
+        var andeler = feriepengerPrÅr.stream()
             .map(FeriepengegrunnlagMapper::mapAndel)
-            .forEach(builder::leggTilAndel);
-        return Optional.of(builder.build());
+            .toList();
+        return Optional.of(new FeriepengegrunnlagDto(andeler));
 
     }
 
@@ -43,8 +39,6 @@ public final class FeriepengegrunnlagMapper {
             .medArbeidsgiverId(andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null))
             .medArbeidsforholdId(andel.getArbeidsforholdRef().getReferanse())
             .medErBrukerMottaker(andel.erBrukerMottaker())
-            .medYtelseperiodeFom(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom())
-            .medYtelseperiodeTom(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom())
             .build();
     }
 }

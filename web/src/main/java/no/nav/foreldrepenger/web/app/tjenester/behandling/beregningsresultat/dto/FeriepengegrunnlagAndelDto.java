@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dt
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.validation.Valid;
@@ -51,16 +50,6 @@ public class FeriepengegrunnlagAndelDto {
     @Valid
     private Boolean erBrukerMottaker;
 
-    @JsonProperty(value = "ytelseperiodeFom")
-    @NotNull
-    @Valid
-    private LocalDate ytelseperiodeFom;
-
-    @JsonProperty(value = "ytelseperiodeTom")
-    @NotNull
-    @Valid
-    private LocalDate ytelseperiodeTom;
-
 
     private FeriepengegrunnlagAndelDto() {
     }
@@ -87,14 +76,6 @@ public class FeriepengegrunnlagAndelDto {
 
     public Boolean getErBrukerMottaker() {
         return erBrukerMottaker;
-    }
-
-    public LocalDate getYtelseperiodeFom() {
-        return ytelseperiodeFom;
-    }
-
-    public LocalDate getYtelseperiodeTom() {
-        return ytelseperiodeTom;
     }
 
     public static Builder builder() {
@@ -138,17 +119,6 @@ public class FeriepengegrunnlagAndelDto {
 
         public Builder medErBrukerMottaker(Boolean erBrukerMottaker) {
             kladd.erBrukerMottaker = erBrukerMottaker;
-            return this;
-        }
-
-        public Builder medYtelseperiodeFom(LocalDate ytelseperiodeFom) {
-            kladd.ytelseperiodeFom = ytelseperiodeFom;
-            return this;
-        }
-
-
-        public Builder medYtelseperiodeTom(LocalDate ytelseperiodeTom) {
-            kladd.ytelseperiodeTom = ytelseperiodeTom;
             return this;
         }
 
