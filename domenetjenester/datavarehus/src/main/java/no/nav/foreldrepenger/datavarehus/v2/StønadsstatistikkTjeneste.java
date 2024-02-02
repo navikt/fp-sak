@@ -194,7 +194,7 @@ public class StønadsstatistikkTjeneste {
             .medBehandlingId(behandlingId);
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
-            var rettigheter = utledRettigheter(behandling);
+            var rettigheter = utledRettigheter(behandling, familiehendelse);
             rettigheter.ifPresent(f -> {
                 var foreldrepengerUttaksperioder = mapForeldrepengerUttaksperioder(behandling, f.rettighetType());
                 builder.medUttakssperioder(foreldrepengerUttaksperioder).medForeldrepengerRettigheter(f);
@@ -400,7 +400,10 @@ public class StønadsstatistikkTjeneste {
         return FORELDREPENGER_MINSTERETT_2022_08_02;
     }
 
-    private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling) {
+    private Optional<ForeldrepengerRettigheter> utledRettigheter(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
+        if (familiehendelse == null) { //Avslått papirsøknad der fagsakrel er opprettet i senere behandlinger skaper trøbbel
+            return Optional.empty();
+        }
         var fagsak = fagsakTjeneste.finnEksaktFagsak(behandling.getFagsakId());
         var fr = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
         return fr.map(fagsakRelasjon -> {
