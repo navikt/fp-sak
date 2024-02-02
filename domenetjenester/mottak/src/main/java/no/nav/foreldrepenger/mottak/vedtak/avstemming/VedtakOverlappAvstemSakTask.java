@@ -5,9 +5,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
@@ -20,8 +17,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask(value = "vedtak.overlapp.avstem", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
-
-    private static final Logger LOG = LoggerFactory.getLogger(VedtakOverlappAvstemSakTask.class);
     public static final String LOG_SAKSNUMMER_KEY = "logsaksnummer";
     public static final String LOG_HENDELSE_KEY = "hendelse";
 
@@ -53,7 +48,7 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     private void loggOverlappOTH(String saksnr, String hendelse) {
         // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = tidligeste dato med utbetaling
         var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(null, null, saksnr);
-        saker.forEach(o -> syklogger.loggOverlappForAvstemming(hendelse, o.getBehandlingId(), o.getSaksnummer(), o.getAktørId()));
+        saker.forEach(o -> syklogger.loggOverlappForAvstemming(hendelse, o.getBehandlingId()));
     }
 
 }

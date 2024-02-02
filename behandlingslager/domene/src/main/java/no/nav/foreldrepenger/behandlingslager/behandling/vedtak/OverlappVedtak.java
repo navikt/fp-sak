@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -10,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
@@ -64,6 +66,8 @@ public class OverlappVedtak extends BaseEntitet {
 
     @Column(name = "UTBETALINGSPROSENT", nullable = false)
     private long utbetalingsprosent;
+    @Transient
+    private long fpsakUtbetalingsprosent;
 
 
     protected OverlappVedtak() {
@@ -104,6 +108,10 @@ public class OverlappVedtak extends BaseEntitet {
     public long getUtbetalingsprosent() {
         return utbetalingsprosent;
     }
+    public long getFpsakUtbetalingsprosent() {
+        return fpsakUtbetalingsprosent;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -173,7 +181,11 @@ public class OverlappVedtak extends BaseEntitet {
         }
 
         public Builder medUtbetalingsprosent(Long utbetalingsprosent) {
-            this.kladd.utbetalingsprosent = utbetalingsprosent;
+            this.kladd.utbetalingsprosent = Optional.ofNullable(utbetalingsprosent).orElse(0L);
+            return this;
+        }
+        public Builder medFpsakUtbetalingsprosent(Long fpsakUtbetalingsprosent) {
+            this.kladd.fpsakUtbetalingsprosent = Optional.ofNullable(fpsakUtbetalingsprosent).orElse(0L);
             return this;
         }
 
