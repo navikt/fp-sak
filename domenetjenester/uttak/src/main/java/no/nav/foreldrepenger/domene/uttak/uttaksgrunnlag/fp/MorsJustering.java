@@ -46,13 +46,13 @@ class MorsJustering implements ForelderFødselJustering {
         for (var oppgittPeriode : oppgittePerioder) {
             if (virkedagerSomSkalSkyves > 0) {
                 var justert = flyttPeriodeTilHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
-                if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE) && erPeriodeFlyttbar(oppgittPeriode)) {
+                virkedagerSomSkalSkyves -= antallDagerJustertInnIOppholdSomErForbeholdtMorEtterFødsel(oppgittPeriode, ikkeFlyttbarePerioder);
+
+                if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE) && kanFellesperiodenReduseres(oppgittPeriode, justertePerioder)) {
                     var justertFellesperiode = reduserJusterteFellesperioder(justert, virkedagerSomSkalSkyves);
                     virkedagerSomSkalSkyves -= antallDagerFellesperiodeErRedusert(justert, justertFellesperiode);
                     justert = justertFellesperiode;
                 }
-
-                virkedagerSomSkalSkyves -= antallDagerJustertInnIOppholdSomErForbeholdtMorEtterFødsel(oppgittPeriode, ikkeFlyttbarePerioder);
 
                 justertePerioder.addAll(justert);
             } else {
@@ -65,6 +65,11 @@ class MorsJustering implements ForelderFødselJustering {
         justertePerioder.addAll(beholdtPerioder);
         justertePerioder = fjernPerioderEtterSisteSøkteDato(sorterEtterFom(justertePerioder), oppgittePerioder.getLast().getTom());
         return fjernHullPerioder(justertePerioder);
+    }
+
+    private boolean kanFellesperiodenReduseres(OppgittPeriodeEntitet oppgittPeriode, List<OppgittPeriodeEntitet> justertePerioder) {
+        return erPeriodeFlyttbar(oppgittPeriode) && justertePerioder.stream()
+            .anyMatch(p -> p.getTom().isAfter(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse)));
     }
 
     private int antallDagerJustertInnIOppholdSomErForbeholdtMorEtterFødsel(OppgittPeriodeEntitet oppgittPeriode, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
@@ -81,34 +86,59 @@ class MorsJustering implements ForelderFødselJustering {
 
 
     /**
-     * Denne klassen reduserer bare fellesperiode som ligger etter ny TOM dato forbeholdt mor ifm fødsel
+     * Metoden tar inn fellesperiode som er justert i forkant til en eller flere justerte fellesperioden (f.eks. på grunn av hull)
+     * Her går vi fra høyre til venstre og reduserer med {@param antallDagerSomKanReduseres} så langt det lar seg gjøre.
+     * *
+     * Eksempeler: Fellesperiode som havner i periode forbeholdt mor: x, antallDagerSomKanReduseres: 4
+     * *
+     * Case 1: Klarte å redusere 3 virkedager
+     *  input:  xxx-  --
+     *  output: xxx
+     *  antallDagerSomKanReduseres_rest: 1
+     *  *
+     * Case 2: Fjerne siste og redusere andre
+     *  input:  ---  --
+     *  output: -
+     *  antallDagerSomKanReduseres_rest: 0
+     *  *
+     * Case 3: Kan ikke redusere noe
+     *  input:  xxx
+     *  output: xxx
+     *  antallDagerSomKanReduseres_rest: 4
      */
     private List<OppgittPeriodeEntitet> reduserJusterteFellesperioder(List<OppgittPeriodeEntitet> justerteFellesperioder, int antallDagerSomKanReduseres) {
-        List<OppgittPeriodeEntitet> justertFellesperiode = new ArrayList<>();
-        var justerbarPeriode = new LocalDateTimeline<>(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse).plusDays(1), Tid.TIDENES_ENDE, null);
-        var fellesperioder = new LocalDateTimeline<>(justerteFellesperioder.stream()
+        var periodeSomKanReduseres = new LocalDateTimeline<>(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse).plusDays(1), Tid.TIDENES_ENDE, null);
+        var fellesperiodene = new LocalDateTimeline<>(justerteFellesperioder.stream()
             .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), p))
             .toList());
-        var fellsperiodeSomKanReduseres = fellesperioder.intersection(justerbarPeriode).stream()
+        var justertFellsperiodeSomKanReduseres = fellesperiodene.intersection(periodeSomKanReduseres).stream()
             .map(LocalDateSegment::getValue)
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .toList();
 
-        // Starter fra siste periode til første for å fjerne/justere perioder fra høyre til venstre
-        for (var periode : fellsperiodeSomKanReduseres.reversed()) {
+        if (justertFellsperiodeSomKanReduseres.isEmpty()) { // Fellesperioden kan ikke reduseres (ingen del av fellesperioden er etter perioden forbeholdt mor etter fødsel)
+            return justerteFellesperioder;
+        }
+
+        // Starter fra siste til første periode. Reduseringen skjer fra høyre til venstre og har 3 utfall:
+        //  1) Antall dager som kan reduseres er 0 (behold perioden slik det var)
+        //  2) Deler av perioden forsvinner pga redusering (ny tom dato)
+        //  3) Hele perioden forsvinner pga redusering (fjerne hele)
+        List<OppgittPeriodeEntitet> justertFellesperiode = new ArrayList<>();
+        for (var periode : justertFellsperiodeSomKanReduseres.reversed()) {
             var antallVirkedagerForPeriode = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
-            if (antallDagerSomKanReduseres == 0) {  // Vi er ferdig justert. Legg til resten av periodene
+            if (antallDagerSomKanReduseres == 0) {  // 1) Antall dager som kan reduseres er 0 (behold perioden slik det var)
                 justertFellesperiode.add(periode);
-            } else if (antallVirkedagerForPeriode > antallDagerSomKanReduseres) { // En periode spiser opp resten av forskyvningen
+            } else if (antallVirkedagerForPeriode > antallDagerSomKanReduseres) { // 2) Deler av perioden forsvinner pga redusering (ny tom dato)
                 var nyTom = Virkedager.plusVirkedager(periode.getFom(), antallVirkedagerForPeriode - antallDagerSomKanReduseres - 1); // -1 fordi virkedager periode.getFom() ikke er telt med
                 justertFellesperiode.add(kopier(periode, periode.getFom(), nyTom));
                 antallDagerSomKanReduseres = 0;
-            } else { // Forskyvningen spiser opp hele perioden
+            } else { // 3) Hele perioden forsvinner pga redusering (fjerne hele)
                 antallDagerSomKanReduseres -= antallVirkedagerForPeriode;
             }
         }
 
-        var restenAvPeriodene = fellesperioder.disjoint(justerbarPeriode).stream()
+        var restenAvPeriodene = fellesperiodene.disjoint(periodeSomKanReduseres).stream()
             .map(LocalDateSegment::getValue)
             .toList();
         justertFellesperiode.addAll(restenAvPeriodene);
