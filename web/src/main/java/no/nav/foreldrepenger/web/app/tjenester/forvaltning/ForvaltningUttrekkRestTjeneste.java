@@ -211,7 +211,8 @@ public class ForvaltningUttrekkRestTjeneste {
             var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(VedtakAvstemPeriodeTask.class)
                 .medProperty(VedtakAvstemPeriodeTask.LOG_FOM_KEY, betweendays.toString())
                 .medProperty(VedtakAvstemPeriodeTask.LOG_TOM_KEY, betweendays.toString())
-                .medNesteKjøringEtter(baseline.plusSeconds(suffix * 240))
+                .medProperty(VedtakAvstemPeriodeTask.LOG_TIDSROM, String.valueOf(dto.getTidsrom() - 1))
+                .medNesteKjøringEtter(baseline.plusSeconds(suffix * dto.getTidsrom()))
                 .medCallId(callId + "_" + suffix)
                 .medPrioritet(100)
                 .build();

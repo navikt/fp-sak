@@ -35,10 +35,16 @@ public class AvstemmingPeriodeDto implements AbacDto {
     @Pattern(regexp = DATO_PATTERN)
     private String tom;
 
-    public AvstemmingPeriodeDto(@NotNull String key, @NotNull String fom, @NotNull String tom) {
+    @NotNull
+    @Parameter(description = "tidsrom for kjøring (sekunder)")
+    @QueryParam("tidsrom")
+    private int tidsrom;
+
+    public AvstemmingPeriodeDto(@NotNull String key, @NotNull String fom, @NotNull String tom, int tidsrom) {
         this.key = key;
         this.fom = fom;
         this.tom = tom;
+        this.tidsrom = tidsrom;
     }
 
     public AvstemmingPeriodeDto() {
@@ -59,5 +65,9 @@ public class AvstemmingPeriodeDto implements AbacDto {
 
     public LocalDate getTom() {
         return LocalDate.parse(tom, DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    public int getTidsrom() {
+        return tidsrom;
     }
 }

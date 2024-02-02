@@ -27,6 +27,7 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
 
     public static final String LOG_FOM_KEY = "logfom";
     public static final String LOG_TOM_KEY = "logtom";
+    public static final String LOG_TIDSROM = "logtidsrom";
 
 
     private InformasjonssakRepository informasjonssakRepository;
@@ -48,6 +49,7 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var fom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         var tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+        var tidsrom = Integer.parseInt(prosessTaskData.getPropertyValue(LOG_TIDSROM));
         var baseline = LocalDateTime.now();
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
         var callId = MDCOperations.getCallId();
@@ -57,7 +59,7 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
             var task = ProsessTaskDataBuilder.forProsessTask(VedtakOverlappAvstemSakTask.class)
                 .medProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi())
                 .medProperty(VedtakOverlappAvstemSakTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE)
-                .medNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % 239))
+                .medNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % tidsrom))
                 .medCallId(callId + "_" + f.getSaksnummer().getVerdi())
                 .medPrioritet(100)
                 .build();
