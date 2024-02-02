@@ -148,9 +148,9 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
-        assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
-        assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(200);
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualTo(
+        assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
+        assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(200);
+        assertThat(behandlingOverlappInfotrygd.getFirst().getPeriode()).isEqualTo(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
@@ -195,9 +195,9 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
-        assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
-        assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(120);
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualTo(
+        assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
+        assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(120);
+        assertThat(behandlingOverlappInfotrygd.getFirst().getPeriode()).isEqualTo(
             ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
@@ -239,7 +239,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         assertThat(prosessTaskDataList.size()).isEqualTo(1);
 
-        var task = prosessTaskDataList.get(0);
+        var task = prosessTaskDataList.getFirst();
         assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOverlappPleiepengerTask.class));
         assertThat(task.getAktørId()).isEqualTo(aktørFra(fpBehandling).getVerdi());
         assertThat(task.getFagsakId()).isEqualTo(fpBehandling.getFagsak().getId());
