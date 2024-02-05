@@ -101,7 +101,7 @@ public class KodeverkTilKalkulusMapper {
             case ARBEID -> OpptjeningAktivitetType.ARBEID;
             case DAGPENGER -> OpptjeningAktivitetType.DAGPENGER;
             case FORELDREPENGER -> OpptjeningAktivitetType.FORELDREPENGER;
-            case FRILANS -> OpptjeningAktivitetType.FRILANS;
+            case FRILANS, FRILOPP -> OpptjeningAktivitetType.FRILANS;
             case MILITÆR_ELLER_SIVILTJENESTE -> OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE;
             case NÆRING -> OpptjeningAktivitetType.NÆRING;
             case OMSORGSPENGER -> OpptjeningAktivitetType.OMSORGSPENGER;
@@ -116,7 +116,6 @@ public class KodeverkTilKalkulusMapper {
             case UTENLANDSK_ARBEIDSFORHOLD -> OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD;
             case UTDANNINGSPERMISJON -> OpptjeningAktivitetType.UTDANNINGSPERMISJON;
             case UDEFINERT -> OpptjeningAktivitetType.UDEFINERT;
-            case FRILOPP -> throw new IllegalStateException("Ikke støtte for opptjeningstype FRILOPP i kalkulus");
         };
     }
 

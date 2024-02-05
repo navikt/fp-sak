@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
@@ -163,7 +164,7 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
         var aktørArbeidFraRegister = grunnlag.getAktørArbeidFraRegister(aktørId);
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), aktørArbeidFraRegister).før(skjæringstidspunkt);
 
-        var inntektFilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(skjæringstidspunkt).filterPensjonsgivende();
+        var inntektFilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(skjæringstidspunkt).filterBeregning();
 
         var frilansOppdrag = filter.getFrilansOppdrag();
 
@@ -173,12 +174,24 @@ public class OpptjeningsperioderUtenOverstyringTjeneste {
                     .filter(frilans -> harInntektFraVirksomhetForPeriode(frilans, inntektFilter, periode))
                     .toList();
             var brukType = utledOpptjeningType(mapArbeidOpptjening, ArbeidType.FRILANSER);
-            var brukPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjeningOptional.get().getFom(),
-                    opptjeningOptional.get().getTom());
+            var frilansPerioder = frilansOppdrag.stream().flatMap(ya -> ya.getAlleAktivitetsAvtaler().stream())
+                .filter(AktivitetsAvtale::erAnsettelsesPeriode).filter(aa -> aa.getPeriode().overlapper(periode))
+                .toList();
+            var frilansMinFom = frilansPerioder.stream()
+                .map(fl -> fl.getPeriode().getFomDato())
+                .min(Comparator.naturalOrder())
+                .filter(d -> d.isAfter(periode.getFomDato()))
+                .orElse(periode.getFomDato());
+            var frilansMaxTom = frilansPerioder.stream()
+                .map(fl -> fl.getPeriode().getTomDato())
+                .max(Comparator.naturalOrder())
+                .filter(d -> d.isBefore(periode.getTomDato()))
+                .orElse(periode.getTomDato());
+
             return frilansMedInntekt.isEmpty() ? Optional.empty()
                     : Optional.of(OpptjeningsperiodeForSaksbehandling.Builder.ny()
                             .medOpptjeningAktivitetType(brukType)
-                            .medPeriode(brukPeriode)
+                            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(frilansMinFom, frilansMaxTom))
                             .build());
         }
         return Optional.empty();
