@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.YtelseType;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -45,6 +46,7 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
 
     private DokumentbestillingV2Dto mapDokumentbestilling(ProsessTaskData prosessTaskData) {
         var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingUuid());
+
         return new DokumentbestillingV2Dto(
             behandling.getUuid(),
             UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),
