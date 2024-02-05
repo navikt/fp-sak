@@ -44,7 +44,7 @@ public class DokumentBestillerTjeneste {
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat.getBehandlingResultatType(), behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), klageRepository);
 
         if (Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev())) {
-            opprinneligDokumentMal = erVedtakMedEndringIYtelse(behandlingsresultat) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
+            opprinneligDokumentMal = endretVedtakOgKunEndringIFordeling(behandlingsresultat) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
             dokumentMal = DokumentMalType.FRITEKSTBREV;
         }
 
@@ -59,7 +59,7 @@ public class DokumentBestillerTjeneste {
         dokumentBestiller.bestillVedtak(brevBestilling, opprinneligDokumentMal, aktør);
     }
 
-    private boolean erVedtakMedEndringIYtelse(Behandlingsresultat behandlingsresultat) {
+    private boolean endretVedtakOgKunEndringIFordeling(Behandlingsresultat behandlingsresultat) {
         return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingsresultat.getBehandlingResultatType())
             && erKunEndringIFordelingAvYtelsen(behandlingsresultat);
     }
