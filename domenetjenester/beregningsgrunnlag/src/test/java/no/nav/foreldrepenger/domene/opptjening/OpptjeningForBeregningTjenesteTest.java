@@ -76,7 +76,7 @@ class OpptjeningForBeregningTjenesteTest {
     }
 
     @Test
-    void skal_filtrere_ut_frilanser_om_ikkje_oppgitt_i_søknaden() {
+    void skal_ta_med_frilanser_selv_om_ikkje_oppgitt_i_søknaden() {
         // Arrange
         leggTilFrilansOpptjeningsperiode();
 
@@ -85,11 +85,12 @@ class OpptjeningForBeregningTjenesteTest {
             behandlingReferanse, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
-        assertThat(relevante).isEmpty();
+        assertThat(relevante).hasSize(1);
+        assertThat(relevante.get(0).getOpptjeningAktivitetType()).isEqualTo(OpptjeningAktivitetType.FRILANS);
     }
 
     @Test
-    void skal_ikkje_filtrere_ut_andre_aktiviteter_enn_frilans_om_frilans_ikkje_oppgitt_i_søknaden() {
+    void skal_ikke_filtrere_ut_frilans_når_det_finnes_med_andre_aktiviteter() {
         // Arrange
         leggTilFrilansOpptjeningsperiode();
         leggTilArbeidOpptjeningsperiode();
@@ -99,8 +100,9 @@ class OpptjeningForBeregningTjenesteTest {
             behandlingReferanse, InntektArbeidYtelseGrunnlagBuilder.nytt().build());
 
         // Assert
-        assertThat(relevante).hasSize(1);
-        assertThat(relevante.get(0).getOpptjeningAktivitetType()).isEqualTo(OpptjeningAktivitetType.ARBEID);
+        assertThat(relevante).hasSize(2);
+        assertThat(relevante.stream().filter(ra -> ra.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.ARBEID)).findFirst()).isPresent();
+        assertThat(relevante.stream().filter(ra -> ra.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).findFirst()).isPresent();
     }
 
     @Test

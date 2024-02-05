@@ -55,11 +55,9 @@ class FeriepengegrunnlagMapperTest {
         // Assert
         assertThat(dtoOpt).isPresent();
         var dto = dtoOpt.get();
-        assertThat(dto.getFeriepengeperiodeFom()).isEqualTo(FERIE_PERIODE_FOM);
-        assertThat(dto.getFeriepengeperiodeTom()).isEqualTo(FERIE_PERIODE_TOM);
-        assertThat(dto.getAndeler()).hasSize(1);
-        assertThat(dto.getAndeler().get(0).getOpptjeningsår()).isEqualTo(2020);
-        assertThat(dto.getAndeler().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(40000));
+        assertThat(dto.andeler()).hasSize(1);
+        assertThat(dto.andeler().getFirst().getOpptjeningsår()).isEqualTo(2020);
+        assertThat(dto.andeler().getFirst().getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(40000));
     }
 
     @Test

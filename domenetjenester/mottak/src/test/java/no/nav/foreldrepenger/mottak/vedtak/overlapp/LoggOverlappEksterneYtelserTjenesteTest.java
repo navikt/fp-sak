@@ -3,6 +3,9 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -45,12 +49,14 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Tema;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.TemaKode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Vedtak;
 import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
+import no.nav.vedtak.felles.integrasjon.spokelse.SykepengeVedtak;
 
 @ExtendWith(MockitoExtension.class)
 @Execution(ExecutionMode.SAME_THREAD)
@@ -69,6 +75,10 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     private InfotrygdPSGrunnlag infotrygdPSGrTjenesteMock;
     @Mock
     private InfotrygdSPGrunnlag infotrygdSPGrTjenesteMock;
+    @Mock
+    private Spøkelse spøkelseMock;
+    @Mock
+    private OppgaveTjeneste oppgaveTjenesteMock;
 
     private Behandling behandlingFP;
     private LocalDate førsteUttaksdatoFp;
@@ -81,7 +91,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(null,
             beregningsresultatRepository, personinfoAdapter, infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock,
-            mock(AbakusTjeneste.class), mock(Spøkelse.class), overlappRepository, behandlingRepository);
+            mock(AbakusTjeneste.class), spøkelseMock, overlappRepository, behandlingRepository, oppgaveTjenesteMock);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
@@ -118,13 +128,13 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(),
-            behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(1);
-        assertThat(overlappIT.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp);
+        assertThat(overlappIT.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp);
+        verifyNoInteractions(oppgaveTjenesteMock);
     }
 
     @Test
@@ -143,8 +153,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(),
-            behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
@@ -160,13 +169,13 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag2));
 
         // Act
-        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(),
-            behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
         var overlappIT2 = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT2).hasSize(1);
-        assertThat(overlappIT2.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
+        assertThat(overlappIT2.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
+        verifyNoInteractions(oppgaveTjenesteMock);
     }
 
     @Test
@@ -198,17 +207,59 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(),
-            behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(2);
+        verifyNoInteractions(oppgaveTjenesteMock);
+    }
+
+    @Disabled("inntil vi har en spøkelse mock i vtp")
+    void nyeSykepengerOverlappIlisten() {
+        LOG.info("4");
+
+        behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
+        List<Vedtak> vedtakPerioderIT = new ArrayList<>();
+        vedtakPerioderIT.add(
+            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp.minusWeeks(3), 100));
+        vedtakPerioderIT.add(
+            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioderIT.add(
+            lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
+        vedtakPerioderIT.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp, 100));
+
+        var infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp, vedtakPerioderIT);
+
+        List<SykepengeVedtak.SykepengeUtbetaling> utbetalingsperioderSyk = new ArrayList<>();
+
+        utbetalingsperioderSyk.add(new SykepengeVedtak.SykepengeUtbetaling(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp, BigDecimal.valueOf(100)));
+        utbetalingsperioderSyk.add(new SykepengeVedtak.SykepengeUtbetaling(førsteUttaksdatoFp.plusWeeks(1), førsteUttaksdatoFp.plusWeeks(2), BigDecimal.valueOf(100)));
+        var sykepengerVedtak  = (lagSykVedtak(utbetalingsperioderSyk, LocalDateTime.now()));
+
+        when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
+        when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygSPGrunnlag));
+        when(spøkelseMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(sykepengerVedtak));
+
+        var berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusMonths(5));
+        beregningsresultatRepository.lagre(behandlingFP, berFp);
+
+        // Act
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
+
+        // Assert
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        assertThat(overlappIT).hasSize(3);
+        verify(oppgaveTjenesteMock, times(1)).opprettVurderKonsekvensHosSykepenger(any(), any(), any());
+    }
+
+    private SykepengeVedtak lagSykVedtak(List<SykepengeVedtak.SykepengeUtbetaling> sykUtbetalinger, LocalDateTime vedtattTid) {
+        return new SykepengeVedtak( "ref", sykUtbetalinger, vedtattTid);
     }
 
     @Test
     void flereGrunnlagMenEttOverlappIlisten() {
-        LOG.info("4");
+        LOG.info("5");
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPerioder = new ArrayList<>();
@@ -232,18 +283,17 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(),
-            behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(1);
-        assertThat(overlappIT.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
+        assertThat(overlappIT.getFirst().getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
     }
 
     @Test
     void ingenOverlapp() {
-        LOG.info("5");
+        LOG.info("6");
 
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
@@ -258,8 +308,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(),
-            behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
@@ -268,7 +317,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void ingenGrunnlag() {
-        LOG.info("6");
+        LOG.info("7");
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
@@ -277,8 +326,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
-        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP.getId(),
-            behandlingFP.getFagsak().getSaksnummer(), behandlingFP.getAktørId());
+        overlappendeInfotrygdYtelseTjeneste.loggOverlappForVedtakFPSAK(behandlingFP);
 
         // Assert
         var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());

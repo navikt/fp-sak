@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentProdusertDto;
 
 @ApplicationScoped
 public class DokumentBehandlingTjeneste {
@@ -65,37 +64,36 @@ public class DokumentBehandlingTjeneste {
                                     UUID bestillingUuid,
                                     DokumentMalType opprinneligDokumentMal) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
-                .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
+            .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
-        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
-                .medBehandlingDokument(behandlingDokument)
-                .medDokumentMalType(dokumentMalTypeKode.getKode())
-                .medBestillingUuid(bestillingUuid)
-                .medOpprinneligDokumentMal(opprinneligDokumentMal == null ? null : opprinneligDokumentMal.getKode())
-                .build());
+        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder().medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(dokumentMalTypeKode.getKode())
+            .medBestillingUuid(bestillingUuid)
+            .medOpprinneligDokumentMal(opprinneligDokumentMal == null ? null : opprinneligDokumentMal.getKode())
+            .build());
 
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
     }
 
     public boolean erDokumentBestilt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
         return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
-            .map(BehandlingDokumentEntitet::getBestilteDokumenter).orElse(List.of()).stream()
-                .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) ||
-                    dokumentMalTypeKode.getKode().equals(dok.getOpprineligDokumentMal()));
+            .map(BehandlingDokumentEntitet::getBestilteDokumenter)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode()
+                .equals(dok.getOpprineligDokumentMal()));
     }
 
     public void nullstillVedtakFritekstHvisFinnes(Long behandlingId) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         behandlingDokument.ifPresent(behandlingDokumentEntitet -> behandlingDokumentRepository.lagreOgFlush(
-            BehandlingDokumentEntitet.Builder.fraEksisterende(behandlingDokumentEntitet)
-                .medVedtakFritekst(null)
-                .build()));
+            BehandlingDokumentEntitet.Builder.fraEksisterende(behandlingDokumentEntitet).medVedtakFritekst(null).build()));
     }
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
-                LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
+            LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
     }
 
     public void utvidBehandlingsfristManuelt(Long behandlingId) {
@@ -115,29 +113,47 @@ public class DokumentBehandlingTjeneste {
         behandlingRepository.lagre(behandling, lås);
     }
 
-    public void kvitterBrevSent(DokumentProdusertDto kvittering) {
+    public void kvitterSendtBrev(DokumentKvittering kvittering) {
         var behandling = behandlingRepository.hentBehandling(kvittering.behandlingUuid());
-        var historikkInnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(kvittering, behandling.getId(), behandling.getFagsakId());
-        historikkRepository.lagre(historikkInnslag);
-        oppdaterDokumentBestillingMedJournalpostId(kvittering.dokumentbestillingUuid(), kvittering.journalpostId());
-    }
-
-    private void oppdaterDokumentBestillingMedJournalpostId(UUID bestillingUuid, String journalpostId) {
+        var bestillingUuid = kvittering.bestillingUuid();
         var dokumentBestiling = behandlingDokumentRepository.hentHvisEksisterer(bestillingUuid);
-        dokumentBestiling.ifPresentOrElse(bestilling -> {
+        if (dokumentBestiling.isPresent()) {
+            var bestilling = dokumentBestiling.get();
+            var journalpostId = kvittering.journalpostId();
             if (Objects.isNull(bestilling.getJournalpostId())) { // behandlinger med verge produserer to brev per bestilling - vi ble enig om å ignorere det andre.
                 bestilling.setJournalpostId(new JournalpostId(journalpostId));
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
             }
-        }, () -> LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid) );
+            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal(), kvittering.malType());
+            lagreHistorikk(behandling, dokumentMal , journalpostId, kvittering.dokumentId());
+        } else {
+            LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid);
+        }
+    }
+
+    private void lagreHistorikk(Behandling behandling, DokumentMalType dokumentMalBrukt, String journalpostId, String dokumentId) {
+        var historikkInnslag = HistorikkFraBrevKvitteringMapper
+            .opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId, behandling.getId(), behandling.getFagsakId());
+        historikkRepository.lagre(historikkInnslag);
+    }
+
+    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal, DokumentMalType malFraKvittering) {
+        // Midlertidig inntil formidling sender mal i kvittering.
+        if (malFraKvittering != null) {
+            LOG.info("Mal levert med kvittering: {}.", malFraKvittering);
+            return malFraKvittering;
+        }
+        var dokumentMal = DokumentMalType.fraKode(dokumentMalType);
+        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) && opprineligDokumentMal != null) {
+            return DokumentMalType.fraKode(opprineligDokumentMal);
+        }
+        return dokumentMal;
     }
 
     LocalDate utledFristMedlemskap(Behandling behandling) {
         var vanligFrist = finnNyFristManuelt(behandling.getType());
-        return beregnTerminFrist(behandling)
-            .filter(f -> f.isAfter(vanligFrist) && f.isAfter(LocalDate.now()))
-            .orElse(vanligFrist);
+        return beregnTerminFrist(behandling).filter(f -> f.isAfter(vanligFrist) && f.isAfter(LocalDate.now())).orElse(vanligFrist);
     }
 
     LocalDate finnNyFristManuelt(BehandlingType behandlingType) {

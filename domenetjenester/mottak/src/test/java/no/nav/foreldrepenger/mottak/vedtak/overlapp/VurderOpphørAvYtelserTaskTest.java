@@ -41,8 +41,7 @@ class VurderOpphørAvYtelserTaskTest {
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
 
-        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(),
-            behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
+        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling);
         verify(vurderOpphørAvYtelser, times(1)).vurderOpphørAvYtelser(behandling);
     }
 
