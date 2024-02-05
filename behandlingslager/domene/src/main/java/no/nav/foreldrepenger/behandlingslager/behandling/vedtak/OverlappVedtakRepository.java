@@ -58,6 +58,10 @@ public class OverlappVedtakRepository {
         entityManager.persist(overlapp);
         entityManager.flush();
     }
+    public void lagre(OverlappVedtak overlapp) {
+        entityManager.persist(overlapp);
+        entityManager.flush();
+    }
 
     public void lagre(List<OverlappVedtak.Builder> overlappene) {
         overlappene.stream().map(OverlappVedtak.Builder::build).forEach(entityManager::persist);
