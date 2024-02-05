@@ -256,7 +256,8 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     public boolean isGradert() {
-        return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0;
+        return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0
+            && getGraderingAktivitetType() != null;
     }
 
     public boolean isOpphold() {
