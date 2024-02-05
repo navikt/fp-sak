@@ -217,7 +217,7 @@ public class FpDtoTjeneste {
     }
 
     private static Gradering mapGradering(OppgittPeriodeEntitet periode) {
-        if (!erGradert(periode)) {
+        if (!periode.isGradert()) {
             return null;
         }
         var type = switch (periode.getGraderingAktivitetType()) {
@@ -228,10 +228,6 @@ public class FpDtoTjeneste {
         var arbeidsgiver = periode.getArbeidsgiver() == null ? null : new Arbeidsgiver(periode.getArbeidsgiver().getIdentifikator());
         var aktivitet = new UttakAktivitet(type, arbeidsgiver, null);
         return new Gradering(periode.getArbeidsprosent(), aktivitet);
-    }
-
-    private static boolean erGradert(OppgittPeriodeEntitet periode) {
-        return periode.isGradert() && periode.getGraderingAktivitetType() != null;
     }
 
     private static OverføringÅrsak finnOverføringÅrsak(Årsak årsak) {

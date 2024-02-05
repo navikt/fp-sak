@@ -13,17 +13,17 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class JusterFordelingTjenesteTest {
 
@@ -1677,6 +1677,7 @@ class JusterFordelingTjenesteTest {
             .medPeriodeType(uttakPeriodeType)
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
             .medArbeidsprosent(arbeidsprosent)
+            .medGraderingAktivitetType(GraderingAktivitetType.ARBEID)
             .build();
     }
 
