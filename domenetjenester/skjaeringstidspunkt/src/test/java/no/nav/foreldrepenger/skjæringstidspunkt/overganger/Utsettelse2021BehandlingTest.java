@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -34,7 +35,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isTrue();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isTrue();
     }
 
     @Test
@@ -51,7 +53,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
@@ -69,7 +72,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
@@ -87,7 +91,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
@@ -105,7 +110,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isTrue();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isTrue();
     }
 
     @Test
@@ -123,7 +129,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
@@ -140,7 +147,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
@@ -157,7 +165,8 @@ class Utsettelse2021BehandlingTest {
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
         // Act/Assert
-        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider).kreverSammenhengendeUttak(behandling.getId())).isFalse();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        assertThat(new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).kreverSammenhengendeUttak(behandling.getId())).isFalse();
     }
 
     @Test
@@ -168,10 +177,10 @@ class Utsettelse2021BehandlingTest {
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
         var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         var behandlingFar = førstegangScenarioFar.lagMocked();
         var førstegangScenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenarioMor.medBekreftetHendelse().medFødselsDato(bekreftetfødselsdato);
         var mockprovider = førstegangScenarioMor.mockBehandlingRepositoryProvider();
         var behandlingRepository = førstegangScenarioMor.mockBehandlingRepository();
@@ -186,7 +195,8 @@ class Utsettelse2021BehandlingTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.empty());
 
         var tjenesteCore = new UtsettelseCore2021(ikraftredelse);
-        var tjeneste = new UtsettelseBehandling2021(tjenesteCore, mockprovider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var tjeneste = new UtsettelseBehandling2021(tjenesteCore, mockprovider, fagsakRelasjonTjeneste);
 
         // Act/Assert
         assertThat(tjeneste.kreverSammenhengendeUttak(behandlingFar.getId())).isTrue();
@@ -199,13 +209,13 @@ class Utsettelse2021BehandlingTest {
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         var behandlingFar = førstegangScenarioFar.lagMocked();
         var førstegangScenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenarioMor.medSøknadHendelse()
-            .medTerminbekreftelse(førstegangScenarioMor.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(bekreftetfødselsdato));
+                .medTerminbekreftelse(førstegangScenarioMor.medSøknadHendelse().getTerminbekreftelseBuilder()
+                        .medTermindato(bekreftetfødselsdato));
         var mockprovider = førstegangScenarioMor.mockBehandlingRepositoryProvider();
         var behandlingRepository = førstegangScenarioMor.mockBehandlingRepository();
         var behandling = førstegangScenarioMor.lagMocked();
@@ -220,7 +230,8 @@ class Utsettelse2021BehandlingTest {
 
 
         var tjenesteCore = new UtsettelseCore2021(ikraftredelse);
-        var tjeneste = new UtsettelseBehandling2021(tjenesteCore, mockprovider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var tjeneste = new UtsettelseBehandling2021(tjenesteCore, mockprovider, fagsakRelasjonTjeneste);
 
         // Act/Assert
         assertThat(tjeneste.kreverSammenhengendeUttak(behandlingFar.getId())).isFalse();
@@ -240,7 +251,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isFalse();
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -274,7 +286,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isFalse();
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -309,7 +322,8 @@ class Utsettelse2021BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var tjeneste = new UtsettelseBehandling2021(new UtsettelseCore2021(ikraftredelse), mockprovider, fagsakRelasjonTjeneste);
         assertThat(tjeneste.kreverSammenhengendeUttak(behandling.getId())).isTrue();
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()

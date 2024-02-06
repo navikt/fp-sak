@@ -1,7 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoValidering.round;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.*;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.FLERBARNSDAGER;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.MINSTERETT_NESTE_STØNADSPERIODE;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.UTEN_AKTIVITETSKRAV;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto.SaldoVisningStønadskontoType.fra;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,10 +19,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -28,6 +31,7 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.SaldoVali
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
@@ -47,8 +51,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 public class SaldoerDtoTjeneste {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
 
@@ -59,13 +63,14 @@ public class SaldoerDtoTjeneste {
     @Inject
     public SaldoerDtoTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                               StønadskontoRegelAdapter stønadskontoRegelAdapter,
-                              BehandlingRepositoryProvider repositoryProvider,
+                              YtelseFordelingTjeneste ytelseFordelingTjeneste,
                               ForeldrepengerUttakTjeneste uttakTjeneste,
-                              TapteDagerFpffTjeneste tapteDagerFpffTjeneste) {
+                              TapteDagerFpffTjeneste tapteDagerFpffTjeneste,
+                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.stønadskontoRegelAdapter = stønadskontoRegelAdapter;
-        this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.tapteDagerFpffTjeneste = tapteDagerFpffTjeneste;
     }
@@ -221,8 +226,8 @@ public class SaldoerDtoTjeneste {
         if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(stønadskonto)) {
             return Optional.empty();
         }
-        var yfAggregat = ytelsesFordelingRepository.hentAggregat(ref.behandlingId());
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer());
+        var yfAggregat = ytelseFordelingTjeneste.hentAggregat(ref.behandlingId());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer());
         var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, fagsakRelasjon, annenpart, fpGrunnlag);
         int prematurdager = stønadskontoberegning.getAntallPrematurDager();
         int flerbarnsdager = stønadskontoberegning.getAntallFlerbarnsdager();

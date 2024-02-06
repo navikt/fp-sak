@@ -18,8 +18,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -32,17 +33,23 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class YtelseMaksdatoTjeneste {
 
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
-    private BehandlingRepositoryProvider repositoryProvider;
+    private FpUttakRepository fpUttakRepository;
+    private BehandlingRepository behandlingRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     YtelseMaksdatoTjeneste() {
         // CDI
     }
 
     @Inject
-    public YtelseMaksdatoTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
-        this.repositoryProvider = repositoryProvider;
+    public YtelseMaksdatoTjeneste(RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+                                  FpUttakRepository fpUttakRepository,
+                                  BehandlingRepository behandlingRepository,
+                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
+        this.fpUttakRepository = fpUttakRepository;
+        this.behandlingRepository = behandlingRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
 
     public Optional<LocalDate> beregnMorsMaksdato(Saksnummer saksnummer, RelasjonsRolleType rolleType) {
@@ -80,12 +87,12 @@ public class YtelseMaksdatoTjeneste {
             return Optional.empty();
         }
 
-        return repositoryProvider.getFpUttakRepository().hentUttakResultatHvisEksisterer(annenPartsGjeldendeVedtattBehandling.get().getId());
+        return fpUttakRepository.hentUttakResultatHvisEksisterer(annenPartsGjeldendeVedtattBehandling.get().getId());
     }
 
     // TODO PK-48734 Her trengs det litt refaktorering
     public Optional<LocalDate> beregnMaksdatoForeldrepenger(BehandlingReferanse ref) {
-        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(ref.behandlingId());
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
         var uttakResultat = annenpartsUttak(ref.saksnummer());
         if (uttakResultat.isPresent()) {
             var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
@@ -126,7 +133,7 @@ public class YtelseMaksdatoTjeneste {
     }
 
     private int beregnTilgjengeligeStønadsdager(List<UttakResultatPeriodeAktivitetEntitet> perioder, Saksnummer saksnummer) {
-        var fagsakRelasjon = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(saksnummer);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(saksnummer);
         var optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
         if (optionalStønadskontoberegning.isPresent()) {
             var stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
@@ -138,7 +145,7 @@ public class YtelseMaksdatoTjeneste {
     }
 
     private int beregnTilgjengeligeStønadsdagerForeldrepenger(List<UttakResultatPeriodeAktivitetEntitet> perioder, Fagsak fagsak) {
-        var fagsakRelasjon = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(fagsak);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(fagsak);
         var optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
         if (optionalStønadskontoberegning.isPresent()) {
             var stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
@@ -176,8 +183,8 @@ public class YtelseMaksdatoTjeneste {
     }
 
     private static LocalDate plusVirkedager(LocalDate fom, int virkedager) {
-        var virkedager_pr_uke = 5;
-        var dager_pr_uke = 7;
+        var virkedagerPrUke = 5;
+        var dagerPrUke = 7;
         var justertDatoForHelg = fom;
         if (fom.getDayOfWeek().equals(DayOfWeek.SATURDAY) || fom.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             justertDatoForHelg = fom.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
@@ -186,8 +193,8 @@ public class YtelseMaksdatoTjeneste {
 
         var paddedVirkedager = virkedager + padBefore;
 
-        var uker = paddedVirkedager / virkedager_pr_uke;
-        var dager = paddedVirkedager % virkedager_pr_uke;
-        return justertDatoForHelg.plusDays((uker * dager_pr_uke + dager) - (long) padBefore);
+        var uker = paddedVirkedager / virkedagerPrUke;
+        var dager = paddedVirkedager % virkedagerPrUke;
+        return justertDatoForHelg.plusDays((uker * dagerPrUke + dager) - (long) padBefore);
     }
 }

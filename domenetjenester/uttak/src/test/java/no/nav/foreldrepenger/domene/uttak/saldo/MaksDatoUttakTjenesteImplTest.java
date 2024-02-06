@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -40,9 +41,16 @@ class MaksDatoUttakTjenesteImplTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
-    private final MaksDatoUttakTjenesteImpl maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(
-        repositoryProvider.getFpUttakRepository(), new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(repositoryProvider,
-        new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())))));
+    private final MaksDatoUttakTjenesteImpl maksDatoUttakTjeneste;
+
+    {
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
+            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()))), fagsakRelasjonTjeneste);
+        maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(
+            repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste);
+    }
 
     @Test
     void maksdato_skal_være_siste_uttaksdato_hvis_tom_konto() {

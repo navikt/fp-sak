@@ -7,9 +7,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.BeregningsgrunnlagXmlTjeneste;
@@ -36,7 +36,7 @@ import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlTjeneste {
 
     private ObjectFactory beregningObjectFactory;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
     public BeregningsgrunnlagXmlTjenesteImpl() {
@@ -44,9 +44,9 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
     }
 
     @Inject
-    public BeregningsgrunnlagXmlTjenesteImpl(FagsakRelasjonRepository fagsakRelasjonRepository,
+    public BeregningsgrunnlagXmlTjenesteImpl(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                              HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste) {
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.beregningObjectFactory = new ObjectFactory();
     }
@@ -61,7 +61,7 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         if (gjeldendeBg.isPresent()) {
             var beregningsgrunnlagDomene = gjeldendeBg.get();
             setBeregningsgrunnlagAktivitetStatuser(beregningsgrunnlag, beregningsgrunnlagDomene.getAktivitetStatuser());
-            long dekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad().getVerdi();
+            long dekningsgrad = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad().getVerdi();
             beregningsgrunnlag.setDekningsgrad(VedtakXmlUtil.lagLongOpplysning(dekningsgrad));
             VedtakXmlUtil.lagDateOpplysning(beregningsgrunnlagDomene.getSkjæringstidspunkt()).ifPresent(beregningsgrunnlag::setSkjaeringstidspunkt);
             setBeregningsgrunnlagPerioder(beregningsgrunnlag, beregningsgrunnlagDomene.getBeregningsgrunnlagPerioder());
