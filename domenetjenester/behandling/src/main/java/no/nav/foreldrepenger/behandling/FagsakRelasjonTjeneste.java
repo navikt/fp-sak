@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,17 +27,10 @@ public class FagsakRelasjonTjeneste {
 
     @Inject
     public FagsakRelasjonTjeneste(FagsakRelasjonRepository fagsakRelasjonRepository,
-            FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer,
-            FagsakRepository fagsakRepository) {
-
-        this.fagsakRelasjonEventPubliserer = fagsakRelasjonEventPubliserer;
+                                  FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer,
+                                  FagsakRepository fagsakRepository) {
         this.fagsakRepository = fagsakRepository;
-
-        if (fagsakRelasjonEventPubliserer != null) {
-            this.fagsakRelasjonEventPubliserer = fagsakRelasjonEventPubliserer;
-        } else {
-            this.fagsakRelasjonEventPubliserer = FagsakRelasjonEventPubliserer.NULL_EVENT_PUB;
-        }
+        this.fagsakRelasjonEventPubliserer = Objects.requireNonNullElse(fagsakRelasjonEventPubliserer, FagsakRelasjonEventPubliserer.NULL_EVENT_PUB);
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
 
     }
