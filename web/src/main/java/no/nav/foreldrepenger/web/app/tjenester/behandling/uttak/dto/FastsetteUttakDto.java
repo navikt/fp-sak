@@ -101,20 +101,6 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
     }
 
-    @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE)
-    public static class FastsetteUttakKontrollerOpplysningerOmFordelingAvStønadsperiodenDto extends FastsetteUttakDto {
-
-        @SuppressWarnings("unused")
-        private FastsetteUttakKontrollerOpplysningerOmFordelingAvStønadsperiodenDto() {
-            // For Jackson
-        }
-
-        public FastsetteUttakKontrollerOpplysningerOmFordelingAvStønadsperiodenDto(List<UttakResultatPeriodeLagreDto> perioder) {
-            super(perioder);
-        }
-
-    }
-
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD_KODE)
     public static class FastsetteUttakKontrollerOpplysningerOmDødDto extends FastsetteUttakDto {
 
