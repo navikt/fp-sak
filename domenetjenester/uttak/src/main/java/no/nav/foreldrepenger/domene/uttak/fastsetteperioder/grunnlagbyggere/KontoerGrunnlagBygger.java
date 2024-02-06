@@ -8,13 +8,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Konto;
@@ -25,12 +24,12 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnMinsterett
 @ApplicationScoped
 public class KontoerGrunnlagBygger {
 
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger;
 
     @Inject
-    public KontoerGrunnlagBygger(UttakRepositoryProvider repositoryProvider, RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger) {
-        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+    public KontoerGrunnlagBygger(FagsakRelasjonTjeneste fagsakRelasjonTjeneste, RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger) {
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.rettOgOmsorgGrunnlagBygger = rettOgOmsorgGrunnlagBygger;
     }
 
@@ -65,7 +64,7 @@ public class KontoerGrunnlagBygger {
     }
 
     private Set<Stønadskonto> hentStønadskontoer(BehandlingReferanse ref) {
-        return fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer())
+        return fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer())
             .getGjeldendeStønadskontoberegning()
             .orElseThrow(() -> new IllegalArgumentException("Behandling mangler stønadskontoer"))
             .getStønadskontoer();
@@ -84,7 +83,7 @@ public class KontoerGrunnlagBygger {
 
         var bareFarHarRett = rettOgOmsorg.getFarHarRett() && !rettOgOmsorg.getMorHarRett();
         var morHarUføretrygd = rettOgOmsorg.getMorUføretrygd();
-        var dekningsgrad = UttakEnumMapper.map(fagsakRelasjonRepository.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad().getVerdi());
+        var dekningsgrad = UttakEnumMapper.map(fagsakRelasjonTjeneste.finnRelasjonFor(ref.saksnummer()).getGjeldendeDekningsgrad().getVerdi());
 
         var antallBarn = foreldrepengerGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getAntallBarn();
         var flerbarnsdager = stønadskontoer.stream()

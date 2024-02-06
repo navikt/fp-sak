@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
@@ -27,15 +28,15 @@ class DekningsgradTjenesteTest {
     @BeforeEach
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),
-                null, repositoryProvider.getFagsakRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(new FagsakRelasjonRepository(entityManager, repositoryProvider.getYtelsesFordelingRepository(),
+            repositoryProvider.getFagsakLåsRepository()), null, repositoryProvider.getFagsakRepository());
     }
 
     @Test
     void skal_gi_endret_dekningsgrad_hvis_behandlingen_har_endret_dekningsgrad() {
         var behandling = behandling(true);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
-        repositoryProvider.getFagsakRelasjonRepository().overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
+        fagsakRelasjonTjeneste.overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._100);
 
         var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
 
@@ -45,7 +46,7 @@ class DekningsgradTjenesteTest {
     @Test
     void skal_gi_ikke_gi_endret_dekningsgrad_hvis_dekningsgrad_ikke_er_endret() {
         var behandling = behandling(false);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
 
         var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
 
@@ -55,8 +56,8 @@ class DekningsgradTjenesteTest {
     @Test
     void skal_gi_ikke_gi_endret_dekningsgrad_hvis_dekningsgrad_er_endret_men_ikke_av_behandlingen() {
         var behandling = behandling(false);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
-        repositoryProvider.getFagsakRelasjonRepository().overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
+        fagsakRelasjonTjeneste.overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._100);
 
         var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
 
@@ -66,8 +67,8 @@ class DekningsgradTjenesteTest {
     @Test
     void skal_gi_ikke_gi_endret_dekningsgrad_hvis_dekningsgrad_endret_til_samme_verdi() {
         var behandling = behandling(true);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
-        repositoryProvider.getFagsakRelasjonRepository().overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._80);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._80);
+        fagsakRelasjonTjeneste.overstyrDekningsgrad(behandling.getFagsak(), Dekningsgrad._80);
 
         var tjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, repositoryProvider.getBehandlingsresultatRepository());
 

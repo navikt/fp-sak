@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -39,6 +40,9 @@ class AdopsjonsvilkårOversetterTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
+    @Inject
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @BeforeEach
@@ -46,7 +50,8 @@ class AdopsjonsvilkårOversetterTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         adopsjonsoversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
-            new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)));
+            new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
+                repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste));
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
