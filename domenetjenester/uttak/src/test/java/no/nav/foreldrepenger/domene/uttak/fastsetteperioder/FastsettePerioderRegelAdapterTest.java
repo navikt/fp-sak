@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -120,6 +121,8 @@ class FastsettePerioderRegelAdapterTest {
             repositoryProvider.getFpUttakRepository(), repositoryProvider.getYtelsesFordelingRepository());
         var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
         var grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
@@ -129,7 +132,7 @@ class FastsettePerioderRegelAdapterTest {
             new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
             new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
             new AdopsjonGrunnlagBygger(),
-            new KontoerGrunnlagBygger(repositoryProvider, rettOgOmsorgGrunnlagBygger),
+            new KontoerGrunnlagBygger(fagsakRelasjonTjeneste, rettOgOmsorgGrunnlagBygger),
             new YtelserGrunnlagBygger());
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         fastsettePerioderRegelAdapter = new FastsettePerioderRegelAdapter(grunnlagBygger,

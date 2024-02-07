@@ -45,6 +45,7 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
 
     private DokumentbestillingV2Dto mapDokumentbestilling(ProsessTaskData prosessTaskData) {
         var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingUuid());
+
         return new DokumentbestillingV2Dto(
             behandling.getUuid(),
             UUID.fromString(prosessTaskData.getPropertyValue(BESTILLING_UUID)),

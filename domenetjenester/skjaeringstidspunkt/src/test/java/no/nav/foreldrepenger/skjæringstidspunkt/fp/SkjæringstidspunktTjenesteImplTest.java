@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -53,8 +54,11 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(1)), repositoryProvider);
-        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(LocalDate.now().minusMonths(1)), repositoryProvider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(1)), repositoryProvider,
+            fagsakRelasjonTjeneste);
+        minsterett2022 = new MinsterettBehandling2022(new MinsterettCore2022(LocalDate.now().minusMonths(1)), repositoryProvider, fagsakRelasjonTjeneste);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
     }
 
@@ -272,7 +276,8 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_fud_søkt_utsettelse_fra_start() {
         // Sikre fritt uttak
-        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(12)), repositoryProvider);
+        utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusMonths(12)), repositoryProvider, new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),
+            null, repositoryProvider.getFagsakRepository()));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, null, stputil, utsettelse2021, minsterett2022);
 
 
