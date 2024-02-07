@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkKafkaProducer;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -63,14 +64,18 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var vedtaksdato = LocalDate.parse(prosessTaskData.getPropertyValue(DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+        try {
+            var vedtaksdato = LocalDate.parse(prosessTaskData.getPropertyValue(DATO_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
 
-        var dtos = finnAlleVedtakForDato(vedtaksdato).stream()
-            .map(this::lagDto)
-            .collect(Collectors.toSet());
-        LOG.info("Publiser migreringshendelse for {} vedtak opprettet {}", dtos.size(), vedtaksdato);
+            var dtos = finnAlleVedtakForDato(vedtaksdato).stream()
+                .map(this::lagDto)
+                .collect(Collectors.toSet());
+            LOG.info("Publiser migreringshendelse for {} vedtak opprettet {}", dtos.size(), vedtaksdato);
 
-        dtos.forEach(v -> kafkaProducer.sendJson(v.getSaksnummer().id(), DefaultJsonMapper.toJson(v)));
+            dtos.forEach(v -> kafkaProducer.sendJson(v.getSaksnummer().id(), DefaultJsonMapper.toJson(v)));
+        } catch (Exception e) {
+            throw new TekniskException("MIGRERING1","Migreringstask feilet", e);
+        }
     }
 
     private List<BehandlingVedtak> finnAlleVedtakForDato(LocalDate vedtaksdato) {
