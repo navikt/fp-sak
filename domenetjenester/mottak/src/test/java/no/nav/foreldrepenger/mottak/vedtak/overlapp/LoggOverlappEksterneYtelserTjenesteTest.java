@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -215,7 +214,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         verifyNoInteractions(oppgaveTjenesteMock);
     }
 
-    @Disabled("inntil vi har en spøkelse mock i vtp")
+    @Test
     void nyeSykepengerOverlappIlisten() {
         LOG.info("4");
 
