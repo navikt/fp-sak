@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
+package no.nav.foreldrepenger.dokumentbestiller.infobrev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,6 +7,9 @@ import java.time.LocalDate;
 
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.dokumentbestiller.infobrev.SendInformasjonsbrevBatchTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
