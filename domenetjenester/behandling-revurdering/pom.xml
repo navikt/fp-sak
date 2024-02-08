@@ -49,8 +49,8 @@
         </dependency>
 
         <dependency>
-            <artifactId>behandling-prosessering</artifactId>
             <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>behandling-prosessering</artifactId>
         </dependency>
 
         <dependency>
