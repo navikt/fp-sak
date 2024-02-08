@@ -75,7 +75,7 @@ public class DokumentForhåndsvisningTjeneste {
             var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling, resultat.getBehandlingResultatType(),
                 resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
 
-            LOG.info("Utleder {} dokumentMal for {}", dokumentMal, bestilling.getBehandlingUuid());
+            LOG.info("Utledet {} dokumentMal for {}", dokumentMal, bestilling.getBehandlingUuid());
             bestilling.setDokumentMal(dokumentMal.getKode());
         }
 
