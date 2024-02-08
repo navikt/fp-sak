@@ -24,81 +24,72 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 class VedtaksbrevUtlederTest {
 
     @Mock
-    private KlageVurderingResultat klageVurderingResultat;
-
-    @Mock
     private Behandling behandling;
-    @Mock
-    private KlageRepository klageRepository;
 
     @Test
     void skal_velge_positivt_ES() {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, false, klageRepository)).isEqualTo(DokumentMalType.ENGANGSSTØNAD_INNVILGELSE);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, false, null)).isEqualTo(DokumentMalType.ENGANGSSTØNAD_INNVILGELSE);
     }
 
     @Test
     void skal_velge_negativt_ES() {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.AVSLAG, false, klageRepository)).isEqualTo(DokumentMalType.ENGANGSSTØNAD_AVSLAG);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.AVSLAG, false, null)).isEqualTo(DokumentMalType.ENGANGSSTØNAD_AVSLAG);
     }
 
     @Test
     void skal_velge_positivt_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, false, klageRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE);
     }
 
     @Test
     void skal_velge_positivt_SVP() {
         doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, false, klageRepository)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, false, null)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE);
     }
 
     @Test
     void skal_velge_opphør_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.OPPHØR, VedtakResultatType.AVSLAG, false, klageRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_OPPHØR);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.OPPHØR, VedtakResultatType.AVSLAG, false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_OPPHØR);
     }
 
     @Test
     void skal_velge_avslag_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.AVSLAG, false, klageRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_AVSLAG);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.AVSLAG, false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_AVSLAG);
     }
 
     @Test
     void skal_velge_annullert_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.FORELDREPENGER_SENERE, VedtakResultatType.INNVILGET, false, klageRepository)).isEqualTo(DokumentMalType.FORELDREPENGER_ANNULLERT);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.FORELDREPENGER_SENERE, VedtakResultatType.INNVILGET, false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_ANNULLERT);
     }
 
     @Test
     void skal_velge_uendret_utfall() {
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, true, klageRepository)).isEqualTo(DokumentMalType.INGEN_ENDRING);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.INNVILGET, true, null)).isEqualTo(DokumentMalType.INGEN_ENDRING);
     }
     @Test
     void skal_velge_riktig_klagemal() {
-        doReturn(Optional.of(klageVurderingResultat)).when(klageRepository).hentGjeldendeKlageVurderingResultat(behandling);
-
-        doReturn(KlageVurdering.AVVIS_KLAGE).when(klageVurderingResultat).getKlageVurdering();
-        assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_AVVIST);
-
-        doReturn(KlageVurdering.MEDHOLD_I_KLAGE).when(klageVurderingResultat).getKlageVurdering();
-        assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_OMGJORT);
+        assertThat(VedtaksbrevUtleder.velgKlagemal(KlageVurdering.AVVIS_KLAGE)).isEqualTo(DokumentMalType.KLAGE_AVVIST);
+        assertThat(VedtaksbrevUtleder.velgKlagemal(KlageVurdering.MEDHOLD_I_KLAGE)).isEqualTo(DokumentMalType.KLAGE_OMGJORT);
+        assertThat(VedtaksbrevUtleder.velgKlagemal(KlageVurdering.UDEFINERT)).isNull();
     }
 
 
     @Test
     void skal_velge_opphør_Svp() {
         doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.OPPHØR, VedtakResultatType.AVSLAG, false, klageRepository)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.OPPHØR, VedtakResultatType.AVSLAG, false, null)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_OPPHØR);
     }
 
     @Test
     void skal_velge_avslag_Svp() {
         doReturn(FagsakYtelseType.SVANGERSKAPSPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.AVSLAG, false, klageRepository)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, VedtakResultatType.AVSLAG, false, null)).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_AVSLAG);
     }
 
 }

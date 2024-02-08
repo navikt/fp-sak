@@ -14,10 +14,12 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
@@ -30,7 +32,6 @@ public class DokumentForhåndsvisningTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-
     private KlageRepository klageRepository;
     private Brev brev;
 
@@ -60,13 +61,19 @@ public class DokumentForhåndsvisningTjeneste {
             var behandling = behandlingRepository.hentBehandling(bestilling.getBehandlingUuid());
             var resultat = behandlingsresultatRepository.hent(behandling.getId());
 
-            var erRevurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling) || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(resultat);
+            var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
+            var erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering = erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(
+                resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), resultat.getBehandlingId());
 
-            var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling,
-                resultat.getBehandlingResultatType(),
-                resultat.getKonsekvenserForYtelsen(),
-                erRevurderingMedUendretUtfall,
-                klageRepository);
+            var erRevurderingMedUendretUtfall = revurderingMedUendretUtfall || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering;
+
+            LOG.info("revurderingMedUendretUtfall: {}, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering: {}", revurderingMedUendretUtfall,
+                erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering);
+
+            var klageVurdering = finnKlageVurdering(behandling);
+
+            var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling, resultat.getBehandlingResultatType(),
+                resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
 
             LOG.info("Utleder {} dokumentMal for {}", dokumentMal, bestilling.getBehandlingUuid());
             bestilling.setDokumentMal(dokumentMal.getKode());
@@ -76,24 +83,35 @@ public class DokumentForhåndsvisningTjeneste {
     }
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
-        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow().erRevurderingMedUendretUtfall(behandling);
+        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType())
+            .orElseThrow()
+            .erRevurderingMedUendretUtfall(behandling);
     }
 
-    private boolean erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(Behandlingsresultat behandlingResultat) {
-        return behandlingResultat != null && foreldrepengerErEndret(behandlingResultat) && erKunEndringIFordelingAvYtelsen(behandlingResultat.getKonsekvenserForYtelsen())
-            && harSendtVarselOmRevurdering(behandlingResultat.getBehandlingId());
+    private boolean erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(BehandlingResultatType resultatType,
+                                                                                 List<KonsekvensForYtelsen> konsekvensForYtelsenList,
+                                                                                 long behandlingId) {
+        return foreldrepengerErEndret(resultatType) && erKunEndringIFordelingAvYtelsen(konsekvensForYtelsenList) && harSendtVarselOmRevurdering(
+            behandlingId);
+    }
+
+    private boolean foreldrepengerErEndret(BehandlingResultatType behandlingResultatType) {
+        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingResultatType);
+    }
+
+    private static boolean erKunEndringIFordelingAvYtelsen(List<KonsekvensForYtelsen> konsekvensForYtelsenList) {
+        return konsekvensForYtelsenList.contains(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN) && konsekvensForYtelsenList.size() == 1;
     }
 
     private boolean harSendtVarselOmRevurdering(Long behandlingId) {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.VARSEL_OM_REVURDERING);
     }
 
-    private boolean foreldrepengerErEndret(Behandlingsresultat behandlingsresultat) {
-        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingsresultat.getBehandlingResultatType());
-    }
-
-    private static boolean erKunEndringIFordelingAvYtelsen(List<KonsekvensForYtelsen> konsekvensForYtelsen) {
-        return konsekvensForYtelsen.contains(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN) && konsekvensForYtelsen.size() == 1;
+    private KlageVurdering finnKlageVurdering(Behandling behandling) {
+        if (BehandlingType.KLAGE.equals(behandling.getType())) {
+            return klageRepository.hentGjeldendeKlageVurderingResultat(behandling).map(KlageVurderingResultat::getKlageVurdering).orElse(null);
+        }
+        return null;
     }
 
 }

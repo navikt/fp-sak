@@ -1,16 +1,13 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -34,7 +31,11 @@ public class VedtaksbrevUtleder {
                                                            BehandlingResultatType behandlingResultatType,
                                                            VedtakResultatType vedtakResultatType,
                                                            Boolean erRevurderingMedUendretUtfall,
-                                                           KlageRepository klageRepository) {
+                                                           KlageVurdering klageVurdering) {
+
+        if (erRevurderingMedUendretUtfall) {
+            return DokumentMalType.INGEN_ENDRING;
+        }
 
         var vedtakType = switch (vedtakResultatType) {
             case VEDTAK_I_KLAGEBEHANDLING -> VedtakType.KLAGE;
@@ -43,67 +44,48 @@ public class VedtaksbrevUtleder {
             case null, default -> null;
         };
 
-        return velgDokumentMal(behandling, behandlingResultatType, erRevurderingMedUendretUtfall, vedtakType, klageRepository);
+        return velgDokumentMal(behandling, behandlingResultatType, vedtakType, klageVurdering);
     }
 
     public static DokumentMalType velgDokumentMalForForhåndsvisningAvVedtak(Behandling behandling,
                                                                             BehandlingResultatType behandlingResultatType,
                                                                             List<KonsekvensForYtelsen> konsekvensForYtelsenList,
                                                                             Boolean erRevurderingMedUendretUtfall,
-                                                                            KlageRepository klageRepository) {
+                                                                            KlageVurdering klageVurdering) {
+        if (erRevurderingMedUendretUtfall) {
+            return DokumentMalType.INGEN_ENDRING;
+        }
 
-        var vedtakType = utledVedtakTypeUtenVedtak(behandlingResultatType, konsekvensForYtelsenList, behandling.getType());
+        VedtakType vedtakType = null;
 
-        return velgDokumentMal(behandling, behandlingResultatType, erRevurderingMedUendretUtfall, vedtakType, klageRepository);
+        if (BehandlingType.KLAGE.equals(behandling.getType())) {
+            vedtakType = VedtakType.KLAGE;
+        } else if (erInnvilgetEndretEllerSenere(behandlingResultatType, konsekvensForYtelsenList)) {
+            vedtakType = VedtakType.POSITIV;
+        } else if (erAvslåttEllerOpphørt(behandlingResultatType)) {
+            vedtakType = VedtakType.NEGATIV;
+        }
+
+        return velgDokumentMal(behandling, behandlingResultatType, vedtakType, klageVurdering);
     }
 
     /**
      * Denne metoden tar ikke hensyn til fritekstmalen.
      */
     private static DokumentMalType velgDokumentMal(Behandling behandling,
-                                                   BehandlingResultatType behandlingResultatType,
-                                                   Boolean erRevurderingMedUendretUtfall,
-                                                   VedtakType vedtakType,
-                                                   KlageRepository klageRepository) {
-        if (VedtakType.KLAGE.equals(vedtakType)) {
-            Objects.requireNonNull(klageRepository, "klageRepository må være satt.");
-        }
-
-        if (erRevurderingMedUendretUtfall) {
-            return DokumentMalType.INGEN_ENDRING;
-        }
-
+                                                             BehandlingResultatType behandlingResultatType,
+                                                             VedtakType vedtakType,
+                                                             KlageVurdering klageVurdering) {
         return switch (vedtakType) {
-            case KLAGE -> velgKlagemal(behandling, klageRepository);
-            case POSITIV -> velgPositivtVedtaksmal(behandling, behandlingResultatType);
-            case NEGATIV -> velgNegativVedtaksmal(behandling, behandlingResultatType);
+            case KLAGE -> velgKlagemal(klageVurdering);
+            case POSITIV -> velgPositivtVedtaksmal(behandling.getFagsakYtelseType(), behandlingResultatType);
+            case NEGATIV -> velgNegativVedtaksmal(behandling.getFagsakYtelseType(), behandlingResultatType);
             case null -> throw new TekniskException("FP-666915", "Ingen brevmal konfigurert for behandling " + behandling.getId());
         };
     }
 
-    /**
-     * Denne metoden brukes til å beregne vedtaksbrev type basert kun på behandlingsresultat hvor behandlingen er allerede
-     * i foreslå vedtak, fatte vedtak steget men er ikke fattet ennå.
-     * @param behandlingResultatType behandling resutlat type
-     * @param konsekvensForYtelsenList Liste med konsekvens for ytelsen.
-     * @param behandlingType Gjeldende BehandlingType - kun for klage.
-     * @return Type av vedtaksbrev som skal fattes (Klage, Positiv, Negativ) - blir senere brukt til å utlede riktig brev mal.
-     */
-    private static VedtakType utledVedtakTypeUtenVedtak(BehandlingResultatType behandlingResultatType,
-                                                        List<KonsekvensForYtelsen> konsekvensForYtelsenList,
-                                                        BehandlingType behandlingType) {
-        if (BehandlingType.KLAGE.equals(behandlingType)) {
-            return VedtakType.KLAGE;
-        } else if (erInnvilgetEllerEndret(behandlingResultatType, konsekvensForYtelsenList)) {
-            return VedtakType.POSITIV;
-        } else if (erAvslåttEllerOpphørt(behandlingResultatType)) {
-            return VedtakType.NEGATIV;
-        }
-        return null;
-    }
-
-    private static boolean erInnvilgetEllerEndret(BehandlingResultatType resultatType, List<KonsekvensForYtelsen> konsekvensForYtelsenList) {
-        return BehandlingResultatType.INNVILGET.equals(resultatType) ||
+    private static boolean erInnvilgetEndretEllerSenere(BehandlingResultatType resultatType, List<KonsekvensForYtelsen> konsekvensForYtelsenList) {
+        return Set.of(BehandlingResultatType.INNVILGET, BehandlingResultatType.FORELDREPENGER_SENERE).contains(resultatType) ||
             (BehandlingResultatType.FORELDREPENGER_ENDRET.equals(resultatType) && !erKunEndringIFordelingAvYtelsen(konsekvensForYtelsenList));
     }
 
@@ -115,8 +97,8 @@ public class VedtaksbrevUtleder {
         return Set.of(BehandlingResultatType.OPPHØR, BehandlingResultatType.AVSLÅTT).contains(behandlingResultatType);
     }
 
-    static DokumentMalType velgNegativVedtaksmal(Behandling behandling, BehandlingResultatType behandlingResultatType) {
-        return switch (behandling.getFagsakYtelseType()) {
+    static DokumentMalType velgNegativVedtaksmal(FagsakYtelseType ytelseType, BehandlingResultatType behandlingResultatType) {
+        return switch (ytelseType) {
             case ENGANGSTØNAD -> DokumentMalType.ENGANGSSTØNAD_AVSLAG;
             case FORELDREPENGER -> erOpphør(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_OPPHØR : DokumentMalType.FORELDREPENGER_AVSLAG;
             case SVANGERSKAPSPENGER ->
@@ -129,8 +111,8 @@ public class VedtaksbrevUtleder {
         return BehandlingResultatType.OPPHØR.equals(behandlingResultatType);
     }
 
-    static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, BehandlingResultatType behandlingResultatType) {
-        return switch (behandling.getFagsakYtelseType()) {
+    static DokumentMalType velgPositivtVedtaksmal(FagsakYtelseType ytelseType, BehandlingResultatType behandlingResultatType) {
+        return switch (ytelseType) {
             case FORELDREPENGER ->
                 erUtsettelse(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_ANNULLERT : DokumentMalType.FORELDREPENGER_INNVILGELSE;
             case SVANGERSKAPSPENGER -> DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE;
@@ -143,11 +125,7 @@ public class VedtaksbrevUtleder {
         return BehandlingResultatType.FORELDREPENGER_SENERE.equals(behandlingResultatType);
     }
 
-    static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
-        var klageVurdering = klageRepository.hentGjeldendeKlageVurderingResultat(behandling)
-            .map(KlageVurderingResultat::getKlageVurdering)
-            .orElse(null);
-
+    static DokumentMalType velgKlagemal(KlageVurdering klageVurdering) {
         return switch (klageVurdering) {
             case MEDHOLD_I_KLAGE -> DokumentMalType.KLAGE_OMGJORT;
             case AVVIS_KLAGE -> DokumentMalType.KLAGE_AVVIST;
