@@ -35,6 +35,21 @@
 
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>beregningsgrunnlag</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>medlem</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>familie-hendelse</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandling-prosessering</artifactId>
         </dependency>
 
