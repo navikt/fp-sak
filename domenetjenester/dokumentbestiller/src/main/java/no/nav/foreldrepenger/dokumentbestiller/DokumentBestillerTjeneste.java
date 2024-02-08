@@ -2,13 +2,14 @@ package no.nav.foreldrepenger.dokumentbestiller;
 
 import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForVedtak;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -18,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
-
-import java.util.List;
 
 @ApplicationScoped
 public class DokumentBestillerTjeneste {
@@ -42,21 +41,21 @@ public class DokumentBestillerTjeneste {
     }
 
     public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
-        var behandlingsresultat = behandlingVedtak.getBehandlingsresultat();
+        var behandlingResultat = behandlingVedtak.getBehandlingsresultat();
 
-        var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(behandlingResultat.getBehandlingId());
 
         DokumentMalType opprinneligDokumentMal = null;
-        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat.getBehandlingResultatType(),
+        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingResultat.getBehandlingResultatType(),
             behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
 
-        if (Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev())) {
-            opprinneligDokumentMal = endretVedtakOgKunEndringIFordeling(behandlingsresultat) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
+        if (Vedtaksbrev.FRITEKST.equals(behandlingResultat.getVedtaksbrev())) {
+            opprinneligDokumentMal = endretVedtakOgKunEndringIFordeling(behandlingResultat.getBehandlingResultatType(),
+                behandlingResultat.getKonsekvenserForYtelsen()) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
             dokumentMal = DokumentMalType.FRITEKSTBREV;
         }
 
-        bestillVedtak(BrevBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal).build(),
-            opprinneligDokumentMal,
+        bestillVedtak(BrevBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal).build(), opprinneligDokumentMal,
             HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
@@ -68,9 +67,9 @@ public class DokumentBestillerTjeneste {
         dokumentBestiller.bestillVedtak(brevBestilling, opprinneligDokumentMal, aktør);
     }
 
-    private boolean endretVedtakOgKunEndringIFordeling(Behandlingsresultat behandlingsresultat) {
-        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingsresultat.getBehandlingResultatType())
-            && erKunEndringIFordelingAvYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
+    private static boolean endretVedtakOgKunEndringIFordeling(BehandlingResultatType resultatType,
+                                                              List<KonsekvensForYtelsen> konsekvensForYtelsenList) {
+        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(resultatType) && erKunEndringIFordelingAvYtelsen(konsekvensForYtelsenList);
     }
 
     private static boolean erKunEndringIFordelingAvYtelsen(List<KonsekvensForYtelsen> konsekvensForYtelsen) {
