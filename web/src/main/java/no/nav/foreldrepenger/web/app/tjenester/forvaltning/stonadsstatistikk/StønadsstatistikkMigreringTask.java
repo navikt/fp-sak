@@ -95,7 +95,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
             where b.BEHANDLING_TYPE in ('BT-002','BT-004') and trunc(bv.OPPRETTET_TID) =:vedtaksdato
             and bv.id >:fraVedtakId
             order by bv.id)
-            fetch first 100 rows only
+            where ROWNUM <= 100
             """;
 
         var query = entityManager.createNativeQuery(sql, BehandlingVedtak.class)
