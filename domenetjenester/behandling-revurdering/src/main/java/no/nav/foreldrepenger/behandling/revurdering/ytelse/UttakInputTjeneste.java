@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -43,7 +42,6 @@ public class UttakInputTjeneste {
     private BehandlingRepository behandlingRepository;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private SøknadRepository søknadRepository;
-    private PersonopplysningRepository personopplysningRepository;
     private BeregningUttakTjeneste beregningUttakTjeneste;
     private no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UttakGrunnlagTjeneste fpUttakGrunnlagTjeneste;
     private no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UttakGrunnlagTjeneste svpUttakGrunnlagTjeneste;
@@ -63,7 +61,6 @@ public class UttakInputTjeneste {
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.beregningUttakTjeneste = beregningUttakTjeneste;
         this.fpUttakGrunnlagTjeneste = fpUttakGrunnlagTjeneste;
         this.svpUttakGrunnlagTjeneste = svpUttakGrunnlagTjeneste;

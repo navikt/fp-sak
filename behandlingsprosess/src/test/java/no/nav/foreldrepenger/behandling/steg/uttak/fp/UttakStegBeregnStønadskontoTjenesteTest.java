@@ -58,8 +58,8 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepositoryProvider.getFpUttakRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository());
-        tjeneste = new UttakStegBeregnStønadskontoTjeneste(uttakRepositoryProvider, beregnStønadskontoerTjeneste, dekningsgradTjeneste,
-                uttakTjeneste);
+        tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste,
+                uttakTjeneste, fagsakRelasjonTjeneste);
     }
 
     @Test

@@ -344,7 +344,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private List<SykepengeVedtak> hentSpøkelse(String fnr, LocalDate førsteUttaksDatoFP) {
-        if (!IS_PROD) return List.of();
         var it = SPOKELSE_TIMEOUTS.iterator();
         while (it.hasNext()) {
             try {

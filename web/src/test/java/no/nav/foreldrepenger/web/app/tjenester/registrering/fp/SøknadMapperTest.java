@@ -43,6 +43,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -105,10 +106,12 @@ class SøknadMapperTest {
     public void before(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
         oppgittPeriodeMottattDato = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(entityManager),
             repositoryProvider.getBehandlingRepository(),
-            new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider));
+            new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider, fagsakRelasjonTjeneste));
 
         kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID).medNavBrukerKjønn(NavBrukerKjønn.KVINNE).build();
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
