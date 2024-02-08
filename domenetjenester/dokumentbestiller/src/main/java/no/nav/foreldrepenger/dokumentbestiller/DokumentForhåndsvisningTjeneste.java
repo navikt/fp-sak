@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForVedtak;
+import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak;
+
+import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -8,10 +10,15 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
 
@@ -22,7 +29,7 @@ public class DokumentForhåndsvisningTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     private KlageRepository klageRepository;
     private Brev brev;
@@ -34,12 +41,12 @@ public class DokumentForhåndsvisningTjeneste {
     @Inject
     public DokumentForhåndsvisningTjeneste(BehandlingRepository behandlingRepository,
                                            BehandlingsresultatRepository behandlingsresultatRepository,
-                                           BehandlingVedtakRepository behandlingVedtakRepository,
+                                           DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                            KlageRepository klageRepository,
                                            Brev brev) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.behandlingVedtakRepository = behandlingVedtakRepository;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.klageRepository = klageRepository;
         this.brev = brev;
     }
@@ -52,12 +59,13 @@ public class DokumentForhåndsvisningTjeneste {
 
             var behandling = behandlingRepository.hentBehandling(bestilling.getBehandlingUuid());
             var resultat = behandlingsresultatRepository.hent(behandling.getId());
-            var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
 
-            var dokumentMal = velgDokumentMalForVedtak(behandling,
+            var erRevurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling) || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(resultat);
+
+            var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling,
                 resultat.getBehandlingResultatType(),
-                vedtak.getVedtakResultatType(),
-                vedtak.isBeslutningsvedtak(),
+                resultat.getKonsekvenserForYtelsen(),
+                erRevurderingMedUendretUtfall,
                 klageRepository);
 
             LOG.info("Utleder {} dokumentMal for {}", dokumentMal, bestilling.getBehandlingUuid());
@@ -66,4 +74,26 @@ public class DokumentForhåndsvisningTjeneste {
 
         return brev.forhåndsvis(bestilling);
     }
+
+    private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
+        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType()).orElseThrow().erRevurderingMedUendretUtfall(behandling);
+    }
+
+    private boolean erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(Behandlingsresultat behandlingResultat) {
+        return behandlingResultat != null && foreldrepengerErEndret(behandlingResultat) && erKunEndringIFordelingAvYtelsen(behandlingResultat.getKonsekvenserForYtelsen())
+            && harSendtVarselOmRevurdering(behandlingResultat.getBehandlingId());
+    }
+
+    private boolean harSendtVarselOmRevurdering(Long behandlingId) {
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.VARSEL_OM_REVURDERING);
+    }
+
+    private boolean foreldrepengerErEndret(Behandlingsresultat behandlingsresultat) {
+        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingsresultat.getBehandlingResultatType());
+    }
+
+    private static boolean erKunEndringIFordelingAvYtelsen(List<KonsekvensForYtelsen> konsekvensForYtelsen) {
+        return konsekvensForYtelsen.contains(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN) && konsekvensForYtelsen.size() == 1;
+    }
+
 }
