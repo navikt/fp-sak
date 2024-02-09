@@ -29,9 +29,9 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
     @Mock private Brev brevTjeneste;
     private DokumentForhåndsvisningTjeneste tjeneste;
 
-    private void settOpp(AbstractTestScenario<?> scenario) {
+    private void settOpp(AbstractTestScenario<?> scenario, Vedtaksbrev vedtaksbrev) {
         scenario.medBehandlingsresultat(Behandlingsresultat.builder()
-            .medVedtaksbrev(Vedtaksbrev.AUTOMATISK)
+            .medVedtaksbrev(vedtaksbrev)
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         this.behandling = scenario.lagMocked();
         this.repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -39,10 +39,10 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         tjeneste = new DokumentForhåndsvisningTjeneste(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(), dokumentBehandlingTjeneste, null, brevTjeneste);
     }
     @Test
-    void skal_utlede_vedtak_brev_fritekst() {
+    void skal_utlede_vedtak_brev() {
         // Arrange
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        settOpp(scenario);
+        settOpp(scenario, Vedtaksbrev.AUTOMATISK);
 
         var bestilling = new DokumentbestillingDto();
         bestilling.setBehandlingUuid(behandling.getUuid());
@@ -55,5 +55,44 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
 
         var bestillingValue = bestillingCaptor.getValue();
         assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.ENGANGSSTØNAD_INNVILGELSE.getKode());
+    }
+
+    @Test
+    void skal_utlede_vedtak_brev_automatisk() {
+        // Arrange
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        settOpp(scenario, Vedtaksbrev.AUTOMATISK);
+
+        var bestilling = new DokumentbestillingDto();
+        bestilling.setBehandlingUuid(behandling.getUuid());
+        bestilling.setAutomatiskVedtaksbrev(true);
+
+        tjeneste.forhåndsvisBrev(bestilling);
+
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentbestillingDto.class);
+
+        verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
+
+        var bestillingValue = bestillingCaptor.getValue();
+        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.ENGANGSSTØNAD_INNVILGELSE.getKode());
+    }
+
+    @Test
+    void skal_utlede_vedtak_brev_fritekst() {
+        // Arrange
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        settOpp(scenario, Vedtaksbrev.FRITEKST);
+
+        var bestilling = new DokumentbestillingDto();
+        bestilling.setBehandlingUuid(behandling.getUuid());
+
+        tjeneste.forhåndsvisBrev(bestilling);
+
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentbestillingDto.class);
+
+        verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
+
+        var bestillingValue = bestillingCaptor.getValue();
+        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV.getKode());
     }
 }
