@@ -56,7 +56,7 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 @Default
 public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTjeneste {
-    
+
     private AbakusTjeneste abakusTjeneste;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
