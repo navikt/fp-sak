@@ -9,7 +9,8 @@ public record BrevBestilling(UUID behandlingUuid,
                              DokumentMalType dokumentMal,
                              String fritekst,
                              RevurderingVarslingÅrsak revurderingÅrsak,
-                             DokumentMalType journalførSom) {
+                             DokumentMalType journalførSom,
+                             UUID bestillingUuid) {
 
     public static Builder builder() {
         return new Builder();
@@ -21,6 +22,7 @@ public record BrevBestilling(UUID behandlingUuid,
         private RevurderingVarslingÅrsak revurderingÅrsak;
         private String fritekst;
         private DokumentMalType journalførSom;
+        private UUID bestillingUuid;
 
         public Builder medBehandlingUuid(UUID behandlingUuid) {
             this.behandlingUuid = behandlingUuid;
@@ -49,7 +51,7 @@ public record BrevBestilling(UUID behandlingUuid,
 
         public BrevBestilling build() {
             valider();
-            return new BrevBestilling(behandlingUuid, dokumentMal, fritekst, revurderingÅrsak, journalførSom);
+            return new BrevBestilling(behandlingUuid, dokumentMal, fritekst, revurderingÅrsak, journalførSom, UUID.randomUUID());
         }
 
         private void valider() {

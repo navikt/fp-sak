@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -47,19 +46,17 @@ public class DokumentBestiller {
     }
 
     private void bestillDokumentOgLoggHistorikk(Behandling behandling, HistorikkAktør aktør, BrevBestilling bestilling) {
-        var bestillingUuid = UUID.randomUUID();
-        opprettBestillDokumentTask(behandling, bestillingUuid, bestilling);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestillingUuid, bestilling);
+        opprettBestillDokumentTask(behandling, bestilling);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
         dokumentBestilt.opprettHistorikkinnslag(aktør, behandling, bestilling);
     }
 
-    private void opprettBestillDokumentTask(Behandling behandling, UUID bestillingUuid,
-                                            BrevBestilling bestilling) {
+    private void opprettBestillDokumentTask(Behandling behandling, BrevBestilling bestilling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(DokumentBestillerTask.class);
 
         // Obligatorisk
         prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, behandling.getUuid().toString());
-        prosessTaskData.setProperty(DokumentBestillerTask.BESTILLING_UUID, String.valueOf(bestillingUuid));
+        prosessTaskData.setProperty(DokumentBestillerTask.BESTILLING_UUID, String.valueOf(bestilling.bestillingUuid()));
         prosessTaskData.setProperty(DokumentBestillerTask.DOKUMENT_MAL_TYPE, bestilling.dokumentMal().getKode());
 
         // Optionals

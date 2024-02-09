@@ -6,7 +6,6 @@ import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -59,14 +58,14 @@ public class DokumentBehandlingTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
 
-    public void loggDokumentBestilt(Behandling behandling, UUID bestillingUuid, BrevBestilling bestilling) {
+    public void loggDokumentBestilt(Behandling behandling, BrevBestilling bestilling) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
         behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
             .medBehandlingDokument(behandlingDokument)
             .medDokumentMalType(bestilling.dokumentMal().getKode())
-            .medBestillingUuid(bestillingUuid)
+            .medBestillingUuid(bestilling.bestillingUuid())
             .medOpprinneligDokumentMal(Optional.ofNullable(bestilling.journalførSom()).map(DokumentMalType::getKode).orElse(null))
             .build());
 
