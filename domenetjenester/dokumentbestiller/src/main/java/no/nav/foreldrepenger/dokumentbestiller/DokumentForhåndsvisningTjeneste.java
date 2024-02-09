@@ -25,17 +25,16 @@ import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
 
 @ApplicationScoped
-public class DokumentForhåndsvisningTjeneste {
+public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(DokumentForhåndsvisningTjeneste.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private KlageRepository klageRepository;
     private Brev brev;
 
-    public DokumentForhåndsvisningTjeneste() {
+    DokumentForhåndsvisningTjeneste() {
         // for cdi proxy
     }
 
@@ -45,10 +44,10 @@ public class DokumentForhåndsvisningTjeneste {
                                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                            KlageRepository klageRepository,
                                            Brev brev) {
+        super(klageRepository);
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
-        this.klageRepository = klageRepository;
         this.brev = brev;
     }
 
@@ -97,23 +96,8 @@ public class DokumentForhåndsvisningTjeneste {
             behandlingId);
     }
 
-    private boolean foreldrepengerErEndret(BehandlingResultatType behandlingResultatType) {
-        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(behandlingResultatType);
-    }
-
-    private static boolean erKunEndringIFordelingAvYtelsen(List<KonsekvensForYtelsen> konsekvensForYtelsenList) {
-        return konsekvensForYtelsenList.contains(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN) && konsekvensForYtelsenList.size() == 1;
-    }
-
     private boolean harSendtVarselOmRevurdering(Long behandlingId) {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.VARSEL_OM_REVURDERING);
-    }
-
-    private KlageVurdering finnKlageVurdering(Behandling behandling) {
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            return klageRepository.hentGjeldendeKlageVurderingResultat(behandling).map(KlageVurderingResultat::getKlageVurdering).orElse(null);
-        }
-        return null;
     }
 
 }

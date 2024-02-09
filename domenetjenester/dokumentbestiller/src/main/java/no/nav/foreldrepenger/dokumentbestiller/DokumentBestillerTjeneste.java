@@ -21,10 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 
 @ApplicationScoped
-public class DokumentBestillerTjeneste {
+public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste {
 
     private BehandlingRepository behandlingRepository;
-    private KlageRepository klageRepository;
     private DokumentBestiller dokumentBestiller;
 
     public DokumentBestillerTjeneste() {
@@ -35,8 +34,8 @@ public class DokumentBestillerTjeneste {
     public DokumentBestillerTjeneste(BehandlingRepository behandlingRepository,
                                      KlageRepository klageRepository,
                                      DokumentBestiller dokumentBestiller) {
+        super(klageRepository);
         this.behandlingRepository = behandlingRepository;
-        this.klageRepository = klageRepository;
         this.dokumentBestiller = dokumentBestiller;
     }
 
@@ -45,9 +44,10 @@ public class DokumentBestillerTjeneste {
 
         var behandling = behandlingRepository.hentBehandling(behandlingResultat.getBehandlingId());
 
-        DokumentMalType journalførSom = null; // settes kun ved fritekst
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingResultat.getBehandlingResultatType(),
             behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
+
+        DokumentMalType journalførSom = null; // settes kun ved fritekst
 
         if (Vedtaksbrev.FRITEKST.equals(behandlingResultat.getVedtaksbrev())) {
             journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultat.getBehandlingResultatType(),
@@ -68,17 +68,6 @@ public class DokumentBestillerTjeneste {
 
     private static boolean endretVedtakOgKunEndringIFordeling(BehandlingResultatType resultatType,
                                                               List<KonsekvensForYtelsen> konsekvensForYtelsenList) {
-        return BehandlingResultatType.FORELDREPENGER_ENDRET.equals(resultatType) && erKunEndringIFordelingAvYtelsen(konsekvensForYtelsenList);
-    }
-
-    private static boolean erKunEndringIFordelingAvYtelsen(List<KonsekvensForYtelsen> konsekvensForYtelsen) {
-        return konsekvensForYtelsen.contains(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN) && konsekvensForYtelsen.size() == 1;
-    }
-
-    private KlageVurdering finnKlageVurdering(Behandling behandling) {
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            return klageRepository.hentGjeldendeKlageVurderingResultat(behandling).map(KlageVurderingResultat::getKlageVurdering).orElse(null);
-        }
-        return null;
+        return foreldrepengerErEndret(resultatType) && erKunEndringIFordelingAvYtelsen(konsekvensForYtelsenList);
     }
 }
