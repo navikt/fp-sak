@@ -59,17 +59,15 @@ public class DokumentBehandlingTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
 
-    public void loggDokumentBestilt(Behandling behandling,
-                                    DokumentMalType dokumentMalTypeKode,
-                                    UUID bestillingUuid,
-                                    DokumentMalType opprinneligDokumentMal) {
+    public void loggDokumentBestilt(Behandling behandling, UUID bestillingUuid, BrevBestilling bestilling) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
-        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder().medBehandlingDokument(behandlingDokument)
-            .medDokumentMalType(dokumentMalTypeKode.getKode())
+        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(bestilling.dokumentMal().getKode())
             .medBestillingUuid(bestillingUuid)
-            .medOpprinneligDokumentMal(opprinneligDokumentMal == null ? null : opprinneligDokumentMal.getKode())
+            .medOpprinneligDokumentMal(Optional.ofNullable(bestilling.journalførSom()).map(DokumentMalType::getKode).orElse(null))
             .build());
 
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);

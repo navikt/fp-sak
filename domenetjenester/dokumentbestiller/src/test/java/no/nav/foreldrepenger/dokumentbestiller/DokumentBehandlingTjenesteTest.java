@@ -117,21 +117,25 @@ class DokumentBehandlingTjenesteTest {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
 
+        var bestilling = lagBestilling(DokumentMalType.INNHENTE_OPPLYSNINGER, null);
+
         // Act
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID(), null);
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, UUID.randomUUID(), bestilling);
 
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getBestilteDokumenter()).hasSize(1);
-        assertThat(behandlingDokument.get().getBestilteDokumenter().get(0).getDokumentMalType()).isEqualTo(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
+        assertThat(behandlingDokument.get().getBestilteDokumenter().getFirst().getDokumentMalType()).isEqualTo(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
     }
 
     @Test
     void skal_returnere_true_når_dokument_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENTE_OPPLYSNINGER, UUID.randomUUID(), null);
+        var bestilling = lagBestilling(DokumentMalType.INNHENTE_OPPLYSNINGER, null);
+
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, UUID.randomUUID(), bestilling);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isTrue();
@@ -141,7 +145,10 @@ class DokumentBehandlingTjenesteTest {
     void skal_returnere_false_når_dokument_ikke_er_bestilt() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.ETTERLYS_INNTEKTSMELDING, UUID.randomUUID(), DokumentMalType.ETTERLYS_INNTEKTSMELDING);
+
+        var bestilling = lagBestilling(DokumentMalType.ETTERLYS_INNTEKTSMELDING, DokumentMalType.ETTERLYS_INNTEKTSMELDING);
+
+        dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, UUID.randomUUID(), bestilling);
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isFalse();
@@ -180,5 +187,14 @@ class DokumentBehandlingTjenesteTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isNotPresent();
+    }
+
+    private BrevBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
+        return BrevBestilling.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medDokumentMal(dokumentMal)
+            .medJournalførSom(journalførSomMal)
+            .medFritekst("test")
+            .build();
     }
 }

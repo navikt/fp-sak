@@ -45,26 +45,25 @@ public class DokumentBestillerTjeneste {
 
         var behandling = behandlingRepository.hentBehandling(behandlingResultat.getBehandlingId());
 
-        DokumentMalType opprinneligDokumentMal = null;
+        DokumentMalType journalførSom = null; // settes kun ved fritekst
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingResultat.getBehandlingResultatType(),
             behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
 
         if (Vedtaksbrev.FRITEKST.equals(behandlingResultat.getVedtaksbrev())) {
-            opprinneligDokumentMal = endretVedtakOgKunEndringIFordeling(behandlingResultat.getBehandlingResultatType(),
+            journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultat.getBehandlingResultatType(),
                 behandlingResultat.getKonsekvenserForYtelsen()) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
             dokumentMal = DokumentMalType.FRITEKSTBREV;
         }
 
-        bestillVedtak(BrevBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal).build(), opprinneligDokumentMal,
-            HistorikkAktør.VEDTAKSLØSNINGEN);
+        bestillDokument(BrevBestilling.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medDokumentMal(dokumentMal)
+            .medJournalførSom(journalførSom)
+            .build(), HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     public void bestillDokument(BrevBestilling brevBestilling, HistorikkAktør aktør) {
         dokumentBestiller.bestillDokument(brevBestilling, aktør);
-    }
-
-    private void bestillVedtak(BrevBestilling brevBestilling, DokumentMalType opprinneligDokumentMal, HistorikkAktør aktør) {
-        dokumentBestiller.bestillVedtak(brevBestilling, opprinneligDokumentMal, aktør);
     }
 
     private static boolean endretVedtakOgKunEndringIFordeling(BehandlingResultatType resultatType,

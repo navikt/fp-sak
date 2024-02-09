@@ -1,7 +1,9 @@
-package no.nav.foreldrepenger.dokumentbestiller;
+package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,10 +40,13 @@ class DokumentBestiltTest {
     @Test
     void historikk_innslag_med_fritekst_mal() {
         var saksbehandler = HistorikkAktør.SAKSBEHANDLER;
-        var malBrukt = DokumentMalType.FRITEKSTBREV;
-        var opprinneligDokumentMal = DokumentMalType.FORELDREPENGER_INNVILGELSE;
 
-        dokumentBestilt.opprettHistorikkinnslag(saksbehandler, dummyBehandling(), malBrukt, opprinneligDokumentMal);
+        var malBrukt = DokumentMalType.FRITEKSTBREV;
+        var journalførSom = DokumentMalType.FORELDREPENGER_INNVILGELSE;
+
+        var bestilling = lagBestilling(malBrukt, journalførSom);
+
+        dokumentBestilt.opprettHistorikkinnslag(saksbehandler, dummyBehandling(), bestilling);
 
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository).lagre(captor.capture());
@@ -48,7 +55,7 @@ class DokumentBestiltTest {
         assertThat(historikkinnslag.getAktør()).isEqualTo(saksbehandler);
         assertThat(historikkinnslag.getHistorikkinnslagDeler()).hasSize(1);
         assertThat(historikkinnslag.getHistorikkinnslagDeler().getFirst().getBegrunnelse()).isPresent();
-        assertThat(historikkinnslag.getHistorikkinnslagDeler().getFirst().getBegrunnelse().get()).containsSubsequence(opprinneligDokumentMal.getNavn(), malBrukt.getNavn());
+        assertThat(historikkinnslag.getHistorikkinnslagDeler().getFirst().getBegrunnelse().get()).containsSubsequence(journalførSom.getNavn(), malBrukt.getNavn());
     }
 
     @Test
@@ -56,7 +63,9 @@ class DokumentBestiltTest {
         var saksbehandler = HistorikkAktør.SAKSBEHANDLER;
         var malBrukt = DokumentMalType.ENGANGSSTØNAD_INNVILGELSE;
 
-        dokumentBestilt.opprettHistorikkinnslag(saksbehandler, dummyBehandling(), malBrukt, null);
+        var bestilling = lagBestilling(malBrukt, null);
+
+        dokumentBestilt.opprettHistorikkinnslag(saksbehandler, dummyBehandling(), bestilling);
 
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository).lagre(captor.capture());
@@ -70,6 +79,15 @@ class DokumentBestiltTest {
 
     private static Behandling dummyBehandling() {
         return Behandling.forFørstegangssøknad(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)))
+            .build();
+    }
+
+    private BrevBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
+        return BrevBestilling.builder()
+            .medBehandlingUuid(UUID.randomUUID())
+            .medDokumentMal(dokumentMal)
+            .medJournalførSom(journalførSomMal)
+            .medFritekst("test")
             .build();
     }
 }
