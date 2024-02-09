@@ -80,8 +80,6 @@ class DokumentBestillerTjenesteTest {
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
         when(behandlingVedtakMock.isBeslutningsvedtak()).thenReturn(false);
 
-        when(repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId())).thenReturn(behandling);
-
         var historikkAktør = HistorikkAktør.VEDTAKSLØSNINGEN;
 
         // Act
@@ -113,8 +111,6 @@ class DokumentBestillerTjenesteTest {
         when(behandlingVedtakMock.getBehandlingsresultat()).thenReturn(behandlingResultatMock);
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
         when(behandlingVedtakMock.isBeslutningsvedtak()).thenReturn(false);
-
-        when(repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId())).thenReturn(behandling);
 
         var historikkAktør = HistorikkAktør.VEDTAKSLØSNINGEN;
 
