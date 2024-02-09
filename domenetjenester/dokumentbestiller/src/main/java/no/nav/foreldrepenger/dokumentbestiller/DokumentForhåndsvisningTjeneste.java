@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -53,12 +54,14 @@ public class DokumentForhåndsvisningTjeneste {
     }
 
     public byte[] forhåndsvisBrev(DokumentbestillingDto bestilling) {
-        LOG.info("Forhåndsviser {} brev for {}", bestilling.getDokumentMal(), bestilling.getBehandlingUuid());
+        var behandlingUuid = bestilling.getBehandlingUuid();
+        var bestillingDokumentMal = bestilling.getDokumentMal();
+        LOG.info("Forhåndsviser {} brev for {}", bestillingDokumentMal, behandlingUuid);
 
-        if (bestilling.getDokumentMal() == null) {
-            LOG.info("Utleder dokumentMal for {}", bestilling.getBehandlingUuid());
+        if (bestillingDokumentMal == null) { // Gjelder kun vedtaksbrev
+            LOG.info("Utleder dokumentMal for {}", behandlingUuid);
 
-            var behandling = behandlingRepository.hentBehandling(bestilling.getBehandlingUuid());
+            var behandling = behandlingRepository.hentBehandling(behandlingUuid);
             var resultat = behandlingsresultatRepository.hent(behandling.getId());
 
             var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
@@ -75,7 +78,7 @@ public class DokumentForhåndsvisningTjeneste {
             var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling, resultat.getBehandlingResultatType(),
                 resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
 
-            LOG.info("Utledet {} dokumentMal for {}", dokumentMal, bestilling.getBehandlingUuid());
+            LOG.info("Utledet {} dokumentMal for {}", dokumentMal, behandlingUuid);
             bestilling.setDokumentMal(dokumentMal.getKode());
         }
 

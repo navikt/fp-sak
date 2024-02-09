@@ -105,7 +105,6 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid DokumentbestillingDto dokumentbestillingDto) { // NOSONAR
-
         var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisBrev(dokumentbestillingDto);
         if (dokument != null && dokument.length != 0) {
             var responseBuilder = Response.ok(dokument);
@@ -141,7 +140,7 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
     public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentKvitteringDataSupplier.class) @Valid DokumentKvitteringDto kvitto) {
         dokumentBehandlingTjeneste.kvitterSendtBrev(
-            new DokumentKvittering(kvitto.behandlingUuid(), kvitto.dokumentbestillingUuid(), null, kvitto.journalpostId(), kvitto.dokumentId()));
+            new DokumentKvittering(kvitto.behandlingUuid(), kvitto.dokumentbestillingUuid(), kvitto.journalpostId(), kvitto.dokumentId()));
     }
 
     @GET

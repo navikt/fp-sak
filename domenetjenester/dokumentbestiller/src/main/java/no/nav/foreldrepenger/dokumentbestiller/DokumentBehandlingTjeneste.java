@@ -125,8 +125,8 @@ public class DokumentBehandlingTjeneste {
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
             }
-            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal(), kvittering.malType());
-            lagreHistorikk(behandling, dokumentMal , journalpostId, kvittering.dokumentId());
+            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal());
+            lagreHistorikk(behandling, dokumentMal, journalpostId, kvittering.dokumentId());
         } else {
             LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid);
         }
@@ -138,12 +138,7 @@ public class DokumentBehandlingTjeneste {
         historikkRepository.lagre(historikkInnslag);
     }
 
-    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal, DokumentMalType malFraKvittering) {
-        // Midlertidig inntil formidling sender mal i kvittering.
-        if (malFraKvittering != null) {
-            LOG.info("Mal levert med kvittering: {}.", malFraKvittering);
-            return malFraKvittering;
-        }
+    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal) {
         var dokumentMal = DokumentMalType.fraKode(dokumentMalType);
         if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) && opprineligDokumentMal != null) {
             return DokumentMalType.fraKode(opprineligDokumentMal);
