@@ -7,14 +7,10 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -26,7 +22,7 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
     private BehandlingRepository behandlingRepository;
     private DokumentBestiller dokumentBestiller;
 
-    public DokumentBestillerTjeneste() {
+    private DokumentBestillerTjeneste() {
         // for cdi proxy
     }
 
@@ -44,13 +40,15 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
 
         var behandling = behandlingRepository.hentBehandling(behandlingResultat.getBehandlingId());
 
-        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingResultat.getBehandlingResultatType(),
+        var behandlingResultatType = behandlingResultat.getBehandlingResultatType();
+
+        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingResultatType,
             behandlingVedtak.getVedtakResultatType(), behandlingVedtak.isBeslutningsvedtak(), finnKlageVurdering(behandling));
 
         DokumentMalType journalførSom = null; // settes kun ved fritekst
 
         if (Vedtaksbrev.FRITEKST.equals(behandlingResultat.getVedtaksbrev())) {
-            journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultat.getBehandlingResultatType(),
+            journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType,
                 behandlingResultat.getKonsekvenserForYtelsen()) ? DokumentMalType.ENDRING_UTBETALING : dokumentMal;
             dokumentMal = DokumentMalType.FRITEKSTBREV;
         }
