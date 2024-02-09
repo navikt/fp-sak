@@ -73,6 +73,7 @@ public class AbakusTjeneste {
     private URI endpointMottaInntektsmeldinger;
     private URI endpointMottaOppgittOpptjening;
     private URI endpointKopierGrunnlag;
+    private URI endpointKopierGrunnlagBeholdIM;
     private URI endpointInntektsmeldinger;
     private URI endpointYtelser;
     private URI endpointOverstyring;
@@ -93,6 +94,7 @@ public class AbakusTjeneste {
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
         this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
+        this.endpointKopierGrunnlagBeholdIM = toUri("/api/iay/grunnlag/v1/kopier-behold-im");
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointYtelser = toUri("/api/ytelse/v1/hent-vedtak-ytelse");
@@ -355,6 +357,27 @@ public class AbakusTjeneste {
         }
 
     }
+
+    public void kopierGrunnlagUtenNyeInntektsmeldinger(KopierGrunnlagRequest dto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(dto);
+        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(json));
+
+        var request = RestRequest.newRequest(method, endpointKopierGrunnlagBeholdIM, restConfig);
+
+        LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus. Uten nye inntektsmeldinger", dto.getGammelReferanse(), dto.getNyReferanse());
+        var rawResponse = restClient.sendReturnUnhandled(request);
+        var responseCode = rawResponse.statusCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            var responseBody = rawResponse.body();
+            var feilmelding = String.format("Feilet med å kopiere grunnlag fra (behandlingUUID=%s) til (behandlingUUID=%s) i Abakus: %s, HTTP status=%s. HTTP Errormessage=%s",
+                dto.getGammelReferanse(), dto.getNyReferanse(), endpointKopierGrunnlagBeholdIM, responseCode, responseBody);
+            if (responseCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
+            }
+            throw feilVedKallTilAbakus(feilmelding);
+        }
+    }
+
 
     private static TekniskException feilVedKallTilAbakus(String feilmelding) {
         return new TekniskException("FP-018669", "Feil ved kall til Abakus: " + feilmelding);
