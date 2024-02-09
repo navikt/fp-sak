@@ -63,15 +63,17 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             var resultat = behandlingsresultatRepository.hent(behandling.getId());
 
             var gjelderAutomatiskBrev = bestilling.getAutomatiskVedtaksbrev();
-            LOG.info("gjelderAutomatiskBrev: {}", gjelderAutomatiskBrev);
+            var resultatBrev = resultat.getVedtaksbrev();
 
-            // Formidling bruker gjelderAutomatiskBrev
-            if ((gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev)) && Vedtaksbrev.FRITEKST.equals(resultat.getVedtaksbrev())) { // Dette er ikke helt nok - vil feiler om man skal forhåndsvise det AUTOMATISKE brevet.
+            LOG.info("gjelderAutomatiskBrev: {}, Vedtaksbrev: {}", gjelderAutomatiskBrev, resultatBrev);
+            if ((gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev)) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
+                LOG.info("Utleder Fritekst mal.");
                 bestilling.setDokumentMal(DokumentMalType.FRITEKSTBREV.getKode());
             } else {
+                LOG.info("Utleder Automatisk mal");
                 var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
                 var erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering = erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(
-                    resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), resultat.getBehandlingId());
+                    resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), behandling.getId());
 
                 var erRevurderingMedUendretUtfall = revurderingMedUendretUtfall || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering;
 

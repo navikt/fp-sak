@@ -3,6 +3,11 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -39,9 +44,10 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         tjeneste = new DokumentForhåndsvisningTjeneste(repositoryProvider.getBehandlingRepository(), repositoryProvider.getBehandlingsresultatRepository(), dokumentBehandlingTjeneste, null, brevTjeneste);
     }
     @Test
-    void skal_utlede_vedtak_brev() {
+    @DisplayName("Brevet er ikke overstyrt med fritekst, skal forhåndsvise det automatiske brevet.")
+    void skal_utlede_innvilgelse_fp_automatisk_fra_behandling_resultat() {
         // Arrange
-        AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         settOpp(scenario, Vedtaksbrev.AUTOMATISK);
 
         var bestilling = new DokumentbestillingDto();
@@ -54,14 +60,36 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
 
         var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.ENGANGSSTØNAD_INNVILGELSE.getKode());
+        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE.getKode());
     }
 
     @Test
-    void skal_utlede_vedtak_brev_automatisk() {
+    @DisplayName("Brevet er ikke overstyrt ennå, men SBH valgte å overstyre og jobber med manuel brev.")
+    void skal_utlede_fritekst_brev_mens_saksbehandler_holder_på_med_redigering() {
         // Arrange
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario, Vedtaksbrev.AUTOMATISK);
+
+        var bestilling = new DokumentbestillingDto();
+        bestilling.setBehandlingUuid(behandling.getUuid());
+        bestilling.setDokumentMal(DokumentMalType.FRITEKSTBREV.getKode());
+
+        tjeneste.forhåndsvisBrev(bestilling);
+
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentbestillingDto.class);
+
+        verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
+
+        var bestillingValue = bestillingCaptor.getValue();
+        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV.getKode());
+    }
+
+    @Test
+    @DisplayName("Brevet ble overstyrt med fritekst, men så vil de forhåndsvise det automatiske brevet.")
+    void skal_utlede_innvilgelse_svf_automatisk_fra_behandling_resultat() {
+        // Arrange
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        settOpp(scenario, Vedtaksbrev.FRITEKST);
 
         var bestilling = new DokumentbestillingDto();
         bestilling.setBehandlingUuid(behandling.getUuid());
@@ -74,11 +102,12 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
 
         var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.ENGANGSSTØNAD_INNVILGELSE.getKode());
+        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE.getKode());
     }
 
     @Test
-    void skal_utlede_vedtak_brev_fritekst() {
+    @DisplayName("Brevet ble overstyrt med fritekst, forhåndsvis fritekst brev.")
+    void skal_utlede_fritekst_brev_som_ble_valgt_av_saksbehandler() {
         // Arrange
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario, Vedtaksbrev.FRITEKST);
