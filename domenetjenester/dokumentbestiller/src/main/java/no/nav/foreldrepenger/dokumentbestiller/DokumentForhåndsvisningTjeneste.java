@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak;
 
 import java.util.List;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

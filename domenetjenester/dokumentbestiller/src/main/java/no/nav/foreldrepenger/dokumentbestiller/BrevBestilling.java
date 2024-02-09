@@ -22,7 +22,6 @@ public record BrevBestilling(UUID behandlingUuid,
         private RevurderingVarslingÅrsak revurderingÅrsak;
         private String fritekst;
         private DokumentMalType journalførSom;
-        private UUID bestillingUuid;
 
         public Builder medBehandlingUuid(UUID behandlingUuid) {
             this.behandlingUuid = behandlingUuid;

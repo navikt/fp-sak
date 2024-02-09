@@ -73,9 +73,9 @@ public class VedtaksbrevUtleder {
      * Denne metoden tar ikke hensyn til fritekstmalen.
      */
     private static DokumentMalType velgDokumentMal(Behandling behandling,
-                                                             BehandlingResultatType behandlingResultatType,
-                                                             VedtakType vedtakType,
-                                                             KlageVurdering klageVurdering) {
+                                                   BehandlingResultatType behandlingResultatType,
+                                                   VedtakType vedtakType,
+                                                   KlageVurdering klageVurdering) {
         return switch (vedtakType) {
             case KLAGE -> velgKlagemal(klageVurdering);
             case POSITIV -> velgPositivtVedtaksmal(behandling.getFagsakYtelseType(), behandlingResultatType);
@@ -85,8 +85,8 @@ public class VedtaksbrevUtleder {
     }
 
     private static boolean erInnvilgetEndretEllerSenere(BehandlingResultatType resultatType, List<KonsekvensForYtelsen> konsekvensForYtelsenList) {
-        return Set.of(BehandlingResultatType.INNVILGET, BehandlingResultatType.FORELDREPENGER_SENERE).contains(resultatType) ||
-            (BehandlingResultatType.FORELDREPENGER_ENDRET.equals(resultatType) && !erKunEndringIFordelingAvYtelsen(konsekvensForYtelsenList));
+        return Set.of(BehandlingResultatType.INNVILGET, BehandlingResultatType.FORELDREPENGER_SENERE).contains(resultatType) || (
+            BehandlingResultatType.FORELDREPENGER_ENDRET.equals(resultatType) && !erKunEndringIFordelingAvYtelsen(konsekvensForYtelsenList));
     }
 
     private static boolean erKunEndringIFordelingAvYtelsen(List<KonsekvensForYtelsen> konsekvensForYtelsen) {
@@ -97,13 +97,13 @@ public class VedtaksbrevUtleder {
         return Set.of(BehandlingResultatType.OPPHØR, BehandlingResultatType.AVSLÅTT).contains(behandlingResultatType);
     }
 
-    static DokumentMalType velgNegativVedtaksmal(FagsakYtelseType ytelseType, BehandlingResultatType behandlingResultatType) {
+    private static DokumentMalType velgNegativVedtaksmal(FagsakYtelseType ytelseType, BehandlingResultatType behandlingResultatType) {
         return switch (ytelseType) {
             case ENGANGSTØNAD -> DokumentMalType.ENGANGSSTØNAD_AVSLAG;
             case FORELDREPENGER -> erOpphør(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_OPPHØR : DokumentMalType.FORELDREPENGER_AVSLAG;
             case SVANGERSKAPSPENGER ->
                 erOpphør(behandlingResultatType) ? DokumentMalType.SVANGERSKAPSPENGER_OPPHØR : DokumentMalType.SVANGERSKAPSPENGER_AVSLAG;
-            case null, default -> null;
+            case null, default -> throw new TekniskException("FP-666917", "Ytelse type kan ikke være null.");
         };
     }
 
@@ -111,13 +111,13 @@ public class VedtaksbrevUtleder {
         return BehandlingResultatType.OPPHØR.equals(behandlingResultatType);
     }
 
-    static DokumentMalType velgPositivtVedtaksmal(FagsakYtelseType ytelseType, BehandlingResultatType behandlingResultatType) {
+    private static DokumentMalType velgPositivtVedtaksmal(FagsakYtelseType ytelseType, BehandlingResultatType behandlingResultatType) {
         return switch (ytelseType) {
             case FORELDREPENGER ->
                 erUtsettelse(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_ANNULLERT : DokumentMalType.FORELDREPENGER_INNVILGELSE;
             case SVANGERSKAPSPENGER -> DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE;
             case ENGANGSTØNAD -> DokumentMalType.ENGANGSSTØNAD_INNVILGELSE;
-            case null, default -> null;
+            case null, default -> throw new TekniskException("FP-666918", "Ytelse type kan ikke være null.");
         };
     }
 
@@ -125,12 +125,13 @@ public class VedtaksbrevUtleder {
         return BehandlingResultatType.FORELDREPENGER_SENERE.equals(behandlingResultatType);
     }
 
-    static DokumentMalType velgKlagemal(KlageVurdering klageVurdering) {
+    private static DokumentMalType velgKlagemal(KlageVurdering klageVurdering) {
         return switch (klageVurdering) {
             case MEDHOLD_I_KLAGE -> DokumentMalType.KLAGE_OMGJORT;
             case AVVIS_KLAGE -> DokumentMalType.KLAGE_AVVIST;
-            case UDEFINERT, HJEMSENDE_UTEN_Å_OPPHEVE, OPPHEVE_YTELSESVEDTAK, STADFESTE_YTELSESVEDTAK -> null;
-            case null -> null;
+            case UDEFINERT, HJEMSENDE_UTEN_Å_OPPHEVE, OPPHEVE_YTELSESVEDTAK, STADFESTE_YTELSESVEDTAK ->
+                throw new TekniskException("FP-666919", String.format("Klage vurdering %s skal ikke sende brev fra VL.", klageVurdering));
+            case null -> throw new TekniskException("FP-666920", "Klage vurdering bør ikke være null.");
         };
     }
 }
