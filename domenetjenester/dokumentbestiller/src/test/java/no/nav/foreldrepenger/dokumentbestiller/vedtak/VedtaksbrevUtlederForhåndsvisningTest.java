@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,12 +14,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.exception.TekniskException;
-
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class VedtaksbrevUtlederForhåndsvisningTest {
@@ -45,7 +43,9 @@ class VedtaksbrevUtlederForhåndsvisningTest {
     @Test
     void skal_velge_positivt_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.FORELDREPENGER_ENDRET, List.of(), false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE);
+        List<KonsekvensForYtelsen> konsekvensForYtelsenList = List.of();
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.FORELDREPENGER_ENDRET,
+            konsekvensForYtelsenList, false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE);
     }
 
     @Test
@@ -57,7 +57,8 @@ class VedtaksbrevUtlederForhåndsvisningTest {
     @Test
     void skal_velge_avslag_FP() {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
-        assertThat(VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.AVSLÅTT, List.of(), false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_AVSLAG);
+        List<KonsekvensForYtelsen> konsekvensForYtelsenList = List.of();
+        assertThat(VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.AVSLÅTT, konsekvensForYtelsenList, false, null)).isEqualTo(DokumentMalType.FORELDREPENGER_AVSLAG);
     }
 
     @Test
@@ -114,21 +115,24 @@ class VedtaksbrevUtlederForhåndsvisningTest {
     @Test
     void exception_om_vedtak_resultat_type_ikke_støttet() {
         when(behandling.getType()).thenReturn(BehandlingType.INNSYN);
-        var ex = assertThrows(TekniskException.class, () -> VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, List.of(), false, null));
+        List<KonsekvensForYtelsen> konsekvensForYtelsenList = List.of();
+        var ex = assertThrows(TekniskException.class, () -> VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.IKKE_FASTSATT, konsekvensForYtelsenList, false, null));
         assertThat(ex.getKode()).contains("FP-666915");
     }
 
     @Test
     void skal_returnere_exception_om_ytelse_type_mangler_negativ_utfall() {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.UDEFINERT);
-        var ex = assertThrows(TekniskException.class, () -> VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.AVSLÅTT, List.of(), false, null));
+        List<KonsekvensForYtelsen> konsekvensForYtelsenList = List.of();
+        var ex = assertThrows(TekniskException.class, () -> VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.AVSLÅTT, konsekvensForYtelsenList, false, null));
         assertThat(ex.getKode()).contains("FP-666917");
     }
 
     @Test
     void skal_returnere_exception_om_ytelse_type_mangler_positiv_utfall() {
         when(behandling.getFagsakYtelseType()).thenReturn(FagsakYtelseType.UDEFINERT);
-        var ex = assertThrows(TekniskException.class, () -> VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.INNVILGET, List.of(), false, null));
+        List<KonsekvensForYtelsen> konsekvensForYtelsenList = List.of();
+        var ex = assertThrows(TekniskException.class, () -> VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak(behandling, BehandlingResultatType.INNVILGET, konsekvensForYtelsenList, false, null));
         assertThat(ex.getKode()).contains("FP-666918");
     }
 

@@ -22,7 +22,7 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
     private BehandlingRepository behandlingRepository;
     private DokumentBestiller dokumentBestiller;
 
-    private DokumentBestillerTjeneste() {
+    DokumentBestillerTjeneste() {
         // for cdi proxy
     }
 

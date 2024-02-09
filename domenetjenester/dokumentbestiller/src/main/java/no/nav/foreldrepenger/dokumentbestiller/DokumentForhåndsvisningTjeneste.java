@@ -7,6 +7,8 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +16,9 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
@@ -54,32 +53,40 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
     public byte[] forhåndsvisBrev(DokumentbestillingDto bestilling) {
         var behandlingUuid = bestilling.getBehandlingUuid();
         var bestillingDokumentMal = bestilling.getDokumentMal();
-        LOG.info("Forhåndsviser {} brev for {}", bestillingDokumentMal, behandlingUuid);
+        LOG.info("Forhåndsviser brev med mal {} for behandling {}", bestillingDokumentMal, behandlingUuid);
 
+        // Av og til er FRITEK satt allerede av GUI.
         if (bestillingDokumentMal == null) { // Gjelder kun vedtaksbrev
             LOG.info("Utleder dokumentMal for {}", behandlingUuid);
 
             var behandling = behandlingRepository.hentBehandling(behandlingUuid);
             var resultat = behandlingsresultatRepository.hent(behandling.getId());
 
-            var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
-            var erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering = erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(
-                resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), resultat.getBehandlingId());
+            var gjelderAutomatiskBrev = bestilling.getAutomatiskVedtaksbrev();
+            LOG.info("gjelderAutomatiskBrev: {}", gjelderAutomatiskBrev);
 
-            var erRevurderingMedUendretUtfall = revurderingMedUendretUtfall || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering;
+            // Formidling bruker gjelderAutomatiskBrev
+            if ((gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev)) && Vedtaksbrev.FRITEKST.equals(resultat.getVedtaksbrev())) { // Dette er ikke helt nok - vil feiler om man skal forhåndsvise det AUTOMATISKE brevet.
+                bestilling.setDokumentMal(DokumentMalType.FRITEKSTBREV.getKode());
+            } else {
+                var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
+                var erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering = erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering(
+                    resultat.getBehandlingResultatType(), resultat.getKonsekvenserForYtelsen(), resultat.getBehandlingId());
 
-            LOG.info("revurderingMedUendretUtfall: {}, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering: {}", revurderingMedUendretUtfall,
-                erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering);
+                var erRevurderingMedUendretUtfall = revurderingMedUendretUtfall || erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering;
 
-            var klageVurdering = finnKlageVurdering(behandling);
+                LOG.info("revurderingMedUendretUtfall: {}, erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering: {}", revurderingMedUendretUtfall,
+                    erKunEndringIFordelingAvYtelsenOgHarSendtVarselOmRevurdering);
 
-            var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling, resultat.getBehandlingResultatType(),
-                resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
+                var klageVurdering = finnKlageVurdering(behandling);
 
-            LOG.info("Utledet {} dokumentMal for {}", dokumentMal, behandlingUuid);
-            bestilling.setDokumentMal(dokumentMal.getKode());
+                var dokumentMal = velgDokumentMalForForhåndsvisningAvVedtak(behandling, resultat.getBehandlingResultatType(),
+                    resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
+
+                LOG.info("Utledet {} dokumentMal for {}", dokumentMal, behandlingUuid);
+                bestilling.setDokumentMal(dokumentMal.getKode());
+            }
         }
-
         return brev.forhåndsvis(bestilling);
     }
 
