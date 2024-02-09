@@ -14,6 +14,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +56,7 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 @Default
 public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbakusInntektArbeidYtelseTjeneste.class);
+    
     private AbakusTjeneste abakusTjeneste;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
@@ -281,7 +282,13 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                 new AktørIdPersonident(tilBehandling.getAktørId().getId()),
                 Set.of(Dataset.values()));
         try {
-            abakusTjeneste.kopierGrunnlag(request);
+            // Kopier grunnlag tar med nye inntektsmeldinger som kan ha kommet etter forrige grunnlag.
+            // Berørte, feriepenger og utsatt start behandlinger skal kopiere nyeste inntektsmeldigner
+            if (SpesialBehandling.erSpesialBehandling(tilBehandling)) {
+                abakusTjeneste.kopierGrunnlagUtenNyeInntektsmeldinger(request);
+            } else {
+                abakusTjeneste.kopierGrunnlag(request);
+            }
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
         }
