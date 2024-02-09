@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
+package no.nav.foreldrepenger.dokumentbestiller.infobrev;
 
 import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,6 +8,9 @@ import java.util.Properties;
 
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.dokumentbestiller.infobrev.SendInformasjonsbrevPåminnelseBatchTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

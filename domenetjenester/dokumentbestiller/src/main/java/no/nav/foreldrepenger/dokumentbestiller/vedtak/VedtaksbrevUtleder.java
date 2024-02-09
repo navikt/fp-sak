@@ -47,8 +47,7 @@ public class VedtaksbrevUtleder {
     static DokumentMalType velgNegativVedtaksmal(Behandling behandling, BehandlingResultatType behandlingResultatType) {
         return switch (behandling.getFagsakYtelseType()) {
             case ENGANGSTØNAD -> DokumentMalType.ENGANGSSTØNAD_AVSLAG;
-            case FORELDREPENGER ->
-                erOpphør(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_OPPHØR : DokumentMalType.FORELDREPENGER_AVSLAG;
+            case FORELDREPENGER -> erOpphør(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_OPPHØR : DokumentMalType.FORELDREPENGER_AVSLAG;
             case SVANGERSKAPSPENGER ->
                 erOpphør(behandlingResultatType) ? DokumentMalType.SVANGERSKAPSPENGER_OPPHØR : DokumentMalType.SVANGERSKAPSPENGER_AVSLAG;
             case null, default -> null;
@@ -61,8 +60,8 @@ public class VedtaksbrevUtleder {
 
     static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, BehandlingResultatType behandlingResultatType) {
         return switch (behandling.getFagsakYtelseType()) {
-            case FORELDREPENGER -> erUtsettelse(behandlingResultatType) ?
-                DokumentMalType.FORELDREPENGER_ANNULLERT : DokumentMalType.FORELDREPENGER_INNVILGELSE;
+            case FORELDREPENGER ->
+                erUtsettelse(behandlingResultatType) ? DokumentMalType.FORELDREPENGER_ANNULLERT : DokumentMalType.FORELDREPENGER_INNVILGELSE;
             case SVANGERSKAPSPENGER -> DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE;
             case ENGANGSTØNAD -> DokumentMalType.ENGANGSSTØNAD_INNVILGELSE;
             case null, default -> null;

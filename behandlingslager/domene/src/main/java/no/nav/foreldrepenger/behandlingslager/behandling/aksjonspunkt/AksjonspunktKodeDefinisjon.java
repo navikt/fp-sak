@@ -67,7 +67,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String SØKERS_OPPLYSNINGSPLIKT_MANU_KODE = "5017";
     public static final String SØKERS_OPPLYSNINGSPLIKT_OVST_KODE = "6002";
 
-    public static final String VARSEL_REVURDERING_ETTERKONTROLL_KODE = "5025";
     public static final String VARSEL_REVURDERING_MANUELL_KODE = "5026";
     public static final String KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST_KODE = "5055";
     public static final String KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING_KODE = "5056";
@@ -121,7 +120,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String VURDER_UTTAK_STORTINGSREPRESENTANT_KODE = "5072";
     public static final String VURDER_UTTAK_ETTER_NESTE_SAK_KODE = "5067";
     public static final String KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE = "5073";
-    public static final String KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE = "5075";
     public static final String KONTROLLER_OPPLYSNINGER_OM_DØD_KODE = "5076";
     public static final String KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST_KODE = "5077";
 
@@ -155,11 +153,11 @@ public class AksjonspunktKodeDefinisjon {
 
     // Utgåtte aksjonspunktkode. Helst ikke gjenbruk 5nnnn til andre formål enn det opprinnelige før det har gått noe tid
     //  "5009",
-    //  "5022"  "5024"
+    //  "5022"  "5024"  "5025"
     //  "5036"
     //  "5042"  "5044"  "5045"  "5048"
     //  "5050"
-    //  "5070"  "5078"  "5079"
+    //  "5070"  "5075"  "5078"  "5079"
     //  "5080"  "5081"  "5083"  "5088"
     //  "5090"  "5093"  "5094"  "5097" "5098"  "5099"
 

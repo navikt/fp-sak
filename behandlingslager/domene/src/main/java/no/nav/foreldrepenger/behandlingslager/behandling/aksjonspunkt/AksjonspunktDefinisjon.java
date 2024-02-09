@@ -104,9 +104,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_OPPHOLDSRETT(AksjonspunktKodeDefinisjon.AVKLAR_OPPHOLDSRETT_KODE,
             AksjonspunktType.MANUELL, "Avklar oppholdsrett.", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN,
             VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    VARSEL_REVURDERING_ETTERKONTROLL( // Brukes ikke lenger
-            AksjonspunktKodeDefinisjon.VARSEL_REVURDERING_ETTERKONTROLL_KODE, AksjonspunktType.MANUELL, "Varsel om revurdering ved automatisk etterkontroll",
-            BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP)),
     VARSEL_REVURDERING_MANUELL( // Kun ES
             AksjonspunktKodeDefinisjon.VARSEL_REVURDERING_MANUELL_KODE, AksjonspunktType.MANUELL, "Varsel om revurdering opprettet manuelt",
             BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES)),
@@ -232,10 +229,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE(
             AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE, AksjonspunktType.MANUELL, "Kontroller realitetsbehandling/klage",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
-    KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN(
-            AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE, AksjonspunktType.MANUELL,
-            "Kontroller opplysninger om fordeling av stønadsperioden", BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
-            SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
     KONTROLLER_OPPLYSNINGER_OM_DØD(
             AksjonspunktKodeDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD_KODE, AksjonspunktType.MANUELL, "Kontroller opplysninger om død",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
@@ -385,6 +378,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
     @Deprecated
+    UTGÅTT_5025("5025", AksjonspunktType.MANUELL, "Varsel om revurdering ved automatisk etterkontroll"),
+    @Deprecated
     UTGÅTT_5036("5036", AksjonspunktType.MANUELL, "Manuell vurdering av klage (NK)"),
     @Deprecated // Håndteres nå sammen med 5039
     UTGÅTT_5042("5042", AksjonspunktType.MANUELL, "Fastsett beregningsgrunnlag for selvstendig næringsdrivende"),
@@ -398,6 +393,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
     UTGÅTT_5070("5070", AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder"),
+    @Deprecated
+    UTGÅTT_5075("5075", AksjonspunktType.MANUELL, "Kontroller opplysninger om fordeling av stønadsperioden"),
     @Deprecated
     UTGÅTT_5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated

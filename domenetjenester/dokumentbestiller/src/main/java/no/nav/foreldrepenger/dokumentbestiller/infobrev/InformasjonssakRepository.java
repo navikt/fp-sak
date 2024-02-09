@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
+package no.nav.foreldrepenger.dokumentbestiller.infobrev;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
