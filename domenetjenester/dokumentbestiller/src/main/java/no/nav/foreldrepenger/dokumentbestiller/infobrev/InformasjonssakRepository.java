@@ -212,7 +212,7 @@ public class InformasjonssakRepository {
             select distinct saksnummer from fagsak fs
             where fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato
               and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
-              and exists (select * from behandling b where b.fagsak_id = fs.id and beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper))
+              and exists (select * from behandling b where b.fagsak_id = fs.id and b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper))
                 """;
 
     public List<Saksnummer> finnSakerForAvstemmingOpprettetInnenIntervall(LocalDate fom, LocalDate tom) {
