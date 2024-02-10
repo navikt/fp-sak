@@ -55,12 +55,12 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
         var callId = MDCOperations.getCallId();
         var gruppe = new ProsessTaskGruppe();
         List<ProsessTaskData> tasks = new ArrayList<>();
-        informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(fom, tom, null).forEach(f -> {
+        informasjonssakRepository.finnSakerForAvstemmingOpprettetInnenIntervall(fom, tom).forEach(f -> {
             var task = ProsessTaskDataBuilder.forProsessTask(VedtakOverlappAvstemSakTask.class)
-                .medProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, f.getSaksnummer().getVerdi())
+                .medProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, f.getVerdi())
                 .medProperty(VedtakOverlappAvstemSakTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE)
                 .medNesteKjøringEtter(baseline.plusSeconds(Math.abs(System.nanoTime()) % tidsrom))
-                .medCallId(callId + "_" + f.getSaksnummer().getVerdi())
+                .medCallId(callId + "_" + f.getVerdi())
                 .medPrioritet(100)
                 .build();
             tasks.add(task);
