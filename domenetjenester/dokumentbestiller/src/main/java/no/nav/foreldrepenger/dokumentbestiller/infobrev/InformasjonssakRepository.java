@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -208,22 +209,25 @@ public class InformasjonssakRepository {
         return returnList;
     }
 
-    private static final String QUERY_AVSTEMMING_INTERVALL = """
+    private static final String QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK = """
             select distinct saksnummer from fagsak fs
             where fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato
               and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
-              and exists (select * from behandling b where b.fagsak_id = fs.id and b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper))
+              and exists (select b.id from behandling b join behandling_resultat br on br.behandling_id = b.id
+                            join behandling_vedtak bv on bv.behandling_resultat_id = br.id
+                          where b.fagsak_id = fs.id and b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper))
                 """;
 
-    public List<Saksnummer> finnSakerForAvstemmingOpprettetInnenIntervall(LocalDate fom, LocalDate tom) {
+    public List<Saksnummer> finnSakerMedVedtakSakOpprettetInnenIntervall(LocalDate fom, LocalDate tom, Set<FagsakYtelseType> ytelser) {
         /*
          * Saker med ytelse FP/SVP opprettet innen intervall som har avsluttet førstegangsbehandling
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).toList();
-        var query = entityManager.createNativeQuery(QUERY_AVSTEMMING_INTERVALL + "  ");
+        var ytelsekoder = ytelser.stream().map(FagsakYtelseType::getKode).toList();
+        var query = entityManager.createNativeQuery(QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK + "  ");
         query.setParameter("fomdato", fom);
         query.setParameter("tomdato", tom.plusDays(1));
-        query.setParameter("ytelser", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode()));
+        query.setParameter("ytelser", ytelsekoder);
         query.setParameter("avsluttet", avsluttendeStatus);
         query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode()));
         @SuppressWarnings("unchecked")
