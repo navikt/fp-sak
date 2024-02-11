@@ -23,16 +23,12 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.hibernate.query.NativeQuery;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggFlyttFagsakTask;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -51,9 +47,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -139,18 +133,27 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(åpneAksjonspunkt).build();
     }
 
+    private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
+        return new OpenAutopunkt((String) row[0], (String) row[1], ((Timestamp) row[2]).toLocalDateTime().toLocalDate(),
+            row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null);
+    }
+
+    public record OpenAutopunkt(String saksnummer, String ytelseType, LocalDate aksjonspunktOpprettetDato, LocalDate aksjonspunktFristDato) {
+    }
+
+    /*
+     * Denne kan brukes ifm migrering av utvalgte egenskaper sammen med MigrerTilOmsorgRettTask.
+     *
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Flytt svp revurdering tilbake til start", tags = "FORVALTNING-uttrekk")
-    @Path("/flyttSvpRevurderTilRegister")
+    @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
+    @Path("/flyttBehandlingTilSteg")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response flyttTilOmsorgRett() {
+    public Response flyttBehandlingTilSteg() {
         var query = entityManager.createNativeQuery("""
-            select distinct b.id from fpsak.behandling_arsak ba join fpsak.behandling b on ba.behandling_id = b.id join fpsak.fagsak f on b.fagsak_id = f.id
-            where ytelse_type = 'SVP' and behandling_arsak_type = 'REBEREGN-FERIEPENGER' and ba.opprettet_tid >= '15.01.2024' and behandling_status <> 'AVSLU'
-            and b.id in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def = 5028)
-            and b.id not in (select behandling_id from fpsak.aksjonspunkt where aksjonspunkt_status = 'OPPR' and aksjonspunkt_def <> 5028)
+            select * from behandling where opprettet_tid < '01.01.2000'
              """);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
@@ -169,14 +172,6 @@ public class ForvaltningUttrekkRestTjeneste {
         task.setCallIdFraEksisterende();
         taskTjeneste.lagre(task);
 
-    }
-
-    private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
-        return new OpenAutopunkt((String) row[0], (String) row[1], ((Timestamp) row[2]).toLocalDateTime().toLocalDate(),
-            row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null);
-    }
-
-    public record OpenAutopunkt(String saksnummer, String ytelseType, LocalDate aksjonspunktOpprettetDato, LocalDate aksjonspunktFristDato) {
     }
 
     @GET
@@ -209,6 +204,7 @@ public class ForvaltningUttrekkRestTjeneste {
         List<ProsessTaskData> tasks = new ArrayList<>();
         for (var betweendays = fom; !betweendays.isAfter(tom); betweendays = betweendays.plusDays(1)) {
             var prosessTaskData = ProsessTaskDataBuilder.forProsessTask(VedtakAvstemPeriodeTask.class)
+                .medProperty(VedtakAvstemPeriodeTask.LOG_VEDTAK_KEY, String.valueOf(dto.isVedtak()))
                 .medProperty(VedtakAvstemPeriodeTask.LOG_FOM_KEY, betweendays.toString())
                 .medProperty(VedtakAvstemPeriodeTask.LOG_TOM_KEY, betweendays.toString())
                 .medProperty(VedtakAvstemPeriodeTask.LOG_TIDSROM, String.valueOf(dto.getTidsrom() - 1))
@@ -222,17 +218,6 @@ public class ForvaltningUttrekkRestTjeneste {
         gruppe.addNesteParallell(tasks);
         taskTjeneste.lagre(gruppe);
 
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/avbrytAvstemming")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Avbryter pågående avstemming", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT)
-    public Response avbrytAvstemming() {
-        finnAlleAvstemming().stream().limit(200).forEach(t -> taskTjeneste.setProsessTaskFerdig(t.getId(), ProsessTaskStatus.KLAR));
         return Response.ok().build();
     }
 
@@ -282,59 +267,5 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
-    private List<ProsessTaskData> finnAlleAvstemming() {
 
-        // native sql for å håndtere join og subselect,
-        // samt cast til hibernate spesifikk håndtering av parametere som kan være NULL
-        @SuppressWarnings("unchecked") var query = (NativeQuery<ProsessTaskEntitet>) entityManager
-            .createNativeQuery(
-                "SELECT pt.* FROM PROSESS_TASK pt"
-                    + " WHERE pt.status = 'KLAR'"
-                    + " AND pt.task_type in ('vedtak.overlapp.avstem', 'vedtak.overlapp.periode')"
-                    + " FOR UPDATE SKIP LOCKED ",
-                ProsessTaskEntitet.class).setMaxResults(200);
-
-
-        var resultList = query.getResultList();
-        return tilProsessTask(resultList);
-    }
-
-    private List<ProsessTaskData> tilProsessTask(List<ProsessTaskEntitet> resultList) {
-        return resultList.stream().map(ProsessTaskEntitet::tilProsessTask).toList();
-    }
-
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lag tasks for nye feriepengekoder til bruker SVP", tags = "FORVALTNING-uttrekk")
-    @Path("/omposterFeriepengerSvangerskapspenger")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response omposterFeriepengerSvangerskapspenger() {
-        var query = entityManager.createNativeQuery("""
-            select b.id from fpsak.behandling_arsak ba join fpsak.behandling b on ba.behandling_id = b.id join fpsak.fagsak f on b.fagsak_id = f.id
-            where ytelse_type = 'SVP' and behandling_arsak_type = 'REBEREGN-FERIEPENGER' and behandling_status <> 'AVSLU'
-             """);
-        @SuppressWarnings("unchecked")
-        List<Number> resultatList = query.getResultList();
-        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
-        åpneAksjonspunkt.forEach(this::omposterTask);
-        return Response.ok().build();
-    }
-
-    private void omposterTask(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var gruppe = new ProsessTaskGruppe();
-        var henleggTask = ProsessTaskData.forProsessTask(HenleggFlyttFagsakTask.class);
-        henleggTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        henleggTask.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, BehandlingResultatType.HENLAGT_FEILOPPRETTET.getKode());
-        henleggTask.setCallIdFraEksisterende();
-        gruppe.addNesteSekvensiell(henleggTask);
-
-        var omposterTask = ProsessTaskData.forProsessTask(FeriepengerOmposterTask.class);
-        omposterTask.setFagsakId(behandling.getFagsakId());
-        omposterTask.setCallIdFraEksisterende();
-        gruppe.addNesteSekvensiell(omposterTask);
-        taskTjeneste.lagre(gruppe);
-    }
 }
