@@ -143,8 +143,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     }
 
-    public void loggOverlappForAvstemming(String hendelse, Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+    public void loggOverlappForAvstemming(String hendelse, Behandling behandling) {
         loggOverlappendeYtelser(behandling).stream()
             .map(b -> b.medHendelse(hendelse))
             .forEach(overlappRepository::lagre);

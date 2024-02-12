@@ -1,14 +1,21 @@
 package no.nav.foreldrepenger.mottak.vedtak.avstemming;
 
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -21,7 +28,9 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     public static final String LOG_HENDELSE_KEY = "hendelse";
 
 
-    private InformasjonssakRepository informasjonssakRepository;
+    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
     private LoggOverlappEksterneYtelserTjeneste syklogger;
 
     VedtakOverlappAvstemSakTask() {
@@ -29,10 +38,14 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     }
 
     @Inject
-    public VedtakOverlappAvstemSakTask(InformasjonssakRepository informasjonssakRepository,
+    public VedtakOverlappAvstemSakTask(FagsakRepository fagsakRepository,
+                                       BehandlingRepository behandlingRepository,
+                                       BeregningsresultatRepository beregningsresultatRepository,
                                        LoggOverlappEksterneYtelserTjeneste syklogger) {
         super();
-        this.informasjonssakRepository = informasjonssakRepository;
+        this.fagsakRepository = fagsakRepository;
+        this.behandlingRepository = behandlingRepository;
+        this.beregningsresultatRepository = beregningsresultatRepository;
         this.syklogger = syklogger;
     }
 
@@ -47,8 +60,18 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
 
     private void loggOverlappOTH(String saksnr, String hendelse) {
         // Finner alle behandlinger med vedtaksdato innen intervall (evt med gitt saksnummer) - tidligste dato = tidligeste dato med utbetaling
-        var saker = informasjonssakRepository.finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(null, null, saksnr);
-        saker.forEach(o -> syklogger.loggOverlappForAvstemming(hendelse, o.getBehandlingId()));
+        var behandling = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnr))
+            .filter(s -> FagsakYtelseType.FORELDREPENGER.equals(s.getYtelseType()) || FagsakYtelseType.SVANGERSKAPSPENGER.equals(s.getYtelseType()))
+            .filter(s -> !s.erStengt())
+            .flatMap(s -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(s.getId()))
+            .filter(this::harUtbetaling);
+        behandling.ifPresent(b -> syklogger.loggOverlappForAvstemming(hendelse, b));
+    }
+
+    private boolean harUtbetaling(Behandling behandling) {
+        return beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .anyMatch(p -> p.getDagsats() > 0);
     }
 
 }

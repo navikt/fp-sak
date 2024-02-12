@@ -4,11 +4,11 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
  * Spesialmetoder for å hente opp saker og personer som er kandidat for å sende
@@ -208,65 +209,30 @@ public class InformasjonssakRepository {
         return returnList;
     }
 
-    private List<OverlappData> toOverlappData(List<Object[]> resultatList) {
-        List<OverlappData> returnList = new ArrayList<>();
-        resultatList.forEach(resultat -> {
-            var builder = OverlappData.OverlappDataBuilder.ny()
-                    .medSaksnummer((String) resultat[0])
-                    .medYtelseType((String) resultat[1])
-                    .medAktørId((String) resultat[2])
-                    .medRolle((String) resultat[3])
-                    .medBehandlingId(Long.parseLong(resultat[4].toString()))
-                    .medTidligsteDato(((Timestamp) resultat[5]).toLocalDateTime().toLocalDate());
-            returnList.add(builder.build());
-        });
-        return returnList;
-    }
-
-    private static final String QUERY_AVSTEMMING_ANDRE = """
-            select distinct saksnummer, ytelse_type, bru.aktoer_id braid, bruker_rolle, beh.id, minbrfom
-            from fagsak fs join bruker bru on fs.bruker_id = bru.id join behandling beh on fagsak_id=fs.id
-              join behandling_resultat br on br.behandling_id=beh.id\s
-              join behandling_vedtak bv on bv.behandling_resultat_id = br.id
-              join (select beh1.fagsak_id fsmax, max(bv1.opprettet_tid) maxbr from behandling beh1
-                    join behandling_resultat br1 on br1.behandling_id=beh1.id
-                    join behandling_vedtak bv1 on bv1.behandling_resultat_id = br1.id
-                    where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id )
-                 on (fsmax=beh.fagsak_id and bv.opprettet_tid = maxbr)
-              left outer join br_resultat_behandling brr on (brr.behandling_id=beh.id and brr.aktiv='J')
-              left outer join (select BEREGNINGSRESULTAT_FP_ID utbbrpid, min(BR_PERIODE_FOM) minbrfom from br_periode brp
-                       left join br_andel ba on ba.br_periode_id = brp.id
-                       where ba.dagsats > 0  group by BEREGNINGSRESULTAT_FP_ID
-                    ) on utbbrpid = brr.BG_BEREGNINGSRESULTAT_FP_ID
-            where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
-              and fs.til_infotrygd='N' and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null
+    private static final String QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK = """
+            select distinct saksnummer from fagsak fs
+            where fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato
+              and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
+              and exists (select b.id from behandling b join behandling_resultat br on br.behandling_id = b.id
+                            join behandling_vedtak bv on bv.behandling_resultat_id = br.id
+                          where b.fagsak_id = fs.id and b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper))
                 """;
 
-    public List<OverlappData> finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(LocalDate fom, LocalDate tom, String saksnummer) {
+    public List<Saksnummer> finnSakerMedVedtakSakOpprettetInnenIntervall(LocalDate fom, LocalDate tom, Set<FagsakYtelseType> ytelser) {
         /*
-         * Plukker saksnummer, siste ytelsebehandling, annenpart og første uttaksdato: -
-         * Saker der det finnes et beregnignsresultat/TY med utbetalt periode - inklusive
-         * noen få opphør fom etter tidligste periode - Første uttaksdato = tidligste
-         * periode, inklusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
-         * første periode
+         * Saker med ytelse FP/SVP opprettet innen intervall som har avsluttet førstegangsbehandling
          */
-        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-                .toList();
-        Query query;
-        if (saksnummer == null) {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato ");
-            query.setParameter("fomdato", fom);
-            query.setParameter("tomdato", tom.plusDays(1));
-        } else {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and saksnummer = :saksnr ");
-            query.setParameter("saksnr", saksnummer);
-        }
-        query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode(), FagsakYtelseType.SVANGERSKAPSPENGER.getKode()));
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).toList();
+        var ytelsekoder = ytelser.stream().map(FagsakYtelseType::getKode).toList();
+        var query = entityManager.createNativeQuery(QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK + "  ");
+        query.setParameter("fomdato", fom);
+        query.setParameter("tomdato", tom.plusDays(1));
+        query.setParameter("ytelser", ytelsekoder);
         query.setParameter("avsluttet", avsluttendeStatus);
-        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode()));
+        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode()));
         @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return toOverlappData(resultatList);
+        List<String> resultatList = query.getResultList();
+        return resultatList.stream().map(Saksnummer::new).toList();
     }
 
 }
