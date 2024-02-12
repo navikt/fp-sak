@@ -1164,11 +1164,11 @@ class JusterFordelingTjenesteTest {
     }
 
     /**
-     * -   ---|----------
-     * -|----------
+     * f   ---|mmmmmmmmmm
+     * -|mmmmmmmmmm
      */
     @Test
-    void skal_fylle_alle_hull_som_oppstår_innefor_periode_etter_fødsel_forbeholdt_mor_fødsel_før_termin() {
+    void skal_fylle_alle_hull_før_termin_og_mellom_fødsel_som_er_forbehold_mor_ved_fødsel_før_termin() {
         var termindato = LocalDate.of(2023, 11, 9);
         var fellesperiodeStart = lagPeriode(FELLESPERIODE, termindato.minusWeeks(6), termindato.minusWeeks(5).minusDays(1));
         // Hull T-5 til T-3
@@ -1192,9 +1192,9 @@ class JusterFordelingTjenesteTest {
     }
 
     /**
-     *  ---|mm     ffffffffff
-     * |mm         ffffffffff (justering .. bare flytting.. ikke legge til noe nytt)
-     * |mmmmmm     ffffffffff (spesialregel.. legg til noe hun i utgangspunktet har søkt)
+     *  ---|mmm     ffffffffff
+     *  |mmm        ffffffffff (justering .. bare flytting.. ikke legge til noe nytt)
+     *  |mmmmmm     ffffffffff (spesialregel.. legg til noe hun i utgangspunktet har søkt)
      */
     @Test
     void fellesperiode_skal_ikke_flyttes_mer_inn_periode_forbeholdt_mor_etter_fødsel_men_fylles_etterpå() {
