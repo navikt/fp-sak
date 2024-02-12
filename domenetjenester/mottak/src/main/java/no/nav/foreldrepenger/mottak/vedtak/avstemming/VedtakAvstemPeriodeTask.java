@@ -11,7 +11,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
@@ -30,6 +29,7 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
 
     private static final Set<FagsakYtelseType> YTELSER = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
 
+    public static final String LOG_VEDTAK_KEY = "logvedtak";
     public static final String LOG_FOM_KEY = "logfom";
     public static final String LOG_TOM_KEY = "logtom";
     public static final String LOG_TIDSROM = "logtidsrom";
@@ -52,15 +52,18 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+        var vedtak = Boolean.parseBoolean(prosessTaskData.getPropertyValue(LOG_VEDTAK_KEY));
         var fom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         var tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         var tidsrom = Integer.parseInt(prosessTaskData.getPropertyValue(LOG_TIDSROM));
         var baseline = LocalDateTime.now();
         if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
         var callId = MDCOperations.getCallId();
+        var saker = vedtak ? informasjonssakRepository.finnSakerDerVedtakOpprettetInnenIntervall(fom, tom, YTELSER) :
+            informasjonssakRepository.finnSakerMedVedtakDerSakOpprettetInnenIntervall(fom, tom, YTELSER);
         var gruppe = new ProsessTaskGruppe();
         List<ProsessTaskData> tasks = new ArrayList<>();
-        informasjonssakRepository.finnSakerMedVedtakSakOpprettetInnenIntervall(fom, tom, YTELSER).forEach(f -> {
+        saker.forEach(f -> {
             var task = ProsessTaskDataBuilder.forProsessTask(VedtakOverlappAvstemSakTask.class)
                 .medProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, f.getVerdi())
                 .medProperty(VedtakOverlappAvstemSakTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_PERIODE)
