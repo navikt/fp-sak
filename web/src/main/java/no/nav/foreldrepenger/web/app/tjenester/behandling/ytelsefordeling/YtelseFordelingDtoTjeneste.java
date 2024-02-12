@@ -16,11 +16,10 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class YtelseFordelingDtoTjeneste {
-
-    private static final LocalDate DATO_FOR_TOMT_UTTAK = LocalDate.of(2199, 12, 31);
 
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -86,7 +85,7 @@ public class YtelseFordelingDtoTjeneste {
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
         var uttakOriginal = uttakTjeneste.hentUttakHvisEksisterer(originalBehandling);
         var førsteUttakOriginal = uttakOriginal.flatMap(ForeldrepengerUttak::finnFørsteUttaksdatoHvisFinnes);
-        var førsteUttaksdatoTidligereBehandling = førsteUttakOriginal.orElse(DATO_FOR_TOMT_UTTAK);
+        var førsteUttaksdatoTidligereBehandling = førsteUttakOriginal.orElse(Tid.TIDENES_ENDE);
 
         var førsteUttaksdatoSøkt = ytelseFordelingTjeneste.hentAggregat(behandling.getId())
             .getOppgittFordeling()
