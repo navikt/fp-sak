@@ -177,46 +177,39 @@ class MorsJustering implements ForelderFødselJustering {
 
     /**
      * Her har vi 4 håndteringer:
-     *  1) Er ikke justerbar periode eller virkedagerSomSkalSkyves er 0?    Bevares som de er.
-     *  2) Er perioden før ny fødsel?                                       Behold eller avkort til fødsel hvis den går forbi fødsel
-     *  3) Er perioden mellom fødsel og termin?                             Fjernes periode
-     *  4) Er perioden etter termin?                                        Flytt til venstre
+     *  1) Er hele perioden mellom fødsel og termin?                                             Perioden blir spist opp/fjernet
+     *  2) Strekker perioden seg fra før fødsel til mellom fødsel og termin?                     Avkort til dagen før fødsel
+     *  3) Er perioden etter termin?                                                             Flytt til venstre
+     *  4) Ikke justerbar, 0 virkedagerSomSkalSkyves igjen eller hele perioden er før fødsel?    Bevares som de er.
      */
     private List<OppgittPeriodeEntitet> flyttPerioderTilVenstre(List<OppgittPeriodeEntitet> oppgittePerioder) {
         var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
         var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
         List<OppgittPeriodeEntitet> justertePerioder = new ArrayList<>();
         for (var oppgittPeriode : oppgittePerioder) {
-            // Case 1: Ikke justerbare periode eller vi skal ikke skyve noen dager
-            if (!erPeriodeFlyttbar(oppgittPeriode) || virkedagerSomSkalSkyves <= 0) {
-                justertePerioder.add(oppgittPeriode);
-                continue;
-            }
-
-            // Case 1: Perioden starter før fødsel => Behold eller avkort til fødsel
-            if (oppgittPeriode.getFom().isBefore(nyFamiliehendelse)) {
-                var nyTom = oppgittPeriode.getTom().isBefore(nyFamiliehendelse) ? oppgittPeriode.getTom() : PerioderUtenHelgUtil.justerTomFredag(
-                    nyFamiliehendelse.minusDays(1));
-                justertePerioder.add(kopier(oppgittPeriode, oppgittPeriode.getFom(), nyTom));
-            }
-
-            // Case 2: Hele perioden ligger mellom fødsel og termin.
-            if (oppgittPeriode.getFom().isBefore(gammelFamiliehendelse) && !oppgittPeriode.getFom().isBefore(nyFamiliehendelse)) {
-                continue;
-            }
-
-            // Case 3: Flytt periode til venstre
-            if (oppgittPeriode.getFom().isEqual(gammelFamiliehendelse) || oppgittPeriode.getFom().isAfter(gammelFamiliehendelse)) {
-                var justert = flyttPeriode(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
-
-                // Ikke flytt fellesperiode lenger inn i periode forbehold mor etter fødsel
-                var antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel = antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel(oppgittPeriode, justert);
-                if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE) && antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel > 0) {
-                    virkedagerSomSkalSkyves -= antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel;
-                    justert = flyttPeriode(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+            if (erPeriodeFlyttbar(oppgittPeriode) && virkedagerSomSkalSkyves > 0 && !oppgittPeriode.getTom().isBefore(nyFamiliehendelse)) {
+                if (!oppgittPeriode.getFom().isBefore(nyFamiliehendelse) && oppgittPeriode.getTom().isBefore(gammelFamiliehendelse)) {
+                    continue; // Case 1: Fjernes
                 }
 
-                justertePerioder.addAll(justert);
+                // Case 2: Avkortes
+                if (oppgittPeriode.getFom().isBefore(gammelFamiliehendelse)) {
+                    var nyTom = PerioderUtenHelgUtil.justerTomFredag(nyFamiliehendelse.minusDays(1));
+                    justertePerioder.add(kopier(oppgittPeriode, oppgittPeriode.getFom(), nyTom));
+                } else { // Case 3: Skyves til venstre
+                    var justert = flyttPeriode(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+
+                    // Ikke flytt fellesperiode lenger inn i periode forbehold mor etter fødsel
+                    var antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel = antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel(oppgittPeriode, justert);
+                    if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE) && antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel > 0) {
+                        virkedagerSomSkalSkyves -= antallDagerFellesperiodeSomBlirFlyttetInnIPeriodeForbeholdMorEtterFødsel;
+                        justert = flyttPeriode(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+                    }
+                    justertePerioder.addAll(justert);
+                }
+            } else {
+                // Case 4: Ikke justerbar, 0 virkedagerSomSkalSkyves igjen eller hele perioden er før fødsel
+                justertePerioder.add(oppgittPeriode);
             }
         }
         return sorterEtterFom(justertePerioder);
