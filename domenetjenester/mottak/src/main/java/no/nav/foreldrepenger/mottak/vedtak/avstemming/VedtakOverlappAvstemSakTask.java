@@ -31,7 +31,7 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private LoggOverlappEksterneYtelserTjeneste syklogger;
+    private LoggOverlappEksterneYtelserTjeneste overlappLogger;
 
     VedtakOverlappAvstemSakTask() {
         // for CDI proxy
@@ -41,12 +41,12 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     public VedtakOverlappAvstemSakTask(FagsakRepository fagsakRepository,
                                        BehandlingRepository behandlingRepository,
                                        BeregningsresultatRepository beregningsresultatRepository,
-                                       LoggOverlappEksterneYtelserTjeneste syklogger) {
+                                       LoggOverlappEksterneYtelserTjeneste overlappLogger) {
         super();
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
-        this.syklogger = syklogger;
+        this.overlappLogger = overlappLogger;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
             .filter(s -> !s.erStengt())
             .flatMap(s -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(s.getId()))
             .filter(this::harUtbetaling);
-        behandling.ifPresent(b -> syklogger.loggOverlappForAvstemming(hendelse, b));
+        behandling.ifPresent(b -> overlappLogger.loggOverlappForAvstemming(hendelse, b));
     }
 
     private boolean harUtbetaling(Behandling behandling) {
