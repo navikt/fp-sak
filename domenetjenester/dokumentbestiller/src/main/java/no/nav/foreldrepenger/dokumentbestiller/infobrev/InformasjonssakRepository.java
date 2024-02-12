@@ -216,15 +216,41 @@ public class InformasjonssakRepository {
               and exists (select b.id from behandling b join behandling_resultat br on br.behandling_id = b.id
                             join behandling_vedtak bv on bv.behandling_resultat_id = br.id
                           where b.fagsak_id = fs.id and b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper))
-                """;
+            """;
 
-    public List<Saksnummer> finnSakerMedVedtakSakOpprettetInnenIntervall(LocalDate fom, LocalDate tom, Set<FagsakYtelseType> ytelser) {
+    public List<Saksnummer> finnSakerMedVedtakDerSakOpprettetInnenIntervall(LocalDate fom, LocalDate tom, Set<FagsakYtelseType> ytelser) {
         /*
-         * Saker med ytelse FP/SVP opprettet innen intervall som har avsluttet førstegangsbehandling
+         * Saker med gitt ytelse opprettet innen intervall som har avsluttet førstegangsbehandling
          */
         var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).toList();
         var ytelsekoder = ytelser.stream().map(FagsakYtelseType::getKode).toList();
-        var query = entityManager.createNativeQuery(QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK + "  ");
+        var query = entityManager.createNativeQuery(QUERY_AVSTEMMING_INTERVALL_SAK_MED_VEDTAK);
+        query.setParameter("fomdato", fom);
+        query.setParameter("tomdato", tom.plusDays(1));
+        query.setParameter("ytelser", ytelsekoder);
+        query.setParameter("avsluttet", avsluttendeStatus);
+        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode()));
+        @SuppressWarnings("unchecked")
+        List<String> resultatList = query.getResultList();
+        return resultatList.stream().map(Saksnummer::new).toList();
+    }
+
+    private static final String QUERY_VEDTAK_FATTET_INTERVALL = """
+            select distinct saksnummer from fagsak fs join behandling b on b.fagsak_id = fs.id
+            join behandling_resultat br on br.behandling_id = b.id
+            join behandling_vedtak bv on bv.behandling_resultat_id = br.id
+            where b.behandling_status in (:avsluttet) and b.behandling_type in (:behtyper)
+            and bv.opprettet_tid >= :fomdato and bv.opprettet_tid < :tomdato
+            and fs.til_infotrygd='N' and fs.ytelse_type in (:ytelser)
+            """;
+
+    public List<Saksnummer> finnSakerDerVedtakOpprettetInnenIntervall(LocalDate fom, LocalDate tom, Set<FagsakYtelseType> ytelser) {
+        /*
+         * Saker med gitt ytelse med vedtak opprettet innen intervall
+         */
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode).toList();
+        var ytelsekoder = ytelser.stream().map(FagsakYtelseType::getKode).toList();
+        var query = entityManager.createNativeQuery(QUERY_VEDTAK_FATTET_INTERVALL);
         query.setParameter("fomdato", fom);
         query.setParameter("tomdato", tom.plusDays(1));
         query.setParameter("ytelser", ytelsekoder);
