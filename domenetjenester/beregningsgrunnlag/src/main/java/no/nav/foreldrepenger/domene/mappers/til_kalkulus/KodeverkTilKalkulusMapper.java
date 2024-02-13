@@ -17,9 +17,8 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
-
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 
@@ -97,7 +96,7 @@ public class KodeverkTilKalkulusMapper {
 
     static OpptjeningAktivitetType mapOpptjeningAktivitetType(no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType opptjeningtype) {
         return switch (opptjeningtype) {
-            case ARBEIDSAVKLARING -> OpptjeningAktivitetType.ARBEIDSAVKLARING;
+            case ARBEIDSAVKLARING -> OpptjeningAktivitetType.AAP;
             case ARBEID -> OpptjeningAktivitetType.ARBEID;
             case DAGPENGER -> OpptjeningAktivitetType.DAGPENGER;
             case FORELDREPENGER -> OpptjeningAktivitetType.FORELDREPENGER;
@@ -156,13 +155,13 @@ public class KodeverkTilKalkulusMapper {
             case ETTERLØNN_SLUTTPAKKE -> ArbeidType.ETTERLØNN_SLUTTPAKKE;
             case FORENKLET_OPPGJØRSORDNING -> ArbeidType.FORENKLET_OPPGJØRSORDNING;
             case FRILANSER -> ArbeidType.FRILANSER;
-            case FRILANSER_OPPDRAGSTAKER_MED_MER -> ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER;
+            case FRILANSER_OPPDRAGSTAKER_MED_MER -> ArbeidType.FRILANSER_OPPDRAGSTAKER;
             case LØNN_UNDER_UTDANNING -> ArbeidType.LØNN_UNDER_UTDANNING;
             case MARITIMT_ARBEIDSFORHOLD -> ArbeidType.MARITIMT_ARBEIDSFORHOLD;
             case MILITÆR_ELLER_SIVILTJENESTE -> ArbeidType.MILITÆR_ELLER_SIVILTJENESTE;
             case ORDINÆRT_ARBEIDSFORHOLD -> ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
             case PENSJON_OG_ANDRE_TYPER_YTELSER_UTEN_ANSETTELSESFORHOLD -> ArbeidType.PENSJON_OG_ANDRE_TYPER_YTELSER_UTEN_ANSETTELSESFORHOLD;
-            case SELVSTENDIG_NÆRINGSDRIVENDE -> ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> ArbeidType.NÆRING;
             case UTENLANDSK_ARBEIDSFORHOLD -> ArbeidType.UTENLANDSK_ARBEIDSFORHOLD;
             case VENTELØNN_VARTPENGER -> ArbeidType.VENTELØNN_VARTPENGER;
             case VANLIG -> ArbeidType.VANLIG;
@@ -199,24 +198,24 @@ public class KodeverkTilKalkulusMapper {
     static NaturalYtelseType mapNaturalytelsetype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType type) {
         return switch (type) {
             case ELEKTRISK_KOMMUNIKASJON -> NaturalYtelseType.ELEKTRISK_KOMMUNIKASJON;
-            case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalYtelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
+            case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalYtelseType.AKSJER_UNDERKURS;
             case LOSJI -> NaturalYtelseType.LOSJI;
-            case KOST_DØGN -> NaturalYtelseType.KOST_DØGN;
-            case BESØKSREISER_HJEMMET_ANNET -> NaturalYtelseType.BESØKSREISER_HJEMMET_ANNET;
-            case KOSTBESPARELSE_I_HJEMMET -> NaturalYtelseType.KOSTBESPARELSE_I_HJEMMET;
-            case RENTEFORDEL_LÅN -> NaturalYtelseType.RENTEFORDEL_LÅN;
+            case KOST_DØGN -> NaturalYtelseType.KOST_DOEGN;
+            case BESØKSREISER_HJEMMET_ANNET -> NaturalYtelseType.BESOEKSREISER_HJEM;
+            case KOSTBESPARELSE_I_HJEMMET -> NaturalYtelseType.KOSTBESPARELSE_HJEM;
+            case RENTEFORDEL_LÅN -> NaturalYtelseType.RENTEFORDEL_LAAN;
             case BIL -> NaturalYtelseType.BIL;
             case KOST_DAGER -> NaturalYtelseType.KOST_DAGER;
             case BOLIG -> NaturalYtelseType.BOLIG;
-            case SKATTEPLIKTIG_DEL_FORSIKRINGER -> NaturalYtelseType.SKATTEPLIKTIG_DEL_FORSIKRINGER;
+            case SKATTEPLIKTIG_DEL_FORSIKRINGER -> NaturalYtelseType.FORSIKRINGER;
             case FRI_TRANSPORT -> NaturalYtelseType.FRI_TRANSPORT;
             case OPSJONER -> NaturalYtelseType.OPSJONER;
-            case TILSKUDD_BARNEHAGEPLASS -> NaturalYtelseType.TILSKUDD_BARNEHAGEPLASS;
+            case TILSKUDD_BARNEHAGEPLASS -> NaturalYtelseType.TILSKUDD_BARNEHAGE;
             case ANNET -> NaturalYtelseType.ANNET;
-            case BEDRIFTSBARNEHAGEPLASS -> NaturalYtelseType.BEDRIFTSBARNEHAGEPLASS;
-            case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> NaturalYtelseType.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
-            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> NaturalYtelseType.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
-            case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> NaturalYtelseType.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
+            case BEDRIFTSBARNEHAGEPLASS -> NaturalYtelseType.BEDRIFTSBARNEHAGE;
+            case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> NaturalYtelseType.YRKESBIL_KILOMETER;
+            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> NaturalYtelseType.YRKESBIL_LISTEPRIS;
+            case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> NaturalYtelseType.UTENLANDSK_PENSJONSORDNING;
             case UDEFINERT -> NaturalYtelseType.UDEFINERT;
         };
     }
@@ -282,8 +281,8 @@ public class KodeverkTilKalkulusMapper {
             case BESTEBEREGNET -> BeregningsgrunnlagTilstand.BESTEBEREGNET;
             case FORESLÅTT -> BeregningsgrunnlagTilstand.FORESLÅTT;
             case FORESLÅTT_UT -> BeregningsgrunnlagTilstand.FORESLÅTT_UT;
-            case FORESLÅTT_2 -> BeregningsgrunnlagTilstand.FORESLÅTT_2;
-            case FORESLÅTT_2_UT -> BeregningsgrunnlagTilstand.FORESLÅTT_2_UT;
+            case FORESLÅTT_2 -> BeregningsgrunnlagTilstand.FORESLÅTT_DEL_2;
+            case FORESLÅTT_2_UT -> BeregningsgrunnlagTilstand.FORESLÅTT_DEL_2_UT;
             case VURDERT_VILKÅR -> BeregningsgrunnlagTilstand.VURDERT_VILKÅR;
             case VURDERT_REFUSJON -> BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
             case VURDERT_REFUSJON_UT -> BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT;
