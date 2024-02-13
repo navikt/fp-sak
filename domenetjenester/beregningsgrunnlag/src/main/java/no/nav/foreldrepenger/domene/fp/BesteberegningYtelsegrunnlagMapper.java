@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseandel;
-import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
-import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseperiode;
+import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelseandel;
+import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag;
+import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelseperiode;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;

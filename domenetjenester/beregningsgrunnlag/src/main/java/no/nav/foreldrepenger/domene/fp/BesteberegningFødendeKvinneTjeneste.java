@@ -10,7 +10,7 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
+import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
