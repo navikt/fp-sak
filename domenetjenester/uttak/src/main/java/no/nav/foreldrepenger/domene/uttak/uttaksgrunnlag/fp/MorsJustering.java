@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.domene.uttak.PerioderUtenHelgUtil;
 import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.konfig.Tid;
@@ -487,14 +486,8 @@ class MorsJustering implements ForelderFødselJustering {
             var nesteVirkedag = Virkedager.plusVirkedager(oppgittePerioder.get(i - 1).getTom(), 1);
             var startDatoNestePeriode = oppgittePerioder.get(i).getFom();
             if (!nesteVirkedag.isEqual(startDatoNestePeriode)) {
-                var tom = Virkedager.plusVirkedager(nesteVirkedag, beregnAntallVirkedager(nesteVirkedag, startDatoNestePeriode) - 2);
-                var tomForbeholdtMor = TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse);
-                if (new LocalDateInterval(nesteVirkedag, tom).contains(tomForbeholdtMor) && !tom.isEqual(tomForbeholdtMor)) {
-                    hull.add(new JusterPeriodeHull(nesteVirkedag, tomForbeholdtMor));
-                    hull.add(new JusterPeriodeHull(tomForbeholdtMor.plusDays(1), tom));
-                } else {
-                    hull.add(new JusterPeriodeHull(nesteVirkedag, tom));
-                }
+                hull.add(new JusterPeriodeHull(nesteVirkedag,
+                    Virkedager.plusVirkedager(nesteVirkedag, beregnAntallVirkedager(nesteVirkedag, startDatoNestePeriode) - 2)));
             }
         }
         return hull;

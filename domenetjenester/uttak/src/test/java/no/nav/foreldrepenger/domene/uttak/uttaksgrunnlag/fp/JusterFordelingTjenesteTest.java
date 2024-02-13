@@ -1123,6 +1123,7 @@ class JusterFordelingTjenesteTest {
         var mødrekvoteEtterHull = lagPeriode(MØDREKVOTE, termindato.plusWeeks(7), termindato.plusWeeks(8).minusDays(1));
         // Hull fra uke 8-11
         var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(11), termindato.plusWeeks(21).minusDays(1));
+        // Hull fra uke 12-21
         var mødrekvoteEtterFellesperiode = lagPeriode(MØDREKVOTE, termindato.plusWeeks(21), termindato.plusWeeks(29).minusDays(1));
         var oppgittePerioder = List.of(fpff, mødrekvote, mødrekvoteEtterHull, fellesperiode, mødrekvoteEtterFellesperiode);
 
