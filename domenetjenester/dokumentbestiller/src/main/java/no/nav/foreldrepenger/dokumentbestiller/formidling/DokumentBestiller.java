@@ -46,22 +46,22 @@ public class DokumentBestiller {
     }
 
     private void bestillDokumentOgLoggHistorikk(Behandling behandling, HistorikkAktør aktør, BrevBestilling bestilling) {
-        opprettBestillDokumentTask(behandling, bestilling);
+        opprettBestillBrevTask(behandling, bestilling);
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
         dokumentBestilt.opprettHistorikkinnslag(aktør, behandling, bestilling);
     }
 
-    private void opprettBestillDokumentTask(Behandling behandling, BrevBestilling bestilling) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(DokumentBestillerTask.class);
+    private void opprettBestillBrevTask(Behandling behandling, BrevBestilling bestilling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(BestillBrevTask.class);
 
         // Obligatorisk
-        prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, behandling.getUuid().toString());
-        prosessTaskData.setProperty(DokumentBestillerTask.BESTILLING_UUID, String.valueOf(bestilling.bestillingUuid()));
-        prosessTaskData.setProperty(DokumentBestillerTask.DOKUMENT_MAL_TYPE, bestilling.dokumentMal().getKode());
+        prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, String.valueOf(behandling.getUuid()));
+        prosessTaskData.setProperty(BestillBrevTask.BESTILLING_UUID, String.valueOf(bestilling.bestillingUuid()));
+        prosessTaskData.setProperty(BestillBrevTask.DOKUMENT_MAL, bestilling.dokumentMal().name());
 
         // Optionals
-        Optional.ofNullable(bestilling.journalførSom()).ifPresent(a -> prosessTaskData.setProperty(DokumentBestillerTask.OPPRINNELIG_DOKUMENT_MAL, a.getKode()));
-        Optional.ofNullable(bestilling.revurderingÅrsak()).ifPresent(a -> prosessTaskData.setProperty(DokumentBestillerTask.REVURDERING_VARSLING_ÅRSAK, a.getKode()));
+        Optional.ofNullable(bestilling.journalførSom()).ifPresent(a -> prosessTaskData.setProperty(BestillBrevTask.JOURNALFOER_SOM_DOKUMENT, a.name()));
+        Optional.ofNullable(bestilling.revurderingÅrsak()).ifPresent(a -> prosessTaskData.setProperty(BestillBrevTask.REVURDERING_ÅRSAK, a.name()));
         prosessTaskData.setPayload(bestilling.fritekst());
 
         // Brukes kun i logging

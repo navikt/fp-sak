@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
+import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillBrevDtoMapper.mapDokumentMal;
+import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillBrevDtoMapper.mapRevurderignÅrsak;
 import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak;
 
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
 @ApplicationScoped
 public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerTjeneste {
@@ -50,9 +51,9 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         this.brev = brev;
     }
 
-    public byte[] forhåndsvisBrev(DokumentbestillingDto bestilling) {
-        var behandlingUuid = bestilling.getBehandlingUuid();
-        var bestillingDokumentMal = bestilling.getDokumentMal();
+    public byte[] forhåndsvisBrev(BrevForhandsvisning bestilling) {
+        var behandlingUuid = bestilling.behandlingUuid();
+        var bestillingDokumentMal = bestilling.dokumentMal();
         LOG.info("Forhåndsviser brev med mal {} for behandling {}", bestillingDokumentMal, behandlingUuid);
 
         // Av og til er FRITEK satt allerede av GUI.
@@ -62,13 +63,14 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             var behandling = behandlingRepository.hentBehandling(behandlingUuid);
             var resultat = behandlingsresultatRepository.hent(behandling.getId());
 
-            var gjelderAutomatiskBrev = bestilling.getAutomatiskVedtaksbrev();
+            var brevType = bestilling.brevType();
             var resultatBrev = resultat.getVedtaksbrev();
 
-            LOG.info("gjelderAutomatiskBrev: {}, Vedtaksbrev: {}", gjelderAutomatiskBrev, resultatBrev);
-            if ((gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev)) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
+            LOG.info("brevType: {}, Vedtaksbrev: {}", brevType, resultatBrev);
+            // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
+            if (BrevForhandsvisning.BrevType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
                 LOG.info("Utleder Fritekst mal.");
-                bestilling.setDokumentMal(DokumentMalType.FRITEKSTBREV.getKode());
+                bestillingDokumentMal = DokumentMalType.FRITEKSTBREV;
             } else {
                 LOG.info("Utleder Automatisk mal");
                 var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);
@@ -86,11 +88,23 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
                     resultat.getKonsekvenserForYtelsen(), erRevurderingMedUendretUtfall, klageVurdering);
 
                 LOG.info("Utledet {} dokumentMal for {}", dokumentMal, behandlingUuid);
-                bestilling.setDokumentMal(dokumentMal.getKode());
+                bestillingDokumentMal = dokumentMal;
             }
         }
-        return brev.forhåndsvis(bestilling);
+        return brev.forhåndsvis(legForhåndsvisningDto(bestilling, bestillingDokumentMal));
     }
+
+    private DokumentForhåndsvisDto legForhåndsvisningDto(BrevForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
+        return new DokumentForhåndsvisDto(
+            bestilling.behandlingUuid(),
+            mapDokumentMal(bestillingDokumentMal),
+            mapRevurderignÅrsak(bestilling.revurderingÅrsak()),
+            bestilling.tittel(),
+            bestilling.fritekst()
+        );
+    }
+
+
 
     private boolean erRevurderingMedUendretUtfall(Behandling behandling) {
         return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsakYtelseType())

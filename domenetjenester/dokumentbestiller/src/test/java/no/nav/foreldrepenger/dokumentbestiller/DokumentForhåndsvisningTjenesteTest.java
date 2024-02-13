@@ -3,10 +3,6 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,9 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
-import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
+import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.DokumentMal;
+import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
 @ExtendWith(MockitoExtension.class)
 class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
@@ -50,17 +49,19 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         settOpp(scenario, Vedtaksbrev.AUTOMATISK);
 
-        var bestilling = new DokumentbestillingDto();
-        bestilling.setBehandlingUuid(behandling.getUuid());
+        var bestilling = BrevForhandsvisning.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medBrevType(BrevForhandsvisning.BrevType.OVERSTYRT)
+            .build();
 
         tjeneste.forhåndsvisBrev(bestilling);
 
-        var bestillingCaptor = ArgumentCaptor.forClass(DokumentbestillingDto.class);
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
         verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
 
         var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE.getKode());
+        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FORELDREPENGER_INNVILGELSE);
     }
 
     @Test
@@ -70,18 +71,22 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario, Vedtaksbrev.AUTOMATISK);
 
-        var bestilling = new DokumentbestillingDto();
-        bestilling.setBehandlingUuid(behandling.getUuid());
-        bestilling.setDokumentMal(DokumentMalType.FRITEKSTBREV.getKode());
+        var bestilling = BrevForhandsvisning.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medDokumentMal(DokumentMalType.FRITEKSTBREV)
+            .medTittel("test")
+            .medFritekst("fritekst")
+            .medBrevType(BrevForhandsvisning.BrevType.OVERSTYRT)
+            .build();
 
         tjeneste.forhåndsvisBrev(bestilling);
 
-        var bestillingCaptor = ArgumentCaptor.forClass(DokumentbestillingDto.class);
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
         verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
 
         var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV.getKode());
+        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FRITEKSTBREV);
     }
 
     @Test
@@ -91,18 +96,19 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         settOpp(scenario, Vedtaksbrev.FRITEKST);
 
-        var bestilling = new DokumentbestillingDto();
-        bestilling.setBehandlingUuid(behandling.getUuid());
-        bestilling.setAutomatiskVedtaksbrev(true);
+        var bestilling = BrevForhandsvisning.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medBrevType(BrevForhandsvisning.BrevType.AUTOMATISK)
+            .build();
 
         tjeneste.forhåndsvisBrev(bestilling);
 
-        var bestillingCaptor = ArgumentCaptor.forClass(DokumentbestillingDto.class);
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
         verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
 
         var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.SVANGERSKAPSPENGER_INNVILGELSE.getKode());
+        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.SVANGERSKAPSPENGER_INNVILGELSE);
     }
 
     @Test
@@ -112,16 +118,18 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario, Vedtaksbrev.FRITEKST);
 
-        var bestilling = new DokumentbestillingDto();
-        bestilling.setBehandlingUuid(behandling.getUuid());
+        var bestilling = BrevForhandsvisning.builder()
+            .medBehandlingUuid(behandling.getUuid())
+            .medBrevType(BrevForhandsvisning.BrevType.OVERSTYRT)
+            .build();
 
         tjeneste.forhåndsvisBrev(bestilling);
 
-        var bestillingCaptor = ArgumentCaptor.forClass(DokumentbestillingDto.class);
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
         verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
 
         var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.getDokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV.getKode());
+        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FRITEKSTBREV);
     }
 }
