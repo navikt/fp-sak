@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -63,6 +64,8 @@ class DokumentmottakerInntektsmeldingTest {
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     @Inject
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
+    @Inject
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
@@ -82,14 +85,13 @@ class DokumentmottakerInntektsmeldingTest {
 
     @BeforeEach
     public void oppsett() {
-
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         dokumentmottaker = new DokumentmottakerInntektsmelding(dokumentmottakerFelles, behandlingsoppretter,
-                kompletthetskontroller, repositoryProvider, fpUttakTjeneste);
+                kompletthetskontroller, repositoryProvider.getBehandlingRepository(), behandlingRevurderingTjeneste, fpUttakTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
 
         var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");

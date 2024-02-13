@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingHistorikk;
@@ -64,7 +65,7 @@ class RevurderingTjenesteImplTest {
     @Inject
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
-    HistorikkRepository historikkRepository;
+    private HistorikkRepository historikkRepository;
     private Behandling behandling;
 
     @Inject
@@ -76,6 +77,8 @@ class RevurderingTjenesteImplTest {
 
     @Inject
     private VergeRepository vergeRepository;
+    @Inject
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @BeforeEach
     public void setup() {
@@ -151,7 +154,7 @@ class RevurderingTjenesteImplTest {
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
                 grunnlagRepositoryProvider, behandlingskontrollTjeneste,
                 iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);

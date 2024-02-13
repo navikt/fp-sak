@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
@@ -32,21 +34,23 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 class RevurderingTjenesteImplTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingGrunnlagRepositoryProvider grunnlagProvider;
     private BehandlingRepository behandlingRepository;
     private RevurderingTjeneste revurderingTjeneste;
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
+        var grunnlagProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
                 new BehandlingModellRepository(), null);
         var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository,
                 new LegacyESBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
         var vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         revurderingTjeneste = new RevurderingTjenesteImpl(behandlingRepository, grunnlagProvider,
                 new BehandlingskontrollTjenesteImpl(serviceProvider), revurderingEndringES, revurderingTjenesteFelles,
                 vergeRepository);

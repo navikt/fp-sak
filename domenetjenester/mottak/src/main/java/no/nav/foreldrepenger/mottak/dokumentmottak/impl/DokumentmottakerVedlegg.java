@@ -11,8 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
@@ -21,17 +20,18 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 @DokumentGruppeRef(DokumentGruppe.VEDLEGG)
 class DokumentmottakerVedlegg implements Dokumentmottaker {
 
-    private BehandlingRepository behandlingRepository;
-    private DokumentmottakerFelles dokumentmottakerFelles;
-    private BehandlingRevurderingRepository revurderingRepository;
-    private Kompletthetskontroller kompletthetskontroller;
+    private final BehandlingRepository behandlingRepository;
+    private final DokumentmottakerFelles dokumentmottakerFelles;
+    private final BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
+    private final Kompletthetskontroller kompletthetskontroller;
 
     @Inject
-    public DokumentmottakerVedlegg(BehandlingRepositoryProvider repositoryProvider,
+    public DokumentmottakerVedlegg(BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                    DokumentmottakerFelles dokumentmottakerFelles,
-                                   Kompletthetskontroller kompletthetskontroller) {
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+                                   Kompletthetskontroller kompletthetskontroller,
+                                   BehandlingRepository behandlingRepository) {
+        this.behandlingRepository = behandlingRepository;
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.dokumentmottakerFelles = dokumentmottakerFelles;
         this.kompletthetskontroller = kompletthetskontroller;
     }
@@ -40,7 +40,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
-        var åpenBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
+        var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
         var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
             .filter(b -> !b.erYtelseBehandling()).findFirst();
 
@@ -59,7 +59,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
-        var eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var eksisterendeKøetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
         var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
             .filter(b -> !b.erYtelseBehandling()).findFirst();
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc

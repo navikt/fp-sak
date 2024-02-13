@@ -8,11 +8,12 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -28,13 +29,15 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
     public DokumentmottakerInntektsmelding(DokumentmottakerFelles dokumentmottakerFelles,
                                            Behandlingsoppretter behandlingsoppretter,
                                            Kompletthetskontroller kompletthetskontroller,
-                                           BehandlingRepositoryProvider repositoryProvider,
+                                           BehandlingRepository behandlingRepository,
+                                           BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                            ForeldrepengerUttakTjeneste fpUttakTjeneste) {
         super(dokumentmottakerFelles,
             behandlingsoppretter,
             kompletthetskontroller,
             fpUttakTjeneste,
-            repositoryProvider);
+                behandlingRevurderingTjeneste,
+            behandlingRepository);
     }
 
     @Override
@@ -108,7 +111,7 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
     @Override
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
         var avsluttetBehandling = behandlingRepository.hentBehandling(behandlingId);
-        var harÅpenBehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).filter(b -> !b.erSaksbehandlingAvsluttet()).isPresent();
+        var harÅpenBehandling = behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).filter(b -> !b.erSaksbehandlingAvsluttet()).isPresent();
         if (harÅpenBehandling || !(erAvslag(avsluttetBehandling) || dokumentmottakerFelles.erBehandlingHenlagt(avsluttetBehandling.getId()))) {
             LOG.warn("Ignorerer forsøk på å opprette ny førstegangsbehandling fra tidligere avsluttet id={} på fagsak={}, der harÅpenBehandling={}, avsluttetHarAvslag={}, avsluttetErHenlagt={}",
                 behandlingId, fagsak.getId(), harÅpenBehandling, erAvslag(avsluttetBehandling), dokumentmottakerFelles.erBehandlingHenlagt(avsluttetBehandling.getId()));

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
@@ -107,18 +108,20 @@ class RevurderingBehandlingsresultatutlederTest {
     private BeregningsresultatRepository beregningsresultatRepository;
     @Inject
     private SvangerskapspengerUttakResultatRepository uttakRepository;
+    @Inject
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
-    private boolean erVarselOmRevurderingSendt = true;
+    private final boolean erVarselOmRevurderingSendt = true;
 
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
-    private LocalDate endringsdato = LocalDate.now().minusMonths(3);
+    private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
 
     @Mock
     private OpphørUttakTjeneste opphørUttakTjeneste;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
 
     @BeforeEach
     public void setUp() {
@@ -144,7 +147,7 @@ class RevurderingBehandlingsresultatutlederTest {
 
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider, behandlingskontrollTjeneste,
                 iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste

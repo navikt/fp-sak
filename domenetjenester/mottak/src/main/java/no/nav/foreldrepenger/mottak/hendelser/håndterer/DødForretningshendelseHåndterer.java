@@ -5,11 +5,10 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
@@ -20,19 +19,20 @@ import no.nav.foreldrepenger.mottak.hendelser.ToForeldreBarnDødTjeneste;
 @ForretningshendelsestypeRef(ForretningshendelseType.DØD)
 public class DødForretningshendelseHåndterer implements ForretningshendelseHåndterer {
 
-    private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
-    private ToForeldreBarnDødTjeneste toForeldreBarnDødTjeneste;
-    private BehandlingRepository behandlingRepository;
+    private final ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
+    private final BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
+    private final ToForeldreBarnDødTjeneste toForeldreBarnDødTjeneste;
+    private final BehandlingRepository behandlingRepository;
 
     @Inject
-    public DødForretningshendelseHåndterer(BehandlingRepositoryProvider repositoryProvider,
+    public DødForretningshendelseHåndterer(BehandlingRepository behandlingRepository,
+                                           BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                            ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles,
                                            ToForeldreBarnDødTjeneste toForeldreBarnDødTjeneste) {
         this.forretningshendelseHåndtererFelles = forretningshendelseHåndtererFelles;
-        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.toForeldreBarnDødTjeneste = toForeldreBarnDødTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
 
     }
 
@@ -54,7 +54,7 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
             if (forretningshendelseHåndtererFelles.barnFødselogDødAlleredeRegistrert(avsluttetBehandling)) {
                 return;
             }
-            var fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(avsluttetBehandling.getFagsak());
+            var fagsakPåMedforelder = behandlingRevurderingTjeneste.finnFagsakPåMedforelder(avsluttetBehandling.getFagsak());
             Optional<Behandling> behandlingPåMedforelder = fagsakPåMedforelder.isPresent()?
                 behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakPåMedforelder.get().getId())
                 : Optional.empty();
@@ -72,7 +72,7 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
 
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var køetBehandlingOpt = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
         if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)
             && køetBehandlingOpt.filter(forretningshendelseHåndtererFelles::barnFødselogDødAlleredeRegistrert).isPresent()) {
             return;

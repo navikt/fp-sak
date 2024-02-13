@@ -20,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -35,15 +37,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -91,24 +90,25 @@ class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
     public void oppsett() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        behandlingRepository = new BehandlingRepository(entityManager);
-        fagsakRepository = new FagsakRepository(entityManager);
-        var fpUttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
-        fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
-            new FagsakLåsRepository(entityManager));
-        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        fagsakRepository = repositoryProvider.getFagsakRepository();
+        var fpUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
 
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste,
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository, null, fagsakRepository);
+        var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste,
             enhetsTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter,
             mock(TomtUttakTjeneste.class));
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
-        dokumentmottaker = new DokumentmottakerEndringssøknad(repositoryProvider, dokumentmottakerFelles,
-                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
+        dokumentmottaker = new DokumentmottakerEndringssøknad(repositoryProvider.getBehandlingRepository(), dokumentmottakerFelles,
+                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 

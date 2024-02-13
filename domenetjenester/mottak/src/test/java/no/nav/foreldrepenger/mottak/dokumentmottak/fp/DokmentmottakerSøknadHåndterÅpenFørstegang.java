@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.skjæringstidspunkt.TomtUttakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
-public class DokmentmottakerSøknadHåndterÅpenFørstegang extends DokumentmottakerTestsupport {
+class DokmentmottakerSøknadHåndterÅpenFørstegang extends DokumentmottakerTestsupport {
 
     private Dokumentmottaker dokumentmottakerSøknad;
     private Behandlingsoppretter behandlingsoppretterSpied;
@@ -39,11 +39,11 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
         this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
         this.køKontroller = Mockito.mock(KøKontroller.class);
         this.dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
-            repositoryProvider,
+            repositoryProvider.getBehandlingRepository(),
             dokumentmottakerFelles,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            køKontroller, fpUttakTjeneste);
+            køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
     }
 
     @Test
@@ -54,6 +54,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
         var taskrepo = mock(ProsessTaskTjeneste.class);
         var felles = new DokumentmottakerFelles(repositoryProvider,
+                behandlingRevurderingTjeneste,
             taskrepo,
             enhetsTjeneste,
             mockHist,
@@ -61,11 +62,8 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
             behandlingsoppretterSpied,
             mock(TomtUttakTjeneste.class));
         dokumentmottakerSøknad = new DokumentmottakerSøknadDefault(
-            repositoryProvider,
-            felles,
-                behandlingsoppretterSpied,
-            kompletthetskontroller,
-            køKontroller, fpUttakTjeneste);
+            repositoryProvider.getBehandlingRepository(), felles, behandlingsoppretterSpied, kompletthetskontroller, køKontroller, fpUttakTjeneste,
+                behandlingRevurderingTjeneste);
         var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
         Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).oppdaterBehandlingViaHenleggelse(Mockito.any(),  Mockito.any());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());

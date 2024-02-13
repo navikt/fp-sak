@@ -3,11 +3,12 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -20,18 +21,19 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøknad {
 
     @Inject
-    public DokumentmottakerSøknadEngangsstønad(BehandlingRepositoryProvider repositoryProvider,
+    public DokumentmottakerSøknadEngangsstønad(BehandlingRepository behandlingRepository,
                                                DokumentmottakerFelles dokumentmottakerFelles,
                                                Behandlingsoppretter behandlingsoppretter,
                                                Kompletthetskontroller kompletthetskontroller,
                                                KøKontroller køKontroller,
-                                               ForeldrepengerUttakTjeneste fpUttakTjeneste) {
-        super(repositoryProvider,
+                                               ForeldrepengerUttakTjeneste fpUttakTjeneste,
+                                               BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
+        super(behandlingRepository,
             dokumentmottakerFelles,
             behandlingsoppretter,
             kompletthetskontroller,
             køKontroller,
-            fpUttakTjeneste);
+            fpUttakTjeneste, behandlingRevurderingTjeneste);
     }
 
     @Override

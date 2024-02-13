@@ -57,14 +57,15 @@ public class VurderOpphørAvYtelser {
     public VurderOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                  StønadsperiodeTjeneste stønadsperiodeTjeneste,
                                  ProsessTaskTjeneste taskTjeneste,
-                                 FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+                                 FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+                                 FamilieHendelseRepository familieHendelseRepository) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
         this.taskTjeneste = taskTjeneste;
         this.stønadsperiodeTjeneste = stønadsperiodeTjeneste;
-        this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
+        this.familieHendelseRepository = familieHendelseRepository;
     }
 
     VurderOpphørAvYtelser() {

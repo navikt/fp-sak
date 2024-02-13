@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandlingslager.behandling.repository;
+package no.nav.foreldrepenger.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,7 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -22,35 +23,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest {
+class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FagsakRepository fagsakRepository;
 
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
-        behandlingRepository = new BehandlingRepository(entityManager);
-        var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-        var fagsakLåsRepository = new FagsakLåsRepository(entityManager);
-        var fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository, fagsakLåsRepository);
-        var søknadRepository = new SøknadRepository(entityManager, behandlingRepository);
-        var behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
-        behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager,
-            behandlingRepository, fagsakRelasjonRepository, søknadRepository, behandlingLåsRepository);
-        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
-        fagsakRepository = new FagsakRepository(entityManager);
+        var behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(behandlingRepositoryProvider.getFagsakRelasjonRepository(), null,
+            behandlingRepositoryProvider.getFagsakRepository());
+        behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(behandlingRepositoryProvider, fagsakRelasjonTjeneste);
+        behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Test
@@ -80,7 +75,7 @@ class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest {
         behandlingRepository.lagreOgClear(nyRevurderingsBehandling, behandlingRepository.taSkriveLås(nyRevurderingsBehandling));
 
         var revurderingsBehandlingId = revurderingsBehandling.getId();
-        var result = behandlingRevurderingRepository.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(fagsakId);
+        var result = behandlingRevurderingTjeneste.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(fagsakId);
         assertThat(result).isNotEmpty();
         result.forEach(r -> assertThat(getBehandlingsresultat(r).getBehandlingResultatType()).isEqualTo(BehandlingResultatType.HENLAGT_FEILOPPRETTET));
         assertThat(result).anyMatch(r -> r.getId().equals(revurderingsBehandlingId));

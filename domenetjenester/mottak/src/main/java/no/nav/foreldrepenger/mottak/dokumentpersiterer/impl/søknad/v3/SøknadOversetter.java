@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -38,8 +39,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Oppgit
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.Innsendingsvalg;
@@ -144,7 +143,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private MedlemskapRepository medlemskapRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private DatavarehusTjeneste datavarehusTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
@@ -153,7 +152,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private AnnenPartOversetter annenPartOversetter;
 
     @Inject
-    public SøknadOversetter(BehandlingRepositoryProvider repositoryProvider,
+    public SøknadOversetter(FagsakRepository fagsakRepository,
+                            BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                             BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                             VirksomhetTjeneste virksomhetTjeneste,
                             InntektArbeidYtelseTjeneste iayTjeneste,
@@ -169,9 +169,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         this.ytelsesFordelingRepository = grunnlagRepositoryProvider.getYtelsesFordelingRepository();
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
-        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.datavarehusTjeneste = datavarehusTjeneste;
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
+        this.fagsakRepository = fagsakRepository;
         this.svangerskapspengerRepository = grunnlagRepositoryProvider.getSvangerskapspengerRepository();
         this.søknadDataFraTidligereVedtakTjeneste = søknadDataFraTidligereVedtakTjeneste;
         this.annenPartOversetter = annenPartOversetter;
@@ -237,7 +237,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         //Kopier og oppdater søknadsfelter.
         var søknadBuilder = kopierSøknad(behandling);
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, gjelderFra);
-        var henlagteBehandlingerEtterInnvilget = behandlingRevurderingRepository.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(
+        var henlagteBehandlingerEtterInnvilget = behandlingRevurderingTjeneste.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(
             behandling.getFagsakId());
         if (!henlagteBehandlingerEtterInnvilget.isEmpty()) {
             søknadBuilder.medSøknadsdato(

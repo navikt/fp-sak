@@ -80,7 +80,7 @@ class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         fagsakRepository = new FagsakRepository(entityManager);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
             repositoryProvider.getFagsakRepository());
-        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, stønadsperiodeTjeneste, taskTjeneste, fagsakRelasjonTjeneste);
+        vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, stønadsperiodeTjeneste, taskTjeneste, fagsakRelasjonTjeneste, familieHendelseRepository);
     }
 
     @Test

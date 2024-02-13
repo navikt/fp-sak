@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandlingslager.behandling.repository;
+package no.nav.foreldrepenger.behandling;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -15,41 +15,36 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 
 @ApplicationScoped
-public class BehandlingRevurderingRepository {
+public class BehandlingRevurderingTjeneste {
 
     private static final String AVSLUTTET_KEY = "avsluttet";
 
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private SøknadRepository søknadRepository;
     private BehandlingLåsRepository behandlingLåsRepository;
 
-    BehandlingRevurderingRepository() {
+    BehandlingRevurderingTjeneste() {
     }
 
     @Inject
-    public BehandlingRevurderingRepository(EntityManager entityManager,
-                                           BehandlingRepository behandlingRepository,
-                                           FagsakRelasjonRepository fagsakRelasjonRepository,
-                                           SøknadRepository søknadRepository,
-                                           BehandlingLåsRepository behandlingLåsRepository) {
+    public BehandlingRevurderingTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
+                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
 
-        this.entityManager = Objects.requireNonNull(entityManager, "entityManager");
-        this.behandlingRepository = Objects.requireNonNull(behandlingRepository);
-        this.fagsakRelasjonRepository = Objects.requireNonNull(fagsakRelasjonRepository);
-        this.søknadRepository = Objects.requireNonNull(søknadRepository);
-        this.behandlingLåsRepository = Objects.requireNonNull(behandlingLåsRepository);
-    }
-
-    EntityManager getEntityManager() {
-        return entityManager;
+        this.entityManager = Objects.requireNonNull(behandlingRepositoryProvider.getEntityManager(), "entityManager");
+        this.behandlingRepository = Objects.requireNonNull(behandlingRepositoryProvider.getBehandlingRepository());
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.søknadRepository = Objects.requireNonNull(behandlingRepositoryProvider.getSøknadRepository());
+        this.behandlingLåsRepository = Objects.requireNonNull(behandlingRepositoryProvider.getBehandlingLåsRepository());
     }
 
     /**
@@ -85,7 +80,7 @@ public class BehandlingRevurderingRepository {
     }
 
     private List<Long> finnHenlagteBehandlingerEtter(Long fagsakId, Behandling sisteInnvilgede) {
-        var query = getEntityManager().createQuery("""
+        var query = entityManager.createQuery("""
             SELECT b.id FROM Behandling b WHERE b.fagsak.id=:fagsakId
              AND b.behandlingType=:type
              AND b.opprettetTidspunkt >= :etterTidspunkt
@@ -120,7 +115,7 @@ public class BehandlingRevurderingRepository {
     private List<Behandling> finnÅpenogKøetYtelsebehandling(Long fagsakId) {
         Objects.requireNonNull(fagsakId, "fagsakId");
 
-        var query = getEntityManager().createQuery("""
+        var query = entityManager.createQuery("""
             SELECT b.id from Behandling b
             where fagsak.id=:fagsakId
              and status not in (:avsluttet)
@@ -148,7 +143,7 @@ public class BehandlingRevurderingRepository {
     }
 
     public Optional<Fagsak> finnFagsakPåMedforelder(Fagsak fagsak) {
-        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).flatMap(fr -> fr.getRelatertFagsak(fagsak));
+        return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).flatMap(fr -> fr.getRelatertFagsak(fagsak));
     }
 
     public Optional<Behandling> finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(Fagsak fagsak) {

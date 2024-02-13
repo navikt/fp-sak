@@ -3,10 +3,9 @@ package no.nav.foreldrepenger.mottak.hendelser.håndterer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
@@ -16,14 +15,14 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 @ForretningshendelsestypeRef(ForretningshendelseType.UTFLYTTING)
 public class UtflyttingForretningshendelseHåndterer implements ForretningshendelseHåndterer {
 
-    private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private final ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
+    private final BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @Inject
-    public UtflyttingForretningshendelseHåndterer(BehandlingRepositoryProvider repositoryProvider,
+    public UtflyttingForretningshendelseHåndterer(BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                                   ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles) {
         this.forretningshendelseHåndtererFelles = forretningshendelseHåndtererFelles;
-        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
 
     }
 
@@ -39,7 +38,7 @@ public class UtflyttingForretningshendelseHåndterer implements Forretningshende
 
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var køetBehandlingOpt = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
         forretningshendelseHåndtererFelles.håndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
     }
 }

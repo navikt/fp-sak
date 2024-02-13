@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -33,7 +33,7 @@ public class BehandlingFlytkontroll {
 
     private static final BehandlingStegType SYNK_STEG = StartpunktType.UTTAKSVILKÅR.getBehandlingSteg();
 
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -43,12 +43,12 @@ public class BehandlingFlytkontroll {
     }
 
     @Inject
-    public BehandlingFlytkontroll(BehandlingRevurderingRepository behandlingRevurderingRepository,
+    public BehandlingFlytkontroll(BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                   BehandlingRepository behandlingRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.behandlingRevurderingRepository = behandlingRevurderingRepository;
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
@@ -56,7 +56,7 @@ public class BehandlingFlytkontroll {
     // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen berørt eller behandling som er i Uttak
     public boolean uttaksProsessenSkalVente(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var annenpartFagsak = behandlingRevurderingRepository.finnFagsakPåMedforelder(behandling.getFagsak()).orElse(null);
+        var annenpartFagsak = behandlingRevurderingTjeneste.finnFagsakPåMedforelder(behandling.getFagsak()).orElse(null);
         if (annenpartFagsak == null) {
             return false;
         }
@@ -84,7 +84,7 @@ public class BehandlingFlytkontroll {
     // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen revurdering
     // (inkl berørt) eller førstegang som er i Uttak
     public boolean nyRevurderingSkalVente(Fagsak fagsak) {
-        var annenpartFagsak = behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak).orElse(null);
+        var annenpartFagsak = behandlingRevurderingTjeneste.finnFagsakPåMedforelder(fagsak).orElse(null);
         if (annenpartFagsak == null) {
             return false;
         }
