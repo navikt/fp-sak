@@ -408,7 +408,7 @@ class JusterFordelingTjenesteTest {
         assertThat(justertMødrekvote.getFom()).isEqualTo(fødsel);
         assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvote.getTom());
 
-        //Skal starte på fredag
+        // Fellesperioden skal ikke justeres til venstre. Siden fellesperiode starter i utgangspunktet på en lørdag så endres fom til førstkommende mandag
         assertThat(justertFellesperiode.getFom()).isEqualTo(Virkedager.justerHelgTilMandag(fellesperiode.getFom()));
         assertThat(justertFellesperiode.getTom()).isEqualTo(fellesperiode.getTom());
     }
@@ -476,7 +476,7 @@ class JusterFordelingTjenesteTest {
 
         var justertMødrekvote = justertePerioder.get(1);
         //mandag til tirsag
-        assertThat(justertMødrekvote.getFom()).isEqualTo(Virkedager.justerHelgTilMandag(justertFamilehendelse)); // hvorfor plus 2 dageR
+        assertThat(justertMødrekvote.getFom()).isEqualTo(Virkedager.justerHelgTilMandag(justertFamilehendelse));
         assertThat(justertMødrekvote.getTom()).isEqualTo(mødrekvote.getTom()); // Innenfor ukene forbehold mor etter fødsel
 
         var justertFellesperiode = justertePerioder.get(2);
