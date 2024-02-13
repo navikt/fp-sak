@@ -41,6 +41,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -72,11 +73,11 @@ class VurderFagsystemTjenesteImplTest {
     @Mock
     private FagsakRepository fagsakRepositoryMock;
 
-    private Fagsak fagsakFødselFP = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), null, ÅPEN_SAKSNUMMER_2);
-    private Fagsak fagsakAnnenPartFP = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
-    private Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
+    private final Fagsak fagsakFødselFP = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), null, ÅPEN_SAKSNUMMER_2);
+    private final Fagsak fagsakAnnenPartFP = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+    private final Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
 
-    private Fagsak fagsakSpyFP = spy(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker()));
+    private final Fagsak fagsakSpyFP = spy(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker()));
 
     @Mock
     private MottatteDokumentTjeneste mottatteDokumentTjenesteMock;
@@ -93,7 +94,10 @@ class VurderFagsystemTjenesteImplTest {
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
-        fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, null, null);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, null, null,
+            fagsakRelasjonTjeneste);
         fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtils);
     }

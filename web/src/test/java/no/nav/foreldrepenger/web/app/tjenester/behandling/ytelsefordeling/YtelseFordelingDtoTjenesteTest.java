@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -205,7 +206,9 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private YtelseFordelingDtoTjeneste tjeneste() {
-        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, repositoryProvider.getFagsakRelasjonRepository(),
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, fagsakRelasjonTjeneste,
             uføretrygdRepository, uttakTjeneste);
     }
 

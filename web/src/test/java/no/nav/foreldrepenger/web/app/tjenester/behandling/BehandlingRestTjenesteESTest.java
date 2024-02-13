@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -71,9 +72,12 @@ class BehandlingRestTjenesteESTest {
             repositoryProvider.getSøknadRepository(), null);
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, behandlingDokumentRepository,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), mock(TotrinnTjeneste.class), null, null);
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), mock(TotrinnTjeneste.class), null, null,
+            fagsakRelasjonTjeneste);
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,

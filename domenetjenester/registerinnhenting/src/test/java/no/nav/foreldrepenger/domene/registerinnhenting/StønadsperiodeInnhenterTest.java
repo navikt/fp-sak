@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -57,7 +58,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @Mock
@@ -83,9 +83,12 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
     public void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
+        var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
         fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        stønadsperioderInnhenter = new StønadsperioderInnhenter(repositoryProvider, grunnlagRepositoryProvider, familieHendelseTjeneste, stønadsperiodeTjeneste, skjæringstidspunktTjeneste);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        stønadsperioderInnhenter = new StønadsperioderInnhenter(repositoryProvider, grunnlagRepositoryProvider, familieHendelseTjeneste,
+            stønadsperiodeTjeneste, skjæringstidspunktTjeneste, fagsakRelasjonTjeneste);
     }
 
     /*

@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -87,7 +88,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    private Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
+    private final Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
 
     @BeforeEach
     public void setUp() {
@@ -103,8 +104,10 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
                 .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
         var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste,
-            skjæringstidspunktTjeneste);
+            skjæringstidspunktTjeneste, fagsakRelasjonTjeneste);
         var tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtil);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, fellesUtil, new UnitTestLookupInstanceImpl<>(tjenesteFP));
     }

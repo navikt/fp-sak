@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -66,16 +67,13 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
     private static final String ANSVARLIG_SAKSBEHANDLER = "fornavn etternavn";
     private static final Long OPPDRAG_FAGSYSTEM_ID = 44L;
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
-    private static LocalDateTime VEDTAK_DATO = LocalDateTime.parse("2017-10-11T08:00");
+    private static final LocalDateTime VEDTAK_DATO = LocalDateTime.parse("2017-10-11T08:00");
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
 
     private DvhVedtakXmlTjeneste dvhVedtakXmlTjenesteES;
-
-    private DvhPersonopplysningXmlTjenesteImpl personopplysningXmlTjenesteEngangsstønad;
-    private VedtakXmlTjeneste vedtakXmlTjeneste;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -108,9 +106,11 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
     @BeforeEach
     public void oppsett() {
         var hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
-        vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
-        personopplysningXmlTjenesteEngangsstønad = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
+        var personopplysningXmlTjenesteEngangsstønad = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
                 familieHendelseRepository,
                 vergeRepository,
                 medlemskapRepository,

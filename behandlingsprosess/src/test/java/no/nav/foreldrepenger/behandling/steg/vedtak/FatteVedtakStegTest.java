@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -34,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -47,13 +47,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -101,13 +99,7 @@ class FatteVedtakStegTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private BehandlingRepository behandlingRepository;
-    @Inject
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-    @Inject
     private LegacyESBeregningRepository beregningRepository;
-    @Inject
-    private BehandlingVedtakRepository behandlingVedtakRepository;
     @Inject
     private KlageRepository klageRepository;
     @Inject
@@ -115,11 +107,11 @@ class FatteVedtakStegTest {
 
     private FatteVedtakSteg fatteVedtakSteg;
 
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     private BehandlingVedtakTjeneste behandlingVedtakTjeneste;
 
-    private KompletthetsjekkerProvider kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
+    private final KompletthetsjekkerProvider kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
 
     @BeforeEach
     public void oppsett(EntityManager entityManager) {
@@ -132,7 +124,9 @@ class FatteVedtakStegTest {
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
 
-        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(
                 poXmlFelles, repositoryProvider, personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
@@ -166,7 +160,7 @@ class FatteVedtakStegTest {
         return new BehandlingsresultatXmlTjeneste(
                 new UnitTestLookupInstanceImpl<>(beregningsresultatXmlTjeneste),
                 new UnitTestLookupInstanceImpl<>(vilkårsgrunnlagXmlTjeneste),
-                behandlingVedtakRepository,
+                repositoryProvider.getBehandlingVedtakRepository(),
                 klageRepository,
                 ankeRepository,
                 new VilkårResultatRepository(em));
@@ -195,7 +189,7 @@ class FatteVedtakStegTest {
         fatteVedtakSteg.utførSteg(kontekst);
 
         // Assert
-        var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(kontekst.getBehandlingId());
+        var behandlingVedtakOpt = repositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(kontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         var behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -209,7 +203,7 @@ class FatteVedtakStegTest {
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
         oppdaterMedVedtak(kontekst);
-        var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var originalBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
 
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
@@ -224,7 +218,7 @@ class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        var behandlingVedtakOpt = behandlingVedtakRepository
+        var behandlingVedtakOpt = repositoryProvider.getBehandlingVedtakRepository()
                 .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         var behandlingVedtak = behandlingVedtakOpt.get();
@@ -241,7 +235,7 @@ class FatteVedtakStegTest {
                 Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, true, originalAntallBarn);
         oppdaterMedVedtak(kontekst);
-        var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var originalBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
 
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
@@ -256,7 +250,7 @@ class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, faktiskAntallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        var behandlingVedtakOpt = behandlingVedtakRepository
+        var behandlingVedtakOpt = repositoryProvider.getBehandlingVedtakRepository()
                 .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         var behandlingVedtak = behandlingVedtakOpt.get();
@@ -271,7 +265,7 @@ class FatteVedtakStegTest {
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
         oppdaterMedVedtak(kontekst);
-        var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var originalBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
 
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
@@ -288,7 +282,7 @@ class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        var behandlingVedtakOpt = behandlingVedtakRepository
+        var behandlingVedtakOpt = repositoryProvider.getBehandlingVedtakRepository()
                 .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         var behandlingVedtak = behandlingVedtakOpt.get();
@@ -302,8 +296,8 @@ class FatteVedtakStegTest {
     }
 
     private BehandlingLås lagreBehandling(Behandling behandling) {
-        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
-        behandlingRepository.lagre(behandling, behandlingLås);
+        var behandlingLås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
+        repositoryProvider.getBehandlingRepository().lagre(behandling, behandlingLås);
         return behandlingLås;
     }
 
@@ -313,7 +307,7 @@ class FatteVedtakStegTest {
         var kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, false, antallBarn);
         oppdaterMedVedtak(kontekst);
-        var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var originalBehandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
 
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
@@ -328,7 +322,7 @@ class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        var behandlingVedtakOpt = behandlingVedtakRepository
+        var behandlingVedtakOpt = repositoryProvider.getBehandlingVedtakRepository()
                 .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         var behandlingVedtak = behandlingVedtakOpt.get();
@@ -351,7 +345,9 @@ class FatteVedtakStegTest {
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
                 personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
-        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,
                 skjæringstidspunktTjeneste);
         YtelseXmlTjeneste ytelseXmlTjeneste = new YtelseXmlTjenesteImpl(beregningRepository);
@@ -375,7 +371,7 @@ class FatteVedtakStegTest {
                 List.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
 
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
         behandling.setToTrinnsBehandling();
 
         // Legg til data i totrinsvurdering.
@@ -406,7 +402,9 @@ class FatteVedtakStegTest {
         var søknadRepository = mock(SøknadRepository.class);
         var personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
-        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+            repositoryProvider.getFagsakRepository());
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(ArgumentMatchers.any())).thenReturn(skjæringstidspunkt);
@@ -439,7 +437,7 @@ class FatteVedtakStegTest {
                         AksjonspunktDefinisjon.FORESLÅ_VEDTAK));
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
 
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
         behandling.setToTrinnsBehandling();
 
         AksjonspunktTestSupport.setToTrinnsBehandlingKreves(behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL));
@@ -467,7 +465,7 @@ class FatteVedtakStegTest {
 
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.TILBAKEFØRT_TIL_AKSJONSPUNKT);
 
-        behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        behandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
         var oppdatertAvklarFødsel = behandling.getAksjonspunktMedDefinisjonOptional(SJEKK_MANGLENDE_FØDSEL);
         assertThat(oppdatertAvklarFødsel).isPresent();
         assertThat(oppdatertAvklarFødsel.get().getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET);
@@ -492,7 +490,7 @@ class FatteVedtakStegTest {
         fatteVedtakSteg.utførSteg(kontekst);
 
         // Assert
-        var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(kontekst.getBehandlingId());
+        var behandlingVedtakOpt = repositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(kontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         var behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -512,16 +510,16 @@ class FatteVedtakStegTest {
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
                 .lagre(repositoryProvider);
         var beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
-        var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+        var bres = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
         var beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
-        beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
+        beregningRepository.lagre(beregningResultat, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         var fagsak = behandling.getFagsak();
-        return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
+        return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
     }
 
     private void oppdaterMedVedtak(BehandlingskontrollKontekst kontekst) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId());
         var behandlingsresultat = getBehandlingsresultat(behandling);
         var vedtakResultatType = behandlingsresultat.getBehandlingResultatType()
                 .equals(BehandlingResultatType.INNVILGET) ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG;
@@ -533,7 +531,7 @@ class FatteVedtakStegTest {
                 .medBeslutning(false)
                 .medVedtakResultatType(vedtakResultatType).build();
 
-        behandlingVedtakRepository.lagre(behandlingVedtak, kontekst.getSkriveLås());
+        repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, kontekst.getSkriveLås());
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
@@ -541,6 +539,7 @@ class FatteVedtakStegTest {
     }
 
     private void oppdaterMedBehandlingsresultat(BehandlingskontrollKontekst kontekst, boolean innvilget, int antallBarn) {
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         if (innvilget) {
@@ -551,7 +550,7 @@ class FatteVedtakStegTest {
 
             var lås = kontekst.getSkriveLås();
             behandlingRepository.lagre(vilkårResultat, lås);
-            var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+            var bres = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId()).orElse(null);
             var beregningResultat = LegacyESBeregningsresultat.builder()
                     .medBeregning(new LegacyESBeregning(48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()))
                     .buildFor(behandling, bres);

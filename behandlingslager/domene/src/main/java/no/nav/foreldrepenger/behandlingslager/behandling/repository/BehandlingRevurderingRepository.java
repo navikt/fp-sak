@@ -35,11 +35,11 @@ public class BehandlingRevurderingRepository {
     }
 
     @Inject
-    public BehandlingRevurderingRepository( EntityManager entityManager,
-                                               BehandlingRepository behandlingRepository,
-                                               FagsakRelasjonRepository fagsakRelasjonRepository,
-                                               SøknadRepository søknadRepository,
-                                               BehandlingLåsRepository behandlingLåsRepository) {
+    public BehandlingRevurderingRepository(EntityManager entityManager,
+                                           BehandlingRepository behandlingRepository,
+                                           FagsakRelasjonRepository fagsakRelasjonRepository,
+                                           SøknadRepository søknadRepository,
+                                           BehandlingLåsRepository behandlingLåsRepository) {
 
         this.entityManager = Objects.requireNonNull(entityManager, "entityManager");
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository);

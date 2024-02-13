@@ -49,15 +49,13 @@ class EngangsstønadReguleringTaskTest {
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider;
-
     private LegacyESBeregningRepository legacyESBeregningRepository;
 
     private EngangsstønadReguleringTask task;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
         FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new EngangsstønadReguleringTask(repositoryProvider, familieHendelseTjeneste, tpsFamilieTjenesteMock, behandlendeEnhetTjeneste,

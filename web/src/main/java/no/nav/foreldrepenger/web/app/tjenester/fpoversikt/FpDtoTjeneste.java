@@ -14,6 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -43,7 +43,7 @@ public class FpDtoTjeneste {
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
@@ -58,9 +58,10 @@ public class FpDtoTjeneste {
                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                          UføretrygdRepository uføretrygdRepository,
-                         DtoTjenesteFelles felles) {
+                         DtoTjenesteFelles felles,
+                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
@@ -171,7 +172,7 @@ public class FpDtoTjeneste {
                     var oppgittFordeling = ytelseFordelingAggregat.getOppgittFordeling();
                     return oppgittFordeling.getPerioder().stream().map(FpDtoTjeneste::tilDto).collect(Collectors.toSet());
                 }).orElse(Set.of());
-                var oppgittDekingsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getDekningsgrad);
+                var oppgittDekingsgrad = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getDekningsgrad);
                 return new FpSak.Søknad(status, md.getMottattTidspunkt(), perioder, oppgittDekingsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
             })
             .filter(s -> !s.perioder().isEmpty()) //Filtrerer ut søknaden som ikke er registert i YF. Feks behandling står i papir punching
@@ -289,7 +290,7 @@ public class FpDtoTjeneste {
 
     private FpSak.Vedtak tilDto(BehandlingVedtak vedtak, Fagsak fagsak) {
         var uttaksperioder = finnUttaksperioder(vedtak.getBehandlingsresultat().getBehandlingId());
-        var dekningsgrad = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getGjeldendeDekningsgrad);
+        var dekningsgrad = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getGjeldendeDekningsgrad);
         return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
     }
 

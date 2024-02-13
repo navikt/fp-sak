@@ -13,13 +13,13 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Søknadsfrister;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
@@ -54,7 +54,7 @@ public class UttakXmlTjeneste {
     private ObjectFactory uttakObjectFactory;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     public UttakXmlTjeneste() {
@@ -62,10 +62,12 @@ public class UttakXmlTjeneste {
     }
 
     @Inject
-    public UttakXmlTjeneste(BehandlingRepositoryProvider repositoryProvider, ForeldrepengerUttakTjeneste uttakTjeneste) {
+    public UttakXmlTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                            ForeldrepengerUttakTjeneste uttakTjeneste,
+                            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.uttakObjectFactory = new ObjectFactory();
         this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.uttakTjeneste = uttakTjeneste;
     }
@@ -120,7 +122,7 @@ public class UttakXmlTjeneste {
     private LocalDateTimeline<RettighetType> utledRettighetTimeline(Behandling behandling, ForeldrepengerUttak uttak) {
         var yfa = ytelsesFordelingRepository.hentAggregat(behandling.getId());
 
-        var konto = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+        var konto = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak())
             .map(fr -> fr.getGjeldendeStønadskontoberegning().orElseThrow().getStønadskontoer())
             .orElseThrow();
         var rettighetSegmenter = uttak.getGjeldendePerioder()
@@ -217,7 +219,7 @@ public class UttakXmlTjeneste {
     }
 
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         if(fagsakRelasjon.isPresent()){
             var stønadskontoerOptional = fagsakRelasjon.get()
                 .getGjeldendeStønadskontoberegning()

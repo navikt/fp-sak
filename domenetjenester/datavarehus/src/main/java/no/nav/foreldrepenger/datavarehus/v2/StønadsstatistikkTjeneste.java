@@ -29,6 +29,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -60,7 +61,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
@@ -91,7 +91,7 @@ public class StønadsstatistikkTjeneste {
     private static final LocalDateTime SVP_ALLTID_100_PROSENT = LocalDate.of(2023, 3, 24).atStartOfDay();
 
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakTjeneste fagsakTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
@@ -112,7 +112,7 @@ public class StønadsstatistikkTjeneste {
 
     @Inject
     public StønadsstatistikkTjeneste(BehandlingRepository behandlingRepository,
-                                     FagsakRelasjonRepository fagsakRelasjonRepository,
+                                     FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                      FagsakTjeneste fagsakTjeneste,
                                      BehandlingVedtakRepository behandlingVedtakRepository,
                                      FagsakEgenskapRepository fagsakEgenskapRepository,
@@ -131,7 +131,7 @@ public class StønadsstatistikkTjeneste {
                                      SøknadRepository søknadRepository,
                                      MottatteDokumentRepository mottatteDokumentRepository) {
         this.behandlingRepository = behandlingRepository;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
@@ -316,7 +316,7 @@ public class StønadsstatistikkTjeneste {
     }
 
     private AnnenForelder utledAnnenForelder(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
-        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
             .or(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
                 .flatMap(apaid -> finnEngangsstønadSak(apaid, familiehendelse)))
@@ -410,7 +410,7 @@ public class StønadsstatistikkTjeneste {
             return Optional.empty();
         }
         var fagsak = fagsakTjeneste.finnEksaktFagsak(behandling.getFagsakId());
-        var fr = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
+        var fr = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         return fr.map(fagsakRelasjon -> {
             var gjeldendeStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
