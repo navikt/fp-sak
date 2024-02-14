@@ -40,13 +40,13 @@ public class VarselRevurderingTjeneste {
     }
 
     public void håndterVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
-        var brevBestilling = BrevBestilling.builder()
+        var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(ref.behandlingUuid())
             .medDokumentMal(DokumentMalType.VARSEL_OM_REVURDERING)
             .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET)
             .medFritekst(adapter.getFritekst())
             .build();
-        dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
+        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);
         settBehandlingPaVent(ref, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
     }
 

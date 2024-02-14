@@ -6,7 +6,6 @@ import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -59,17 +58,15 @@ public class DokumentBehandlingTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
 
-    public void loggDokumentBestilt(Behandling behandling,
-                                    DokumentMalType dokumentMalTypeKode,
-                                    UUID bestillingUuid,
-                                    DokumentMalType opprinneligDokumentMal) {
+    public void loggDokumentBestilt(Behandling behandling, DokumentBestilling bestilling) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
-        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder().medBehandlingDokument(behandlingDokument)
-            .medDokumentMalType(dokumentMalTypeKode.getKode())
-            .medBestillingUuid(bestillingUuid)
-            .medOpprinneligDokumentMal(opprinneligDokumentMal == null ? null : opprinneligDokumentMal.getKode())
+        behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(bestilling.dokumentMal().getKode())
+            .medBestillingUuid(bestilling.bestillingUuid())
+            .medOpprinneligDokumentMal(Optional.ofNullable(bestilling.journalførSom()).map(DokumentMalType::getKode).orElse(null))
             .build());
 
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
@@ -125,25 +122,20 @@ public class DokumentBehandlingTjeneste {
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
             }
-            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal(), kvittering.malType());
-            lagreHistorikk(behandling, dokumentMal , journalpostId, kvittering.dokumentId());
+            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal());
+            lagreHistorikk(behandling, dokumentMal, journalpostId, kvittering.dokumentId());
         } else {
             LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid);
         }
     }
 
     private void lagreHistorikk(Behandling behandling, DokumentMalType dokumentMalBrukt, String journalpostId, String dokumentId) {
-        var historikkInnslag = HistorikkFraBrevKvitteringMapper
+        var historikkInnslag = HistorikkFraDokumentKvitteringMapper
             .opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId, behandling.getId(), behandling.getFagsakId());
         historikkRepository.lagre(historikkInnslag);
     }
 
-    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal, DokumentMalType malFraKvittering) {
-        // Midlertidig inntil formidling sender mal i kvittering.
-        if (malFraKvittering != null) {
-            LOG.info("Mal levert med kvittering: {}.", malFraKvittering);
-            return malFraKvittering;
-        }
+    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal) {
         var dokumentMal = DokumentMalType.fraKode(dokumentMalType);
         if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) && opprineligDokumentMal != null) {
             return DokumentMalType.fraKode(opprineligDokumentMal);

@@ -10,9 +10,9 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.vedtak.exception.TekniskException;
 
-class HistorikkFraBrevKvitteringMapper {
+class HistorikkFraDokumentKvitteringMapper {
 
-    private HistorikkFraBrevKvitteringMapper() {
+    private HistorikkFraDokumentKvitteringMapper() {
     }
 
     static Historikkinnslag opprettHistorikkInnslag(DokumentMalType dokumentMal, String journalpostId, String dokumentId, long behandlingId, long fagsakId) {

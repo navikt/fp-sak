@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
@@ -64,12 +64,12 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 
-    private BrevBestilling lagBrevBestilling(Behandling behandling) {
+    private DokumentBestilling lagBrevBestilling(Behandling behandling) {
         var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
         var begrunnelse = ap.getBegrunnelse();
         var fritekst = !nullOrEmpty(begrunnelse) ? begrunnelse.trim() : null;
 
-        return BrevBestilling.builder()
+        return DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
             .medDokumentMal(DokumentMalType.INNSYN_SVAR)
             .medFritekst(fritekst)

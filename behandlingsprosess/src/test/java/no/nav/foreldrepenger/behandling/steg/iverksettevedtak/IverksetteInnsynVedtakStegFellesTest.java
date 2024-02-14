@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 
@@ -34,7 +34,7 @@ class IverksetteInnsynVedtakStegFellesTest {
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
-        var argumentCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
+        var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
         verify(dokumentBestillerTjeneste, times(1))
                 .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
     }
@@ -51,7 +51,7 @@ class IverksetteInnsynVedtakStegFellesTest {
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
-        var argumentCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
+        var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
         verify(dokumentBestillerTjeneste, times(1))
                 .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 
@@ -71,7 +71,7 @@ class IverksetteInnsynVedtakStegFellesTest {
                 repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         steg.utførSteg(kontekst);
 
-        var argumentCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
+        var argumentCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
         verify(dokumentBestillerTjeneste, times(1))
                 .bestillDokument(argumentCaptor.capture(), any(HistorikkAktør.class));
 

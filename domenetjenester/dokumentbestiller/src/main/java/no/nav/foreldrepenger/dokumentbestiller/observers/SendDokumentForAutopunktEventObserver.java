@@ -17,18 +17,18 @@ import no.nav.foreldrepenger.dokumentbestiller.autopunkt.SendBrevForAutopunkt;
  * Observerer Aksjonspunkt og sender brev ved behov
  */
 @ApplicationScoped
-public class SendBrevForAutopunktEventObserver {
+public class SendDokumentForAutopunktEventObserver {
 
     BehandlingRepository behandlingRepository;
     SendBrevForAutopunkt sendBrevForAutopunkt;
 
-    public SendBrevForAutopunktEventObserver() {
+    public SendDokumentForAutopunktEventObserver() {
         //CDI
     }
 
     @Inject
-    public SendBrevForAutopunktEventObserver(BehandlingRepository behandlingRepository,
-                                             SendBrevForAutopunkt sendBrevForAutopunkt) {
+    public SendDokumentForAutopunktEventObserver(BehandlingRepository behandlingRepository,
+                                                 SendBrevForAutopunkt sendBrevForAutopunkt) {
         this.behandlingRepository = behandlingRepository;
         this.sendBrevForAutopunkt = sendBrevForAutopunkt;
     }

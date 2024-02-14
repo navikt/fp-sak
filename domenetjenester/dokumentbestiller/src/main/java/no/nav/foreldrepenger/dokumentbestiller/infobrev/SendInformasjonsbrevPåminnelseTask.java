@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -77,11 +77,11 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
 
         var eksisterendeBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
         if (eksisterendeBehandling.isPresent() && !eksisterendeBehandling.get().erAvsluttet()) {
-            var brevBestilling = BrevBestilling.builder()
+            var dokumentBestilling = DokumentBestilling.builder()
                 .medBehandlingUuid(eksisterendeBehandling.get().getUuid())
                 .medDokumentMal(DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER)
                 .build();
-            dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
         } else {
             var behandling = opprettFørstegangsbehandlingTilInfobrev(fagsak, brukEnhet);
             behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
