@@ -106,8 +106,7 @@ class DvhVedtakXmlTjenesteEngangsstønadTest {
     @BeforeEach
     public void oppsett() {
         var hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         var personopplysningXmlTjenesteEngangsstønad = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,

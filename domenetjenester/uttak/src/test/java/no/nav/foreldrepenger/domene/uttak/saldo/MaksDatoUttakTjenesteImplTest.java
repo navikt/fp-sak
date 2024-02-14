@@ -44,8 +44,7 @@ class MaksDatoUttakTjenesteImplTest {
     private final MaksDatoUttakTjenesteImpl maksDatoUttakTjeneste;
 
     {
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
         var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(repositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
             new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()))), fagsakRelasjonTjeneste);
         maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(

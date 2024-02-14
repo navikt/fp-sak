@@ -104,8 +104,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
                 .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste,
             skjæringstidspunktTjeneste, fagsakRelasjonTjeneste);
         var tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtil);

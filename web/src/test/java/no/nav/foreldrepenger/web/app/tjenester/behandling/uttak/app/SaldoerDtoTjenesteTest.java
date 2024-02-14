@@ -105,8 +105,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         behandlingRepository = new BehandlingRepository(entityManager);
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         fpUttakRepository = uttakRepositoryProvider.getFpUttakRepository();
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider, new KontoerGrunnlagBygger(fagsakRelasjonTjeneste,
             new RettOgOmsorgGrunnlagBygger(uttakRepositoryProvider, new ForeldrepengerUttakTjeneste(fpUttakRepository))), fagsakRelasjonTjeneste);
         stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
@@ -541,12 +540,6 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(aktivitetSaldo1.get().saldo()).isEqualTo(maxDagerFP - 25);
         assertThat(aktivitetSaldo2.get().saldo()).isEqualTo(maxDagerFP - 10 * 5);
         assertThat(fpDto.saldo()).isEqualTo(maxDagerFP - 25);
-    }
-
-    private SaldoerDtoTjeneste tjeneste() {
-        return new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, stønadskontoRegelAdapter,
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), uttakTjeneste, tapteDagerFpffTjeneste,
-            new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, repositoryProvider.getFagsakRepository()));
     }
 
     @Test

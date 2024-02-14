@@ -69,8 +69,7 @@ class VurderFagsystemTjenesteImplTest {
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository(), null);
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null,
             fagsakRelasjonTjeneste);
         var svpTjeneste = new VurderFagsystemTjenesteImpl(fellesUtils, behandlingRepository, svangerskapspengerRepository);

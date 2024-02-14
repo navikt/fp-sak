@@ -42,8 +42,7 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
         var behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(behandlingRepositoryProvider.getFagsakRelasjonRepository(), null,
-            behandlingRepositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(behandlingRepositoryProvider);
         behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(behandlingRepositoryProvider, fagsakRelasjonTjeneste);
         behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
     }

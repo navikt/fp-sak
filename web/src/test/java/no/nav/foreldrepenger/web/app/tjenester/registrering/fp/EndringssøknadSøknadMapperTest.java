@@ -59,8 +59,7 @@ class EndringssøknadSøknadMapperTest {
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
     }
@@ -73,8 +72,7 @@ class EndringssøknadSøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var oppgittPeriodeMottattDatoTjeneste = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
             new FpUttakRepository(repositoryProvider.getEntityManager()), repositoryProvider.getBehandlingRepository(),

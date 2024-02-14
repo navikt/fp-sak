@@ -93,8 +93,7 @@ class ErEndringIUttakTest {
         revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
     }
 

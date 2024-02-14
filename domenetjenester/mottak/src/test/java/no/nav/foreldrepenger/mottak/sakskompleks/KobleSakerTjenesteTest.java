@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
@@ -36,28 +35,27 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @ExtendWith(MockitoExtension.class)
 class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
-    private static AktørId MOR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId MOR_AKTØR_ID = AktørId.dummy();
 
-    private static AktørId FAR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
-    private static AktørId BARN_AKTØR_ID = AktørId.dummy();
-    private static PersonIdent BARN_IDENT = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
+    private static final AktørId BARN_AKTØR_ID = AktørId.dummy();
+    private static final PersonIdent BARN_IDENT = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
     private static FødtBarnInfo BARN_FBI;
-    private static LocalDate ELDRE_BARN_FØDT = LocalDate.of(2006, 6, 6);
-    private static LocalDate BARN_FØDT = LocalDate.of(2018, 3, 3);
+    private static final LocalDate ELDRE_BARN_FØDT = LocalDate.of(2006, 6, 6);
+    private static final LocalDate BARN_FØDT = LocalDate.of(2018, 3, 3);
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private KobleSakerTjeneste kobleSakTjeneste;
 
     @BeforeEach
     public void oppsett() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         personinfoAdapter = mock(PersoninfoAdapter.class);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var famHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         kobleSakTjeneste = new KobleSakerTjeneste(repositoryProvider, personinfoAdapter, famHendelseTjeneste, fagsakRelasjonTjeneste);
     }
@@ -249,7 +247,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
         var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
-        fagsakRelasjonRepository.kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
+        fagsakRelasjonTjeneste.kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
 
         var nybehandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
 

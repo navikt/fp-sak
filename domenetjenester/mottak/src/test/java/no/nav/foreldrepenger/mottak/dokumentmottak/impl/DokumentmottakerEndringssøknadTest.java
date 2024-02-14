@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -65,7 +64,7 @@ class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
     private FagsakRepository fagsakRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @Mock
     private Behandlingsoppretter behandlingsoppretter;
@@ -93,14 +92,14 @@ class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         fagsakRepository = repositoryProvider.getFagsakRepository();
         var fpUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
 
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository, null, fagsakRepository);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste,
             enhetsTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter,
@@ -312,7 +311,7 @@ class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest {
     void skal_ikke_opprette_køet_behandling_når_alle_henlagt() {
         // Arrange - opprette fagsak uten behandling
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-            fagsakRepository, fagsakRelasjonRepository);
+            fagsakRepository, fagsakRelasjonTjeneste);
 
         // Arrange - mock tjenestekall
         var behandling = mock(Behandling.class);

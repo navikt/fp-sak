@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPar
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -58,7 +57,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @Mock
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
@@ -84,9 +83,7 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
-        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         stønadsperioderInnhenter = new StønadsperioderInnhenter(repositoryProvider, grunnlagRepositoryProvider, familieHendelseTjeneste,
             stønadsperiodeTjeneste, skjæringstidspunktTjeneste, fagsakRelasjonTjeneste);
     }
@@ -253,10 +250,10 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
         when(skjæringstidspunkt.getUtledetSkjæringstidspunkt()).thenReturn(FH_DATO.plusWeeks(34));
         when(stønadsperiodeTjeneste.stønadsperiodeStartdato(behandling.getFagsak())).thenReturn(Optional.of(FH_DATO.plusWeeks(34)));
 
-        fagsakRelasjonRepository.opprettRelasjon(gammelBehandlingMor.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonRepository.kobleFagsaker(gammelBehandlingMor.getFagsak(), behandling.getFagsak(), gammelBehandlingMor);
-        fagsakRelasjonRepository.opprettRelasjon(nyereBehandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonRepository.kobleFagsaker(nyereBehandling.getFagsak(), nyereÅpenBehandlingFar.getFagsak(), nyereBehandling);
+        fagsakRelasjonTjeneste.opprettRelasjon(gammelBehandlingMor.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.kobleFagsaker(gammelBehandlingMor.getFagsak(), behandling.getFagsak(), gammelBehandlingMor);
+        fagsakRelasjonTjeneste.opprettRelasjon(nyereBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.kobleFagsaker(nyereBehandling.getFagsak(), nyereÅpenBehandlingFar.getFagsak(), nyereBehandling);
 
         assertThat(repositoryProvider.getPersonopplysningRepository().fagsakerMedOppgittAnnenPart(MEDF_AKTØR_ID)).isNotEmpty();
 

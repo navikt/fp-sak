@@ -32,7 +32,7 @@ class Minsterett2022BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isTrue();
     }
 
@@ -50,7 +50,7 @@ class Minsterett2022BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isFalse();
     }
 
@@ -69,7 +69,7 @@ class Minsterett2022BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isFalse();
     }
 
@@ -88,7 +88,7 @@ class Minsterett2022BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isFalse();
     }
 
@@ -107,7 +107,7 @@ class Minsterett2022BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isTrue();
     }
 
@@ -126,7 +126,7 @@ class Minsterett2022BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isFalse();
     }
 
@@ -144,7 +144,7 @@ class Minsterett2022BehandlingTest {
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isFalse();
     }
 
@@ -162,7 +162,7 @@ class Minsterett2022BehandlingTest {
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
         var behandling = førstegangScenario.lagMocked();
         // Act/Assert
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         assertThat(new MinsterettBehandling2022(new MinsterettCore2022(ikraftredelse), mockprovider, fagsakRelasjonTjeneste).utenMinsterett(behandling.getId())).isFalse();
     }
 
@@ -192,7 +192,7 @@ class Minsterett2022BehandlingTest {
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.empty());
 
         var tjenesteCore = new MinsterettCore2022(ikraftredelse);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
         var tjeneste = new MinsterettBehandling2022(tjenesteCore, mockprovider, fagsakRelasjonTjeneste);
 
         // Act/Assert
@@ -219,15 +219,15 @@ class Minsterett2022BehandlingTest {
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandlingFar, Mockito.mock(BehandlingLås.class));
 
-        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        mockprovider.getFagsakRelasjonRepository().opprettRelasjon(behandlingFar.getFagsak(), Dekningsgrad._100);
-        mockprovider.getFagsakRelasjonRepository().kobleFagsaker(behandling.getFagsak(), behandlingFar.getFagsak(), behandling);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandlingFar.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.kobleFagsaker(behandling.getFagsak(), behandlingFar.getFagsak(), behandling);
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.empty());
 
 
         var tjenesteCore = new MinsterettCore2022(ikraftredelse);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(mockprovider.getFagsakRelasjonRepository(), null, mockprovider.getFagsakRepository());
         var tjeneste = new MinsterettBehandling2022(tjenesteCore, mockprovider, fagsakRelasjonTjeneste);
 
         // Act/Assert

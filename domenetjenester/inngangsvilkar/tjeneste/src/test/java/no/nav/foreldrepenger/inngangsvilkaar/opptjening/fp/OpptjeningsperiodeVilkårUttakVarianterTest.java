@@ -57,7 +57,7 @@ class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAwareTest
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, repositoryProvider.getFagsakRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
     }
 
     @Test

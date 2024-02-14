@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -51,7 +52,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -91,7 +91,7 @@ class UttakStegImplTest {
     @Inject
     private FagsakRepository fagsakRepository;
     @Inject
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     @Inject
     private FamilieHendelseRepository familieHendelseRepository;
     @Inject
@@ -126,7 +126,7 @@ class UttakStegImplTest {
                 .medBrukerAktørId(AKTØRID)
                 .build();
         fagsakRepository.opprettNy(fagsak);
-        fagsakRelasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
         return fagsak;
     }
 
@@ -182,7 +182,7 @@ class UttakStegImplTest {
 
         var behandling = opprettBehandling();
         var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
-        fagsakRelasjonRepository.kobleFagsaker(fagsak, fagsakForFar, behandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(fagsak, fagsakForFar, behandling);
 
         opprettPersonopplysninger(behandling);
 
@@ -193,7 +193,7 @@ class UttakStegImplTest {
 
         // Act -- behandler mors behandling først
         steg.utførSteg(kontekst(behandling));
-        var morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
+        var morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
 
         // Assert - stønadskontoer skal ha blitt opprettet
         assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
@@ -201,7 +201,7 @@ class UttakStegImplTest {
 
         // Act -- kjører steget på nytt for mor
         steg.utførSteg(kontekst(behandling));
-        morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
+        morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
 
         // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir samme id
         assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
@@ -213,7 +213,7 @@ class UttakStegImplTest {
             .medOverstyrtRettighet(OppgittRettighetEntitet.beggeRett());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfa.build());
         steg.utførSteg(kontekst(behandling));
-        morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak());
+        morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak());
 
         // Assert -- fortsatt innenfor første behandling -- skal beregne stønadskontoer på nytt men lagring gir samme id
         assertThat(morsFagsakRelasjon.getGjeldendeStønadskontoberegning()).isPresent();
@@ -228,7 +228,7 @@ class UttakStegImplTest {
                 behandlingRepository.taSkriveLås(farsBehandling));
         steg.utførSteg(kontekstForFarsBehandling);
 
-        var nyLagretFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(fagsakForFar);
+        var nyLagretFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(fagsakForFar);
         var stønadskontoberegningFar = nyLagretFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
 
         // Assert
@@ -245,27 +245,27 @@ class UttakStegImplTest {
         byggArbeidForBehandling(morsFørstegang);
         opprettUttaksperiodegrense(fødselsdato, morsFørstegang);
         opprettPersonopplysninger(morsFørstegang);
-        fagsakRelasjonRepository.opprettEllerOppdaterRelasjon(morsFørstegang.getFagsak(),
-                Optional.ofNullable(fagsakRelasjonRepository.finnRelasjonFor(morsFørstegang.getFagsak())),
+        fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(morsFørstegang.getFagsak(),
+                Optional.ofNullable(fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak())),
                 Dekningsgrad._80);
         var førstegangsKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(morsFørstegang));
 
         // Første versjon av kontoer opprettes
         steg.utførSteg(førstegangsKontekst);
-        var morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(morsFørstegang.getFagsak());
+        var morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(morsFørstegang.getFagsak());
         var førsteStønadskontoberegning = morsFagsakRelasjon.getGjeldendeStønadskontoberegning().get();
 
         avsluttMedVedtak(morsFørstegang, repositoryProvider);
 
         // mor oppdaterer dekningsgrad
         var morsRevurdering = opprettRevurdering(morsFørstegang, true, fødselsdato);
-        fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, Dekningsgrad._100);
+        fagsakRelasjonTjeneste.overstyrDekningsgrad(fagsak, Dekningsgrad._100);
 
         var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(morsRevurdering));
         steg.utførSteg(revurderingKontekst);
-        morsFagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(morsRevurdering.getFagsak());
+        morsFagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonFor(morsRevurdering.getFagsak());
 
         assertThat(morsFagsakRelasjon.getStønadskontoberegning()).isPresent();
         assertThat(morsFagsakRelasjon.getOverstyrtStønadskontoberegning()).isPresent();
@@ -310,7 +310,7 @@ class UttakStegImplTest {
         var førstegangsBehandling = scenario.lagre(repositoryProvider);
         byggArbeidForBehandling(førstegangsBehandling);
         opprettUttaksperiodegrense(fødselsdato, førstegangsBehandling);
-        fagsakRelasjonRepository.opprettRelasjon(førstegangsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(førstegangsBehandling.getFagsak(), Dekningsgrad._100);
 
         kjørSteg(førstegangsBehandling);
         avsluttMedVedtak(førstegangsBehandling, repositoryProvider);
@@ -321,11 +321,11 @@ class UttakStegImplTest {
         hendelse.medFødselsDato(fødselsdato).medAntallBarn(1);
         familieHendelseRepository.lagreRegisterHendelse(revurdering.getId(), hendelse);
 
-        var relasjonFør = fagsakRelasjonRepository.finnRelasjonFor(revurdering.getFagsak());
+        var relasjonFør = fagsakRelasjonTjeneste.finnRelasjonFor(revurdering.getFagsak());
         assertThat(relasjonFør.getOverstyrtStønadskontoberegning()).isNotPresent();
 
         kjørSteg(revurdering);
-        var relasjonEtter = fagsakRelasjonRepository.finnRelasjonFor(revurdering.getFagsak());
+        var relasjonEtter = fagsakRelasjonTjeneste.finnRelasjonFor(revurdering.getFagsak());
 
         assertThat(relasjonEtter.getOverstyrtStønadskontoberegning()).isPresent();
     }

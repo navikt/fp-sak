@@ -64,8 +64,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
                 mottatteDokumentRepository, behandlingRepositoryProvider);
 
         var familieTjeneste = new FamilieHendelseTjeneste(null, behandlingRepositoryProvider.getFamilieHendelseRepository());
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(behandlingRepositoryProvider.getFagsakRelasjonRepository(), null,
-            behandlingRepositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(behandlingRepositoryProvider);
         var fellesUtils = new VurderFagsystemFellesUtils(behandlingRepositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null,
             fagsakRelasjonTjeneste);
 

@@ -47,8 +47,7 @@ class RevurderingTjenesteImplTest {
         var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository,
                 new LegacyESBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
         var vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         revurderingTjeneste = new RevurderingTjenesteImpl(behandlingRepository, grunnlagProvider,

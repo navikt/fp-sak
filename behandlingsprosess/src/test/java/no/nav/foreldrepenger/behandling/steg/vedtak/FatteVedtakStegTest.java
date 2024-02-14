@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -104,6 +103,10 @@ class FatteVedtakStegTest {
     private KlageRepository klageRepository;
     @Inject
     private AnkeRepository ankeRepository;
+    @Inject
+    private LagretVedtakRepository lagretVedtakRepository;
+    @Inject
+    private VilkårResultatRepository vilkårResultatRepository;
 
     private FatteVedtakSteg fatteVedtakSteg;
 
@@ -113,10 +116,10 @@ class FatteVedtakStegTest {
 
     private final KompletthetsjekkerProvider kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
 
-    @BeforeEach
-    public void oppsett(EntityManager entityManager) {
-        var vedtakRepository = new LagretVedtakRepository(entityManager);
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
+    @BeforeEach
+    public void oppsett() {
         var personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
 
@@ -124,8 +127,7 @@ class FatteVedtakStegTest {
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
 
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(
@@ -136,8 +138,7 @@ class FatteVedtakStegTest {
         BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(beregningRepository);
         BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste = new BeregningsresultatXmlTjenesteImpl(beregningsgrunnlagXmlTjeneste,
                 ytelseXmlTjeneste);
-        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(entityManager, vilkårsgrunnlagXmlTjeneste,
-                beregningsresultatXmlTjeneste);
+        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(vilkårsgrunnlagXmlTjeneste, beregningsresultatXmlTjeneste);
 
         var totrinnTjeneste = mock(TotrinnTjeneste.class);
 
@@ -150,20 +151,19 @@ class FatteVedtakStegTest {
 
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
-        var fatteVedtakTjeneste = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+        var fatteVedtakTjeneste = new FatteVedtakTjeneste(lagretVedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fatteVedtakTjeneste, simuler);
     }
 
-    private BehandlingsresultatXmlTjeneste nyBeregningsresultatXmlTjeneste(EntityManager em, VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste,
+    private BehandlingsresultatXmlTjeneste nyBeregningsresultatXmlTjeneste(VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste,
             BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste) {
         return new BehandlingsresultatXmlTjeneste(
                 new UnitTestLookupInstanceImpl<>(beregningsresultatXmlTjeneste),
                 new UnitTestLookupInstanceImpl<>(vilkårsgrunnlagXmlTjeneste),
                 repositoryProvider.getBehandlingVedtakRepository(),
                 klageRepository,
-                ankeRepository,
-                new VilkårResultatRepository(em));
+                ankeRepository, vilkårResultatRepository);
     }
 
     @Test
@@ -332,10 +332,8 @@ class FatteVedtakStegTest {
     }
 
     @Test
-    void skal_lukke_godkjent_aksjonspunkter_og_sette_steg_til_utført(EntityManager entityManager) {
+    void skal_lukke_godkjent_aksjonspunkter_og_sette_steg_til_utført() {
         // Arrange
-        var vedtakRepository = new LagretVedtakRepository(entityManager);
-
         var søknadRepository = mock(SøknadRepository.class);
         var personinfoAdapter = mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
@@ -344,9 +342,7 @@ class FatteVedtakStegTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(ArgumentMatchers.any())).thenReturn(skjæringstidspunkt);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
-                personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+                personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));;
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,
                 skjæringstidspunktTjeneste);
@@ -354,8 +350,7 @@ class FatteVedtakStegTest {
         BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(beregningRepository);
         BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste = new BeregningsresultatXmlTjenesteImpl(beregningsgrunnlagXmlTjeneste,
                 ytelseXmlTjeneste);
-        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(entityManager, vilkårsgrunnlagXmlTjeneste,
-                beregningsresultatXmlTjeneste);
+        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(vilkårsgrunnlagXmlTjeneste, beregningsresultatXmlTjeneste);
         var totrinnTjeneste = mock(TotrinnTjeneste.class);
 
         var søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
@@ -382,7 +377,7 @@ class FatteVedtakStegTest {
         totrinnsvurderings.add(ttvurdering);
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
-        var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+        var fvtei = new FatteVedtakTjeneste(lagretVedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);
@@ -396,14 +391,10 @@ class FatteVedtakStegTest {
     }
 
     @Test
-    void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent(EntityManager entityManager) {
-        var vedtakRepository = new LagretVedtakRepository(entityManager);
-
+    void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent() {
         var søknadRepository = mock(SøknadRepository.class);
         var personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
@@ -417,8 +408,7 @@ class FatteVedtakStegTest {
         BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(beregningRepository);
         BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste = new BeregningsresultatXmlTjenesteImpl(beregningsgrunnlagXmlTjeneste,
                 ytelseXmlTjeneste);
-        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(entityManager, vilkårsgrunnlagXmlTjeneste,
-                beregningsresultatXmlTjeneste);
+        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(vilkårsgrunnlagXmlTjeneste, beregningsresultatXmlTjeneste);
 
         var totrinnTjeneste = mock(TotrinnTjeneste.class);
 
@@ -456,7 +446,7 @@ class FatteVedtakStegTest {
         totrinnsvurderings.add(vurderesOk);
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
-        var fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+        var fvtei = new FatteVedtakTjeneste(lagretVedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);

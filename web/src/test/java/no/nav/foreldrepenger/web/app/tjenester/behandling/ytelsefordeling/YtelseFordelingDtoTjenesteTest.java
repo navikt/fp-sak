@@ -206,8 +206,7 @@ class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private YtelseFordelingDtoTjeneste tjeneste() {
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, fagsakRelasjonTjeneste,
             uføretrygdRepository, uttakTjeneste);
     }

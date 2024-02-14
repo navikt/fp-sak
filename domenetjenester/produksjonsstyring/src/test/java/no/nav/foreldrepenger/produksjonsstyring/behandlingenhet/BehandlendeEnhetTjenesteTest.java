@@ -108,8 +108,7 @@ class BehandlendeEnhetTjenesteTest {
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
             fagsakRelasjonTjeneste);
         return behandling;
@@ -124,8 +123,7 @@ class BehandlendeEnhetTjenesteTest {
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
             fagsakRelasjonTjeneste);
         return behandling;
@@ -141,8 +139,7 @@ class BehandlendeEnhetTjenesteTest {
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
             fagsakRelasjonTjeneste);
         return behandling;

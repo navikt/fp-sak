@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -91,11 +90,9 @@ class EndringsdatoRevurderingUtlederImplTest {
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final FagsakRelasjonRepository fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
     private final UttakBeregningsandelTjenesteTestUtil uttakBeregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
-    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(
-        repositoryProvider.getFagsakRelasjonRepository(), FagsakRelasjonEventPubliserer.NULL_EVENT_PUB,
-        repositoryProvider.getFagsakRepository());
+    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(),
+        FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRelasjonRepository());
     private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste,
         repositoryProvider.getBehandlingsresultatRepository());
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
@@ -127,7 +124,7 @@ class EndringsdatoRevurderingUtlederImplTest {
     }
 
     private void endreDekningsgrad(Behandling revurdering, Dekningsgrad dekningsgrad) {
-        fagsakRelasjonRepository.overstyrDekningsgrad(revurdering.getFagsak(), dekningsgrad);
+        fagsakRelasjonTjeneste.overstyrDekningsgrad(revurdering.getFagsak(), dekningsgrad);
         var behandlingsresultat = Behandlingsresultat.builder().medEndretDekningsgrad(true);
         repositoryProvider.getBehandlingsresultatRepository().lagre(revurdering.getId(), behandlingsresultat.build());
     }

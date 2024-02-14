@@ -42,8 +42,7 @@ class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste),
             repositoryProvider.getFpUttakRepository(), repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste);
         oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste, beregnMorsMaksdatoTjeneste);

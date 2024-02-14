@@ -11,6 +11,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -18,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -41,7 +41,7 @@ public class StønadsperiodeTjeneste {
     private static final String YTELSE_IKKE_STØTTET = "Utviklerfeil: skal bare kalles for FP/SVP";
     private static final BigDecimal HUNDRE = new BigDecimal(100);
 
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentRepository;
     private FpUttakRepository fpUttakRepository;
@@ -52,12 +52,12 @@ public class StønadsperiodeTjeneste {
     }
 
     @Inject
-    public StønadsperiodeTjeneste(FagsakRelasjonRepository fagsakRelasjonRepository,
+    public StønadsperiodeTjeneste(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   FpUttakRepository fpUttakRepository,
                                   BeregningsresultatRepository tilkjentRepository,
                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.tilkjentRepository = tilkjentRepository;
         this.fpUttakRepository = fpUttakRepository;
@@ -143,7 +143,7 @@ public class StønadsperiodeTjeneste {
 
 
     private Optional<Behandling> vedtattBehandlingRelatertFagsak(Long fagsakId) {
-        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId)
+        return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId)
             .flatMap(r -> r.getRelatertFagsakFraId(fagsakId)).map(Fagsak::getId)
             .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling);
     }
