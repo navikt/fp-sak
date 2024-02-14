@@ -8,9 +8,11 @@ import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 public interface Brev {
 
     /**
+     * @deprecated Erstattes av bestill med V3 kontrakt
      * Produserer og journalfører et dokument definert i dtoen.
      * @param dokumentbestillingV2Dto
      */
+    @Deprecated(forRemoval = true)
     void bestill(DokumentbestillingV2Dto dokumentbestillingV2Dto);
 
     /**
@@ -20,9 +22,11 @@ public interface Brev {
     void bestill(DokumentBestillingDto dokumentBestillingDto);
 
     /**
+     * @deprecated Erstattes av forhåndsvis med V3 kontrakt
      * Forhåndsviser et dokument definert i dtoen.
      * @param dokumentbestillingDto
      */
+    @Deprecated(forRemoval = true)
     byte[] forhåndsvis(DokumentbestillingDto dokumentbestillingDto);
 
     /**
