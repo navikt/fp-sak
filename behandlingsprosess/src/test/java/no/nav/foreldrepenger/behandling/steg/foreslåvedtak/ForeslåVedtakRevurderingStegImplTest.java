@@ -154,13 +154,6 @@ class ForeslåVedtakRevurderingStegImplTest {
         assertThat(foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering).getAksjonspunktListe()).isEmpty();
     }
 
-    @Test
-    void test_tilbakehopp() {
-        foreslåVedtakRevurderingStegForeldrepenger.vedHoppOverBakover(kontekstRevurdering, null, null, null);
-        revurdering = behandlingRepository.hentBehandling(revurdering.getId());
-        assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).isEmpty();
-    }
-
     private BeregningsgrunnlagGrunnlag buildBeregningsgrunnlag(Long bruttoPerÅr) {
         var bgBuilder = Beregningsgrunnlag.builder()
                 .medSkjæringstidspunkt(LocalDate.now())
