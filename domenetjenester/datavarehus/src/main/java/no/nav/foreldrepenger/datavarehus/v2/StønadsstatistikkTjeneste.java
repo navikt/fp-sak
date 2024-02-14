@@ -20,6 +20,7 @@ import java.time.Period;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -297,7 +298,11 @@ public class StønadsstatistikkTjeneste {
         if (familiehendelse.getGjelderFødsel()) {
             return HendelseType.FØDSEL;
         }
-        return familiehendelse.getType().equals(FamilieHendelseType.ADOPSJON) ? HendelseType.ADOPSJON : HendelseType.OMSORGSOVERTAKELSE;
+        if (FamilieHendelseType.OMSORG.equals(familiehendelse.getType())) {
+            return HendelseType.OMSORGSOVERTAKELSE;
+        }
+        var stebarnsAdopsjon = familiehendelse.getAdopsjon().filter(a -> Objects.equals(a.getErEktefellesBarn(), Boolean.TRUE)).isPresent();
+        return stebarnsAdopsjon ? HendelseType.STEBARNSADOPSJON : HendelseType.ADOPSJON;
     }
 
     private static List<FamilieHendelse.Barn> hentBarn(List<UidentifisertBarn> barna) {

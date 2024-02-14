@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk;
 
+import static no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk.StønadsstatistikkMigreringTask.opprettTaskForDato;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -67,28 +65,12 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response opprettTaskForPeriode(@Valid MigreringTaskInput taskInput) {
-        var sakDato = taskInput.fom;
-        var baseline = LocalDateTime.now();
-        while (!sakDato.isAfter(taskInput.tom)) {
-            var task = opprettTaskForDato(sakDato, taskInput.spreTasksPåAntallTimer, baseline);
-            taskTjeneste.lagre(task);
-            sakDato = sakDato.plusDays(1);
-        }
+        var task = opprettTaskForDato(taskInput.fom, taskInput.tom, null);
+        taskTjeneste.lagre(task);
         return Response.ok().build();
     }
 
-    private static ProsessTaskData opprettTaskForDato(LocalDate dato, int antallTimerKjøring, LocalDateTime baseline) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(StønadsstatistikkMigreringTask.class);
-
-        prosessTaskData.setProperty(StønadsstatistikkMigreringTask.DATO_KEY, dato.toString());
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(150);
-        var nesteKjøringEtter = baseline.plusSeconds(LocalDateTime.now().getNano() % (antallTimerKjøring * 3600L - 1));
-        prosessTaskData.setNesteKjøringEtter(nesteKjøringEtter);
-        return prosessTaskData;
-    }
-
-    record MigreringTaskInput(LocalDate fom, LocalDate tom, @Min(0) @Max(100) int spreTasksPåAntallTimer) implements AbacDto {
+    record MigreringTaskInput(LocalDate fom, LocalDate tom) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {

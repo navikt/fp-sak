@@ -188,7 +188,7 @@ public class StønadsstatistikkVedtak {
     }
 
     enum HendelseType {
-        FØDSEL, ADOPSJON, OMSORGSOVERTAKELSE
+        FØDSEL, ADOPSJON, STEBARNSADOPSJON, OMSORGSOVERTAKELSE
     }
 
     enum StønadskontoType {

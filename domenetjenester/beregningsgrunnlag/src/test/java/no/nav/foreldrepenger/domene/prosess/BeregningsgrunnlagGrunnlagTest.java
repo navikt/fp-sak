@@ -32,7 +32,7 @@ class BeregningsgrunnlagGrunnlagTest {
 
         var beregningAktivitetAAP = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
-            .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEIDSAVKLARING)
+            .medOpptjeningAktivitetType(OpptjeningAktivitetType.AAP)
             .build();
 
         var registerAktiviteter = BeregningAktivitetAggregatDto.builder()
@@ -64,7 +64,7 @@ class BeregningsgrunnlagGrunnlagTest {
 
         var beregningAktivitetAAP = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
-            .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEIDSAVKLARING)
+            .medOpptjeningAktivitetType(OpptjeningAktivitetType.AAP)
             .build();
 
         var registerAktiviteter = BeregningAktivitetAggregatDto.builder()
@@ -100,7 +100,7 @@ class BeregningsgrunnlagGrunnlagTest {
 
         var beregningAktivitetAAP = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
-            .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEIDSAVKLARING)
+            .medOpptjeningAktivitetType(OpptjeningAktivitetType.AAP)
             .build();
 
         var registerAktiviteter = BeregningAktivitetAggregatDto.builder()
