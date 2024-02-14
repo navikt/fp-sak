@@ -41,6 +41,10 @@
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>behandlingskontroll</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>behandling-revurdering</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>produksjonsstyring</artifactId>

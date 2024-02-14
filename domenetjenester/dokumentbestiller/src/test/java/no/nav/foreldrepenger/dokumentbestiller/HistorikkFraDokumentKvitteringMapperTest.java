@@ -3,23 +3,21 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 
-class HistorikkFraBrevKvitteringMapperTest {
+class HistorikkFraDokumentKvitteringMapperTest {
 
     @Test
-    void testBrevKvitteringMapper() {
+    void testDokumentKvitteringMapper() {
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var journalpostId = "1231234234234";
         var dokumentId = "232342342";
 
         var behandlingId = 12L;
         var fagsakId = 34L;
-        var historikkinnslag = HistorikkFraBrevKvitteringMapper.opprettHistorikkInnslag(dokumentMal, journalpostId, dokumentId, behandlingId, fagsakId);
+        var historikkinnslag = HistorikkFraDokumentKvitteringMapper.opprettHistorikkInnslag(dokumentMal, journalpostId, dokumentId, behandlingId, fagsakId);
 
         assertEquals(behandlingId, historikkinnslag.getBehandlingId());
         assertEquals(fagsakId, historikkinnslag.getFagsakId());

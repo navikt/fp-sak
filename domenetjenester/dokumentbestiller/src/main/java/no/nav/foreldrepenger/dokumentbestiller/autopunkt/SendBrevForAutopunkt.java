@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -44,31 +44,31 @@ public class SendBrevForAutopunkt {
             dokumentMal = DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER;
         }
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal)) {
-            var brevBestilling = getBuilder(behandling, dokumentMal).build();
-            dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            var dokumentBestilling = getBuilder(behandling, dokumentMal).build();
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
     }
 
     public void sendBrevForTidligSøknad(Behandling behandling) {
         var dokumentMal = DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG;
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal) && erSøktPåPapir(behandling)) {
-            var brevBestilling = getBuilder(behandling, dokumentMal).build();
-            dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            var dokumentBestilling = getBuilder(behandling, dokumentMal).build();
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
     }
 
     public void sendBrevForEtterkontroll(Behandling behandling) {
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal)) {
-            var brevBestilling = getBuilder(behandling, dokumentMal)
+            var dokumentBestilling = getBuilder(behandling, dokumentMal)
                 .medRevurderingÅrsak(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER)
                 .build();
-            dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
         }
     }
 
-    private static BrevBestilling.Builder getBuilder(Behandling behandling, DokumentMalType dokumentMal) {
-        return BrevBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal);
+    private static DokumentBestilling.Builder getBuilder(Behandling behandling, DokumentMalType dokumentMal) {
+        return DokumentBestilling.builder().medBehandlingUuid(behandling.getUuid()).medDokumentMal(dokumentMal);
     }
 
     private boolean erSøktPåPapir(Behandling behandling) {
