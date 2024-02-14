@@ -189,8 +189,8 @@ class DokumentBehandlingTjenesteTest {
         assertThat(behandlingDokument).isNotPresent();
     }
 
-    private BrevBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
-        return BrevBestilling.builder()
+    private DokumentBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
+        return DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSomMal)

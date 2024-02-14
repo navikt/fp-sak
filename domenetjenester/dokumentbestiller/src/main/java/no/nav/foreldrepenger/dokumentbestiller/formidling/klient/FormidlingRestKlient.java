@@ -5,7 +5,7 @@ import java.net.URI;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
+import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPFORMIDLING)
-public class FormidlingRestKlient implements Brev {
+public class FormidlingRestKlient implements Dokument {
 
     private final RestClient restClient;
     private final RestConfig restConfig;

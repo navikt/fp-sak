@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingRes
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -165,11 +165,11 @@ public class KlageVurderingTjeneste {
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurderingOmgjør omgjør, KlageVurdertAv vurdertAv) {
         if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT)) {
-            var brevBestilling = BrevBestilling.builder()
+            var dokumentBestilling = DokumentBestilling.builder()
                 .medBehandlingUuid(behandling.getUuid())
                 .medDokumentMal(DokumentMalType.KLAGE_OVERSENDT)
                 .build();
-            dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
+            dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);
             oppdaterBehandlingMedNyFrist(behandling);
         }
         var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());

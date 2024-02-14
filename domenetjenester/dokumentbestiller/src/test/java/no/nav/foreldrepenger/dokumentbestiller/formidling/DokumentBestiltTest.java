@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -82,8 +82,8 @@ class DokumentBestiltTest {
             .build();
     }
 
-    private BrevBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
-        return BrevBestilling.builder()
+    private DokumentBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
+        return DokumentBestilling.builder()
             .medBehandlingUuid(UUID.randomUUID())
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSomMal)

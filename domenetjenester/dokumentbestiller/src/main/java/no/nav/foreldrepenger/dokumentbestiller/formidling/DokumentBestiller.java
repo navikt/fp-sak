@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -36,32 +36,32 @@ public class DokumentBestiller {
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
-    public void bestillDokument(BrevBestilling bestillBrevDto, HistorikkAktør aktør) {
+    public void bestillDokument(DokumentBestilling bestillBrevDto, HistorikkAktør aktør) {
         bestillOgLogg(bestillBrevDto, aktør);
     }
 
-    private void bestillOgLogg(BrevBestilling brevBestilling, HistorikkAktør aktør) {
-        var behandling = behandlingRepository.hentBehandling(brevBestilling.behandlingUuid());
-        bestillDokumentOgLoggHistorikk(behandling, aktør, brevBestilling);
+    private void bestillOgLogg(DokumentBestilling dokumentBestilling, HistorikkAktør aktør) {
+        var behandling = behandlingRepository.hentBehandling(dokumentBestilling.behandlingUuid());
+        bestillDokumentOgLoggHistorikk(behandling, aktør, dokumentBestilling);
     }
 
-    private void bestillDokumentOgLoggHistorikk(Behandling behandling, HistorikkAktør aktør, BrevBestilling bestilling) {
+    private void bestillDokumentOgLoggHistorikk(Behandling behandling, HistorikkAktør aktør, DokumentBestilling bestilling) {
         opprettBestillBrevTask(behandling, bestilling);
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, bestilling);
         dokumentBestilt.opprettHistorikkinnslag(aktør, behandling, bestilling);
     }
 
-    private void opprettBestillBrevTask(Behandling behandling, BrevBestilling bestilling) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(BestillBrevTask.class);
+    private void opprettBestillBrevTask(Behandling behandling, DokumentBestilling bestilling) {
+        var prosessTaskData = ProsessTaskData.forProsessTask(BestillDokumentTask.class);
 
         // Obligatorisk
         prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, String.valueOf(behandling.getUuid()));
-        prosessTaskData.setProperty(BestillBrevTask.BESTILLING_UUID, String.valueOf(bestilling.bestillingUuid()));
-        prosessTaskData.setProperty(BestillBrevTask.DOKUMENT_MAL, bestilling.dokumentMal().name());
+        prosessTaskData.setProperty(BestillDokumentTask.BESTILLING_UUID, String.valueOf(bestilling.bestillingUuid()));
+        prosessTaskData.setProperty(BestillDokumentTask.DOKUMENT_MAL, bestilling.dokumentMal().name());
 
         // Optionals
-        Optional.ofNullable(bestilling.journalførSom()).ifPresent(a -> prosessTaskData.setProperty(BestillBrevTask.JOURNALFOER_SOM_DOKUMENT, a.name()));
-        Optional.ofNullable(bestilling.revurderingÅrsak()).ifPresent(a -> prosessTaskData.setProperty(BestillBrevTask.REVURDERING_ÅRSAK, a.name()));
+        Optional.ofNullable(bestilling.journalførSom()).ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.JOURNALFOER_SOM_DOKUMENT, a.name()));
+        Optional.ofNullable(bestilling.revurderingÅrsak()).ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.REVURDERING_ÅRSAK, a.name()));
         prosessTaskData.setPayload(bestilling.fritekst());
 
         // Brukes kun i logging

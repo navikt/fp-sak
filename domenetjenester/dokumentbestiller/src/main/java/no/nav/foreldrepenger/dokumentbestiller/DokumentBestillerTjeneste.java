@@ -53,15 +53,15 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
             dokumentMal = DokumentMalType.FRITEKSTBREV;
         }
 
-        bestillDokument(BrevBestilling.builder()
+        bestillDokument(DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSom)
             .build(), HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
-    public void bestillDokument(BrevBestilling brevBestilling, HistorikkAktør aktør) {
-        dokumentBestiller.bestillDokument(brevBestilling, aktør);
+    public void bestillDokument(DokumentBestilling dokumentBestilling, HistorikkAktør aktør) {
+        dokumentBestiller.bestillDokument(dokumentBestilling, aktør);
     }
 
     private static boolean endretVedtakOgKunEndringIFordeling(BehandlingResultatType resultatType,

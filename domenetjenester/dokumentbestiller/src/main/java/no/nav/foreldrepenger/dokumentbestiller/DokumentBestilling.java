@@ -5,12 +5,12 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 
-public record BrevBestilling(UUID behandlingUuid,
-                             DokumentMalType dokumentMal,
-                             String fritekst,
-                             RevurderingVarslingÅrsak revurderingÅrsak,
-                             DokumentMalType journalførSom,
-                             UUID bestillingUuid) {
+public record DokumentBestilling(UUID behandlingUuid,
+                                 DokumentMalType dokumentMal,
+                                 String fritekst,
+                                 RevurderingVarslingÅrsak revurderingÅrsak,
+                                 DokumentMalType journalførSom,
+                                 UUID bestillingUuid) {
 
     public static Builder builder() {
         return new Builder();
@@ -48,9 +48,9 @@ public record BrevBestilling(UUID behandlingUuid,
             return this;
         }
 
-        public BrevBestilling build() {
+        public DokumentBestilling build() {
             valider();
-            return new BrevBestilling(behandlingUuid, dokumentMal, fritekst, revurderingÅrsak, journalførSom, UUID.randomUUID());
+            return new DokumentBestilling(behandlingUuid, dokumentMal, fritekst, revurderingÅrsak, journalførSom, UUID.randomUUID());
         }
 
         private void valider() {

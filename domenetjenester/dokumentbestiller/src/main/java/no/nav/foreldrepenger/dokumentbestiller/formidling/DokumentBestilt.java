@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
@@ -29,7 +29,7 @@ public class DokumentBestilt {
 
     public void opprettHistorikkinnslag(HistorikkAktør historikkAktør,
                                         Behandling behandling,
-                                        BrevBestilling bestilling) {
+                                        DokumentBestilling bestilling) {
 
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);

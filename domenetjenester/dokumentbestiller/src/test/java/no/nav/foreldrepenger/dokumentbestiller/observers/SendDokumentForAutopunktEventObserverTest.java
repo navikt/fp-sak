@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.dokumentbestiller.autopunkt.SendBrevForAutopunkt;
 
 @ExtendWith(MockitoExtension.class)
-class SendBrevForAutopunktEventObserverTest {
+class SendDokumentForAutopunktEventObserverTest {
 
     @Mock
     private Aksjonspunkt autopunktIngenSøknad;
@@ -40,7 +40,7 @@ class SendBrevForAutopunktEventObserverTest {
     @Mock
     private SendBrevForAutopunkt sendBrevForAutopunkt;
 
-    private SendBrevForAutopunktEventObserver observer; // objektet vi tester
+    private SendDokumentForAutopunktEventObserver observer; // objektet vi tester
 
     private BehandlingskontrollKontekst behandlingskontrollKontekst;
 
@@ -70,7 +70,7 @@ class SendBrevForAutopunktEventObserverTest {
         behandlingskontrollKontekst = mock(BehandlingskontrollKontekst.class);
         when(behandlingskontrollKontekst.getBehandlingId()).thenReturn(behandlingId);
 
-        observer = new SendBrevForAutopunktEventObserver(behandlingRepository, sendBrevForAutopunkt);
+        observer = new SendDokumentForAutopunktEventObserver(behandlingRepository, sendBrevForAutopunkt);
     }
 
     @Test

@@ -9,11 +9,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
 
 import org.junit.jupiter.api.Test;
 
-class BrevBestillingTest {
+class DokumentBestillingTest {
 
     @Test
     void positiv() {
-        var bestilling = new BrevBestilling(UUID.randomUUID(), DokumentMalType.FORELDREPENGER_INNVILGELSE, null, null, null, UUID.randomUUID());
+        var bestilling = new DokumentBestilling(UUID.randomUUID(), DokumentMalType.FORELDREPENGER_INNVILGELSE, null, null, null, UUID.randomUUID());
         assertThat(bestilling.behandlingUuid()).isNotNull();
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.dokumentMal()).isNotNull();
@@ -27,7 +27,7 @@ class BrevBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.FORELDREPENGER_INNVILGELSE;
 
-        var bestilling = BrevBestilling.builder()
+        var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
             .build();
@@ -42,7 +42,7 @@ class BrevBestillingTest {
 
     @Test
     void exception_builder_mangler_behandling_uuid() {
-        var bestillingBuilder = BrevBestilling.builder();
+        var bestillingBuilder = DokumentBestilling.builder();
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
         assertThat(ex.getMessage()).contains("Behandling UUID må være satt");
@@ -52,7 +52,7 @@ class BrevBestillingTest {
     void exception_builder_mangler_dokument_mal() {
         var behandlingUuid = UUID.randomUUID();
 
-        var bestillingBuilder = BrevBestilling.builder()
+        var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid);
 
         var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
@@ -64,7 +64,7 @@ class BrevBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.FRITEKSTBREV;
 
-        var bestillingBuilder = BrevBestilling.builder()
+        var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal);
 
@@ -78,7 +78,7 @@ class BrevBestillingTest {
         var dokumentMal = DokumentMalType.FRITEKSTBREV;
         var journalførSom = DokumentMalType.FORELDREPENGER_INNVILGELSE;
 
-        var bestilling = BrevBestilling.builder()
+        var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
             .medJournalførSom(journalførSom)
@@ -97,7 +97,7 @@ class BrevBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
 
-        var bestillingBuilder = BrevBestilling.builder()
+        var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal);
 
@@ -110,7 +110,7 @@ class BrevBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
 
-        var bestilling = BrevBestilling.builder()
+        var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
             .medFritekst("test")
@@ -129,7 +129,7 @@ class BrevBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
 
-        var bestillingBuilder = BrevBestilling.builder()
+        var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal);
 
@@ -142,7 +142,7 @@ class BrevBestillingTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
 
-        var bestillingBuilder = BrevBestilling.builder()
+        var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET);
@@ -157,7 +157,7 @@ class BrevBestillingTest {
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
         var revurderingÅrsak = RevurderingVarslingÅrsak.ANNET;
 
-        var bestilling = BrevBestilling.builder()
+        var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(revurderingÅrsak)
@@ -178,7 +178,7 @@ class BrevBestillingTest {
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
         var revurderingÅrsak = RevurderingVarslingÅrsak.OPPTJENING_IKKE_OPPFYLT;
 
-        var bestilling = BrevBestilling.builder()
+        var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(revurderingÅrsak)

@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -104,11 +104,11 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void sendHenleggelsesbrev(UUID behandlingUuid) {
-        var brevBestilling = BrevBestilling.builder()
+        var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(DokumentMalType.INFO_OM_HENLEGGELSE)
             .build();
-        dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
+        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
     private void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {

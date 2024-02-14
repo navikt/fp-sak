@@ -5,9 +5,9 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.DokumentMal;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.RevurderingÅrsak;
 
-public class BestillBrevDtoMapper {
+public class BestillDokumentDtoMapper {
 
-    private BestillBrevDtoMapper() {
+    private BestillDokumentDtoMapper() {
     }
 
     public static DokumentMal mapDokumentMal(DokumentMalType bestillingDokumentMal) {

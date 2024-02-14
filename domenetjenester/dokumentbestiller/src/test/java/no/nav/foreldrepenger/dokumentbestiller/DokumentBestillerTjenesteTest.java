@@ -52,17 +52,17 @@ class DokumentBestillerTjenesteTest {
 
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
-        var brevBestilling = BrevBestilling.builder()
+        var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
             .medDokumentMal(dokumentMal)
             .medFritekst("fritekst")
             .build();
 
         // Act
-        tjeneste.bestillDokument(brevBestilling, historikkAktør);
+        tjeneste.bestillDokument(dokumentBestilling, historikkAktør);
 
         // Assert
-        verify(dokumentBestiller).bestillDokument(brevBestilling, historikkAktør);
+        verify(dokumentBestiller).bestillDokument(dokumentBestilling, historikkAktør);
     }
 
     @Test
@@ -85,7 +85,7 @@ class DokumentBestillerTjenesteTest {
         // Act
         tjeneste.produserVedtaksbrev(behandlingVedtakMock);
 
-        var bestillingCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
 
         // Assert
         verify(dokumentBestiller).bestillDokument(bestillingCaptor.capture(), eq(historikkAktør));
@@ -117,7 +117,7 @@ class DokumentBestillerTjenesteTest {
         // Act
         tjeneste.produserVedtaksbrev(behandlingVedtakMock);
 
-        var bestillingCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
 
         // Assert
         verify(dokumentBestiller).bestillDokument(bestillingCaptor.capture(), eq(historikkAktør));

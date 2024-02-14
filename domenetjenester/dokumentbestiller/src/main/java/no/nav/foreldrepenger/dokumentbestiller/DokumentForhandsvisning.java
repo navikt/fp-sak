@@ -5,19 +5,19 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 
- public record BrevForhandsvisning(UUID behandlingUuid,
-                                   DokumentMalType dokumentMal,
-                                   String fritekst,
-                                   String tittel,
-                                   RevurderingVarslingÅrsak revurderingÅrsak,
-                                   BrevType brevType) {
+ public record DokumentForhandsvisning(UUID behandlingUuid,
+                                       DokumentMalType dokumentMal,
+                                       String fritekst,
+                                       String tittel,
+                                       RevurderingVarslingÅrsak revurderingÅrsak,
+                                       DokumentType dokumentType) {
 
-    public enum BrevType {
+    public enum DokumentType {
         AUTOMATISK,
         OVERSTYRT
     }
 
-    public static Builder builder() {
+     public static Builder builder() {
         return new Builder();
     }
 
@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
         private RevurderingVarslingÅrsak revurderingÅrsak;
         private String fritekst;
         private String tittel;
-        private BrevType brevType;
+        private DokumentType dokumentType;
 
         public Builder medBehandlingUuid(UUID behandlingUuid) {
             this.behandlingUuid = behandlingUuid;
@@ -54,19 +54,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
             return this;
         }
 
-        public Builder medBrevType(BrevType brevType) {
-            this.brevType = brevType;
+        public Builder medDokumentType(DokumentType dokumentType) {
+            this.dokumentType = dokumentType;
             return this;
         }
 
-        public BrevForhandsvisning build() {
+        public DokumentForhandsvisning build() {
             valider();
-            return new BrevForhandsvisning(behandlingUuid, dokumentMal, fritekst, tittel, revurderingÅrsak, brevType);
+            return new DokumentForhandsvisning(behandlingUuid, dokumentMal, fritekst, tittel, revurderingÅrsak, dokumentType);
         }
 
         private void valider() {
             Objects.requireNonNull(behandlingUuid, "Behandling UUID må være satt");
-            Objects.requireNonNull(brevType, "BrevType må være satt");
+            Objects.requireNonNull(dokumentType, "Dokument type må være satt");
 
             if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {
                 Objects.requireNonNull(fritekst, "Fritekst må være satt for fritekstbrev");

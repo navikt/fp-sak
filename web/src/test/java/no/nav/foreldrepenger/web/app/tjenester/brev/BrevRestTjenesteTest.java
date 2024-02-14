@@ -19,10 +19,10 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
 import org.mockito.ArgumentCaptor;
@@ -54,12 +54,12 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(mock(Behandling.class));
         var fritekst = "Dette er en fritekst";
         var dokumentMal = INNHENTE_OPPLYSNINGER;
-        var bestillBrevDto = new BestillBrevDto(behandlingUuid, dokumentMal, fritekst, null);
+        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);
 
-        var bestillingCaptor = ArgumentCaptor.forClass(BrevBestilling.class);
+        var bestillingCaptor = ArgumentCaptor.forClass(DokumentBestilling.class);
 
         // Assert
         verify(dokumentBestillerTjenesteMock).bestillDokument(bestillingCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER));

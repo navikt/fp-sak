@@ -15,6 +15,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
+/**
+ * @deprecated Fjernes etter BestillDokumentTask tar over.
+ */
+@Deprecated(forRemoval = true)
 @ApplicationScoped
 @ProsessTask("dokumentbestiller.bestilldokument")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
@@ -26,14 +30,14 @@ public class DokumentBestillerTask implements ProsessTaskHandler {
     public static final String BESTILLING_UUID = "bestillingUuid";
 
     private BehandlingRepository behandlingRepository;
-    private Brev brev;
+    private Dokument brev;
 
     DokumentBestillerTask() {
         // for CDI proxy
     }
 
     @Inject
-    public DokumentBestillerTask(BehandlingRepository behandlingRepository, Brev brev) {
+    public DokumentBestillerTask(BehandlingRepository behandlingRepository, Dokument brev) {
         this.behandlingRepository = behandlingRepository;
         this.brev = brev;
     }

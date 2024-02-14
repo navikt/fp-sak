@@ -5,7 +5,7 @@ import no.nav.foreldrepenger.kontrakter.formidling.v1.DokumentbestillingV2Dto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
-public interface Brev {
+public interface Dokument {
 
     /**
      * @deprecated Erstattes av bestill med V3 kontrakt

@@ -58,7 +58,7 @@ public class DokumentBehandlingTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
     }
 
-    public void loggDokumentBestilt(Behandling behandling, BrevBestilling bestilling) {
+    public void loggDokumentBestilt(Behandling behandling, DokumentBestilling bestilling) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
 
@@ -130,7 +130,7 @@ public class DokumentBehandlingTjeneste {
     }
 
     private void lagreHistorikk(Behandling behandling, DokumentMalType dokumentMalBrukt, String journalpostId, String dokumentId) {
-        var historikkInnslag = HistorikkFraBrevKvitteringMapper
+        var historikkInnslag = HistorikkFraDokumentKvitteringMapper
             .opprettHistorikkInnslag(dokumentMalBrukt, journalpostId, dokumentId, behandling.getId(), behandling.getFagsakId());
         historikkRepository.lagre(historikkInnslag);
     }

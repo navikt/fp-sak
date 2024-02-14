@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
-import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillBrevDtoMapper.mapDokumentMal;
-import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillBrevDtoMapper.mapRevurderignÅrsak;
+import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillDokumentDtoMapper.mapDokumentMal;
+import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillDokumentDtoMapper.mapRevurderignÅrsak;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -18,22 +18,22 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("dokumentbestiller.bestillbrev")
+@ProsessTask("formidling.bestillDokument")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class BestillBrevTask implements ProsessTaskHandler {
+public class BestillDokumentTask implements ProsessTaskHandler {
 
     public static final String DOKUMENT_MAL = "dokumentMal";
     public static final String JOURNALFOER_SOM_DOKUMENT = "journalfoerSom";
     public static final String REVURDERING_ÅRSAK = "revurderingAarsak";
     public static final String BESTILLING_UUID = "bestillingUuid";
-    private Brev brev;
+    private Dokument brev;
 
-    BestillBrevTask() {
+    BestillDokumentTask() {
         // for CDI proxy
     }
 
     @Inject
-    public BestillBrevTask(Brev brev) {
+    public BestillDokumentTask(Dokument brev) {
         this.brev = brev;
     }
 

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillBrevDtoMapper.mapDokumentMal;
-import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillBrevDtoMapper.mapRevurderignÅrsak;
+import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillDokumentDtoMapper.mapDokumentMal;
+import static no.nav.foreldrepenger.dokumentbestiller.formidling.BestillDokumentDtoMapper.mapRevurderignÅrsak;
 import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForForhåndsvisningAvVedtak;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
+import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
 @ApplicationScoped
@@ -32,7 +32,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private Brev brev;
+    private Dokument brev;
 
     DokumentForhåndsvisningTjeneste() {
         // for cdi proxy
@@ -43,7 +43,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
                                            BehandlingsresultatRepository behandlingsresultatRepository,
                                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                            KlageRepository klageRepository,
-                                           Brev brev) {
+                                           Dokument brev) {
         super(klageRepository);
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
@@ -51,7 +51,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         this.brev = brev;
     }
 
-    public byte[] forhåndsvisBrev(BrevForhandsvisning bestilling) {
+    public byte[] forhåndsvisDokument(DokumentForhandsvisning bestilling) {
         var behandlingUuid = bestilling.behandlingUuid();
         var bestillingDokumentMal = bestilling.dokumentMal();
         LOG.info("Forhåndsviser brev med mal {} for behandling {}", bestillingDokumentMal, behandlingUuid);
@@ -63,12 +63,12 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             var behandling = behandlingRepository.hentBehandling(behandlingUuid);
             var resultat = behandlingsresultatRepository.hent(behandling.getId());
 
-            var brevType = bestilling.brevType();
+            var brevType = bestilling.dokumentType();
             var resultatBrev = resultat.getVedtaksbrev();
 
             LOG.info("brevType: {}, Vedtaksbrev: {}", brevType, resultatBrev);
             // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
-            if (BrevForhandsvisning.BrevType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
+            if (DokumentForhandsvisning.DokumentType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
                 LOG.info("Utleder Fritekst mal.");
                 bestillingDokumentMal = DokumentMalType.FRITEKSTBREV;
             } else {
@@ -94,7 +94,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         return brev.forhåndsvis(legForhåndsvisningDto(bestilling, bestillingDokumentMal));
     }
 
-    private DokumentForhåndsvisDto legForhåndsvisningDto(BrevForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
+    private DokumentForhåndsvisDto legForhåndsvisningDto(DokumentForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
         return new DokumentForhåndsvisDto(
             bestilling.behandlingUuid(),
             mapDokumentMal(bestillingDokumentMal),

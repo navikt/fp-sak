@@ -16,14 +16,14 @@ class BrevForhåndsvisningTest {
         var fritekst = "fritekst";
         var tittel = "tittel";
         var revurderingÅrsak = RevurderingVarslingÅrsak.ANNET;
-        var brevType = BrevForhandsvisning.BrevType.AUTOMATISK;
-        var forhåndsvisning = new BrevForhandsvisning(UUID.randomUUID(), dokumentMal, fritekst, tittel, revurderingÅrsak, brevType);
+        var brevType = DokumentForhandsvisning.DokumentType.AUTOMATISK;
+        var forhåndsvisning = new DokumentForhandsvisning(UUID.randomUUID(), dokumentMal, fritekst, tittel, revurderingÅrsak, brevType);
         assertThat(forhåndsvisning.behandlingUuid()).isNotNull();
         assertThat(forhåndsvisning.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
         assertThat(forhåndsvisning.fritekst()).isNotNull().isEqualTo(fritekst);
         assertThat(forhåndsvisning.tittel()).isNotNull().isEqualTo(tittel);
         assertThat(forhåndsvisning.revurderingÅrsak()).isNotNull().isEqualTo(revurderingÅrsak);
-        assertThat(forhåndsvisning.brevType()).isNotNull().isEqualTo(brevType);
+        assertThat(forhåndsvisning.dokumentType()).isNotNull().isEqualTo(brevType);
     }
 
     @Test
@@ -31,10 +31,10 @@ class BrevForhåndsvisningTest {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.FORELDREPENGER_INNVILGELSE;
 
-        var bestilling = BrevForhandsvisning.builder()
+        var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
-            .medBrevType(BrevForhandsvisning.BrevType.AUTOMATISK)
+            .medDokumentType(DokumentForhandsvisning.DokumentType.AUTOMATISK)
             .build();
 
         assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
@@ -52,14 +52,14 @@ class BrevForhåndsvisningTest {
         var fritekst = "fritekst";
         var tittel = "tittel";
         var revurderingÅrsak = RevurderingVarslingÅrsak.ANNET;
-        var brevType = BrevForhandsvisning.BrevType.OVERSTYRT;
-        var bestilling = BrevForhandsvisning.builder()
+        var brevType = DokumentForhandsvisning.DokumentType.OVERSTYRT;
+        var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandlingUuid)
             .medDokumentMal(dokumentMal)
             .medFritekst(fritekst)
             .medTittel(tittel)
             .medRevurderingÅrsak(revurderingÅrsak)
-            .medBrevType(brevType)
+            .medDokumentType(brevType)
             .build();
 
         assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
@@ -67,6 +67,6 @@ class BrevForhåndsvisningTest {
         assertThat(bestilling.fritekst()).isNotNull().isEqualTo(fritekst);
         assertThat(bestilling.tittel()).isNotNull().isEqualTo(tittel);
         assertThat(bestilling.revurderingÅrsak()).isNotNull().isEqualTo(revurderingÅrsak);
-        assertThat(bestilling.brevType()).isNotNull().isEqualTo(brevType);
+        assertThat(bestilling.dokumentType()).isNotNull().isEqualTo(brevType);
     }
 }

@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.dokumentbestiller.formidling.Brev;
+import no.nav.foreldrepenger.dokumentbestiller.formidling.Dokument;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.DokumentMal;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentForhåndsvisDto;
 
@@ -30,7 +30,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
     @Mock private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    @Mock private Brev brevTjeneste;
+    @Mock private Dokument brevTjeneste;
     private DokumentForhåndsvisningTjeneste tjeneste;
 
     private void settOpp(AbstractTestScenario<?> scenario, Vedtaksbrev vedtaksbrev) {
@@ -49,12 +49,12 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         settOpp(scenario, Vedtaksbrev.AUTOMATISK);
 
-        var bestilling = BrevForhandsvisning.builder()
+        var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
-            .medBrevType(BrevForhandsvisning.BrevType.OVERSTYRT)
+            .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisBrev(bestilling);
+        tjeneste.forhåndsvisDokument(bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -71,15 +71,15 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario, Vedtaksbrev.AUTOMATISK);
 
-        var bestilling = BrevForhandsvisning.builder()
+        var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
             .medDokumentMal(DokumentMalType.FRITEKSTBREV)
             .medTittel("test")
             .medFritekst("fritekst")
-            .medBrevType(BrevForhandsvisning.BrevType.OVERSTYRT)
+            .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisBrev(bestilling);
+        tjeneste.forhåndsvisDokument(bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -96,12 +96,12 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         settOpp(scenario, Vedtaksbrev.FRITEKST);
 
-        var bestilling = BrevForhandsvisning.builder()
+        var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
-            .medBrevType(BrevForhandsvisning.BrevType.AUTOMATISK)
+            .medDokumentType(DokumentForhandsvisning.DokumentType.AUTOMATISK)
             .build();
 
-        tjeneste.forhåndsvisBrev(bestilling);
+        tjeneste.forhåndsvisDokument(bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -118,12 +118,12 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario, Vedtaksbrev.FRITEKST);
 
-        var bestilling = BrevForhandsvisning.builder()
+        var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
-            .medBrevType(BrevForhandsvisning.BrevType.OVERSTYRT)
+            .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisBrev(bestilling);
+        tjeneste.forhåndsvisDokument(bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 

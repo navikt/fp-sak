@@ -16,8 +16,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.dokumentbestiller.BrevForhandsvisning;
-import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisBrevDto;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhandsvisning;
+import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +27,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.BrevBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentKvittering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -85,18 +85,18 @@ public class BrevRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bestiller generering og sending av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK)
-    public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) {
+    public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BrevAbacDataSupplier.class) @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillDokumentDto bestillBrevDto) {
         var behandlingId = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid()).getId();
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandlingId);
 
-        var brevBestilling = BrevBestilling.builder()
+        var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(bestillBrevDto.behandlingUuid())
             .medDokumentMal(bestillBrevDto.brevmalkode())
             .medRevurderingÅrsak(bestillBrevDto.arsakskode())
             .medFritekst(bestillBrevDto.fritekst())
             .build();
 
-        dokumentBestillerTjeneste.bestillDokument(brevBestilling, HistorikkAktør.SAKSBEHANDLER);
+        dokumentBestillerTjeneste.bestillDokument(dokumentBestilling, HistorikkAktør.SAKSBEHANDLER);
         oppdaterBehandlingBasertPåManueltBrev(bestillBrevDto.brevmalkode(), behandlingId);
     }
 
@@ -106,18 +106,18 @@ public class BrevRestTjeneste {
     @Operation(description = "Returnerer en pdf som er en forhåndsvisning av brevet", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisBrevDto forhåndsvisBrevDto) { // NOSONAR
+    public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisDokumentDto forhåndsvisDto) { // NOSONAR
 
-        var bestilling = BrevForhandsvisning.builder()
-            .medBehandlingUuid(forhåndsvisBrevDto.behandlingUuid())
-            .medDokumentMal(forhåndsvisBrevDto.dokumentMal())
-            .medRevurderingÅrsak(forhåndsvisBrevDto.arsakskode())
-            .medFritekst(forhåndsvisBrevDto.fritekst())
-            .medTittel(forhåndsvisBrevDto.tittel())
-            .medBrevType(utledBrevType(forhåndsvisBrevDto.automatiskVedtaksbrev()))
+        var bestilling = DokumentForhandsvisning.builder()
+            .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
+            .medDokumentMal(forhåndsvisDto.dokumentMal())
+            .medRevurderingÅrsak(forhåndsvisDto.arsakskode())
+            .medFritekst(forhåndsvisDto.fritekst())
+            .medTittel(forhåndsvisDto.tittel())
+            .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();
 
-        var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisBrev(bestilling);
+        var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(bestilling);
         if (dokument != null && dokument.length != 0) {
             var responseBuilder = Response.ok(dokument);
             responseBuilder.type("application/pdf");
@@ -127,8 +127,8 @@ public class BrevRestTjeneste {
         return Response.serverError().build();
     }
 
-    private BrevForhandsvisning.BrevType utledBrevType(boolean gjelderAutomatiskBrev) {
-        return gjelderAutomatiskBrev ? BrevForhandsvisning.BrevType.AUTOMATISK : BrevForhandsvisning.BrevType.OVERSTYRT;
+    private DokumentForhandsvisning.DokumentType utledDokumentType(boolean gjelderAutomatiskBrev) {
+        return gjelderAutomatiskBrev ? DokumentForhandsvisning.DokumentType.AUTOMATISK : DokumentForhandsvisning.DokumentType.OVERSTYRT;
     }
 
     private void oppdaterBehandlingBasertPåManueltBrev(DokumentMalType brevmalkode, Long behandlingId) {
@@ -173,7 +173,7 @@ public class BrevRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            var req = (BestillBrevDto) obj;
+            var req = (BestillDokumentDto) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
@@ -190,7 +190,7 @@ public class BrevRestTjeneste {
     public static class ForhåndsvisSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
-            var req = (ForhåndsvisBrevDto) obj;
+            var req = (ForhåndsvisDokumentDto) obj;
             return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
