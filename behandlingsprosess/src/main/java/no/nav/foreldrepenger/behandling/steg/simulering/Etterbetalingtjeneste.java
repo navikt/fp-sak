@@ -14,7 +14,7 @@ import no.nav.vedtak.konfig.Tid;
 
 public class Etterbetalingtjeneste {
     private static final int UTBETALINGS_DATO = 18;
-    private static final int MAX_TILLATT_ETTERBETALING = 60_000;
+    private static final int MAX_TILLATT_ETTERBETALING = 30_000;
 
     private Etterbetalingtjeneste() {
         // Skjuler default konstruktør

@@ -58,12 +58,12 @@ class EtterbetalingtjenesteTest {
         lagOriginalPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,31), 500, true);
         lagOriginalPeriode(LocalDate.of(2023,8,1), LocalDate.of(2023,9,30), 500, true);
 
-        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,9,30), 1050, true);
+        lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,9,30), 770, true);
 
-        // 109 virkedager * 550 økt dagsats
+        // 109 virkedager * 270 økt dagsats
         var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
-        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(59950));
+        assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(29430));
     }
 
     @Test
