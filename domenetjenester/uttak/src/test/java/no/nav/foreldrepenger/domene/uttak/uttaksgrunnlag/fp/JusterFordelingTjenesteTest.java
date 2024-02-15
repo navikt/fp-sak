@@ -1166,7 +1166,7 @@ class JusterFordelingTjenesteTest {
 
     /**
      * f   ---|mmmmmmmmmm
-     * -|mmmmmmmmmm
+     * f|mmmmmmmmmm
      */
     @Test
     void skal_fylle_alle_hull_før_termin_og_mellom_fødsel_som_er_forbehold_mor_ved_fødsel_før_termin() {
