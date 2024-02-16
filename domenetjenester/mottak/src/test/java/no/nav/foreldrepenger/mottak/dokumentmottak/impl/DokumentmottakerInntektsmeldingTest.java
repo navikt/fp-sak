@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -60,9 +61,11 @@ class DokumentmottakerInntektsmeldingTest {
     @Inject
     private FagsakRepository fagsakRepository;
     @Inject
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     @Inject
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
+    @Inject
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
@@ -82,14 +85,13 @@ class DokumentmottakerInntektsmeldingTest {
 
     @BeforeEach
     public void oppsett() {
-
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
 
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
         dokumentmottaker = new DokumentmottakerInntektsmelding(dokumentmottakerFelles, behandlingsoppretter,
-                kompletthetskontroller, repositoryProvider, fpUttakTjeneste);
+                kompletthetskontroller, repositoryProvider.getBehandlingRepository(), behandlingRevurderingTjeneste, fpUttakTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
 
         var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
@@ -226,7 +228,7 @@ class DokumentmottakerInntektsmeldingTest {
     void skal_opprette_førstegangsbehandling() {
 
         var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                fagsakRepository, fagsakRelasjonRepository);
+                fagsakRepository, fagsakRelasjonTjeneste);
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, 123L, "", now(), true, "123");
         var førstegangsbehandling = mock(Behandling.class);
@@ -275,7 +277,7 @@ class DokumentmottakerInntektsmeldingTest {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
         var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                fagsakRepository, fagsakRelasjonRepository);
+                fagsakRepository, fagsakRelasjonTjeneste);
 
         // Arrange - sett opp opprettelse av køet behandling
         var behandling = mock(Behandling.class);

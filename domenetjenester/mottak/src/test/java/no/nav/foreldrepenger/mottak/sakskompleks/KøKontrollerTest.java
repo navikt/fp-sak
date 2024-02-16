@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -37,7 +37,7 @@ class KøKontrollerTest {
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     @Mock
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
@@ -62,9 +62,8 @@ class KøKontrollerTest {
         when(behandlingRepositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(behandlingRepositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
-        when(behandlingRepositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste,
-                behandlingRepositoryProvider, taskTjeneste, behandlingsoppretter, flytkontroll);
+                behandlingRepositoryProvider, taskTjeneste, behandlingRevurderingTjeneste, behandlingsoppretter, flytkontroll);
     }
 
     @Test
@@ -74,7 +73,7 @@ class KøKontrollerTest {
         var morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
                 .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
         var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId())).thenReturn(Optional.of(morFgBehandling));
 
         // Act
@@ -97,7 +96,7 @@ class KøKontrollerTest {
         var morOppdatertBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
                 .medOriginalBehandling(morBerørtBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
         var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
                 .thenReturn(Optional.of(morBerørtBehandling));
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling))
@@ -115,7 +114,7 @@ class KøKontrollerTest {
     void skal_oprette_task_for_start_behandling_når_uten_køet_behandling() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak())).thenReturn(Optional.empty());
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(behandling.getFagsak())).thenReturn(Optional.empty());
 
         // Act
         køKontroller.dekøFørsteBehandlingISakskompleks(behandling);
@@ -163,7 +162,7 @@ class KøKontrollerTest {
         var morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
             .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING).lagMocked();
         var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
             .thenReturn(Optional.of(morBerørtBehandling));
 

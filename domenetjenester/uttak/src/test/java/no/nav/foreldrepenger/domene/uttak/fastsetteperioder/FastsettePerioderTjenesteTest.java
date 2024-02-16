@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -99,7 +98,7 @@ class FastsettePerioderTjenesteTest {
 
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
 
-    private final FagsakRelasjonRepository relasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     private final FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
 
@@ -110,8 +109,7 @@ class FastsettePerioderTjenesteTest {
     {
         var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
         regelAdapter = new FastsettePerioderRegelAdapter(
             new FastsettePerioderRegelGrunnlagBygger(new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
                 new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
@@ -485,7 +483,8 @@ class FastsettePerioderTjenesteTest {
             .medStønadskonto(fpffKonto)
             .medStønadskonto(foreldrepengerKonto)
             .build();
-        relasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -543,7 +542,8 @@ class FastsettePerioderTjenesteTest {
             .medStønadskonto(fpffKonto)
             .medStønadskonto(mødrekvoteKonto)
             .build();
-        relasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
 
@@ -588,7 +588,7 @@ class FastsettePerioderTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittFpff, oppgittMødrekvote), true))
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
-        relasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         opprettStønadskontoerForFarOgMor(behandling);
         opprettGrunnlag(behandling.getId(), fødselsdato);
 
@@ -784,7 +784,8 @@ class FastsettePerioderTjenesteTest {
             .medRegelInput("grunnlag")
             .medStønadskonto(konto)
             .build();
-        relasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
     }
 
     private void opprettStønadskontoerForFarOgMor(Behandling behandling) {
@@ -812,7 +813,8 @@ class FastsettePerioderTjenesteTest {
             .medStønadskonto(fellesperiode)
             .medStønadskonto(foreldrepengerFørFødsel)
             .build();
-        relasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
     }
 
     private Behandling behandlingMedSøknadsperioder(List<OppgittPeriodeEntitet> perioder) {

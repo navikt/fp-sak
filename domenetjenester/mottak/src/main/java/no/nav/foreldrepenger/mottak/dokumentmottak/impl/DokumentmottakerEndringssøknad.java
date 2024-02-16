@@ -6,12 +6,13 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -22,20 +23,22 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 @DokumentGruppeRef(DokumentGruppe.ENDRINGSSØKNAD)
 class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertDokument {
 
-    private KøKontroller køKontroller;
+    private final KøKontroller køKontroller;
 
     @Inject
-    public DokumentmottakerEndringssøknad(BehandlingRepositoryProvider repositoryProvider,
+    public DokumentmottakerEndringssøknad(BehandlingRepository behandlingRepository,
                                           DokumentmottakerFelles dokumentmottakerFelles,
                                           Behandlingsoppretter behandlingsoppretter,
                                           Kompletthetskontroller kompletthetskontroller,
                                           KøKontroller køKontroller,
-                                          ForeldrepengerUttakTjeneste fpUttakTjeneste) {
+                                          ForeldrepengerUttakTjeneste fpUttakTjeneste,
+                                          BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
         super(dokumentmottakerFelles,
             behandlingsoppretter,
             kompletthetskontroller,
             fpUttakTjeneste,
-            repositoryProvider);
+                behandlingRevurderingTjeneste,
+            behandlingRepository);
         this.køKontroller = køKontroller;
     }
 

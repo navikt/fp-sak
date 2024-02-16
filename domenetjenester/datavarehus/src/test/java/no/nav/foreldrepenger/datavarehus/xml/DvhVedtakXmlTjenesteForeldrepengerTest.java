@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -167,8 +168,8 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-
-    private VirksomhetTjeneste virksomhetTjeneste;
+    @Inject
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @BeforeEach
     public void oppsett(EntityManager em) {
@@ -178,13 +179,13 @@ class DvhVedtakXmlTjenesteForeldrepengerTest {
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
-        virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+        var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
 
         var dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles, familieHendelseRepository, vergeRepository,
             medlemskapRepository, virksomhetTjeneste, personopplysningTjeneste, iayTjeneste, ytelseFordelingTjeneste, foreldrepengerUttakTjeneste);
 
-        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
 
         dvhVedtakXmlTjenesteFP = new DvhVedtakXmlTjeneste(repositoryProvider,

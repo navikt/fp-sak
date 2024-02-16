@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -63,7 +64,9 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
                 mottatteDokumentRepository, behandlingRepositoryProvider);
 
         var familieTjeneste = new FamilieHendelseTjeneste(null, behandlingRepositoryProvider.getFamilieHendelseRepository());
-        var fellesUtils = new VurderFagsystemFellesUtils(behandlingRepositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(behandlingRepositoryProvider);
+        var fellesUtils = new VurderFagsystemFellesUtils(behandlingRepositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null,
+            fagsakRelasjonTjeneste);
 
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
                 new SøknadRepository(getEntityManager(), behandlingRepository), null);

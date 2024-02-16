@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -27,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 class StønadsperiodeTjenesteTest {
 
     @Mock
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
@@ -58,7 +58,7 @@ class StønadsperiodeTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        stønadsperiodeTjeneste = new StønadsperiodeTjeneste(fagsakRelasjonRepository, behandlingRepository,
+        stønadsperiodeTjeneste = new StønadsperiodeTjeneste(fagsakRelasjonTjeneste, behandlingRepository,
             fpUttakRepository, beregningsresultatRepository, skjæringstidspunktTjeneste);
     }
 
@@ -239,7 +239,7 @@ class StønadsperiodeTjenesteTest {
         var relasjon = mock(FagsakRelasjon.class);
         when(relasjon.getRelatertFagsakFraId(behandlingMor.getFagsakId())).thenReturn(Optional.of(behandlingFar.getFagsak()));
         when(relasjon.getRelatertFagsakFraId(behandlingFar.getFagsakId())).thenReturn(Optional.of(behandlingMor.getFagsak()));
-        when(fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(anyLong())).thenReturn(Optional.of(relasjon));
+        when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(anyLong())).thenReturn(Optional.of(relasjon));
 
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingMor.getFagsakId())).thenReturn(Optional.of(behandlingMor));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandlingFar.getFagsakId())).thenReturn(Optional.of(behandlingFar));

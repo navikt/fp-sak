@@ -5,6 +5,7 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -18,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -36,7 +36,7 @@ public class UttakStegImpl implements UttakSteg {
     private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final FastsettePerioderTjeneste fastsettePerioderTjeneste;
     private final FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder;
-    private final FagsakRelasjonRepository fagsakRelasjonRepository;
+    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private final FpUttakRepository fpUttakRepository;
     private final UttakInputTjeneste uttakInputTjeneste;
     private final UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste;
@@ -51,12 +51,13 @@ public class UttakStegImpl implements UttakSteg {
                          UttakInputTjeneste uttakInputTjeneste,
                          UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
                          SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
+                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                          KopierForeldrepengerUttaktjeneste kopierUttaktjeneste) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
         this.fastsettePerioderTjeneste = fastsettePerioderTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.beregnStønadskontoTjeneste = beregnStønadskontoTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
@@ -117,7 +118,7 @@ public class UttakStegImpl implements UttakSteg {
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         if (behandlingsresultat.isEndretStønadskonto()) {
             var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-            fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
+            fagsakRelasjonTjeneste.nullstillOverstyrtStønadskontoberegning(fagsak);
             var nyttBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
                 .medEndretStønadskonto(false)
                 .build();

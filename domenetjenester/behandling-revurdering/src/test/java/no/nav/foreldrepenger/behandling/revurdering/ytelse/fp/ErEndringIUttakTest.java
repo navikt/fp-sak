@@ -19,6 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
@@ -78,6 +80,7 @@ class ErEndringIUttakTest {
             EndringsdatoRevurderingUtlederImpl.class);
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
@@ -90,12 +93,14 @@ class ErEndringIUttakTest {
         revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
     }
 
     private Behandling opprettRevurdering(Behandling behandlingSomSkalRevurderes) {
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider,
                 behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         var dato = LocalDate.now().minusMonths(3);

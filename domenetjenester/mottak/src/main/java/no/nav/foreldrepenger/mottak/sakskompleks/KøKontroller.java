@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -38,7 +38,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 public class KøKontroller {
 
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingRepository behandlingRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -56,11 +56,12 @@ public class KøKontroller {
                         BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                         BehandlingRepositoryProvider repositoryProvider,
                         ProsessTaskTjeneste taskTjeneste,
+                        BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                         Behandlingsoppretter behandlingsoppretter,
                         BehandlingFlytkontroll flytkontroll) {
         this.behandlingProsesseringTjeneste = prosesseringTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.taskTjeneste = taskTjeneste;
@@ -71,7 +72,7 @@ public class KøKontroller {
 
 
     public void dekøFørsteBehandlingISakskompleks(Behandling behandling) {
-        var køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak());
+        var køetBehandlingMedforelder = behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(behandling.getFagsak());
         var medforelderEndringsSøknad = køetBehandlingMedforelder.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).isPresent();
         if (medforelderEndringsSøknad && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
             oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(køetBehandlingMedforelder.get());
@@ -97,8 +98,8 @@ public class KøKontroller {
     }
 
     public void håndterSakskompleks(Fagsak fagsak) {
-        var køetBehandling = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        var køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
+        var køetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
+        var køetBehandlingMedforelder = behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak);
         var køetBerørt = sjekkKøetBerørt(køetBehandling, køetBehandlingMedforelder);
         if (køetBerørt.isPresent()) {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(køetBerørt.get(), Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
@@ -197,12 +198,12 @@ public class KøKontroller {
         if (behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isEmpty()) {
             return false;
         }
-        var åpenBehandling = behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
+        var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
         if (åpenBehandling.isPresent()) {
             // Køes hvis finnes berørt, ellers legg dokument på åpen behandling
             return åpenBehandling.filter(SpesialBehandling::erSpesialBehandling).isPresent();
         }
-        return behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId()).isPresent() || flytkontroll.nyRevurderingSkalVente(fagsak);
+        return behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId()).isPresent() || flytkontroll.nyRevurderingSkalVente(fagsak);
     }
 
 }

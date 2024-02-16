@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -52,11 +53,14 @@ class EndringssøknadSøknadMapperTest {
     private DatavarehusTjeneste datavarehusTjeneste;
     private final SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
     private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
     }
 
@@ -68,13 +72,12 @@ class EndringssøknadSøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var oppgittPeriodeMottattDatoTjeneste = new SøknadDataFraTidligereVedtakTjeneste(
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()),
             new FpUttakRepository(repositoryProvider.getEntityManager()), repositoryProvider.getBehandlingRepository(),
             new UtsettelseBehandling2021(new UtsettelseCore2021(LocalDate.now().minusYears(1)), repositoryProvider, fagsakRelasjonTjeneste));
-        var oversetter = new SøknadOversetter(repositoryProvider, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
+        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter,
             datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste, new AnnenPartOversetter(personinfoAdapter));
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);

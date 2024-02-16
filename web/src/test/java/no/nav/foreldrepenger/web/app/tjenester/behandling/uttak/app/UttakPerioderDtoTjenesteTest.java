@@ -152,8 +152,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakPerioderDtoTjeneste tjeneste() {
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         return new UttakPerioderDtoTjeneste(uttakTjeneste, new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste),
             repositoryProvider.getYtelsesFordelingRepository(),
             inntektArbeidYtelseTjeneste, repositoryProvider.getBehandlingVedtakRepository());

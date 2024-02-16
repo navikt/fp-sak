@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -60,13 +61,12 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
         List<AksjonspunktDefinisjon> aksjonspunkter = new ArrayList<>();
         // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn orginal
         var revurderingBG = hentBeregningsgrunnlag(revurdering.getId());
-        if (revurderingBG.isPresent() && !isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling) &&
-            ErEndringIBeregning.vurderUgunst(revurderingBG, hentBeregningsgrunnlag(orginalBehandling.getId()))) {
+        if (revurderingBG.isPresent() && !isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling) && ErEndringIBeregning.vurderUgunst(
+            revurderingBG, hentBeregningsgrunnlag(orginalBehandling.getId()))) {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
         }
 
-        var behandleStegResultat = foreslåVedtakTjeneste.foreslåVedtak(revurdering, aksjonspunkter);
-        return behandleStegResultat;
+        return foreslåVedtakTjeneste.foreslåVedtak(revurdering, aksjonspunkter);
     }
 
     private boolean isBehandlingsresultatAvslåttEllerOpphørt(Behandling orginalBehandling) {
@@ -101,13 +101,18 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
-            BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
+                                   BehandlingStegType fraSteg) {
+        //Dersom vi tilbakefører til samme steg skal vi ikke fjerne behandlingsresultat
+        if (Objects.equals(BehandlingStegType.FORESLÅ_VEDTAK, tilSteg)) {
+            return;
+        }
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var behandlingsresultat = getBehandlingsresultat(behandling);
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .fjernKonsekvenserForYtelsen()
-                .buildFor(behandling);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).fjernKonsekvenserForYtelsen().buildFor(behandling);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+
     }
 }

@@ -24,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -39,10 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -73,7 +72,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRepository fagsakRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Mock
@@ -100,22 +99,23 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     public void oppsett() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        fagsakRepository = new FagsakRepository(entityManager);
-        fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
-                new FagsakLåsRepository(entityManager));
-        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        fagsakRepository = repositoryProvider.getFagsakRepository();
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
 
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);
         lenient().when(enhetsTjeneste.finnBehandlendeEnhetFra(any())).thenReturn(ENHET);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, enhetsTjeneste,
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        var behandlingRevurderingTjeneste = new BehandlingRevurderingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, enhetsTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
-        dokumentmottaker = new DokumentmottakerSøknadDefault(repositoryProvider, dokumentmottakerFelles,
-                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
+        dokumentmottaker = new DokumentmottakerSøknadDefault(repositoryProvider.getBehandlingRepository(), dokumentmottakerFelles,
+                behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste, behandlingRevurderingTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
@@ -314,7 +314,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
         var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("9999"),
-                fagsakRepository, fagsakRelasjonRepository);
+                fagsakRepository, fagsakRelasjonTjeneste);
 
         // Arrange - mock tjenestekall
         var nyBehandling = mock(Behandling.class);
@@ -665,6 +665,6 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     }
 
     private void kobleFagsaker(Behandling behandling, Behandling medforeldersBehandling) {
-        fagsakRelasjonRepository.kobleFagsaker(behandling.getFagsak(), medforeldersBehandling.getFagsak(), behandling);
+        fagsakRelasjonTjeneste.kobleFagsaker(behandling.getFagsak(), medforeldersBehandling.getFagsak(), behandling);
     }
 }

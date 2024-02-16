@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -33,8 +34,8 @@ class BehandlendeEnhetTjenesteTest {
 
     private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
-    private static final OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4867", "NAV Foreldrepenger");
-    private static final OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
+    private static final OrganisasjonsEnhet ENHET_NORMAL = new OrganisasjonsEnhet("4867", "NAV Foreldrepenger");
+    private static final OrganisasjonsEnhet ENHET_KODE_6 = new OrganisasjonsEnhet("2103", "NAV Viken");
 
     @Mock
     private EnhetsTjeneste enhetsTjeneste;
@@ -49,50 +50,50 @@ class BehandlendeEnhetTjenesteTest {
     void finn_mors_enhet_normal_sak() {
         // Oppsett
         var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
-        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
+        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(ENHET_NORMAL);
 
         var morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingMor.getFagsak());
 
-        assertThat(morEnhet.enhetId()).isEqualTo(enhetNormal.enhetId());
+        assertThat(morEnhet.enhetId()).isEqualTo(ENHET_NORMAL.enhetId());
     }
 
     @Test
     void finn_mors_enhet_annenpart_kode6() {
         // Oppsett
-        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
+        when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(ENHET_NORMAL);
         when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.empty());
 
         var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
 
         var morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingMor.getFagsak());
 
-        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
+        when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(ENHET_KODE_6));
         var nyEnhet = behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandlingMor);
 
-        assertThat(morEnhet.enhetId()).isEqualTo(enhetNormal.enhetId());
-        assertThat(nyEnhet).hasValueSatisfying(enhet -> assertThat(enhet.enhetId()).isEqualTo(enhetKode6.enhetId()));
+        assertThat(morEnhet.enhetId()).isEqualTo(ENHET_NORMAL.enhetId());
+        assertThat(nyEnhet).hasValueSatisfying(enhet -> assertThat(enhet.enhetId()).isEqualTo(ENHET_KODE_6.enhetId()));
     }
 
     @Test
     void finn_enhet_etter_kobling_far_relasjon_kode6() {
         // Oppsett
-        lenient().when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(enhetNormal);
+        lenient().when(enhetsTjeneste.hentEnhetSjekkKunAktør(any(), any())).thenReturn(ENHET_NORMAL);
         lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(),any())).thenReturn(Optional.empty());
 
         var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate.now(),1,  FAR_AKTØR_ID);
-        behandlingMor.setBehandlendeEnhet(enhetNormal);
+        behandlingMor.setBehandlendeEnhet(ENHET_NORMAL);
         var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, MOR_AKTØR_ID);
-        behandlingFar.setBehandlendeEnhet(enhetKode6);
+        behandlingFar.setBehandlendeEnhet(ENHET_KODE_6);
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandlingMor.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
 
-        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
+        lenient().when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any(), any())).thenReturn(Optional.of(ENHET_KODE_6));
 
         var oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor);
 
         assertThat(oppdatertEnhet).isPresent();
-        assertThat(oppdatertEnhet).hasValueSatisfying(it -> assertThat(it.enhetId()).isEqualTo(enhetKode6.enhetId()));
+        assertThat(oppdatertEnhet).hasValueSatisfying(it -> assertThat(it.enhetId()).isEqualTo(ENHET_KODE_6.enhetId()));
     }
 
 
@@ -107,7 +108,9 @@ class BehandlendeEnhetTjenesteTest {
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
+            fagsakRelasjonTjeneste);
         return behandling;
     }
 
@@ -120,7 +123,9 @@ class BehandlendeEnhetTjenesteTest {
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
+            fagsakRelasjonTjeneste);
         return behandling;
     }
 
@@ -134,7 +139,9 @@ class BehandlendeEnhetTjenesteTest {
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
         var behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider, egenskapRepository,
+            fagsakRelasjonTjeneste);
         return behandling;
     }
 

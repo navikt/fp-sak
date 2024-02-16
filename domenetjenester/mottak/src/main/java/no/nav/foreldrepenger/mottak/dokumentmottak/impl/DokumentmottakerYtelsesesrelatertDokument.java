@@ -11,8 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -28,7 +27,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
     protected DokumentmottakerFelles dokumentmottakerFelles;
     Behandlingsoppretter behandlingsoppretter;
     Kompletthetskontroller kompletthetskontroller;
-    BehandlingRevurderingRepository revurderingRepository;
+    BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     protected BehandlingRepository behandlingRepository;
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
@@ -41,12 +40,13 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
                                                      Behandlingsoppretter behandlingsoppretter,
                                                      Kompletthetskontroller kompletthetskontroller,
                                                      ForeldrepengerUttakTjeneste fpUttakTjeneste,
-                                                     BehandlingRepositoryProvider repositoryProvider) {
+                                                     BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
+                                                     BehandlingRepository behandlingRepository) {
         this.dokumentmottakerFelles = dokumentmottakerFelles;
         this.behandlingsoppretter = behandlingsoppretter;
         this.kompletthetskontroller = kompletthetskontroller;
-        this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
+        this.behandlingRepository = behandlingRepository;
         this.fpUttakTjeneste = fpUttakTjeneste;
     }
 
@@ -70,7 +70,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     @Override
     public final void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        var sisteYtelsesbehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId());
+        var sisteYtelsesbehandling = behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId());
 
         if (sisteYtelsesbehandling.isEmpty()) {
             håndterIngenTidligereBehandling(fagsak, mottattDokument, behandlingÅrsakType);
@@ -100,8 +100,8 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     @Override
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        var eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        var eksisterendeÅpenBehandlingUtenSøknad = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId())
+        var eksisterendeKøetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
+        var eksisterendeÅpenBehandlingUtenSøknad = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId())
             .filter(b -> b.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD));
         if (eksisterendeÅpenBehandlingUtenSøknad.isPresent()) {
             oppdaterÅpenBehandlingMedDokument(eksisterendeÅpenBehandlingUtenSøknad.get(), mottattDokument, behandlingÅrsakType);

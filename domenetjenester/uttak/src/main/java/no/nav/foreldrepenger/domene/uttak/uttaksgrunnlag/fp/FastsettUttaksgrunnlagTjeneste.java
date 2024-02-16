@@ -136,6 +136,9 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                             List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                             RelasjonsRolleType relasjonsRolleType,
                                                                             boolean ønskerJustertVedFødsel) {
+        if (oppgittePerioder.isEmpty()) {
+            throw new IllegalStateException("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør)");
+        }
         var familiehendelser = finnFamiliehendelser(fpGrunnlag);
         return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
                 familiehendelser.gjeldende(), relasjonsRolleType, ønskerJustertVedFødsel);

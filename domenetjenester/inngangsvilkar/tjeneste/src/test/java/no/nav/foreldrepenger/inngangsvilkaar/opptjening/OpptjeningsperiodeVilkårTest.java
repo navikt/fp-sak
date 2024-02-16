@@ -48,8 +48,7 @@ class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var stputil = new SkjæringstidspunktUtils(
             Period.parse("P1Y"), Period.parse("P6M"));
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste), repositoryProvider.getFpUttakRepository(),
             repositoryProvider.getBehandlingRepository(), fagsakRelasjonTjeneste);
         var utsettelse2021 = new UtsettelseBehandling2021(new UtsettelseCore2021(null), repositoryProvider, fagsakRelasjonTjeneste);

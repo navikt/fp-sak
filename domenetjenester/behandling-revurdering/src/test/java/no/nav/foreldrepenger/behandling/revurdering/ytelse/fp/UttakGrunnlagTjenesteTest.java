@@ -35,12 +35,12 @@ class UttakGrunnlagTjenesteTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         var familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, familieHendelseRepository);
-        tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, grunnlagRepositoryProvider, relatertBehandlingTjeneste, familieHendelseTjeneste);
+        tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, grunnlagRepositoryProvider, relatertBehandlingTjeneste, familieHendelseTjeneste,
+            fagsakRelasjonTjeneste);
     }
 
     @Test
