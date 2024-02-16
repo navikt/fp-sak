@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
@@ -62,6 +63,8 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
+    @Inject
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
 
     private Behandling revurdering;
     private Behandlingsresultat revurderingResultat;
@@ -80,7 +83,7 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                         false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider, behandlingRevurderingTjeneste);
         var revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, grunnlagRepositoryProvider,
             behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste

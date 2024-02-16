@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -41,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -66,7 +66,7 @@ public class VurderFagsystemFellesUtils {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -79,12 +79,15 @@ public class VurderFagsystemFellesUtils {
     }
 
     @Inject
-    public VurderFagsystemFellesUtils(BehandlingRepositoryProvider repositoryProvider, FamilieHendelseTjeneste familieHendelseTjeneste,
+    public VurderFagsystemFellesUtils(BehandlingRepositoryProvider repositoryProvider,
+                                      FamilieHendelseTjeneste familieHendelseTjeneste,
                                       MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                                      InntektsmeldingTjeneste inntektsmeldingTjeneste, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                      InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                      FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -502,7 +505,7 @@ public class VurderFagsystemFellesUtils {
 
     private Optional<FamilieHendelseGrunnlagEntitet> hentAktuellFamilieHendelse(Behandling behandling) {
         return familieHendelseTjeneste.finnAggregat(behandling.getId())
-            .or(() -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+            .or(() -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                 .flatMap(r -> r.getRelatertFagsak(behandling.getFagsak()))
                 .flatMap(f -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(f.getId()))
                 .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId())));

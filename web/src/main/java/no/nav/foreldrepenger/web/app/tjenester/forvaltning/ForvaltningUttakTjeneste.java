@@ -6,6 +6,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -13,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
@@ -26,7 +26,7 @@ public class ForvaltningUttakTjeneste {
     private BehandlingRepository behandlingRepository;
     private BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FagsakRepository fagsakRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private HistorikkRepository historikkRepository;
@@ -35,14 +35,14 @@ public class ForvaltningUttakTjeneste {
     public ForvaltningUttakTjeneste(BehandlingRepository behandlingRepository,
                                     BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
                                     UttakInputTjeneste uttakInputTjeneste,
-                                    FagsakRelasjonRepository fagsakRelasjonRepository,
+                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                     FagsakRepository fagsakRepository,
                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                     HistorikkRepository historikkRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.historikkRepository = historikkRepository;
@@ -56,7 +56,7 @@ public class ForvaltningUttakTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = uttakInputTjeneste.lagInput(behandling);
         var fagsak = fagsakRepository.finnEksaktFagsak(input.getBehandlingReferanse().fagsakId());
-        fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
+        fagsakRelasjonTjeneste.nullstillOverstyrtStønadskontoberegning(fagsak);
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
     }
 

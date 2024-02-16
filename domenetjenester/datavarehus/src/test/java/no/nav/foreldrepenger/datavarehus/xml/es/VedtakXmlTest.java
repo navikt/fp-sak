@@ -20,6 +20,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -113,7 +114,8 @@ class VedtakXmlTest {
 
         var søknadRepository = mock(SøknadRepository.class);
 
-        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);

@@ -22,6 +22,7 @@ import jakarta.ws.rs.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -81,6 +82,9 @@ class BehandlingDtoTjenesteTest {
     @Inject
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
 
+    @Inject
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+
     private BehandlingDtoTjeneste tjeneste;
 
     private final LocalDate now = LocalDate.now();
@@ -89,7 +93,7 @@ class BehandlingDtoTjenesteTest {
     public void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
                 behandlingDokumentRepository, foreldrepengerUttakTjeneste, mock(TotrinnTjeneste.class),
-            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste);
+            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste);
     }
 
     @Test

@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
-public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
+class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
 
     private DokumentmottakerVedlegg dokumentmottakerVedlegg;
     private DokumentmottakerFelles dokumentmottakerFellesSpied;
@@ -24,10 +24,8 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
 
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettHistorikkinnslagForVedlegg(Mockito.any(), Mockito.any());
 
-        dokumentmottakerVedlegg = new DokumentmottakerVedlegg(
-            repositoryProvider,
-            dokumentmottakerFellesSpied,
-            kompletthetskontroller);
+        dokumentmottakerVedlegg = new DokumentmottakerVedlegg(behandlingRevurderingTjeneste, dokumentmottakerFellesSpied,
+            kompletthetskontroller, repositoryProvider.getBehandlingRepository());
     }
 
     @Test

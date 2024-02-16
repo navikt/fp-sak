@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVi
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -37,7 +37,7 @@ public class RevurderingTjenesteFelles {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private FagsakRevurdering fagsakRevurdering;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private OpptjeningRepository opptjeningRepository;
@@ -48,10 +48,10 @@ public class RevurderingTjenesteFelles {
     }
 
     @Inject
-    public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider) {
+    public RevurderingTjenesteFelles(BehandlingRepositoryProvider repositoryProvider, BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+        this.behandlingRevurderingTjeneste = behandlingRevurderingTjeneste;
         this.fagsakRevurdering = new FagsakRevurdering(repositoryProvider.getBehandlingRepository());
         this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
@@ -66,7 +66,7 @@ public class RevurderingTjenesteFelles {
                 .medManueltOpprettet(manueltOpprettet);
         if (BehandlingÅrsakType.BERØRT_BEHANDLING.equals(revurderingsÅrsak)
             && opprinneligBehandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
-            var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
+            var basis = behandlingRevurderingTjeneste.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                     .orElseThrow(() -> new IllegalStateException(
                             "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje"));
             var behandlingsresultat = behandlingsresultatRepository.hent(basis.getId());

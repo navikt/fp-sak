@@ -30,7 +30,8 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
             dokumentmottakerFellesSpied,
             behandlingsoppretterSpied,
             kompletthetskontroller,
-            repositoryProvider,
+            repositoryProvider.getBehandlingRepository(),
+                behandlingRevurderingTjeneste,
             fpUttakTjeneste);
     }
 

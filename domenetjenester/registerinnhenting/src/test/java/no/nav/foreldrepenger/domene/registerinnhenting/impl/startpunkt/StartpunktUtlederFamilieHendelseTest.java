@@ -53,7 +53,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
+        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
@@ -84,7 +84,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
+        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
@@ -237,7 +237,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
+        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
 
         var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
@@ -271,7 +271,7 @@ class StartpunktUtlederFamilieHendelseTest {
 
         // Act/Assert
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null, null);
+        var relasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
 
         var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);

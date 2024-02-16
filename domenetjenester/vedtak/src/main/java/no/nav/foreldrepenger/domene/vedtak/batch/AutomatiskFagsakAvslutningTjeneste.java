@@ -8,8 +8,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.vedtak.intern.AutomatiskFagsakAvslutningTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -19,7 +19,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class AutomatiskFagsakAvslutningTjeneste {
 
     private ProsessTaskTjeneste taskTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     AutomatiskFagsakAvslutningTjeneste() {
         // For CDI?
@@ -27,13 +27,13 @@ public class AutomatiskFagsakAvslutningTjeneste {
 
     @Inject
     public AutomatiskFagsakAvslutningTjeneste(ProsessTaskTjeneste taskTjeneste,
-                                              FagsakRelasjonRepository fagsakRelasjonRepository) {
+                                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.taskTjeneste = taskTjeneste;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
 
     String avsluttFagsaker(String batchname, LocalDate date) {
-        var fagsaker = fagsakRelasjonRepository.finnFagsakerForAvsluttning(date);
+        var fagsaker = fagsakRelasjonTjeneste.finnFagsakerForAvsluttning(date);
 
         var callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
@@ -46,7 +46,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
             var task = opprettFagsakAvslutningTask(fagsak, nyCallId, dato, baseline, 10799); // Spre kjøring utover 3 timer
             taskTjeneste.lagre(task);
         }
-        return batchname + "-" + UUID.randomUUID().toString();
+        return batchname + "-" + UUID.randomUUID();
     }
 
     private ProsessTaskData opprettFagsakAvslutningTask(Fagsak fagsak, String callId, LocalDate dato, LocalTime tid, int spread) {

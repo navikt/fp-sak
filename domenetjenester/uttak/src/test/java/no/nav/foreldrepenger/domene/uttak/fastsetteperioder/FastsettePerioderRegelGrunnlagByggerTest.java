@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -92,14 +91,14 @@ class FastsettePerioderRegelGrunnlagByggerTest {
     private final UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
 
     private FastsettePerioderRegelGrunnlagBygger grunnlagBygger;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new UttakRepositoryStubProvider();
         var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
-        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
-            repositoryProvider.getFagsakRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
         grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
@@ -366,7 +365,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         repositoryProvider.getFpUttakRepository()
             .lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
-        lagreStønadskontoer(morsBehandling, repositoryProvider.getFagsakRelasjonRepository());
+        lagreStønadskontoer(morsBehandling, fagsakRelasjonTjeneste);
 
         // Arrange - fars behandling
         var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer("1111"),
@@ -517,7 +516,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value());
     }
 
-    private void lagreStønadskontoer(Behandling behandling, FagsakRelasjonRepository fagsakRelasjonRepository) {
+    private void lagreStønadskontoer(Behandling behandling, FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         var mødrekvote = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.MØDREKVOTE)
             .medMaxDager(30)
@@ -544,8 +543,8 @@ class FastsettePerioderRegelGrunnlagByggerTest {
             .medRegelInput(" ")
             .build();
 
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
     }
 
     private void lagreYrkesAktiviter(Behandling behandling,
@@ -652,7 +651,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
 
         var behandling = lagre(scenario);
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), behandling.getId());
-        lagreStønadskontoer(behandling, repositoryProvider.getFagsakRelasjonRepository());
+        lagreStønadskontoer(behandling, fagsakRelasjonTjeneste);
         return behandling;
     }
 }

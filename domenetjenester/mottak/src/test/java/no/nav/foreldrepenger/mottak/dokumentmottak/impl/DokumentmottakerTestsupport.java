@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -46,6 +47,8 @@ public abstract class DokumentmottakerTestsupport {
     protected Kompletthetskontroller kompletthetskontroller;
     @Inject
     protected BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    protected BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     @Inject
     protected ForeldrepengerUttakTjeneste fpUttakTjeneste;
 

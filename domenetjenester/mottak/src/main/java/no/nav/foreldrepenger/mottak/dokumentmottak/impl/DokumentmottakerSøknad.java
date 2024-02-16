@@ -3,14 +3,12 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -18,21 +16,21 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 
 public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesrelatertDokument {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DokumentmottakerSøknad.class);
+    private final KøKontroller køKontroller;
 
-    private KøKontroller køKontroller;
-
-    public DokumentmottakerSøknad(BehandlingRepositoryProvider repositoryProvider,
+    public DokumentmottakerSøknad(BehandlingRepository behandlingRepository,
                                   DokumentmottakerFelles dokumentmottakerFelles,
                                   Behandlingsoppretter behandlingsoppretter,
                                   Kompletthetskontroller kompletthetskontroller,
                                   KøKontroller køKontroller,
-                                  ForeldrepengerUttakTjeneste fpUttakTjeneste) {
+                                  ForeldrepengerUttakTjeneste fpUttakTjeneste,
+                                  BehandlingRevurderingTjeneste behandlingRevurderingTjeneste) {
         super(dokumentmottakerFelles,
             behandlingsoppretter,
             kompletthetskontroller,
             fpUttakTjeneste,
-            repositoryProvider);
+                behandlingRevurderingTjeneste,
+            behandlingRepository);
         this.køKontroller = køKontroller;
     }
 
@@ -131,7 +129,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     @Override
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long avsluttetMedSøknadBehandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
         var avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
-        var harÅpenBehandling = !revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
+        var harÅpenBehandling = !behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
         if (harÅpenBehandling || erAvslag(avsluttetBehandlingMedSøknad) || dokumentmottakerFelles.erBehandlingHenlagt(avsluttetBehandlingMedSøknad.getId())) {
             dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
         } else {

@@ -5,6 +5,7 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -13,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -31,7 +31,7 @@ public class OppdaterFagsakStatusTjeneste {
     private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
 
@@ -44,14 +44,14 @@ public class OppdaterFagsakStatusTjeneste {
                                         FagsakStatusEventPubliserer fagsakStatusEventPubliserer,
                                         BehandlingsresultatRepository behandlingsresultatRepository,
                                         BehandlingRepository behandlingRepository,
-                                        FagsakRelasjonRepository fagsakRelasjonRepository,
+                                        FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                         ProsessTaskTjeneste prosessTaskTjeneste,
                                         FptilbakeRestKlient fptilbakeRestKlient) {
         this.fagsakRepository = fagsakRepository;
         this.fagsakStatusEventPubliserer = fagsakStatusEventPubliserer;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
-        this.fagsakRelasjonRepository = fagsakRelasjonRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
     }
@@ -177,6 +177,6 @@ public class OppdaterFagsakStatusTjeneste {
     }
 
     private boolean ingenAvslutningsdato(Fagsak fagsak) {
-        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getAvsluttningsdato).isEmpty();
+        return fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).map(FagsakRelasjon::getAvsluttningsdato).isEmpty();
     }
 }

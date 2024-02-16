@@ -13,14 +13,12 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -38,11 +36,9 @@ class BeregnStønadskontoerTjenesteTest {
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-    private final FagsakRelasjonRepository fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository,
-        FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRepository());
-    private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(
-        repositoryProvider.getFpUttakRepository());
+    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null,
+        repositoryProvider.getFagsakRelasjonRepository());
+    private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
 
     @Test
     void bådeMorOgFarHarRettTermin() {
@@ -51,8 +47,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var behandlingId = behandling.getId();
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
-            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -63,8 +58,7 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
-            fagsakRelasjonTjeneste, uttakTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -94,8 +88,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var behandlingId = behandling.getId();
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
-            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.beggeRett())
@@ -103,8 +96,7 @@ class BeregnStønadskontoerTjenesteTest {
         ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
-            fagsakRelasjonTjeneste, uttakTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -131,8 +123,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk80();
         var behandlingId = behandling.getId();
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
-            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(OppgittRettighetEntitet.aleneomsorg())
@@ -142,8 +133,7 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
-            fagsakRelasjonTjeneste, uttakTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -155,8 +145,7 @@ class BeregnStønadskontoerTjenesteTest {
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
         assertThat(stønadskontoer).hasSize(2);
-        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType)
-            .containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
+        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType).containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
     }
 
     @Test
@@ -166,8 +155,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var behandlingId = behandling.getId();
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
-            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))
@@ -178,8 +166,7 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
-            fagsakRelasjonTjeneste, uttakTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -191,8 +178,7 @@ class BeregnStønadskontoerTjenesteTest {
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
         assertThat(stønadskontoer).hasSize(2);
-        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType)
-            .containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
+        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType).containsExactlyInAnyOrder(FORELDREPENGER_FØR_FØDSEL, FORELDREPENGER);
     }
 
     @Test
@@ -202,8 +188,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var behandlingId = behandling.getId();
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
-            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
             .medOppgittRettighet(new OppgittRettighetEntitet(false, false, false, false, false))
@@ -214,8 +199,7 @@ class BeregnStønadskontoerTjenesteTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
-            fagsakRelasjonTjeneste, uttakTjeneste);
+        var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -227,8 +211,7 @@ class BeregnStønadskontoerTjenesteTest {
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
         assertThat(stønadskontoer).hasSize(1);
-        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType)
-            .containsExactlyInAnyOrder(FORELDREPENGER);
+        assertThat(stønadskontoer).extracting(Stønadskonto::getStønadskontoType).containsExactlyInAnyOrder(FORELDREPENGER);
     }
 
     private Behandling opprettBehandlingForMor(AktørId aktørId) {

@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,13 +37,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -61,11 +60,9 @@ class BerørtBehandlingKontrollerTest {
     @Mock
     private BehandlingRepository behandlingRepository;
     @Mock
-    private BehandlingRevurderingRepository behandlingRevurderingRepository;
+    private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    @Mock
-    private FpUttakRepository fpUttakRepository;
     @Mock
     private HistorikkRepository historikkRepository;
     @Mock
@@ -98,9 +95,7 @@ class BerørtBehandlingKontrollerTest {
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         var fagsakLåsRepository = mock(FagsakLåsRepository.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-        when(repositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
-        when(repositoryProvider.getFpUttakRepository()).thenReturn(fpUttakRepository);
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
         when(repositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
@@ -129,30 +124,30 @@ class BerørtBehandlingKontrollerTest {
 
         when(behandlingsresultatRepository.hent(fBehandling.getId())).thenReturn(Behandlingsresultat.builder().build());
 
-        when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakMedforelder));
-        when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsakMedforelder)).thenReturn(Optional.of(fagsak));
+        when(behandlingRevurderingTjeneste.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakMedforelder));
+        when(behandlingRevurderingTjeneste.finnFagsakPåMedforelder(fagsakMedforelder)).thenReturn(Optional.of(fagsak));
         when(behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING)).thenReturn(berørtMedforelder);
         when(behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.BERØRT_BEHANDLING)).thenReturn(berørt);
 
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(eq(køetBehandling), any(BehandlingÅrsakType.class))).thenReturn(køetBehandling);
 
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.empty());
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.empty());
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.empty());
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.empty());
+        when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.empty());
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.empty());
+        when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.empty());
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.empty());
 
 
-        var køkontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste, repositoryProvider, null,
+        var køkontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste, repositoryProvider, null, behandlingRevurderingTjeneste,
             behandlingsoppretter, null);
-        berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, berørtBehandlingTjeneste, behandlingsoppretter,
+        berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, behandlingRevurderingTjeneste, berørtBehandlingTjeneste, behandlingsoppretter,
             beregnFeriepenger, køkontroller);
     }
 
     @Test
     void testHåndterEgenKø() { // Vurder innhold - vil pt ikke være kø når ukoblet
         // Arrange
-        when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.empty());
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.of(køetBehandling));
+        when(behandlingRevurderingTjeneste.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.empty());
+        when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.of(køetBehandling));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
@@ -175,8 +170,8 @@ class BerørtBehandlingKontrollerTest {
         when(køetBehandlingPåVent.getAktørId()).thenReturn(aktørId);
         when(køetBehandlingPåVent.getOpprettetTidspunkt()).thenReturn(nå);
 
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingPåVent));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingPåVent));
+        when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingPåVent));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingPåVent));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
@@ -188,8 +183,8 @@ class BerørtBehandlingKontrollerTest {
     @Test
     void testBerørtBehandlingMedforelder() {
         // Arrange
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingMedforelder));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingMedforelder));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
@@ -206,7 +201,7 @@ class BerørtBehandlingKontrollerTest {
             Optional.of(fBehandlingMedforelder));
         when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
             lagBehandlingsresultat(fBehandling, BehandlingResultatType.OPPHØR, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.of(køetBehandlingMedforelder));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
@@ -233,13 +228,13 @@ class BerørtBehandlingKontrollerTest {
     }
 
     private void settOppKøBruker() {
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.of(køetBehandling));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.of(køetBehandling));
+        when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.of(køetBehandling));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.of(køetBehandling));
     }
 
     private void settOppKøAnnenpart() {
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingMedforelder));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingMedforelder));
     }
 
     private Behandling lagBehandling() {

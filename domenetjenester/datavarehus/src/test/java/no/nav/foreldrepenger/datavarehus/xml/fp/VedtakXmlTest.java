@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -135,6 +136,8 @@ class VedtakXmlTest {
 
     @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
+    @Inject
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     private FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste;
 
@@ -147,7 +150,7 @@ class VedtakXmlTest {
         var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider, personopplysningTjeneste,
                 iayTjeneste, ytelseFordelingTjeneste, mock(VergeRepository.class), mock(VirksomhetTjeneste.class), foreldrepengerUttakTjeneste
             );
-        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
                 behandlingsresultatXmlTjeneste,

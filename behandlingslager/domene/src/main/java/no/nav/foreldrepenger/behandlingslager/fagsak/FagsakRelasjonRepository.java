@@ -332,7 +332,6 @@ public class FagsakRelasjonRepository {
         return new DiffEntity(traverser);
     }
 
-    @SuppressWarnings("unused")
     public Optional<FagsakRelasjon> oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
         Objects.requireNonNull(avsluttningsdato, "avsluttningsdato");
 

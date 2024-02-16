@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -28,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
@@ -65,7 +65,7 @@ public class BehandlingFormidlingDtoTjeneste {
 
     private BeregningTjeneste beregningTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private SøknadRepository søknadRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
@@ -83,10 +83,11 @@ public class BehandlingFormidlingDtoTjeneste {
                                            BehandlingDokumentRepository behandlingDokumentRepository,
                                            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                           DekningsgradTjeneste dekningsgradTjeneste) {
+                                           DekningsgradTjeneste dekningsgradTjeneste,
+                                           FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
-        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.svangerskapspengerUttakResultatRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
@@ -192,11 +193,6 @@ public class BehandlingFormidlingDtoTjeneste {
 
             if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
                 var svangerskapspengerUttakResultatEntitet = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId());
-                var stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
-                    .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
-                if (stønadskontoberegning.isPresent() && svangerskapspengerUttakResultatEntitet.isPresent()) {
-                    dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));
-                }
 
                 if (svangerskapspengerUttakResultatEntitet.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
@@ -213,7 +209,7 @@ public class BehandlingFormidlingDtoTjeneste {
                 dto.setKreverSammenhengendeUttak(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).kreverSammenhengendeUttak());
 
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
-                var stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+                var stønadskontoberegning = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                     .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);
                 if (stønadskontoberegning.isPresent() && uttakResultat.isPresent()) {
                     dto.leggTil(get(UttakRestTjeneste.STONADSKONTOER_PATH, "uttak-stonadskontoer", uuidDto));
