@@ -5,10 +5,15 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
@@ -16,13 +21,19 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
 class StønadsstatistikkBeregningMapper {
+
+    private static final Set<AksjonspunktDefinisjon> BEREGNING_AVVIK = AksjonspunktDefinisjon.getAvvikIBeregning();
+    private static final Set<FaktaOmBeregningTilfelle> BESTEBEREGNING_FAKTA = Set.of(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING,
+        FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE);
 
     private StønadsstatistikkBeregningMapper() {
     }
 
-    static StønadsstatistikkVedtak.Beregning mapBeregning(FagsakYtelseType ytelseType,
+    static StønadsstatistikkVedtak.Beregning mapBeregning(Behandling behandling,
                                                           BeregningsgrunnlagEntitet beregningsgrunnlag, InntektArbeidYtelseGrunnlag iaygrunnlag) {
         if (beregningsgrunnlag == null) {
             return null;
@@ -35,10 +46,10 @@ class StønadsstatistikkBeregningMapper {
             .findFirst()
             .orElseThrow();
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp().getVerdi();
-        var avkortet = FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? periodePåStp.getAvkortetPrÅr() :
+        var avkortet = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getAvkortetPrÅr() :
             utledAvkortetÅrsbeløp(periodePåStp, grunnbeløp);
-        var redusert = FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? periodePåStp.getRedusertPrÅr() : avkortet;
-        var dagsats = FagsakYtelseType.FORELDREPENGER.equals(ytelseType) ? periodePåStp.getDagsats() : utledDagsats(avkortet);
+        var redusert = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getRedusertPrÅr() : avkortet;
+        var dagsats = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getDagsats() : utledDagsats(avkortet);
 
         var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), avkortet, redusert, dagsats);
 
@@ -46,7 +57,7 @@ class StønadsstatistikkBeregningMapper {
             .collect(Collectors.groupingBy(Gruppering::new))
             .entrySet().stream()
             .filter(e -> e.getValue().stream().anyMatch(b -> b.getBruttoPrÅr() != null || b.getAvkortetPrÅr() != null || b.getRedusertPrÅr() != null || b.getDagsats() != null))
-            .map(e -> mapAndeler(e.getKey(), e.getValue(), ytelseType))
+            .map(e -> mapAndeler(e.getKey(), e.getValue(), behandling.getFagsakYtelseType()))
             .toList();
 
         var næringOrgNr = Optional.ofNullable(iaygrunnlag)
@@ -57,7 +68,15 @@ class StønadsstatistikkBeregningMapper {
             .map(OppgittEgenNæring::getOrgnr)
             .collect(Collectors.toSet());
 
-        return new StønadsstatistikkVedtak.Beregning(grunnbeløp, årsbeløp, andeler, næringOrgNr);
+        var avviksvudert = behandling.getAksjonspunkter().stream()
+            .filter(Aksjonspunkt::erUtført)
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .anyMatch(BEREGNING_AVVIK::contains);
+        var fastsatt = avviksvudert ? StønadsstatistikkVedtak.BeregningFastsatt.SKJØNN : StønadsstatistikkVedtak.BeregningFastsatt.AUTOMATISK;
+
+        var hjemmel = mapBeregningshjemmel(behandling.getFagsakYtelseType(), beregningsgrunnlag);
+
+        return new StønadsstatistikkVedtak.Beregning(grunnbeløp, årsbeløp, andeler, næringOrgNr, hjemmel, fastsatt);
     }
 
     private static Long utledDagsats(BigDecimal avkortet) {
@@ -128,5 +147,38 @@ class StønadsstatistikkBeregningMapper {
             case KUN_YTELSE, TTLSTØTENDE_YTELSE, VENTELØNN_VARTPENGER, UDEFINERT -> throw new IllegalStateException("Skal ikke forekomme");
         };
     }
+
+    private static StønadsstatistikkVedtak.BeregningHjemmel mapBeregningshjemmel(FagsakYtelseType ytelseType, BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
+            var hjemler = beregningsgrunnlag.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getHjemmel).collect(Collectors.toSet());
+            var statuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).collect(Collectors.toSet());
+
+            if (hjemler.contains(Hjemmel.F_14_7_8_49) || statuser.contains(AktivitetStatus.DAGPENGER)) {
+                var besteberegnet = beregningsgrunnlag.getBesteberegninggrunnlag().isPresent() ||
+                    beregningsgrunnlag.getFaktaOmBeregningTilfeller().stream().anyMatch(BESTEBEREGNING_FAKTA::contains);
+                return besteberegnet ? StønadsstatistikkVedtak.BeregningHjemmel.MOR_ARBEIDSLEDIG : StønadsstatistikkVedtak.BeregningHjemmel.DAGPENGER;
+            }
+            if (statuser.contains(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)) {
+                return StønadsstatistikkVedtak.BeregningHjemmel.ARBEIDSAVKLARINGSPENGER;
+            }
+            if (statuser.contains(AktivitetStatus.MILITÆR_ELLER_SIVIL)) {
+                return StønadsstatistikkVedtak.BeregningHjemmel.MILITÆR_SIVIL;
+            }
+        }
+        return switch (beregningsgrunnlag.getHjemmel()) {
+            case F_14_7 -> StønadsstatistikkVedtak.BeregningHjemmel.ANNEN; // Stort set beregning med kun dagytelse i grunnlaget
+            case F_14_7_8_30, F_14_7_8_28_8_30 -> StønadsstatistikkVedtak.BeregningHjemmel.ARBEID;
+            case F_14_7_8_35 -> StønadsstatistikkVedtak.BeregningHjemmel.NÆRING;
+            case F_14_7_8_38 -> StønadsstatistikkVedtak.BeregningHjemmel.FRILANS;
+            case F_14_7_8_40 -> StønadsstatistikkVedtak.BeregningHjemmel.ARBEID_FRILANS;
+            case F_14_7_8_41 -> StønadsstatistikkVedtak.BeregningHjemmel.ARBEID_NÆRING;
+            case F_14_7_8_42 -> StønadsstatistikkVedtak.BeregningHjemmel.NÆRING_FRILANS;
+            case F_14_7_8_43 -> StønadsstatistikkVedtak.BeregningHjemmel.ARBEID_NÆRING_FRILANS;
+            case F_14_7_8_47 -> throw new IllegalArgumentException("Midlertidig inaktiv ikke støttet");
+            case F_14_7_8_49 -> StønadsstatistikkVedtak.BeregningHjemmel.DAGPENGER;
+            case UDEFINERT -> StønadsstatistikkVedtak.BeregningHjemmel.ANNEN;
+        };
+    }
+
 
 }
