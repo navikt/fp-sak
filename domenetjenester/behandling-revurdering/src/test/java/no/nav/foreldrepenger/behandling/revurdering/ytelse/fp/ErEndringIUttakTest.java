@@ -60,7 +60,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtleder;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ExtendWith(JpaExtension.class)
@@ -76,8 +76,8 @@ class ErEndringIUttakTest {
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private FpUttakRepository fpUttakRepository;
-    private final EndringsdatoRevurderingUtlederImpl datoRevurderingUtlederImpl = mock(
-            EndringsdatoRevurderingUtlederImpl.class);
+    private final EndringsdatoRevurderingUtleder datoRevurderingUtlederImpl = mock(
+            EndringsdatoRevurderingUtleder.class);
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider;
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;

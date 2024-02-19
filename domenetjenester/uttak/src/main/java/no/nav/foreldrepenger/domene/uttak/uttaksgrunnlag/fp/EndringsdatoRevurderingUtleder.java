@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -51,9 +50,9 @@ import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
-public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderingUtleder {
+public class EndringsdatoRevurderingUtleder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EndringsdatoRevurderingUtlederImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EndringsdatoRevurderingUtleder.class);
 
     private FpUttakRepository fpUttakRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -65,11 +64,11 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private BehandlingRepository behandlingRepository; // Kun for logging
 
     @Inject
-    public EndringsdatoRevurderingUtlederImpl(UttakRepositoryProvider repositoryProvider,
-                                              BehandlingRepository behandlingRepository,
-                                              DekningsgradTjeneste dekningsgradTjeneste,
-                                              RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste,
-                                              StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
+    public EndringsdatoRevurderingUtleder(UttakRepositoryProvider repositoryProvider,
+                                          BehandlingRepository behandlingRepository,
+                                          DekningsgradTjeneste dekningsgradTjeneste,
+                                          RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste,
+                                          StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
@@ -80,11 +79,10 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         this.behandlingRepository = behandlingRepository;
     }
 
-    EndringsdatoRevurderingUtlederImpl() {
+    EndringsdatoRevurderingUtleder() {
         // CDI
     }
 
-    @Override
     public LocalDate utledEndringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.behandlingId();

@@ -81,7 +81,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
-class EndringsdatoRevurderingUtlederImplTest {
+class EndringsdatoRevurderingUtlederTest {
 
     private static final LocalDate MANUELT_SATT_FØRSTE_UTTAKSDATO = FØDSELSDATO.plusDays(1);
     private static final LocalDate OMSORGSOVERTAKELSEDATO = FØDSELSDATO.plusDays(10);
@@ -97,7 +97,7 @@ class EndringsdatoRevurderingUtlederImplTest {
         repositoryProvider.getBehandlingsresultatRepository());
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
     private final StønadskontoSaldoTjeneste saldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-    private final EndringsdatoRevurderingUtlederImpl utleder = new EndringsdatoRevurderingUtlederImpl(
+    private final EndringsdatoRevurderingUtleder utleder = new EndringsdatoRevurderingUtleder(
         repositoryProvider, mock(BehandlingRepository.class), dekningsgradTjeneste,
         new RelevanteArbeidsforholdTjeneste(repositoryProvider.getFpUttakRepository()), saldoTjeneste);
 
