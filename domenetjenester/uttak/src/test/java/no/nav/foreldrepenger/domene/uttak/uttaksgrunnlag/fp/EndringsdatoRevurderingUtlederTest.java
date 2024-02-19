@@ -754,6 +754,40 @@ class EndringsdatoRevurderingUtlederTest {
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
     }
 
+    @Test
+    void endringsdato_skal_være_mors_første_dag_hvis_far_endrer_stønadskonto() {
+        var behandling = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_MOR,
+            testUtil.uttaksresultatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK), testUtil.søknadsAggregatBerørtSak(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK));
+
+        var fomFar = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusMonths(1);
+        var behandlingFar = testUtil.byggFørstegangsbehandlingForRevurderingBerørtSak(AKTØR_ID_FAR,
+            testUtil.uttaksresultatBerørtSak(fomFar), testUtil.søknadsAggregatBerørtSak(fomFar), behandling.getFagsak());
+        var behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        var builder = Behandlingsresultat.builderFraEksisterende(behandlingsresultatRepository.hent(behandlingFar.getId()))
+            .medEndretStønadskonto(true);
+        behandlingsresultatRepository.lagre(behandlingFar.getId(), builder.build());
+
+        var revurderingBerørtSak = testUtil.opprettRevurderingBerørtSak(AKTØR_ID_MOR, BERØRT_BEHANDLING,
+            behandling);
+        var revurderingÅrsak = BehandlingÅrsak.builder(BERØRT_BEHANDLING)
+            .medOriginalBehandlingId(revurderingBerørtSak.getOriginalBehandlingId().get());
+        revurderingÅrsak.buildFor(revurderingBerørtSak);
+
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(
+            FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1));
+        YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
+            .medOriginalBehandling(new OriginalBehandling(behandling.getId(), familieHendelser))
+            .medFamilieHendelser(familieHendelser)
+            .medAnnenpart(new Annenpart(behandlingFar.getId(), FØDSELSDATO.atStartOfDay()));
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
+        var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag,
+            fpGrunnlag).medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));
+
+        var endringsdatoMor = utleder.utledEndringsdato(input);
+
+        assertThat(endringsdatoMor).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
+    }
+
     private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver, DatoIntervallEntitet periode) {
         var aktivitetsAvtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
             .medPeriode(periode)

@@ -139,11 +139,23 @@ public class EndringsdatoRevurderingUtleder {
     }
 
     private EnumSet<EndringsdatoType> utledEndringsdatoTypeBerørtBehandling(UttakInput input) {
-
-        if (arbeidsforholdRelevantForUttakErEndret(input)) {
+        if (arbeidsforholdRelevantForUttakErEndret(input) || harAnnenpartEndretStønadskonto(input)) {
             return EnumSet.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
         }
         return EnumSet.of(EndringsdatoType.ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING);
+    }
+
+    private boolean harAnnenpartEndretStønadskonto(UttakInput input) {
+        ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
+        var annenpartBehandling = annenpartsBehandling(fpGrunnlag);
+        return behandlingsresultatRepository.hent(annenpartBehandling).isEndretStønadskonto();
+    }
+
+    private static Long annenpartsBehandling(ForeldrepengerGrunnlag fpGrunnlag) {
+        return fpGrunnlag.getAnnenpart()
+            .orElseThrow(
+                () -> new IllegalStateException("Utviklerfeil: Berørt behandling uten innvilget vedtak annen forelders behandling - skal ikke skje"))
+            .gjeldendeVedtakBehandlingId();
     }
 
     private boolean arbeidsforholdRelevantForUttakErEndret(UttakInput input) {
@@ -382,10 +394,7 @@ public class EndringsdatoRevurderingUtleder {
                                                      UttakInput uttakInput,
                                                      ForeldrepengerGrunnlag fpGrunnlag,
                                                      Set<LocalDate> datoer) {
-        var annenpartBehandling = fpGrunnlag.getAnnenpart()
-            .orElseThrow(() -> new IllegalStateException(
-                "Utviklerfeil: Berørt behandling uten innvilget vedtak annen forelders behandling - skal ikke skje"))
-            .gjeldendeVedtakBehandlingId();
+        var annenpartBehandling = annenpartsBehandling(fpGrunnlag);
         var annenpartsFørsteUttaksdato = finnFørsteUttaksdato(annenpartBehandling);
         var førsteUttaksdatoGjeldendeVedtak = finnFørsteUttaksdato(finnForrigeBehandling(ref));
 
