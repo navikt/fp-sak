@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
@@ -26,7 +24,6 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
 class StønadsstatistikkBeregningMapper {
 
-    private static final Set<AksjonspunktDefinisjon> BEREGNING_AVVIK = AksjonspunktDefinisjon.getAvvikIBeregning();
     private static final Set<FaktaOmBeregningTilfelle> BESTEBEREGNING_FAKTA = Set.of(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING,
         FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE);
 
@@ -68,10 +65,8 @@ class StønadsstatistikkBeregningMapper {
             .map(OppgittEgenNæring::getOrgnr)
             .collect(Collectors.toSet());
 
-        var avviksvudert = behandling.getAksjonspunkter().stream()
-            .filter(Aksjonspunkt::erUtført)
-            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
-            .anyMatch(BEREGNING_AVVIK::contains);
+        var avviksvudert = periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+            .anyMatch(a -> a.getOverstyrtPrÅr() != null && a.getOverstyrtPrÅr().compareTo(BigDecimal.ZERO) > 0);
         var fastsatt = avviksvudert ? StønadsstatistikkVedtak.BeregningFastsatt.SKJØNN : StønadsstatistikkVedtak.BeregningFastsatt.AUTOMATISK;
 
         var hjemmel = mapBeregningshjemmel(behandling.getFagsakYtelseType(), beregningsgrunnlag);
