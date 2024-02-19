@@ -36,7 +36,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = new EndringsdatoFørstegangsbehandlingUtleder(repositoryProvider.getYtelsesFordelingRepository());
     private final FastsettUttaksgrunnlagTjeneste tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider, endringsdatoUtleder,
-            mock(EndringsdatoRevurderingUtlederImpl.class));
+            mock(EndringsdatoRevurderingUtleder.class));
 
     @Test
     void skal_kopiere_søknadsperioder_fra_forrige_behandling_hvis_forrige_behandling_ikke_har_uttaksresultat() {

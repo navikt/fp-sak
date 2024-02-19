@@ -54,7 +54,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtleder;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
@@ -84,8 +84,8 @@ class ErSisteUttakAvslåttMedÅrsakTest {
     @Inject
     private BehandlingRevurderingTjeneste behandlingRevurderingTjeneste;
     private FpUttakRepository fpUttakRepository;
-    private EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(
-            EndringsdatoRevurderingUtlederImpl.class);
+    private EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder = mock(
+            EndringsdatoRevurderingUtleder.class);
 
     private Behandling revurdering;
 
@@ -112,7 +112,7 @@ class ErSisteUttakAvslåttMedÅrsakTest {
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
                         BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
         var endringsdato = LocalDate.now().minusMonths(3);
-        when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
+        when(endringsdatoRevurderingUtleder.utledEndringsdato(any())).thenReturn(endringsdato);
     }
 
     @Test
