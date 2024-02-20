@@ -70,6 +70,11 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private static final List<Duration> SPOKELSE_TIMEOUTS = List.of(Duration.ofMillis(100), Duration.ofMillis(500), Duration.ofMillis(2500),
         Duration.ofMillis(12), Duration.ofSeconds(60));
 
+    private static final String BS_PLEIEPENGER_BARN = "PSB";
+    private static final String BS_PLEIEPENGER_NÆR = "PPN";
+
+    private static final Set<String> BS_YTELSER_OPPGAVE = Set.of(BS_PLEIEPENGER_BARN, BS_PLEIEPENGER_NÆR);
+
     private static final boolean IS_PROD = Environment.current().isProd();
 
     private BeregningTjeneste beregningTjeneste;
@@ -121,26 +126,54 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private void håndterOverlapp(List<OverlappVedtak> overlappListe, Behandling behandling) {
-        var sykerpengerOverlapp = overlappListe.stream()
+        håndterOverlappVLSP(overlappListe, behandling);
+        håndterOverlappVLBSkunPSB(overlappListe, behandling);
+    }
+
+    private void håndterOverlappVLSP(List<OverlappVedtak> overlappListe, Behandling behandling) {
+        var sykepengerOverlapp = overlappListe.stream()
             .filter(overlappVedtak -> Fagsystem.VLSP.getKode().equals(overlappVedtak.getFagsystem()))
             .toList();
-        if (sykerpengerOverlapp.isEmpty()) {
+        if (sykepengerOverlapp.isEmpty()) {
             return;
         }
-        var minFom = sykerpengerOverlapp.stream()
+        var minFom = sykepengerOverlapp.stream()
             .map(periode -> periode.getPeriode().getFomDato())
             .min(Comparator.naturalOrder()).orElseThrow();
-        var maxTom = sykerpengerOverlapp.stream()
+        var maxTom = sykepengerOverlapp.stream()
             .map(periode -> periode.getPeriode().getTomDato())
             .max(Comparator.naturalOrder()).orElseThrow();
         var ytelse = behandling.getFagsakYtelseType().getNavn().toLowerCase();
-        var maxUtbetalingsprosent = sykerpengerOverlapp.stream()
+        var maxUtbetalingsprosent = sykepengerOverlapp.stream()
             .map(OverlappVedtak::getFpsakUtbetalingsprosent)
             .max(Comparator.naturalOrder()).orElse(100L);
 
         var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med sykepenger i periode %s - %s i Speil. Vurder konsekvens for ytelse.", ytelse, maxUtbetalingsprosent, minFom, maxTom );
         oppgaveTjeneste.opprettVurderKonsekvensHosSykepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
 
+    }
+
+    private void håndterOverlappVLBSkunPSB(List<OverlappVedtak> overlappListe, Behandling behandling) {
+        var pleiepengerOverlapp = overlappListe.stream()
+            .filter(overlappVedtak -> Fagsystem.K9SAK.getKode().equals(overlappVedtak.getFagsystem()))
+            .filter(overlappVedtak -> BS_YTELSER_OPPGAVE.contains(overlappVedtak.getYtelse()))
+            .toList();
+        if (pleiepengerOverlapp.isEmpty()) {
+            return;
+        }
+        var minFom = pleiepengerOverlapp.stream()
+            .map(periode -> periode.getPeriode().getFomDato())
+            .min(Comparator.naturalOrder()).orElseThrow();
+        var maxTom = pleiepengerOverlapp.stream()
+            .map(periode -> periode.getPeriode().getTomDato())
+            .max(Comparator.naturalOrder()).orElseThrow();
+        var ytelse = behandling.getFagsakYtelseType().getNavn().toLowerCase();
+        var maxUtbetalingsprosent = pleiepengerOverlapp.stream()
+            .map(OverlappVedtak::getFpsakUtbetalingsprosent)
+            .max(Comparator.naturalOrder()).orElse(100L);
+
+        var beskrivelse = String.format("Det er innvilget %s (%s%%) som overlapper med pleiepenger i periode %s - %s i K9-sak. Vurder konsekvens for ytelse.", ytelse, maxUtbetalingsprosent, minFom, maxTom );
+        oppgaveTjeneste.opprettVurderKonsekvensHosPleiepenger(behandling.getBehandlendeEnhet(), beskrivelse, behandling.getAktørId());
     }
 
     public void loggOverlappForAvstemming(String hendelse, Behandling behandling) {
@@ -173,8 +206,8 @@ public class LoggOverlappEksterneYtelserTjeneste {
             return "UKJENT";
         }
         return switch (ytelse.getYtelse()) {
-            case PLEIEPENGER_SYKT_BARN -> "PSB";
-            case PLEIEPENGER_NÆRSTÅENDE -> "PPN";
+            case PLEIEPENGER_SYKT_BARN -> BS_PLEIEPENGER_BARN;
+            case PLEIEPENGER_NÆRSTÅENDE -> BS_PLEIEPENGER_NÆR;
             default -> ytelse.getYtelse().name();
         };
     }
