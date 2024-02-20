@@ -44,6 +44,9 @@ final class JusterFordelingTjeneste {
             gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
             nyFamiliehendelse = flyttFraHelgTilMandag(nyFamiliehendelse);
             if (!gammelFamiliehendelse.equals(nyFamiliehendelse)) {
+                if (oppgittePerioder.isEmpty()) {
+                    throw new IllegalStateException("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør)! Termin og fødsel er på forskjellig dager.");
+                }
                 justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse, relasjonsRolleType, ønskerJustertVedFødsel);
             }
             exceptionHvisOverlapp(justert);

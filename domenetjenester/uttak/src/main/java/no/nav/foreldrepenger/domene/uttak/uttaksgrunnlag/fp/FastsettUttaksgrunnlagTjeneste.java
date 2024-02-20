@@ -24,9 +24,12 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Dependent
 public class FastsettUttaksgrunnlagTjeneste {
-
+    private static final Logger LOG = LoggerFactory.getLogger(FastsettUttaksgrunnlagTjeneste.class);
     private final FpUttakRepository fpUttakRepository;
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
     private final UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
@@ -136,7 +139,7 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                             RelasjonsRolleType relasjonsRolleType,
                                                                             boolean ønskerJustertVedFødsel) {
         if (oppgittePerioder.isEmpty()) {
-            throw new IllegalStateException("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør)");
+            LOG.info("Skal ikke fødselsjustere når gjeldende behandling ikke har uttak (f.eks. ved opphør, berørt, osv)");
         }
         var familiehendelser = finnFamiliehendelser(fpGrunnlag);
         return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familiehendelser.søknad().orElse(null),
