@@ -10,7 +10,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 public class ArbeidsforholdDto {
 
     @Size(max = 100)
-    @Pattern(regexp = InputValideringRegex.NAVN)
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String arbeidsgiver;
 
     private LocalDate periodeFom;
