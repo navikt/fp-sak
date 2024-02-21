@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -119,9 +120,12 @@ public class MapTilLønnsendring {
             .collect(Collectors.toList());
         var nyDagpengeAndel = dto.getBesteberegningAndeler().getNyDagpengeAndel();
         if (nyDagpengeAndel != null) {
-            var lønnsendringForNyAndel = mapTilLønnsendring(AktivitetStatus.DAGPENGER,
-                nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag, forrigeBg);
-            endringer.add(lønnsendringForNyAndel);
+            var lønnsendringForNyAndel = mapTilLønnsendring(
+                AktivitetStatus.DAGPENGER, nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag, forrigeBg);
+
+            var endringerMedNyDagpengeAndel = new ArrayList<>(endringer);
+            endringerMedNyDagpengeAndel.add(lønnsendringForNyAndel);
+            return endringerMedNyDagpengeAndel.stream().toList();
         }
         return endringer;
     }
