@@ -122,12 +122,9 @@ public class MapTilLønnsendring {
         if (nyDagpengeAndel != null) {
             var lønnsendringForNyAndel = mapTilLønnsendring(
                 AktivitetStatus.DAGPENGER, nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(), nyttBeregningsgrunnlag, forrigeBg);
-
-            var endringerMedNyDagpengeAndel = new ArrayList<>(endringer);
-            endringerMedNyDagpengeAndel.add(lønnsendringForNyAndel);
-            return endringerMedNyDagpengeAndel.stream().toList();
+            endringer.add(lønnsendringForNyAndel);
         }
-        return endringer;
+        return endringer.stream().toList();
     }
 
     public static List<Lønnsendring> mapLønnsendringFraATogFLSammeOrg(FaktaBeregningLagreDto dto,
