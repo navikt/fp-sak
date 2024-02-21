@@ -15,6 +15,7 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -93,12 +94,16 @@ public class OverlappVedtak extends BaseEntitet {
         return hendelse;
     }
 
-    public String getFagsystem() {
-        return fagsystem;
+    public Fagsystem getFagsystem() {
+        return Fagsystem.fraKode(fagsystem);
     }
 
-    public String getYtelse() {
-        return ytelse;
+    public OverlappYtelseType getYtelse() {
+        return switch (ytelse) {
+            case "PSB", "PPN" -> OverlappYtelseType.PLEIEPENGER;
+            case "OMP" -> OverlappYtelseType.OMSORGSPENGER;
+            default -> OverlappYtelseType.valueOf(ytelse);
+        };
     }
 
     public String getReferanse() {
@@ -111,6 +116,8 @@ public class OverlappVedtak extends BaseEntitet {
     public long getFpsakUtbetalingsprosent() {
         return fpsakUtbetalingsprosent;
     }
+
+    public enum OverlappYtelseType { SP, BS, PLEIEPENGER, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN }
 
 
     @Override
@@ -165,13 +172,13 @@ public class OverlappVedtak extends BaseEntitet {
             return this;
         }
 
-        public Builder medFagsystem(String fagsystem) {
-            this.kladd.fagsystem = fagsystem;
+        public Builder medFagsystem(Fagsystem fagsystem) {
+            this.kladd.fagsystem = fagsystem.getKode();
             return this;
         }
 
-        public Builder medYtelse(String ytelse) {
-            this.kladd.ytelse = ytelse;
+        public Builder medYtelse(OverlappYtelseType ytelse) {
+            this.kladd.ytelse = ytelse.name();
             return this;
         }
 

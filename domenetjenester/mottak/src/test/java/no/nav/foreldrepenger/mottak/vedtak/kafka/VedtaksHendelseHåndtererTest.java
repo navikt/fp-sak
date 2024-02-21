@@ -16,8 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,6 +68,8 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.OverlappOppgaveTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -101,9 +101,10 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var behandlingRepository = new BehandlingRepository(getEntityManager());
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
             new SøknadRepository(getEntityManager(), behandlingRepository), null);
+        var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
         var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningTjeneste, beregningsresultatRepository, null,
             null, null, null, null,
-            overlappInfotrygdRepository, behandlingRepository, oppgaveTjenesteMock);
+            overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
             taskTjeneste, mottakRepository);
