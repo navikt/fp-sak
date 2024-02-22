@@ -39,7 +39,7 @@ public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         var beskrivelse = prosessTaskData.getPropertyValue(BESKRIVELSE_KEY);
 
-        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+        tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, true);
 
     }
 }

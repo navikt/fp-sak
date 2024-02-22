@@ -14,16 +14,16 @@ import org.hibernate.jpa.HibernateHints;
  */
 
 @ApplicationScoped
-public class FeilPraksisUttakRepository {
+public class FeilPraksisUtsettelseRepository {
 
     private EntityManager entityManager;
 
-    FeilPraksisUttakRepository() {
+    FeilPraksisUtsettelseRepository() {
         // for CDI proxy
     }
 
     @Inject
-    public FeilPraksisUttakRepository(EntityManager entityManager) {
+    public FeilPraksisUtsettelseRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

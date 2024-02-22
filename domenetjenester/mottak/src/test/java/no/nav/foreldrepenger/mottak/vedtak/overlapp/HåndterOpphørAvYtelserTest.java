@@ -113,7 +113,7 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         // Act
         håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(fsavsluttetBehMor, BESKRIVELSE,
-            BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+            BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, true);
 
         // Assert
         verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor),
@@ -147,7 +147,7 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         // Act
         håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(fsavsluttetBehMor, BESKRIVELSE,
-            BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+            BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, true);
 
         // Assert
         verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());

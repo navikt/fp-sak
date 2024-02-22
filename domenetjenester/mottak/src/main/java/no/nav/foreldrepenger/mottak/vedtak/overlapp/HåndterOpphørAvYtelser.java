@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -69,26 +71,29 @@ public class HåndterOpphørAvYtelser {
         // CDI
     }
 
-    void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
+    public void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType, boolean taAvVent) {
         var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandling(fagsak);
 
         if (eksisterendeBehandling != null && !eksisterendeBehandling.erStatusFerdigbehandlet()) {
             if (!eksisterendeBehandling.harBehandlingÅrsak(årsakType)) {
                 oppdatereBehMedÅrsak(eksisterendeBehandling.getId(), årsakType);
             }
-            opprettVurderKonsekvens(eksisterendeBehandling, beskrivelse);
-            kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling, årsakType);
+            Optional.ofNullable(beskrivelse).ifPresent(b -> opprettVurderKonsekvens(eksisterendeBehandling, b));
+            if (taAvVent) {
+                kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling, årsakType);
+            }
         } else {
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .ifPresent(b -> {
-                    var enhet = opprettVurderKonsekvens(b, beskrivelse);
+                    Optional.ofNullable(beskrivelse).ifPresent(beskriv -> opprettVurderKonsekvens(b, beskriv));
+                    var enhet = utledEnhetFraBehandling(b);
                     fagsakLåsRepository.taLås(fagsak.getId());
                     var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
                     var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
                     if (revurdering != null) {
-                        LOG.info("Overlapp FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
+                        LOG.info("HåndterOpphør FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
                     } else {
-                        LOG.info("Overlapp FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
+                        LOG.info("HåndterOpphør FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
                     }
                 });
         }
@@ -101,12 +106,9 @@ public class HåndterOpphørAvYtelser {
             .orElse(null);
     }
 
-    private OrganisasjonsEnhet opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
+    private void opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
         var enhet = utledEnhetFraBehandling(behandling);
-        if (beskrivelse != null) {
-            opprettTaskForÅVurdereKonsekvens(behandling.getFagsakId(), enhet.enhetId(), beskrivelse);
-        }
-        return enhet;
+        opprettTaskForÅVurdereKonsekvens(behandling.getFagsakId(), enhet.enhetId(), beskrivelse);
     }
 
     private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType, OrganisasjonsEnhet enhet, boolean skalKøes) {
