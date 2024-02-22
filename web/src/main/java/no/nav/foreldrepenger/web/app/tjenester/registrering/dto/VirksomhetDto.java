@@ -14,7 +14,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 public class VirksomhetDto {
 
     @Size(max = 100)
-    @Pattern(regexp = InputValideringRegex.NAVN)
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
     @NotNull
     private String navn;
 
@@ -46,7 +46,7 @@ public class VirksomhetDto {
     private Boolean harRegnskapsforer;
 
     @Size(min = 1, max = 100)
-    @Pattern(regexp = InputValideringRegex.NAVN)
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String navnRegnskapsforer;
 
     @Size(min = 1, max = 30)

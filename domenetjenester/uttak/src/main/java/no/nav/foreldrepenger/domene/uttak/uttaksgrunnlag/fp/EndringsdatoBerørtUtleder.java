@@ -62,14 +62,9 @@ public final class EndringsdatoBerørtUtleder {
             berørtBehovDatoer.add(berørtUttak.finnFørsteUttaksdato());
         }
 
-        if (negativSaldoNoenKonto) {
+        if (negativSaldoNoenKonto && !berørtUttak.sistDagMedTrekkdager().isBefore(endringsdato)) {
             LOG.info("{}: NegativKonto endringsdato {}", loggPrefix, endringsdato);
             berørtBehovDatoer.add(endringsdato);
-            if (berørtUttak.sistDagMedTrekkdager().isBefore(endringsdato)) {
-                //Vurdere om vi skal sette endringsdato til første i berørt uttak, eller ikke opprette noen berørt
-                LOG.info("Berørt uttak har ikke trekkdager etter utløsende behandlings endringsdato {}. Siste dag med trekkdager {}",
-                    endringsdato, berørtUttak.sistDagMedTrekkdager());
-            }
         }
 
         var periodeTom = finnMaxAktivDato(utløsendeUttak, berørtUttak).filter(endringsdato::isBefore).orElse(endringsdato);
