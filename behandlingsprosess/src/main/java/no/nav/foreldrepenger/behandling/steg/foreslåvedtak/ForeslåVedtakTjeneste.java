@@ -114,6 +114,9 @@ class ForeslåVedtakTjeneste {
         if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilDød())) {
             return true;
         }
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
+            return true;
+        }
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling()
             && !erOpphørEllerUendretUtenAndreAksjonspunkt(behandling, aksjonspunktDefinisjoner);
     }
