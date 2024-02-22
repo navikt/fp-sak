@@ -71,7 +71,7 @@ public class HåndterOpphørAvYtelser {
         // CDI
     }
 
-    public void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
+    void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
         var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandling(fagsak);
 
         if (eksisterendeBehandling != null && !eksisterendeBehandling.erStatusFerdigbehandlet()) {
