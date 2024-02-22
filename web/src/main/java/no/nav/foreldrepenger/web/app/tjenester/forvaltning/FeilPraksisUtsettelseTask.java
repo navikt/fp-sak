@@ -12,7 +12,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @Dependent
-@ProsessTask(value = "behandling.testfeilpraksisutsettelse", maxFailedRuns = 1)
+@ProsessTask(value = "testfeilpraksisutsettelse", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FeilPraksisUtsettelseTask implements ProsessTaskHandler {
 
