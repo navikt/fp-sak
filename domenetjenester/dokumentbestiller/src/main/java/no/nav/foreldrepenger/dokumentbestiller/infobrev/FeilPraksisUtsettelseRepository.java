@@ -86,6 +86,9 @@ public class FeilPraksisUtsettelseRepository {
         return resultat;
     }
 
+    /*
+     * OBS: Her er avslag med.
+     */
     private static final String QUERY_FAR_BEGGE_ALENE = """
         select * from (
            select f.id fid
@@ -123,7 +126,7 @@ public class FeilPraksisUtsettelseRepository {
                 )
               and ytelse_type='FP'
               and til_infotrygd = 'N'
-              and (bv.vedtak_resultat_type = 'INNVILGET' or (bv.vedtak_resultat_type = 'OPPHØR'
+              and (bv.vedtak_resultat_type in ('INNVILGET', 'AVSLAG') or (bv.vedtak_resultat_type = 'OPPHØR'
                    and exists (select * from  br_resultat_behandling ty
                           join br_periode brp on brp.BEREGNINGSRESULTAT_FP_ID = nvl(UTBET_BEREGNINGSRESULTAT_FP_ID,BG_BEREGNINGSRESULTAT_FP_ID)
                           join br_andel ba on ba.br_periode_id = brp.id
