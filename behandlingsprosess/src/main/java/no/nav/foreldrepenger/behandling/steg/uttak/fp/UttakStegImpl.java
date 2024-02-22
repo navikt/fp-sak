@@ -5,6 +5,9 @@ import java.util.Objects;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
@@ -19,13 +22,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttak.LoggInfoOmArbeidsforholdAktivitetskrav;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettUttakManueltAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.VURDER_UTTAK)
 @BehandlingTypeRef
@@ -33,6 +41,7 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTje
 @ApplicationScoped
 public class UttakStegImpl implements UttakSteg {
 
+    private static final Logger LOG = LoggerFactory.getLogger(UttakStegImpl.class);
     private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final FastsettePerioderTjeneste fastsettePerioderTjeneste;
     private final FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder;
@@ -43,6 +52,8 @@ public class UttakStegImpl implements UttakSteg {
     private final FagsakRepository fagsakRepository;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     private final KopierForeldrepengerUttaktjeneste kopierUttaktjeneste;
+    private LoggInfoOmArbeidsforholdAktivitetskrav loggArbeidsforholdInfo;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     public UttakStegImpl(BehandlingRepositoryProvider repositoryProvider,
@@ -52,7 +63,9 @@ public class UttakStegImpl implements UttakSteg {
                          UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
                          SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                         KopierForeldrepengerUttaktjeneste kopierUttaktjeneste) {
+                         KopierForeldrepengerUttaktjeneste kopierUttaktjeneste,
+                         LoggInfoOmArbeidsforholdAktivitetskrav loggArbeidsforholdInfo,
+                         YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
         this.fastsettePerioderTjeneste = fastsettePerioderTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -63,6 +76,8 @@ public class UttakStegImpl implements UttakSteg {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.kopierUttaktjeneste = kopierUttaktjeneste;
+        this.loggArbeidsforholdInfo = loggArbeidsforholdInfo;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
     @Override
@@ -71,6 +86,12 @@ public class UttakStegImpl implements UttakSteg {
 
         var input = uttakInputTjeneste.lagInput(behandlingId);
 
+        try {
+            loggInformasjonOmArbeidsforholdVedAktivitetskravFellesperiode(input);
+        } catch (Exception e){
+            LOG.warn("VurderUttakDokumentasjonAksjonspunktUtleder: Feil ved logging av arbeidsforhold når fellesperiode og aktivitetskrav ARBEID", e );
+        }
+
         beregnStønadskontoTjeneste.beregnStønadskontoer(input);
 
         fastsettePerioderTjeneste.fastsettePerioder(input);
@@ -78,6 +99,28 @@ public class UttakStegImpl implements UttakSteg {
         var aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(input)
             .stream().map(AksjonspunktResultat::opprettForAksjonspunkt).toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+    }
+
+    private void loggInformasjonOmArbeidsforholdVedAktivitetskravFellesperiode(UttakInput input) {
+        var behandlingId = input.getBehandlingReferanse().behandlingId();
+        var ytelseaggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
+        var aktuellePerioder = ytelseaggregat.getGjeldendeFordeling().getPerioder().stream()
+            .filter(p -> MorsAktivitet.ARBEID.equals(p.getMorsAktivitet()) && erAktivitetskravVurdert(p.getDokumentasjonVurdering()))
+            .toList();
+
+        if (aktuellePerioder.isEmpty()) {
+            return;
+        }
+
+        loggArbeidsforholdInfo.loggInfoOmArbeidsforhold(input.getBehandlingReferanse(), ytelseaggregat, aktuellePerioder);
+    }
+
+    private boolean erAktivitetskravVurdert(DokumentasjonVurdering dokumentasjonVurdering) {
+        return switch (dokumentasjonVurdering) {
+            case MORS_AKTIVITET_GODKJENT, MORS_AKTIVITET_IKKE_GODKJENT, MORS_AKTIVITET_IKKE_DOKUMENTERT -> true;
+            case null -> false;
+            default -> false;
+        };
     }
 
     @Override
