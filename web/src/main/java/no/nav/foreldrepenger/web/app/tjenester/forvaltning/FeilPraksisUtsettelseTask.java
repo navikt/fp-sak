@@ -1,77 +1,37 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.util.Comparator;
-import java.util.Optional;
-
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.dokumentbestiller.infobrev.FeilPraksisUtsettelseRepository;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelser;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
-@ProsessTask(value = "behandling.feilpraksisutsettelse", maxFailedRuns = 1)
+@ProsessTask(value = "behandling.testfeilpraksisutsettelse", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FeilPraksisUtsettelseTask implements ProsessTaskHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FeilPraksisUtsettelseTask.class);
-    private static final String UTVALG = "utvalg";
-    private static final String FRA_FAGSAK_ID = "fraFagsakId";
-    private final FeilPraksisUtsettelseRepository utvalgRepository;
+    private static final String FRA_FAGSAK_ID = "fagsakId";
     private final HåndterOpphørAvYtelser håndterOpphørAvYtelser;
     private final FagsakRepository fagsakRepository;
-    private final ProsessTaskTjeneste prosessTaskTjeneste;
-
-    public enum Utvalg { MOR, FAR_BEGGE_RETT, BARE_FAR_RETT }
 
     @Inject
-    public FeilPraksisUtsettelseTask(FeilPraksisUtsettelseRepository utvalgRepository,
-                                     HåndterOpphørAvYtelser håndterOpphørAvYtelser,
-                                     FagsakRepository fagsakRepository,
-                                     ProsessTaskTjeneste prosessTaskTjeneste) {
-        this.utvalgRepository = utvalgRepository;
+    public FeilPraksisUtsettelseTask(HåndterOpphørAvYtelser håndterOpphørAvYtelser,
+                                     FagsakRepository fagsakRepository) {
         this.håndterOpphørAvYtelser = håndterOpphørAvYtelser;
         this.fagsakRepository = fagsakRepository;
-        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var fagsakIdProperty = prosessTaskData.getPropertyValue(FRA_FAGSAK_ID);
-        var fraFagsakId = fagsakIdProperty == null ? null : Long.valueOf(fagsakIdProperty);
-        var utvalg = Optional.ofNullable(prosessTaskData.getPropertyValue(UTVALG))
-            .map(Utvalg::valueOf).orElseThrow();
-
-        var saker = switch (utvalg) {
-            case MOR -> utvalgRepository.finnNeste200AktuelleSakerMor(fraFagsakId);
-            case FAR_BEGGE_RETT -> utvalgRepository.finnNeste200AktuelleSakerFarBeggeEllerAlene(fraFagsakId);
-            case BARE_FAR_RETT -> utvalgRepository.finnNeste200AktuelleSakerBareFarHarRett(fraFagsakId);
-        };
-        saker.stream().map(fagsakRepository::finnEksaktFagsak)
-            .forEach(f -> håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(f, null, BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, false));
-
-        saker.stream().max(Comparator.naturalOrder())
-            .ifPresent(maxsak -> prosessTaskTjeneste.lagre(opprettTaskForNesteUtvalg(maxsak, utvalg)));
-
+        var sak = fagsakRepository.finnEksaktFagsak(Long.parseLong(fagsakIdProperty));
+        håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(sak, null, BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, false);
     }
 
-
-    public static ProsessTaskData opprettTaskForNesteUtvalg(Long fraVedtakId, Utvalg utvalg) {
-        var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisUtsettelseTask.class);
-        prosessTaskData.setProperty(FeilPraksisUtsettelseTask.FRA_FAGSAK_ID, fraVedtakId == null ? null : String.valueOf(fraVedtakId));
-        prosessTaskData.setProperty(FeilPraksisUtsettelseTask.UTVALG, utvalg.name());
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(150);
-        return prosessTaskData;
-    }
 }
