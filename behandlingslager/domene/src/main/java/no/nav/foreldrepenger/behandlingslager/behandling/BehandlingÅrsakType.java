@@ -71,7 +71,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_VEDTAK_PLEIEPENGER("RE-VEDTAK-PSB", "Pleiepenger"),
 
     // Håndtering av diverse feilsituaqsjoner
-    FEIL_PRAKSIS_UTSETTELSE("FEIL_PRAKSIS_UTSETTELSE", "Feilpraksis utsettelse"),
+    FEIL_PRAKSIS_UTSETTELSE("FEIL_PRAKSIS_UTSETTELSE", "Feil praksis utsettelse"),
 
     // Skille klageområder
     KLAGE_TILBAKEBETALING("KLAGE_TILBAKE", "Tilbakebetaling"),
