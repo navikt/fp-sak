@@ -37,6 +37,7 @@ public class BestillDokumentDtoMapper {
             case KLAGE_OVERSENDT -> DokumentMal.KLAGE_OVERSENDT;
             case ETTERLYS_INNTEKTSMELDING -> DokumentMal.ETTERLYS_INNTEKTSMELDING;
             case ENDRING_UTBETALING -> DokumentMal.ENDRING_UTBETALING;
+            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> DokumentMal.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV;
             case null, default -> null;
         };
     }

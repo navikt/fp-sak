@@ -167,6 +167,9 @@ public class ForeldrepengerUttakPeriode {
     public boolean harUtbetaling() {
         return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().harUtbetaling());
     }
+    public boolean harRedusertUtbetaling() {
+        return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().erRedusert());
+    }
 
     public boolean harTrekkdager() {
         return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0());
