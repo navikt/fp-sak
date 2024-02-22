@@ -36,6 +36,7 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OVERSENDT("KGEOVE"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
     ENDRING_UTBETALING ("ENDUTB"), // Denne brukes kun for å utlede tittel når overstyrer vedtaksbrev pga fordeling av ytelsen
+    FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
 
     // Må gjeninnføre for å flytte anker
     @Deprecated KLAGE_AVVIST_DOK("KLAGAV"),
@@ -158,6 +159,7 @@ public enum DokumentMalType implements Kodeverdi {
             case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
             case ENDRING_UTBETALING -> "Endring i fordeling av ytelsen";
+            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> "Informasjonsbrev feil praksis utsettelse";
         };
     }
 }
