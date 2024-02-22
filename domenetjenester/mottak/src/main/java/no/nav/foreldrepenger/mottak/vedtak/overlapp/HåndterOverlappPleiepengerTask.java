@@ -61,7 +61,7 @@ public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         // Unngå doble revurderinger ved tette vedtak fra Pleiepenger
         if (erFortsattOverlapp(fagsak)) {
-            tjeneste.oppdaterEllerOpprettRevurdering(fagsak, null, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER, true);
+            tjeneste.oppdaterEllerOpprettRevurdering(fagsak, null, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
         }
     }
 

@@ -71,7 +71,7 @@ public class HåndterOpphørAvYtelser {
         // CDI
     }
 
-    public void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType, boolean taAvVent) {
+    public void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
         var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandling(fagsak);
 
         if (eksisterendeBehandling != null && !eksisterendeBehandling.erStatusFerdigbehandlet()) {
@@ -79,9 +79,7 @@ public class HåndterOpphørAvYtelser {
                 oppdatereBehMedÅrsak(eksisterendeBehandling.getId(), årsakType);
             }
             Optional.ofNullable(beskrivelse).ifPresent(b -> opprettVurderKonsekvens(eksisterendeBehandling, b));
-            if (taAvVent) {
-                kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling, årsakType);
-            }
+            kompletthetskontroller.vurderNyForretningshendelse(eksisterendeBehandling, årsakType);
         } else {
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .ifPresent(b -> {
