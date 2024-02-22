@@ -41,6 +41,8 @@ record FpSak(String saksnummer,
             enum Årsak {
                 ANNET,
                 AVSLAG_HULL_I_UTTAKSPLAN,
+                AVSLAG_UTSETTELSE_TILBAKE_I_TID,
+                INNVILGET_UTTAK_AVSLÅTT_GRADERING_TILBAKE_I_TID,
                 AVSLAG_FRATREKK_PLEIEPENGER
             }
         }

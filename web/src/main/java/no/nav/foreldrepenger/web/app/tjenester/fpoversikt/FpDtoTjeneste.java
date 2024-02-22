@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -326,11 +327,7 @@ public class FpDtoTjeneste {
             return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId), konto,
                 trekkdager, arbeidstidsprosent);
         }).collect(Collectors.toSet());
-        var årsak = switch (periode.getResultatÅrsak()) {
-            case HULL_MELLOM_FORELDRENES_PERIODER, BARE_FAR_RETT_IKKE_SØKT -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_HULL_I_UTTAKSPLAN;
-            case FRATREKK_PLEIEPENGER -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_FRATREKK_PLEIEPENGER;
-            default -> FpSak.Uttaksperiode.Resultat.Årsak.ANNET;
-        };
+        var årsak = tilResultatÅrsak(periode);
         var trekkerMinsterett = trekkerMinsterett(periode);
         var resultat = new FpSak.Uttaksperiode.Resultat(type, årsak, aktiviteter, trekkerMinsterett);
         var utsettelseÅrsak = switch (periode.getUtsettelseType()) {
@@ -362,6 +359,19 @@ public class FpDtoTjeneste {
         return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
             samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue(), periode.isFlerbarnsdager(),
             map(periode.getMorsAktivitet()), resultat);
+    }
+
+    private static FpSak.Uttaksperiode.Resultat.Årsak tilResultatÅrsak(ForeldrepengerUttakPeriode periode) {
+        if (periode.getGraderingAvslagÅrsak().equals(GraderingAvslagÅrsak.FOR_SEN_SØKNAD) && periode.harTrekkdager() && periode.harRedusertUtbetaling()) {
+            return FpSak.Uttaksperiode.Resultat.Årsak.INNVILGET_UTTAK_AVSLÅTT_GRADERING_TILBAKE_I_TID;
+        }
+
+        return switch (periode.getResultatÅrsak()) {
+            case HULL_MELLOM_FORELDRENES_PERIODER, BARE_FAR_RETT_IKKE_SØKT -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_HULL_I_UTTAKSPLAN;
+            case AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID, AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_UTSETTELSE_TILBAKE_I_TID;
+            case FRATREKK_PLEIEPENGER -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_FRATREKK_PLEIEPENGER;
+            default -> FpSak.Uttaksperiode.Resultat.Årsak.ANNET;
+        };
     }
 
     private boolean trekkerMinsterett(ForeldrepengerUttakPeriode periode) {
