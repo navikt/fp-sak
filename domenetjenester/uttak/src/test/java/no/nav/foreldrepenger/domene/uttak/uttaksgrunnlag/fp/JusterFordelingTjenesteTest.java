@@ -117,6 +117,7 @@ class JusterFordelingTjenesteTest {
     /**
      * F: FORELDREPENGER, U: utsettelse
      *              ---|FFFFUU
+     *      |FFFF           UU   (Etter flytting av perioder)
      *      |FFFFFF         UU   (Siste 2 ukene med F blir fylt på med riktig kvote)
      *      |FFFFFFFFFF          (Fyller perioden etter dette med siste justerbare periode)
      *      |FFFFFFFFFFFFFFFUU   (Fyller opprinnelige søkte periode) = Resultat
