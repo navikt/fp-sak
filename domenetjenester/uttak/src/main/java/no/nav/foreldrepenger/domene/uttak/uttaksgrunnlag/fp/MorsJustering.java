@@ -355,6 +355,7 @@ class MorsJustering implements ForelderFødselJustering {
 
     private List<OppgittPeriodeEntitet> fyllHullSkaptAvJusteringIPeriodeForbeholdMor(List<OppgittPeriodeEntitet> justertePerioder,
                                                                                      List<OppgittPeriodeEntitet> oppgittePerioder) {
+        // Fyller hull i perioden forbehold mor som er før termin
         var forbeholdtMorTOM = TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse);
         var paddFremTilOgMedDato = forbeholdtMorTOM.isAfter(gammelFamiliehendelse) ? gammelFamiliehendelse.minusDays(1) : forbeholdtMorTOM;
         var periodeSomErFørTerminOgInneforPeriodenForbeholdMorEtterFødsel = new LocalDateTimeline<>(nyFamiliehendelse, paddFremTilOgMedDato, true);
@@ -367,6 +368,7 @@ class MorsJustering implements ForelderFødselJustering {
         var resultat = new ArrayList<>(justertePerioder);
         resultat.addAll(fylteHull);
 
+        // Fyller hull i perioden forbehold mor etter termin bare hvis det i utgangspunktet er søkt om uttak i denne perioden (uttsettelser beholdes i sin helhet)
         if (forbeholdtMorTOM.isAfter(gammelFamiliehendelse)) {
             var oppgittTimeline = tilLocalDateTimeLine(oppgittePerioder);
             var fraTerminTilTOMForbeholdtMor = new LocalDateTimeline<>(gammelFamiliehendelse, forbeholdtMorTOM, true);
