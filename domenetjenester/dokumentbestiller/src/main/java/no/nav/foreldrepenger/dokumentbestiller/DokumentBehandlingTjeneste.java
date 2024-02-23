@@ -81,6 +81,11 @@ public class DokumentBehandlingTjeneste {
                 .equals(dok.getOpprineligDokumentMal()));
     }
 
+    public boolean erDokumentBestiltForFagsak(Long fagsakId, DokumentMalType dokumentMalTypeKode) {
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId).stream()
+            .anyMatch(b -> erDokumentBestilt(b.getId(), dokumentMalTypeKode));
+    }
+
     public void nullstillVedtakFritekstHvisFinnes(Long behandlingId) {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         behandlingDokument.ifPresent(behandlingDokumentEntitet -> behandlingDokumentRepository.lagreOgFlush(
