@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -69,6 +70,7 @@ class FeilPraksisUtsettelseAlleTask implements ProsessTaskHandler {
         var prosessTaskData = ProsessTaskData.forProsessTask(FeilPraksisUtsettelseAlleTask.class);
         prosessTaskData.setProperty(FeilPraksisUtsettelseAlleTask.FRA_FAGSAK_ID, fraFagsakId == null ? null : String.valueOf(fraFagsakId));
         prosessTaskData.setProperty(FeilPraksisUtsettelseAlleTask.UTVALG, utvalg.name());
+        prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(30));
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(150);
         return prosessTaskData;

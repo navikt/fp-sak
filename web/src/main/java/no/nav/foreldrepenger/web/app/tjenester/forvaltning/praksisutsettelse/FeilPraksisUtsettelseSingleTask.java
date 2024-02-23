@@ -32,7 +32,7 @@ class FeilPraksisUtsettelseSingleTask implements ProsessTaskHandler {
         var sak = Optional.ofNullable(prosessTaskData.getPropertyValue(FAGSAK_ID))
             .map(fid -> fagsakRepository.finnEksaktFagsak(Long.parseLong(fid)))
             .orElseThrow();
-        feilPraksisOpprettBehandlingTjeneste.opprettRevurdering(sak);
+        feilPraksisOpprettBehandlingTjeneste.opprettBehandling(sak);
     }
 
 }
