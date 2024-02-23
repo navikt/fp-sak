@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class JusterFordelingTjenesteTest {
@@ -119,6 +118,8 @@ class JusterFordelingTjenesteTest {
      * F: FORELDREPENGER, U: utsettelse
      *              ---|FFFFUU
      *      |FFFFFF         UU   (Siste 2 ukene med F blir fylt på med riktig kvote)
+     *      |FFFFFFFFFF          (Fyller perioden etter dette med siste justerbare periode)
+     *      |FFFFFFFFFFFFFFFUU   (Fyller opprinnelige søkte periode) = Resultat
      */
     @Test
     void fødsel_før_termin_aleneomsorg_hvor_bruker_søkt_om_utsettelse_innenfor_ukene_forbeholdt_mor_fylles_med_foreldrepenger_og_utsettelse_beholds_etter_termin() {
@@ -134,7 +135,13 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder).hasSize(2);
         assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER);
         assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødsel);
-        assertThat(justertePerioder.get(0).getTom()).isEqualTo(TidsperiodeForbeholdtMor.tilOgMed(fødsel)); // Skal fylle hull før termin som er innenfor perioden forbeholdt mor med FORELDREPENGER
+
+        // Perioden mellom fødsel og fødsel + 6 uker fylles med FORELDREPENGER
+        // Perioden mellom 6 uker etter fødsl og frem til termin fylles med FORELDREPENGER
+        // Perioden etter termin som var i opprinnelig søknad fylles med siste flyttbare periode (FORELDREPENGER)
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
+
+        assertThat(justertePerioder.get(1)).isEqualTo(utsettelse);
     }
 
 
