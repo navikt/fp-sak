@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.uttak.TidsperiodeForbeholdtMor;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class JusterFordelingTjenesteTest {
@@ -113,6 +114,29 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødsel);
         assertThat(justertePerioder.get(0).getTom()).isEqualTo(fp.getTom());
     }
+
+    /**
+     * F: FORELDREPENGER, U: utsettelse
+     *              ---|FFFFUU
+     *      |FFFFFF         UU   (Siste 2 ukene med F blir fylt på med riktig kvote)
+     */
+    @Test
+    void fødsel_før_termin_aleneomsorg_hvor_bruker_søkt_om_utsettelse_innenfor_ukene_forbeholdt_mor_fylles_med_foreldrepenger_og_utsettelse_beholds_etter_termin() {
+        var termin = LocalDate.of(2021, 8, 11);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
+        var fp = lagPeriode(FORELDREPENGER, termin, termin.plusWeeks(4).minusDays(1));
+        var utsettelse = lagUtsettelse(termin.plusWeeks(4), termin.plusWeeks(6).minusDays(1));
+        var oppgittePerioder = List.of(fpff, fp, utsettelse);
+
+        var fødsel = termin.minusWeeks(10);
+        var justertePerioder = juster(oppgittePerioder, termin, fødsel);
+
+        assertThat(justertePerioder).hasSize(2);
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødsel);
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(TidsperiodeForbeholdtMor.tilOgMed(fødsel)); // Skal fylle hull før termin som er innenfor perioden forbeholdt mor med FORELDREPENGER
+    }
+
 
 
     @Test

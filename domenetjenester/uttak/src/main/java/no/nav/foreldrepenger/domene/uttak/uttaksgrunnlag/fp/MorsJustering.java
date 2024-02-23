@@ -361,7 +361,7 @@ class MorsJustering implements ForelderFødselJustering {
         var justertTimeline = tilLocalDateTimeLine(justertePerioder);
         var fylteHull = periodeSomErFørTerminOgInneforPeriodenForbeholdMorEtterFødsel.disjoint(justertTimeline).stream()
             .filter(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()) > 0)
-            .map(seg -> kopier(mødrekvoteFraFlyttbarPeriode(justertePerioder), seg.getFom(), seg.getTom()))
+            .map(seg -> kopier(mødrekvoteEllerForeldrepengerFraFlyttbarPeriode(justertePerioder), seg.getFom(), seg.getTom()))
             .toList();
 
         var resultat = new ArrayList<>(justertePerioder);
@@ -374,7 +374,7 @@ class MorsJustering implements ForelderFødselJustering {
             var fylteHullEtterTerminInneforPeriodenForbeholdtMor = oppgittPeriodeEtterTerminInnenforPeriodeForbeholdtMor
                 .disjoint(justertTimeline).stream()
                 .filter(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()) > 0)
-                .map(seg -> kopier(mødrekvoteFraFlyttbarPeriode(justertePerioder), seg.getFom(), seg.getTom()))
+                .map(seg -> kopier(mødrekvoteEllerForeldrepengerFraFlyttbarPeriode(justertePerioder), seg.getFom(), seg.getTom()))
                 .toList();
             resultat.addAll(fylteHullEtterTerminInneforPeriodenForbeholdtMor);
         }
@@ -382,10 +382,10 @@ class MorsJustering implements ForelderFødselJustering {
         return sorterEtterFom(resultat);
     }
 
-    private static OppgittPeriodeEntitet mødrekvoteFraFlyttbarPeriode(List<OppgittPeriodeEntitet> justertePerioder) {
+    private static OppgittPeriodeEntitet mødrekvoteEllerForeldrepengerFraFlyttbarPeriode(List<OppgittPeriodeEntitet> justertePerioder) {
         return justertePerioder.stream()
             .filter(MorsJustering::erPeriodeFlyttbar)
-            .filter(p -> p.getPeriodeType().equals(UttakPeriodeType.MØDREKVOTE))
+            .filter(p -> p.getPeriodeType().equals(UttakPeriodeType.MØDREKVOTE) || p.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER))
             .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .orElseGet(() -> mødrekvoteFraFlyttbarFellesperiode(justertePerioder));
     }
