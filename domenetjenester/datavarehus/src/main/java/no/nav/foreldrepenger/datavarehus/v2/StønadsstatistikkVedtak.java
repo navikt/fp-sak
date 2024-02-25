@@ -242,7 +242,7 @@ public class StønadsstatistikkVedtak {
         ARBEID_NÆRING_FRILANS, // Ftl 14-7 første ledd, jf Ftl 8-43
         DAGPENGER, // Ftl 14-7 første ledd, jf Ftl 8-49
         ARBEIDSAVKLARINGSPENGER, // Ftl 14-7 andre ledd
-        MOR_DAGPENGER_BESTEBEREGNING, // Ftl 14-7 tredje ledd
+        BESTEBEREGNING, // Ftl 14-7 tredje ledd
         MILITÆR_SIVIL, // Ftl 14-7 fjerde ledd
         ANNEN // Annet innenfor Ftl 14-7, 14-4, 8
     }
