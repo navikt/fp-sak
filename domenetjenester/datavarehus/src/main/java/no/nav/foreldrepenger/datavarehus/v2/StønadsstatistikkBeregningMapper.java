@@ -151,7 +151,7 @@ class StønadsstatistikkBeregningMapper {
             if (hjemler.contains(Hjemmel.F_14_7_8_49) || statuser.contains(AktivitetStatus.DAGPENGER)) {
                 var besteberegnet = beregningsgrunnlag.getBesteberegninggrunnlag().isPresent() ||
                     beregningsgrunnlag.getFaktaOmBeregningTilfeller().stream().anyMatch(BESTEBEREGNING_FAKTA::contains);
-                return besteberegnet ? StønadsstatistikkVedtak.BeregningHjemmel.MOR_DAGPENGER_BESTEBEREGNING : StønadsstatistikkVedtak.BeregningHjemmel.DAGPENGER;
+                return besteberegnet ? StønadsstatistikkVedtak.BeregningHjemmel.BESTEBEREGNING : StønadsstatistikkVedtak.BeregningHjemmel.DAGPENGER;
             }
             if (statuser.contains(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)) {
                 return StønadsstatistikkVedtak.BeregningHjemmel.ARBEIDSAVKLARINGSPENGER;
