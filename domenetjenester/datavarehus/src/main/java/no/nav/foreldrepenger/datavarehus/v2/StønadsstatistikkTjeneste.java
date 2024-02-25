@@ -244,7 +244,7 @@ public class StønadsstatistikkTjeneste {
             return null;
         }
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).orElse(null);
-        return StønadsstatistikkBeregningMapper.mapBeregning(behandling.getFagsakYtelseType(), beregningsgrunnlag, iayGrunnlag);
+        return StønadsstatistikkBeregningMapper.mapBeregning(behandling, beregningsgrunnlag, iayGrunnlag);
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {

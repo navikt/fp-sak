@@ -21,7 +21,6 @@ import jakarta.validation.Validation;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -50,11 +49,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -99,6 +100,7 @@ class StønadsstatistikkTjenesteTest {
             .medSkjæringstidspunkt(fødselsdato)
             .medGrunnbeløp(grunnbeløp)
             .leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.KOMBINERT_AT_FL).medHjemmel(Hjemmel.F_14_7_8_40))
             .build();
         beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
         var uttaksperiode = uttak.getPerioder().getFirst();
@@ -140,6 +142,8 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getBeregning().årsbeløp().redusert()).isEqualByComparingTo(redusertPrÅr);
         assertThat(vedtak.getBeregning().næringOrgNr()).isEmpty();
         assertThat(vedtak.getBeregning().grunnbeløp()).isEqualByComparingTo(grunnbeløp.getVerdi());
+        assertThat(vedtak.getBeregning().hjemmel()).isEqualByComparingTo(StønadsstatistikkVedtak.BeregningHjemmel.ARBEID_FRILANS);
+        assertThat(vedtak.getBeregning().fastsatt()).isEqualByComparingTo(StønadsstatistikkVedtak.BeregningFastsatt.AUTOMATISK);
 
         assertThat(vedtak.getForeldrepengerRettigheter().rettighetType()).isEqualTo(RettighetType.BEGGE_RETT);
         assertThat(vedtak.getForeldrepengerRettigheter().dekningsgrad()).isEqualTo(100);
@@ -204,6 +208,7 @@ class StønadsstatistikkTjenesteTest {
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(baselineDato)
             .medGrunnbeløp(grunnbeløp)
+            .leggTilAktivitetStatus(new BeregningsgrunnlagAktivitetStatus.Builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).medHjemmel(Hjemmel.F_14_7_8_30))
             .build();
         var beregningsgrunnlagPeriode = new BeregningsgrunnlagPeriode.Builder().medBeregningsgrunnlagPeriode(baselineDato.minusYears(1),
             baselineDato.plusYears(1)).medBruttoPrÅr(bruttoPrÅr).medAvkortetPrÅr(avkortetPrÅr).medRedusertPrÅr(redusertPrÅr).build(beregningsgrunnlag);
@@ -257,6 +262,8 @@ class StønadsstatistikkTjenesteTest {
         assertThat(vedtak.getBeregning().andeler().getFirst().årsbeløp().brutto()).isEqualTo(bruttoPrÅr);
         assertThat(vedtak.getBeregning().andeler().getFirst().årsbeløp().avkortet()).isNull();
         assertThat(vedtak.getBeregning().andeler().getFirst().aktivitet()).isEqualTo(StønadsstatistikkVedtak.AndelType.ARBEIDSTAKER);
+        assertThat(vedtak.getBeregning().hjemmel()).isEqualByComparingTo(StønadsstatistikkVedtak.BeregningHjemmel.ARBEID);
+        assertThat(vedtak.getBeregning().fastsatt()).isEqualByComparingTo(StønadsstatistikkVedtak.BeregningFastsatt.AUTOMATISK);
 
         assertThat(vedtak.getForeldrepengerRettigheter()).isNull();
         assertThat(vedtak.getUttaksperioder()).isNull();
