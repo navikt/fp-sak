@@ -256,8 +256,7 @@ public class LosBehandlingDtoTjeneste {
         var inntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(Set.of(behandling.getId()));
         return !inntektsmeldinger.isEmpty() && inntektsmeldinger.stream()
             .map(Inntektsmelding::getRefusjonBeløpPerMnd)
-            .filter(Objects::nonNull)
-            .allMatch(beløp -> beløp.compareTo(Beløp.ZERO) > 0);
+            .allMatch(beløp -> beløp != null && beløp.compareTo(Beløp.ZERO) > 0);
     }
 
     public LosFagsakEgenskaperDto lagFagsakEgenskaper(Fagsak fagsak) {
