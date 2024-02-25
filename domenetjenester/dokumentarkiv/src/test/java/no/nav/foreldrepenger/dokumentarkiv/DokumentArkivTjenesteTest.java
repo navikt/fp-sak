@@ -156,7 +156,7 @@ class DokumentArkivTjenesteTest {
     @Test
     void skalRetunereDokumentTyperSiden() {
         var lege = DokumentTypeId.LEGEERKLÆRING;
-        var innlegg = DokumentTypeId.DOK_INNLEGGELSE;
+        var arbeid = DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER;
         var response = lagResponse();
         response.getJournalposter().addAll(List.of(
             createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.I),
@@ -164,14 +164,14 @@ class DokumentArkivTjenesteTest {
         response.getJournalposter().get(0).getDokumenter().add(
             createDokumentinfo(Variantformat.ARKIV, null, lege.getNavn()));
         response.getJournalposter().get(1).getDokumenter().add(
-            createDokumentinfo(Variantformat.ARKIV, null, innlegg.getNavn()));
+            createDokumentinfo(Variantformat.ARKIV, null, arbeid.getNavn()));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
 
         var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, NOW.toLocalDate());
 
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
-        assertThat(arkivDokumentTypeIds).doesNotContain(DokumentTypeId.DOK_INNLEGGELSE);
+        assertThat(arkivDokumentTypeIds).doesNotContain(DokumentTypeId.BEKREFTELSE_FRA_ARBEIDSGIVER);
     }
 
     @Test
