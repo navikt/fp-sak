@@ -5,13 +5,13 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
@@ -79,7 +79,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
 
     private boolean mottattDokumentHarTypeAnnetEllerUdefinert(MottattDokument mottattDokument) {
         var fraDokument = mottattDokument.getDokumentType();
-        return DokumentTypeId.ANNET.equals(fraDokument) || DokumentTypeId.UDEFINERT.equals(fraDokument);
+        return fraDokument.erAnnenDokType() || DokumentTypeId.UDEFINERT.equals(fraDokument);
     }
 
     private void håndterÅpenBehandling(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) { //#V2
