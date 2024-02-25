@@ -239,7 +239,7 @@ public class FordelRestTjeneste {
         var dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
             .map(DokumentTypeId::finnForKodeverkEiersKode)
             .orElse(DokumentTypeId.UDEFINERT);
-        if (DokumentTypeId.TILBAKE_UTTALSELSE.equals(dokumentTypeId)) {
+        if (DokumentTypeId.TILBAKEKREVING_UTTALSELSE.equals(dokumentTypeId) || DokumentTypeId.TILBAKEBETALING_UTTALSELSE.equals(dokumentTypeId)) {
             return Response.ok().build();
         }
         ensureCallId();
