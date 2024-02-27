@@ -98,7 +98,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
                     null);
                 return BehandleStegResultat.henlagtBehandling();
             }
-            if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD) && !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
+            if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD)) {
                 var ventefrist = LocalDate.now().plusMonths(2).atStartOfDay();
 
                 var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_PÅ_SØKNAD, Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV, ventefrist);
