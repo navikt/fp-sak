@@ -213,9 +213,9 @@ public class FagsakRestTjeneste {
     @POST
     @Path(ENDRE_UTLAND_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Endre utlandsmerking av sak", tags = "fagsak", summary = "Endre merking fra tidligere verdi.")
+    @Operation(description = "Endre merking (utland) av sak", tags = "fagsak", summary = "Endre merking fra tidligere verdi.")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK)
-    public Response endreUtlandMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class)
+    public Response endreFagsakMerking(@TilpassetAbacAttributt(supplierClass = EndreUtlandAbacDataSupplier.class)
                                           @Parameter(description = "Saksnummer og markering") @Valid EndreUtlandMarkeringDto endreUtland) {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
