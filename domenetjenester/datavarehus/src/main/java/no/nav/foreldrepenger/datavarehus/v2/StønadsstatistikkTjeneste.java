@@ -355,7 +355,7 @@ public class StønadsstatistikkTjeneste {
 
     private static UtlandsTilsnitt utledUtlandsTilsnitt(FagsakMarkering fagsakMarkering) {
         return switch (fagsakMarkering) {
-            case NASJONAL, SAMMENSATT_KONTROLL, DØD_DØDFØDSEL, SELVSTENDIG_NÆRING -> UtlandsTilsnitt.NASJONAL;
+            case NASJONAL, SAMMENSATT_KONTROLL, DØD_DØDFØDSEL, SELVSTENDIG_NÆRING, PRAKSIS_UTSETTELSE -> UtlandsTilsnitt.NASJONAL;
             case EØS_BOSATT_NORGE -> UtlandsTilsnitt.EØS_BOSATT_NORGE;
             case BOSATT_UTLAND -> UtlandsTilsnitt.BOSATT_UTLAND;
         };

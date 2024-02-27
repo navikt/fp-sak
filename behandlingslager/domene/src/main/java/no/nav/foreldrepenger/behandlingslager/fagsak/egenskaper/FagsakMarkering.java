@@ -12,6 +12,7 @@ public enum FagsakMarkering implements EgenskapVerdi {
     BOSATT_UTLAND,
     SAMMENSATT_KONTROLL,
     DØD_DØDFØDSEL,
+    PRAKSIS_UTSETTELSE,
     SELVSTENDIG_NÆRING;
 
     @Override

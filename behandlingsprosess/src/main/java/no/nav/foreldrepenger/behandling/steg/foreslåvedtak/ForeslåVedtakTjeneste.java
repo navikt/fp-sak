@@ -17,8 +17,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 
@@ -32,6 +34,7 @@ class ForeslåVedtakTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
+    private FagsakEgenskapRepository fagsakEgenskapRepository;
 
     protected ForeslåVedtakTjeneste() {
         // CDI proxy
@@ -42,12 +45,14 @@ class ForeslåVedtakTjeneste {
                           BehandlingsresultatRepository behandlingsresultatRepository,
                           KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
                           SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste,
-                          DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
+                          DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                          FagsakEgenskapRepository fagsakEgenskapRepository) {
         this.sjekkMotEksisterendeOppgaverTjeneste = sjekkMotEksisterendeOppgaverTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
+        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
     }
 
     public BehandleStegResultat foreslåVedtak(Behandling behandling) {
@@ -114,7 +119,8 @@ class ForeslåVedtakTjeneste {
         if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilDød())) {
             return true;
         }
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) ||
+            fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId()).filter(FagsakMarkering.PRAKSIS_UTSETTELSE::equals).isPresent()) {
             return true;
         }
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && behandling.erYtelseBehandling()

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -272,6 +271,7 @@ public class LosBehandlingDtoTjeneste {
             case SAMMENSATT_KONTROLL -> LosFagsakEgenskaperDto.FagsakMarkering.SAMMENSATT_KONTROLL;
             case DØD_DØDFØDSEL -> LosFagsakEgenskaperDto.FagsakMarkering.DØD;
             case SELVSTENDIG_NÆRING -> LosFagsakEgenskaperDto.FagsakMarkering.NÆRING;
+            case PRAKSIS_UTSETTELSE -> LosFagsakEgenskaperDto.FagsakMarkering.PRAKSIS_UTSETTELSE;
         };
     }
 
