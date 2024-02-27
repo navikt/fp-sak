@@ -91,13 +91,14 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
             return evaluerSøknadMottattUoppfylt(behandling, søknadMottatt, VENT_PÅ_SØKNAD);
         }
 
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE) &&
+            !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             if (henleggBehandling(behandling)) {
                 henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling.getId(), BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
                     null);
                 return BehandleStegResultat.henlagtBehandling();
             }
-            if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD)) {
+            if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD) && !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
                 var ventefrist = LocalDate.now().plusMonths(2).atStartOfDay();
 
                 var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_PÅ_SØKNAD, Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV, ventefrist);

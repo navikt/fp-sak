@@ -122,7 +122,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
     private void oppdaterFagsakEgenskaper(Behandling behandling) {
         var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
-        if (eksisterende.filter(PRIORITERT::contains).isPresent()) {
+        if (eksisterende.filter(FagsakMarkering::erPrioritert).isPresent()) {
             return;
         }
         var dødsrelatert = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType)
