@@ -1,7 +1,11 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -114,8 +118,50 @@ public class YrkesaktivitetBuilder {
         return new YrkesaktivitetFilter(null, List.of(kladd)).getAktivitetsAvtalerForArbeid().isEmpty();
     }
 
-    public void fjernPeriode(DatoIntervallEntitet aktivitetsPeriode) {
-        kladd.fjernPeriode(aktivitetsPeriode);
+    public boolean harIngenAnsettelsesPerioder() {
+        return new YrkesaktivitetFilter(null, List.of(kladd)).getAnsettelsesPerioder().isEmpty();
+    }
+
+    /*
+     * Kommer inn en bekreftet ansettelsesperiode som skulle være 1-1 med eksisterende - men det kan ha vært splitt/merge av perioder
+     * Logikk: Fjerne alle ansettelsesperioder som er omfattet av aktivitetsperiode - enten hele ansettelsesperioden eller erstatte med deler som ikke overlapper
+     */
+    public void fjernAnsettelsesPeriode(DatoIntervallEntitet aktivitetsPeriode) {
+        // Disse skal slettes til slutt
+        var ansettelsesperioderSomOverlapper = kladd.getAlleAktivitetsAvtaler().stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+            .filter(p -> aktivitetsPeriode.overlapper(p.getPeriode()))
+            .collect(Collectors.toSet());
+        var workingSet = new HashSet<>(ansettelsesperioderSomOverlapper);
+        while (workingSet.stream().anyMatch(p -> aktivitetsPeriode.overlapper(p.getPeriode()))) {
+            workingSet.removeAll(omsluttetAvAktivitetsperiode(workingSet, aktivitetsPeriode));
+            var overlapper = workingSet.stream().filter(p -> aktivitetsPeriode.overlapper(p.getPeriode())).collect(Collectors.toSet());
+            var oppdelt = overlapper.stream().map(p -> splitOverlappLR(p, aktivitetsPeriode)).flatMap(Collection::stream).collect(Collectors.toSet());
+            workingSet.removeAll(overlapper);
+            workingSet.addAll(oppdelt);
+        }
+        ansettelsesperioderSomOverlapper.stream().map(AktivitetsAvtale::getPeriode).forEach(kladd::fjernAnsettelsesPeriode);
+        workingSet.forEach(kladd::leggTilAktivitetsAvtale);
+    }
+
+    private Collection<AktivitetsAvtale> omsluttetAvAktivitetsperiode(Set<AktivitetsAvtale> ansettelsesperioder, DatoIntervallEntitet aktivitetsPeriode) {
+        return ansettelsesperioder.stream()
+            .filter(p -> p.getPeriode().erOmsluttetAv(aktivitetsPeriode))
+            .collect(Collectors.toSet());
+    }
+
+    private Collection<AktivitetsAvtale> splitOverlappLR(AktivitetsAvtale ansettelsesperiode, DatoIntervallEntitet aktivitetsPeriode) {
+        var resultat = new HashSet<AktivitetsAvtale>();
+        if (ansettelsesperiode.getPeriode().getFomDato().isBefore(aktivitetsPeriode.getFomDato())) {
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(ansettelsesperiode.getPeriode().getFomDato(), aktivitetsPeriode.getFomDato().minusDays(1L));
+            resultat.add(nyAktivitetsAvtaleBuilder().medBeskrivelse(ansettelsesperiode.getBeskrivelse()).medPeriode(periode).build());
+        }
+        if (ansettelsesperiode.getPeriode().getTomDato().isAfter(aktivitetsPeriode.getTomDato())) {
+            var periode = DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsPeriode.getTomDato().plusDays(1L), ansettelsesperiode.getPeriode().getTomDato());
+            resultat.add(nyAktivitetsAvtaleBuilder().medBeskrivelse(ansettelsesperiode.getBeskrivelse()).medPeriode(periode).build());
+
+        }
+        return resultat;
     }
 
     public YrkesaktivitetBuilder medArbeidType(String kode) {

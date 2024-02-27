@@ -7,10 +7,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 
@@ -41,6 +43,7 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.opptjening.dto.BekreftOpptjeningPeriodeDto;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -59,6 +62,10 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
     private final AktørId AKTØRID = AktørId.dummy();
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final AksjonspunktutlederForVurderOppgittOpptjening vurderOpptjening = mock(AksjonspunktutlederForVurderOppgittOpptjening.class);
+    private static final String NAV_ORGNR = "889640782";
+    private static final Arbeidsgiver ARBEIDSGIVER = Arbeidsgiver.virksomhet(NAV_ORGNR);
+    private static final InternArbeidsforholdRef REF = InternArbeidsforholdRef.nyRef();
+
 
     @BeforeEach
     public void oppsett(EntityManager entityManager) {
@@ -169,6 +176,88 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
                 .toList();
         assertThat(perioder).contains(periode1, periode2);
+    }
+
+    @Test
+    void skal_lagre_ned_delvis_godkjent_arbeid() {
+        var iDag = LocalDate.now();
+        var behandling = opprettBehandling();
+
+        var avtale1Fom = LocalDate.of(2022,12,1);
+        var avtale2Fom = LocalDate.of(2023,8,1);
+        var ansFom = LocalDate.of(2023,4,1);
+        var ansTom = LocalDate.of(2024,1,1);
+
+        var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        var arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        var nøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(REF, ARBEIDSGIVER);
+        var yrkesaktivitetBuilderForType = arbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        yrkesaktivitetBuilderForType.medArbeidsgiver(ARBEIDSGIVER)
+            .medArbeidsforholdId(REF)
+            .leggTilAktivitetsAvtale(
+                yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(avtale1Fom, avtale2Fom.minusDays(1)), false)
+                    .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
+                    .medProsentsats(BigDecimal.ZERO))
+            .leggTilAktivitetsAvtale(
+                yrkesaktivitetBuilderForType.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(avtale2Fom), false)
+                    .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
+                    .medProsentsats(BigDecimal.ZERO))
+            .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
+                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(ansFom, ansTom), true));
+        arbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilderForType);
+        builder.leggTilAktørArbeid(arbeidBuilder);
+        iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
+
+
+        // simulerer svar fra GUI
+        var dto = new BekreftOpptjeningPeriodeDto();
+        dto.setAktivitetType(OpptjeningAktivitetType.ARBEID);
+        dto.setOpptjeningFom(avtale1Fom);
+        dto.setOpptjeningTom(ansFom.minusDays(1));
+        dto.setArbeidsgiverReferanse(ARBEIDSGIVER.getIdentifikator());
+        dto.setArbeidsforholdRef(REF.getReferanse());
+        dto.setErGodkjent(false);
+        dto.setBegrunnelse("Ser ugreit ut");
+        var dto2 = new BekreftOpptjeningPeriodeDto();
+        dto2.setAktivitetType(OpptjeningAktivitetType.ARBEID);
+        dto2.setOpptjeningFom(ansFom);
+        dto2.setOpptjeningTom(avtale2Fom.minusDays(1));
+        dto2.setArbeidsgiverReferanse(ARBEIDSGIVER.getIdentifikator());
+        dto2.setArbeidsforholdRef(REF.getReferanse());
+        dto2.setErGodkjent(true);
+        dto2.setBegrunnelse("Ser greit ut");
+        var dto3 = new BekreftOpptjeningPeriodeDto();
+        dto3.setAktivitetType(OpptjeningAktivitetType.ARBEID);
+        dto3.setOpptjeningFom(avtale2Fom);
+        dto3.setOpptjeningTom(ansTom.minusMonths(1));
+        dto3.setArbeidsgiverReferanse(ARBEIDSGIVER.getIdentifikator());
+        dto3.setArbeidsforholdRef(REF.getReferanse());
+        dto3.setErGodkjent(false);
+        dto3.setBegrunnelse("Ser ugreit ut");
+
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(ansTom.minusMonths(1).plusDays(1)).build();
+
+        // Act
+        bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), asList(dto, dto2, dto3), skjæringstidspunkt);
+
+        var oppdatert = hentGrunnlag(behandling);
+
+        var filterSaksbehandlet = new YrkesaktivitetFilter(oppdatert.getArbeidsforholdInformasjon(), oppdatert.getBekreftetAnnenOpptjening(behandling.getAktørId()));
+        var yrkesaktiviteter = filterSaksbehandlet.getYrkesaktiviteter();
+        var ansettelsesperioder = yrkesaktiviteter.stream()
+            .flatMap(y -> y.getAlleAktivitetsAvtaler().stream().filter(AktivitetsAvtale::erAnsettelsesPeriode))
+            .collect(Collectors.toList());
+
+        assertThat(yrkesaktiviteter).hasSize(1);
+        assertThat(ansettelsesperioder).hasSize(2);
+        var bekreftet = ansettelsesperioder.stream().filter(p -> p.getPeriode().getFomDato().equals(ansFom)).findFirst().orElseThrow();
+        assertThat(bekreftet.getPeriode().getFomDato()).isEqualTo(ansFom);
+        assertThat(bekreftet.getPeriode().getTomDato()).isEqualTo(avtale2Fom.minusDays(1));
+        assertThat(bekreftet.getBeskrivelse()).isEqualTo("Ser greit ut");
+        var siste = ansettelsesperioder.stream().filter(p -> p.getPeriode().getTomDato().equals(ansTom)).findFirst().orElseThrow();
+        assertThat(siste.getPeriode().getFomDato()).isEqualTo(ansTom.minusMonths(1).plusDays(1));
+        assertThat(siste.getPeriode().getTomDato()).isEqualTo(ansTom);
+        assertThat(siste.getBeskrivelse()).isNull();
     }
 
     @Test
