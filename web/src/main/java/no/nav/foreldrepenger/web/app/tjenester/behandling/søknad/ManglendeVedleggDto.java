@@ -2,32 +2,15 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 
-public class ManglendeVedleggDto {
-    private DokumentTypeId dokumentType;
-    private String arbeidsgiverReferanse;
-    private boolean brukerHarSagtAtIkkeKommer = false;
+public record ManglendeVedleggDto(DokumentTypeId dokumentType, String dokumentTittel,
+                                  String arbeidsgiverReferanse, boolean brukerHarSagtAtIkkeKommer) {
 
-    public DokumentTypeId getDokumentType() {
-        return dokumentType;
+    public ManglendeVedleggDto(DokumentTypeId dokumentType) {
+        this(dokumentType, dokumentType.getNavn(), null, false);
     }
 
-    public void setDokumentType(DokumentTypeId dokumentType) {
-        this.dokumentType = dokumentType;
+    public ManglendeVedleggDto(DokumentTypeId dokumentType, String arbeidsgiverReferanse, boolean brukerHarSagtAtIkkeKommer) {
+        this(dokumentType, dokumentType.getNavn(), arbeidsgiverReferanse, brukerHarSagtAtIkkeKommer);
     }
 
-    public String getArbeidsgiverReferanse() {
-        return arbeidsgiverReferanse;
-    }
-
-    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
-        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
-    }
-
-    public boolean getBrukerHarSagtAtIkkeKommer() {
-        return brukerHarSagtAtIkkeKommer;
-    }
-
-    public void setBrukerHarSagtAtIkkeKommer(boolean brukerHarSagtAtIkkeKommer) {
-        this.brukerHarSagtAtIkkeKommer = brukerHarSagtAtIkkeKommer;
-    }
 }

@@ -41,12 +41,10 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var journalpostId = prosessTaskData.getPropertyValue(KEY_JOURNALPOST_ID);
         var behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
-        var dokumentTypeId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_DOKUMENT_TYPE))
-            .map(DokumentTypeId::fraKode).orElse(DokumentTypeId.UDEFINERT);
-        var beskrivelse = dokumentTypeId.getNavn();
-        if (beskrivelse == null) {
-            beskrivelse = dokumentTypeId.getKode();
-        }
+        var beskrivelse = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_DOKUMENT_TYPE))
+            .map(DokumentTypeId::fraKode)
+            .map(DokumentTypeId::getNavn)
+            .orElse("dokument");
 
         var oppgaveId = oppgaveTjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakId, journalpostId, behandlendeEnhet, "VL: " + beskrivelse);
         LOG.info("Oppgave opprettet i GSAK for å vurdere dokument på enhet {}. Oppgavenummer: {}", behandlendeEnhet, oppgaveId);

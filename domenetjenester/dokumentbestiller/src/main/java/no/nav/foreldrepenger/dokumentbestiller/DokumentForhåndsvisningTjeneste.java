@@ -91,10 +91,10 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
                 bestillingDokumentMal = dokumentMal;
             }
         }
-        return brev.forhåndsvis(legForhåndsvisningDto(bestilling, bestillingDokumentMal));
+        return brev.forhåndsvis(lagForhåndsvisningDto(bestilling, bestillingDokumentMal));
     }
 
-    private DokumentForhåndsvisDto legForhåndsvisningDto(DokumentForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
+    private DokumentForhåndsvisDto lagForhåndsvisningDto(DokumentForhandsvisning bestilling, DokumentMalType bestillingDokumentMal) {
         return new DokumentForhåndsvisDto(
             bestilling.behandlingUuid(),
             mapDokumentMal(bestillingDokumentMal),

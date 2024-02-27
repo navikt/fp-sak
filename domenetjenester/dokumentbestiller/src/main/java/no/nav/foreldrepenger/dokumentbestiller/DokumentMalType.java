@@ -159,7 +159,7 @@ public enum DokumentMalType implements Kodeverdi {
             case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
             case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
             case ENDRING_UTBETALING -> "Endring i fordeling av ytelsen";
-            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> "Informasjonsbrev feil praksis utsettelse";
+            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> "Melding om ny vurdering av tidligere avslag";
         };
     }
 }

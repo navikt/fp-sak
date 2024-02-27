@@ -37,9 +37,11 @@ public class OppgaveTjeneste {
     private static final String NØS_ANSVARLIG_ENHETID = "4151";
     private static final String NØS_BEH_TEMA = "ab0273";
     private static final String NØS_TEMA = "STO";
-    private static final String SAMHANDLING_BA_FA_SP = "ae0119";
+    private static final String SAMHANDLING_BS_FA_SP = "ae0119";
     private static final String SYK_TEMA = "SYK";
     private static final String SYK_ANSVARLIG_ENHETID = "4488";
+    private static final String OMS_TEMA = "OMS";
+    private static final String OMS_ANSVARLIG_ENHETID = "4487";
     private static final String FEILMELDING = "Feil ved henting av oppgaver for oppgavetype=";
 
     private FagsakRepository fagsakRepository;
@@ -124,11 +126,21 @@ public class OppgaveTjeneste {
     public void opprettVurderKonsekvensHosSykepenger(String enhetsId, String beskrivelse, AktørId aktørId) {
         var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse,
             Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER)
-            .medBehandlingstype(SAMHANDLING_BA_FA_SP)
+            .medBehandlingstype(SAMHANDLING_BS_FA_SP)
             .medTema(SYK_TEMA)
             .medTildeltEnhetsnr(SYK_ANSVARLIG_ENHETID);
         var oppgave = restKlient.opprettetOppgave(orequest.build());
         LOG.info("FPSAK GOSYS opprettet SYK oppgave {}", oppgave.id());
+    }
+
+    public void opprettVurderKonsekvensHosPleiepenger(String enhetsId, String beskrivelse, AktørId aktørId) {
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, null, aktørId, enhetsId, beskrivelse,
+            Prioritet.HOY, DEFAULT_OPPGAVEFRIST_DAGER)
+            .medBehandlingstype(SAMHANDLING_BS_FA_SP)
+            .medTema(OMS_TEMA)
+            .medTildeltEnhetsnr(OMS_ANSVARLIG_ENHETID);
+        var oppgave = restKlient.opprettetOppgave(orequest.build());
+        LOG.info("FPSAK GOSYS opprettet OMS oppgave {}", oppgave.id());
     }
 
     public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {

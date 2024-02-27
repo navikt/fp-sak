@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -318,16 +317,8 @@ public class DokumentArkivTjeneste {
         return alletyper;
     }
 
-    private static DokumentTypeId utledHovedDokumentType(Set<DokumentTypeId> alleTyper) {
-        int lavestrank = alleTyper.stream()
-            .map(MapNAVSkjemaDokumentTypeId::dokumentTypeRank)
-            .min(Comparator.naturalOrder()).orElse(MapNAVSkjemaDokumentTypeId.UDEF_RANK);
-        if (lavestrank == MapNAVSkjemaDokumentTypeId.GEN_RANK) {
-            return alleTyper.stream()
-                .filter(t -> MapNAVSkjemaDokumentTypeId.dokumentTypeRank(t) == MapNAVSkjemaDokumentTypeId.GEN_RANK)
-                .findFirst().orElse(DokumentTypeId.UDEFINERT);
-        }
-        return MapNAVSkjemaDokumentTypeId.dokumentTypeFromRank(lavestrank);
+    public static DokumentTypeId utledHovedDokumentType(Set<DokumentTypeId> alleTyper) {
+        return MapNAVSkjemaDokumentTypeId.velgRangertHovedDokumentType(alleTyper);
     }
 
     private Optional<DokumentTypeId> dokumentTypeFraTittel(String tittel) {

@@ -159,13 +159,11 @@ public class SøknadDtoTjeneste {
     }
 
     private ManglendeVedleggDto mapTilManglendeVedleggDto(ManglendeVedlegg mv) {
-        var dto = new ManglendeVedleggDto();
-        dto.setDokumentType(mv.getDokumentType());
         if (mv.getDokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
-            dto.setArbeidsgiverReferanse(mv.getArbeidsgiver());
-            dto.setBrukerHarSagtAtIkkeKommer(mv.getBrukerHarSagtAtIkkeKommer());
+            return new ManglendeVedleggDto(mv.getDokumentType(), mv.getArbeidsgiver(), mv.getBrukerHarSagtAtIkkeKommer());
+        } else {
+            return new ManglendeVedleggDto(mv.getDokumentType());
         }
-        return dto;
     }
 
     private SoknadDto lagSoknadAdopsjonDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {

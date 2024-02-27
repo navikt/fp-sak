@@ -44,6 +44,10 @@ public class SendBrevForAutopunkt {
             dokumentMal = DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER;
         } else if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE)) {
             dokumentMal = DokumentMalType.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV;
+            // Akkurat denne skal ikke sendes flere ganger for en sak.
+            if (dokumentBehandlingTjeneste.erDokumentBestiltForFagsak(behandling.getFagsakId(), dokumentMal)) {
+                return;
+            }
         }
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal)) {
             var dokumentBestilling = getBuilder(behandling, dokumentMal).build();
