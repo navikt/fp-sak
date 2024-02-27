@@ -113,10 +113,9 @@ public class OppgittPeriodeUtil {
     }
 
     static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom, LocalDate nyTom) {
-        if (oppgittPeriode instanceof MorsJustering.JusterPeriodeHull) {
-            return new MorsJustering.JusterPeriodeHull(nyFom, nyTom);
-        }
-        return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode).medPeriode(nyFom, nyTom).build();
+        return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode)
+            .medPeriode(nyFom, nyTom)
+            .build();
     }
 
 }
