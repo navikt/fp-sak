@@ -74,6 +74,7 @@ public enum HistorikkEndretFeltVerdiType implements Kodeverdi {
     BOSATT_UTLAND("BOSATT_UTLAND", "Bosatt utland"),
     SAMMENSATT_KONTROLL("SAMMENSATT_KONTROLL", "Sammensatt kontroll"),
     DØD_DØDFØDSEL("DØD_DØDFØDSEL", "Død/dødfødsel"),
+    PRAKSIS_UTSETTELSE("PRAKSIS_UTSETTELSE", "Feil praksis utsettelse"),
     SELVSTENDIG_NÆRING("SELVSTENDIG_NÆRING", "Selvstendig næringsdrivende"),
     UTFØR_TILBAKETREKK("UTFØR_TILBAKETREKK", "Utfør tilbaketrekk"),
     HINDRE_TILBAKETREKK("HINDRE_TILBAKETREKK", "Hindre tilbaketrekk"),
