@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
@@ -23,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -1910,6 +1912,30 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(3).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
 
+    @Test
+    void overføringFedrekvote() {
+        var termindato = LocalDate.of(2024, 3, 26);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(1));
+        var fellesperiode = lagPeriode(FELLESPERIODE, termindato.plusWeeks(15), termindato.plusWeeks(31).minusDays(1));
+        var overføring = lagOverføring(termindato.plusWeeks(31), termindato.plusWeeks(46).minusDays(1));
+        var fødselsdato = LocalDate.of(2024, 2, 26);
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode, overføring);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødselsdato);
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.plusWeeks(15).minusDays(1)));
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(fødselsdato.plusWeeks(15));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.plusWeeks(31).minusDays(1)));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(fødselsdato.plusWeeks(31));
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(overføring.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FEDREKVOTE);
+    }
+
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familiehendelse2) {
         return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familiehendelse2, RelasjonsRolleType.MORA,
             false);
@@ -1917,6 +1943,14 @@ class JusterFordelingTjenesteTest {
 
     static OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
+    }
+
+    static OppgittPeriodeEntitet lagOverføring(LocalDate fom, LocalDate tom) {
+        return OppgittPeriodeBuilder.ny()
+            .medPeriode(fom, tom)
+            .medPeriodeType(FEDREKVOTE)
+            .medÅrsak(OverføringÅrsak.SYKDOM_ANNEN_FORELDER)
+            .build();
     }
 
     static OppgittPeriodeEntitet lagUtsettelse(LocalDate fom, LocalDate tom) {
