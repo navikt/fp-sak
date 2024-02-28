@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -40,9 +39,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements BehandlingSteg {
-
-    private static final Set<FagsakMarkering> PRIORITERT = Set.of(FagsakMarkering.BOSATT_UTLAND, FagsakMarkering.SAMMENSATT_KONTROLL,
-        FagsakMarkering.DØD_DØDFØDSEL);
 
     private BehandlingRepository behandlingRepository;
     private FagsakTjeneste fagsakTjeneste;
@@ -122,7 +118,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
     private void oppdaterFagsakEgenskaper(Behandling behandling) {
         var eksisterende = fagsakEgenskapRepository.finnFagsakMarkering(behandling.getFagsakId());
-        if (eksisterende.filter(PRIORITERT::contains).isPresent()) {
+        if (eksisterende.filter(FagsakMarkering::erPrioritert).isPresent()) {
             return;
         }
         var dødsrelatert = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType)
