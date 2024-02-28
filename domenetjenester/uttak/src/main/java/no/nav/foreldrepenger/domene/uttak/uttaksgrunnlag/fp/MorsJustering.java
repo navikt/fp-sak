@@ -302,7 +302,7 @@ class MorsJustering implements ForelderFødselJustering {
         //flytter en og en dag
         while (i < antallVirkedagerSomSkalSkyves) {
             nyFom = minusVirkedag(nyFom);
-            if (!oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.MØDREKVOTE) && !nyFom.isAfter(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse))) {
+            if (periodeSomIkkeErMødrekvoteEllerForeldrepengerHavnerInnenforUkeneForbeholdtMorEtterFødsel(oppgittPeriode, nyFom)) {
                 return sisteLedigVirkedag;
             }
             if (erLedigVirkedager(ikkeFlyttbarePerioder, nyFom)) {
@@ -311,6 +311,14 @@ class MorsJustering implements ForelderFødselJustering {
             }
         }
         return sisteLedigVirkedag;
+    }
+
+    private boolean periodeSomIkkeErMødrekvoteEllerForeldrepengerHavnerInnenforUkeneForbeholdtMorEtterFødsel(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom) {
+        if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.MØDREKVOTE) || oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER)) {
+            return false;
+        }
+
+        return !nyFom.isAfter(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse));
     }
 
     private List<OppgittPeriodeEntitet> flyttPeriodeHøyre(OppgittPeriodeEntitet oppgittPeriode,
