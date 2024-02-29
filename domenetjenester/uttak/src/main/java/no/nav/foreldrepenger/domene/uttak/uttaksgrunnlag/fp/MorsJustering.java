@@ -63,7 +63,7 @@ class MorsJustering implements ForelderFødselJustering {
         var justertePerioder = new ArrayList<OppgittPeriodeEntitet>();
         for (var oppgittPeriode : oppgittePerioderMedHull) {
             if (virkedagerSomSkalSkyves > 0 && erPeriodeFlyttbar(oppgittPeriode)) {
-                var justert = flyttPeriodeHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder, true);
+                var justert = flyttPeriodeHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
 
                 if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FELLESPERIODE) && kanFellesperiodenReduseres(oppgittPeriode, justert)) {
                     var justertFellesperiode = reduserJusterteFellesperioder(justert, virkedagerSomSkalSkyves);
@@ -279,19 +279,20 @@ class MorsJustering implements ForelderFødselJustering {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
         var gjeldendePeriode = oppgittPeriode;
         var antallVirkedager = beregnAntallVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom());
-        var nyFom = finnNyFomVedFlyttingVenstre(oppgittPeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
-        var nyTom = flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriodeIKKKE(nyFom, antallVirkedager, ikkeFlyttbarePerioder);
-        var nyPeriode = kopier(gjeldendePeriode, nyFom, nyTom);
-        resultat.add(nyPeriode);
 
-        antallVirkedager -= beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
-        if (antallVirkedager > 0) { // knekker
-            var fom = nyPeriode.getTom().plusDays(1);
-            var tom = Virkedager.plusVirkedager(nyPeriode.getTom(), antallVirkedager);
-            gjeldendePeriode = kopier(oppgittPeriode, fom, tom);
-            resultat.addAll(flyttPeriodeHøyre(gjeldendePeriode, 1, ikkeFlyttbarePerioder, false));
+        while (antallVirkedager > 0) {
+            var nyFom = finnNyFomVedFlyttingVenstre(gjeldendePeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+            var nyTom = flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriode(nyFom, antallVirkedager, ikkeFlyttbarePerioder, false);
+            var nyPeriode = kopier(gjeldendePeriode, nyFom, nyTom);
+            resultat.add(nyPeriode);
+
+            antallVirkedager -= beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
+            if (antallVirkedager > 0) {
+                var fomRest = Virkedager.plusVirkedager(gjeldendePeriode.getFom(), beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom()));
+                var tomRest = gjeldendePeriode.getTom();
+                gjeldendePeriode = kopier(oppgittPeriode, fomRest, tomRest);
+            }
         }
-
         return resultat;
     }
 
@@ -321,17 +322,14 @@ class MorsJustering implements ForelderFødselJustering {
         return !nyFom.isAfter(TidsperiodeForbeholdtMor.tilOgMed(nyFamiliehendelse));
     }
 
-    private List<OppgittPeriodeEntitet> flyttPeriodeHøyre(OppgittPeriodeEntitet oppgittPeriode,
-                                                          int antallVirkedagerSomSkalSkyves,
-                                                          List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder,
-                                                          boolean skalJustereInnIPeriodeForbeholdtMor) {
+    private List<OppgittPeriodeEntitet> flyttPeriodeHøyre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
         var gjeldendePeriode = oppgittPeriode;
         var antallVirkedager = beregnAntallVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom());
 
         while (antallVirkedager > 0) {
-            var nyFom = finnNyFomVedFlyttingTilHøyre(gjeldendePeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder, skalJustereInnIPeriodeForbeholdtMor);
-            var nyTom = flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriode(nyFom, antallVirkedager, ikkeFlyttbarePerioder, skalJustereInnIPeriodeForbeholdtMor);
+            var nyFom = finnNyFomVedFlyttingTilHøyre(gjeldendePeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+            var nyTom = flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriode(nyFom, antallVirkedager, ikkeFlyttbarePerioder, true);
             var nyPeriode = kopier(gjeldendePeriode, nyFom, nyTom);
             resultat.add(nyPeriode);
 
@@ -344,14 +342,13 @@ class MorsJustering implements ForelderFødselJustering {
         return resultat;
     }
 
-    private LocalDate finnNyFomVedFlyttingTilHøyre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder,
-                                                   boolean skalJustereInnIPeriodeForbeholdtMor) {
+    private LocalDate finnNyFomVedFlyttingTilHøyre(OppgittPeriodeEntitet oppgittPeriode, int antallVirkedagerSomSkalSkyves, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
         var nyFom = oppgittPeriode.getFom();
         var i = 0;
         //flytter en og en dag
         while (i < antallVirkedagerSomSkalSkyves) {
             nyFom = Virkedager.plusVirkedager(nyFom, 1);
-            if (erLedigVirkedager(ikkeFlyttbarePerioder, nyFom) || (skalJustereInnIPeriodeForbeholdtMor && nyDatoHavnerIHullForbeholdtMorEtterJustering(ikkeFlyttbarePerioder, nyFom))) {
+            if (erLedigVirkedager(ikkeFlyttbarePerioder, nyFom) || nyDatoHavnerIHullForbeholdtMorEtterJustering(ikkeFlyttbarePerioder, nyFom)) {
                 i++;
             }
         }
@@ -466,26 +463,7 @@ class MorsJustering implements ForelderFødselJustering {
         return ledigeVirkedager;
     }
 
-
-    private LocalDate flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriodeIKKKE(LocalDate initiellTom, int antallVirkedager, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
-        var nyTom = initiellTom;
-
-        //flytter en og en dag frem til ikke ledig virkedag
-        var i = 0;
-        while (i < antallVirkedager - 1) {
-            var nyTomPlus1Dag = Virkedager.plusVirkedager(nyTom, 1);
-            if (erLedigVirkedager(ikkeFlyttbarePerioder, nyTomPlus1Dag)) {
-                nyTom = nyTomPlus1Dag;
-                i++;
-            } else {
-                break;
-            }
-        }
-        return nyTom;
-    }
-
-    private LocalDate flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriode(LocalDate initiellTom, int antallVirkedager, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder,
-                                                                                  boolean skalJustereInnIPeriodeForbeholdtMor) {
+    private LocalDate flyttTomDatoAntallVirkedagerEllerFremTilIkkeFlyttbarPeriode(LocalDate initiellTom, int antallVirkedager, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder, boolean skalJustereInnIPeriodeForbeholdtMor) {
         var nyTom = initiellTom;
 
         //flytter en og en dag frem til ikke ledig virkedag
