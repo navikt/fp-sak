@@ -1935,6 +1935,36 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(2).getTom()).isEqualTo(overføring.getTom());
         assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FEDREKVOTE);
     }
+    @Test
+    void fødselFørTerminJusterePeriodeSomKnekkesOppTilFlereGangerPgaHull() {
+        var termindato = LocalDate.of(2024, 3, 9);
+        var fødselsdato = LocalDate.of(2024, 2, 27);
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termindato.minusWeeks(3), termindato.minusDays(1));
+        var mødrekvote = lagPeriode(MØDREKVOTE, termindato, termindato.plusWeeks(15).minusDays(1));
+        var fellesperiode1 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,6,24), LocalDate.of(2024,7,5));
+        var fellesperiode2 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,7,22), LocalDate.of(2024,7,26));
+        var fellesperiode3 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,8,12), LocalDate.of(2024,10,4));
+        var fellesperiode4 = lagPeriode(FELLESPERIODE, LocalDate.of(2024,10,21), LocalDate.of(2024,11,22));
+
+        var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode1, fellesperiode2, fellesperiode3, fellesperiode4);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).hasSameSizeAs(oppgittePerioder);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(flyttFraHelgTilMandag(fpff.getFom()));
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.minusDays(1)));
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(flyttFraHelgTilFredag(fødselsdato.plusWeeks(15).minusDays(1)));
+        assertThat(justertePerioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(2).getFom()).isEqualTo(flyttFraHelgTilMandag(fødselsdato.plusWeeks(15)));
+        assertThat(justertePerioder.get(2).getTom()).isEqualTo(fellesperiode1.getTom());
+        assertThat(justertePerioder.get(2).getPeriodeType()).isEqualTo(FELLESPERIODE);
+        assertThat(justertePerioder.get(3)).isEqualTo(oppgittePerioder.get(3));
+        assertThat(justertePerioder.get(4)).isEqualTo(oppgittePerioder.get(4));
+        assertThat(justertePerioder.get(5)).isEqualTo(oppgittePerioder.get(5));
+
+    }
 
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familiehendelse2) {
         return JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familiehendelse2, RelasjonsRolleType.MORA,
