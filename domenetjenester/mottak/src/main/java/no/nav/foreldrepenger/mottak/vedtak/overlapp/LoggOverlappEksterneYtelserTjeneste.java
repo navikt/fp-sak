@@ -48,6 +48,7 @@ import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.GrunnlagRequest;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.spokelse.Spøkelse;
 import no.nav.vedtak.felles.integrasjon.spokelse.SykepengeVedtak;
@@ -261,14 +262,13 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                           LocalDate førsteUttaksDatoFP,
                                           LocalDateTimeline<BigDecimal> perioderFp,
                                           List<OverlappVedtak.Builder> overlappene) {
+        var infotrygdRequest = new GrunnlagRequest(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
         //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
-        var infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(),
-            førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
+        var infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(infotrygdRequest);
         overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD, OverlappVedtak.OverlappYtelseType.BS, null,
             finnTidslinjeFraGrunnlagene(infotrygdPSGrunnlag)));
 
-        var infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(),
-            førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
+        var infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(infotrygdRequest);
         overlappene.addAll(
             finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD, OverlappVedtak.OverlappYtelseType.SP, null,
                 finnTidslinjeFraGrunnlagene(infotrygdSPGrunnlag)));
