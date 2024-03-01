@@ -45,6 +45,7 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.GrunnlagRequest;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.ArbeidskategoriKode;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
@@ -98,23 +99,19 @@ public class InfotrygdOppslagRestTjeneste {
         @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         var trimmed = søkestreng.getSearchString() != null ? søkestreng.getSearchString().trim() : "";
         var ident = PersonIdent.erGyldigFnr(trimmed) || AktørId.erGyldigAktørId(trimmed) ? trimmed : null;
-        if (ident == null) {
+        if (!PersonIdent.erGyldigFnr(ident)) {
             return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
         }
-        Set<String> identer = new HashSet<>();
-        if (PersonIdent.erGyldigFnr(ident)) {
-            identer.add(ident);
-        }
-        identer.addAll(finnAlleHistoriskeFødselsnummer(ident));
-        if (identer.isEmpty()) {
-            return Response.status(HttpURLConnection.HTTP_NOT_FOUND).build();
-        }
+        Set<String> identer = new HashSet<>(finnAlleHistoriskeFødselsnummer(ident));
+        identer.add(ident);
+
+        LOG.info("FPSAK INFOTRYGD SØK"); // Sjekke bruksfrekvens ...
+        var infotrygdRequest = new GrunnlagRequest(new ArrayList<>(identer), FOM, LocalDate.now());
         List<Grunnlag> grunnlagene = new ArrayList<>();
-        identer.forEach(i -> {
-            // Ser på Dtos senere. Først må vi utforske litt innhold via swagger.
-            grunnlagene.addAll(foreldrepenger.hentGrunnlagFailSoft(i, FOM, LocalDate.now()));
-            grunnlagene.addAll(svangerskapspenger.hentGrunnlagFailSoft(i, FOM, LocalDate.now()));
-        });
+        // Ser på Dtos senere. Først må vi utforske litt innhold via swagger. Kanskje også fail-hard-utgaven etter litt LOGGING
+        grunnlagene.addAll(foreldrepenger.hentGrunnlagFailSoft(infotrygdRequest));
+        grunnlagene.addAll(svangerskapspenger.hentGrunnlagFailSoft(infotrygdRequest));
+
         var unikeGrunnlag = grunnlagene.stream().distinct().toList();
         return Response.ok(mapTilVedtakDto(unikeGrunnlag)).build();
     }
@@ -168,7 +165,7 @@ public class InfotrygdOppslagRestTjeneste {
             .map(mapped::get)
             .map(InfotrygdOppslagRestTjeneste::sorterVedtak)
             .filter(l -> !l.isEmpty())
-            .map(liste -> new InfotrygdVedtakDto.VedtakKjede(liste.get(0).identdato(), liste.get(0).behandlingstema(), liste))
+            .map(liste -> new InfotrygdVedtakDto.VedtakKjede(liste.getFirst().identdato(), liste.getFirst().behandlingstema(), liste))
             .forEach(sortertListe::add);
         return new InfotrygdVedtakDto(sortertListe);
     }
