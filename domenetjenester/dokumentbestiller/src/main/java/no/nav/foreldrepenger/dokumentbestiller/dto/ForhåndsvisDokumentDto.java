@@ -16,7 +16,6 @@ public record ForhåndsvisDokumentDto(@Valid @NotNull UUID behandlingUuid,
                                      @ValidKodeverk DokumentMalType dokumentMal,
                                      @ValidKodeverk RevurderingVarslingÅrsak arsakskode,
                                      boolean automatiskVedtaksbrev,
-                                     @Size(max = 200) @Pattern(regexp = InputValideringRegex.FRITEKST) String tittel,
-                                     @Size(max = 10000) @Pattern(regexp = InputValideringRegex.FRITEKST) String fritekst) {
+                                     @Size(max = 200) @Pattern(regexp = "^[\\p{L}\\p{Blank}.'\\-\\–0-9/\\p{Space}%§\\!?@_()+:;,=\"&\\p{Sc}\\p{Graph}\\p{M}\\p{N}]*$") String tittel,
+                                     @Size(max = 10000) @Pattern(regexp = "^[\\p{L}\\p{Blank}.'\\-\\–0-9/\\p{Space}%§\\!?@_()+:;,=\"&\\p{Sc}\\p{Graph}\\p{M}\\p{N}]*$") String fritekst) {
 }
-
