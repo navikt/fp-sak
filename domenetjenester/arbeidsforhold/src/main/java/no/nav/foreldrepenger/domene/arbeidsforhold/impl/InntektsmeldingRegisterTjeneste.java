@@ -122,6 +122,17 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     /**
+     * Liste av alle påkrevde inntektsmeldinger
+     * inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
+     */
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> hentAllePåkrevdeInntektsmeldinger(BehandlingReferanse referanse) {
+        Objects.requireNonNull(referanse, VALID_REF);
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
+        var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
+        return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+    }
+
+    /**
      * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende
      * inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
      */
@@ -140,7 +151,6 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
-
     private <V> void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse,
                                                         Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
                                                         boolean erEndringssøknad,
