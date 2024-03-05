@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.domene.mappers.fra_kalkulus;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningMånedGrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningVurderingGrunnlag;
@@ -36,7 +38,7 @@ public final class BesteberegningMapper {
             .stream()
             .map(BesteberegningMapper::mapBesteberegningMåned)
             .forEach(builder::leggTilMånedsgrunnlag);
-        builder.medAvvik(besteberegningVurderingGrunnlag.getAvvikFraFørsteLedd());
+        builder.medAvvik(beløpEllerNull(besteberegningVurderingGrunnlag.getAvvikFraFørsteLedd()));
         return builder.build();
     }
 
@@ -59,14 +61,18 @@ public final class BesteberegningMapper {
                     == null ? OpptjeningAktivitetType.ARBEID : OpptjeningAktivitetType.fraKode(
                     inntekt.getOpptjeningAktivitetType().getKode()))
                 .medArbeidsforholdRef(KalkulusTilIAYMapper.mapArbeidsforholdRef(inntekt.getArbeidsforholdRef()))
-                .medInntekt(inntekt.getInntekt())
+                .medInntekt(beløpEllerNull(inntekt.getInntekt()))
                 .build();
         }
         return BesteberegningInntektEntitet.ny()
             .medOpptjeningAktivitetType(inntekt.getOpptjeningAktivitetType()
                 == null ? OpptjeningAktivitetType.DAGPENGER : OpptjeningAktivitetType.fraKode(
                 inntekt.getOpptjeningAktivitetType().getKode()))
-            .medInntekt(inntekt.getInntekt())
+            .medInntekt(beløpEllerNull(inntekt.getInntekt()))
             .build();
+    }
+
+    private static BigDecimal beløpEllerNull(Beløp inntekt) {
+        return inntekt == null ? null : inntekt.verdi();
     }
 }

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp;
 import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsforholdRef;
 import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsgiver;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningMånedGrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningVurderingGrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Inntekt;
@@ -95,7 +97,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     private static BesteberegningVurderingGrunnlag mapTilVurderinsgrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlagEntitet) {
         return new BesteberegningVurderingGrunnlag(besteberegninggrunnlagEntitet.getSeksBesteMåneder().stream()
-            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).toList(), besteberegninggrunnlagEntitet.getAvvik().orElse(null));
+            .map(BeregningsgrunnlagGUIInputTjeneste::mapTilMånedsgrunnlag).toList(), mapTilBeløp(besteberegninggrunnlagEntitet.getAvvik().orElse(null)));
     }
 
     private static BesteberegningMånedGrunnlag mapTilMånedsgrunnlag(BesteberegningMånedsgrunnlagEntitet månedsgrunnlagEntitet) {
@@ -107,8 +109,12 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
         if (besteberegningInntektEntitet.getArbeidsgiver() != null) {
             return new Inntekt(mapArbeidsgiver(besteberegningInntektEntitet.getArbeidsgiver()),
                 mapArbeidsforholdRef(besteberegningInntektEntitet.getArbeidsforholdRef()),
-                besteberegningInntektEntitet.getInntekt());
+                mapTilBeløp(besteberegningInntektEntitet.getInntekt()));
         }
-        return new Inntekt(OpptjeningAktivitetType.fraKode(besteberegningInntektEntitet.getOpptjeningAktivitetType().getKode()), besteberegningInntektEntitet.getInntekt());
+        return new Inntekt(OpptjeningAktivitetType.fraKode(besteberegningInntektEntitet.getOpptjeningAktivitetType().getKode()), mapTilBeløp(besteberegningInntektEntitet.getInntekt()));
+    }
+
+    private static Beløp mapTilBeløp(BigDecimal verdi) {
+        return verdi == null ? null : new Beløp(verdi);
     }
 }

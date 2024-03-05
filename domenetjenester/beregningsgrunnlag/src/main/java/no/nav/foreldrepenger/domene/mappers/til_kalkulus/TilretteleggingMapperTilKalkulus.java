@@ -7,6 +7,7 @@ import java.util.List;
 import no.nav.folketrygdloven.kalkulator.modell.svp.AktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.svp.PeriodeMedUtbetalingsgradDto;
 import no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradPrAktivitetDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Utbetalingsgrad;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.PeriodeMedUtbetalingsgrad;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.TilretteleggingArbeidsforhold;
@@ -38,7 +39,7 @@ public class TilretteleggingMapperTilKalkulus {
     }
 
     private static PeriodeMedUtbetalingsgradDto mapPeriodeMedUtbetalingsgrad(PeriodeMedUtbetalingsgrad periodeMedUtbetalingsgrad) {
-        return new PeriodeMedUtbetalingsgradDto(mapDatoIntervall(periodeMedUtbetalingsgrad.getPeriode()), periodeMedUtbetalingsgrad.getUtbetalingsgrad());
+        return new PeriodeMedUtbetalingsgradDto(mapDatoIntervall(periodeMedUtbetalingsgrad.getPeriode()), periodeMedUtbetalingsgrad.getUtbetalingsgrad() == null ? null : new Utbetalingsgrad(periodeMedUtbetalingsgrad.getUtbetalingsgrad()));
     }
 
     private static Intervall mapDatoIntervall(DatoIntervallEntitet periode) {
