@@ -74,6 +74,11 @@
       "app": "fpoversikt",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
+    },
+    {
+      "app": "k9-abakus",
+      "namespace": "k9saksbehandling",
+      "cluster": "prod-fss"
     }
   ]
 }
