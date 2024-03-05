@@ -339,7 +339,7 @@ class MapTilKalkulatorInput {
         return inntektsmeldingDto == null ? null
             : new InntektsmeldingDto(
                 mapArbeidsgiver(inntektsmeldingDto.getArbeidsgiver()),
-                mapTilBeløp(inntektsmeldingDto.getInntektBeløp()),
+                new no.nav.folketrygdloven.kalkulus.felles.v1.Beløp(inntektsmeldingDto.getInntektBeløp().verdi()),
                 mapNaturalYtelser(inntektsmeldingDto.getNaturalYtelser()),
                 mapRefusjonEndringer(inntektsmeldingDto.getEndringerRefusjon()),
                 mapAbakusReferanse(inntektsmeldingDto.getArbeidsforholdRef()),
