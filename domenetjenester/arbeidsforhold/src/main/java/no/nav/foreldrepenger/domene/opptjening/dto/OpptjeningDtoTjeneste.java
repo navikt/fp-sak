@@ -76,9 +76,9 @@ public class OpptjeningDtoTjeneste {
         return Optional.of(resultat);
     }
 
-    private OpptjeningPeriodeDto mapFastsattOpptjening(Opptjening fastsattOpptjening) {
-        return fastsattOpptjening.getOpptjentPeriode() != null ? new OpptjeningPeriodeDto(fastsattOpptjening.getOpptjentPeriode().getMonths(),
-                fastsattOpptjening.getOpptjentPeriode().getDays()) : new OpptjeningPeriodeDto();
+    private FastsattOpptjeningDto.OpptjeningPeriodeDto mapFastsattOpptjening(Opptjening fastsattOpptjening) {
+        return fastsattOpptjening.getOpptjentPeriode() != null ? new FastsattOpptjeningDto.OpptjeningPeriodeDto(fastsattOpptjening.getOpptjentPeriode().getMonths(),
+                fastsattOpptjening.getOpptjentPeriode().getDays()) : new FastsattOpptjeningDto.OpptjeningPeriodeDto(0, 0);
     }
 
     private OpptjeningAktivitetDto lagDtoFraOAPeriode(OpptjeningsperiodeForSaksbehandling oap) {
