@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.kontrakter.fpsak.inntektsmeldinger.ArbeidsforholdInntektsmeldinger;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,27 +10,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
+import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.foreldrepenger.kontrakter.fpsak.inntektsmeldinger.ArbeidsforholdInntektsmeldingerDto;
+
 public class ArbeidsforholdInntektsmeldingDtoTjeneste {
 
     private ArbeidsforholdInntektsmeldingDtoTjeneste() {
         // Skjuler default konstruktør
     }
 
-    public static ArbeidsforholdInntektsmeldinger mapInntektsmeldingStatus(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> allePåkrevde,
-                                                                           Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende,
-                                                                           Collection<Yrkesaktivitet> alleYrkesaktiviteter,
-                                                                           LocalDate stp) {
-        List<ArbeidsforholdInntektsmeldinger.ArbeidsforholdInntektsmelding> inntektsmeldingerMedStatus = new ArrayList<>();
+    public static ArbeidsforholdInntektsmeldingerDto mapInntektsmeldingStatus(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> allePåkrevde,
+                                                                              Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende,
+                                                                              Collection<Yrkesaktivitet> alleYrkesaktiviteter,
+                                                                              LocalDate stp) {
+        List<ArbeidsforholdInntektsmeldingerDto.ArbeidsforholdInntektsmeldingDto> inntektsmeldingerMedStatus = new ArrayList<>();
         allePåkrevde.forEach((arbeidsgiver, arbeidsforholdIdListe) -> {
             var inntektsmeldingerMedStatusForArbeidsgiver = arbeidsforholdIdListe.stream().map(id -> {
                 var inntektsmeldingMangler = mangerInntektsmelding(arbeidsgiver, id, alleManglende);
                 var stillingsprosent = finnStillingsprosent(arbeidsgiver, id, alleYrkesaktiviteter, stp);
-                return new ArbeidsforholdInntektsmeldinger.ArbeidsforholdInntektsmelding(arbeidsgiver.getIdentifikator(), stillingsprosent,
+                return new ArbeidsforholdInntektsmeldingerDto.ArbeidsforholdInntektsmeldingDto(arbeidsgiver.getIdentifikator(), stillingsprosent,
                     !inntektsmeldingMangler);
             }).toList();
             inntektsmeldingerMedStatus.addAll(inntektsmeldingerMedStatusForArbeidsgiver);
         });
-        return new ArbeidsforholdInntektsmeldinger(inntektsmeldingerMedStatus);
+        return new ArbeidsforholdInntektsmeldingerDto(inntektsmeldingerMedStatus);
     }
 
     private static BigDecimal finnStillingsprosent(Arbeidsgiver arbeidsgiver,
