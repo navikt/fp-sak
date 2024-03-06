@@ -86,8 +86,8 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
             var responseBuilder = Response.noContent();
             return responseBuilder.build();
         }
-        var ref = BehandlingReferanse.fra(behandling.get());
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId()).getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.get().getId());
+        var ref = BehandlingReferanse.fra(behandling.get(), skjæringstidspunkter);
         var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId()).getAktørArbeidFraRegister(ref.aktørId())
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
             .orElse(Collections.emptyList());
@@ -95,7 +95,7 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
         var alleManglende = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, false);
 
         var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(allePåkrevde, alleManglende,
-            alleYrkesaktiviteter, stp);
+            alleYrkesaktiviteter, ref.getUtledetSkjæringstidspunkt());
 
         var responseBuilder = Response.ok(arbeidsforholdInntektsmeldinger);
         return responseBuilder.build();
