@@ -503,7 +503,7 @@ class MapTilKalkulatorInput {
     }
 
     private static no.nav.folketrygdloven.kalkulus.felles.v1.Beløp mapTilBeløp(Beløp beløp) {
-        return no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(beløp.verdi());
+        return beløp == null ? null : no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(beløp.verdi());
     }
 
     private static IayProsent mapTilIAYProsent(Stillingsprosent prosent) {
