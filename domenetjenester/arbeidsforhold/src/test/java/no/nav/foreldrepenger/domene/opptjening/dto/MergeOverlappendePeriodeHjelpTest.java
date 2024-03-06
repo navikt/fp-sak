@@ -31,10 +31,10 @@ class MergeOverlappendePeriodeHjelpTest {
         var godkjent = aktiviteter.get(0);
         var underkjent = aktiviteter.get(1);
 
-        assertThat(godkjent.getFom()).isEqualTo(iDag.minusMonths(10));
-        assertThat(godkjent.getTom()).isEqualTo(iDag.plusMonths(4));
-        assertThat(underkjent.getFom()).isEqualTo(iDag.plusMonths(5));
-        assertThat(underkjent.getTom()).isEqualTo(iDag.plusMonths(6));
+        assertThat(godkjent.fom()).isEqualTo(iDag.minusMonths(10));
+        assertThat(godkjent.tom()).isEqualTo(iDag.plusMonths(4));
+        assertThat(underkjent.fom()).isEqualTo(iDag.plusMonths(5));
+        assertThat(underkjent.tom()).isEqualTo(iDag.plusMonths(6));
     }
 
     @Test
@@ -54,8 +54,8 @@ class MergeOverlappendePeriodeHjelpTest {
         assertThat(aktiviteter).hasSize(1);
         var godkjent = aktiviteter.get(0);
 
-        assertThat(godkjent.getFom()).isEqualTo(iDag.minusMonths(10));
-        assertThat(godkjent.getTom()).isEqualTo(iDag);
+        assertThat(godkjent.fom()).isEqualTo(iDag.minusMonths(10));
+        assertThat(godkjent.tom()).isEqualTo(iDag);
     }
 
     @Test
@@ -74,10 +74,10 @@ class MergeOverlappendePeriodeHjelpTest {
         var godkjent1 = aktiviteter.get(0);
         var godkjent2 = aktiviteter.get(1);
 
-        assertThat(godkjent1.getFom()).isEqualTo(iDag.minusMonths(10));
-        assertThat(godkjent1.getTom()).isEqualTo(iDag.minusMonths(8));
-        assertThat(godkjent2.getFom()).isEqualTo(iDag.minusMonths(4));
-        assertThat(godkjent2.getTom()).isEqualTo(iDag);
+        assertThat(godkjent1.fom()).isEqualTo(iDag.minusMonths(10));
+        assertThat(godkjent1.tom()).isEqualTo(iDag.minusMonths(8));
+        assertThat(godkjent2.fom()).isEqualTo(iDag.minusMonths(4));
+        assertThat(godkjent2.tom()).isEqualTo(iDag);
     }
 
     @Test
@@ -96,12 +96,12 @@ class MergeOverlappendePeriodeHjelpTest {
         var mellom1 = aktiviteter.get(1);
         var godkjent2 = aktiviteter.get(2);
 
-        assertThat(godkjent1.getFom()).isEqualTo(iDag.minusMonths(4));
-        assertThat(godkjent1.getTom()).isEqualTo(iDag.minusMonths(2));
-        assertThat(mellom1.getFom()).isEqualTo(iDag.minusMonths(2).plusDays(1));
-        assertThat(mellom1.getTom()).isEqualTo(iDag.minusMonths(1).minusDays(1));
-        assertThat(godkjent2.getFom()).isEqualTo(iDag.minusMonths(1));
-        assertThat(godkjent2.getTom()).isEqualTo(iDag.plusMonths(1));
+        assertThat(godkjent1.fom()).isEqualTo(iDag.minusMonths(4));
+        assertThat(godkjent1.tom()).isEqualTo(iDag.minusMonths(2));
+        assertThat(mellom1.fom()).isEqualTo(iDag.minusMonths(2).plusDays(1));
+        assertThat(mellom1.tom()).isEqualTo(iDag.minusMonths(1).minusDays(1));
+        assertThat(godkjent2.fom()).isEqualTo(iDag.minusMonths(1));
+        assertThat(godkjent2.tom()).isEqualTo(iDag.plusMonths(1));
     }
 
     @Test
@@ -123,10 +123,10 @@ class MergeOverlappendePeriodeHjelpTest {
         var underkjent = aktiviteter.get(0);
         var godkjent = aktiviteter.get(1);
 
-        assertThat(underkjent.getFom()).isEqualTo(LocalDate.of(2017, 8, 9));
-        assertThat(underkjent.getTom()).isEqualTo(LocalDate.of(2018, 3, 4));
-        assertThat(godkjent.getFom()).isEqualTo(LocalDate.of(2018, 3, 5));
-        assertThat(godkjent.getTom()).isEqualTo(LocalDate.of(2018, 6, 8));
+        assertThat(underkjent.fom()).isEqualTo(LocalDate.of(2017, 8, 9));
+        assertThat(underkjent.tom()).isEqualTo(LocalDate.of(2018, 3, 4));
+        assertThat(godkjent.fom()).isEqualTo(LocalDate.of(2018, 3, 5));
+        assertThat(godkjent.tom()).isEqualTo(LocalDate.of(2018, 6, 8));
     }
 
     @Test
@@ -150,32 +150,32 @@ class MergeOverlappendePeriodeHjelpTest {
         var godkjent3 = aktiviteter.get(5);
         var avvist4 = aktiviteter.get(6);
 
-        assertThat(avvist1.getKlasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
-        assertThat(avvist1.getFom()).isEqualTo(LocalDate.of(2017, 12, 1));
-        assertThat(avvist1.getTom()).isEqualTo(LocalDate.of(2017, 12, 31));
+        assertThat(avvist1.klasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
+        assertThat(avvist1.fom()).isEqualTo(LocalDate.of(2017, 12, 1));
+        assertThat(avvist1.tom()).isEqualTo(LocalDate.of(2017, 12, 31));
 
-        assertThat(godkjent1.getKlasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
-        assertThat(godkjent1.getFom()).isEqualTo(LocalDate.of(2018, 1, 1));
-        assertThat(godkjent1.getTom()).isEqualTo(LocalDate.of(2018, 2, 1));
+        assertThat(godkjent1.klasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
+        assertThat(godkjent1.fom()).isEqualTo(LocalDate.of(2018, 1, 1));
+        assertThat(godkjent1.tom()).isEqualTo(LocalDate.of(2018, 2, 1));
 
-        assertThat(avvist2.getKlasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
-        assertThat(avvist2.getFom()).isEqualTo(LocalDate.of(2018, 2, 2));
-        assertThat(avvist2.getTom()).isEqualTo(LocalDate.of(2018, 3, 31));
+        assertThat(avvist2.klasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
+        assertThat(avvist2.fom()).isEqualTo(LocalDate.of(2018, 2, 2));
+        assertThat(avvist2.tom()).isEqualTo(LocalDate.of(2018, 3, 31));
 
-        assertThat(godkjent2.getKlasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
-        assertThat(godkjent2.getFom()).isEqualTo(LocalDate.of(2018, 4, 1));
-        assertThat(godkjent2.getTom()).isEqualTo(LocalDate.of(2018, 5, 1));
+        assertThat(godkjent2.klasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
+        assertThat(godkjent2.fom()).isEqualTo(LocalDate.of(2018, 4, 1));
+        assertThat(godkjent2.tom()).isEqualTo(LocalDate.of(2018, 5, 1));
 
-        assertThat(avvist3.getKlasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
-        assertThat(avvist3.getFom()).isEqualTo(LocalDate.of(2018, 5, 2));
-        assertThat(avvist3.getTom()).isEqualTo(LocalDate.of(2018, 6, 30));
+        assertThat(avvist3.klasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
+        assertThat(avvist3.fom()).isEqualTo(LocalDate.of(2018, 5, 2));
+        assertThat(avvist3.tom()).isEqualTo(LocalDate.of(2018, 6, 30));
 
-        assertThat(godkjent3.getKlasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
-        assertThat(godkjent3.getFom()).isEqualTo(LocalDate.of(2018, 7, 1));
-        assertThat(godkjent3.getTom()).isEqualTo(LocalDate.of(2018, 8, 1));
+        assertThat(godkjent3.klasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
+        assertThat(godkjent3.fom()).isEqualTo(LocalDate.of(2018, 7, 1));
+        assertThat(godkjent3.tom()).isEqualTo(LocalDate.of(2018, 8, 1));
 
-        assertThat(avvist4.getKlasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
-        assertThat(avvist4.getFom()).isEqualTo(LocalDate.of(2018, 8, 2));
-        assertThat(avvist4.getTom()).isEqualTo(LocalDate.of(2018, 9, 1));
+        assertThat(avvist4.klasse()).isEqualTo(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
+        assertThat(avvist4.fom()).isEqualTo(LocalDate.of(2018, 8, 2));
+        assertThat(avvist4.tom()).isEqualTo(LocalDate.of(2018, 9, 1));
     }
 }
