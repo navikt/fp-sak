@@ -129,7 +129,7 @@ public class BeregningUttakTjeneste {
     }
 
     private AndelGradering.Gradering mapGradering(PeriodeMedGradering periodeMedGradering) {
-        return new AndelGradering.Gradering(periodeMedGradering.fom, periodeMedGradering.tom, new Aktivitetsgrad(periodeMedGradering.arbeidsprosent));
+        return new AndelGradering.Gradering(periodeMedGradering.fom, periodeMedGradering.tom, Aktivitetsgrad.fra(periodeMedGradering.arbeidsprosent));
     }
 
     private List<PeriodeMedGradering> fraSøknad(List<OppgittPeriodeEntitet> oppgittePerioder) {

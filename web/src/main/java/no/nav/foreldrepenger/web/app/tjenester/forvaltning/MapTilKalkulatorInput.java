@@ -162,7 +162,7 @@ class MapTilKalkulatorInput {
     }
 
     private static GraderingDto mapGradering(AndelGradering.Gradering gradering) {
-        return gradering == null ? null : new GraderingDto(mapPeriode(gradering.getPeriode()), new Aktivitetsgrad(gradering.getArbeidstidProsent().verdi()));
+        return gradering == null ? null : new GraderingDto(mapPeriode(gradering.getPeriode()), Aktivitetsgrad.fra(gradering.getArbeidstidProsent().verdi()));
     }
 
     private static YtelsespesifiktGrunnlagDto mapYtelsesSpesifiktGrunnlag(YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag) {
@@ -202,7 +202,7 @@ class MapTilKalkulatorInput {
         return periodeMedUtbetalingsgradDto == null ? null
             : new PeriodeMedUtbetalingsgradDto(
                 mapPeriode(periodeMedUtbetalingsgradDto.getPeriode()),
-                new Utbetalingsgrad(periodeMedUtbetalingsgradDto.getUtbetalingsgrad().verdi()));
+                Utbetalingsgrad.fra(periodeMedUtbetalingsgradDto.getUtbetalingsgrad().verdi()));
     }
 
     private static AktivitetDto mapArbeidsforholdDto(no.nav.folketrygdloven.kalkulator.modell.svp.AktivitetDto utbetalingsgradArbeidsforhold) {

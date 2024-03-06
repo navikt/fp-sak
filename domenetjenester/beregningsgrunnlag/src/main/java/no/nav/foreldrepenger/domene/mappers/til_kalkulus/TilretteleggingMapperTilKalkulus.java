@@ -39,7 +39,7 @@ public class TilretteleggingMapperTilKalkulus {
     }
 
     private static PeriodeMedUtbetalingsgradDto mapPeriodeMedUtbetalingsgrad(PeriodeMedUtbetalingsgrad periodeMedUtbetalingsgrad) {
-        return new PeriodeMedUtbetalingsgradDto(mapDatoIntervall(periodeMedUtbetalingsgrad.getPeriode()), periodeMedUtbetalingsgrad.getUtbetalingsgrad() == null ? null : new Utbetalingsgrad(periodeMedUtbetalingsgrad.getUtbetalingsgrad()));
+        return new PeriodeMedUtbetalingsgradDto(mapDatoIntervall(periodeMedUtbetalingsgrad.getPeriode()), Utbetalingsgrad.fra(periodeMedUtbetalingsgrad.getUtbetalingsgrad()));
     }
 
     private static Intervall mapDatoIntervall(DatoIntervallEntitet periode) {
