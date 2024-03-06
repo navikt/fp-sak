@@ -8,11 +8,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 
 public interface DatavarehusTjeneste {
-
-    void lagreNedFagsakRelasjon(FagsakRelasjon fr);
 
     void lagreNedFagsak(Long fagsakId);
 

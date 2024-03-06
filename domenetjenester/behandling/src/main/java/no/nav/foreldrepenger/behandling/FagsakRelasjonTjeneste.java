@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,25 +23,17 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class FagsakRelasjonTjeneste {
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer;
     private FagsakRepository fagsakRepository;
 
     @Inject
     public FagsakRelasjonTjeneste(FagsakRepository fagsakRepository,
-                                  FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer,
                                   FagsakRelasjonRepository fagsakRelasjonRepository) {
         this.fagsakRepository = fagsakRepository;
-        this.fagsakRelasjonEventPubliserer = Objects.requireNonNullElse(fagsakRelasjonEventPubliserer, FagsakRelasjonEventPubliserer.NULL_EVENT_PUB);
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
     }
 
-    public FagsakRelasjonTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                  FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer) {
-        this(repositoryProvider.getFagsakRepository(), fagsakRelasjonEventPubliserer, repositoryProvider.getFagsakRelasjonRepository());
-    }
-
     public FagsakRelasjonTjeneste(BehandlingRepositoryProvider repositoryProvider) {
-        this(repositoryProvider, null);
+        this(repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
     }
 
     FagsakRelasjonTjeneste() {
@@ -69,42 +60,33 @@ public class FagsakRelasjonTjeneste {
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
     }
 
-    public void lagre(long fagsakId, FagsakRelasjon fagsakRelasjon, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
+    public void lagre(long fagsakId, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
         var fagsak = finnFagsak(fagsakId);
         fagsakRelasjonRepository.lagre(fagsak, behandlingId, stønadskontoberegning);
-        fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
     }
 
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjon = fagsakRelasjonRepository.opprettRelasjon(fagsak, dekningsgrad);
-        fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
-        return fagsakRelasjon;
+        return fagsakRelasjonRepository.opprettRelasjon(fagsak, dekningsgrad);
     }
 
     public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
-        var fagsakRelasjon = fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, overstyrtVerdi);
-        fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
-        return fagsakRelasjon;
+        return fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, overstyrtVerdi);
     }
 
     public void opprettEllerOppdaterRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
-        fagsakRelasjonOpt.ifPresent(relasjon -> fagsakRelasjonEventPubliserer.fireEvent(relasjon));
+        fagsakRelasjonRepository.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
     }
 
     public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo, behandlingEn);
-        fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
+        fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo, behandlingEn);
     }
 
     public void fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.fraKobleFagsaker(fagsakEn, fagsakTo);
-        fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
+        fagsakRelasjonRepository.fraKobleFagsaker(fagsakEn, fagsakTo);
     }
 
     public void nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
-        var fr = fagsakRelasjonRepository.nullstillOverstyrtDekningsgrad(fagsak);
-        fagsakRelasjonEventPubliserer.fireEvent(fr);
+        fagsakRelasjonRepository.nullstillOverstyrtDekningsgrad(fagsak);
     }
 
     public void overstyrStønadskontoberegning(long fagsakId, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
@@ -118,9 +100,7 @@ public class FagsakRelasjonTjeneste {
 
     public void oppdaterMedAvslutningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås,
                                            Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
-        var fagsakRelasjonOpt = fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås,
-                fagsak2Lås);
-        fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
+        fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås, fagsak2Lås);
     }
 
     public Optional<FagsakRelasjon> nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {

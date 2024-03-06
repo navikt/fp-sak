@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandling.FagsakRelasjonEvent;
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
@@ -31,11 +30,6 @@ public class DatavarehusEventObserver {
     @Inject
     public DatavarehusEventObserver(DatavarehusTjeneste datavarehusTjeneste) {
         this.tjeneste = datavarehusTjeneste;
-    }
-
-    public void observerFagsakRelasjonEvent(@Observes FagsakRelasjonEvent event) {
-        LOG.debug("Lagrer FagsakRelasjon i DVH {} ", event.getFagsakRelasjon().getId());
-        tjeneste.lagreNedFagsakRelasjon(event.getFagsakRelasjon());
     }
 
     public void observerAksjonspunktStatusEvent(@Observes AksjonspunktStatusEvent event) {

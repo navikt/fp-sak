@@ -65,7 +65,7 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
         lagreHendelser();
         var utgåendeHendelse = byggUtgåendeFpHendelse();
         long id = feedRepository.lagre(utgåendeHendelse);
-        assertThat(id).isGreaterThanOrEqualTo(1);
+        assertThat(id).isPositive();
         var utgåendeHendelse1 = feedRepository.hentUtgåendeHendelse(id);
 
         assertThat(utgåendeHendelse1.get()).isNotNull();
@@ -78,7 +78,7 @@ class FeedRepositoryTest extends EntityManagerAwareTest {
         lagreHendelser();
         var utgåendeHendelse = byggUtgåendeSvpHendelse();
         long id = feedRepository.lagre(utgåendeHendelse);
-        assertThat(id).isGreaterThanOrEqualTo(1);
+        assertThat(id).isPositive();
         var utgåendeHendelse1 = feedRepository.hentUtgåendeHendelse(id);
 
         assertThat(utgåendeHendelse1.get()).isNotNull();

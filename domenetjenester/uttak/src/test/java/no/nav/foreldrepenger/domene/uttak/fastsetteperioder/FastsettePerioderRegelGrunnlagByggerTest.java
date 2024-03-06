@@ -98,7 +98,7 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         repositoryProvider = new UttakRepositoryStubProvider();
         var rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
-        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository());
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
         grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
@@ -543,8 +543,8 @@ class FastsettePerioderRegelGrunnlagByggerTest {
             .medRegelInput(" ")
             .build();
 
-        var fagsakRelasjon = fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), fagsakRelasjon, behandling.getId(), stønadskontoberegning);
+        fagsakRelasjonTjeneste.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonTjeneste.lagre(behandling.getFagsak().getId(), behandling.getId(), stønadskontoberegning);
     }
 
     private void lagreYrkesAktiviter(Behandling behandling,

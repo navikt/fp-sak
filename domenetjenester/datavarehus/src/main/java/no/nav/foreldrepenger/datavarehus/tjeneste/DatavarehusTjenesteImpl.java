@@ -60,7 +60,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
@@ -125,13 +124,6 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     public DatavarehusTjenesteImpl() {
         //Crazy Dedicated Instructors
-    }
-
-    @Override
-    public void lagreNedFagsakRelasjon(FagsakRelasjon fr) {
-
-        var fagsakRelasjonDvh = FagsakRelasjonDvhMapper.map(fr);
-        datavarehusRepository.lagre(fagsakRelasjonDvh);
     }
 
     @Override

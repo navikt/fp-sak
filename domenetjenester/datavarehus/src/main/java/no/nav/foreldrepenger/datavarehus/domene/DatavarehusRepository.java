@@ -107,13 +107,6 @@ public class DatavarehusRepository {
     public long lagre(AnkeVurderingResultatDvh ankeVurderingResultat) {
         entityManager.persist(ankeVurderingResultat);
         return ankeVurderingResultat.getId();
-
-    }
-
-    public long lagre( FagsakRelasjonDvh fagsakRelasjonDvh ) {
-        entityManager.persist(fagsakRelasjonDvh);
-        entityManager.flush();
-        return fagsakRelasjonDvh.getId();
     }
 
     public Map<String, AksjonspunktDefDvh> hentAksjonspunktDefinisjoner() {

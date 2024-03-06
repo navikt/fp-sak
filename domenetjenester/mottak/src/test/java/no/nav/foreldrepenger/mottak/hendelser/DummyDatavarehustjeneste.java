@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 
 /**
@@ -22,12 +21,6 @@ import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 @ApplicationScoped
 @Alternative
 public class DummyDatavarehustjeneste implements DatavarehusTjeneste {
-
-
-    @Override
-    public void lagreNedFagsakRelasjon(FagsakRelasjon fr) {
-
-    }
 
     @Override
     public void lagreNedFagsak(Long fagsakId) {

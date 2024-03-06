@@ -36,7 +36,7 @@ class FastsettUttakManueltAksjonspunktUtlederTest {
     private final RettOgOmsorgGrunnlagBygger rettOgOmsorgGrunnlagBygger = new RettOgOmsorgGrunnlagBygger(repositoryProvider,
         new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     private final KontoerGrunnlagBygger kontoerGrunnlagBygger = new KontoerGrunnlagBygger(
-        new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), null, repositoryProvider.getFagsakRelasjonRepository()),
+        new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository()),
         rettOgOmsorgGrunnlagBygger);
     private final FastsettUttakManueltAksjonspunktUtleder utleder = new FastsettUttakManueltAksjonspunktUtleder(repositoryProvider,
         kontoerGrunnlagBygger);

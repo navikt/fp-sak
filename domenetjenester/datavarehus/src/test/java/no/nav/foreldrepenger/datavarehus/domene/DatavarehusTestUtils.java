@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 
 public class DatavarehusTestUtils {
     protected static final String AKSJONSPUNKT_DEF = "aksjonspunktDef";
@@ -153,17 +152,6 @@ public class DatavarehusTestUtils {
             .vedtakDato(VEDTAK_DATO)
             .vedtakId(VEDTAK_ID)
             .xmlClob(VEDTAK_XML)
-            .build();
-    }
-
-    public static FagsakRelasjonDvh byggFagsakRelasjonDvhForTest() {
-        return FagsakRelasjonDvh.builder()
-            .fagsakNrEn(FAGSAK_ID)
-            .fagsakNrTo(FAGSAK_ID)
-            .dekningsgrad(Dekningsgrad._100)
-            .avsluttningsdato(AVSLUTTNINGS_DATO)
-            .endretAv(ENDRET_AV)
-            .funksjonellTid(FUNKSJONELL_TID)
             .build();
     }
 }

@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -93,7 +92,7 @@ class EndringsdatoRevurderingUtlederTest {
     private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final UttakBeregningsandelTjenesteTestUtil uttakBeregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
     private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRepository(),
-        FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRelasjonRepository());
+        repositoryProvider.getFagsakRelasjonRepository());
     private final DekningsgradTjeneste dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste,
         repositoryProvider.getBehandlingsresultatRepository());
     private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(repositoryProvider, iayTjeneste);
